@@ -2,19 +2,20 @@ package com.sap.cloud.lm.sl.cf.core.security.serialization;
 
 public interface Element {
 
-    boolean isMappingElement();
+    boolean isMap();
 
-    boolean isListingElement();
+    boolean isList();
 
-    boolean isSimpleElement();
+    boolean isScalar();
 
-    MapElement asMappingElement();
+    MapElement asMapElement();
 
-    ListElement asListingElement();
+    ListElement asListElement();
 
-    String asSimpleElement();
+    String asString();
 
     String getFullName();
 
     String getName();
+
 }

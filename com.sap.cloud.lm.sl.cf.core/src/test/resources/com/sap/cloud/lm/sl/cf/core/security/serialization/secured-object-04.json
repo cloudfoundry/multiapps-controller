@@ -1,122 +1,114 @@
 {
-  "schemaVersion": "3.1.0",
-  "id": "com.sap.mta.sample.v2",
-  "version": "1.2.1-beta+20150403144937853",
-  "modules": [
-    {
-      "name": "test-module",
-      "type": "test-type",
-      "properties": {
-        "module-property": "********"
+  "majorSchemaVersion" : 3,
+  "schemaVersion" : "3.1.0",
+  "id" : "com.sap.mta.sample.v2",
+  "version" : "1.2.1-beta+20150403144937853",
+  "modules" : [ {
+    "majorSchemaVersion" : 3,
+    "name" : "test-module",
+    "type" : "test-type",
+    "properties" : {
+      "module-property" : "********"
+    },
+    "parameters" : {
+      "module-parameter" : "********"
+    },
+    "requiredDependencies" : [ {
+      "majorSchemaVersion" : 3,
+      "name" : "test-dependency",
+      "properties" : {
+        "requiredDependency-property" : "********"
       },
-      "parameters": {
-        "module-parameter": "********"
+      "parameters" : {
+        "requiredDependency-parameter" : "********"
       },
-      "requiredDependencies": [
-        {
-          "name": "test-dependency",
-          "properties": {
-            "requiredDependency-property": "********"
-          },
-          "parameters": {
-            "requiredDependency-parameter": "********"
-          },
-          "propertiesMetadata": {
-            "metadata": {
-              "requiredDependency-property": {
-                "sensitive": true
-              }
-            }
-          },
-          "parametersMetadata": {
-            "metadata": {
-              "requiredDependency-parameter": {
-                "sensitive": true
-              }
-            }
-          },
-          "majorSchemaVersion": 3
-        }
-      ],
-      "providedDependencies": [
-        {
-          "name": "test-dependency",
-          "isPublic": false,
-          "properties": {
-            "providedDependency-property": "********"
-          },
-          "parameters": {},
-          "propertiesMetadata": {
-            "metadata": {
-              "providedDependency-property": {
-                "sensitive": true
-              }
-            }
-          },
-          "parametersMetadata": {
-            "metadata": {}
-          },
-          "majorSchemaVersion": 3
-        }
-      ],
-      "propertiesMetadata": {
-        "metadata": {
-          "module-property": {
-            "sensitive": true
+      "propertiesMetadata" : {
+        "metadata" : {
+          "requiredDependency-property" : {
+            "sensitive" : true
           }
         }
       },
-      "parametersMetadata": {
-        "metadata": {
-          "module-parameter": {
-            "sensitive": true
+      "parametersMetadata" : {
+        "metadata" : {
+          "requiredDependency-parameter" : {
+            "sensitive" : true
+          }
+        }
+      }
+    } ],
+    "providedDependencies" : [ {
+      "majorSchemaVersion" : 3,
+      "name" : "test-dependency",
+      "isPublic" : false,
+      "properties" : {
+        "providedDependency-property" : "********"
+      },
+      "parameters" : { },
+      "propertiesMetadata" : {
+        "metadata" : {
+          "providedDependency-property" : {
+            "sensitive" : true
           }
         }
       },
-      "deployedAfter": [],
-      "hooks": [],
-      "majorSchemaVersion": 3
-    }
-  ],
-  "resources": [
-    {
-      "name": "test-resource",
-      "type": "test-type",
-      "properties": {
-        "resource-property": "********"
-      },
-      "parameters": {
-        "resource-parameter": "********"
-      },
-      "isActive": true,
-      "isOptional": false,
-      "propertiesMetadata": {
-        "metadata": {
-          "resource-property": {
-            "sensitive": true
-          }
+      "parametersMetadata" : {
+        "metadata" : { }
+      }
+    } ],
+    "propertiesMetadata" : {
+      "metadata" : {
+        "module-property" : {
+          "sensitive" : true
         }
-      },
-      "parametersMetadata": {
-        "metadata": {
-          "resource-parameter": {
-            "sensitive": true
-          }
+      }
+    },
+    "parametersMetadata" : {
+      "metadata" : {
+        "module-parameter" : {
+          "sensitive" : true
         }
-      },
-      "requiredDependencies": [],
-      "majorSchemaVersion": 3
-    }
-  ],
-  "parameters": {
-    "descriptor-parameter": "********"
+      }
+    },
+    "deployedAfter" : [ ],
+    "hooks" : [ ]
+  } ],
+  "resources" : [ {
+    "majorSchemaVersion" : 3,
+    "name" : "test-resource",
+    "type" : "test-type",
+    "properties" : {
+      "resource-property" : "********"
+    },
+    "parameters" : {
+      "resource-parameter" : "********"
+    },
+    "isActive" : true,
+    "isOptional" : false,
+    "propertiesMetadata" : {
+      "metadata" : {
+        "resource-property" : {
+          "sensitive" : true
+        }
+      }
+    },
+    "parametersMetadata" : {
+      "metadata" : {
+        "resource-parameter" : {
+          "sensitive" : true
+        }
+      }
+    },
+    "requiredDependencies" : [ ]
+  } ],
+  "parameters" : {
+    "descriptor-parameter" : "********"
   },
-  "parametersMetadata": {
-    "metadata": {
-      "descriptor-parameter": {
-        "sensitive": true
+  "parametersMetadata" : {
+    "metadata" : {
+      "descriptor-parameter" : {
+        "sensitive" : true
       }
     }
-  },
-  "majorSchemaVersion": 3
+  }
 }
