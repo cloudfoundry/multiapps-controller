@@ -12,7 +12,6 @@ import org.junit.runners.Parameterized.Parameters;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.DomainValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
-import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.RouteValidator;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
@@ -23,12 +22,12 @@ import com.sap.cloud.lm.sl.mta.model.Resource;
 
 @RunWith(Parameterized.class)
 public class DescriptorParametersValidatorTest {
-    
-    protected static final List<ParameterValidator> PARAMETER_VALIDATORS = Arrays.asList(new PortValidator(), new HostValidator(),
-        new DomainValidator(), new TestValidator(), new RouteValidator());
+
+    protected static final List<ParameterValidator> PARAMETER_VALIDATORS = Arrays.asList(new HostValidator(), new DomainValidator(),
+        new TestValidator(), new RouteValidator());
 
     private Tester tester = Tester.forClass(getClass());
-    
+
     private String descriptorLocation;
     private Expectation expectation;
 
@@ -56,52 +55,48 @@ public class DescriptorParametersValidatorTest {
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
-            //TODO
-// @formatter:off
+            // TODO
+            // @formatter:off
             // (0) All parameters are valid:
             {
                 "mtad-01.yaml", new Expectation(Expectation.Type.JSON, "mtad-01.yaml.json"),
             },
-            // (1) Invalid port in a descriptor module:
-            {
-                "mtad-02.yaml", new Expectation(Expectation.Type.EXCEPTION, "Value for parameter \"foo#port\" is not valid and cannot be corrected")
-            },
-            // (2) Invalid host in a descriptor module:
+            // (1) Invalid host in a descriptor module:
             {
                 "mtad-03.yaml", new Expectation(Expectation.Type.JSON, "mtad-03.yaml.json"),
             },
-            // (3) Invalid parameter in a descriptor resource:
+            // (2) Invalid parameter in a descriptor resource:
             {
                 "mtad-04.yaml", new Expectation(Expectation.Type.JSON, "mtad-04.yaml.json"),
             },
-            // (4) Invalid host in a descriptor module that cannot be corrected:
-//            {
-//                "mtad-05.yaml", new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid host from \"(__)\"")
-//            },
-            // (5) Invalid parameter value in property:
+            // (3) Invalid parameter value in property:
             {
                 "mtad-06.yaml", new Expectation(Expectation.Type.JSON, "mtad-06.yaml.json"),
             },
-            // (6) Invalid parameter value in provided dependency property:
+            // (4) Invalid parameter value in provided dependency property:
             {
                 "mtad-07.yaml", new Expectation(Expectation.Type.JSON, "mtad-07.yaml.json"),
             },
-            // (7) Invalid host in a requires dependency:
+            // (3) Invalid host in a descriptor module that cannot be corrected:
+//            {
+//                "mtad-05.yaml", new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid host from \"(__)\"")
+//            },
+            // (6) Invalid host in a requires dependency:
 //            {
 //                "mtad-08.yaml", new Expectation(Expectation.Type.JSON, "mtad-08.yaml.json"),
 //            },
-            // (8) Invalid parameter value in provided dependency property:
+            // (7) Invalid parameter value in provided dependency property:
 //            {
 //                "mtad-09.yaml", new Expectation(Expectation.Type.JSON, "mtad-09.yaml.json"),
 //            },
-            // (9) Invalid parameter value in provided dependency property:
+            // (8) Invalid parameter value in provided dependency property:
 //            {
 //                "mtad-10.yaml", new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid route from"),
 //            },
 // @formatter:on
         });
     }
-    
+
     @Test
     public void testValidate() {
         tester.test(() -> validator.validate(), expectation);

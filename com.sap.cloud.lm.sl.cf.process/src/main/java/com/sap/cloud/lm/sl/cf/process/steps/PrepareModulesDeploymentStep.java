@@ -9,7 +9,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
@@ -19,9 +18,6 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 @Component("prepareModulesDeploymentStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PrepareModulesDeploymentStep extends SyncFlowableStep {
-
-    @Inject
-    private ApplicationConfiguration configuration;
 
     @Inject
     protected ProcessTypeParser processTypeParser;
@@ -42,10 +38,6 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
             .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
 
         execution.getContext()
-            .setVariable(Constants.VAR_PLATFORM_TYPE, configuration.getPlatformType()
-                .toString());
-
-        execution.getContext()
             .setVariable(Constants.REBUILD_APP_ENV, true);
         execution.getContext()
             .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, true);
@@ -63,8 +55,8 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
 
         return StepPhase.DONE;
     }
-    
-    protected List<Module> getModulesToDeploy(DelegateExecution context){
+
+    protected List<Module> getModulesToDeploy(DelegateExecution context) {
         return StepsUtil.getAllModulesToDeploy(context);
     }
 

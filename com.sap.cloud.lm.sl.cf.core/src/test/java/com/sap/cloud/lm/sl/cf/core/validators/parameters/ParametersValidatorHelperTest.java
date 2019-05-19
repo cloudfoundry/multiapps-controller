@@ -24,7 +24,6 @@ public class ParametersValidatorHelperTest {
 // @formatter:off
             // [0]
             {new TreeMap<String, Object>() {{
-                    put("port", 1234);
                     put("domain", "correct-domain.com");
                 }},
                 null
@@ -58,7 +57,6 @@ public class ParametersValidatorHelperTest {
                                                         put("route", "only_one%route.$$$in.need$$of$$$correction^^^");
                                                 }}));
                     put("host", "a-proper-host");
-                    put("ports", Arrays.asList(1, 2));
                     put("domains", Arrays.asList("one.correct.domain", "and#one%with@special^^characters"));
                 }},
                 new TreeMap<String, Object>() {{
@@ -66,7 +64,6 @@ public class ParametersValidatorHelperTest {
                                                         put("route", "only-one-route.in.need--of---correction");
                                                 }}));
                     put("host", "a-proper-host");
-                    put("ports", Arrays.asList(1, 2));
                     put("domains", Arrays.asList("one.correct.domain", "and-one-with-special--characters"));
                 }}
             },
@@ -74,8 +71,7 @@ public class ParametersValidatorHelperTest {
         });
     }
 
-    private List<ParameterValidator> validators = Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator(),
-        new RoutesValidator());
+    private List<ParameterValidator> validators = Arrays.asList(new HostValidator(), new DomainValidator(), new RoutesValidator());
     private ParametersValidatorHelper validatorHelper = new ParametersValidatorHelper(validators, false);
     private Module container = Module.createV2();
 

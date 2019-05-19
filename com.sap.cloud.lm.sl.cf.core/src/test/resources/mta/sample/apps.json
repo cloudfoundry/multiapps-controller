@@ -4,7 +4,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [],
     "domains": [
       "bestprice.sap.com"
     ],
@@ -47,7 +46,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [],
     "domains": [
       "bestprice.sap.com"
     ],
@@ -94,7 +92,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [],
     "domains": [
       "cfapps.neo.ondemand.com"
     ],

@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -12,7 +11,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -20,7 +18,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -52,18 +49,13 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
         assertStepFinishedSuccessfully();
 
         if (CollectionUtils.isEmpty(urisToDelete)) {
-            verify(client, never()).deleteRoute(anyString(), anyString(), anyString());
+            verify(client, never()).deleteRoute(anyString(), anyString());
             return;
         }
 
         for (String uri : urisToDelete) {
             ApplicationURI parsedUri = new ApplicationURI(uri);
-            if (parsedUri.isTcpOrTcps()) {
-                assertTrue("The host segment should be a port number", NumberUtils.isDigits(parsedUri.getPort()));
-                verify(client, times(1)).deleteRoute(parsedUri.getPort(), parsedUri.getDomain(), null);
-            } else {
-                verify(client, times(1)).deleteRoute(parsedUri.getHost(), parsedUri.getDomain(), null);
-            }
+            verify(client, times(1)).deleteRoute(parsedUri.getHost(), parsedUri.getDomain());
         }
     }
 
@@ -77,8 +69,6 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
     }
 
     private void prepareContext(List<String> urisToDelete) {
-        context.setVariable(Constants.VAR_PORT_BASED_ROUTING, false);
-
         if (!urisToDelete.isEmpty()) {
             StepsUtil.setDeleteIdleUris(context, true);
         }

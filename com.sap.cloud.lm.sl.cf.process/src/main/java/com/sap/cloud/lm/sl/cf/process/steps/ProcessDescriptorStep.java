@@ -14,8 +14,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolverInvoker;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -50,9 +48,6 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
             List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
             StepsUtil.setSubscriptionsToCreate(context, subscriptions);
-            XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(context);
-
-            resolveXsPlaceholders(descriptor, xsPlaceholderResolver);
 
             StepsUtil.setCompleteDeploymentDescriptor(context, descriptor);
             // Set MTA modules in the context
@@ -113,11 +108,6 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         return modulesForDeployment.stream()
             .filter(moduleSpecifiedForDeployment -> !deploymentDescriptorModuleNames.contains(moduleSpecifiedForDeployment))
             .collect(Collectors.toList());
-    }
-
-    private void resolveXsPlaceholders(DeploymentDescriptor descriptor, XsPlaceholderResolver xsPlaceholderResolver) {
-        XsPlaceholderResolverInvoker resolverInvoker = new XsPlaceholderResolverInvoker(xsPlaceholderResolver);
-        descriptor.accept(resolverInvoker);
     }
 
 }

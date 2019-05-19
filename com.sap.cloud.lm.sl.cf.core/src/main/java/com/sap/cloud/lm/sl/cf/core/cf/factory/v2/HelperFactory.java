@@ -6,11 +6,9 @@ import java.util.List;
 
 import com.sap.cloud.lm.sl.cf.core.cf.factory.HelperFactoryConstructor;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v2.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory;
@@ -40,10 +38,8 @@ public class HelperFactory implements HelperFactoryConstructor {
 
     @Override
     public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration, DeployedMta deployedMta, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
-        UserMessageLogger stepLogger) {
-        return new ApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, xsPlaceholderResolver, deployId,
-            stepLogger);
+        boolean prettyPrinting, DeployedMta deployedMta, String deployId, UserMessageLogger stepLogger) {
+        return new ApplicationCloudModelBuilder(deploymentDescriptor, prettyPrinting, deployedMta, deployId, stepLogger);
     }
 
     @Override

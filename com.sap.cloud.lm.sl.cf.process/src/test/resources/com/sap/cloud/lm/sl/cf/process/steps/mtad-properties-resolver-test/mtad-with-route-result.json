@@ -13,7 +13,7 @@
         "memory": "512M",
         "routes": [
           {
-            "route": "{xsa-placeholder-domain-default}:53531"
+            "route": "hello-router.sap.com"
           }
         ]
       },
@@ -21,9 +21,9 @@
         {
           "name": "backend",
           "properties": {
-            "backend": "https://{xsa-placeholder-domain-default}:53530/content",
+            "backend": "https://hello-backend.sap.com/content",
             "name": "backend",
-            "url": "https://{xsa-placeholder-domain-default}:53530/content"
+            "url": "https://hello-backend.sap.com/content"
           },
           "parameters": {},
           "propertiesMetadata": {
@@ -69,7 +69,7 @@
         "memory": "512M",
         "routes": [
           {
-            "route": "{xsa-placeholder-domain-default}:53530/content"
+            "route": "hello-backend.sap.com/content"
           }
         ]
       },
@@ -79,7 +79,7 @@
           "name": "backend",
           "isPublic": true,
           "properties": {
-            "url": "https://{xsa-placeholder-domain-default}:53530/content"
+            "url": "https://hello-backend.sap.com/content"
           },
           "parameters": {},
           "propertiesMetadata": {
@@ -116,7 +116,7 @@
   ],
   "resources": [],
   "parameters": {
-    "default-domain": "{xsa-placeholder-domain-default}"
+    "default-domain": "sap.com"
   },
   "parametersMetadata": {
     "metadata": {}

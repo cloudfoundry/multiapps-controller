@@ -16,8 +16,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
-
 public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribersStep> {
 
     @Test
@@ -76,8 +74,8 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace("org", "space-bar")));
         StepsUtil.setUpdatedSubscribers(context, updatedSubscribers);
 
-        XsCloudControllerClient clientForSpaceFoo = Mockito.mock(XsCloudControllerClient.class);
-        XsCloudControllerClient clientForSpaceBar = Mockito.mock(XsCloudControllerClient.class);
+        CloudControllerClient clientForSpaceFoo = Mockito.mock(CloudControllerClient.class);
+        CloudControllerClient clientForSpaceBar = Mockito.mock(CloudControllerClient.class);
 
         Mockito.when(clientProvider.getControllerClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString()))
             .thenReturn(clientForSpaceFoo);
@@ -92,11 +90,11 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         Mockito.verify(clientForSpaceFoo)
             .stopApplication("app-1");
         Mockito.verify(clientForSpaceFoo)
-            .startApplication("app-1", false);
+            .startApplication("app-1");
         Mockito.verify(clientForSpaceBar)
             .stopApplication("app-2");
         Mockito.verify(clientForSpaceBar)
-            .startApplication("app-2", false);
+            .startApplication("app-2");
     }
 
     @Test
@@ -133,7 +131,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         Mockito.verify(client)
             .stopApplication("app-2");
         Mockito.verify(client)
-            .startApplication("app-2", false);
+            .startApplication("app-2");
     }
 
     private CloudApplication createCloudApplication(String appName, CloudSpace space) {

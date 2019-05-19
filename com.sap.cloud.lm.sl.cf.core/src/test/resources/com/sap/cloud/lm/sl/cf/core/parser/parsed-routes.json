@@ -1,4 +1,1 @@
-[
-  "test-default-host:1337/path",
-  "test-default-host:1337/other-path"
-]
+[ "quux-idle.sap.com/abc", "quux-idle.sap.com/def" ]

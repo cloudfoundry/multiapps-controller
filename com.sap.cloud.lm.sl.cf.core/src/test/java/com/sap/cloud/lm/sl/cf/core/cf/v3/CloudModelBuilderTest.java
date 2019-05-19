@@ -10,8 +10,6 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v2.CloudModelConfiguration;
-import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
@@ -62,11 +60,11 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
 
     @Override
     protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration, DeployedMta deployedMta, XsPlaceholderResolver xsPlaceholderResolver) {
+        boolean prettyPrinting, DeployedMta deployedMta) {
         deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor, new ResolverBuilder(), new ResolverBuilder())
             .resolve();
-        return new com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta,
-            xsPlaceholderResolver, DEPLOY_ID, Mockito.mock(UserMessageLogger.class));
+        return new com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder(deploymentDescriptor, prettyPrinting, deployedMta,
+            DEPLOY_ID, Mockito.mock(UserMessageLogger.class));
     }
 
     @Override

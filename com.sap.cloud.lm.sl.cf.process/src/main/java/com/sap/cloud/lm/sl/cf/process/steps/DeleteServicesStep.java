@@ -26,7 +26,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
@@ -58,17 +57,14 @@ public class DeleteServicesStep extends AsyncFlowableStep {
                 return StepPhase.DONE;
             }
 
-            XsCloudControllerClient xsClient = execution.getXsControllerClient();
-            if (xsClient == null) {
-                Map<String, CloudServiceExtended> servicesData = getServicesData(servicesToDelete, execution);
-                List<String> servicesWithoutData = getServicesWithoutData(servicesToDelete, servicesData);
-                if (!servicesWithoutData.isEmpty()) {
-                    execution.getStepLogger()
-                        .info(Messages.SERVICES_ARE_ALREADY_DELETED, servicesWithoutData);
-                    servicesToDelete.removeAll(servicesWithoutData);
-                }
-                StepsUtil.setServicesData(execution.getContext(), servicesData);
+            Map<String, CloudServiceExtended> servicesData = getServicesData(servicesToDelete, execution);
+            List<String> servicesWithoutData = getServicesWithoutData(servicesToDelete, servicesData);
+            if (!servicesWithoutData.isEmpty()) {
+                execution.getStepLogger()
+                    .info(Messages.SERVICES_ARE_ALREADY_DELETED, servicesWithoutData);
+                servicesToDelete.removeAll(servicesWithoutData);
             }
+            StepsUtil.setServicesData(execution.getContext(), servicesData);
 
             Map<String, ServiceOperationType> triggeredServiceOperations = deleteServices(client, servicesToDelete);
 

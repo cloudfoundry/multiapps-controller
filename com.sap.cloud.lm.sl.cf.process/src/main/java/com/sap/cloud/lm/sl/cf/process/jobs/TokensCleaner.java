@@ -10,18 +10,15 @@ import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-@Component
+@Named
 @Order(10)
-@Profile("cf")
 public class TokensCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokensCleaner.class);

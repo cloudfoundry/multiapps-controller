@@ -1,12 +1,11 @@
 {
     "idsOfExpectedEntriesToDelete": [0, 1],
-    "allEntriesForMtaWithNewTarget": [],
-    "allEntriesForMtaWithOldTarget": [{
+    "entriesForMta": [{
         "id": 0,
         "providerNid": "mta",
         "providerId": "com.sap.example.mta:foo",
         "providerVersion": "1.0.0",
-        "targetSpace": {
+                "targetSpace": {
      		"space": "myorg",
       		"org": "SAP"
    		},
@@ -26,6 +25,5 @@
     "publishedEntries": [],
     "space": "SAP",
     "org": "myorg",
-    "spaceId": "1",
     "mtaId": "com.sap.example.mta"
 }

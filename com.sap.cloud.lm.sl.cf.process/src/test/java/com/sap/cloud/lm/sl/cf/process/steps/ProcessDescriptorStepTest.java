@@ -10,10 +10,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
-import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
@@ -43,7 +41,6 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
 
     private void prepareContext() throws Exception {
         StepsUtil.setDeploymentDescriptorWithSystemParameters(context, DEPLOYMENT_DESCRIPTOR);
-        StepsUtil.setXsPlaceholderReplacementValues(context, MapUtil.asMap(SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER, 999));
 
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
         context.setVariable(Constants.PARAM_USE_NAMESPACES, false);

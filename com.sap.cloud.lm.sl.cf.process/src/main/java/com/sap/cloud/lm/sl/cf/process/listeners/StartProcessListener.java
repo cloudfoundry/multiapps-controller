@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
+@Named
 public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private static final long serialVersionUID = 1L;

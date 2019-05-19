@@ -16,41 +16,26 @@
 
     <beans>
         <util:list id="quartzJobs">
-            <ref bean="cleanUpJobDetail"/>
+            <ref bean="cleanUpJobDetail" />
         </util:list>
 
-		<util:list id="quartzTriggers">
-		    <ref bean="cleanUpCronTriggerFactoryBean"/>
-		</util:list>
+        <util:list id="quartzTriggers">
+            <ref bean="cleanUpCronTriggerFactoryBean" />
+        </util:list>
 
-		<bean id="quartzJobFactory" class="com.sap.cloud.lm.sl.cf.web.configuration.AutowiringSpringBeanJobFactory">
-		    <property name="ignoredUnknownProperties" value="applicationContext"/>
-		</bean>    
-		<beans profile="postgresql">
-		    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-                <property name="dataSource" ref="dataSource"/>
-                <property name="transactionManager" ref="transactionManager"/>
-                <property name="jobFactory" ref="quartzJobFactory"/>
-                <property name="overwriteExistingJobs" value="true"/>
-                <property name="schedulerName" value="cleanupScheduler"/>
-                <property name="applicationContextSchedulerContextKey" value="applicationContext"/>
-                <property name="jobDetails" ref="quartzJobs"/>
-                <property name="triggers" ref="quartzTriggers"/>
-                <property name="configLocation" value="classpath:quartz.postgresql.properties"/>
-	       </bean>
-	   </beans>
-       <beans profile="hana">
-            <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-                <property name="dataSource" ref="dataSource"/>
-                <property name="transactionManager" ref="transactionManager"/>
-                <property name="jobFactory" ref="quartzJobFactory"/>
-                <property name="overwriteExistingJobs" value="true"/>
-                <property name="schedulerName" value="cleanupScheduler"/>
-                <property name="applicationContextSchedulerContextKey" value="applicationContext"/>
-                <property name="jobDetails" ref="quartzJobs"/>
-                <property name="triggers" ref="quartzTriggers"/>
-                <property name="configLocation" value="classpath:quartz.hana.properties"/>
-           </bean>
-       </beans>
+        <bean id="quartzJobFactory" class="com.sap.cloud.lm.sl.cf.web.configuration.AutowiringSpringBeanJobFactory">
+            <property name="ignoredUnknownProperties" value="applicationContext" />
+        </bean>
+        <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+            <property name="dataSource" ref="dataSource" />
+            <property name="transactionManager" ref="transactionManager" />
+            <property name="jobFactory" ref="quartzJobFactory" />
+            <property name="overwriteExistingJobs" value="true" />
+            <property name="schedulerName" value="cleanupScheduler" />
+            <property name="applicationContextSchedulerContextKey" value="applicationContext" />
+            <property name="jobDetails" ref="quartzJobs" />
+            <property name="triggers" ref="quartzTriggers" />
+            <property name="configLocation" value="classpath:quartz.postgresql.properties" />
+        </bean>
     </beans>
 </beans>

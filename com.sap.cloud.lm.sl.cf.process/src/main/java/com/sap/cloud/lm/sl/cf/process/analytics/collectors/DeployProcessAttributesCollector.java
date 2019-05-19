@@ -50,8 +50,6 @@ public class DeployProcessAttributesCollector extends AbstractCommonProcessAttri
             getAttribute(context, Constants.VAR_PUBLISHED_ENTRIES, () -> StepsUtil.getPublishedEntries(context).size()));
         deployProcessAttributes.setSubscriptionsToCreate(
             getAttribute(context, Constants.VAR_SUBSCRIPTIONS_TO_CREATE, () -> StepsUtil.getSubscriptionsToCreate(context).size()));
-        deployProcessAttributes.setServiceUrlsToRegister(
-            getAttribute(context, Constants.VAR_ALL_MODULES_TO_DEPLOY, () -> StepsUtil.getRegisteredServiceUrlsNames(context).size()));
         deployProcessAttributes.setServiceBrokersToCreate(
             getAttribute(context, Constants.VAR_ALL_MODULES_TO_DEPLOY, () -> StepsUtil.getCreatedOrUpdatedServiceBrokerNames(context).size()));
         deployProcessAttributes.setTriggeredServiceOperations(

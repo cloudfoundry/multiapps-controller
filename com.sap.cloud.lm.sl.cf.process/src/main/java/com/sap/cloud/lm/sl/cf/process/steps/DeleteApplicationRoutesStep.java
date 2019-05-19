@@ -7,13 +7,11 @@ import javax.inject.Inject;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
@@ -52,9 +50,8 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep {
 
     private void deleteApplicationRoutes(CloudControllerClient client, List<CloudRoute> routes, String uri) {
         getStepLogger().info(Messages.DELETING_ROUTE, uri);
-        boolean isPortBasedRouting = isPortBasedRouting(client, uri);
         try {
-            CloudRoute route = UriUtil.findRoute(routes, uri, isPortBasedRouting);
+            CloudRoute route = UriUtil.findRoute(routes, uri);
             if (route.getAppsUsingRoute() > 1) {
                 return;
             }
@@ -62,14 +59,8 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep {
             getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.ROUTE_NOT_FOUND, uri);
             return;
         }
-        new ClientHelper(client).deleteRoute(uri, isPortBasedRouting);
+        new ClientHelper(client).deleteRoute(uri);
         getStepLogger().debug(Messages.ROUTE_DELETED, uri);
-    }
-
-    private boolean isPortBasedRouting(CloudControllerClient client, String uri) {
-        CloudInfo info = client.getCloudInfo();
-        boolean isPortBasedSystem = info instanceof CloudInfoExtended && ((CloudInfoExtended) info).isPortBasedRouting();
-        return isPortBasedSystem || UriUtil.isTcpOrTcpsUri(uri);
     }
 
 }

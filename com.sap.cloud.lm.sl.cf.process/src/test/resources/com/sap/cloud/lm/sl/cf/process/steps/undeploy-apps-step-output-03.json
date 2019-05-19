@@ -1,8 +1,8 @@
 {
   "expectedRoutesToDelete": [
     {
-      "_1": "1111",
-      "_2": "foo.domain"
+      "_1": "foo",
+      "_2": "domain"
     }
   ]
 }

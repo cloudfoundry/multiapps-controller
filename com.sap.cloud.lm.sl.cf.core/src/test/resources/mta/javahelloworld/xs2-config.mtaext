@@ -16,22 +16,21 @@ modules:
 
   - name: java-hello-world-backend
     parameters:
-      port: 52001
       memory: 512M
       instances: 1
     provides:
       - name: java
         properties:
-          url: "http://sofd60245639a:52001"
+          url: "http://java-hello-world-backend.sofd60245639a"
 
 resources:
   - name: uaa
     parameters:
       config:
-        url: "http://sofd60245639a:51001"
+        url: "http://uaa.sofd60245639a"
         clientid: xs2.node
         clientsecret: nodeclientsecret
-        uaaBaseUrl: "http://sofd60245639a:51001"
+        uaaBaseUrl: "http://uaa.sofd60245639a"
         containerUser: xs2.node
         containerUserPassword: nodeclientsecret
         tags: [xsuaa]

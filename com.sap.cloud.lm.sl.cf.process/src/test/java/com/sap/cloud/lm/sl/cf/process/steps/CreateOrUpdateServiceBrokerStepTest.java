@@ -23,7 +23,6 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -126,10 +125,6 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
             {
                 "create-service-brokers-step-input-12.json", "create-service-brokers-step-output-12.json", "Visibility of service broker \"foo-broker\" will not be changed from space-scoped to global, as visibility changes are not yet supported!", null, null, null, null,
             },
-            // (18) A space-scoped service broker should be created on XSA:
-            {
-                "create-service-brokers-step-input-13.json", "create-service-brokers-step-output-01.json", "Service broker \"foo-broker\" will be created as global, since space-scoped service brokers are not yet supported on this platform!", null, null, null, null,
-            },
 // @formatter:on
         });
     }
@@ -190,8 +185,6 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
         }
         context.setVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS, shouldSucceed);
         input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
-        Mockito.when(configuration.getPlatformType())
-            .thenReturn(input.platformType);
     }
 
     private void prepareContext() {
@@ -249,7 +242,6 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
         List<CloudServiceBroker> existingServiceBrokers;
         SimpleApplication application;
         String spaceGuid;
-        PlatformType platformType = PlatformType.CF;
     }
 
     private static class StepOutput {

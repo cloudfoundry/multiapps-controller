@@ -14,13 +14,8 @@ public class TokenStoreFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenStoreFactory.class);
 
-    public static JdbcTokenStore getTokenStore(DataSource dbDataSource, DataSource secureStoreDataSource) {
-        if (secureStoreDataSource.equals(dbDataSource)) {
-            LOGGER.info(MessageFormat.format(Messages.OAUTH_TOKEN_STORE, "JdbcTokenStore"));
-            return new JdbcTokenStore(dbDataSource);
-        }
-
-        LOGGER.info(MessageFormat.format(Messages.OAUTH_TOKEN_STORE, "HanaSecureTokenStore"));
-        return new HanaSecureTokenStore(dbDataSource, secureStoreDataSource);
+    public static JdbcTokenStore getTokenStore(DataSource dbDataSource) {
+        LOGGER.info(MessageFormat.format(Messages.OAUTH_TOKEN_STORE, "JdbcTokenStore"));
+        return new JdbcTokenStore(dbDataSource);
     }
 }

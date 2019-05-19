@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
-import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -23,17 +22,14 @@ public class ApplicationEnvironmentCloudModelBuilder {
 
     private static final int MTA_MAJOR_VERSION = 2;
 
-    protected CloudModelConfiguration configuration;
     protected DeploymentDescriptor deploymentDescriptor;
-    protected XsPlaceholderResolver xsPlaceholderResolver;
     protected String deployId;
+    protected boolean prettyPrinting;
 
-    public ApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration, DeploymentDescriptor deploymentDescriptor,
-        XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
-        this.configuration = configuration;
+    public ApplicationEnvironmentCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, String deployId, boolean prettyPrinting) {
         this.deploymentDescriptor = deploymentDescriptor;
-        this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.deployId = deployId;
+        this.prettyPrinting = prettyPrinting;
     }
 
     public Map<Object, Object> build(Module module, List<String> services) {
@@ -45,7 +41,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         addAttributes(env, parameters);
         addProperties(env, properties);
         addDependencies(env, module);
-        return MapUtil.unmodifiable(new MapToEnvironmentConverter(configuration.isPrettyPrinting()).asEnv(env));
+        return MapUtil.unmodifiable(new MapToEnvironmentConverter(prettyPrinting).asEnv(env));
     }
 
     protected void addMetadata(Map<String, Object> env, Module module) {
@@ -85,24 +81,12 @@ public class ApplicationEnvironmentCloudModelBuilder {
         Map<String, Object> attributes = new TreeMap<>(properties);
         attributes.keySet()
             .retainAll(SupportedParameters.APP_ATTRIBUTES);
-        resolveUrlsInAppAttributes(attributes);
         if (!attributes.isEmpty()) {
             env.put(Constants.ENV_DEPLOY_ATTRIBUTES, attributes);
         }
         Boolean checkDeployId = (Boolean) attributes.get(SupportedParameters.CHECK_DEPLOY_ID);
         if (checkDeployId != null && checkDeployId) {
             env.put(Constants.ENV_DEPLOY_ID, deployId);
-        }
-    }
-
-    private void resolveUrlsInAppAttributes(Map<String, Object> properties) {
-        String serviceUrl = (String) properties.get(SupportedParameters.REGISTER_SERVICE_URL_SERVICE_URL);
-        String serviceBrokerUrl = (String) properties.get(SupportedParameters.SERVICE_BROKER_URL);
-        if (serviceUrl != null) {
-            properties.put(SupportedParameters.REGISTER_SERVICE_URL_SERVICE_URL, xsPlaceholderResolver.resolve(serviceUrl));
-        }
-        if (serviceBrokerUrl != null) {
-            properties.put(SupportedParameters.SERVICE_BROKER_URL, xsPlaceholderResolver.resolve(serviceBrokerUrl));
         }
     }
 

@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -29,6 +30,7 @@ import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
+@Named
 public class RecentLogsRetriever extends CustomControllerClient {
 
     public static final String RECENT_LOGS_ENDPOINT = "/apps/{guid}/recentlogs";

@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
@@ -20,7 +18,6 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.SystemReader;
 import org.slf4j.Logger;
@@ -31,26 +28,16 @@ import com.sap.cloud.lm.sl.cf.process.steps.ProcessGitSourceStep;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class GitRepoCloner {
-    private String gitServiceUrlString;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessGitSourceStep.class);
+
     CloneCommand cloneCommand;
-    private String userName;
-    private String token;
     private String refName;
     private Path gitconfigFilePath;
     private boolean skipSslValidation;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessGitSourceStep.class);
 
     public GitRepoCloner() {
         cloneCommand = Git.cloneRepository();
-    }
-
-    public void setGitServiceUrlString(String gitServiceUrlString) {
-        this.gitServiceUrlString = gitServiceUrlString;
-    }
-
-    public void setCredentials(String userName, String token) {
-        this.userName = userName;
-        this.token = token;
     }
 
     public void setRefName(String refName) {
@@ -65,9 +52,6 @@ public class GitRepoCloner {
         }
 
         configureGitSslValidation();
-        if (shouldUseToken(gitServiceUrlString, gitUri)) {
-            cloneCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(userName, token));
-        }
         if (refName != null && !refName.isEmpty()) {
             String fullRefName = refName.startsWith("refs/") ? refName : "refs/heads/" + refName;
             cloneCommand.setBranchesToClone(Arrays.asList(fullRefName));
@@ -88,25 +72,6 @@ public class GitRepoCloner {
             }
             throw e;
         }
-    }
-
-    private boolean shouldUseToken(String gitServiceUrlString, String gitRepoUri) {
-        if (gitServiceUrlString == null || gitRepoUri == null) {
-            return false;
-        }
-        URL serviceUrl;
-        URL repoUrl;
-        try {
-            serviceUrl = new URL(gitServiceUrlString);
-            repoUrl = new URL(gitRepoUri);
-        } catch (MalformedURLException e) {
-            LOGGER.debug(MessageFormat.format("Failed to parse git-service and user URLs({0} and {1}), skipping token authentication",
-                gitServiceUrlString, gitRepoUri));
-            return false;
-        }
-        return repoUrl.getHost()
-            .equals(serviceUrl.getHost()) && repoUrl.getPort() == serviceUrl.getPort();
-
     }
 
     protected void configureGitSslValidation() throws IOException {

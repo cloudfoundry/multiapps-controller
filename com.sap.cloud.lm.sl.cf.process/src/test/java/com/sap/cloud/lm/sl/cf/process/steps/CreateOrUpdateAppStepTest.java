@@ -24,9 +24,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -53,43 +51,43 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
 // @formatter:off
             // (0) Disk quota is 0:
             {
-                "create-app-step-input-00.json", null, PlatformType.XS2
+                "create-app-step-input-00.json", null,
             },
             // (1) Memory is 0:
             {
-                "create-app-step-input-01.json", null, PlatformType.CF
+                "create-app-step-input-01.json", null,
             },
             // (2) Everything is specified properly:
             {
-                "create-app-step-input-02.json", null, PlatformType.XS2
+                "create-app-step-input-02.json", null,
             },
             // (3) Binding parameters exist, and the services do too:
             {
-                "create-app-step-input-03.json", null, PlatformType.CF
+                "create-app-step-input-03.json", null,
             },
             // (4) Binding parameters exist, but the services do not:
             {
-                "create-app-step-input-04.json", "Could not bind application \"application\" to service \"service-2\": 500 Internal Server Error: Something happened!", null,
+                "create-app-step-input-04.json", "Could not bind application \"application\" to service \"service-2\": 500 Internal Server Error: Something happened!",
             },
             // (5) Binding parameters exist, but the services do not and service-2 is optional - so no exception should be thrown:
             {
-                "create-app-step-input-05.json", null, PlatformType.CF,
+                "create-app-step-input-05.json", null,
             },
             // (6) Service keys to inject are specified:
-            { "create-app-step-input-06.json", null, PlatformType.XS2 },
-            // (7) Service keys to inject are specified but not exist:
-            { "create-app-step-input-07.json",
-                "Unable to retrieve required service key element \"expected-service-key\" for service \"existing-service\"",
-                PlatformType.XS2
+            {
+                "create-app-step-input-06.json", null,
             },
-          
+            // (7) Service keys to inject are specified but not exist:
+            {
+                "create-app-step-input-07.json",
+                "Unable to retrieve required service key element \"expected-service-key\" for service \"existing-service\"",
+            },
 // @formatter:on
         });
     }
 
-    public CreateOrUpdateAppStepTest(String stepInput, String expectedExceptionMessage, PlatformType platform) throws Exception {
+    public CreateOrUpdateAppStepTest(String stepInput, String expectedExceptionMessage) throws Exception {
         this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CreateOrUpdateAppStepTest.class), StepInput.class);
-        this.stepInput.platform = platform;
         this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
@@ -146,8 +144,6 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
     }
 
     private void prepareClient() {
-        Mockito.when(configuration.getPlatformType())
-            .thenReturn(stepInput.platform);
         for (SimpleService simpleService : stepInput.services) {
             CloudServiceExtended service = simpleService.toCloudServiceExtended();
             if (!service.isOptional()) {
@@ -161,7 +157,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
             Mockito
                 .doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                     expectedExceptionMessage + "Something happened!"))
-                .when((XsCloudControllerClient) client)
+                .when(client)
                 .bindService(Mockito.eq(appName), Mockito.eq(serviceName), Mockito.any(), Mockito.any());
         }
 

@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -30,7 +29,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -155,13 +153,6 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         StepsUtil.setMtaModules(context, Collections.emptySet());
         StepsUtil.setMtaArchiveModules(context, Collections.emptySet());
         StepsUtil.setCompleteDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
-        StepsUtil.setXsPlaceholderReplacementValues(context, getDummyReplacementValues());
-    }
-
-    private Map<String, Object> getDummyReplacementValues() {
-        Map<String, Object> result = new TreeMap<>();
-        result.put(SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER, 0);
-        return result;
     }
 
     @Test

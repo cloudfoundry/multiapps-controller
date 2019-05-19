@@ -26,7 +26,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.util.ModulesCloudModelBuilderContentCalcul
 import com.sap.cloud.lm.sl.cf.core.cf.util.ResourcesCloudModelBuilderContentCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.util.UnresolvedModulesContentValidator;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
-import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
@@ -368,17 +367,7 @@ public class CloudModelBuilderTest {
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.JSON, "apps-with-ssh-enabled-false.json"),
             },
-            // (30) With TCPS routes
-            {
-                "mtad-11.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                false, false,
-                new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
-                new String[] { "module-1", "module-2", "module-3" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-with-tcp-routes.json"),
-            },
-            // (31) Do not restart on env change - bg-deploy
+            // (30) Do not restart on env change - bg-deploy
             { "mtad-restart-on-env-change.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
                 false, false, 
                 new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
@@ -387,7 +376,7 @@ public class CloudModelBuilderTest {
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.JSON, "apps-with-restart-parameters-false.json") // services
             },
-            // (32) With 'keep-existing-routes' set to true and no deployed MTA:
+            // (31) With 'keep-existing-routes' set to true and no deployed MTA:
             {
                 "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
                 false, false,
@@ -397,7 +386,7 @@ public class CloudModelBuilderTest {
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"),
             },
-            // (33) With 'keep-existing-routes' set to true and no deployed module:
+            // (32) With 'keep-existing-routes' set to true and no deployed module:
             {
                 "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
                 "keep-existing-routes/deployed-mta-without-foo-module.json",
@@ -408,7 +397,7 @@ public class CloudModelBuilderTest {
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"),
             },
-            // (34) With 'keep-existing-routes' set to true and an already deployed module with no URIs:
+            // (33) With 'keep-existing-routes' set to true and an already deployed module with no URIs:
             {
                 "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
                 "keep-existing-routes/deployed-mta-without-uris.json",
@@ -419,7 +408,7 @@ public class CloudModelBuilderTest {
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"),
             },
-            // (35) With 'keep-existing-routes' set to true and an already deployed module:
+            // (34) With 'keep-existing-routes' set to true and an already deployed module:
             {
                 "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
                 "keep-existing-routes/deployed-mta.json",
@@ -430,7 +419,7 @@ public class CloudModelBuilderTest {
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps-with-existing-routes.json"),
             },
-            // (36) With global 'keep-existing-routes' set to true and an already deployed module:
+            // (35) With global 'keep-existing-routes' set to true and an already deployed module:
             {
                 "keep-existing-routes/mtad-with-global-parameter.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
                 "keep-existing-routes/deployed-mta.json",
@@ -441,7 +430,7 @@ public class CloudModelBuilderTest {
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps-with-existing-routes.json"),
             },
-            // (37) With new parameter - 'route'
+            // (36) With new parameter - 'route'
             {
                 "mtad-12.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
                 false, false,
@@ -451,7 +440,7 @@ public class CloudModelBuilderTest {
                 new Expectation("[]"), //services
                 new Expectation(Expectation.Type.JSON, "apps-12.json"),  //applications
             },
-            // (38) With new parameter - 'routes'
+            // (37) With new parameter - 'routes'
             {
                 "mtad-13.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
                 false, false,
@@ -460,16 +449,6 @@ public class CloudModelBuilderTest {
                 new String[] {}, // deployedApps
                 new Expectation("[]"), //services
                 new Expectation(Expectation.Type.JSON, "apps-13.json"),  //applications
-            },
-            // (39) With parameter - 'route', using tcp
-            {
-                "mtad-14.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                false, false,
-                new String[] { "foo", }, // mtaArchiveModules
-                new String[] { "foo", }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"), //services
-                new Expectation(Expectation.Type.JSON, "apps-14.json"),  //applications
             },
 // @formatter:on
         });
@@ -516,10 +495,10 @@ public class CloudModelBuilderTest {
     }
 
     protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration, DeployedMta deployedMta, XsPlaceholderResolver xsPlaceholderResolver) {
+        boolean prettyPrinting, DeployedMta deployedMta) {
         deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor, new ResolverBuilder(), new ResolverBuilder())
             .resolve();
-        return new ApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, xsPlaceholderResolver, DEPLOY_ID,
+        return new ApplicationCloudModelBuilder(deploymentDescriptor, prettyPrinting, deployedMta, DEPLOY_ID,
             Mockito.mock(UserMessageLogger.class));
     }
 
@@ -546,10 +525,7 @@ public class CloudModelBuilderTest {
 
         insertProperNames(deploymentDescriptor);
         injectSystemParameters(deploymentDescriptor, defaultDomain);
-        XsPlaceholderResolver xsPlaceholderResolver = new XsPlaceholderResolver();
-        xsPlaceholderResolver.setDefaultDomain(defaultDomain);
-        CloudModelConfiguration configuration = createCloudModelConfiguration(defaultDomain);
-        appBuilder = getApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, xsPlaceholderResolver);
+        appBuilder = getApplicationCloudModelBuilder(deploymentDescriptor, false, deployedMta);
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor);
 
         modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, null, getUserMessageLogger(),
@@ -632,13 +608,6 @@ public class CloudModelBuilderTest {
             Map<String, Object> moduleSystemParameters = MapUtil.asMap(SupportedParameters.DEFAULT_HOST, module.getName());
             module.setParameters(MapUtil.merge(moduleSystemParameters, module.getParameters()));
         }
-    }
-
-    private CloudModelConfiguration createCloudModelConfiguration(String defaultDomain) {
-        CloudModelConfiguration configuration = new CloudModelConfiguration();
-        configuration.setPortBasedRouting(defaultDomain.equals(DEFAULT_DOMAIN_XS));
-        configuration.setPrettyPrinting(false);
-        return configuration;
     }
 
     @Test

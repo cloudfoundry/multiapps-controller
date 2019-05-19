@@ -1,5 +1,4 @@
 {
-  "portBasedRouting":false,
   "appsToDelete": [
     {
       "uris": ["https://test-app-db.example.com"],

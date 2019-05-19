@@ -22,7 +22,6 @@ import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.RestartParameters;
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupState;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupStateCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
@@ -68,7 +67,6 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     public void setUp() {
         prepareContext();
         prepareAppStepCalculator();
-        prepareConfiguration();
         prepareStep();
         prepareClient();
     }
@@ -100,10 +98,6 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     private void prepareStep() {
         step.appStateCalculatorSupplier = () -> appStateCalculator;
         step.configuration = configuration;
-    }
-
-    private void prepareConfiguration() {
-        when(configuration.getPlatformType()).thenReturn(PlatformType.CF);
     }
 
     private void prepareContext() {

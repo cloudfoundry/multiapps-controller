@@ -15,26 +15,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.CloudControllerClientSupportingCustomUserIds;
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CachedMap;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
-import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.common.util.ResponseRenderer;
 
 @Component
 public class AuthorizationChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationChecker.class);
-    private CachedMap<UUID, List<String>> spaceDevelopersCache = null;
+    private CachedMap<UUID, List<UUID>> spaceDevelopersCache = null;
 
     private final CloudControllerClientProvider clientProvider;
     private final ApplicationConfiguration applicationConfiguration;
@@ -88,13 +84,13 @@ public class AuthorizationChecker {
             return true;
         }
         // TODO a lot of cpu time is lost in the getControllerCloient method
-        CloudControllerClientSupportingCustomUserIds client = (CloudControllerClientSupportingCustomUserIds) clientProvider
-            .getControllerClient(userInfo.getName());
+        CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName());
+        UUID userGuid = UUID.fromString(userInfo.getId());
         // TODO and some more cpu time in hasPermissions
-        return hasPermissions(client, userInfo.getId(), orgName, spaceName, readOnly) && hasAccess(client, orgName, spaceName);
+        return hasPermissions(client, userGuid, orgName, spaceName, readOnly) && hasAccess(client, orgName, spaceName);
     }
 
-    boolean checkPermissions(UserInfo userInfo, String spaceGuid, boolean readOnly) {
+    boolean checkPermissions(UserInfo userInfo, String spaceId, boolean readOnly) {
         if (applicationConfiguration.areDummyTokensEnabled() && isDummyToken(userInfo)) {
             return true;
         }
@@ -102,75 +98,65 @@ public class AuthorizationChecker {
             return true;
         }
 
-        UUID spaceUUID = UUID.fromString(spaceGuid);
-        CloudControllerClientSupportingCustomUserIds client = (CloudControllerClientSupportingCustomUserIds) clientProvider
-            .getControllerClient(userInfo.getName());
-        if (PlatformType.CF.equals(applicationConfiguration.getPlatformType())) {
-            return hasPermissions(client, userInfo.getId(), spaceUUID, readOnly);
-        }
-
-        Pair<String, String> location = getClientHelper(client).computeOrgAndSpace(spaceGuid);
-        if (location == null) {
-            throw new NotFoundException(Messages.ORG_AND_SPACE_NOT_FOUND, spaceGuid);
-        }
-        return hasPermissions(client, userInfo.getId(), location._1, location._2, readOnly);
+        UUID spaceGuid = UUID.fromString(spaceId);
+        CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName());
+        UUID userGuid = UUID.fromString(userInfo.getId());
+        return hasPermissions(client, userGuid, spaceGuid, readOnly);
     }
 
-    private boolean hasPermissions(CloudControllerClientSupportingCustomUserIds client, String userId, UUID spaceGuid, boolean readOnly) {
-        if (isUserInSpaceDevelopersUsingCache(client, userId, spaceGuid)) {
+    private boolean hasPermissions(CloudControllerClient client, UUID userGuid, UUID spaceGuid, boolean readOnly) {
+        if (isUserInSpaceDevelopersUsingCache(client, userGuid, spaceGuid)) {
             return true;
         }
-        if (isUserInSpaceDevelopersAfterCacheRefresh(client, userId, spaceGuid)) {
+        if (isUserInSpaceDevelopersAfterCacheRefresh(client, userGuid, spaceGuid)) {
             return true;
         }
 
         if (readOnly) {
-            return isUserInSpaceAuditors(client, userId, spaceGuid) || isUserInSpaceManagers(client, userId, spaceGuid);
+            return isUserInSpaceAuditors(client, userGuid, spaceGuid) || isUserInSpaceManagers(client, userGuid, spaceGuid);
         }
         return false;
     }
 
-    private boolean isUserInSpaceAuditors(CloudControllerClientSupportingCustomUserIds client, String userId, UUID spaceGuid) {
-        return client.getSpaceAuditorIdsAsStrings(spaceGuid)
-            .contains(userId);
+    private boolean isUserInSpaceAuditors(CloudControllerClient client, UUID userGuid, UUID spaceGuid) {
+        return client.getSpaceAuditors(spaceGuid)
+            .contains(userGuid);
     }
 
-    private boolean isUserInSpaceManagers(CloudControllerClientSupportingCustomUserIds client, String userId, UUID spaceGuid) {
-        return client.getSpaceManagerIdsAsStrings(spaceGuid)
-            .contains(userId);
+    private boolean isUserInSpaceManagers(CloudControllerClient client, UUID userGuid, UUID spaceGuid) {
+        return client.getSpaceManagers(spaceGuid)
+            .contains(userGuid);
     }
 
-    private boolean isUserInSpaceDevelopersUsingCache(CloudControllerClientSupportingCustomUserIds client, String userId, UUID spaceGuid) {
-        return spaceDevelopersCache.get(spaceGuid, (() -> client.getSpaceDeveloperIdsAsStrings(spaceGuid)))
-            .contains(userId);
+    private boolean isUserInSpaceDevelopersUsingCache(CloudControllerClient client, UUID userGuid, UUID spaceGuid) {
+        return spaceDevelopersCache.get(spaceGuid, (() -> client.getSpaceDevelopers(spaceGuid)))
+            .contains(userGuid);
     }
 
-    private boolean isUserInSpaceDevelopersAfterCacheRefresh(CloudControllerClientSupportingCustomUserIds client, String userId,
-        UUID spaceGuid) {
-        return spaceDevelopersCache.forceRefresh(spaceGuid, (() -> client.getSpaceDeveloperIdsAsStrings(spaceGuid)))
-            .contains(userId);
+    private boolean isUserInSpaceDevelopersAfterCacheRefresh(CloudControllerClient client, UUID userGuid, UUID spaceGuid) {
+        return spaceDevelopersCache.forceRefresh(spaceGuid, (() -> client.getSpaceDevelopers(spaceGuid)))
+            .contains(userGuid);
     }
 
-    private boolean hasPermissions(CloudControllerClientSupportingCustomUserIds client, String userId, String orgName, String spaceName,
-        boolean readOnly) {
-        if (client.getSpaceDeveloperIdsAsStrings(orgName, spaceName)
-            .contains(userId)) {
+    private boolean hasPermissions(CloudControllerClient client, UUID userGuid, String orgName, String spaceName, boolean readOnly) {
+        if (client.getSpaceDevelopers(orgName, spaceName)
+            .contains(userGuid)) {
             return true;
         }
         if (readOnly) {
-            if (client.getSpaceAuditorIdsAsStrings(orgName, spaceName)
-                .contains(userId)) {
+            if (client.getSpaceAuditors(orgName, spaceName)
+                .contains(userGuid)) {
                 return true;
             }
-            if (client.getSpaceManagerIdsAsStrings(orgName, spaceName)
-                .contains(userId)) {
+            if (client.getSpaceManagers(orgName, spaceName)
+                .contains(userGuid)) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean hasAccess(CloudControllerClientSupportingCustomUserIds client, String orgName, String spaceName) {
+    private boolean hasAccess(CloudControllerClient client, String orgName, String spaceName) {
         return client.getSpace(orgName, spaceName, false) != null;
     }
 

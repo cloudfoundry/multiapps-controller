@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.persistence.changes;
 
-public class IndexProcessIdsOfProgressMessagesPostgreSQLChange extends AbstractIndexSQLChange {
+public class IndexProcessIdsOfProgressMessagesChange extends AbstractIndexSQLChange {
 
     @Override
     protected String getQuery() {

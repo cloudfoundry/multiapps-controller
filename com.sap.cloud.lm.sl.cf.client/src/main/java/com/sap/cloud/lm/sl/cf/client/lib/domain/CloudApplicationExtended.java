@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 
@@ -14,9 +13,7 @@ public class CloudApplicationExtended extends CloudApplication {
     private List<String> idleUris;
     private Map<String, Map<String, Object>> bindingParameters;
     private List<CloudTask> tasks;
-    private List<CloudRoute> routes;
     private List<ServiceKeyToInject> serviceKeysToInject;
-    private List<ApplicationPort> applicationPorts;
     private List<String> domains;
     private RestartParameters restartParameters;
     private DockerInfo dockerInfo;
@@ -31,9 +28,8 @@ public class CloudApplicationExtended extends CloudApplication {
     }
 
     public CloudApplicationExtended(String name, String command, String buildpackUrl, int memory, int instances, List<String> uris,
-        List<String> serviceNames, AppState state, List<ApplicationPort> applicationPorts, List<String> domains, DockerInfo dockerInfo) {
+        List<String> serviceNames, AppState state, List<String> domains, DockerInfo dockerInfo) {
         super(name, command, buildpackUrl, memory, instances, uris, serviceNames, state);
-        this.applicationPorts = applicationPorts;
         this.domains = domains;
         this.dockerInfo = dockerInfo;
     }
@@ -70,28 +66,12 @@ public class CloudApplicationExtended extends CloudApplication {
         this.tasks = tasks;
     }
 
-    public List<CloudRoute> getRoutes() {
-        return routes;
-    }
-
-    public void setRoutes(List<CloudRoute> routes) {
-        this.routes = routes;
-    }
-
     public List<ServiceKeyToInject> getServiceKeysToInject() {
         return serviceKeysToInject;
     }
 
     public void setServiceKeysToInject(List<ServiceKeyToInject> serviceKeysToInject) {
         this.serviceKeysToInject = serviceKeysToInject;
-    }
-
-    public List<ApplicationPort> getApplicationPorts() {
-        return applicationPorts;
-    }
-
-    public void setApplicationPorts(List<ApplicationPort> applicationPorts) {
-        this.applicationPorts = applicationPorts;
     }
 
     public List<String> getDomains() {

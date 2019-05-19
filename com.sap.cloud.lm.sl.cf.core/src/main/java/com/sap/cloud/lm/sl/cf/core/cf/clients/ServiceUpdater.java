@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -23,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 
+@Named
 public class ServiceUpdater extends CloudServiceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceUpdater.class);

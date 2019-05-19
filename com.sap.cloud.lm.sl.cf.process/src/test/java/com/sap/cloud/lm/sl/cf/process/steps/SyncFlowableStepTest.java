@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.flowable.engine.ManagementService;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.RuntimeService;
@@ -25,7 +26,6 @@ import org.mockito.Spy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -70,7 +70,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     @Mock
     protected FileService fileService;
     @Mock
-    protected XsCloudControllerClient client;
+    protected CloudControllerClient client;
     @Mock
     protected CloudControllerClientProvider clientProvider;
     @Mock

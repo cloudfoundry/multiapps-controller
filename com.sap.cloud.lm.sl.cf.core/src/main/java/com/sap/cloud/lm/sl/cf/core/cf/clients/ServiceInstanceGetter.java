@@ -2,14 +2,12 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.util.Set;
 
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.util.V2UrlBuilder;
 
-@Component("serviceInstanceGetter")
-@Profile("cf")
+@Named("serviceInstanceGetter")
 public class ServiceInstanceGetter extends AbstractServiceGetter {
 
     protected ServiceInstanceGetter(RestTemplateFactory restTemplateFactory) {

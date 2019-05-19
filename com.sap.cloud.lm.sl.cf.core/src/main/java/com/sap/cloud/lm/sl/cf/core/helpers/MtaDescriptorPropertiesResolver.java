@@ -24,7 +24,6 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.ApplicationNameValidato
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.DomainValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
-import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.RestartOnEnvChangeValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.RoutesValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ServiceNameValidator;
@@ -41,7 +40,6 @@ public class MtaDescriptorPropertiesResolver {
 
     public static final String IDLE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.IDLE_DOMAIN + "}";
     public static final String IDLE_HOST_PLACEHOLDER = "${" + SupportedParameters.IDLE_HOST + "}";
-    public static final String IDLE_PORT_PLACEHOLDER = "${" + SupportedParameters.IDLE_PORT + "}";
 
     private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade().setFormattedOutput(true);
 
@@ -69,7 +67,7 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     public List<ParameterValidator> getValidatorsList() {
-        return Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator(), new RoutesValidator(), new TasksValidator(),
+        return Arrays.asList(new HostValidator(), new DomainValidator(), new RoutesValidator(), new TasksValidator(),
             new VisibilityValidator(), new RestartOnEnvChangeValidator());
     }
 
@@ -152,15 +150,8 @@ public class MtaDescriptorPropertiesResolver {
 
     private String replacePartsWithIdlePlaceholders(String uriString) {
         ApplicationURI uri = new ApplicationURI(uriString);
-
         uri.setDomain(IDLE_DOMAIN_PLACEHOLDER);
-
-        if (uri.isHostBased()) {
-            uri.setHost(IDLE_HOST_PLACEHOLDER);
-        } else {
-            uri.setUnparsablePort(IDLE_PORT_PLACEHOLDER);
-        }
-
+        uri.setHost(IDLE_HOST_PLACEHOLDER);
         return uri.toString();
     }
 

@@ -28,10 +28,10 @@ public class MtaDescriptorPropertiesResolverTest {
         return Stream.of(
 // @formatter:off
             Arguments.of(
-                "mtad-properties-resolver-test/bg-mtad-xsa-with-route.yaml", new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/bg-mtad-xsa-with-route-result.json")
+                "mtad-properties-resolver-test/mtad-with-route.yaml", new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-route-result.json")
                 ),
             Arguments.of(
-                "mtad-properties-resolver-test/bg-mtad-xsa-with-domain.yaml", new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/bg-mtad-xsa-with-domain-result.json")
+                "mtad-properties-resolver-test/mtad-with-domain.yaml", new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-domain-result.json")
                 )
             );
 // @formatter:on

@@ -8,7 +8,6 @@ import javax.inject.Inject;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,7 +24,6 @@ public class UAAClientConfiguration {
 
     @Inject
     @Bean
-    @Profile("cf")
     public UAAClient uaaClient(ApplicationConfiguration configuration) {
         if (configuration.shouldSkipSslValidation()) {
             SSLUtil.disableSSLValidation();

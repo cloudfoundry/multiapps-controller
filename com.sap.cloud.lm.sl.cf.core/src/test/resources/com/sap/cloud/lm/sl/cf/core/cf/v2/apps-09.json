@@ -22,7 +22,6 @@
       }
     ],
     "serviceKeysToInject": [],
-    "applicationPorts": [],
     "domains": [
       "sofd60245639a"
     ],
@@ -60,7 +59,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [],
     "domains": [
       "sofd60245639a"
     ],
@@ -98,7 +96,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [],
     "domains": [
       "sofd60245639a"
     ],
@@ -136,7 +133,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [],
     "domains": [
       "sofd60245639a"
     ],

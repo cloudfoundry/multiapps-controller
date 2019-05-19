@@ -7,7 +7,6 @@ target-platforms: [XS2-INITIAL]
 modules:
   - name: webide
     parameters:
-      port: 53035
       memory: 128M
     requires:
       - name: sapui5
@@ -22,4 +21,4 @@ resources:
 
   - name: che
     properties:
-      url: "http://sofd60245639a:53030"
+      url: "http://che.sofd60245639a"

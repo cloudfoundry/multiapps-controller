@@ -16,7 +16,7 @@ public class DefaultFileUploadProcessorTest {
     @Test
     public void testNoAdditionalProcessingIsDone() throws IOException {
         final byte[] data = "test".getBytes();
-        classUnderTest = new DefaultFileUploadProcessor(true);
+        classUnderTest = new DefaultFileUploadProcessor();
 
         FileOutputStream os = mock(FileOutputStream.class);
         classUnderTest.writeFileChunk(os, data, data.length);

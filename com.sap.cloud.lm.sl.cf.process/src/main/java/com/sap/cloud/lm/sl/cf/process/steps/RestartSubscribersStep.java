@@ -11,7 +11,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("restartSubscribersStep")
@@ -42,11 +41,7 @@ public class RestartSubscribersStep extends SyncFlowableStep {
         getStepLogger().info(Messages.STOPPING_APP, app.getName());
         client.stopApplication(app.getName());
         getStepLogger().info(Messages.STARTING_APP, app.getName());
-        if (client instanceof XsCloudControllerClient) {
-            ((XsCloudControllerClient) client).startApplication(app.getName(), false);
-        } else {
-            client.startApplication(app.getName());
-        }
+        client.startApplication(app.getName());
     }
 
     private CloudControllerClient getClientForApplicationSpace(ExecutionWrapper execution, CloudApplication app) {

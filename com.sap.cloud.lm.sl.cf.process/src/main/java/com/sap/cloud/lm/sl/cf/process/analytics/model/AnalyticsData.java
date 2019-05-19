@@ -39,9 +39,6 @@ public class AnalyticsData {
     @XmlElement(name = "mtaId")
     private String mtaId;
 
-    @XmlElement(name = "platform")
-    private String platform;
-
     @XmlElement(name = "org")
     private String org;
 
@@ -60,7 +57,7 @@ public class AnalyticsData {
     }
 
     public AnalyticsData(String processId, ProcessType processType, long startTime, long endTime, long processDurationInSeconds,
-        State processFinalState, String mtaId, String platform, String org, String space, String controllerUrl,
+        State processFinalState, String mtaId, String org, String space, String controllerUrl,
         AbstractCommonProcessAttributes commonProcessVariables) {
         this.processId = processId;
         this.processType = processType;
@@ -69,7 +66,6 @@ public class AnalyticsData {
         this.processDurationInSeconds = processDurationInSeconds;
         this.processFinalState = processFinalState;
         this.mtaId = mtaId;
-        this.platform = platform;
         this.org = org;
         this.space = space;
         this.controllerUrl = controllerUrl;
@@ -130,14 +126,6 @@ public class AnalyticsData {
 
     public void setMtaId(String mtaId) {
         this.mtaId = mtaId;
-    }
-
-    public String getPlatform() {
-        return platform;
-    }
-
-    public void setPlatform(String platform) {
-        this.platform = platform;
     }
 
     public String getOrg() {

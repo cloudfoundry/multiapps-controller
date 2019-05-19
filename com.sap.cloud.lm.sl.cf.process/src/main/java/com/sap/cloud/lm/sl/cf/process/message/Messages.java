@@ -71,6 +71,7 @@ public class Messages {
     public static final String MODULE_0_IS_NOT_MATCHING_THE_MODULES_IN_DESCRIPTOR = "Application module name {0} is not matching any of the modules in the deployment descriptor";
     public static final String SERVICE_BROKER_0_DOES_NOT_EXIST = "Service broker \"{0}\" does not exist";
     public static final String COULD_NOT_FIND_APPLICATION_WITH_GUID_0 = "Could not find application with guid \"{0}\"";
+    public static final String GIT_URI_IS_NOT_SPECIFIED = "Git URI is not specified";
 
     // Audit log messages
 

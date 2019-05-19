@@ -4,8 +4,8 @@ import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.Map;
 
-import org.apache.commons.collections4.map.ReferenceMap;
 import org.apache.commons.collections4.map.AbstractReferenceMap.ReferenceStrength;
+import org.apache.commons.collections4.map.ReferenceMap;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +13,7 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.core.cf.service.TokenService;
-import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
-import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocatorFactory;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
@@ -26,9 +23,6 @@ public class CloudControllerClientProvider {
 
     @Autowired
     private ClientFactory clientFactory;
-
-    @Autowired(required = false)
-    private PortAllocatorFactory portAllocatorFactory;
 
     @Autowired
     private TokenService tokenService;
@@ -56,10 +50,6 @@ public class CloudControllerClientProvider {
     public CloudControllerClient getControllerClient(String userName) {
         Pair<CloudControllerClient, TokenProvider> client = createClientForToken(userName);
         return client._1;
-    }
-
-    public PortAllocator getPortAllocator(XsCloudControllerClient client, String domain) {
-        return portAllocatorFactory.createPortAllocator(client, domain);
     }
 
     public void releaseClient(String userName, String org, String space) {

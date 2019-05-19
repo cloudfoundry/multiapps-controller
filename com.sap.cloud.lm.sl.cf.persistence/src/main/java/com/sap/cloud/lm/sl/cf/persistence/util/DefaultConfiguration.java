@@ -12,23 +12,20 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 public class DefaultConfiguration implements Configuration {
 
     private static final Long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4GB
-    private static final boolean DEFAULT_SCAN_UPLOADS = false;
 
     private final long maxUploadSize;
-    private final boolean scanUploads;
 
     public DefaultConfiguration() {
-        this(DEFAULT_MAX_UPLOAD_SIZE, DEFAULT_SCAN_UPLOADS);
+        this(DEFAULT_MAX_UPLOAD_SIZE);
     }
 
-    public DefaultConfiguration(long maxUploadSize, boolean scanUploads) {
+    public DefaultConfiguration(long maxUploadSize) {
         this.maxUploadSize = maxUploadSize;
-        this.scanUploads = scanUploads;
     }
 
     @Override
     public FileUploadProcessor<? extends OutputStream, ? extends OutputStream> getFileUploadProcessor() {
-        return new DefaultFileUploadProcessor(this.scanUploads);
+        return new DefaultFileUploadProcessor();
     }
 
     @Override

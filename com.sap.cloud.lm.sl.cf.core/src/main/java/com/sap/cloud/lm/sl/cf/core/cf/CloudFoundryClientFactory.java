@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudCredentials;
@@ -20,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.client.TokenProvider;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
+@Named
 public class CloudFoundryClientFactory extends ClientFactory {
 
     private ApplicationConfiguration configuration;

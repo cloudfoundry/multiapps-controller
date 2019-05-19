@@ -11,4 +11,4 @@ modules:
       disk-quota: 256M
       domain: ${default-domain}
 parameters:
-  default-domain: "{xsa-placeholder-domain-default}"
+  default-domain: "sap.com"

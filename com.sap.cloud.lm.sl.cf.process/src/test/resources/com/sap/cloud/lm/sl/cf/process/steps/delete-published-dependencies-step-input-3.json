@@ -1,6 +1,6 @@
 {
-    "idsOfExpectedEntriesToDelete": [0, 3],
-    "allEntriesForMtaWithNewTarget": [{
+    "idsOfExpectedEntriesToDelete": [],
+    "entriesForMta": [{
         "id": 0,
         "providerNid": "mta",
         "providerId": "com.sap.example.mta:foo",
@@ -12,17 +12,6 @@
         "content": "{}"
     },
     {
-        "id": 1,
-        "providerNid": "mta",
-        "providerId": "com.sap.example.mta:bar",
-        "providerVersion": "1.0.0",
-        "targetSpace": {
-     		"space": "myorg",
-      		"org": "SAP"
-   		},
-        "content": "{}"
-    }],
-    "allEntriesForMtaWithOldTarget": [{
         "id": 2,
         "providerNid": "mta",
         "providerId": "com.sap.example.mta:baz",
@@ -31,22 +20,12 @@
      		"space": "1"
    		},
         "content": "{}"
-    },
-    {
-        "id": 3,
-        "providerNid": "mta",
-        "providerId": "com.sap.example.mta:qux",
-        "providerVersion": "1.0.0",
-        "targetSpace": {
-     		"space": "1"
-   		},
-        "content": "{}"
     }],
     "publishedEntries": [
     {
-        "id": 1,
+        "id": 0,
         "providerNid": "mta",
-        "providerId": "com.sap.example.mta:bar",
+        "providerId": "com.sap.example.mta:foo",
         "providerVersion": "1.0.0",
         "targetSpace": {
      		"space": "myorg",
@@ -66,6 +45,5 @@
     }],
     "space": "SAP",
     "org": "myorg",
-    "spaceId": "1",
     "mtaId": "com.sap.example.mta"
 }

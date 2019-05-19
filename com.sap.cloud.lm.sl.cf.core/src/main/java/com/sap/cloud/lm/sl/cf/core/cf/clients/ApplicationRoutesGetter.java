@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -13,6 +14,7 @@ import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
 import org.springframework.web.client.RestTemplate;
 
+@Named
 public class ApplicationRoutesGetter extends CustomControllerClient {
 
     private CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();

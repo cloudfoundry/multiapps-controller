@@ -4,12 +4,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [
-      {
-        "port": 53030,
-        "portType": "HTTP"
-      }
-    ],
     "domains": [
       "sofd60245639a"
     ],
@@ -47,7 +41,7 @@
     ],
     "staging": {},
     "uris": [
-      "sofd60245639a:53030"
+      "di-core.sofd60245639a"
     ],
     "meta": {},
     "name": "di-core"
@@ -57,12 +51,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [
-      {
-        "port": 53031,
-        "portType": "HTTP"
-      }
-    ],
     "domains": [
       "sofd60245639a"
     ],
@@ -79,7 +67,7 @@
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "DI_URL=http://sofd60245639a:53030",
+      "DI_URL=http://di-core.sofd60245639a",
       "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
       "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"di-builder\"}",
@@ -95,10 +83,10 @@
       "uaa"
     ],
     "staging": {
-      "buildpackUrl": "http://sofd60245639a:53030/system/builderbp.git/"
+      "buildpackUrl": "http://di-core.sofd60245639a/system/builderbp.git/"
     },
     "uris": [
-      "sofd60245639a:53031"
+      "di-builder.sofd60245639a"
     ],
     "meta": {},
     "name": "di-builder"
@@ -108,12 +96,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [
-      {
-        "port": 53033,
-        "portType": "HTTP"
-      }
-    ],
     "domains": [
       "sofd60245639a"
     ],
@@ -130,14 +112,14 @@
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "DI_URL=http://sofd60245639a:53030",
+      "DI_URL=http://di-core.sofd60245639a",
       "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
       "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"di-runner\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"di-runner\"]",
       "MTA_SERVICES=[]",
       "TARGET_RUNTIME=tomcat",
-      "UI5_CONTENT_URL=http://sofd60245639a:53055",
+      "UI5_CONTENT_URL=http://ui5.sofd60245639a",
       "XS_PATH=/usr/sap/xs2runtime/bin/xs"
     ],
     "instances": 1,
@@ -148,7 +130,7 @@
     ],
     "staging": {},
     "uris": [
-      "sofd60245639a:53033"
+      "di-runner.sofd60245639a"
     ],
     "meta": {},
     "name": "di-runner"

@@ -10,7 +10,7 @@ public class DefaultDataSourceDialect implements DataSourceDialect {
 
     @Override
     public String getSequenceNextValueSyntax(String sequenceName) {
-        return sequenceName + ".NEXTVAL";
+        return "nextval('" + sequenceName + "')";
     }
 
     @Override
@@ -31,7 +31,7 @@ public class DefaultDataSourceDialect implements DataSourceDialect {
 
     @Override
     public void setBigInteger(PreparedStatement ps, int index, BigInteger bi) throws SQLException {
-        ps.setString(index, bi.toString());
+        ps.setLong(index, bi.longValue());
     }
 
     @Override

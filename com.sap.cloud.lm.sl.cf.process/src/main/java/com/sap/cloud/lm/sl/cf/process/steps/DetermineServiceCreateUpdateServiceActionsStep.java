@@ -6,7 +6,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -14,7 +13,6 @@ import java.util.Objects;
 import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudService;
@@ -23,9 +21,7 @@ import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceOfferingExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
@@ -71,13 +67,10 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             .info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
         CloudService existingService = controllerClient.getService(serviceToProcess.getName(), false);
 
-        Map<String, List<String>> defaultTags = computeDefaultTags(controllerClient);
-        List<String> serviceDefaultTags = defaultTags.getOrDefault(serviceToProcess.getLabel(), Collections.emptyList());
-
         Map<String, List<ServiceKey>> serviceKeys = StepsUtil.getServiceKeysToCreate(execution.getContext());
 
-        List<ServiceAction> actions = determineActions(controllerClient, spaceId, serviceToProcess, existingService, serviceDefaultTags,
-            serviceKeys, execution);
+        List<ServiceAction> actions = determineActions(controllerClient, spaceId, serviceToProcess, existingService, serviceKeys,
+            execution);
 
         setServiceParameters(serviceToProcess, actions, execution.getContext());
 
@@ -96,8 +89,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     }
 
     private List<ServiceAction> determineActions(CloudControllerClient client, String spaceId, CloudServiceExtended service,
-        CloudService existingService, List<String> defaultTags, Map<String, List<ServiceKey>> serviceKeys, ExecutionWrapper execution)
-        throws FileStorageException {
+        CloudService existingService, Map<String, List<ServiceKey>> serviceKeys, ExecutionWrapper execution) throws FileStorageException {
         List<ServiceAction> actions = new ArrayList<>();
 
         List<ServiceKey> keys = serviceKeys.get(service.getName());
@@ -133,7 +125,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
 
         List<String> existingServiceTags = getServiceTags(client, spaceId, existingService);
-        if (shouldUpdateTags(service, defaultTags, existingServiceTags)) {
+        if (shouldUpdateTags(service, existingServiceTags)) {
             getStepLogger().debug("Service tags should be updated");
             getStepLogger().debug("New service tags: " + JsonUtil.toJson(service.getTags()));
             getStepLogger().debug("Existing service tags: " + JsonUtil.toJson(existingServiceTags));
@@ -208,7 +200,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         if (serviceInstanceEntity == null) {
             return false;
         }
-        ServiceOperation lastOperation = getLastOperation(execution, serviceInstanceEntity);
+        ServiceOperation lastOperation = getLastOperation(serviceInstanceEntity);
         if (lastOperation != null && lastOperation.getType() == ServiceOperationType.CREATE
             && lastOperation.getState() == ServiceOperationState.FAILED) {
             return true;
@@ -240,40 +232,24 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return label + "/" + plan;
     }
 
-    private boolean shouldUpdateTags(CloudServiceExtended service, List<String> defaultTags, List<String> existingServiceTags) {
+    private boolean shouldUpdateTags(CloudServiceExtended service, List<String> existingServiceTags) {
         if (service.isUserProvided()) {
             return false;
         }
         existingServiceTags = ObjectUtils.defaultIfNull(existingServiceTags, Collections.<String> emptyList());
-        existingServiceTags = ListUtils.removeAll(existingServiceTags, defaultTags);
-        List<String> newServiceTags = ListUtils.removeAll(service.getTags(), defaultTags);
-        return !existingServiceTags.equals(newServiceTags);
+        return !existingServiceTags.equals(service.getTags());
     }
 
     private boolean shouldUpdateCredentials(CloudServiceExtended service, Map<String, Object> credentials) {
         return !Objects.equals(service.getCredentials(), credentials);
     }
 
-    private Map<String, List<String>> computeDefaultTags(CloudControllerClient client) {
-        if (!(client instanceof XsCloudControllerClient)) {
-            return Collections.emptyMap();
-        }
-
-        XsCloudControllerClient xsClient = (XsCloudControllerClient) client;
-        Map<String, List<String>> defaultTags = new HashMap<>();
-        for (CloudServiceOfferingExtended serviceOffering : xsClient.getExtendedServiceOfferings()) {
-            defaultTags.put(serviceOffering.getLabel(), serviceOffering.getTags());
-        }
-        return defaultTags;
-    }
-
-    private ServiceOperation getLastOperation(ExecutionWrapper execution, Map<String, Object> cloudServiceInstance) {
+    private ServiceOperation getLastOperation(Map<String, Object> cloudServiceInstance) {
         Map<String, Object> lastOperationAsMap = (Map<String, Object>) cloudServiceInstance.get(LAST_SERVICE_OPERATION);
         if (lastOperationAsMap == null) {
             return null;
         }
-        ServiceOperation lastOperation = parseServiceOperationFromMap(lastOperationAsMap);
-        return lastOperation;
+        return parseServiceOperationFromMap(lastOperationAsMap);
     }
 
     private ServiceOperation parseServiceOperationFromMap(Map<String, Object> serviceOperation) {

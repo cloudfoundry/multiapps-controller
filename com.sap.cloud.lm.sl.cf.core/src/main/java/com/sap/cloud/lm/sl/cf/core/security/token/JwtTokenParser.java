@@ -3,10 +3,10 @@ package com.sap.cloud.lm.sl.cf.core.security.token;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.jwt.JwtHelper;
@@ -16,15 +16,13 @@ import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.security.jwt.crypto.sign.SignatureVerifier;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.uaa.UAAClient;
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
-@Component
+@Named
 @Order(0)
-@Profile("cf")
 public class JwtTokenParser implements TokenParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenParser.class);

@@ -1,15 +1,11 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
-import static java.text.MessageFormat.format;
-
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.util.RestUtil;
 import org.flowable.common.engine.api.delegate.event.AbstractFlowableEventListener;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
@@ -41,7 +37,6 @@ import com.sap.cloud.lm.sl.cf.process.util.CollectedDataSender;
 import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Runnable;
 
 @Component("abortProcessListener")
@@ -83,7 +78,6 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
         HistoryService historyService = Context.getProcessEngineConfiguration()
             .getHistoryService();
 
-        new SafeExecutor().executeSafely(() -> deleteAllocatedRoutes(historyService, processInstanceId));
         new SafeExecutor().executeSafely(() -> deleteDeploymentFiles(historyService, processInstanceId));
 
         new SafeExecutor().executeSafely(() -> new ClientReleaser(engineEvent, clientProvider).releaseClient());
@@ -117,36 +111,6 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
         operation.setAcquiredLock(false);
         operationDao.merge(operation);
         LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
-    }
-
-    protected void deleteAllocatedRoutes(HistoryService historyService, String processInstanceId) {
-        HistoricVariableInstance allocatedPortsInstance = getHistoricVarInstanceValue(historyService, processInstanceId,
-            Constants.VAR_ALLOCATED_PORTS);
-        if (allocatedPortsInstance == null) {
-            return;
-        }
-        CloudControllerClient client = getCloudFoundryClient(historyService, processInstanceId);
-        String defaultDomain = client.getDefaultDomain() != null ? client.getDefaultDomain()
-            .getName() : null;
-        if (defaultDomain == null) {
-            LOGGER.warn(Messages.COULD_NOT_COMPUTE_DEFAULT_DOMAIN);
-            return;
-        }
-        Integer[] allocatedPorts = JsonUtil.fromJsonBinary((byte[]) allocatedPortsInstance.getValue(), Integer[].class);
-        for (Integer port : allocatedPorts) {
-            try {
-                client.deleteRoute(port.toString(), defaultDomain);
-            } catch (CloudOperationException e) {
-                LOGGER.warn(format(Messages.COULD_NOT_DELETE_ROUTE_FOR_PORT, port.toString()));
-            }
-        }
-    }
-
-    protected CloudControllerClient getCloudFoundryClient(HistoryService historyService, String processInstanceId) {
-        String user = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_USER).getValue();
-        String organization = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_ORG).getValue();
-        String space = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_SPACE).getValue();
-        return clientProvider.getControllerClient(user, organization, space, null);
     }
 
     protected void deleteDeploymentFiles(HistoryService historyService, String processInstanceId) throws FileStorageException {

@@ -49,15 +49,13 @@ public class AnalyticsCollector {
         long endTime = getEndTime();
         long processDuration = getProcessDurationInSeconds(context, processId);
         String mtaId = (String) context.getVariable(Constants.PARAM_MTA_ID);
-        String platform = configuration.getPlatformType()
-            .toString();
         String org = StepsUtil.getOrg(context);
         String space = StepsUtil.getSpace(context);
         String controllerUrl = configuration.getControllerUrl()
             .toString();
         AbstractCommonProcessAttributes attributes = getProcessType(processType).collectProcessVariables(context);
 
-        return new AnalyticsData(processId, processType, startTime, endTime, processDuration, null, mtaId, platform, org, space, controllerUrl,
+        return new AnalyticsData(processId, processType, startTime, endTime, processDuration, null, mtaId, org, space, controllerUrl,
             attributes);
 
     }

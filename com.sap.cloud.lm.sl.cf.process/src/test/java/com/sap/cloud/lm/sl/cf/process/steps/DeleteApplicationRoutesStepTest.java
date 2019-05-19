@@ -32,9 +32,9 @@ public class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
 
     private void assertRoutesWereDeleted() {
         int routesToDeleteCount = stepOutput.expectedRoutesToDelete.size();
-        verify(client, times(routesToDeleteCount)).deleteRoute(anyString(), anyString(), anyString());
+        verify(client, times(routesToDeleteCount)).deleteRoute(anyString(), anyString());
         for (Pair<String, String> hostAndDomain : stepOutput.expectedRoutesToDelete) {
-            verify(client).deleteRoute(hostAndDomain._1, hostAndDomain._2, null);
+            verify(client).deleteRoute(hostAndDomain._1, hostAndDomain._2);
             routesToDeleteCount--;
         }
         assertEquals("A number of routes were not deleted: ", 0, routesToDeleteCount);

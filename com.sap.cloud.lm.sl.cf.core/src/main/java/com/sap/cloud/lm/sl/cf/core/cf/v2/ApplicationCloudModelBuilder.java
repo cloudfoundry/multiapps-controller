@@ -17,8 +17,6 @@ import org.cloudfoundry.client.lib.domain.Staging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort.ApplicationPortType;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.RestartParameters;
@@ -26,7 +24,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
-import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
@@ -64,23 +61,20 @@ public class ApplicationCloudModelBuilder {
 
     protected DescriptorHandler handler;
     protected DeploymentDescriptor deploymentDescriptor;
-    protected CloudModelConfiguration configuration;
+    protected boolean prettyPrinting;
     protected ApplicationEnvironmentCloudModelBuilder applicationEnvCloudModelBuilder;
-    protected XsPlaceholderResolver xsPlaceholderResolver;
     protected DeployedMta deployedMta;
     protected UserMessageLogger stepLogger;
 
     protected ParametersChainBuilder parametersChainBuilder;
 
-    public ApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
-        DeployedMta deployedMta, XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger stepLogger) {
+    public ApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
+        String deployId, UserMessageLogger stepLogger) {
         HandlerFactory handlerFactory = createHandlerFactory();
         this.handler = handlerFactory.getDescriptorHandler();
         this.deploymentDescriptor = deploymentDescriptor;
-        this.configuration = configuration;
-        this.applicationEnvCloudModelBuilder = new ApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor,
-            xsPlaceholderResolver, deployId);
-        this.xsPlaceholderResolver = xsPlaceholderResolver;
+        this.prettyPrinting = prettyPrinting;
+        this.applicationEnvCloudModelBuilder = new ApplicationEnvironmentCloudModelBuilder(deploymentDescriptor, deployId, prettyPrinting);
         this.deployedMta = deployedMta;
         this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
         this.stepLogger = stepLogger;
@@ -114,19 +108,16 @@ public class ApplicationCloudModelBuilder {
         ApplicationUrisCloudModelBuilder urisCloudModelBuilder = getApplicationUrisCloudModelBuilder(parametersList);
         List<String> uris = getApplicationUris(module);
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, parametersList);
-        List<String> resolvedUris = xsPlaceholderResolver.resolve(uris);
-        List<String> resolvedIdleUris = xsPlaceholderResolver.resolve(idleUris);
         List<String> services = getAllApplicationServices(module);
         List<ServiceKeyToInject> serviceKeys = getServicesKeysToInject(module);
         Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, getApplicationServices(module));
         List<CloudTask> tasks = getTasks(parametersList);
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters(module);
-        List<ApplicationPort> applicationPorts = getApplicationPorts(urisCloudModelBuilder, module, parametersList);
         List<String> applicationDomains = getApplicationDomains(parametersList, module);
         RestartParameters restartParameters = parseParameters(parametersList, new RestartParametersParser());
-        return createCloudApplication(NameUtil.getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, resolvedUris,
-            resolvedIdleUris, services, serviceKeys, env, bindingParameters, tasks, applicationPorts, applicationDomains, restartParameters,
-            dockerInfo, applicationAttributesUpdateStrategy);
+        return createCloudApplication(NameUtil.getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, uris,
+            idleUris, services, serviceKeys, env, bindingParameters, tasks, applicationDomains, restartParameters, dockerInfo,
+            applicationAttributesUpdateStrategy);
     }
 
     private AttributeUpdateStrategy getApplicationAttributesUpdateStrategy(List<Map<String, Object>> parametersList) {
@@ -134,8 +125,7 @@ public class ApplicationCloudModelBuilder {
     }
 
     private ApplicationUrisCloudModelBuilder getApplicationUrisCloudModelBuilder(List<Map<String, Object>> parametersList) {
-        return new ApplicationUrisCloudModelBuilder(deploymentDescriptor, configuration.isPortBasedRouting(),
-            getApplicationAttributesUpdateStrategy(parametersList));
+        return new ApplicationUrisCloudModelBuilder(deploymentDescriptor, getApplicationAttributesUpdateStrategy(parametersList));
     }
 
     public List<String> getApplicationUris(Module module) {
@@ -177,20 +167,19 @@ public class ApplicationCloudModelBuilder {
     }
 
     private TaskParametersParser getTasksParametersParser() {
-        return new TaskParametersParser(SupportedParameters.TASKS, configuration.isPrettyPrinting());
+        return new TaskParametersParser(SupportedParameters.TASKS, prettyPrinting);
     }
 
     protected CloudApplicationExtended createCloudApplication(String name, String moduleName, Staging staging, int diskQuota, int memory,
         int instances, List<String> uris, List<String> idleUris, List<String> services, List<ServiceKeyToInject> serviceKeys,
-        Map<Object, Object> env, Map<String, Map<String, Object>> bindingParameters, List<CloudTask> tasks,
-        List<ApplicationPort> applicationPorts, List<String> applicationDomains, RestartParameters restartParameters, DockerInfo dockerInfo,
+        Map<Object, Object> env, Map<String, Map<String, Object>> bindingParameters, List<CloudTask> tasks, List<String> applicationDomains,
+        RestartParameters restartParameters, DockerInfo dockerInfo,
         CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateBehavior) {
         CloudApplicationExtended app = createCloudApplication(name, moduleName, staging, diskQuota, memory, instances, uris, idleUris,
             services, serviceKeys, env, tasks, dockerInfo);
         if (bindingParameters != null) {
             app.setBindingParameters(bindingParameters);
         }
-        app.setApplicationPorts(applicationPorts);
         app.setDomains(applicationDomains);
         app.setRestartParameters(restartParameters);
         app.setApplicationAttributesUpdateBehavior(applicationAttributesUpdateBehavior);
@@ -312,39 +301,10 @@ public class ApplicationCloudModelBuilder {
         return new ServiceKeyToInject(envVarName, serviceName, serviceKeyName);
     }
 
-    protected List<ApplicationPort> getApplicationPorts(ApplicationUrisCloudModelBuilder urisCloudModelBuilder, Module module,
-        List<Map<String, Object>> parametersList) {
-        List<Integer> ports = urisCloudModelBuilder.getApplicationPorts(module, parametersList);
-        ApplicationPortType portType = getType(module.getParameters());
-        return getApplicationPorts(ports, portType);
-    }
-
-    protected List<ApplicationPort> getApplicationPorts(List<Integer> ports, ApplicationPortType portType) {
-        List<ApplicationPort> applicationRoutes = new ArrayList<>();
-        for (int portNumber : ports) {
-            applicationRoutes.add(new ApplicationPort(portNumber, portType));
-        }
-        return applicationRoutes;
-    }
-
     public List<String> getApplicationDomains(List<Map<String, Object>> parametersList, Module module) {
         List<String> applicationDomains = getApplicationUrisCloudModelBuilder(parametersList).getApplicationDomains(module,
             parametersChainBuilder.buildModuleChain(module.getName()));
-        return xsPlaceholderResolver.resolve(applicationDomains);
-    }
-
-    private ApplicationPortType getType(Map<String, Object> moduleParameters) {
-        boolean isTcpRoute = (boolean) moduleParameters.getOrDefault(SupportedParameters.TCP, false);
-        boolean isTcpsRoute = (boolean) moduleParameters.getOrDefault(SupportedParameters.TCPS, false);
-        if (isTcpRoute && isTcpsRoute) {
-            throw new ContentException(Messages.INVALID_TCP_ROUTE);
-        }
-        if (isTcpRoute) {
-            return ApplicationPortType.TCP;
-        } else if (isTcpsRoute) {
-            return ApplicationPortType.TCPS;
-        }
-        return ApplicationPortType.HTTP;
+        return applicationDomains;
     }
 
     protected Resource getResource(String dependencyName) {

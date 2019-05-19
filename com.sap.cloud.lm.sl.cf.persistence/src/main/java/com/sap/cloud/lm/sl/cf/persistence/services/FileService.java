@@ -26,8 +26,6 @@ import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileUploadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.ExternalSqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.SqlFileQueryProvider;
-import com.sap.cloud.lm.sl.cf.persistence.security.VirusScanner;
-import com.sap.cloud.lm.sl.cf.persistence.security.VirusScannerException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.DigestHelper;
 
@@ -40,7 +38,6 @@ public class FileService {
     private final FileStorage fileStorage;
     private final SqlQueryExecutor sqlQueryExecutor;
     private final SqlFileQueryProvider sqlFileQueryProvider;
-    private VirusScanner virusScanner;
 
     public FileService(DataSourceWithDialect dataSourceWithDialect, FileStorage fileStorage) {
         this(DEFAULT_TABLE_NAME, dataSourceWithDialect, fileStorage);
@@ -54,10 +51,6 @@ public class FileService {
         this.sqlQueryExecutor = new SqlQueryExecutor(dataSourceWithDialect.getDataSource());
         this.sqlFileQueryProvider = sqlFileQueryProvider.withLogger(logger);
         this.fileStorage = fileStorage;
-    }
-
-    public void setVirusScanner(VirusScanner virusScanner) {
-        this.virusScanner = virusScanner;
     }
 
     public FileEntry addFile(String space, String name,
@@ -239,28 +232,10 @@ public class FileService {
         FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileInfoProcessor, FileInfo fileInfo)
         throws FileStorageException {
 
-        if (fileInfoProcessor.shouldScanFile()) {
-            scanUpload(fileInfo);
-        }
         FileEntry fileEntry = createFileEntry(space, namespace, name, fileInfo);
         storeFile(fileEntry, fileInfo);
         logger.debug(MessageFormat.format(Messages.STORED_FILE_0, fileEntry));
         return fileEntry;
-    }
-
-    private void scanUpload(FileInfo file) throws FileStorageException {
-        if (virusScanner == null) {
-            throw new FileStorageException(Messages.NO_VIRUS_SCANNER_CONFIGURED);
-        }
-        try {
-            logger.info(MessageFormat.format(Messages.SCANNING_FILE, file.getFile()));
-            virusScanner.scanFile(file.getFile());
-            logger.info(MessageFormat.format(Messages.SCANNING_FILE_SUCCESS, file.getFile()));
-        } catch (VirusScannerException e) {
-            logger.error(MessageFormat.format(Messages.DELETING_LOCAL_FILE_BECAUSE_OF_INFECTION, file.getFile()));
-            FileUploader.removeFile(file);
-            throw e;
-        }
     }
 
     private String generateRandomId() {

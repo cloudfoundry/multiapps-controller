@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.SystemParameters;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
@@ -25,7 +24,7 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
     @Test
     public void testIdleGeneralParameters() {
         prepareDescriptor("system-parameters/mtad.yaml");
-        prepareClient(true);
+        prepareClient();
 
         step.execute(context);
 
@@ -38,7 +37,7 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
     @Test
     public void testIdleHostBasedModuleParameters() {
         prepareDescriptor("system-parameters/mtad.yaml");
-        prepareClient(false);
+        prepareClient();
 
         step.execute(context);
 
@@ -60,35 +59,6 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
         assertEquals(expectedIdleHost, parameters.get(SupportedParameters.HOST));
         assertEquals(SystemParameters.DEFAULT_HOST_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_IDLE_URI));
         assertEquals(SystemParameters.DEFAULT_HOST_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_URI));
-        assertEquals(SystemParameters.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_IDLE_URL));
-        assertEquals(SystemParameters.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_URL));
-    }
-
-    @Test
-    public void testIdlePortBasedModuleParameters() {
-        prepareDescriptor("system-parameters/mtad.yaml");
-        prepareClient(true);
-
-        step.execute(context);
-
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
-        List<Module> modules = descriptor.getModules();
-        assertEquals(2, modules.size());
-        for (int index = 0; index < modules.size(); index++) {
-            Module module = modules.get(index);
-            validateIdlePortBasedModuleParameters(module, (PortValidator.MIN_PORT_VALUE + index) * 2);
-        }
-    }
-
-    private void validateIdlePortBasedModuleParameters(Module module, int expectedPort) {
-        Map<String, Object> parameters = module.getParameters();
-        assertEquals(DEFAULT_DOMAIN, parameters.get(SupportedParameters.IDLE_DOMAIN));
-        assertEquals(expectedPort, parameters.get(SupportedParameters.DEFAULT_IDLE_PORT));
-        assertEquals(expectedPort, parameters.get(SupportedParameters.IDLE_PORT));
-        assertEquals(expectedPort, parameters.get(SupportedParameters.DEFAULT_PORT));
-        assertEquals(expectedPort, parameters.get(SupportedParameters.PORT));
-        assertEquals(SystemParameters.DEFAULT_PORT_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_IDLE_URI));
-        assertEquals(SystemParameters.DEFAULT_PORT_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_URI));
         assertEquals(SystemParameters.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_IDLE_URL));
         assertEquals(SystemParameters.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_URL));
     }
