@@ -2,12 +2,11 @@
   {
     "moduleName": "module-1",
     "idleUris": [
-      "localhost:52000",
-      "localhost:52001"
+      "foo.localhost",
+      "bar.localhost"
     ],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [],
     "domains": [
       "sofd60245639a"
     ],
@@ -44,12 +43,11 @@
   {
     "moduleName": "module-2",
     "idleUris": [
-      "module-2-temp-1.localhost",
-      "module-2-temp-2.localhost"
+      "baz.localhost",
+      "qux.localhost"
     ],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [],
     "domains": [
       "sofd60245639a"
     ],

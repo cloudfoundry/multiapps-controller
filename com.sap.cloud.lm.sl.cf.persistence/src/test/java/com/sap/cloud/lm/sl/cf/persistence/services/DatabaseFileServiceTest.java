@@ -5,9 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -27,15 +25,12 @@ import javax.xml.bind.DatatypeConverter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
-import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileUploadProcessor;
-import com.sap.cloud.lm.sl.cf.persistence.security.VirusScanner;
 import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
 import com.sap.cloud.lm.sl.common.util.DigestHelper;
 import com.sap.cloud.lm.sl.common.util.TestDataSourceProvider;
@@ -186,33 +181,6 @@ public class DatabaseFileServiceTest {
         assertNull(fileService.getFile(SPACE_2, fileEntryToDelete2.getId()));
     }
 
-    @Test
-    public void fileUploadScanTest() throws FileStorageException {
-        InputStream resourceStream = getResource(PIC_RESOURCE_NAME);
-        String space = SPACE_1;
-        String namespace = NAMESPACE_1;
-
-        VirusScanner mockedScanner = Mockito.mock(VirusScanner.class);
-        fileService.setVirusScanner(mockedScanner);
-        fileService.addFile(space, namespace, PIC_STORAGE_NAME, new DefaultFileUploadProcessor(true), resourceStream);
-        Mockito.verify(mockedScanner, Mockito.times(1))
-            .scanFile((File) Mockito.any());
-    }
-
-    @Test
-    public void fileUploadScanNoScannerErrorTest() throws Exception {
-
-        InputStream resourceStream = getResource(PIC_RESOURCE_NAME);
-        String space = SPACE_1;
-        String namespace = NAMESPACE_1;
-        try {
-            fileService.addFile(space, namespace, PIC_STORAGE_NAME, new DefaultFileUploadProcessor(true), resourceStream);
-            fail("addFile should fail with error!");
-        } catch (FileStorageException e) {
-            assertEquals(Messages.NO_VIRUS_SCANNER_CONFIGURED, e.getMessage());
-        }
-    }
-
     protected FileService createFileService(DataSourceWithDialect dataSource) {
         return new DatabaseFileService(dataSource);
     }
@@ -223,7 +191,7 @@ public class DatabaseFileServiceTest {
 
     protected FileEntry addFile(String space, String namespace, String fileName, String resourceName) throws Exception {
         InputStream resourceStream = getResource(resourceName);
-        FileEntry fileEntry = fileService.addFile(space, namespace, fileName, new DefaultFileUploadProcessor(false), resourceStream);
+        FileEntry fileEntry = fileService.addFile(space, namespace, fileName, new DefaultFileUploadProcessor(), resourceStream);
         verifyFileEntry(fileEntry, space, namespace);
         return fileEntry;
     }
@@ -266,7 +234,7 @@ public class DatabaseFileServiceTest {
 
     private FileEntry addFileEntry(String spaceId) throws FileStorageException {
         InputStream resourceStream = getResource(PIC_RESOURCE_NAME);
-        return fileService.addFile(spaceId, NAMESPACE_1, PIC_STORAGE_NAME, new DefaultFileUploadProcessor(false), resourceStream);
+        return fileService.addFile(spaceId, NAMESPACE_1, PIC_STORAGE_NAME, new DefaultFileUploadProcessor(), resourceStream);
     }
 
     private void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {

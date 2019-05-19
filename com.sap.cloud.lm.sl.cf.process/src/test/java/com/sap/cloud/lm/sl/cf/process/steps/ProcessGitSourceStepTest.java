@@ -19,9 +19,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -30,7 +28,6 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class ProcessGitSourceStepTest extends SyncFlowableStepTest<ProcessGitSourceStep> {
 
     public static final String PROCESS_INSTANCE_ID = "1234";
-    private CloudInfoExtended cloudInfo = Mockito.mock(CloudInfoExtended.class);
 
     @Override
     protected ProcessGitSourceStep createStep() {
@@ -49,20 +46,6 @@ public class ProcessGitSourceStepTest extends SyncFlowableStepTest<ProcessGitSou
         String gitUri = "https://somehost.com/somerepo/.git";
         context.setVariable(Constants.PARAM_GIT_URI, gitUri);
         assertEquals(gitUri, step.getGitUri(execution));
-    }
-
-    @Test
-    public void getGitUriFromRepositoryName() throws SLException {
-        String repoName = "someRepo";
-        String urlService = "https://somehost.com/service/someService";
-        Mockito.when(cloudInfo.getServiceUrl("git-service"))
-            .thenReturn(urlService);
-        Mockito.when(client.getCloudInfo())
-            .thenReturn(cloudInfo);
-        // step.clientSupplier = (context) -> client;
-        context.setVariable(Constants.PARAM_GIT_URI, repoName);
-
-        assertEquals("https://somehost.com/someRepo", step.getGitUri(execution));
     }
 
     @Test

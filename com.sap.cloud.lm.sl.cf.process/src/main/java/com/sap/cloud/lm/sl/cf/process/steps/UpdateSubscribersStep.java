@@ -39,7 +39,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.DummyConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.ReferencingPropertiesVisitor;
-import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
@@ -212,8 +211,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
             secureSerializer.toJson(dummyDescriptor));
 
         ApplicationCloudModelBuilder applicationCloudModelBuilder = handlerFactory.getApplicationCloudModelBuilder(dummyDescriptor,
-            StepsUtil.getCloudBuilderConfiguration(context, shouldUsePrettyPrinting()), null, new XsPlaceholderResolver(), "",
-            getStepLogger());
+            shouldUsePrettyPrinting(), null, "", getStepLogger());
 
         Module module = dummyDescriptor.getModules()
             .get(0);

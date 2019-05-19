@@ -16,7 +16,7 @@ modules:
       memory: 512M
       disk-quota: 256M
       routes:
-        - route:  ${default-domain}:53531
+        - route: hello-router.${default-domain}
         
   - name: hello-backend
     type: java.tomee
@@ -29,6 +29,6 @@ modules:
       memory: 512M
       disk-quota: 256M
       routes:
-        - route: ${default-domain}:53530/content
+        - route: hello-backend.${default-domain}/content
 parameters:
-  default-domain: "{xsa-placeholder-domain-default}"
+  default-domain: "sap.com"

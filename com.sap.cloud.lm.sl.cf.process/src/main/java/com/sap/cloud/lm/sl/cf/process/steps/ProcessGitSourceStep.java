@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -20,15 +19,12 @@ import javax.inject.Inject;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.utils.URIBuilder;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveBuilder;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
@@ -38,6 +34,7 @@ import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.GitRepoCloner;
+import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 
 // Should be executed before ValidateDeployParametersStep as the archive ID is determined during this step execution
@@ -47,7 +44,6 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
 
     private static final String SKIP_SSL_GIT_CONFIG = ".skipSslGitConfig";
     private static final String PATH_SEPARATOR = "/";
-    private static final String GIT_SERVICE_URL_KEY = "git-service";
     private static final String REPOSITORY_DIRECTORY_NAME = "repos";
     private static final String MTAR_EXTENTION = ".mtar";
     public static final String META_INF_PATH = "META-INF";
@@ -112,20 +108,9 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
     private GitRepoCloner createCloner(ExecutionWrapper execution) {
         DelegateExecution context = execution.getContext();
         GitRepoCloner cloner = new GitRepoCloner();
-        cloner.setGitServiceUrlString(getGitServiceUrl(execution));
         cloner.setRefName(StepsUtil.getGitRepoRef(context));
         cloner.setGitConfigFilePath(generateGitConfigFilepath(context.getProcessInstanceId()));
         cloner.setSkipSslValidation((boolean) context.getVariable(Constants.PARAM_GIT_SKIP_SSL));
-        String userName = StepsUtil.determineCurrentUser(context, getStepLogger());
-        String token;
-        try {
-            token = clientProvider.getValidToken(userName)
-                .getValue();
-            cloner.setCredentials(userName, token);
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_RETRIEVING_OAUT_TOKEN);
-            throw e;
-        }
         return cloner;
     }
 
@@ -134,18 +119,7 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
         try {
             return new URL(gitUriParam).toString();
         } catch (MalformedURLException e) {
-            String gitServiceUrl = getGitServiceUrl(execution);
-            return buildUriFromRepositoryName(gitUriParam, gitServiceUrl);
-        }
-    }
-
-    protected String buildUriFromRepositoryName(String gitUriParam, String gitServiceUrl) {
-        try {
-            URIBuilder gitUriBuilder = new URIBuilder(gitServiceUrl);
-            gitUriBuilder.setPath(PATH_SEPARATOR + gitUriParam);
-            return gitUriBuilder.toString();
-        } catch (URISyntaxException e) {
-            throw new SLException(e, Messages.ERROR_PROCESSING_GIT_URI);
+            throw new ContentException(e, Messages.GIT_URI_IS_NOT_SPECIFIED);
         }
     }
 
@@ -159,24 +133,6 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
         }
         String repoLocation = gitUri.substring(0, gitUri.lastIndexOf(PATH_SEPARATOR + org.eclipse.jgit.lib.Constants.DOT_GIT));
         return repoLocation.substring(repoLocation.lastIndexOf(PATH_SEPARATOR) + 1) + processId;
-    }
-
-    private String getGitServiceUrl(ExecutionWrapper execution) {
-        if (!isClientExtensionsAvailable(execution)) {
-            return null;
-        }
-        CloudInfoExtended info = getCloudInfoExtended(execution);
-        return info.getServiceUrl(GIT_SERVICE_URL_KEY);
-    }
-
-    private CloudInfoExtended getCloudInfoExtended(ExecutionWrapper execution) {
-        return (CloudInfoExtended) execution.getControllerClient()
-            .getCloudInfo();
-    }
-
-    private boolean isClientExtensionsAvailable(ExecutionWrapper execution) {
-        CloudControllerClient client = execution.getControllerClient();
-        return client.getCloudInfo() instanceof CloudInfoExtended;
     }
 
     protected Path zipRepoContent(final Path mtaPath) throws IOException {

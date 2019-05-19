@@ -4,17 +4,13 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 
 public class IdleUriParametersParser extends UriParametersParser {
 
-    public IdleUriParametersParser(boolean portBasedRouting, String defaultHost, String defaultDomain, Integer defaultPort,
-        String routePath, boolean includeProtocol, String protocol) {
-        super(portBasedRouting, defaultHost, defaultDomain, defaultPort, SupportedParameters.IDLE_HOST, SupportedParameters.IDLE_DOMAIN,
-            SupportedParameters.IDLE_PORT, true, routePath, includeProtocol, protocol);
+    public IdleUriParametersParser(String defaultHost, String defaultDomain, String routePath) {
+        super(defaultHost, defaultDomain, SupportedParameters.IDLE_HOST, SupportedParameters.IDLE_DOMAIN, true, routePath);
     }
 
-    public IdleUriParametersParser(boolean portBasedRouting, String defaultHost, String defaultDomain, Integer defaultPort,
-        String hostParameterName, String domainParameterName, String portParameterName, String routePath, boolean includeProtocol,
-        String protocol) {
-        super(portBasedRouting, defaultHost, defaultDomain, defaultPort, hostParameterName, domainParameterName, portParameterName, true,
-            routePath, includeProtocol, protocol);
+    public IdleUriParametersParser(String defaultHost, String defaultDomain, String hostParameterName, String domainParameterName,
+        String routePath) {
+        super(defaultHost, defaultDomain, hostParameterName, domainParameterName, true, routePath);
     }
 
 }

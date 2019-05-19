@@ -4,7 +4,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [],
     "domains": [
       "cfapps.neo.ondemand.com"
     ],
@@ -52,7 +51,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [],
     "domains": [
       "cfapps.neo.ondemand.com"
     ],
@@ -97,7 +95,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [],
     "domains": [
       "cfapps.neo.ondemand.com"
     ],

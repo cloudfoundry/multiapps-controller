@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
@@ -18,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 
+@Named
 public class ServiceCreator extends CloudServiceOperator {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(ServiceCreator.class);

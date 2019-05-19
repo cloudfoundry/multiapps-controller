@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.persistence.changes;
 
-public class IndexSpaceOfLmSlPersistenceFilePostgreSQLChange extends AbstractIndexSQLChange {
+public class IndexSpaceOfLmSlPersistenceFileChange extends AbstractIndexSQLChange {
 
     @Override
     protected String getQuery() {

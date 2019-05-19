@@ -7,7 +7,6 @@
   "endTime": 149543224,
   "processDurationInSeconds": 149543,
   "mtaId": "mta-id",
-  "platform": "CF",
   "org": "org",
   "space": "space",
   "controllerUrl": "http://example.com/",

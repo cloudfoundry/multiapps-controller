@@ -16,9 +16,9 @@ public class RouteValidator implements ParameterValidator {
     private List<ParameterValidator> validators;
 
     public RouteValidator() {
-        this.validators = Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator());
+        this.validators = Arrays.asList(new HostValidator(), new DomainValidator());
     }
-    
+
     @Override
     public String attemptToCorrect(Object route) {
         if (!(route instanceof String)) {
@@ -49,7 +49,7 @@ public class RouteValidator implements ParameterValidator {
         if (uri.getURIPart(uriPartName) == null) {
             return;
         }
-        
+
         Object part = uri.getURIPart(uriPartName);
 
         if (partValidator.canCorrect() && !partValidator.isValid(part)) {
@@ -73,9 +73,8 @@ public class RouteValidator implements ParameterValidator {
         boolean partsAreValid = validators.stream()
             .allMatch(validator -> partIsValid(validator, uriParts));
 
-        boolean hostOrPortPresent = uriParts.containsKey(SupportedParameters.HOST) || uriParts.containsKey(SupportedParameters.PORT);
-
-        return hostOrPortPresent && partsAreValid;
+        boolean hostPresent = uriParts.containsKey(SupportedParameters.HOST);
+        return hostPresent && partsAreValid;
     }
 
     protected boolean partIsValid(ParameterValidator validator, Map<String, Object> uriParts) {

@@ -9,7 +9,6 @@ import org.cloudfoundry.client.lib.domain.ServiceKey;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 
 public abstract class CreateOrUpdateAppStepBaseTest extends SyncFlowableStepTest<CreateOrUpdateAppStep> {
 
@@ -20,7 +19,6 @@ public abstract class CreateOrUpdateAppStepBaseTest extends SyncFlowableStepTest
         List<CloudApplicationExtended> applications = Collections.emptyList();
         List<SimpleService> services = Collections.emptyList();
         int applicationIndex;
-        PlatformType platform;
         Map<String, String> bindingErrors = new HashMap<>();
         Map<String, List<ServiceKey>> existingServiceKeys = new HashMap<>();
     }

@@ -7,7 +7,6 @@ targets: [XS2-INITIAL]
 modules:
   - name: di-core
     parameters:
-      port: 53030
       memory: 512M
       instances: 1
     properties:
@@ -16,11 +15,10 @@ modules:
     provides:
       - name: di-core-url
         properties:
-          url: "http://sofd60245639a:53030"
+          url: "http://di-core.sofd60245639a"
 
   - name: di-builder
     parameters:
-      port: 53031
       memory: 512M
       instances: 1
     properties:
@@ -28,7 +26,6 @@ modules:
 
   - name: di-runner
     parameters:
-      port: 53033
       memory: 512M
       instances: 1
     properties:
@@ -37,7 +34,7 @@ modules:
 resources:
  - name: ui5-content-url
    properties:
-     url: "http://sofd60245639a:53055"
+     url: "http://ui5.sofd60245639a"
 
  - name: di-core-hdi
    parameters:

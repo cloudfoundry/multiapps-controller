@@ -18,11 +18,8 @@
     <serviceTask id="prepareToUndeployTask" name="Prepare Undeploy" flowable:async="true" flowable:delegateExpression="${prepareToUndeployStep}"></serviceTask>
     <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="detectDeployedMtaTask"></sequenceFlow>
     <sequenceFlow id="flow3" sourceRef="prepareToUndeployTask" targetRef="buildUndeployModelTask"></sequenceFlow>
-    <serviceTask id="unregisterServiceUrlsTask" name="Unregister Service URLs" flowable:async="true" flowable:delegateExpression="${unregisterServiceUrlsStep}"></serviceTask>
     <serviceTask id="deleteServiceBrokersTask" name="Delete Service Brokers" flowable:async="true" flowable:delegateExpression="${deleteServiceBrokersStep}"></serviceTask>
-    <sequenceFlow id="flow7" sourceRef="unregisterServiceUrlsTask" targetRef="shouldDeleteDiscontinuedServiceBrokersGateway"></sequenceFlow>
     <serviceTask id="deleteDiscontinuedConfigurationEntriesTask" name="Delete Discontinued Configuration Entries" flowable:async="true" flowable:delegateExpression="${deleteDiscontinuedConfigurationEntriesStep}"></serviceTask>
-    <sequenceFlow id="flow6" sourceRef="deleteDiscontinuedConfigurationEntriesTask" targetRef="unregisterServiceUrlsTask"></sequenceFlow>
     <serviceTask id="buildUndeployModelTask" name="Build Undeploy Model" flowable:async="true" flowable:delegateExpression="${buildCloudUndeployModelStep}"></serviceTask>
     <sequenceFlow id="flow4" sourceRef="buildUndeployModelTask" targetRef="deleteSubscriptionsTask"></sequenceFlow>
     <serviceTask id="detectDeployedMtaTask" name="Detect Deployed MTA" flowable:async="true" flowable:delegateExpression="${detectDeployedMtaStep}"></serviceTask>
@@ -87,6 +84,7 @@
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="appsToUndeploy" flowable:elementVariable="appToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="sid-5C5B02D1-A40E-41A4-8C0B-C93A7E500B93" sourceRef="undeployAppsCallActivity" targetRef="shouldDeleteDiscontinuedServicesGateway"></sequenceFlow>
+    <sequenceFlow id="flow6" sourceRef="deleteDiscontinuedConfigurationEntriesTask" targetRef="shouldDeleteDiscontinuedServiceBrokersGateway"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_xs2-undeploy">
     <bpmndi:BPMNPlane bpmnElement="xs2-undeploy" id="BPMNPlane_xs2-undeploy">
@@ -98,9 +96,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="prepareToUndeployTask" id="BPMNShape_prepareToUndeployTask">
         <omgdc:Bounds height="55.0" width="109.0" x="350.0" y="76.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="unregisterServiceUrlsTask" id="BPMNShape_unregisterServiceUrlsTask">
-        <omgdc:Bounds height="55.0" width="111.0" x="1037.0" y="76.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="deleteServiceBrokersTask" id="BPMNShape_deleteServiceBrokersTask">
         <omgdc:Bounds height="58.0" width="111.0" x="1207.0" y="193.0"></omgdc:Bounds>
@@ -202,11 +197,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
         <omgdi:waypoint x="980.9499999999999" y="103.5"></omgdi:waypoint>
-        <omgdi:waypoint x="1036.9999999999786" y="103.5"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
-        <omgdi:waypoint x="1147.95" y="103.29368029739777"></omgdi:waypoint>
-        <omgdi:waypoint x="1207.0740740740735" y="103.07388888888889"></omgdi:waypoint>
+        <omgdi:waypoint x="1207.5" y="103.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
         <omgdi:waypoint x="251.94999999995042" y="330.5"></omgdi:waypoint>

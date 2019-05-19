@@ -26,7 +26,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
@@ -48,7 +47,6 @@ public class AnalyticsCollectorTest {
     protected static final String SPACE_NAME = "space";
     protected static final String CONTROLLER_URL = "http://example.com/";
     protected static final String TIME_ZONE = "Europe/Berlin";
-    protected static final PlatformType PLATFORM_TYPE = PlatformType.CF;
     protected static final Map<String, ServiceOperationType> TRIGGERED_SERVICE_OPERATIONS = new HashMap<>();
     protected static final String MODULE_A = "module-a";
 
@@ -114,7 +112,6 @@ public class AnalyticsCollectorTest {
     private void prepareContextForDeploy() throws Exception {
         when(context.getProcessInstanceId()).thenReturn(PROCESS_ID);
         when(context.getVariable(Constants.PARAM_MTA_ID)).thenReturn(MTA_ID);
-        when(configuration.getPlatformType()).thenReturn(PLATFORM_TYPE);
         context.setVariable(Constants.VAR_SPACE, SPACE_NAME);
         context.setVariable(Constants.VAR_ORG, ORG_NAME);
 

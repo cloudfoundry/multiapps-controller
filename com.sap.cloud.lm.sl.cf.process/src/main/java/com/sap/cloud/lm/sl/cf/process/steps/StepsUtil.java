@@ -21,7 +21,6 @@ import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
@@ -36,11 +35,8 @@ import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
@@ -48,13 +44,11 @@ import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v2.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
-import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
@@ -98,24 +92,6 @@ public class StepsUtil {
         return clientProvider.getControllerClient(userName, org, space, context.getProcessInstanceId());
     }
 
-    static XsCloudControllerClient getXsControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
-        StepLogger stepLogger) {
-        CloudControllerClient client = StepsUtil.getControllerClient(context, clientProvider, stepLogger);
-        if (client instanceof XsCloudControllerClient) {
-            return (XsCloudControllerClient) client;
-        }
-        return null;
-    }
-
-    static XsCloudControllerClient getXsControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
-        StepLogger stepLogger, String org, String space) {
-        CloudControllerClient client = StepsUtil.getControllerClient(context, clientProvider, stepLogger, org, space);
-        if (client instanceof XsCloudControllerClient) {
-            return (XsCloudControllerClient) client;
-        }
-        return null;
-    }
-
     public static String determineCurrentUser(VariableScope scope, StepLogger stepLogger) {
         String userId = Authentication.getAuthenticatedUserId();
         String previousUser = (String) scope.getVariable(Constants.VAR_USER);
@@ -142,15 +118,6 @@ public class StepsUtil {
         scope.setVariable(Constants.VAR_USER, userId);
 
         return userId;
-    }
-
-    public static boolean isPortBasedRouting(ExecutionWrapper execution) {
-        CloudControllerClient client = execution.getControllerClient();
-        CloudInfo info = client.getCloudInfo();
-        if (info instanceof CloudInfoExtended) {
-            return ((CloudInfoExtended) info).isPortBasedRouting();
-        }
-        return false;
     }
 
     public static MtaArchiveElements getMtaArchiveElements(VariableScope scope) {
@@ -520,14 +487,6 @@ public class StepsUtil {
         setAsJsonBinary(scope, Constants.VAR_PUBLISHED_ENTRIES, publishedEntries);
     }
 
-    static void setServiceUrlToRegister(VariableScope scope, ServiceUrl serviceUrl) {
-        setAsJsonBinary(scope, Constants.VAR_SERVICE_URL_TO_REGISTER, serviceUrl);
-    }
-
-    public static ServiceUrl getServiceUrlToRegister(VariableScope scope) {
-        return getFromJsonBinary(scope, Constants.VAR_SERVICE_URL_TO_REGISTER, ServiceUrl.class);
-    }
-
     public static void setVariableInParentProcess(DelegateExecution context, String variablePrefix, Object variableValue) {
         String moduleName = StepsUtil.getApp(context)
             .getModuleName();
@@ -549,58 +508,12 @@ public class StepsUtil {
         runtimeService.setVariable(superExecutionId, exportedVariableName, binaryJson);
     }
 
-    public static ServiceUrl getServiceUrlToRegisterForModule(VariableScope scope, String moduleName) {
-        return getFromJsonBinary(scope, Constants.VAR_APP_SERVICE_URL_VAR_PREFIX + moduleName, ServiceUrl.class);
-    }
-
-    public static List<String> getRegisteredServiceUrlsNames(VariableScope scope) {
-        List<Module> allModulesToDeploy = getAllModulesToDeploy(scope);
-        return allModulesToDeploy.stream()
-            .map(module -> getServiceUrlToRegisterForModule(scope, module.getName()))
-            .filter(Objects::nonNull)
-            .map(ServiceUrl::getServiceName)
-            .collect(Collectors.toList());
-    }
-
     static void setDeployedMta(VariableScope scope, DeployedMta deployedMta) {
         setAsJsonBinary(scope, Constants.VAR_DEPLOYED_MTA, deployedMta);
     }
 
     protected static DeployedMta getDeployedMta(VariableScope scope) {
         return getFromJsonBinary(scope, Constants.VAR_DEPLOYED_MTA, DeployedMta.class);
-    }
-
-    static Map<String, Set<Integer>> getAllocatedPorts(VariableScope scope) {
-        TypeReference<Map<String, Set<Integer>>> type = new TypeReference<Map<String, Set<Integer>>>() {
-        };
-        return getFromJsonBinary(scope, Constants.VAR_ALLOCATED_PORTS, type);
-    }
-
-    static void setAllocatedPorts(VariableScope scope, Map<String, Set<Integer>> allocatedPorts) {
-        setAsJsonBinary(scope, Constants.VAR_ALLOCATED_PORTS, allocatedPorts);
-    }
-
-    static void setXsPlaceholderReplacementValues(VariableScope scope, Map<String, Object> replacementValues) {
-        setAsJsonBinary(scope, Constants.VAR_XS_PLACEHOLDER_REPLACEMENT_VALUES, replacementValues);
-    }
-
-    static Map<String, Object> getXsPlaceholderReplacementValues(VariableScope scope) {
-        String json = new String(getObject(scope, Constants.VAR_XS_PLACEHOLDER_REPLACEMENT_VALUES), StandardCharsets.UTF_8);
-        // JsonUtil.convertJsonToMap does some magic under the hood that converts doubles to integers whenever possible. We need it for
-        // SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER. That's why we can't use getFromJsonBinary here.
-        return JsonUtil.convertJsonToMap(json);
-    }
-
-    static XsPlaceholderResolver getXsPlaceholderResolver(VariableScope scope) {
-        Map<String, Object> replacementValues = getXsPlaceholderReplacementValues(scope);
-        XsPlaceholderResolver resolver = new XsPlaceholderResolver();
-        resolver.setControllerEndpoint((String) replacementValues.get(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER));
-        resolver.setRouterPort((int) replacementValues.get(SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER));
-        resolver.setAuthorizationEndpoint((String) replacementValues.get(SupportedParameters.XSA_AUTHORIZATION_ENDPOINT_PLACEHOLDER));
-        resolver.setDeployServiceUrl((String) replacementValues.get(SupportedParameters.XSA_DEPLOY_SERVICE_URL_PLACEHOLDER));
-        resolver.setProtocol((String) replacementValues.get(SupportedParameters.XSA_PROTOCOL_PLACEHOLDER));
-        resolver.setDefaultDomain((String) replacementValues.get(SupportedParameters.XSA_DEFAULT_DOMAIN_PLACEHOLDER));
-        return resolver;
     }
 
     public static DeploymentDescriptor getDeploymentDescriptor(VariableScope scope) {
@@ -854,24 +767,19 @@ public class StepsUtil {
     public static final String DEPLOY_ID_PREFIX = "deploy-";
 
     static ApplicationCloudModelBuilder getApplicationCloudModelBuilder(VariableScope scope, UserMessageLogger stepLogger) {
-        CloudModelConfiguration configuration = getCloudBuilderConfiguration(scope, true);
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
 
         String deployId = DEPLOY_ID_PREFIX + getCorrelationId(scope);
 
-        XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(scope);
-
         DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(scope);
         DeployedMta deployedMta = StepsUtil.getDeployedMta(scope);
 
-        return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, xsPlaceholderResolver,
-            deployId, stepLogger);
+        return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, stepLogger);
     }
 
     static List<String> getDomainsFromApps(VariableScope scope, DeploymentDescriptor descriptor,
         ApplicationCloudModelBuilder applicationCloudModelBuilder, List<? extends Module> modules,
         ModuleToDeployHelper moduleToDeployHelper) {
-        XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(scope);
 
         String defaultDomain = (String) descriptor.getParameters()
             .get(SupportedParameters.DEFAULT_DOMAIN);
@@ -887,10 +795,6 @@ public class StepsUtil {
             if (appDomains != null) {
                 domains.addAll(appDomains);
             }
-        }
-
-        if (xsPlaceholderResolver.getDefaultDomain() != null) {
-            domains.remove(xsPlaceholderResolver.getDefaultDomain());
         }
 
         if (defaultDomain != null) {
@@ -911,14 +815,6 @@ public class StepsUtil {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
         DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(scope);
         return handlerFactory.getServiceKeysCloudModelBuilder(deploymentDescriptor);
-    }
-
-    protected static CloudModelConfiguration getCloudBuilderConfiguration(VariableScope scope, boolean prettyPrinting) {
-        Boolean portBasedRouting = getBoolean(scope, Constants.VAR_PORT_BASED_ROUTING, false);
-        CloudModelConfiguration configuration = new CloudModelConfiguration();
-        configuration.setPortBasedRouting(portBasedRouting);
-        configuration.setPrettyPrinting(prettyPrinting);
-        return configuration;
     }
 
     static String getGitRepoRef(VariableScope scope) {

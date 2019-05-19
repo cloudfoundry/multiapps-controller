@@ -25,7 +25,6 @@
         "serviceKeyName": "service-key-defined-in-resource-2"
       }
     ],
-    "applicationPorts": [],
     "domains": [
       "sofd60245639a"
     ],

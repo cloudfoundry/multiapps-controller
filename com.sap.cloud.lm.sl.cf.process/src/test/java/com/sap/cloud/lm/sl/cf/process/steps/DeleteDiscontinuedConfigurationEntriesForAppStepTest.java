@@ -35,7 +35,6 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
     private static class StepInput {
         String org;
         String space;
-        String spaceId;
         CloudApplication existingApp;
         String mtaId;
         String mtaVersion;
@@ -108,7 +107,6 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
     private void prepareContext() {
         context.setVariable(Constants.VAR_ORG, input.org);
         context.setVariable(Constants.VAR_SPACE, input.space);
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID, input.spaceId);
         StepsUtil.setExistingApp(context, input.existingApp);
         context.setVariable(Constants.PARAM_MTA_ID, input.mtaId);
         StepsUtil.setPublishedEntries(context, input.publishedEntries);

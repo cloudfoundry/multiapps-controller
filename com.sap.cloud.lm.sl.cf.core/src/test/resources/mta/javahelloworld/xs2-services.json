@@ -22,8 +22,8 @@
       "tags": [
         "xsuaa"
       ],
-      "uaaBaseUrl": "http://sofd60245639a:51001",
-      "url": "http://sofd60245639a:51001"
+      "uaaBaseUrl": "http://uaa.sofd60245639a",
+      "url": "http://uaa.sofd60245639a"
     },
     "tags": [],
     "isOptional": false,

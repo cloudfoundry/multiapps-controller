@@ -7,20 +7,9 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 
 public class DefaultFileUploadProcessor implements FileUploadProcessor<FileOutputStream, FileOutputStream> {
 
-    private boolean shouldScanFile = true; // default
-
-    public DefaultFileUploadProcessor(boolean shouldScanFile) {
-        this.shouldScanFile = shouldScanFile;
-    }
-
     @Override
     public int getProcessingBufferSize() {
         return FileContentProcessor.DEFAULT_BUFFER_SIZE;
-    }
-
-    @Override
-    public boolean shouldScanFile() {
-        return this.shouldScanFile;
     }
 
     @Override

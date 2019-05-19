@@ -4,12 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Map;
 
-import org.glassfish.jersey.jaxb.internal.XmlCollectionJaxbProvider.App;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,7 +18,6 @@ import org.mockito.MockitoAnnotations;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration.DatabaseType;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 
@@ -85,14 +82,6 @@ public class ApplicationConfigurationTest {
         when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION)).thenReturn(vcapApplicationJson);
         ApplicationConfiguration testedConfiguration = new ApplicationConfiguration(environment);
         return testedConfiguration.getControllerUrl();
-    }
-
-    @Test
-    public void testReadDBType() {
-        DatabaseType expectedDBType = DatabaseType.POSTGRESQL;
-        when(environment.getString(ApplicationConfiguration.CFG_DB_TYPE)).thenReturn(expectedDBType.toString());
-        ApplicationConfiguration testedConfiguration = new ApplicationConfiguration(environment);
-        assertEquals(expectedDBType, testedConfiguration.getDatabaseType());
     }
 
     @Test

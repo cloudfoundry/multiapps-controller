@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -38,13 +37,11 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
             .getVariable(Constants.PARAM_MTA_ID);
         String org = StepsUtil.getOrg(execution.getContext());
         String space = StepsUtil.getSpace(execution.getContext());
-        CloudTarget newTarget = new CloudTarget(org, space);
-        CloudTarget oldTarget = new CloudTarget(null, StepsUtil.getSpaceId(execution.getContext()));
+        CloudTarget target = new CloudTarget(org, space);
 
-        List<ConfigurationEntry> publishedConfigurationEntries = StepsUtil.getPublishedEntriesFromSubProcesses(execution.getContext(),
-            flowableFacade);
+        List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(execution.getContext(), flowableFacade);
 
-        List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, newTarget, oldTarget, publishedConfigurationEntries);
+        List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, target, publishedEntries);
         for (ConfigurationEntry entry : entriesToDelete) {
             try {
                 getStepLogger().info(MessageFormat.format(Messages.DELETING_DISCONTINUED_DEPENDENCY_0, entry.getProviderId()));
@@ -58,20 +55,6 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
 
         getStepLogger().debug(Messages.PUBLISHED_DEPENDENCIES_DELETED);
         return StepPhase.DONE;
-    }
-
-    private List<ConfigurationEntry> getEntriesToDelete(String mtaId, CloudTarget newTarget, CloudTarget oldTarget,
-        List<ConfigurationEntry> publishedEntries) {
-        List<ConfigurationEntry> entriesWithNewTargetFormat = getEntriesToDelete(mtaId, newTarget, publishedEntries);
-        /**
-         * TODO: The following line of code should be removed when compatibility with versions lower than 1.18.2 is not required. In these
-         * versions, the configuration entries were stored with the space ID of the provider as a value for their target element. This was
-         * identified as an issue, since restricted users could not see configuration entries for spaces, in which they had no roles
-         * assigned. The following line ensures that entries published by old deploy service versions, are detected properly as discontinued
-         * during redeploy (update) of the MTA that provided them.
-         */
-        List<ConfigurationEntry> entriesWithOldTargetFormat = getEntriesToDelete(mtaId, oldTarget, publishedEntries);
-        return ListUtils.union(entriesWithNewTargetFormat, entriesWithOldTargetFormat);
     }
 
     private List<ConfigurationEntry> getEntriesToDelete(String mtaId, CloudTarget target, List<ConfigurationEntry> publishedEntries) {

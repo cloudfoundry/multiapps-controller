@@ -48,21 +48,17 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
             {
                 "delete-published-dependencies-step-input-0.json",
             },
-            // (1) There are entries with the old 'target' format and all of them should be deleted:
+            // (1) All of the configuration entries should be deleted:
             {
                 "delete-published-dependencies-step-input-1.json",
             },
-            // (2) There are entries with the new 'target' format and all of them should be deleted:
+            // (2) Some of the configuration entries should be deleted:
             {
                 "delete-published-dependencies-step-input-2.json",
             },
-            // (3) Some of the configuration entries should be deleted:
+            // (3) None of the configuration entries should be deleted:
             {
                 "delete-published-dependencies-step-input-3.json",
-            },
-            // (4) None of the configuration entries should be deleted:
-            {
-                "delete-published-dependencies-step-input-4.json",
             },
 // @formatter:on
         });
@@ -72,18 +68,14 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
     public void setUp() throws Exception {
         prepareContext();
 
-        CloudTarget newTarget = new CloudTarget(stepInput.org, stepInput.space);
-        CloudTarget oldTarget = new CloudTarget(null, stepInput.spaceId);
+        CloudTarget target = new CloudTarget(stepInput.org, stepInput.space);
 
-        Mockito.when(configurationEntryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, newTarget, null, stepInput.mtaId))
-            .thenReturn(stepInput.allEntriesForMtaWithNewTarget);
-        Mockito.when(configurationEntryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, oldTarget, null, stepInput.mtaId))
-            .thenReturn(stepInput.allEntriesForMtaWithOldTarget);
+        Mockito.when(configurationEntryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, target, null, stepInput.mtaId))
+            .thenReturn(stepInput.entriesForMta);
     }
 
     private void prepareContext() {
         context.setVariable(Constants.VAR_SPACE, stepInput.space);
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, stepInput.spaceId);
         context.setVariable(Constants.VAR_ORG, stepInput.org);
         context.setVariable(Constants.PARAM_MTA_ID, stepInput.mtaId);
         Mockito.when(context.getProcessInstanceId())
@@ -123,7 +115,7 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
     private List<ConfigurationEntry> getEntriesToDelete() {
         List<ConfigurationEntry> result = new ArrayList<>();
         for (Long id : stepInput.idsOfExpectedEntriesToDelete) {
-            CollectionUtils.addIgnoreNull(result, findEntry(stepInput.allEntriesForMtaWithNewTarget, id));
+            CollectionUtils.addIgnoreNull(result, findEntry(stepInput.entriesForMta, id));
         }
         return result;
     }
@@ -141,13 +133,11 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
 
     private static class StepInput {
         private List<Long> idsOfExpectedEntriesToDelete;
-        private List<ConfigurationEntry> allEntriesForMtaWithNewTarget;
-        private List<ConfigurationEntry> allEntriesForMtaWithOldTarget;
+        private List<ConfigurationEntry> entriesForMta;
         private List<ConfigurationEntry> publishedEntries;
         private String mtaId;
         private String space;
         private String org;
-        private String spaceId;
     }
 
     @Override

@@ -7,7 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -25,18 +24,15 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
-import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.cf.persistence.util.DefaultConfiguration;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MiscUtil;
-import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.Platform;
 
@@ -45,10 +41,6 @@ import com.sap.cloud.lm.sl.mta.model.Platform;
 public class ApplicationConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfiguration.class);
-
-    public enum DatabaseType {
-        DEFAULTDB, HANA, POSTGRESQL
-    }
 
     // Environment variables:
     static final String CFG_TYPE = "XS_TYPE";
@@ -60,7 +52,6 @@ public class ApplicationConfiguration {
     static final String CFG_MAX_RESOURCE_FILE_SIZE = "DEFAULT_MAX_RESOURCE_FILE_SIZE";
     static final String CFG_CRON_EXPRESSION_FOR_OLD_DATA = "CRON_EXPRESSION_FOR_OLD_DATA";
     static final String CFG_MAX_TTL_FOR_OLD_DATA = "MAX_TTL_FOR_OLD_DATA";
-    static final String CFG_SCAN_UPLOADS = "SCAN_UPLOADS";
     static final String CFG_USE_XS_AUDIT_LOGGING = "USE_XS_AUDIT_LOGGING";
     static final String CFG_VCAP_APPLICATION = "VCAP_APPLICATION"; // Mandatory
     static final String CFG_DUMMY_TOKENS_ENABLED = "DUMMY_TOKENS_ENABLED";
@@ -70,7 +61,6 @@ public class ApplicationConfiguration {
     static final String CFG_DB_CONNECTION_THREADS = "DB_CONNECTION_THREADS";
     static final String CFG_STEP_POLLING_INTERVAL_IN_SECONDS = "STEP_POLLING_INTERVAL_IN_SECONDS";
     static final String CFG_SKIP_SSL_VALIDATION = "SKIP_SSL_VALIDATION";
-    static final String CFG_XS_PLACEHOLDERS_SUPPORTED = "XS_PLACEHOLDER_SUPPORT_TEST";
     static final String CFG_VERSION = "VERSION";
     static final String CFG_CHANGE_LOG_LOCK_POLL_RATE = "CHANGE_LOG_LOCK_POLL_RATE";
     static final String CFG_CHANGE_LOG_LOCK_DURATION = "CHANGE_LOG_LOCK_DURATION";
@@ -97,19 +87,14 @@ public class ApplicationConfiguration {
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
     // Default values:
-    public static final PlatformType DEFAULT_TYPE = PlatformType.XS2;
-    public static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.DEFAULTDB;
     public static final List<Platform> DEFAULT_PLATFORMS = Collections.emptyList();
     public static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
     public static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4 GB(s)
     public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB(s)
     public static final long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024l; // 1MB
     public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024l; // 1GB
-    public static final Boolean DEFAULT_SCAN_UPLOADS = false;
     public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
     public static final String DEFAULT_SPACE_ID = "";
-    public static final int DEFAULT_HTTP_ROUTER_PORT = 80;
-    public static final int DEFAULT_HTTPS_ROUTER_PORT = 443;
     public static final Boolean DEFAULT_DUMMY_TOKENS_ENABLED = false;
     public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
     public static final String DEFAULT_GLOBAL_AUDITOR_USER = "";
@@ -137,33 +122,20 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 75;
     public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 75;
 
-    // Type names
-    private static final Map<String, PlatformType> TYPE_NAMES = createTypeNames();
-
-    private static Map<String, PlatformType> createTypeNames() {
-        Map<String, PlatformType> result = new HashMap<>();
-        result.put("XSA", PlatformType.XS2);
-        return Collections.unmodifiableMap(result);
-    }
-
     private final Environment environment;
 
     // Cached configuration settings:
     private Map<String, Object> vcapApplication;
-    private PlatformType platformType;
     private URL controllerUrl;
-    private DatabaseType databaseType;
     private Long maxUploadSize;
     private Long maxMtaDescriptorSize;
     private Long maxManifestSize;
     private Long maxResourceFileSize;
     private String cronExpressionForOldData;
     private Long maxTtlForOldData;
-    private Boolean scanUploads;
     private Boolean useXSAuditLogging;
     private String spaceId;
     private String orgName;
-    private Integer routerPort;
     private Boolean dummyTokensEnabled;
     private Boolean basicAuthEnabled;
     private String globalAuditorUser;
@@ -171,7 +143,6 @@ public class ApplicationConfiguration {
     private Integer dbConnectionThreads;
     private Integer stepPollingIntervalInSeconds;
     private Boolean skipSslValidation;
-    private Boolean xsPlaceholdersSupported;
     private String version;
     private String deployServiceUrl;
     private Integer changeLogLockPollRate;
@@ -206,18 +177,14 @@ public class ApplicationConfiguration {
     }
 
     public void load() {
-        getPlatformType();
         getControllerUrl();
-        getDatabaseType();
         getMaxUploadSize();
         getMaxMtaDescriptorSize();
         getMaxManifestSize();
         getMaxResourceFileSize();
-        shouldScanUploads();
         shouldUseXSAuditLogging();
         getSpaceId();
         getOrgName();
-        getRouterPort();
         getDeployServiceUrl();
         areDummyTokensEnabled();
         isBasicAuthEnabled();
@@ -226,7 +193,6 @@ public class ApplicationConfiguration {
         getDbConnectionThreads();
         getStepPollingIntervalInSeconds();
         shouldSkipSslValidation();
-        areXsPlaceholdersSupported();
         getVersion();
         getChangeLogLockPollRate();
         getChangeLogLockDuration();
@@ -259,24 +225,17 @@ public class ApplicationConfiguration {
 
     private Set<String> getNotSensitiveConfigVariables() {
         return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_DB_TYPE, CFG_PLATFORM, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE,
-            CFG_MAX_MANIFEST_SIZE, CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED,
-            CFG_BASIC_AUTH_ENABLED, CFG_GLOBAL_AUDITOR_USER, CFG_STEP_POLLING_INTERVAL_IN_SECONDS, CFG_SKIP_SSL_VALIDATION,
-            CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION,
-            CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL,
-            CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS, CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY,
-            CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
-            CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE, CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE));
+            CFG_MAX_MANIFEST_SIZE, CFG_MAX_RESOURCE_FILE_SIZE, CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED,
+            CFG_GLOBAL_AUDITOR_USER, CFG_STEP_POLLING_INTERVAL_IN_SECONDS, CFG_SKIP_SSL_VALIDATION, CFG_VERSION,
+            CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE,
+            CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL, CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS,
+            CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS,
+            CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
+            CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE));
     }
 
     public Configuration getFileConfiguration() {
-        return new DefaultConfiguration(getMaxUploadSize(), shouldScanUploads());
-    }
-
-    public PlatformType getPlatformType() {
-        if (platformType == null) {
-            platformType = getPlatformTypeFromEnvironment();
-        }
-        return platformType;
+        return new DefaultConfiguration(getMaxUploadSize());
     }
 
     public URL getControllerUrl() {
@@ -284,13 +243,6 @@ public class ApplicationConfiguration {
             controllerUrl = getControllerUrlFromEnvironment();
         }
         return controllerUrl;
-    }
-
-    public DatabaseType getDatabaseType() {
-        if (databaseType == null) {
-            databaseType = getDatabaseTypeFromEnvironment();
-        }
-        return databaseType;
     }
 
     public Platform getPlatform() {
@@ -342,13 +294,6 @@ public class ApplicationConfiguration {
         return maxTtlForOldData;
     }
 
-    public Boolean shouldScanUploads() {
-        if (scanUploads == null) {
-            scanUploads = shouldScanUploadsFromEnvironment();
-        }
-        return scanUploads;
-    }
-
     public Boolean shouldUseXSAuditLogging() {
         if (useXSAuditLogging == null) {
             useXSAuditLogging = shouldUseXSAuditLoggingFromEnvironment();
@@ -368,13 +313,6 @@ public class ApplicationConfiguration {
             orgName = getOrgNameFromEnvironment();
         }
         return orgName;
-    }
-
-    public int getRouterPort() {
-        if (routerPort == null) {
-            routerPort = getRouterPortFromEnvironment();
-        }
-        return routerPort;
     }
 
     public String getDeployServiceUrl() {
@@ -431,13 +369,6 @@ public class ApplicationConfiguration {
             skipSslValidation = shouldSkipSslValidationBasedOnEnvironment();
         }
         return skipSslValidation;
-    }
-
-    public Boolean areXsPlaceholdersSupported() {
-        if (xsPlaceholdersSupported == null) {
-            xsPlaceholdersSupported = areXsPlaceholdersSupportedBasedOnEnvironment();
-        }
-        return xsPlaceholdersSupported;
     }
 
     public String getVersion() {
@@ -587,21 +518,6 @@ public class ApplicationConfiguration {
         return controllerClientThreadPoolSize;
     }
 
-    private PlatformType getPlatformTypeFromEnvironment() {
-        String type = environment.getString(CFG_TYPE);
-        try {
-            if (type != null) {
-                PlatformType result = TYPE_NAMES.containsKey(type) ? TYPE_NAMES.get(type) : PlatformType.valueOf(type);
-                LOGGER.info(format(Messages.XS_TYPE, result));
-                return result;
-            }
-            LOGGER.info(format(Messages.XS_TYPE_NOT_SPECIFIED, DEFAULT_TYPE));
-        } catch (IllegalArgumentException e) {
-            LOGGER.warn(format(Messages.UNKNOWN_XS_TYPE, type, DEFAULT_TYPE), e);
-        }
-        return DEFAULT_TYPE;
-    }
-
     private URL getControllerUrlFromEnvironment() {
         Map<String, Object> vcapApplication = getVcapApplication();
         String controllerUrl = getControllerUrl(vcapApplication);
@@ -624,21 +540,6 @@ public class ApplicationConfiguration {
             return xsApi;
         }
         throw new IllegalArgumentException(Messages.CONTROLLER_URL_NOT_SPECIFIED);
-    }
-
-    private DatabaseType getDatabaseTypeFromEnvironment() {
-        String type = environment.getString(CFG_DB_TYPE);
-        try {
-            if (type != null) {
-                DatabaseType result = DatabaseType.valueOf(type);
-                LOGGER.info(format(Messages.DB_TYPE, result));
-                return result;
-            }
-            LOGGER.info(format(Messages.DB_TYPE_NOT_SPECIFIED, DEFAULT_DB_TYPE));
-        } catch (IllegalArgumentException e) {
-            LOGGER.warn(format(Messages.UNKNOWN_DB_TYPE, type, DEFAULT_DB_TYPE), e);
-        }
-        return DEFAULT_DB_TYPE;
     }
 
     private Long getMaxUploadSizeFromEnvironment() {
@@ -687,12 +588,6 @@ public class ApplicationConfiguration {
         return value;
     }
 
-    private Boolean shouldScanUploadsFromEnvironment() {
-        Boolean value = environment.getBoolean(CFG_SCAN_UPLOADS, DEFAULT_SCAN_UPLOADS);
-        LOGGER.info(format(Messages.SCAN_UPLOADS, value));
-        return value;
-    }
-
     private Boolean shouldUseXSAuditLoggingFromEnvironment() {
         Boolean value = environment.getBoolean(CFG_USE_XS_AUDIT_LOGGING, DEFAULT_USE_XS_AUDIT_LOGGING);
         LOGGER.info(format(Messages.USE_XS_AUDIT_LOGGING, value));
@@ -719,37 +614,6 @@ public class ApplicationConfiguration {
         }
         LOGGER.debug(Messages.ORG_NAME_NOT_SPECIFIED);
         return null;
-    }
-
-    private Integer getRouterPortFromEnvironment() {
-        int defaultRouterPort = computeDefaultRouterPort();
-        Map<String, Object> vcapApplication = getVcapApplication();
-        List<String> uris = getApplicationUris(vcapApplication);
-        if (CollectionUtils.isEmpty(uris)) {
-            LOGGER.info(format(Messages.NO_APPLICATION_URIS_SPECIFIED, defaultRouterPort));
-            return defaultRouterPort;
-        }
-        int routerPort = extractRouterPort(uris, defaultRouterPort);
-        LOGGER.info(format(Messages.ROUTER_PORT, routerPort));
-        return routerPort;
-    }
-
-    private Integer extractRouterPort(List<String> uris, int defaultRouterPort) {
-        Pair<String, String> portAndDomain = UriUtil.getHostAndDomain(uris.get(0));
-        try {
-            int port = Integer.parseInt(portAndDomain._1);
-            if (UriUtil.isValidPort(port)) {
-                return port;
-            }
-        } catch (NumberFormatException e) {
-            LOGGER.warn(format(Messages.COULD_NOT_PARSE_ROUTER_PORT_0_USING_DEFAULT_1, portAndDomain._1, defaultRouterPort), e);
-        }
-        return defaultRouterPort;
-    }
-
-    private int computeDefaultRouterPort() {
-        return getControllerUrl().getProtocol()
-            .equals("http") ? DEFAULT_HTTP_ROUTER_PORT : DEFAULT_HTTPS_ROUTER_PORT;
     }
 
     private String getDeployServiceUrlFromEnvironment() {
@@ -827,13 +691,6 @@ public class ApplicationConfiguration {
         Boolean value = environment.getBoolean(CFG_SKIP_SSL_VALIDATION, DEFAULT_SKIP_SSL_VALIDATION);
         LOGGER.info(format(Messages.SKIP_SSL_VALIDATION, value));
         return value;
-    }
-
-    private Boolean areXsPlaceholdersSupportedBasedOnEnvironment() {
-        String value = environment.getString(CFG_XS_PLACEHOLDERS_SUPPORTED);
-        boolean result = (value != null) && (!value.equals(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER));
-        LOGGER.info(format(Messages.XS_PLACEHOLDERS_SUPPORTED, result));
-        return result;
     }
 
     private String getVersionFromEnvironment() {

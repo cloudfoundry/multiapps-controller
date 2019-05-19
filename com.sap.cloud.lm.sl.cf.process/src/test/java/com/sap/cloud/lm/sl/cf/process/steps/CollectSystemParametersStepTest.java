@@ -1,16 +1,9 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +15,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -33,13 +25,12 @@ import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
 public class CollectSystemParametersStepTest extends CollectSystemParametersStepBaseTest {
 
-    private static final int USED_PORT = 50020;
     private static final String DEFAULT_PROTOCOL = "https";
 
     @Test
     public void testGeneralParameters() {
         prepareDescriptor("system-parameters/mtad.yaml");
-        prepareClient(true);
+        prepareClient();
 
         step.execute(context);
 
@@ -56,78 +47,6 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         assertEquals(MULTIAPPS_CONTROLLER_URL, generalParameters.get(SupportedParameters.DEPLOY_SERVICE_URL));
     }
 
-    @Test
-    public void testGeneralParametersWithXsaPlaceholders() {
-        prepareDescriptor("system-parameters/mtad.yaml");
-        prepareClient(true);
-
-        when(configuration.areXsPlaceholdersSupported()).thenReturn(true);
-
-        step.execute(context);
-
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
-        Map<String, Object> generalParameters = descriptor.getParameters();
-        assertEquals(USER, generalParameters.get(SupportedParameters.USER));
-        assertEquals(ORG, generalParameters.get(SupportedParameters.ORG));
-        assertEquals(SPACE, generalParameters.get(SupportedParameters.SPACE));
-        assertEquals(SupportedParameters.XSA_DEFAULT_DOMAIN_PLACEHOLDER, generalParameters.get(SupportedParameters.DEFAULT_DOMAIN));
-        assertEquals(SupportedParameters.XSA_AUTHORIZATION_ENDPOINT_PLACEHOLDER,
-            generalParameters.get(SupportedParameters.XS_AUTHORIZATION_ENDPOINT));
-        assertEquals(SupportedParameters.XSA_AUTHORIZATION_ENDPOINT_PLACEHOLDER,
-            generalParameters.get(SupportedParameters.AUTHORIZATION_URL));
-        assertEquals(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER, generalParameters.get(SupportedParameters.XS_TARGET_API_URL));
-        assertEquals(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER, generalParameters.get(SupportedParameters.CONTROLLER_URL));
-        assertEquals(SupportedParameters.XSA_DEPLOY_SERVICE_URL_PLACEHOLDER, generalParameters.get(SupportedParameters.DEPLOY_SERVICE_URL));
-    }
-
-    @Test
-    public void testWithPortBasedRouting() {
-        prepareDescriptor("system-parameters/mtad.yaml");
-        prepareClient(true);
-
-        step.execute(context);
-
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
-        List<Module> modules = descriptor.getModules();
-        assertEquals(2, modules.size());
-        for (int index = 0; index < modules.size(); index++) {
-            Module module = modules.get(index);
-            validatePortBasedModuleParameters(module, PortValidator.MIN_PORT_VALUE + index);
-        }
-    }
-
-    @Test
-    public void testWithTcpRouting() {
-        prepareDescriptor("system-parameters/mtad-with-tcp.yaml");
-        prepareClient(true);
-
-        step.execute(context);
-
-        verify(portAllocator).allocateTcpPort("foo", false);
-
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
-        List<Module> modules = descriptor.getModules();
-        assertEquals(2, modules.size());
-        validatePortBasedModuleParameters(modules.get(0), PortValidator.MIN_PORT_VALUE, "tcp");
-    }
-
-    @Test
-    public void testWithTcpRoutingAndExistingApplicationsWithHostBasedRoutes() {
-        prepareDescriptor("system-parameters/mtad-with-tcp.yaml");
-        prepareClient(false);
-        List<DeployedMtaModule> deployedMtaModules = Arrays.asList(createDeployedMtaModule("foo", Arrays.asList("https://foo.localhost")));
-        StepsUtil.setDeployedMta(context, createDeployedMta("1.0.0", deployedMtaModules));
-
-        step.execute(context);
-
-        verify(portAllocator).allocateTcpPort("foo", false);
-
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
-        List<Module> modules = descriptor.getModules();
-        assertEquals(2, modules.size());
-        validatePortBasedModuleParameters(modules.get(0), PortValidator.MIN_PORT_VALUE, "tcp");
-    }
-
     private DeployedMta createDeployedMta(String version, List<DeployedMtaModule> deployedModules) {
         DeployedMtaMetadata metadata = new DeployedMtaMetadata("system-parameters-test", Version.parseVersion(version));
         return new DeployedMta(metadata, deployedModules, Collections.emptySet());
@@ -138,46 +57,9 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     }
 
     @Test
-    public void testWithTcpsRouting() {
-        prepareDescriptor("system-parameters/mtad-with-tcps.yaml");
-        prepareClient(true);
-
-        step.execute(context);
-
-        verify(portAllocator).allocateTcpPort("foo", true);
-
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
-        List<Module> modules = descriptor.getModules();
-        assertEquals(2, modules.size());
-        validatePortBasedModuleParameters(modules.get(0), PortValidator.MIN_PORT_VALUE, "tcps");
-    }
-
-    @Test(expected = ContentException.class)
-    public void testWithTcpAndTcpsRouting() {
-        prepareDescriptor("system-parameters/mtad-with-tcp-and-tcps.yaml");
-        prepareClient(true);
-
-        step.execute(context);
-    }
-
-    private void validatePortBasedModuleParameters(Module module, int expectedPort) {
-        validatePortBasedModuleParameters(module, expectedPort, DEFAULT_PROTOCOL);
-    }
-
-    private void validatePortBasedModuleParameters(Module module, int expectedPort, String expectedProtocol) {
-        Map<String, Object> parameters = module.getParameters();
-        assertEquals(expectedPort, parameters.get(SupportedParameters.DEFAULT_PORT));
-        assertEquals(expectedPort, parameters.get(SupportedParameters.PORT));
-        assertEquals(SystemParameters.DEFAULT_PORT_BASED_URI, parameters.get(SupportedParameters.DEFAULT_URI));
-        assertEquals(SystemParameters.DEFAULT_URL, parameters.get(SupportedParameters.DEFAULT_URL));
-        assertEquals(DEFAULT_DOMAIN, parameters.get(SupportedParameters.DOMAIN));
-        assertEquals(expectedProtocol, parameters.get(SupportedParameters.PROTOCOL));
-    }
-
-    @Test
     public void testWithHostBasedRouting() {
         prepareDescriptor("system-parameters/mtad.yaml");
-        prepareClient(false);
+        prepareClient();
 
         step.execute(context);
 
@@ -192,7 +74,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     @Test
     public void testWithRoutePath() {
         prepareDescriptor("system-parameters/mtad-with-route-path.yaml");
-        prepareClient(false);
+        prepareClient();
 
         step.execute(context);
 
@@ -230,7 +112,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     @Test
     public void testGeneralModuleAndResourceParameters() {
         prepareDescriptor("system-parameters/mtad.yaml");
-        prepareClient(true);
+        prepareClient();
         when(credentialsGenerator.next(anyInt())).thenReturn("abc", "def", "ghi", "jkl", "mno", "pqr", "stu", "vwx");
 
         step.execute(context);
@@ -266,29 +148,10 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         assertEquals(resource.getName(), parameters.get(SupportedParameters.SERVICE_NAME));
     }
 
-    @Test
-    public void testReuseOfPorts() {
-        prepareDescriptor("system-parameters/mtad.yaml");
-        prepareClient(true);
-        List<DeployedMtaModule> deployedMtaModules = Arrays
-            .asList(createDeployedMtaModule("foo", Arrays.asList("https://localhost:" + USED_PORT)));
-        StepsUtil.setDeployedMta(context, createDeployedMta("0.9.0", deployedMtaModules));
-
-        step.execute(context);
-
-        verify(portAllocator, never()).allocatePort("foo");
-        verify(portAllocator, never()).allocateTcpPort(eq("foo"), anyBoolean());
-
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
-        List<Module> modules = descriptor.getModules();
-        assertEquals(2, modules.size());
-        validatePortBasedModuleParameters(modules.get(0), USED_PORT);
-    }
-
     @Test(expected = ContentException.class)
     public void testVersionRuleWithDowngrade() {
         prepareDescriptor("system-parameters/mtad.yaml");
-        prepareClient(true);
+        prepareClient();
         StepsUtil.setDeployedMta(context, createDeployedMta("2.0.0", Collections.emptyList()));
 
         step.execute(context);
@@ -297,7 +160,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     @Test(expected = ContentException.class)
     public void testVersionRuleWithReinstallation() {
         prepareDescriptor("system-parameters/mtad.yaml");
-        prepareClient(true);
+        prepareClient();
         context.setVariable(Constants.PARAM_VERSION_RULE, VersionRule.HIGHER.toString());
         StepsUtil.setDeployedMta(context, createDeployedMta("1.0.0", Collections.emptyList()));
 
@@ -305,21 +168,9 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     }
 
     @Test
-    public void testWithNonApplications() {
-        prepareDescriptor("system-parameters/mtad.yaml");
-        prepareClient(true);
-        when(moduleToDeployHelper.isApplication(any())).thenReturn(false);
-
-        step.execute(context);
-
-        verify(portAllocator, never()).allocatePort(anyString());
-        verify(portAllocator, never()).allocateTcpPort(anyString(), anyBoolean());
-    }
-
-    @Test
     public void testExistingParametersAreNotOverridden() {
         prepareDescriptor("system-parameters/mtad-with-existing-parameters.yaml");
-        prepareClient(true);
+        prepareClient();
 
         step.execute(context);
 

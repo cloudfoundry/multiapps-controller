@@ -136,7 +136,6 @@ public final class Messages {
     public static final String MAX_RESOURCE_FILE_SIZE = "Max resource file size is set to: {0}";
     public static final String CRON_EXPRESSION_FOR_OLD_DATA = "Cron expression for old data: {0}";
     public static final String MAX_TTL_FOR_OLD_DATA = "Max TTL for old data: {0}";
-    public static final String SCAN_UPLOADS = "Scan uploads: {0}";
     public static final String SPACE_ID = "Space ID: {0}";
     public static final String ORG_NAME = "Org name: {0}";
     public static final String ROUTER_PORT = "Router port: {0}";

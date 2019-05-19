@@ -13,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
-import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("deleteIdleRoutesStep")
@@ -32,8 +30,6 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
 
             getStepLogger().debug(Messages.DELETING_IDLE_URIS);
             CloudControllerClient client = execution.getControllerClient();
-            boolean portBasedRouting = (boolean) execution.getContext()
-                .getVariable(Constants.VAR_PORT_BASED_ROUTING);
 
             CloudApplication app = StepsUtil.getApp(execution.getContext());
 
@@ -41,7 +37,7 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.IDLE_URIS_FOR_APPLICATION, idleUris);
 
             for (String idleUri : idleUris) {
-                deleteRoute(idleUri, portBasedRouting, client);
+                deleteRoute(idleUri, client);
                 getStepLogger().debug(Messages.ROUTE_DELETED, idleUri);
             }
 
@@ -54,10 +50,9 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
         }
     }
 
-    private void deleteRoute(String uri, boolean portBasedRouting, CloudControllerClient client) {
+    private void deleteRoute(String uri, CloudControllerClient client) {
         try {
-            boolean portRoute = portBasedRouting || UriUtil.isTcpOrTcpsUri(uri);
-            new ClientHelper(client).deleteRoute(uri, portRoute);
+            new ClientHelper(client).deleteRoute(uri);
         } catch (CloudOperationException e) {
             if (!e.getStatusCode()
                 .equals(HttpStatus.CONFLICT)) {

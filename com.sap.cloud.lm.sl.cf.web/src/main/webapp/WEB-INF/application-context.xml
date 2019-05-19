@@ -15,45 +15,29 @@
 
     <context:component-scan base-package="com.sap.cloud.lm.sl.cf" />
 
-    <beans profile="cf">
-        <bean id="cloudFoundryClientFactory" class="com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientFactory" />
+    <bean id="buildCloudDeployModelStep" class="com.sap.cloud.lm.sl.cf.process.steps.BuildCloudDeployModelStep"
+        scope="prototype" />
 
-        <bean id="recentLogsRetriever" class="com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever" />
+    <bean id="processDescriptorStep" class="com.sap.cloud.lm.sl.cf.process.steps.ProcessDescriptorStep"
+        scope="prototype" />
 
-        <bean id="serviceCreator" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator" />
+    <bean id="buildApplicationDeployModelStep"
+        class="com.sap.cloud.lm.sl.cf.process.steps.BuildApplicationDeployModelStep" scope="prototype" />
 
-        <bean id="applicationRoutesGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter" />
+    <bean id="operationMetadataMapper"
+        class="com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper" />
 
-        <bean id="serviceUpdater" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater" />
+    <bean id="jmxExporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+        <property name="beans">
+            <map>
+                <entry key="com.sap.cloud.lm.sl.cf.web.monitoring:type=Metrics,name=MetricsMBean"
+                    value-ref="metricsBean" />
+            </map>
+        </property>
+    </bean>
 
-        <bean id="buildCloudDeployModelStep" class="com.sap.cloud.lm.sl.cf.process.steps.BuildCloudDeployModelStep"
-            scope="prototype" />
+    <bean id="metricsBean" class="com.sap.cloud.lm.sl.cf.web.monitoring.Metrics" />
 
-        <bean id="processDescriptorStep" class="com.sap.cloud.lm.sl.cf.process.steps.ProcessDescriptorStep"
-            scope="prototype" />
-
-        <bean id="buildApplicationDeployModelStep"
-            class="com.sap.cloud.lm.sl.cf.process.steps.BuildApplicationDeployModelStep" scope="prototype" />
-
-        <bean id="startProcessListener" class="com.sap.cloud.lm.sl.cf.process.listeners.StartProcessListener" />
-
-        <bean id="operationMetadataMapper"
-            class="com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper" />
-
-        <bean id="operationsApiServiceImpl" class="com.sap.cloud.lm.sl.cf.web.api.impl.OperationsApiServiceImpl" />
-
-        <bean id="jmxExporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
-            <property name="beans">
-                <map>
-                    <entry key="com.sap.cloud.lm.sl.cf.web.monitoring:type=Metrics,name=MetricsMBean"
-                        value-ref="metricsBean" />
-                </map>
-            </property>
-        </bean>
-
-        <bean id="metricsBean" class="com.sap.cloud.lm.sl.cf.web.monitoring.Metrics" />
-
-        <bean id="moduleDeployProcessGetter" class="com.sap.cloud.lm.sl.cf.process.util.ModuleDeployProcessGetter" />
-        <bean id="moduleToDeployHelper" class="com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper" />
-    </beans>
+    <bean id="moduleDeployProcessGetter" class="com.sap.cloud.lm.sl.cf.process.util.ModuleDeployProcessGetter" />
+    <bean id="moduleToDeployHelper" class="com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper" />
 </beans>

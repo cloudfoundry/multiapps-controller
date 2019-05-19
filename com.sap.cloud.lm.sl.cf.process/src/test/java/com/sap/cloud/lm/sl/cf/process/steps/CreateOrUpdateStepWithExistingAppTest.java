@@ -26,14 +26,12 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
@@ -52,8 +50,6 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     private List<String> notRequiredServices = new ArrayList<>();
     private List<String> expectedServicesToBind = new ArrayList<>();
 
-    private PlatformType platform;
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -62,81 +58,80 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         return Arrays.asList(new Object[][] {
 // @formatter:off
             {
-                "update-app-step-input-1.json", null, PlatformType.XS2
+                "update-app-step-input-1.json", null,
             },
             {
-                "update-app-step-input-2.json", null, PlatformType.XS2
+                "update-app-step-input-2.json", null,
             },
             {
-                "update-app-step-input-3.json", null, PlatformType.CF
+                "update-app-step-input-3.json", null,
             },
             {
-                "update-app-step-input-4.json", null, PlatformType.XS2
+                "update-app-step-input-4.json", null,
             },
             {
-                "update-app-step-input-5.json", null, PlatformType.CF
+                "update-app-step-input-5.json", null,
             },
             {
-                "update-app-step-input-6.json", null, PlatformType.XS2
+                "update-app-step-input-6.json", null,
             },
             {
-                "update-app-step-input-7.json", null, PlatformType.XS2
+                "update-app-step-input-7.json", null,
             },
             {
-                "update-app-step-input-8.json", null, PlatformType.CF
+                "update-app-step-input-8.json", null,
             },
             {
-                "update-app-step-input-9.json", null, PlatformType.XS2
+                "update-app-step-input-9.json", null,
             },
             {
-                "update-app-step-input-10.json", null, PlatformType.XS2
+                "update-app-step-input-10.json", null,
             },
             {
-                "update-app-step-input-11.json", null, PlatformType.CF
+                "update-app-step-input-11.json", null,
             },
             // Existing app has binding with null parameters and defined service binding is without parameters
             {
-                "update-app-step-input-12.json", null, PlatformType.CF
+                "update-app-step-input-12.json", null,
             },
             // Existing app has binding with empty parameters and defined service binding is without parameters
             {
-                "update-app-step-input-13.json", null, PlatformType.CF
+                "update-app-step-input-13.json", null,
             },
             // Existing app has binding with parameters and defined service binding is without parameters
             {
-                "update-app-step-input-14.json", null, PlatformType.CF
+                "update-app-step-input-14.json", null,
             },
             // Existing app has binding with null parameters and defined service binding is with defined parameters
             {
-                "update-app-step-input-15.json", null, PlatformType.CF
+                "update-app-step-input-15.json", null,
             },
             // Service keys to inject are specified
             {
-                "update-app-step-input-16.json", null, PlatformType.XS2
+                "update-app-step-input-16.json", null,
             },
             // Service keys to inject are specified but does not exist
             {
-                "update-app-step-input-17.json", "nable to retrieve required service key element \"expected-service-key\" for service \"existing-service-1\"", PlatformType.XS2
+                "update-app-step-input-17.json", "Unable to retrieve required service key element \"expected-service-key\" for service \"existing-service-1\"",
             },
             // Test enable-ssh parameter
             {
-                "update-app-step-input-18.json", null, PlatformType.CF
+                "update-app-step-input-18.json", null,
             },
             // Test if healthCheckType parameter is updated
             {
-                "update-app-step-input-19.json", null, PlatformType.CF
+                "update-app-step-input-19.json", null,
             },
             // Test if healthCheckHttpEndpoint parameter is updated
             {
-                "update-app-step-input-20.json", null, PlatformType.CF
+                "update-app-step-input-20.json", null,
             }
 // @formatter:on
         });
     }
 
-    public CreateOrUpdateStepWithExistingAppTest(String input, String expectedExceptionMessage, PlatformType platform) throws Exception {
+    public CreateOrUpdateStepWithExistingAppTest(String input, String expectedExceptionMessage) throws Exception {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, CreateOrUpdateStepWithExistingAppTest.class), StepInput.class);
-        this.platform = platform;
         this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
@@ -163,7 +158,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     private void validateUpdateComponents() {
         String appName = input.application.name;
         CloudApplicationExtended cloudApp = input.application.toCloudApp();
-        if (input.updateStaging && platform == PlatformType.XS2) {
+        if (input.updateStaging) {
             Mockito.verify(client)
                 .updateApplicationStaging(Mockito.eq(appName), Mockito.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
         }
@@ -182,11 +177,6 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         if (input.updateEnv) {
             Mockito.verify(client)
                 .updateApplicationEnv(appName, cloudApp.getEnvAsMap());
-        }
-        if (platform == PlatformType.CF) {
-            Mockito.verify(client)
-                .updateApplicationStaging(eq(cloudApp.getName()),
-                    Matchers.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
         }
     }
 
@@ -216,9 +206,6 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         prepareDiscontinuedServices();
 
         expectedServicesToBind = prepareServicesToBind();
-
-        Mockito.when(configuration.getPlatformType())
-            .thenReturn(platform);
 
         prepareExistingServiceBindings();
         for (String service : input.application.services) {
@@ -347,7 +334,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
                 .shouldKeepExistingServiceBindings(shouldKeepServiceBindings)
                 .build();
             CloudApplicationExtended cloudApp = new CloudApplicationExtended(name, command, buildpackUrl, memory, instances, uris, services,
-                AppState.STARTED, Collections.emptyList(), Collections.emptyList(), null);
+                AppState.STARTED, Collections.emptyList(), null);
             cloudApp.setMeta(new Meta(NameUtil.getUUID(name), null, null));
             cloudApp.setDiskQuota(diskQuota);
             cloudApp.setApplicationAttributesUpdateBehavior(applicationAttributeUpdateStrategy);

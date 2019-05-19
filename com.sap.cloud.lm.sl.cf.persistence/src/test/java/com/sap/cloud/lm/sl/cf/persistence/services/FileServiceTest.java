@@ -45,7 +45,7 @@ public class FileServiceTest extends DatabaseFileServiceTest {
         String space = SPACE_1;
         String namespace = NAMESPACE_1;
         try {
-            fileService.addFile(space, namespace, PIC_STORAGE_NAME, new DefaultFileUploadProcessor(false), resourceStream);
+            fileService.addFile(space, namespace, PIC_STORAGE_NAME, new DefaultFileUploadProcessor(), resourceStream);
             fail("addFile should fail with exception");
         } catch (FileStorageException e) {
             Mockito.verify(fileStorage, Mockito.times(1))

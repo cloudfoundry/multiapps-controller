@@ -17,7 +17,6 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
@@ -34,12 +33,6 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         try {
             execution.getStepLogger()
                 .debug(Messages.POLLING_SERVICE_OPERATIONS);
-
-            XsCloudControllerClient xsClient = execution.getXsControllerClient();
-            if (xsClient != null) {
-                // The asynchronous creation of services is not supported yet on XSA.
-                return AsyncExecutionState.FINISHED;
-            }
 
             CloudControllerClient client = execution.getControllerClient();
 
@@ -89,7 +82,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         }
         return servicesToPoll;
     }
-    
+
     protected List<CloudServiceExtended> getServicesWithTriggeredOperations(Collection<CloudServiceExtended> services,
         Map<String, ServiceOperationType> triggeredServiceOperations) {
         return services.stream()
@@ -102,6 +95,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
 
     protected abstract ServiceOperation getLastServiceOperation(ExecutionWrapper execution, CloudControllerClient client,
         CloudServiceExtended service);
+
     protected void reportIndividualServiceState(ExecutionWrapper execution,
         Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation) {
         for (Entry<CloudServiceExtended, ServiceOperation> serviceWithLastOperation : servicesWithLastOperation.entrySet()) {
@@ -124,7 +118,6 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
                 .warn(getWarningMessage(service, lastOperation));
         }
     }
-
 
     protected void reportServiceOperationsState(ExecutionWrapper execution,
         Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation,
@@ -150,7 +143,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
             .map(Map.Entry::getKey)
             .collect(Collectors.toList());
     }
-    
+
     protected void handleMissingServiceInstance(ExecutionWrapper execution, CloudServiceExtended service) {
         if (!service.isOptional()) {
             throw new SLException(Messages.CANNOT_RETRIEVE_INSTANCE_OF_SERVICE, service.getName());
@@ -159,7 +152,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         // is really the case, then showing a warning progress message to the user is unnecessary, since one should have been shown back
         // in CreateOrUpdateServicesStep.
         execution.getStepLogger()
-        .warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE, service.getName());
+            .warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE, service.getName());
     }
 
     private String getSuccessMessage(CloudServiceExtended service, ServiceOperationType type) {
@@ -175,7 +168,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
                     MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.ILLEGAL_SERVICE_OPERATION_TYPE, type));
         }
     }
-    
+
     private String getFailureMessage(CloudServiceExtended service, ServiceOperation operation) {
         switch (operation.getType()) {
             case CREATE:
@@ -192,7 +185,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
                     MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.ILLEGAL_SERVICE_OPERATION_TYPE, operation.getType()));
         }
     }
-    
+
     private String getWarningMessage(CloudServiceExtended service, ServiceOperation operation) {
         switch (operation.getType()) {
             case CREATE:
@@ -209,7 +202,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
                     MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.ILLEGAL_SERVICE_OPERATION_TYPE, operation.getType()));
         }
     }
-    
+
     private List<TypedServiceOperationState> getNonFinalStates(Collection<ServiceOperation> operations) {
         return operations.stream()
             .map(TypedServiceOperationState::fromServiceOperation)

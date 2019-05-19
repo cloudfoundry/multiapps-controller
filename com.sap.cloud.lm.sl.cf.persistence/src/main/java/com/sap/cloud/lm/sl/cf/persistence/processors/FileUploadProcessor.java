@@ -19,13 +19,6 @@ public interface FileUploadProcessor<I extends OutputStream, O extends OutputStr
     public int getProcessingBufferSize();
 
     /**
-     * Should the file be scanned.
-     *
-     * @return true if the file should be scanned
-     */
-    public boolean shouldScanFile();
-
-    /**
      * Creates wrapper around the original output stream.
      *
      * @param outputStream original output stream

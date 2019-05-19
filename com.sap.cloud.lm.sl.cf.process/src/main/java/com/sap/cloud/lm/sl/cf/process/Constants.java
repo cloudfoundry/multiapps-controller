@@ -70,11 +70,8 @@ public class Constants {
     public static final String VAR_MTA_MODULES_TO_DEPLOY_ALWAYS = "mtaModulesToDeployAlways";
 
     public static final String VAR_APP_STATE_ACTIONS_TO_EXECUTE = "appStateActionsToExecute";
-    public static final String VAR_XS_PLACEHOLDER_REPLACEMENT_VALUES = "xsPlaceholderReplacementValues";
     public static final String VAR_DEPLOYED_MTA = "deployedMta";
     public static final String VAR_SYSTEM_PARAMETERS = "systemParameters";
-    public static final String VAR_PORT_BASED_ROUTING = "portBasedRouting";
-    public static final String VAR_ALLOCATED_PORTS = "allocatedPorts";
     public static final String VAR_ORG = "org";
     public static final String VAR_SPACE = "space";
     public static final String VAR_CUSTOM_DOMAINS = "customDomains";
@@ -116,7 +113,6 @@ public class Constants {
     public static final String VAR_APPS_TO_UNDEPLOY = "appsToUndeploy";
     public static final String VAR_SERVICES_TO_DELETE = "servicesToDelete";
     public static final String VAR_SERVICES_DATA = "servicesData";
-    public static final String VAR_SERVICE_URL_TO_REGISTER = "serviceUrlToRegister";
     public static final String VAR_CREATED_OR_UPDATED_SERVICE_BROKER = "createdOrUpdatedServiceBroker";
     public static final String VAR_SUBSCRIPTIONS_TO_CREATE = "subscriptionsToCreate";
     public static final String VAR_SUBSCRIPTIONS_TO_DELETE = "subscriptionsToDelete";
@@ -141,7 +137,6 @@ public class Constants {
     public static final String VAR_APP_TO_PROCESS = "appToProcess";
     public static final String VAR_SUBPROCESS_ID = "subProcessId";
     public static final String VAR_PARENTPROCESS_ID = "parentProcessId";
-    public static final String VAR_PLATFORM_TYPE = "platformType";
     public static final String VAR_SERVICES_TO_CREATE_COUNT = "servicesToCreateCount";
     public static final String VAR_SERVICES_TO_POLL = "servicesToPoll";
     public static final String VAR_ERROR_TYPE = "errorType";

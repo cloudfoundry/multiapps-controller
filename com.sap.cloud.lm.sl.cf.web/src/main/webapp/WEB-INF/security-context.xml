@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
-    xmlns:sec="http://www.springframework.org/schema/security" xmlns:oauth="http://www.springframework.org/schema/security/oauth2"
+    xmlns:sec="http://www.springframework.org/schema/security"
+    xmlns:oauth="http://www.springframework.org/schema/security/oauth2"
 
     xsi:schemaLocation="
         http://www.springframework.org/schema/beans
@@ -25,16 +26,17 @@
         <sec:intercept-url pattern="/**"
             access="#oauth2.hasAnyScope('cloud_controller.write', 'cloud_controller.admin')" method="DELETE" />
         <sec:custom-filter ref="resourceServerFilter" before="PRE_AUTH_FILTER" />
-        <sec:custom-filter ref="authFilter" position = "LAST"/>
+        <sec:custom-filter ref="authFilter" position="LAST" />
         <sec:access-denied-handler ref="accessDeniedHandler" />
         <sec:custom-filter ref="csrfHeadersFilter" after="CSRF_FILTER" />
         <sec:custom-filter ref="correlationIdFilter" position="FIRST" />
-        <sec:custom-filter ref="requestSizeFilter" after="PRE_AUTH_FILTER"/>
+        <sec:custom-filter ref="requestSizeFilter" after="PRE_AUTH_FILTER" />
     </sec:http>
 
-    <sec:http-firewall ref="customHttpFirewall"/>
+    <sec:http-firewall ref="customHttpFirewall" />
 
-    <bean id="delegatingAuthenticationEntryPoint" class="org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint">
+    <bean id="delegatingAuthenticationEntryPoint"
+        class="org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint">
         <constructor-arg>
             <map>
                 <!-- TODO: Support case-insensitive bearer -->
@@ -44,11 +46,13 @@
         <property name="defaultEntryPoint" ref="basicAuthenticationEntryPoint" />
     </bean>
 
-    <bean id="oauthAuthenticationEntryPoint" class="org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint">
+    <bean id="oauthAuthenticationEntryPoint"
+        class="org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint">
         <property name="realmName" value="CF Deploy Service" />
     </bean>
 
-    <bean id="basicAuthenticationEntryPoint" class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
+    <bean id="basicAuthenticationEntryPoint"
+        class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
         <property name="realmName" value="CF Deploy Service" />
     </bean>
 
@@ -71,23 +75,23 @@
         <sec:authentication-provider ref="customAuthenticationProvider" />
     </sec:authentication-manager>
 
-    <bean id="customAuthenticationProvider" class="com.sap.cloud.lm.sl.cf.web.security.CustomAuthenticationProvider" />
+    <bean id="customAuthenticationProvider"
+        class="com.sap.cloud.lm.sl.cf.web.security.CustomAuthenticationProvider" />
 
-    <oauth:resource-server id="resourceServerFilter" resource-id="springsec" token-services-ref="customTokenServices" />
+    <oauth:resource-server id="resourceServerFilter" resource-id="springsec"
+        token-services-ref="customTokenServices" />
 
     <bean id="accessDeniedHandler" class="com.sap.cloud.lm.sl.cf.web.security.CsrfAccessDeniedHandler" />
 
     <bean id="csrfHeadersFilter" class="com.sap.cloud.lm.sl.cf.web.security.CsrfHeadersFilter" />
-    
+
     <bean id="requestSizeFilter" class="com.sap.cloud.lm.sl.cf.web.security.RequestSizeFilter" />
 
-    <bean id="authFilter" class="com.sap.cloud.lm.sl.cf.web.security.AuthorizationFilter"/>
-    
-    <beans>
-        <bean id="tokenStore" class="com.sap.cloud.lm.sl.cf.web.security.TokenStoreFactory" factory-method="getTokenStore">
-            <constructor-arg ref="dataSource" />
-            <constructor-arg ref="secureStoreDataSource" />
-        </bean>
-    </beans>
+    <bean id="authFilter" class="com.sap.cloud.lm.sl.cf.web.security.AuthorizationFilter" />
+
+    <bean id="tokenStore" class="com.sap.cloud.lm.sl.cf.web.security.TokenStoreFactory"
+        factory-method="getTokenStore">
+        <constructor-arg ref="dataSource" />
+    </bean>
 
 </beans>

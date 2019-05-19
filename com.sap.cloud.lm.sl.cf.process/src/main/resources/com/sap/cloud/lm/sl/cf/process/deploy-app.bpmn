@@ -19,7 +19,7 @@
     <sequenceFlow id="flow34" sourceRef="scaleAppTask" targetRef="determineDesiredStateAchievingActionsTask"></sequenceFlow>
     <sequenceFlow id="flow35" sourceRef="determineDesiredStateAchievingActionsTask" targetRef="shouldStopAppGateway"></sequenceFlow>
     <serviceTask id="reprocessDescriptorTask" name="Re-Process Descriptor Step" flowable:async="true" flowable:delegateExpression="${processDescriptorStep}"></serviceTask>
-    <sequenceFlow id="flow48" sourceRef="buildApplicationDeployModelTask" targetRef="reserveRoutesTask"></sequenceFlow>
+    <sequenceFlow id="flow48" sourceRef="buildApplicationDeployModelTask" targetRef="createAppTask"></sequenceFlow>
     <serviceTask id="buildApplicationDeployModelTask" name="Build Application Deploy Model" flowable:async="true" flowable:delegateExpression="${buildApplicationDeployModelStep}"></serviceTask>
     <sequenceFlow id="flow49" sourceRef="reprocessDescriptorTask" targetRef="buildApplicationDeployModelTask"></sequenceFlow>
     <serviceTask id="publishProvidedDependenciesTask" name="Publish Provided Dependencies" flowable:async="true" flowable:delegateExpression="${publishProvidedDependenciesStep}"></serviceTask>
@@ -75,19 +75,14 @@
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="flow91" sourceRef="timerintermediatecatchevent3" targetRef="stageAppTask"></sequenceFlow>
-    <serviceTask id="reserveRoutesTask" name="Reserve Routes" flowable:async="true" flowable:delegateExpression="${reserveRoutesStep}"></serviceTask>
-    <sequenceFlow id="flow94" sourceRef="reserveRoutesTask" targetRef="createAppTask"></sequenceFlow>
     <exclusiveGateway id="shouldUpdateConfigurations" name="Should Update Configurations" default="updateConfigurationsFlow"></exclusiveGateway>
-    <sequenceFlow id="sid-ADE65EC6-6976-42C4-9D50-5A08086D1533" sourceRef="startEvent" targetRef="reprocessDescriptorTask"></sequenceFlow>
     <exclusiveGateway id="shouldDeleteIdleRoutes" name="Should Delete Idle Routes" default="skipDeleteIdleRoutesFlow"></exclusiveGateway>
     <sequenceFlow id="flow51" sourceRef="deleteDiscontinuedConfigurationEntriesForAppTask" targetRef="shouldDeleteIdleRoutes"></sequenceFlow>
     <serviceTask id="deleteIdleRoutesTask" name="Delete Idle Routes" flowable:async="true" flowable:delegateExpression="${deleteIdleRoutesStep}"></serviceTask>
-    <serviceTask id="registerServiceUrlTask" name="Register Service URL" flowable:async="true" flowable:delegateExpression="${registerServiceUrlStep}"></serviceTask>
     <sequenceFlow id="stopAppFlow" sourceRef="shouldStopAppGateway" targetRef="stopAppTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('STOP')}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="updateConfigurationsFlow" sourceRef="shouldUpdateConfigurations" targetRef="publishProvidedDependenciesTask"></sequenceFlow>
-    <sequenceFlow id="skipDeleteIdleRoutesFlow" sourceRef="shouldDeleteIdleRoutes" targetRef="registerServiceUrlTask"></sequenceFlow>
     <sequenceFlow id="deleteIdleRoutesFlow" sourceRef="shouldDeleteIdleRoutes" targetRef="deleteIdleRoutesTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${deleteIdleUris}]]></conditionExpression>
     </sequenceFlow>
@@ -100,7 +95,6 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
     <exclusiveGateway id="shouldManageServiceBroker" name="Should Manage Service Broker" default="sid-E5FF49FE-063B-4602-B171-70C396A56996"></exclusiveGateway>
-    <sequenceFlow id="sid-270F2B6C-6A27-456B-9CE0-2D0303E27B1C" sourceRef="registerServiceUrlTask" targetRef="shouldManageServiceBroker"></sequenceFlow>
     <sequenceFlow id="sid-E5FF49FE-063B-4602-B171-70C396A56996" sourceRef="shouldManageServiceBroker" targetRef="createOrUpdateServiceBrokerTask"></sequenceFlow>
     <sequenceFlow id="skipManagedServiceBrokerUpdateFlow" sourceRef="shouldManageServiceBroker" targetRef="endevent">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${skipManageServiceBroker}]]></conditionExpression>
@@ -114,17 +108,19 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(not executeOneOffTasks)}]]></conditionExpression>
     </sequenceFlow>
     <callActivity id="executeTasksCallActivity" name="Execute Tasks Call Activity" flowable:async="true" calledElement="executeTasksSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
-    <sequenceFlow id="sid-0F200B9A-6462-48CD-BA2D-6E6F1CE15D96" sourceRef="deleteIdleRoutesTask" targetRef="registerServiceUrlTask"></sequenceFlow>
     <sequenceFlow id="sid-26C87D1E-88D5-47E3-907B-0F8EBBCD2C36" sourceRef="executeTasksCallActivity" targetRef="publishProvidedDependenciesTask"></sequenceFlow>
     <callActivity id="hooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution)}" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="sid-4433C2BB-6626-4F02-8061-F70191657A5A" sourceRef="hooksCallActivity" targetRef="sid-70329A91-339F-4215-9AB6-41ED6C769C40"></sequenceFlow>
+    <sequenceFlow id="sid-ADE65EC6-6976-42C4-9D50-5A08086D1533" sourceRef="startEvent" targetRef="reprocessDescriptorTask"></sequenceFlow>
+    <sequenceFlow id="sid-0F200B9A-6462-48CD-BA2D-6E6F1CE15D96" sourceRef="deleteIdleRoutesTask" targetRef="shouldManageServiceBroker"></sequenceFlow>
+    <sequenceFlow id="skipDeleteIdleRoutesFlow" sourceRef="shouldDeleteIdleRoutes" targetRef="shouldManageServiceBroker"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_deployAppSubProcess">
     <bpmndi:BPMNPlane bpmnElement="deployAppSubProcess" id="BPMNPlane_deployAppSubProcess">
       <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
-        <omgdc:Bounds height="30.0" width="30.0" x="45.0" y="139.0"></omgdc:Bounds>
+        <omgdc:Bounds height="30.0" width="30.0" x="45.0" y="144.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="stopAppTask" id="BPMNShape_stopAppTask">
         <omgdc:Bounds height="57.0" width="105.0" x="243.0" y="463.0"></omgdc:Bounds>
@@ -142,10 +138,10 @@
         <omgdc:Bounds height="69.0" width="122.0" x="662.0" y="335.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="reprocessDescriptorTask" id="BPMNShape_reprocessDescriptorTask">
-        <omgdc:Bounds height="68.0" width="105.0" x="120.0" y="120.0"></omgdc:Bounds>
+        <omgdc:Bounds height="68.0" width="105.0" x="120.0" y="125.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="buildApplicationDeployModelTask" id="BPMNShape_buildApplicationDeployModelTask">
-        <omgdc:Bounds height="68.0" width="105.0" x="240.0" y="125.0"></omgdc:Bounds>
+        <omgdc:Bounds height="68.0" width="105.0" x="450.0" y="125.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="publishProvidedDependenciesTask" id="BPMNShape_publishProvidedDependenciesTask">
         <omgdc:Bounds height="58.0" width="105.0" x="606.0" y="1171.5"></omgdc:Bounds>
@@ -195,9 +191,6 @@
       <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent3" id="BPMNShape_timerintermediatecatchevent3">
         <omgdc:Bounds height="31.0" width="31.0" x="386.0" y="719.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="reserveRoutesTask" id="BPMNShape_reserveRoutesTask">
-        <omgdc:Bounds height="68.0" width="105.0" x="517.0" y="125.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="shouldUpdateConfigurations" id="BPMNShape_shouldUpdateConfigurations">
         <omgdc:Bounds height="40.0" width="40.0" x="638.5" y="1320.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -206,9 +199,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="deleteIdleRoutesTask" id="BPMNShape_deleteIdleRoutesTask">
         <omgdc:Bounds height="53.0" width="99.0" x="876.5" y="1169.5"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="registerServiceUrlTask" id="BPMNShape_registerServiceUrlTask">
-        <omgdc:Bounds height="53.0" width="99.0" x="1011.0" y="1314.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="createOrUpdateServiceBrokerTask" id="BPMNShape_createOrUpdateServiceBrokerTask">
         <omgdc:Bounds height="80.0" width="100.0" x="1146.0" y="1155.0"></omgdc:Bounds>
@@ -231,26 +221,26 @@
         <omgdi:waypoint x="1264.4201877934272" y="336.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-EDE0C6AF-FE13-4120-94B8-406BFCE8A407" id="BPMNEdge_sid-EDE0C6AF-FE13-4120-94B8-406BFCE8A407">
-        <omgdi:waypoint x="347.9499999999119" y="491.5"></omgdi:waypoint>
-        <omgdi:waypoint x="479.9999999998174" y="491.5"></omgdi:waypoint>
+        <omgdi:waypoint x="347.95000000000005" y="491.5"></omgdi:waypoint>
+        <omgdi:waypoint x="479.99999999989217" y="491.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-26C87D1E-88D5-47E3-907B-0F8EBBCD2C36" id="BPMNEdge_sid-26C87D1E-88D5-47E3-907B-0F8EBBCD2C36">
         <omgdi:waypoint x="489.95000000000005" y="1200.5"></omgdi:waypoint>
         <omgdi:waypoint x="606.0" y="1200.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">
-        <omgdi:waypoint x="344.94999999999993" y="158.63541666666669"></omgdi:waypoint>
-        <omgdi:waypoint x="517.0" y="158.63541666666669"></omgdi:waypoint>
+        <omgdi:waypoint x="554.949999999898" y="159.0"></omgdi:waypoint>
+        <omgdi:waypoint x="749.9999999998367" y="159.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow49" id="BPMNEdge_flow49">
-        <omgdi:waypoint x="224.94999999990904" y="154.0"></omgdi:waypoint>
-        <omgdi:waypoint x="239.9999999999763" y="158.63541666666669"></omgdi:waypoint>
+        <omgdi:waypoint x="224.95" y="159.0"></omgdi:waypoint>
+        <omgdi:waypoint x="449.9999999999421" y="159.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-0F200B9A-6462-48CD-BA2D-6E6F1CE15D96" id="BPMNEdge_sid-0F200B9A-6462-48CD-BA2D-6E6F1CE15D96">
         <omgdi:waypoint x="975.4499999999972" y="1196.0"></omgdi:waypoint>
         <omgdi:waypoint x="985.0" y="1196.0"></omgdi:waypoint>
         <omgdi:waypoint x="985.0" y="1340.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1010.999999999973" y="1340.1721854304637"></omgdi:waypoint>
+        <omgdi:waypoint x="1176.4519085886488" y="1340.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="updateConfigurationsFlow" id="BPMNEdge_updateConfigurationsFlow">
         <omgdi:waypoint x="658.5" y="1320.5"></omgdi:waypoint>
@@ -265,16 +255,12 @@
         <omgdi:waypoint x="703.0534759358259" y="491.05334224598926"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="skipDeleteIdleRoutesFlow" id="BPMNEdge_skipDeleteIdleRoutesFlow">
-        <omgdi:waypoint x="945.9425891530458" y="1340.5"></omgdi:waypoint>
-        <omgdi:waypoint x="1011.0" y="1340.5"></omgdi:waypoint>
+        <omgdi:waypoint x="945.9095260051357" y="1340.5368081180811"></omgdi:waypoint>
+        <omgdi:waypoint x="1176.462962962963" y="1340.962962962963"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="stageAppFlow" id="BPMNEdge_stageAppFlow">
         <omgdi:waypoint x="162.878331156081" y="671.0651960784314"></omgdi:waypoint>
         <omgdi:waypoint x="242.9999999999966" y="671.327868852459"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-270F2B6C-6A27-456B-9CE0-2D0303E27B1C" id="BPMNEdge_sid-270F2B6C-6A27-456B-9CE0-2D0303E27B1C">
-        <omgdi:waypoint x="1109.9499999999662" y="1340.5"></omgdi:waypoint>
-        <omgdi:waypoint x="1176.0" y="1340.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="deleteIdleRoutesFlow" id="BPMNEdge_deleteIdleRoutesFlow">
         <omgdi:waypoint x="926.0" y="1320.5"></omgdi:waypoint>
@@ -360,8 +346,8 @@
         <omgdi:waypoint x="1349.0" y="1326.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-ADE65EC6-6976-42C4-9D50-5A08086D1533" id="BPMNEdge_sid-ADE65EC6-6976-42C4-9D50-5A08086D1533">
-        <omgdi:waypoint x="74.94999855629514" y="154.0"></omgdi:waypoint>
-        <omgdi:waypoint x="119.99999999996459" y="154.0"></omgdi:waypoint>
+        <omgdi:waypoint x="74.94999855629514" y="159.0"></omgdi:waypoint>
+        <omgdi:waypoint x="119.99999999996459" y="159.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow90" id="BPMNEdge_flow90">
         <omgdi:waypoint x="402.53846153846155" y="690.4896153846153"></omgdi:waypoint>
@@ -411,10 +397,6 @@
       <bpmndi:BPMNEdge bpmnElement="flow50" id="BPMNEdge_flow50">
         <omgdi:waypoint x="710.9499999999684" y="1199.7708333333333"></omgdi:waypoint>
         <omgdi:waypoint x="749.9999999999945" y="1199.2284722222223"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow94" id="BPMNEdge_flow94">
-        <omgdi:waypoint x="621.9499999999962" y="158.52914798206282"></omgdi:waypoint>
-        <omgdi:waypoint x="749.9999999999997" y="158.5679012345679"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow51" id="BPMNEdge_flow51">
         <omgdi:waypoint x="802.3957597173145" y="1227.95"></omgdi:waypoint>

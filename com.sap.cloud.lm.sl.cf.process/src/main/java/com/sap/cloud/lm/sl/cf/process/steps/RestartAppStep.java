@@ -18,7 +18,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -94,9 +93,6 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
 
     private StartingInfo startApp(CloudControllerClient client, CloudApplication app) {
         getStepLogger().info(Messages.STARTING_APP, app.getName());
-        if (client instanceof XsCloudControllerClient) {
-            return ((XsCloudControllerClient) client).startApplication(app.getName(), false);
-        }
         return client.startApplication(app.getName());
     }
 

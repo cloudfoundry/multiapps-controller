@@ -19,7 +19,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -39,34 +38,26 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
-          // (0) There are applications to undeploy (host based routing (XSA)):
+          // (0) There are applications to undeploy:
           {
               "undeploy-apps-step-input-00.json", "undeploy-apps-step-output-00.json",
           },
-          // (1) There are applications to undeploy (port based routing (XSA)):
-          {
-              "undeploy-apps-step-input-01.json", "undeploy-apps-step-output-01.json",
-          },
-          // (2) No applications to undeploy:
+          // (1) No applications to undeploy:
           {
               "undeploy-apps-step-input-02.json", "undeploy-apps-step-output-02.json",
           },
-          // (3) There are two routes that should be deleted, but one of them is bound to another application:
+          // (2) There are two routes that should be deleted, but one of them is bound to another application:
           {
               "undeploy-apps-step-input-03.json", "undeploy-apps-step-output-03.json",
           },
-          // (4) There are running one-off tasks to cancel:
+          // (3) There are running one-off tasks to cancel:
           {
               "undeploy-apps-step-input-04.json", "undeploy-apps-step-output-04.json",
           },
-          // (5) There are not found routes matching app uri:
+          // (4) There are not found routes matching app uri:
           {
               "undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json",
           },          
-          // (6) There are tcp/tcps routes to undeploy (host based routing (XSA)):
-          {
-              "undeploy-apps-step-input-06.json", "undeploy-apps-step-output-06.json",
-          },
 // @formatter:on
         });
     }
@@ -74,7 +65,6 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     public UndeployAppStepTest(String stepInputLocation, String stepOutputLocation) throws Exception {
         String resourceAsString = TestUtil.getResourceAsString(stepInputLocation, UndeployAppStepTest.class);
         stepInput = JsonUtil.fromJson(resourceAsString, StepInput.class);
-        System.out.println(JsonUtil.toJson(stepInput, true));
         stepOutput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepOutputLocation, UndeployAppStepTest.class), StepOutput.class);
     }
 
@@ -112,11 +102,6 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     }
 
     private void prepareClient() {
-        CloudInfoExtended info = Mockito.mock(CloudInfoExtended.class);
-        Mockito.when(info.isPortBasedRouting())
-            .thenReturn(stepInput.portBasedRouting);
-        Mockito.when(client.getCloudInfo())
-            .thenReturn(info);
         Mockito.when(applicationRoutesGetter.getRoutes(any(), anyString()))
             .thenAnswer((invocation) -> {
 
@@ -134,7 +119,6 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     }
 
     protected static class StepInput {
-        protected boolean portBasedRouting;
         protected List<CloudApplication> appsToDelete = Collections.emptyList();
         protected Map<String, List<CloudRoute>> appRoutesPerApplication = Collections.emptyMap();
         protected Map<String, List<CloudTask>> tasksPerApplication = Collections.emptyMap();

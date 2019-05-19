@@ -4,12 +4,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [
-      {
-        "port": 52001,
-        "portType": "HTTP"
-      }
-    ],
     "domains": [
       "sofd60245639a"
     ],
@@ -30,7 +24,7 @@
       "MTA_MODULE_METADATA={\"name\":\"framework\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"framework\"]",
       "MTA_SERVICES=[]",
-      "plugins=[{\"name\":\"plugins.0\",\"plugin_name\":\"plugin-0\",\"url\":\"https://localhost:52001\"},{\"name\":\"plugins.1\",\"plugin_name\":\"plugin-1\",\"url\":\"https://localhost:52002\"}]"
+      "plugins=[{\"name\":\"plugins.0\",\"plugin_name\":\"foo\",\"url\":\"https://foo.localhost\"},{\"name\":\"plugins.1\",\"plugin_name\":\"bar\",\"url\":\"https://bar.localhost\"}]"
     ],
     "instances": 0,
     "memory": 0,
@@ -38,7 +32,7 @@
     "services": [],
     "staging": {},
     "uris": [
-      "sofd60245639a:52001/test-route"
+      "framework.sofd60245639a/v2"
     ],
     "meta": {},
     "name": "framework"

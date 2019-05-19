@@ -164,7 +164,6 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, majorSchemaVersion);
         context.setVariable(Constants.PARAM_USE_NAMESPACES, false);
         context.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
-        context.setVariable(Constants.VAR_PORT_BASED_ROUTING, false);
 
         StepsUtil.setPublishedEntries(context, getPublishedEntries());
         StepsUtil.setDeletedEntries(context, getDeletedEntries());

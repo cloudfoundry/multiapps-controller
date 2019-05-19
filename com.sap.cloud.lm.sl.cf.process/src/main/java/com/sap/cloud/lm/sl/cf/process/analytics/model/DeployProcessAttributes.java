@@ -28,9 +28,6 @@ public class DeployProcessAttributes extends AbstractCommonProcessAttributes {
     private Integer subscriptionsToCreate;
 
     @XmlElement
-    private Integer serviceUrlsToRegister;
-
-    @XmlElement
     private Integer serviceBrokersToCreate;
 
     @XmlElement
@@ -38,27 +35,6 @@ public class DeployProcessAttributes extends AbstractCommonProcessAttributes {
 
     @XmlElement
     private Integer serviceKeysToCreate;
-
-    public DeployProcessAttributes(Integer subscriptionsToDelete, Integer deletedEntries, Integer appsToUndeploy, Integer servicesToDelete,
-        Integer updatedSubscribers, Integer updatedServiceBrokerSubscribers, Integer mtaSize, Integer customDomains,
-        Integer servicesToCreate, Integer appsToDeploy, Integer publishedEntries, Integer subscriptionsToCreate,
-        Integer serviceUrlsToRegister, Integer serviceBrokersToCreate, Integer triggeredServiceOperations, Integer serviceKeysToCreate) {
-        super(subscriptionsToDelete, deletedEntries, appsToUndeploy, servicesToDelete, updatedSubscribers, updatedServiceBrokerSubscribers);
-        setMtaSize(mtaSize);
-        setCustomDomains(customDomains);
-        setServicesToCreate(servicesToCreate);
-        setAppsToDeploy(appsToDeploy);
-        setPublishedEntries(publishedEntries);
-        setSubscriptionsToCreate(subscriptionsToCreate);
-        setServiceUrlsToRegister(serviceUrlsToRegister);
-        setServiceBrokersToCreate(serviceBrokersToCreate);
-        setTriggeredServiceOperations(triggeredServiceOperations);
-        setServiceKeysToCreate(serviceKeysToCreate);
-    }
-
-    public DeployProcessAttributes() {
-        // TODO Auto-generated constructor stub
-    }
 
     public Integer getMtaSize() {
         return mtaSize;
@@ -106,14 +82,6 @@ public class DeployProcessAttributes extends AbstractCommonProcessAttributes {
 
     public void setSubscriptionsToCreate(Integer subscriptionsToCreate) {
         this.subscriptionsToCreate = subscriptionsToCreate;
-    }
-
-    public Integer getServiceUrlsToRegister() {
-        return serviceUrlsToRegister;
-    }
-
-    public void setServiceUrlsToRegister(Integer serviceUrlsToRegister) {
-        this.serviceUrlsToRegister = serviceUrlsToRegister;
     }
 
     public Integer getServiceBrokersToCreate() {

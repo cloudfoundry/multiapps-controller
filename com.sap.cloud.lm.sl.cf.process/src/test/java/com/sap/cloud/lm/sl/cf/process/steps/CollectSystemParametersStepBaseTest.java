@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -14,16 +12,9 @@ import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.junit.Before;
 import org.mockito.Mock;
-import org.mockito.Spy;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
-import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
-import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
-import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocatorMock;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
@@ -44,21 +35,13 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
     protected static final boolean DEFAULT_USE_NAMESPACES = false;
     protected static final boolean DEFAULT_USE_NAMESPACES_FOR_SERVICES = false;
 
-    @Spy
-    protected PortAllocator portAllocator = new PortAllocatorMock(PortValidator.MIN_PORT_VALUE);
     @Mock
     protected CredentialsGenerator credentialsGenerator;
-    @Mock
-    protected ModuleToDeployHelper moduleToDeployHelper;
 
     @Before
     public void setUp() throws MalformedURLException {
-        when(moduleToDeployHelper.isApplication(any())).thenReturn(true);
-
         when(configuration.getControllerUrl()).thenReturn(new URL(CONTROLLER_URL));
-        when(configuration.getRouterPort()).thenReturn(ApplicationConfiguration.DEFAULT_HTTPS_ROUTER_PORT);
-        when(configuration.areXsPlaceholdersSupported()).thenReturn(false);
-        when(configuration.getPlatformType()).thenReturn(PlatformType.XS2);
+        when(configuration.getDeployServiceUrl()).thenReturn(MULTIAPPS_CONTROLLER_URL);
 
         context.setVariable(Constants.VAR_USER, USER);
         context.setVariable(Constants.VAR_ORG, ORG);
@@ -70,7 +53,6 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
 
         step.credentialsGeneratorSupplier = () -> credentialsGenerator;
         step.timestampSupplier = () -> DEFAULT_TIMESTAMP;
-        when(clientProvider.getPortAllocator(any(), anyString())).thenReturn(portAllocator);
     }
 
     protected void prepareDescriptor(String descriptorPath) {
@@ -78,9 +60,9 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
         StepsUtil.setDeploymentDescriptor(context, descriptor);
     }
 
-    protected void prepareClient(boolean portBasedRouting) {
+    protected void prepareClient() {
         CloudDomain defaultDomain = mockDefaultDomain();
-        CloudInfo info = mockInfo(portBasedRouting);
+        CloudInfo info = mockInfo();
 
         when(client.getDefaultDomain()).thenReturn(defaultDomain);
         when(client.getCloudInfo()).thenReturn(info);
@@ -93,12 +75,8 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
         return domain;
     }
 
-    private CloudInfo mockInfo(boolean portBasedRouting) {
-        CloudInfo info = portBasedRouting ? mock(CloudInfoExtended.class) : mock(CloudInfo.class);
-        if (info instanceof CloudInfoExtended) {
-            when(((CloudInfoExtended) info).getDeployServiceUrl()).thenReturn(MULTIAPPS_CONTROLLER_URL);
-            when(((CloudInfoExtended) info).isPortBasedRouting()).thenReturn(true);
-        }
+    private CloudInfo mockInfo() {
+        CloudInfo info = mock(CloudInfo.class);
         when(info.getAuthorizationEndpoint()).thenReturn(AUTHORIZATION_URL);
         return info;
     }

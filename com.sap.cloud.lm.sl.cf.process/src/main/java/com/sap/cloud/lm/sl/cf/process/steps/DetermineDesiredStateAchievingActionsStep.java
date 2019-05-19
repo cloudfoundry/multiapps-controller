@@ -25,7 +25,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
-import com.sap.cloud.lm.sl.cf.process.util.ApplicationStagerFactory;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("determineDesiredStateAchievingActionsStep")
@@ -62,7 +61,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
         getStepLogger().debug(Messages.CURRENT_STATE, appName, currentState);
         ApplicationStartupState desiredState = computeDesiredState(execution.getContext(), app);
         getStepLogger().debug(Messages.DESIRED_STATE, appName, desiredState);
-        ApplicationStager applicationStager = ApplicationStagerFactory.createApplicationStager(configuration.getPlatformType());
+        ApplicationStager applicationStager = new ApplicationStager();
         Set<ApplicationStateAction> actionsToExecute = getActionsCalculator(execution.getContext()).determineActionsToExecute(currentState,
             desiredState, applicationStager.isApplicationStagedCorrectly(execution, app));
         getStepLogger().debug(Messages.ACTIONS_TO_EXECUTE, appName, actionsToExecute);

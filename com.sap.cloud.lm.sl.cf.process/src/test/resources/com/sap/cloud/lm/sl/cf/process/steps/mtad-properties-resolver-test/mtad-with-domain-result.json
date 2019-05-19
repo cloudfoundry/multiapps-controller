@@ -10,7 +10,7 @@
       "properties": {},
       "parameters": {
         "disk-quota": "256M",
-        "domain": "{xsa-placeholder-domain-default}",
+        "domain": "sap.com",
         "memory": "512M"
       },
       "requiredDependencies": [],
@@ -41,7 +41,7 @@
   ],
   "resources": [],
   "parameters": {
-    "default-domain": "{xsa-placeholder-domain-default}"
+    "default-domain": "sap.com"
   },
   "parametersMetadata": {
     "metadata": {}

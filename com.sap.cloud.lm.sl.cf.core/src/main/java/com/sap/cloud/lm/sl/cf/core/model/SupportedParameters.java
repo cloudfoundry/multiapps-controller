@@ -9,14 +9,6 @@ import java.util.Set;
 
 public class SupportedParameters {
 
-    // XSA placeholders:
-    public static final String XSA_CONTROLLER_ENDPOINT_PLACEHOLDER = "{xsa-placeholder-endpoint-controller}";
-    public static final String XSA_DEFAULT_DOMAIN_PLACEHOLDER = "{xsa-placeholder-domain-default}";
-    public static final String XSA_PROTOCOL_PLACEHOLDER = "{xsa-placeholder-protocol}";
-    public static final String XSA_ROUTER_PORT_PLACEHOLDER = "{xsa-placeholder-router-port}";
-    public static final String XSA_AUTHORIZATION_ENDPOINT_PLACEHOLDER = "{xsa-placeholder-endpoint-authorization}";
-    public static final String XSA_DEPLOY_SERVICE_URL_PLACEHOLDER = "{xsa-placeholder-service-url-deploy-service}";
-
     // General parameters:
     public static final String USER = "user";
     public static final String DEFAULT_DOMAIN = "default-domain";
@@ -44,15 +36,10 @@ public class SupportedParameters {
     public static final String DEFAULT_HOST = "default-host";
     public static final String HOST = "host";
     public static final String HOSTS = "hosts";
-    public static final String DEFAULT_PORT = "default-port";
-    public static final String PORT = "port";
-    public static final String PORTS = "ports";
     public static final String KEEP_EXISTING_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY = "keep-existing";
     public static final String KEEP_EXISTING_ROUTES = "keep-existing-routes";
     public static final String ROUTE = "route";
     public static final String ROUTES = "routes";
-    public static final String TCP = "tcp";
-    public static final String TCPS = "tcps";
     public static final String COMMAND = "command";
     public static final String BUILDPACK = "buildpack";
     public static final String STACK = "stack";
@@ -72,12 +59,9 @@ public class SupportedParameters {
     public static final String DEFAULT_IDLE_URL = "default-idle-url";
     public static final String ROUTE_PATH = "route-path";
     public static final String DEFAULT_IDLE_HOST = "default-idle-host";
-    public static final String DEFAULT_IDLE_PORT = "default-idle-port";
-    public static final String IDLE_PORT = "idle-port";
     public static final String IDLE_DOMAIN = "idle-domain";
-    public static final String IDLE_HOST = "idle-host";
-    public static final String IDLE_PORTS = "idle-ports";
     public static final String IDLE_DOMAINS = "idle-domains";
+    public static final String IDLE_HOST = "idle-host";
     public static final String IDLE_HOSTS = "idle-hosts";
     public static final String DEPENDENCY_TYPE = "dependency-type";
     public static final String TASKS = "tasks";
@@ -152,11 +136,11 @@ public class SupportedParameters {
     public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Collections.unmodifiableSet(
         new HashSet<>(Arrays.asList(PROVIDER_NID, PROVIDER_ID, TARGET, VERSION, MTA_ID, MTA_VERSION, MTA_PROVIDES_DEPENDENCY)));
 
-    public static final Set<String> APP_PROPS = Collections.unmodifiableSet(
-        new HashSet<>(Arrays.asList(APP_NAME, HOST, HOSTS, DOMAIN, DOMAINS, PORT, PORTS, COMMAND, BUILDPACK, HEALTH_CHECK_TYPE,
+    public static final Set<String> APP_PROPS = Collections
+        .unmodifiableSet(new HashSet<>(Arrays.asList(APP_NAME, HOST, HOSTS, DOMAIN, DOMAINS, COMMAND, BUILDPACK, HEALTH_CHECK_TYPE,
             HEALTH_CHECK_HTTP_ENDPOINT, ENABLE_SSH, STACK, HEALTH_CHECK_TIMEOUT, IDLE_HOST, MEMORY, INSTANCES, NO_HOSTNAME, NO_ROUTE,
-            IDLE_PORT, IDLE_DOMAIN, DISK_QUOTA, IDLE_PORTS, IDLE_DOMAINS, IDLE_HOSTS, TASKS, RESTART_ON_ENV_CHANGE, VCAP_APPLICATION_ENV,
-            VCAP_SERVICES_ENV, USER_PROVIDED_ENV, KEEP_EXISTING_ROUTES, KEEP_EXISTING_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY)));
+            IDLE_DOMAIN, DISK_QUOTA, IDLE_DOMAINS, IDLE_HOSTS, TASKS, RESTART_ON_ENV_CHANGE, VCAP_APPLICATION_ENV, VCAP_SERVICES_ENV,
+            USER_PROVIDED_ENV, KEEP_EXISTING_ROUTES, KEEP_EXISTING_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY)));
 
     public static final Set<String> SERVICE_PROPS = Collections
         .unmodifiableSet(new HashSet<>(Arrays.asList(SERVICE_NAME, SERVICE, SERVICE_PLAN, SERVICE_ALTERNATIVES, SERVICE_PROVIDER,
@@ -177,27 +161,23 @@ public class SupportedParameters {
         Map<String, String> prototype = new HashMap<>();
         prototype.put(IDLE_HOST, IDLE_HOSTS);
         prototype.put(IDLE_DOMAIN, IDLE_DOMAINS);
-        prototype.put(IDLE_PORT, IDLE_PORTS);
 
         prototype.put(HOST, HOSTS);
         prototype.put(DOMAIN, DOMAINS);
-        prototype.put(PORT, PORTS);
         SINGULAR_PLURAL_MAPPING = Collections.unmodifiableMap(prototype);
     }
 
     public enum RoutingParameterSet {
         // @formatter:off
-        ACTUAL(PORT,HOST,DOMAIN),
-        DEFAULT(DEFAULT_PORT, DEFAULT_HOST, DEFAULT_DOMAIN),
-        IDLE(IDLE_PORT, IDLE_HOST, IDLE_DOMAIN),
-        DEFAULT_IDLE(DEFAULT_IDLE_PORT,DEFAULT_IDLE_HOST,DEFAULT_IDLE_DOMAIN);
+        ACTUAL(HOST,DOMAIN),
+        DEFAULT(DEFAULT_HOST, DEFAULT_DOMAIN),
+        IDLE(IDLE_HOST, IDLE_DOMAIN),
+        DEFAULT_IDLE(DEFAULT_IDLE_HOST,DEFAULT_IDLE_DOMAIN);
         // @formatter:on
-        public final String port;
         public final String domain;
         public final String host;
 
-        RoutingParameterSet(String port, String host, String domain) {
-            this.port = port;
+        RoutingParameterSet(String host, String domain) {
             this.host = host;
             this.domain = domain;
         }

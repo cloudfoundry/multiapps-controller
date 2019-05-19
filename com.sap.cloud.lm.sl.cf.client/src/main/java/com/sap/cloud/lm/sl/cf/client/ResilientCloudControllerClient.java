@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.cloudfoundry.client.lib.ApplicationLogListener;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.ClientHttpResponseCallback;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerClientImpl;
 import org.cloudfoundry.client.lib.CloudCredentials;
 import org.cloudfoundry.client.lib.RestLogCallback;
@@ -53,67 +54,13 @@ import org.springframework.web.client.ResponseErrorHandler;
 
 import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
 
-public class ResilientCloudControllerClient implements CloudControllerClientSupportingCustomUserIds {
+public class ResilientCloudControllerClient implements CloudControllerClient {
 
     private final ExecutionRetrier retrier = new ExecutionRetrier();
     private final CloudControllerClientImpl cc;
 
     public ResilientCloudControllerClient(CloudControllerRestClient cc) {
         this.cc = new CloudControllerClientImpl(cc);
-    }
-
-    @Override
-    public List<String> getSpaceAuditorIdsAsStrings(String spaceName) {
-        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceAuditors(spaceName), HttpStatus.NOT_FOUND);
-        return toStrings(uuids);
-    }
-
-    @Override
-    public List<String> getSpaceManagerIdsAsStrings(String spaceName) {
-        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceManagers(spaceName), HttpStatus.NOT_FOUND);
-        return toStrings(uuids);
-    }
-
-    @Override
-    public List<String> getSpaceDeveloperIdsAsStrings(String spaceName) {
-        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceDevelopers(spaceName), HttpStatus.NOT_FOUND);
-        return toStrings(uuids);
-    }
-
-    @Override
-    public List<String> getSpaceAuditorIdsAsStrings(UUID spaceGuid) {
-        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceAuditors(spaceGuid), HttpStatus.NOT_FOUND);
-        return toStrings(uuids);
-    }
-
-    @Override
-    public List<String> getSpaceManagerIdsAsStrings(UUID spaceGuid) {
-        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceManagers(spaceGuid), HttpStatus.NOT_FOUND);
-        return toStrings(uuids);
-    }
-
-    @Override
-    public List<String> getSpaceDeveloperIdsAsStrings(UUID spaceGuid) {
-        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceDevelopers(spaceGuid), HttpStatus.NOT_FOUND);
-        return toStrings(uuids);
-    }
-
-    @Override
-    public List<String> getSpaceAuditorIdsAsStrings(String organizationName, String spaceName) {
-        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceAuditors(organizationName, spaceName), HttpStatus.NOT_FOUND);
-        return toStrings(uuids);
-    }
-
-    @Override
-    public List<String> getSpaceManagerIdsAsStrings(String organizationName, String spaceName) {
-        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceManagers(organizationName, spaceName), HttpStatus.NOT_FOUND);
-        return toStrings(uuids);
-    }
-
-    @Override
-    public List<String> getSpaceDeveloperIdsAsStrings(String organizationName, String spaceName) {
-        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceDevelopers(organizationName, spaceName), HttpStatus.NOT_FOUND);
-        return toStrings(uuids);
     }
 
     @Override

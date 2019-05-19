@@ -9,25 +9,23 @@ modules:
       - name: plugins.0
         list: plugins
         properties:
-          plugin_name: plugin-0
-          url: https://localhost:52001
+          plugin_name: ~{plugin_name}
+          url: ~{url}
       - name: plugins.1
         list: plugins
         properties:
-          plugin_name: plugin-1
-          url: https://localhost:52002
+          plugin_name: ~{plugin_name}
+          url: ~{url}
     parameters:
-      host: test-host
-      port: 52001
-      route-path: /test-route
+      route-path: /v2
 
 resources:
   - name: plugins.0
     properties:
-      plugin_name: plugin-0
-      url: https://localhost:52001
+      plugin_name: foo
+      url: https://foo.localhost
 
   - name: plugins.1
     properties:
-      plugin_name: plugin-1
-      url: https://localhost:52002
+      plugin_name: bar
+      url: https://bar.localhost

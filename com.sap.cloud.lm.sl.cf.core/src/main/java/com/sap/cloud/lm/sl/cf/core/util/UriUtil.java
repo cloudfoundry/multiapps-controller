@@ -8,25 +8,16 @@ import org.cloudfoundry.client.lib.domain.CloudRoute;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class UriUtil {
 
-    private static final PortValidator PORT_VALIDATOR = new PortValidator();
-
     public static final String DEFAULT_SCHEME_SEPARATOR = "://";
     public static final char DEFAULT_PATH_SEPARATOR = '/';
     public static final char DEFAULT_HOST_DOMAIN_SEPARATOR = '.';
-    public static final char DEFAULT_PORT_SEPARATOR = ':';
 
-    public static final int STANDARD_HTTP_PORT = 80;
-    public static final int STANDARD_HTTPS_PORT = 443;
-
-    public static final String TCP_PROTOCOL = "tcp";
-    public static final String TCPS_PROTOCOL = "tcps";
     public static final String HTTP_PROTOCOL = "http";
     public static final String HTTPS_PROTOCOL = "https";
 
@@ -36,31 +27,15 @@ public class UriUtil {
         uri = getUriWithoutScheme(uri);
         int pathIndex = uri.length();
 
-        int portIndex = uri.lastIndexOf(DEFAULT_PORT_SEPARATOR);
-        if (portIndex > 0) {
-            pathIndex = getPathIndexAfter(uri, portIndex);
-            splitUri.put(SupportedParameters.DOMAIN, uri.substring(0, portIndex));
-            String portString = uri.substring(portIndex + 1, pathIndex);
-            Integer port = null;
-            try {
-                port = Integer.parseInt(portString);
-                splitUri.put(SupportedParameters.PORT, port);
-            } catch (NumberFormatException e) {
-                splitUri.put(SupportedParameters.PORT, PORT_VALIDATOR.MIN_PORT_VALUE - 1);
-            }
+        int domainIndex = uri.indexOf(DEFAULT_HOST_DOMAIN_SEPARATOR);
+        pathIndex = getPathIndexAfter(uri, domainIndex);
+        if (domainIndex > 0) {
+            splitUri.put(SupportedParameters.HOST, uri.substring(0, domainIndex));
+            splitUri.put(SupportedParameters.DOMAIN, uri.substring(domainIndex + 1, pathIndex));
         } else {
-            // Host-based route, return (host, domain):
-            int domainIndex = uri.indexOf(DEFAULT_HOST_DOMAIN_SEPARATOR);
-            pathIndex = getPathIndexAfter(uri, domainIndex);
-            if (domainIndex > 0) {
-                splitUri.put(SupportedParameters.HOST, uri.substring(0, domainIndex));
-                splitUri.put(SupportedParameters.DOMAIN, uri.substring(domainIndex + 1, pathIndex));
-            } else {
-                splitUri.put(SupportedParameters.HOST, "");
-                splitUri.put(SupportedParameters.DOMAIN, uri.substring(0, pathIndex));
-            }
+            splitUri.put(SupportedParameters.HOST, "");
+            splitUri.put(SupportedParameters.DOMAIN, uri.substring(0, pathIndex));
         }
-
         return splitUri;
     }
 
@@ -79,12 +54,11 @@ public class UriUtil {
 
     // TODO: move this in a new utility class, also see what's up with the scheme really
     public static String buildUri(String scheme, Map<String, Object> uriParts) {
-        return buildUri(scheme, (String) uriParts.get(SupportedParameters.HOST), (String) uriParts.get(SupportedParameters.DOMAIN),
-            (Integer) uriParts.get(SupportedParameters.PORT), (String) uriParts.get(SupportedParameters.ROUTE_PATH));
+        return buildUri(scheme, (String) uriParts.get(SupportedParameters.HOST), (String) uriParts.get(SupportedParameters.DOMAIN), (String) uriParts.get(SupportedParameters.ROUTE_PATH));
     }
 
-    public static String buildUri(String scheme, String host, String domain, Integer port, String path) {
-        StringBuffer uri = new StringBuffer();
+    public static String buildUri(String scheme, String host, String domain, String path) {
+        StringBuilder uri = new StringBuilder();
         if (!CommonUtil.isNullOrEmpty(scheme)) {
             uri.append(scheme)
                 .append(UriUtil.DEFAULT_SCHEME_SEPARATOR);
@@ -96,10 +70,6 @@ public class UriUtil {
 
         uri.append(domain);
 
-        if (!CommonUtil.isNullOrEmpty(port)) {
-            uri.append(UriUtil.DEFAULT_PORT_SEPARATOR)
-                .append(port);
-        }
         if (!CommonUtil.isNullOrEmpty(path)) {
             uri.append(path);
         }
@@ -110,32 +80,12 @@ public class UriUtil {
     public static Pair<String, String> getHostAndDomain(String uri) {
         uri = getUriWithoutScheme(uri);
 
-        int portIndex = uri.lastIndexOf(DEFAULT_PORT_SEPARATOR);
-        if (portIndex > 0) {
-            int pathIndex = getPathIndexAfter(uri, portIndex);
-            // Port-based route, return (port, domain):
-            return new Pair<>(uri.substring(portIndex + 1, pathIndex), uri.substring(0, portIndex));
-        } else {
-            // Host-based route, return (host, domain):
-            int domainIndex = uri.indexOf(DEFAULT_HOST_DOMAIN_SEPARATOR);
-            int pathIndex = getPathIndexAfter(uri, domainIndex);
-            if (domainIndex > 0) {
-                return new Pair<>(uri.substring(0, domainIndex), uri.substring(domainIndex + 1, pathIndex));
-            }
-            return new Pair<>("", uri.substring(0, pathIndex));
+        int domainIndex = uri.indexOf(DEFAULT_HOST_DOMAIN_SEPARATOR);
+        int pathIndex = getPathIndexAfter(uri, domainIndex);
+        if (domainIndex > 0) {
+            return new Pair<>(uri.substring(0, domainIndex), uri.substring(domainIndex + 1, pathIndex));
         }
-    }
-
-    public static Integer getPort(String uri) {
-        try {
-            int port = Integer.parseInt(getHostAndDomain(uri)._1);
-            if (isValidPort(port)) {
-                return port;
-            }
-            return null;
-        } catch (NumberFormatException e) {
-            return null;
-        }
+        return new Pair<>("", uri.substring(0, pathIndex));
     }
 
     public static String getDomain(String uri) {
@@ -182,53 +132,15 @@ public class UriUtil {
         return scheme;
     }
 
-    public static boolean isTcpOrTcpsUri(String uri) {
-        return uri.startsWith(TCP_PROTOCOL + DEFAULT_SCHEME_SEPARATOR) || uri.startsWith(TCPS_PROTOCOL + DEFAULT_SCHEME_SEPARATOR);
-    }
-
-    public static boolean isValidPort(int port) {
-        return PORT_VALIDATOR.isValid(port);
-    }
-
-    public static String removePort(String uri) {
-        int portIndex = uri.lastIndexOf(DEFAULT_PORT_SEPARATOR);
-        if (portIndex < 0) {
-            return uri;
-        }
-        int pathIndex = getPathIndexAfter(uri, portIndex);
-        String port = uri.substring(portIndex + 1, pathIndex);
-        try {
-            Integer.parseInt(port);
-        } catch (NumberFormatException e) {
-            int schemaIndex = uri.indexOf(DEFAULT_PORT_SEPARATOR);
-            if (port.equals("") && portIndex != schemaIndex) {
-                return uri.substring(0, portIndex) + uri.substring(portIndex + 1, uri.length());
-            }
-            return uri;
-        }
-
-        return uri.replaceFirst(DEFAULT_PORT_SEPARATOR + port, "");
-    }
-
-    public static boolean isStandardPort(int port, String protocol) {
-        return protocol.equals(HTTP_PROTOCOL) && port == STANDARD_HTTP_PORT
-            || protocol.equals(HTTPS_PROTOCOL) && port == STANDARD_HTTPS_PORT;
-    }
-
-    public static CloudRoute findRoute(List<CloudRoute> routes, String uri, boolean isPortBasedRouting) {
+    public static CloudRoute findRoute(List<CloudRoute> routes, String uri) {
         return routes.stream()
-            .filter(route -> routeMatchesUri(route, uri, isPortBasedRouting))
+            .filter(route -> routeMatchesUri(route, uri))
             .findAny()
             .orElseThrow(() -> new NotFoundException(Messages.ROUTE_NOT_FOUND, uri));
     }
 
-    public static boolean routeMatchesUri(CloudRoute route, String uri, boolean isPortBasedRouting) {
-        Pair<String, String> hostAndDomain;
-        if (isPortBasedRouting) {
-            hostAndDomain = UriUtil.getHostAndDomain(uri);
-        } else {
-            hostAndDomain = UriUtil.getHostAndDomain(UriUtil.removePort(uri));
-        }
+    public static boolean routeMatchesUri(CloudRoute route, String uri) {
+        Pair<String, String> hostAndDomain = UriUtil.getHostAndDomain(uri);
         String host = hostAndDomain._1;
         String domain = hostAndDomain._2;
         return route.getHost()

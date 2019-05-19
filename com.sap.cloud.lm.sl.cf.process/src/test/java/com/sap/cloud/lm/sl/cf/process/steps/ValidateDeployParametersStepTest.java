@@ -88,7 +88,7 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
         Mockito.when(configuration.getMaxMtaDescriptorSize())
             .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
         Mockito.when(configuration.getFileConfiguration())
-            .thenReturn(new DefaultConfiguration(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE, ApplicationConfiguration.DEFAULT_SCAN_UPLOADS));
+            .thenReturn(new DefaultConfiguration(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE));
 
     }
 

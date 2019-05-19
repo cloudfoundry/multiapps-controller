@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -25,7 +24,6 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
     public void initParametersContextClient() {
         loadParameters();
         prepareContext();
-        prepareConfiguration();
     }
 
     private void prepareContext() {
@@ -57,14 +55,9 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
         return dockerInfo;
     }
 
-    private void prepareConfiguration() {
-        Mockito.when(configuration.getPlatformType())
-            .thenReturn(stepInput.platform);
-    }
-
     @Test
-    public void testWithDockerImageXS2() {
-        stepInput = createStepInput(PlatformType.XS2);
+    public void testWithDockerImage() {
+        stepInput = createStepInput();
         initParametersContextClient();
 
         step.execute(context);
@@ -73,24 +66,12 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
         validateClient();
     }
 
-    @Test
-    public void testWithDockerImageCF() {
-        stepInput = createStepInput(PlatformType.CF);
-        initParametersContextClient();
-
-        step.execute(context);
-        assertStepFinishedSuccessfully();
-
-        validateClient();
-    }
-
-    private StepInput createStepInput(PlatformType platformType) {
+    private StepInput createStepInput() {
         StepInput stepInput = new StepInput();
 
         CloudApplicationExtended cloudApplicationExtended = createFakeCloudApplicationExtended();
 
         stepInput.applicationIndex = 0;
-        stepInput.platform = platformType;
         stepInput.applications = Arrays.asList(cloudApplicationExtended);
 
         return stepInput;

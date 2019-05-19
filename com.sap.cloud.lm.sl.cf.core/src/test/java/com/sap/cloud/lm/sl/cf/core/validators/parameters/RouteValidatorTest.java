@@ -27,17 +27,7 @@ public class RouteValidatorTest {
             // [1]
             {"should_correct$this$host.domain", false, "should-correct-this-host.domain", null},
             // [2]
-            {"domain.with.port:1234", true, "domain.with.port:1234", null},
-            // [3]
-            {"domain.with.bad.port:abcd", false, "cannot really correct this", "Could not create a valid route"},
-            // [4]
-            {"$$$$_$$$$:1234", false, "cannot really correct this domain", "Could not create a valid domain"},
-            // [5]
-            {"domain_can_be_corrected:1234/path", false, "domain-can-be-corrected:1234/path", null},
-            // [6]
             {"host_can_be_corrected.domain.com", false, "host-can-be-corrected.domain.com", null},
-            // [7]
-            {"domain.with.port:-1234", false, "cannot really correct this", "Could not create a valid route"},
 // @formatter:on
         });
     }
@@ -50,7 +40,6 @@ public class RouteValidatorTest {
     private String expectedException;
 
     public RouteValidatorTest(String inputRoute, boolean isValid, String correctedRoute, String expectedException) {
-        super();
         this.inputRoute = inputRoute;
         this.isValid = isValid;
         this.correctedRoute = correctedRoute;

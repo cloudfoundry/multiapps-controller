@@ -12,64 +12,9 @@
 
     <tx:annotation-driven transaction-manager="transactionManager" />
 
-    <beans profile="defaultdb">
-        <bean id="dataSourceDialect" class="com.sap.cloud.lm.sl.cf.persistence.dialects.DefaultDataSourceDialect" />
-
-        <bean id="eclipseLinkJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
-            <property name="showSql" value="false" />
-        </bean>
-
-        <bean id="baseEntityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
-            abstract="true">
-            <property name="dataSource" ref="dataSource" />
-            <property name="jpaVendorAdapter" ref="eclipseLinkJpaVendorAdapter" />
-        </bean>
-    </beans>
-
-    <beans profile="hana">
-        <bean id="dataSourceDialect" class="com.sap.cloud.lm.sl.cf.persistence.dialects.DefaultDataSourceDialect" />
-
-        <bean id="eclipseLinkJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
-            <property name="showSql" value="false" />
-        </bean>
-
-        <bean id="baseEntityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
-            abstract="true">
-            <property name="dataSource" ref="dataSource" />
-            <property name="jpaVendorAdapter" ref="eclipseLinkJpaVendorAdapter" />
-            <property name="jpaProperties">
-                <props>
-                    <prop key="eclipselink.target-database">HANA</prop>
-                </props>
-            </property>
-        </bean>
-    </beans>
-
-    <beans profile="postgresql">
-        <bean id="dataSourceDialect" class="com.sap.cloud.lm.sl.cf.persistence.dialects.PostgreSQLDataSourceDialect" />
-
-        <bean id="eclipseLinkJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
-            <property name="showSql" value="false" />
-            <property name="database" value="POSTGRESQL" />
-        </bean>
-
-        <bean id="baseEntityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
-            abstract="true">
-            <property name="dataSource" ref="dataSource" />
-            <property name="jpaVendorAdapter" ref="eclipseLinkJpaVendorAdapter" />
-        </bean>
-
-        <bean id="indexProcessIdsOfProgressMessagesChange" class="com.sap.cloud.lm.sl.cf.persistence.changes.IndexProcessIdsOfProgressMessagesPostgreSQLChange" />
-        
-        <bean id="indexSpaceOfLmSlPersistenceChange" class="com.sap.cloud.lm.sl.cf.persistence.changes.IndexSpaceOfLmSlPersistenceFilePostgreSQLChange" />
-        
-        <bean id="indexSpaceIdOfOperationChange" class="com.sap.cloud.lm.sl.cf.core.changes.IndexSpaceIdOfOperationPostgreSQLChange" />
-        
-    </beans>
-
     <beans>
-
-        <bean id="dataSource" class="com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.CloudDataSourceFactoryBean">
+        <bean id="dataSource"
+            class="com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.CloudDataSourceFactoryBean">
             <property name="serviceName" value="deploy-service-database" />
             <property name="configuration" ref="applicationConfiguration" />
         </bean>
@@ -77,12 +22,6 @@
         <bean id="dataSourceWithDialect" class="com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect">
             <constructor-arg name="dataSource" ref="dataSource" />
             <constructor-arg name="dataSourceDialect" ref="dataSourceDialect" />
-        </bean>
-
-        <bean id="secureStoreDataSource" class="com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.CloudDataSourceFactoryBean">
-            <property name="serviceName" value="deploy-service-ss" />
-            <property name="defaultDataSource" ref="dataSource" />
-            <property name="configuration" ref="applicationConfiguration" />
         </bean>
 
         <bean id="defaultEntityManagerFactory" parent="baseEntityManagerFactory">
@@ -98,12 +37,37 @@
         </bean>
 
         <bean id="persistenceChangelog" parent="liquibaseTemplate">
-            <property name="changeLog" value="classpath:/com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog.xml" />
+            <property name="changeLog"
+                value="classpath:/com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog.xml" />
         </bean>
 
         <bean id="coreChangelog" parent="liquibaseTemplate">
-            <property name="changeLog" value="classpath:/com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog.xml" />
+            <property name="changeLog"
+                value="classpath:/com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog.xml" />
         </bean>
+
+        <bean id="dataSourceDialect" class="com.sap.cloud.lm.sl.cf.persistence.dialects.DefaultDataSourceDialect" />
+
+        <bean id="eclipseLinkJpaVendorAdapter"
+            class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
+            <property name="showSql" value="false" />
+            <property name="database" value="POSTGRESQL" />
+        </bean>
+
+        <bean id="baseEntityManagerFactory"
+            class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean" abstract="true">
+            <property name="dataSource" ref="dataSource" />
+            <property name="jpaVendorAdapter" ref="eclipseLinkJpaVendorAdapter" />
+        </bean>
+
+        <bean id="indexProcessIdsOfProgressMessagesChange"
+            class="com.sap.cloud.lm.sl.cf.persistence.changes.IndexProcessIdsOfProgressMessagesChange" />
+
+        <bean id="indexSpaceOfLmSlPersistenceChange"
+            class="com.sap.cloud.lm.sl.cf.persistence.changes.IndexSpaceOfLmSlPersistenceFileChange" />
+
+        <bean id="indexSpaceIdOfOperationChange"
+            class="com.sap.cloud.lm.sl.cf.core.changes.IndexSpaceIdOfOperationChange" />
 
     </beans>
 </beans>

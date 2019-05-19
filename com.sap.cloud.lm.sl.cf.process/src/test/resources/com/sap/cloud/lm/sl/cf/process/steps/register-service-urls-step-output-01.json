@@ -1,7 +1,0 @@
-{
-  "serviceUrlToRegister":
-    {
-      "serviceName": "test-service",
-      "url": "test-service-url"
-    }
-}

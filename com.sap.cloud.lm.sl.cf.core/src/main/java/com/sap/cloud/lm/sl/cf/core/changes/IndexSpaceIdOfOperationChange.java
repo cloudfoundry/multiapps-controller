@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.changes;
 
 import com.sap.cloud.lm.sl.cf.persistence.changes.AbstractIndexSQLChange;
 
-public class IndexSpaceIdOfOperationPostgreSQLChange extends AbstractIndexSQLChange {
+public class IndexSpaceIdOfOperationChange extends AbstractIndexSQLChange {
 
     @Override
     protected String getQuery() {

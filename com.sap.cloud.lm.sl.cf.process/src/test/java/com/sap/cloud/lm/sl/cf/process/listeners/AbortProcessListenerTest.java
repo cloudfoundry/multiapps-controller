@@ -3,12 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.listeners;
 import static org.mockito.Mockito.mock;
 
 import java.util.Arrays;
-import java.util.Set;
-import java.util.TreeSet;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.flowable.engine.HistoryService;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.junit.Before;
@@ -22,10 +17,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @RunWith(Enclosed.class)
 public class AbortProcessListenerTest {
@@ -134,92 +127,6 @@ public class AbortProcessListenerTest {
                         return createInstanceMock(archiveIds);
                     case Constants.PARAM_KEEP_FILES:
                         return createInstanceMock(shouldKeepFiles);
-                    default:
-                        return null;
-                }
-            }
-
-            private HistoricVariableInstance createInstanceMock(Object parameterValue) {
-                HistoricVariableInstance instanceMock = Mockito.mock(HistoricVariableInstance.class);
-                Mockito.when(instanceMock.getValue())
-                    .thenReturn(parameterValue);
-                return instanceMock;
-            }
-
-        }
-
-    }
-
-    public static class AbortProcessListenerPortCleanupTest {
-
-        private static final String SPACE = "initial";
-        private static final String ORG = "initial";
-        private static final String DEFAULT_DOMAIN = "localhost";
-        private static final String USER = "XSMASTER";
-
-        private Set<Integer> allocatedPorts;
-
-        @Mock
-        private CloudControllerClientProvider clientProvider;
-        @Mock
-        private CloudControllerClient client;
-
-        @InjectMocks
-        AbortProcessListener abortListener = new AbortProcessListenerMock();
-
-        @Before
-        public void setUp() {
-            MockitoAnnotations.initMocks(this);
-        }
-
-        @Test
-        public void testDeleteAllocatedRoutes1() throws Exception {
-            Mockito.when(clientProvider.getControllerClient(USER, ORG, SPACE, null))
-                .thenReturn(client);
-            Mockito.when(client.getDefaultDomain())
-                .thenReturn(new CloudDomain(null, DEFAULT_DOMAIN, null));
-            Mockito.doThrow(CloudOperationException.class)
-                .when(client)
-                .deleteRoute(Integer.toString(1), DEFAULT_DOMAIN);
-            Mockito.doThrow(CloudOperationException.class)
-                .when(client)
-                .deleteRoute(Integer.toString(3), DEFAULT_DOMAIN);
-
-            allocatedPorts = new TreeSet<>(Arrays.asList(1, 2, 3, 4));
-
-            abortListener.deleteAllocatedRoutes(mock(HistoryService.class), PROCESS_INSTANCE_ID);
-
-            Mockito.verify(client)
-                .deleteRoute(Integer.toString(2), DEFAULT_DOMAIN);
-            Mockito.verify(client)
-                .deleteRoute(Integer.toString(4), DEFAULT_DOMAIN);
-        }
-
-        @Test
-        public void testDeleteAllocatedRoutes2() throws Exception {
-            Mockito.when(clientProvider.getControllerClient(USER, ORG, SPACE, null))
-                .thenReturn(client);
-            abortListener.deleteAllocatedRoutes(mock(HistoryService.class), PROCESS_INSTANCE_ID);
-            Mockito.verify(client, Mockito.never())
-                .deleteRoute(Mockito.anyString(), Mockito.any());
-        }
-
-        private class AbortProcessListenerMock extends AbortProcessListener {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId,
-                String parameter) {
-                switch (parameter) {
-                    case Constants.VAR_ALLOCATED_PORTS:
-                        return createInstanceMock(JsonUtil.toJsonBinary(allocatedPorts));
-                    case Constants.VAR_USER:
-                        return createInstanceMock(USER);
-                    case Constants.VAR_SPACE:
-                        return createInstanceMock(SPACE);
-                    case Constants.VAR_ORG:
-                        return createInstanceMock(ORG);
                     default:
                         return null;
                 }
