@@ -221,8 +221,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationEnv() {
-            updateAppDigest(app.getEnvAsMap(), existingApp.getEnvAsMap());
-            app.setEnv(MapUtil.unmodifiable(app.getEnvAsMap()));
+            Map<String, String> envAsMap = app.getEnvAsMap();
+            updateAppDigest(envAsMap, existingApp.getEnvAsMap());
+            app.setEnv(MapUtil.unmodifiable(envAsMap));
 
             UpdateState updateApplicationEnvironmentState = updateApplicationEnvironment(app, existingApp, client,
                 app.getApplicationAttributesUpdateStrategy());
