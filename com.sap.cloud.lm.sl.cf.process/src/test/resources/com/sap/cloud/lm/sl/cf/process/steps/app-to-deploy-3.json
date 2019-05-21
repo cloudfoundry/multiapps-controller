@@ -1,9 +1,8 @@
 {
   "name": "module-1",
   "uris": [
-      "tcp://test.domain.com:51051"
+      "tcp://test.domain.com:51051",
+      "tcp://test.domain.com:51053"
     ],
-  "idleUris": [
-      "tcp://test.domain.com:51052"
-    ]
+  "idleUris": []
  }
