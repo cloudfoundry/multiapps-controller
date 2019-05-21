@@ -79,12 +79,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
             StepsUtil.setUploadToken(uploadToken, execution.getContext());
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
-            throw e;
+            throw new CloudControllerException(coe);
         }
         return StepPhase.POLL;
     }

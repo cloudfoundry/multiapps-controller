@@ -20,7 +20,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("executeTaskStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -38,12 +37,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
         try {
             return attemptToExecuteTask(execution, app, taskToExecute);
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
-            throw e;
+            throw new CloudControllerException(coe);
         }
     }
 

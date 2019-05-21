@@ -105,38 +105,32 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        try {
-            getStepLogger().debug(Messages.UPDATING_SUBSCRIBERS);
-            List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(execution.getContext(),
-                flowableFacade);
-            List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(execution.getContext(), flowableFacade);
-            List<ConfigurationEntry> updatedEntries = ListUtils.union(publishedEntries, deletedEntries);
+        getStepLogger().debug(Messages.UPDATING_SUBSCRIBERS);
+        List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(execution.getContext(), flowableFacade);
+        List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(execution.getContext(), flowableFacade);
+        List<ConfigurationEntry> updatedEntries = ListUtils.union(publishedEntries, deletedEntries);
 
-            CloudControllerClient clientForCurrentSpace = execution.getControllerClient();
+        CloudControllerClient clientForCurrentSpace = execution.getControllerClient();
 
-            List<CloudApplication> updatedSubscribers = new ArrayList<>();
-            List<CloudApplication> updatedServiceBrokerSubscribers = new ArrayList<>();
-            for (ConfigurationSubscription subscription : subscriptionsDao.findAll(updatedEntries)) {
-                ClientHelper clientHelper = new ClientHelper(clientForCurrentSpace);
-                Pair<String, String> orgAndSpace = orgAndSpaceCalculator.apply(clientHelper, subscription.getSpaceId());
-                if (orgAndSpace == null) {
-                    getStepLogger().warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
-                    continue;
-                }
-                CloudApplication updatedApplication = updateSubscriber(execution, orgAndSpace, subscription);
-                if (updatedApplication != null) {
-                    updatedApplication = addOrgAndSpaceIfNecessary(updatedApplication, orgAndSpace);
-                    addApplicationToProperList(updatedSubscribers, updatedServiceBrokerSubscribers, updatedApplication);
-                }
+        List<CloudApplication> updatedSubscribers = new ArrayList<>();
+        List<CloudApplication> updatedServiceBrokerSubscribers = new ArrayList<>();
+        for (ConfigurationSubscription subscription : subscriptionsDao.findAll(updatedEntries)) {
+            ClientHelper clientHelper = new ClientHelper(clientForCurrentSpace);
+            Pair<String, String> orgAndSpace = orgAndSpaceCalculator.apply(clientHelper, subscription.getSpaceId());
+            if (orgAndSpace == null) {
+                getStepLogger().warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
+                continue;
             }
-            StepsUtil.setUpdatedSubscribers(execution.getContext(), removeDuplicates(updatedSubscribers));
-            StepsUtil.setUpdatedServiceBrokerSubscribers(execution.getContext(), updatedServiceBrokerSubscribers);
-            getStepLogger().debug(Messages.SUBSCRIBERS_UPDATED);
-            return StepPhase.DONE;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_UPDATING_SUBSCRIBERS);
-            throw e;
+            CloudApplication updatedApplication = updateSubscriber(execution, orgAndSpace, subscription);
+            if (updatedApplication != null) {
+                updatedApplication = addOrgAndSpaceIfNecessary(updatedApplication, orgAndSpace);
+                addApplicationToProperList(updatedSubscribers, updatedServiceBrokerSubscribers, updatedApplication);
+            }
         }
+        StepsUtil.setUpdatedSubscribers(execution.getContext(), removeDuplicates(updatedSubscribers));
+        StepsUtil.setUpdatedServiceBrokerSubscribers(execution.getContext(), updatedServiceBrokerSubscribers);
+        getStepLogger().debug(Messages.SUBSCRIBERS_UPDATED);
+        return StepPhase.DONE;
     }
 
     private void addApplicationToProperList(List<CloudApplication> updatedSubscribers,

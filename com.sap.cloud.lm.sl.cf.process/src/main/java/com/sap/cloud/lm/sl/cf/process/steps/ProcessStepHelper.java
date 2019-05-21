@@ -79,7 +79,7 @@ public class ProcessStepHelper {
         LOGGER.error(Messages.EXCEPTION_CAUGHT, t);
         getProcessLogger().error(Messages.EXCEPTION_CAUGHT, t);
 
-        storeExceptionInProgressMessageService(context, t);
+//        storeExceptionInProgressMessageService(context, t);
 
         if (t instanceof ContentException) {
             StepsUtil.setErrorType(context, ErrorType.CONTENT_ERROR);

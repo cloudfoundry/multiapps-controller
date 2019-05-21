@@ -49,12 +49,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.MTA_ARCHIVE_PROCESSED);
             return StepPhase.DONE;
         } catch (FileStorageException fse) {
-            SLException e = new SLException(fse, fse.getMessage());
-            getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_ARCHIVE);
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_ARCHIVE);
-            throw e;
+            throw new SLException(fse, fse.getMessage());
         }
     }
 

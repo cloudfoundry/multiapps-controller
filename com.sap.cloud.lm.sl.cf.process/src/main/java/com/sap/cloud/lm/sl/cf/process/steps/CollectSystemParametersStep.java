@@ -25,7 +25,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.DeploymentType;
 import com.sap.cloud.lm.sl.mta.model.Version;
@@ -66,12 +65,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
             StepsUtil.setDeploymentDescriptorWithSystemParameters(execution.getContext(), descriptor);
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_COLLECTING_SYSTEM_PARAMETERS);
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_COLLECTING_SYSTEM_PARAMETERS);
-            throw e;
+            throw new CloudControllerException(coe);
         }
         getStepLogger().debug(Messages.SYSTEM_PARAMETERS_COLLECTED);
 

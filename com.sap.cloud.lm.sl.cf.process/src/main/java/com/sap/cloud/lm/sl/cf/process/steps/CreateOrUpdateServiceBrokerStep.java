@@ -24,7 +24,6 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("createOrUpdateServiceBrokerStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -58,12 +57,7 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.SERVICE_BROKERS_CREATED);
             return StepPhase.DONE;
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_CREATING_SERVICE_BROKERS);
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_CREATING_SERVICE_BROKERS);
-            throw e;
+            throw new CloudControllerException(coe);
         }
     }
 

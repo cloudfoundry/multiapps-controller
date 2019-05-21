@@ -18,7 +18,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("detectDeployedMtaStep")
@@ -48,18 +47,16 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
                 getStepLogger().info(Messages.NO_DEPLOYED_MTA_DETECTED);
             } else {
                 getStepLogger().debug(Messages.DEPLOYED_MTA, JsonUtil.toJson(deployedMta, true));
-                getStepLogger().info(MessageFormat.format(Messages.DEPLOYED_MTA_DETECTED_WITH_VERSION, deployedMta.getMetadata().getId(), deployedMta.getMetadata().getVersion()));
+                getStepLogger().info(MessageFormat.format(Messages.DEPLOYED_MTA_DETECTED_WITH_VERSION, deployedMta.getMetadata()
+                    .getId(),
+                    deployedMta.getMetadata()
+                        .getVersion()));
             }
             StepsUtil.setDeployedMta(execution.getContext(), deployedMta);
             getStepLogger().debug(Messages.DEPLOYED_APPS, secureSerializer.toJson(deployedApps));
             return StepPhase.DONE;
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_DETECTING_DEPLOYED_MTA);
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_DETECTING_DEPLOYED_MTA);
-            throw e;
+            throw new CloudControllerException(coe);
         }
     }
 

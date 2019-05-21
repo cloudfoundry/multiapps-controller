@@ -3,16 +3,15 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("addDomainsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -40,12 +39,7 @@ public class AddDomainsStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.DOMAINS_ADDED);
             return StepPhase.DONE;
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_ADDING_DOMAINS);
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_ADDING_DOMAINS);
-            throw e;
+            throw new CloudControllerException(coe);
         }
     }
 

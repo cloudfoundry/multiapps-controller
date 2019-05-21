@@ -25,28 +25,23 @@ public class DetectMtaSchemaVersionStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.DETECTING_MTA_MAJOR_SCHEMA_VERSION);
-        try {
-            DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
-            List<ExtensionDescriptor> extensionDescriptors = StepsUtil.getExtensionDescriptorChain(execution.getContext());
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
+        List<ExtensionDescriptor> extensionDescriptors = StepsUtil.getExtensionDescriptorChain(execution.getContext());
 
-            SchemaVersionDetector detector = detectorSupplier.get();
-            Version schemaVersion = detector.detect(deploymentDescriptor, extensionDescriptors);
-            if (!SupportedVersions.isSupported(schemaVersion)) {
-                throw new SLException(com.sap.cloud.lm.sl.mta.message.Messages.UNSUPPORTED_VERSION, schemaVersion);
-            }
-            if (!SupportedVersions.isFullySupported(schemaVersion)) {
-               getStepLogger().warn(Messages.UNSUPPORTED_MINOR_VERSION, schemaVersion);
-            }
-            execution.getContext()
-                .setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, schemaVersion.getMajor());
-
-            getStepLogger().info(Messages.MTA_SCHEMA_VERSION_DETECTED_AS, schemaVersion.getMajor());
-
-            return StepPhase.DONE;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_DETECTING_MTA_MAJOR_SCHEMA_VERSION);
-            throw e;
+        SchemaVersionDetector detector = detectorSupplier.get();
+        Version schemaVersion = detector.detect(deploymentDescriptor, extensionDescriptors);
+        if (!SupportedVersions.isSupported(schemaVersion)) {
+            throw new SLException(com.sap.cloud.lm.sl.mta.message.Messages.UNSUPPORTED_VERSION, schemaVersion);
         }
+        if (!SupportedVersions.isFullySupported(schemaVersion)) {
+            getStepLogger().warn(Messages.UNSUPPORTED_MINOR_VERSION, schemaVersion);
+        }
+        execution.getContext()
+            .setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, schemaVersion.getMajor());
+
+        getStepLogger().info(Messages.MTA_SCHEMA_VERSION_DETECTED_AS, schemaVersion.getMajor());
+
+        return StepPhase.DONE;
     }
 
 }

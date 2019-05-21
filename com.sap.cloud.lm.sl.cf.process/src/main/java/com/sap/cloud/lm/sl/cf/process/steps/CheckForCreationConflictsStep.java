@@ -59,12 +59,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
             validateApplicationsToDeploy(execution.getContext(), deployedMta, deployedApps);
             getStepLogger().debug(Messages.APPLICATIONS_VALIDATED);
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_VALIDATING_APPLICATIONS);
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_VALIDATING_APPLICATIONS);
-            throw e;
+            throw new CloudControllerException(coe);
         }
 
         return StepPhase.DONE;

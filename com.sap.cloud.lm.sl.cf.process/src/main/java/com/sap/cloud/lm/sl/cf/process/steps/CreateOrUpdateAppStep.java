@@ -88,12 +88,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
             return StepPhase.DONE;
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_CREATING_OR_UPDATING_APP, app.getName());
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_CREATING_OR_UPDATING_APP, app.getName());
-            throw e;
+            throw new CloudControllerException(coe);
         }
     }
 

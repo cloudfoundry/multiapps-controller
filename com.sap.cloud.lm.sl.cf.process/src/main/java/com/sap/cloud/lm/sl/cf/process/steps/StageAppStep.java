@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
 
 @Component("stageAppStep")
@@ -32,9 +31,7 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
             ApplicationStager applicationStager = new ApplicationStager();
             return applicationStager.stageApp(execution.getContext(), execution.getControllerClient(), app, getStepLogger());
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
-            throw e;
+            throw new CloudControllerException(coe);
         }
     }
 

@@ -20,7 +20,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("prepareToUndeployStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -55,12 +54,7 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
 
             return StepPhase.DONE;
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY);
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY);
-            throw e;
+            throw new CloudControllerException(coe);
         }
     }
 

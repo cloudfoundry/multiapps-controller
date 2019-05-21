@@ -37,12 +37,7 @@ public class ScaleAppStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.APP_SCALED, app.getName());
             return StepPhase.DONE;
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_SCALING_APP, app.getName());
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_SCALING_APP, app.getName());
-            throw e;
+            throw new CloudControllerException(coe);
         }
     }
 

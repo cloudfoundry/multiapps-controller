@@ -35,19 +35,14 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
         DelegateExecution context = execution.getContext();
         getStepLogger().debug(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
         List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(context);
-        try {
-            String spaceId = StepsUtil.getSpaceId(context);
-            DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
+        String spaceId = StepsUtil.getSpaceId(context);
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
 
-            List<ExtensionDescriptor> extensionDescriptors = parseExtensionDescriptors(spaceId, extensionDescriptorFileIds);
-            List<ExtensionDescriptor> extensionDescriptorChain = extensionDescriptorChainBuilder.build(deploymentDescriptor,
-                extensionDescriptors);
+        List<ExtensionDescriptor> extensionDescriptors = parseExtensionDescriptors(spaceId, extensionDescriptorFileIds);
+        List<ExtensionDescriptor> extensionDescriptorChain = extensionDescriptorChainBuilder.build(deploymentDescriptor,
+            extensionDescriptors);
 
-            StepsUtil.setExtensionDescriptorChain(context, extensionDescriptorChain);
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS);
-            throw e;
-        }
+        StepsUtil.setExtensionDescriptorChain(context, extensionDescriptorChain);
         getStepLogger().debug(Messages.MTA_EXTENSION_DESCRIPTORS_PROCESSED);
         return StepPhase.DONE;
     }

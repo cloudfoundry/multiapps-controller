@@ -39,20 +39,15 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        try {
-            getStepLogger().debug(Messages.VALIDATING_PARAMETERS);
+        getStepLogger().debug(Messages.VALIDATING_PARAMETERS);
 
-            validateParameters(execution.getContext());
-            String space = StepsUtil.getSpace(execution.getContext());
-            String org = StepsUtil.getOrg(execution.getContext());
-            getStepLogger().info(Messages.DEPLOYING_IN_ORG_0_AND_SPACE_1, org, space);
+        validateParameters(execution.getContext());
+        String space = StepsUtil.getSpace(execution.getContext());
+        String org = StepsUtil.getOrg(execution.getContext());
+        getStepLogger().info(Messages.DEPLOYING_IN_ORG_0_AND_SPACE_1, org, space);
 
-            getStepLogger().debug(Messages.PARAMETERS_VALIDATED);
-            return StepPhase.DONE;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_VALIDATING_PARAMS);
-            throw e;
-        }
+        getStepLogger().debug(Messages.PARAMETERS_VALIDATED);
+        return StepPhase.DONE;
     }
 
     private void validateParameters(DelegateExecution context) {
@@ -67,8 +62,8 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         try {
             VersionRule.value(versionRuleString);
         } catch (IllegalArgumentException e) {
-            throw new SLException(e, Messages.ERROR_PARAMETER_1_IS_NOT_VALID_VALID_VALUES_ARE_2, versionRuleString, Constants.PARAM_VERSION_RULE,
-                Arrays.asList(VersionRule.values()));
+            throw new SLException(e, Messages.ERROR_PARAMETER_1_IS_NOT_VALID_VALID_VALUES_ARE_2, versionRuleString,
+                Constants.PARAM_VERSION_RULE, Arrays.asList(VersionRule.values()));
         }
     }
 

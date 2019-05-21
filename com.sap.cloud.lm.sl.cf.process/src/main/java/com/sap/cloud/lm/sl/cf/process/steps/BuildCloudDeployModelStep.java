@@ -34,7 +34,6 @@ import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
@@ -50,79 +49,73 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        try {
-            getStepLogger().debug(Messages.BUILDING_CLOUD_MODEL);
-            DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(execution.getContext());
+        getStepLogger().debug(Messages.BUILDING_CLOUD_MODEL);
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(execution.getContext());
 
-            // Get module sets:
-            DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
-            List<DeployedMtaModule> deployedModules = (deployedMta != null) ? deployedMta.getModules() : Collections.emptyList();
-            Set<String> mtaArchiveModules = StepsUtil.getMtaArchiveModules(execution.getContext());
-            getStepLogger().debug(Messages.MTA_ARCHIVE_MODULES, mtaArchiveModules);
-            Set<String> deployedModuleNames = CloudModelBuilderUtil.getDeployedModuleNames(deployedModules);
-            getStepLogger().debug(Messages.DEPLOYED_MODULES, deployedModuleNames);
-            Set<String> mtaModules = StepsUtil.getMtaModules(execution.getContext());
-            getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
+        // Get module sets:
+        DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
+        List<DeployedMtaModule> deployedModules = (deployedMta != null) ? deployedMta.getModules() : Collections.emptyList();
+        Set<String> mtaArchiveModules = StepsUtil.getMtaArchiveModules(execution.getContext());
+        getStepLogger().debug(Messages.MTA_ARCHIVE_MODULES, mtaArchiveModules);
+        Set<String> deployedModuleNames = CloudModelBuilderUtil.getDeployedModuleNames(deployedModules);
+        getStepLogger().debug(Messages.DEPLOYED_MODULES, deployedModuleNames);
+        Set<String> mtaModules = StepsUtil.getMtaModules(execution.getContext());
+        getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
-            StepsUtil.setNewMtaVersion(execution.getContext(), deploymentDescriptor.getVersion());
+        StepsUtil.setNewMtaVersion(execution.getContext(), deploymentDescriptor.getVersion());
 
-            // Build a map of service keys and save them in the context:
-            Map<String, List<CloudServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(execution.getContext()).build();
-            getStepLogger().debug(Messages.SERVICE_KEYS_TO_CREATE, secureSerializer.toJson(serviceKeys));
+        // Build a map of service keys and save them in the context:
+        Map<String, List<CloudServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(execution.getContext()).build();
+        getStepLogger().debug(Messages.SERVICE_KEYS_TO_CREATE, secureSerializer.toJson(serviceKeys));
 
-            StepsUtil.setServiceKeysToCreate(execution.getContext(), serviceKeys);
+        StepsUtil.setServiceKeysToCreate(execution.getContext(), serviceKeys);
 
-            // Build a list of applications for deployment and save them in the context:
-            List<Module> modulesCalculatedForDeployment = calculateModulesForDeployment(execution, deploymentDescriptor, mtaArchiveModules,
-                deployedModuleNames, mtaModules);
+        // Build a list of applications for deployment and save them in the context:
+        List<Module> modulesCalculatedForDeployment = calculateModulesForDeployment(execution, deploymentDescriptor, mtaArchiveModules,
+            deployedModuleNames, mtaModules);
 
-            getStepLogger().debug(Messages.MODULES_TO_DEPLOY, secureSerializer.toJson(modulesCalculatedForDeployment));
-            StepsUtil.setAllModulesToDeploy(execution.getContext(), modulesCalculatedForDeployment);
-            StepsUtil.setModulesToDeploy(execution.getContext(), modulesCalculatedForDeployment);
+        getStepLogger().debug(Messages.MODULES_TO_DEPLOY, secureSerializer.toJson(modulesCalculatedForDeployment));
+        StepsUtil.setAllModulesToDeploy(execution.getContext(), modulesCalculatedForDeployment);
+        StepsUtil.setModulesToDeploy(execution.getContext(), modulesCalculatedForDeployment);
 
-            ApplicationCloudModelBuilder applicationCloudModelBuilder = getApplicationCloudModelBuilder(execution.getContext());
+        ApplicationCloudModelBuilder applicationCloudModelBuilder = getApplicationCloudModelBuilder(execution.getContext());
 
-            StepsUtil.setAppsToDeploy(execution.getContext(), getAppNames(applicationCloudModelBuilder, modulesCalculatedForDeployment));
+        StepsUtil.setAppsToDeploy(execution.getContext(), getAppNames(applicationCloudModelBuilder, modulesCalculatedForDeployment));
 
-            StepsUtil.setDeploymentMode(execution.getContext(), applicationCloudModelBuilder.getDeploymentMode());
-            StepsUtil.setServiceKeysCredentialsToInject(execution.getContext(), new HashMap<>());
-            StepsUtil.setUseIdleUris(execution.getContext(), false);
+        StepsUtil.setDeploymentMode(execution.getContext(), applicationCloudModelBuilder.getDeploymentMode());
+        StepsUtil.setServiceKeysCredentialsToInject(execution.getContext(), new HashMap<>());
+        StepsUtil.setUseIdleUris(execution.getContext(), false);
 
-            // Build a list of custom domains and save them in the context:
-            List<String> customDomainsFromApps = StepsUtil.getDomainsFromApps(execution.getContext(), deploymentDescriptor,
-                applicationCloudModelBuilder, modulesCalculatedForDeployment, moduleToDeployHelper);
-            StepsUtil.setCustomDomains(execution.getContext(), customDomainsFromApps);
-            getStepLogger().debug(Messages.CUSTOM_DOMAINS, customDomainsFromApps);
+        // Build a list of custom domains and save them in the context:
+        List<String> customDomainsFromApps = StepsUtil.getDomainsFromApps(execution.getContext(), deploymentDescriptor,
+            applicationCloudModelBuilder, modulesCalculatedForDeployment, moduleToDeployHelper);
+        StepsUtil.setCustomDomains(execution.getContext(), customDomainsFromApps);
+        getStepLogger().debug(Messages.CUSTOM_DOMAINS, customDomainsFromApps);
 
-            ServicesCloudModelBuilder servicesCloudModelBuilder = getServicesCloudModelBuilder(execution.getContext());
+        ServicesCloudModelBuilder servicesCloudModelBuilder = getServicesCloudModelBuilder(execution.getContext());
 
-            List<Resource> resourcesUsedForBindings = calculateResourcesUsedForBindings(deploymentDescriptor,
-                modulesCalculatedForDeployment);
-            List<CloudServiceExtended> servicesForBindings = servicesCloudModelBuilder.build(resourcesUsedForBindings);
+        List<Resource> resourcesUsedForBindings = calculateResourcesUsedForBindings(deploymentDescriptor, modulesCalculatedForDeployment);
+        List<CloudServiceExtended> servicesForBindings = servicesCloudModelBuilder.build(resourcesUsedForBindings);
 
-            // Build a list of services for binding and save them in the context:
-            StepsUtil.setServicesToBind(execution.getContext(), servicesForBindings);
+        // Build a list of services for binding and save them in the context:
+        StepsUtil.setServicesToBind(execution.getContext(), servicesForBindings);
 
-            List<Resource> resourcesForDeployment = calculateResourcesForDeployment(execution, deploymentDescriptor);
-            List<CloudServiceExtended> servicesCalculatedForDeployment = servicesCloudModelBuilder.build(resourcesForDeployment);
+        List<Resource> resourcesForDeployment = calculateResourcesForDeployment(execution, deploymentDescriptor);
+        List<CloudServiceExtended> servicesCalculatedForDeployment = servicesCloudModelBuilder.build(resourcesForDeployment);
 
-            // Build a list of services for creation and save them in the context:
-            List<CloudServiceExtended> servicesToCreate = servicesCalculatedForDeployment.stream()
-                .filter(CloudServiceExtended::isManaged)
-                .collect(Collectors.toList());
-            getStepLogger().debug(Messages.SERVICES_TO_CREATE, secureSerializer.toJson(servicesToCreate));
-            StepsUtil.setServicesToCreate(execution.getContext(), servicesToCreate);
+        // Build a list of services for creation and save them in the context:
+        List<CloudServiceExtended> servicesToCreate = servicesCalculatedForDeployment.stream()
+            .filter(CloudServiceExtended::isManaged)
+            .collect(Collectors.toList());
+        getStepLogger().debug(Messages.SERVICES_TO_CREATE, secureSerializer.toJson(servicesToCreate));
+        StepsUtil.setServicesToCreate(execution.getContext(), servicesToCreate);
 
-            // Needed by CreateOrUpdateServicesStep, as it is used as an iteration variable:
-            execution.getContext()
-                .setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, servicesToCreate.size());
+        // Needed by CreateOrUpdateServicesStep, as it is used as an iteration variable:
+        execution.getContext()
+            .setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, servicesToCreate.size());
 
-            getStepLogger().debug(Messages.CLOUD_MODEL_BUILT);
-            return StepPhase.DONE;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_BUILDING_CLOUD_MODEL);
-            throw e;
-        }
+        getStepLogger().debug(Messages.CLOUD_MODEL_BUILT);
+        return StepPhase.DONE;
     }
 
     private List<String> getAppNames(ApplicationCloudModelBuilder applicationCloudModelBuilder,

@@ -16,7 +16,6 @@ import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("stopAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -51,12 +50,7 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
 
             return StepPhase.DONE;
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_STOPPING_APP, app.getName());
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_STOPPING_APP, app.getName());
-            throw e;
+            throw new CloudControllerException(coe);
         }
     }
 

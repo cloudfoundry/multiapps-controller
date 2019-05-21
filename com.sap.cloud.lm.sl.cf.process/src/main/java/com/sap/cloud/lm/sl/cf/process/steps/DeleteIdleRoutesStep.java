@@ -44,9 +44,7 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.IDLE_URIS_DELETED);
             return StepPhase.DONE;
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_DELETING_IDLE_ROUTES);
-            throw e;
+            throw new CloudControllerException(coe);
         }
     }
 

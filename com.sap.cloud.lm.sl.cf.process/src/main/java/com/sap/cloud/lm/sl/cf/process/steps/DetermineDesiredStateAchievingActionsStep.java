@@ -25,7 +25,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("determineDesiredStateAchievingActionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -38,17 +37,10 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper context) {
-        CloudApplication app = StepsUtil.getApp(context.getContext());
-
         try {
             return attemptToExecuteStep(context);
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP, app.getName());
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP, app.getName());
-            throw e;
+            throw new CloudControllerException(coe);
         }
     }
 
@@ -87,8 +79,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
     }
 
     private boolean determineAppRestart(DelegateExecution context) {
-        String appContentChangedString = StepsUtil.getString(context, Constants.VAR_APP_CONTENT_CHANGED,
-            Boolean.toString(false));
+        String appContentChangedString = StepsUtil.getString(context, Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(false));
         if (Boolean.valueOf(appContentChangedString)) {
             return true;
         }

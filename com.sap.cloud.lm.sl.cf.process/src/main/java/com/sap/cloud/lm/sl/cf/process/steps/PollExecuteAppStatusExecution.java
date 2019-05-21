@@ -24,7 +24,6 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class PollExecuteAppStatusExecution implements AsyncExecution {
@@ -56,18 +55,12 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             CloudControllerClient client = execution.getControllerClient();
             ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
             Pair<AppExecutionStatus, String> status = getAppExecutionStatus(execution.getContext(), client, appAttributes, app);
-            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger().getProcessLoggerProvider();
+            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
+                .getProcessLoggerProvider();
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
             return checkAppExecutionStatus(execution, client, app, appAttributes, status);
         } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            execution.getStepLogger()
-                .error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
-            throw e;
-        } catch (SLException e) {
-            execution.getStepLogger()
-                .error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
-            throw e;
+            throw new CloudControllerException(coe);
         }
     }
 
