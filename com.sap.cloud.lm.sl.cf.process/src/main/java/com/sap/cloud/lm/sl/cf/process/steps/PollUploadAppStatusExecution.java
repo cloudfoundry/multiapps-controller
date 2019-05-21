@@ -2,9 +2,9 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.Upload;
 import org.cloudfoundry.client.lib.domain.UploadToken;
@@ -30,7 +30,8 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
                 case FAILED:
                 case EXPIRED:
                     execution.getStepLogger()
-                        .debug(Messages.ERROR_UPLOADING_APP_WITH_DETAILS, app.getName(), upload.getStatus(), upload.getErrorDetails());
+                        .debug(Messages.ERROR_UPLOADING_APP_WITH_DETAILS, app.getName(), upload.getStatus(), upload.getErrorDetails()
+                            .getDescription());
                     execution.getStepLogger()
                         .error(Messages.ERROR_UPLOADING_APP, app.getName());
                     return AsyncExecutionState.ERROR;

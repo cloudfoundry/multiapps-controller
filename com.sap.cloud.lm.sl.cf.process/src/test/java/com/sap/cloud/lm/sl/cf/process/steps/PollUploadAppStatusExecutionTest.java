@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.domain.ErrorDetails;
 import org.cloudfoundry.client.lib.domain.Status;
 import org.cloudfoundry.client.lib.domain.Upload;
 import org.cloudfoundry.client.lib.domain.UploadToken;
@@ -104,7 +105,7 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
         if (expectedCfExceptionMessage != null) {
             when(client.getUploadStatus(UPLOAD_TOKEN)).thenThrow(CLOUD_OPERATION_EXCEPTION);
         } else {
-            when(client.getUploadStatus(UPLOAD_TOKEN)).thenReturn(new Upload(uploadState, null));
+            when(client.getUploadStatus(UPLOAD_TOKEN)).thenReturn(new Upload(uploadState, new ErrorDetails()));
         }
     }
 
