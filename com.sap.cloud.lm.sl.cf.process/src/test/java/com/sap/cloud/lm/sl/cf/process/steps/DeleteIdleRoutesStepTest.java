@@ -24,26 +24,25 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRoutesStep> {
 
-    private CloudApplicationExtended expectedAppToDeploy;
-    private CloudApplicationExtended appToDeploy;
-
     public static Stream<Arguments> testExecute() {
         return Stream.of(
         // @formatter:off
-            Arguments.of("app-to-deploy-1.json", Arrays.asList("module-1-idle.domain.com")),
-            // (1) There are no idle URIs:
-            Arguments.of("app-to-deploy-2.json", Collections.emptyList()),
-            // (2) There are idle TCP URIs:
-            Arguments.of("app-to-deploy-3.json", Arrays.asList("tcp://test.domain.com:51052"))
+            // (1) One old URI is replaced with a new one in redeploy:
+            Arguments.of("existing-app-1.json", "app-to-deploy-1.json", Arrays.asList("module-1.domain.com")),
+            // (2) There are no differences between old and new URIs:
+            Arguments.of("existing-app-2.json", "app-to-deploy-2.json", Collections.emptyList()),
+            // (3) The new URIs are a subset of the old:
+            Arguments.of("existing-app-3.json", "app-to-deploy-3.json", Arrays.asList("tcp://test.domain.com:51052", "tcp://test.domain.com:51054")),
+            // (4) There is no previous version of app:
+            Arguments.of(null, "app-to-deploy-3.json", Collections.emptyList())
         // @formatter:on
         );
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testExecute(String appDetailsFile, List<String> urisToDelete) {
-        loadParameters(appDetailsFile);
-        prepareContext(urisToDelete);
+    public void testExecute(String existingAppFile, String appToDeployFile, List<String> urisToDelete) {
+        prepareContext(existingAppFile, appToDeployFile, urisToDelete);
 
         step.execute(context);
 
@@ -60,25 +59,21 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
         }
     }
 
-    private void loadParameters(String appDetailsFile) {
-        expectedAppToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(appDetailsFile, getClass()),
-            new TypeReference<CloudApplicationExtended>() {
-            });
-        appToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(appDetailsFile, getClass()),
-            new TypeReference<CloudApplicationExtended>() {
-            });
-    }
-
-    private void prepareContext(List<String> urisToDelete) {
-        if (!urisToDelete.isEmpty()) {
-            StepsUtil.setDeleteIdleUris(context, true);
+    private void prepareContext(String existingAppFile, String appToDeployFile, List<String> urisToDelete) {
+        StepsUtil.setDeleteIdleUris(context, true);
+        
+        if (existingAppFile == null) {
+            StepsUtil.setExistingApp(context, null);
+        } else {
+            CloudApplicationExtended existingApp = JsonUtil.fromJson(TestUtil.getResourceAsString(existingAppFile, getClass()),
+                new TypeReference<CloudApplicationExtended>() {
+                });
+            StepsUtil.setExistingApp(context, existingApp);            
         }
-
-        CloudApplicationExtended existingApp = ImmutableCloudApplicationExtended.builder()
-            .name(expectedAppToDeploy.getName())
-            .uris(urisToDelete)
-            .build();
-        StepsUtil.setExistingApp(context, existingApp);
+        
+        CloudApplicationExtended appToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(appToDeployFile, getClass()),
+            new TypeReference<CloudApplicationExtended>() {
+            });
 
         StepsUtil.setApp(context, appToDeploy);
     }
