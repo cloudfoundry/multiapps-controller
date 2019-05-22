@@ -11,6 +11,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Hook;
@@ -75,10 +76,14 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
     }
 
     private Module determineModuleFromAppName(DeploymentDescriptor deploymentDescriptor, CloudApplicationExtended cloudApplication) {
+        String moduleNameFromApplicationEnvironment = ApplicationMtaMetadataParser.parseAppMetadata(cloudApplication)
+            .getModuleName();
+        if (moduleNameFromApplicationEnvironment == null) {
+            return null;
+        }
         return deploymentDescriptor.getModules()
             .stream()
-            .filter(module -> cloudApplication.getName()
-                .contains(module.getName()))
+            .filter(module -> moduleNameFromApplicationEnvironment.equals(module.getName()))
             .findFirst()
             .orElse(null);
     }
