@@ -66,7 +66,8 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
         CloudApplicationExtended cloudApplication = StepsUtil.getApp(context);
         if (cloudApplication.getModuleName() == null) {
-            // This case handles the deletion of old applications when the process is undeploy. Here the application is taken from the
+            // This case handles the deletion of old applications when the process is blue-green deployment. Here the application is taken
+            // from the
             // CloudController and thus we do not have moduleName in it.
             return determineModuleFromAppName(deploymentDescriptor, cloudApplication);
         }
@@ -76,8 +77,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
     }
 
     private Module determineModuleFromAppName(DeploymentDescriptor deploymentDescriptor, CloudApplicationExtended cloudApplication) {
-        String moduleNameFromApplicationEnvironment = ApplicationMtaMetadataParser.parseAppMetadata(cloudApplication)
-            .getModuleName();
+        String moduleNameFromApplicationEnvironment = getModuleName(cloudApplication);
         if (moduleNameFromApplicationEnvironment == null) {
             return null;
         }
@@ -86,6 +86,11 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
             .filter(module -> moduleNameFromApplicationEnvironment.equals(module.getName()))
             .findFirst()
             .orElse(null);
+    }
+
+    protected String getModuleName(CloudApplicationExtended cloudApplication) {
+        return ApplicationMtaMetadataParser.parseAppMetadata(cloudApplication)
+            .getModuleName();
     }
 
     private Module findModuleByNameFromDeploymentDescriptor(HandlerFactory handlerFactory, DeploymentDescriptor deploymentDescriptor,
