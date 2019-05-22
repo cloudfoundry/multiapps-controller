@@ -125,7 +125,7 @@ public class SyncFlowableStepWithHooksTest {
         Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE))
             .thenReturn(Collections.emptyList());
 
-        new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
+        new SyncFlowableStepWithHooksMock("test").executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
 
         Mockito.verify(moduleHooksAggregatorMock)
             .aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
@@ -173,6 +173,31 @@ public class SyncFlowableStepWithHooksTest {
         Mockito.verifyZeroInteractions(moduleHooksAggregatorMock);
     }
 
+    @Test
+    public void testWithDeploymentDescriptorAndModuleNamesWhichHaveTheSamePrefixForNames() throws Exception {
+        StepsUtil.setStepPhase(context, StepPhase.EXECUTE);
+        context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 3);
+
+        Module moduleWithHooks = Module.createV3()
+            .setName("test")
+            .setHooks(Collections.emptyList());
+
+        prepareDeploymentDescriptor(Arrays.asList(moduleWithHooks, Module.createV3()
+            .setName("test-1"),
+            Module.createV3()
+                .setName("test-bar")));
+        prepareApplication("foo-application", null);
+
+        Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE))
+            .thenReturn(Collections.emptyList());
+
+        new SyncFlowableStepWithHooksMock("test").executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
+
+        Mockito.verify(moduleHooksAggregatorMock)
+            .aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
+
+    }
+
     private void prepareApplication(String name, String moduleName) {
         CloudApplicationExtended cloudApplicationExtended = new CloudApplicationExtended(null, name);
         cloudApplicationExtended.setModuleName(moduleName);
@@ -186,6 +211,16 @@ public class SyncFlowableStepWithHooksTest {
     }
 
     private class SyncFlowableStepWithHooksMock extends SyncFlowableStepWithHooks {
+
+        private String moduleName;
+
+        public SyncFlowableStepWithHooksMock() {
+            this(null);
+        }
+
+        public SyncFlowableStepWithHooksMock(String moduleName) {
+            this.moduleName = moduleName;
+        }
 
         @Override
         protected StepPhase executeStepInternal(ExecutionWrapper execution) throws Exception {
@@ -207,6 +242,10 @@ public class SyncFlowableStepWithHooksTest {
             return HookPhase.APPLICATION_BEFORE_STOP_IDLE;
         }
 
+        @Override
+        protected String getModuleName(CloudApplicationExtended cloudApplication) {
+            return moduleName;
+        }
     }
 
     public static class ModuleHooksAgregatorTest {
