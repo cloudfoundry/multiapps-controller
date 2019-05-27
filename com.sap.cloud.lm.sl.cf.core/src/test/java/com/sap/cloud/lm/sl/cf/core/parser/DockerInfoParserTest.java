@@ -9,8 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.domain.DockerCredentials;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
+import org.cloudfoundry.client.lib.domain.ImmutableDockerCredentials;
+import org.cloudfoundry.client.lib.domain.ImmutableDockerInfo;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,10 +35,11 @@ public class DockerInfoParserTest {
         parameters.add(moduleParameters);
 
         DockerInfo actualDockerInfo = dockerInfoParser.parse(parameters);
-        DockerInfo expectedDockerInfo = new DockerInfo(sampleImage);
+        DockerInfo expectedDockerInfo = ImmutableDockerInfo.builder()
+            .image(sampleImage)
+            .build();
 
-        assertEquals(expectedDockerInfo.getImage(), actualDockerInfo.getImage());
-        assertEquals(expectedDockerInfo.getDockerCredentials(), actualDockerInfo.getDockerCredentials());
+        assertEquals(expectedDockerInfo, actualDockerInfo);
     }
 
     @Test
@@ -57,20 +59,15 @@ public class DockerInfoParserTest {
         parameters.add(moduleParameters);
 
         DockerInfo actualDockerInfo = dockerInfoParser.parse(parameters);
-        DockerInfo expectedDockerInfo = new DockerInfo(sampleImage);
-        expectedDockerInfo.setDockerCredentials(new DockerCredentials(username, password));
+        DockerInfo expectedDockerInfo = ImmutableDockerInfo.builder()
+            .image(sampleImage)
+            .credentials(ImmutableDockerCredentials.builder()
+                .username(username)
+                .password(password)
+                .build())
+            .build();
 
-        assertEquals(expectedDockerInfo.getImage(), actualDockerInfo.getImage());
-
-        assertEquals(expectedDockerInfo.getDockerCredentials()
-            .getUsername(),
-            actualDockerInfo.getDockerCredentials()
-                .getUsername());
-
-        assertEquals(expectedDockerInfo.getDockerCredentials()
-            .getPassword(),
-            actualDockerInfo.getDockerCredentials()
-                .getPassword());
+        assertEquals(expectedDockerInfo, actualDockerInfo);
     }
 
     @Test
@@ -85,13 +82,13 @@ public class DockerInfoParserTest {
 
         assertNull(actualDockerInfo);
     }
-    
+
     @Test
     public void testWithoutDocker() {
         List<Map<String, Object>> parameters = Collections.emptyList();
-        
+
         DockerInfo dockerInfo = dockerInfoParser.parse(parameters);
-        
+
         assertNull(dockerInfo);
     }
 }

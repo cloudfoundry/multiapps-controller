@@ -137,7 +137,7 @@ public class ServiceUpdater extends CloudServiceOperator {
                 throw e;
             }
             LOGGER.warn(MessageFormat.format("Controller operation failed. Status Code: {0}, Status Text: {1}, Description: {2}",
-                e.getStatusCode(), e.getStatusText(), e.getDescription()));
+                e.getStatusCode(), e.getStatusText(), e.getDescription()), e);
         }
         return null;
     }

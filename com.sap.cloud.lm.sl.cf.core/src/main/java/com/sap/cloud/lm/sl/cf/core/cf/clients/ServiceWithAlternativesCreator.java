@@ -44,7 +44,7 @@ public class ServiceWithAlternativesCreator {
         List<String> possibleServiceOfferings = computePossibleServiceOfferings(service);
         List<CloudServiceOffering> serviceOfferings = client.getServiceOfferings();
         Map<String, List<CloudServicePlan>> existingServiceOfferings = serviceOfferings.stream()
-            .collect(Collectors.toMap(CloudServiceOffering::getName, CloudServiceOffering::getCloudServicePlans,
+            .collect(Collectors.toMap(CloudServiceOffering::getName, CloudServiceOffering::getServicePlans,
                 (v1, v2) -> retrievePlanListFromServicePlan(service, v1, v2)));
 
         List<String> validServiceOfferings = computeValidServiceOfferings(possibleServiceOfferings, service.getPlan(),

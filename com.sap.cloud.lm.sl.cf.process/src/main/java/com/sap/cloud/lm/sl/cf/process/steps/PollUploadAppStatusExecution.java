@@ -21,7 +21,7 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
         CloudControllerClient client = execution.getControllerClient();
 
         UploadToken uploadToken = StepsUtil.getUploadToken(execution.getContext());
-        Upload upload = client.getUploadStatus(uploadToken.getToken());
+        Upload upload = client.getUploadStatus(uploadToken.getPackageGuid());
         switch (upload.getStatus()) {
             case FAILED:
             case EXPIRED:
