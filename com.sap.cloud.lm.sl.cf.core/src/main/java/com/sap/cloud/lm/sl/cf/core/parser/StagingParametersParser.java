@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.DockerInfo;
+import org.cloudfoundry.client.lib.domain.ImmutableStaging;
 import org.cloudfoundry.client.lib.domain.Staging;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -26,13 +27,14 @@ public class StagingParametersParser implements ParametersParser<Staging> {
             getDefaultHealthCheckHttpEndpoint(healthCheckType));
         Boolean isSshEnabled = (Boolean) getPropertyValue(parametersList, SupportedParameters.ENABLE_SSH, null);
         DockerInfo dockerInfo = new DockerInfoParser().parse(parametersList);
-        return new Staging.StagingBuilder().command(command)
+        return ImmutableStaging.builder()
+            .command(command)
             .buildpackUrl(buildpack)
             .stack(stack)
             .healthCheckTimeout(healthCheckTimeout)
             .healthCheckType(healthCheckType)
             .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
-            .sshEnabled(isSshEnabled)
+            .isSshEnabled(isSshEnabled)
             .dockerInfo(dockerInfo)
             .build();
     }

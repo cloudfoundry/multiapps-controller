@@ -7,8 +7,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.cloudfoundry.client.lib.domain.DockerCredentials;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
+import org.cloudfoundry.client.lib.domain.ImmutableDockerCredentials;
+import org.cloudfoundry.client.lib.domain.ImmutableDockerInfo;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -26,9 +27,13 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
         String image = "cloudfoundry/test-app";
         String username = "someUser";
         String password = "somePassword";
-        DockerInfo dockerInfo = new DockerInfo(image);
-        DockerCredentials dockerCredentials = new DockerCredentials(username, password);
-        dockerInfo.setDockerCredentials(dockerCredentials);
+        DockerInfo dockerInfo = ImmutableDockerInfo.builder()
+            .image(image)
+            .credentials(ImmutableDockerCredentials.builder()
+                .username(username)
+                .password(password)
+                .build())
+            .build();
         return dockerInfo;
     }
 

@@ -10,6 +10,7 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudBuild;
 import org.cloudfoundry.client.lib.domain.CloudBuild.DropletInfo;
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.PackageState;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -26,23 +27,14 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class ApplicationStagerTest {
 
     private static final UUID BUILD_GUID = UUID.fromString("8e4da443-f255-499c-8b47-b3729b5b7432");
-
     private static final UUID DROPLET_GUID = UUID.fromString("9e4da443-f255-499c-8b47-b3729b5b7439");
-
     private static final UUID APP_GUID = UUID.fromString("1e4da443-f255-499c-8b47-b3729b5b7431");
-
     private static final UUID PACKAGE_GUID = UUID.fromString("2e4da443-f255-499c-8b47-b3729b5b7432");
-
     private static final String APP_NAME = "anatz";
 
-    private static final String TOKEN = "token";
-
     private ApplicationStager applicationStager;
-
     private CloudControllerClient client;
-
     private ExecutionWrapper execution;
-
     private DelegateExecution context;
 
     @Before
@@ -128,9 +120,11 @@ public class ApplicationStagerTest {
         CloudApplication app = Mockito.mock(CloudApplication.class);
         Mockito.when(app.getName())
             .thenReturn(APP_NAME);
-        String uploadTokenJson = JsonUtil.toJson(new UploadToken(TOKEN, PACKAGE_GUID));
+        UploadToken uploadToken = ImmutableUploadToken.builder()
+            .packageGuid(PACKAGE_GUID)
+            .build();
         Mockito.when(context.getVariable(Constants.VAR_UPLOAD_TOKEN))
-            .thenReturn(uploadTokenJson);
+            .thenReturn(JsonUtil.toJson(uploadToken));
         CloudBuild build = Mockito.mock(CloudBuild.class);
         Mockito.when(client.createBuild(PACKAGE_GUID))
             .thenReturn(build);
@@ -157,9 +151,9 @@ public class ApplicationStagerTest {
         Mockito.when(execution.getContext()
             .getVariable(Constants.VAR_BUILD_GUID))
             .thenReturn(null);
-        
+
         StagingState stagingState = applicationStager.getStagingState(execution, client);
-        
+
         assertEquals(PackageState.STAGED, stagingState.getState());
         assertNull(stagingState.getError());
     }
