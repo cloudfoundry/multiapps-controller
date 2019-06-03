@@ -212,13 +212,11 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
             new DummyConfigurationFilterParser(subscription.getFilter()),
             new CloudTarget(StepsUtil.getOrg(context), StepsUtil.getSpace(context)), configuration);
         resolver.resolve(dummyDescriptor);
-        getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
-            secureSerializer.toJson(dummyDescriptor));
+        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(dummyDescriptor));
         dummyDescriptor = handlerFactory
             .getDescriptorReferenceResolver(dummyDescriptor, new ResolverBuilder(), new ResolverBuilder(), new ResolverBuilder())
             .resolve();
-        getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
-            secureSerializer.toJson(dummyDescriptor));
+        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(dummyDescriptor));
 
         ApplicationCloudModelBuilder applicationCloudModelBuilder = handlerFactory.getApplicationCloudModelBuilder(dummyDescriptor,
             shouldUsePrettyPrinting(), null, "", getStepLogger());
