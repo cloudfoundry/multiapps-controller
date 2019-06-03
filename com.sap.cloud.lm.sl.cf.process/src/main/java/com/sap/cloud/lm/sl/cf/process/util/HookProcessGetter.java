@@ -13,7 +13,7 @@ public class HookProcessGetter {
 
     public String get(String hookForExecutionString) {
         Hook hookForExecution = JsonUtil.fromJson(hookForExecutionString, Hook.class);
-        if (TasksHookParser.HOOK_TYPE_TASKS.equals(hookForExecution.getType())) {
+        if (TaskHookParser.HOOK_TYPE_TASK.equals(hookForExecution.getType())) {
             return Constants.EXECUTE_HOOK_TASKS_SUB_PROCESS_ID;
         }
 

@@ -1,24 +1,24 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
 
 import com.sap.cloud.lm.sl.cf.core.parser.TaskParametersParser;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 
-public class TasksHookParser {
+public class TaskHookParser {
 
-    public static final String HOOK_TYPE_TASKS = "tasks";
+    public static final String HOOK_TYPE_TASK = "task";
 
-    public List<CloudTask> parse(Hook hook) {
+    public CloudTask parse(Hook hook) {
         Map<String, Object> hookParameters = hook.getParameters();
         if (hookParameters.isEmpty()) {
-            throw new IllegalStateException("Hook task parameters must not be empty");
+            throw new ContentException(Messages.PARAMETERS_OF_TASK_HOOK_0_ARE_INCOMPLETE, hook.getName());
         }
-        return Arrays.asList(getHookTask(hookParameters));
+        return getHookTask(hookParameters);
     }
 
     private CloudTask getHookTask(Map<String, Object> hookParameters) {
