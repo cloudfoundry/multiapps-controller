@@ -55,12 +55,19 @@ public class DataTerminationService {
     private ApplicationConfiguration configuration;
 
     public void deleteOrphanUserData() {
+        assertGlobalAuditorCredentialsExist();
         List<String> deleteSpaceEventsToBeDeleted = getDeleteSpaceEvents();
         for (String spaceId : deleteSpaceEventsToBeDeleted) {
             deleteConfigurationSubscriptionOrphanData(spaceId);
             deleteConfigurationEntryOrphanData(spaceId);
             deleteUserOperationsOrphanData(spaceId);
             deleteSpaceLeftovers(spaceId);
+        }
+    }
+
+    private void assertGlobalAuditorCredentialsExist() {
+        if (configuration.getGlobalAuditorUser() == null || configuration.getGlobalAuditorPassword() == null) {
+            throw new IllegalStateException(Messages.MISSING_GLOBAL_AUDITOR_CREDENTIALS);
         }
     }
 
