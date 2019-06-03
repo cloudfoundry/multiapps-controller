@@ -97,8 +97,6 @@ public class ApplicationConfiguration {
     public static final String DEFAULT_SPACE_ID = "";
     public static final Boolean DEFAULT_DUMMY_TOKENS_ENABLED = false;
     public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
-    public static final String DEFAULT_GLOBAL_AUDITOR_USER = "";
-    public static final String DEFAULT_GLOBAL_AUDITOR_PASSWORD = "";
     public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
     public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
     public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
@@ -666,13 +664,13 @@ public class ApplicationConfiguration {
     }
 
     private String getGlobalAuditorUserFromEnvironment() {
-        String value = environment.getString(CFG_GLOBAL_AUDITOR_USER, DEFAULT_GLOBAL_AUDITOR_USER);
-        LOGGER.info(format(Messages.ADMIN_USERNAME, value));
+        String value = environment.getString(CFG_GLOBAL_AUDITOR_USER);
+        LOGGER.info(format(Messages.GLOBAL_AUDITOR_USERNAME, value));
         return value;
     }
 
     private String getGlobalAuditorPasswordFromEnvironment() {
-        return environment.getString(CFG_GLOBAL_AUDITOR_PASSWORD, DEFAULT_GLOBAL_AUDITOR_PASSWORD);
+        return environment.getString(CFG_GLOBAL_AUDITOR_PASSWORD);
     }
 
     private Integer getDbConnectionThreadsFromEnvironment() {

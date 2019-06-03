@@ -88,6 +88,7 @@ public final class Messages {
     public static final String INVALID_CONTROLLER_URL = "Invalid controller URL \"{0}\".";
     public static final String ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MISSING_FIELD = "The response of finding a service instance should contain a \"{0}\" element";
     public static final String ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MORE_THEN_ONE_RESULT = "The response of finding a service instance should not have more than one resource element";
+    public static final String MISSING_GLOBAL_AUDITOR_CREDENTIALS = "Global Auditor credentials are missing from the application ENV.";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";
@@ -140,7 +141,7 @@ public final class Messages {
     public static final String ROUTER_PORT = "Router port: {0}";
     public static final String DUMMY_TOKENS_ENABLED = "Dummy tokens enabled: {0}";
     public static final String BASIC_AUTH_ENABLED = "Basic authentication enabled: {0}";
-    public static final String ADMIN_USERNAME = "Admin username: {0}";
+    public static final String GLOBAL_AUDITOR_USERNAME = "Global Auditor username: {0}";
     public static final String USE_XS_AUDIT_LOGGING = "Use XSA audit logging: {0}";
     public static final String DB_CONNECTION_THREADS = "Database connection thread pool size: {0}";
     public static final String STEP_POLLING_INTERVAL_IN_SECONDS = "Step polling interval in seconds: {0}";
