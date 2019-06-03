@@ -53,10 +53,6 @@ public class TasksValidatorTest {
             {
                 "tasks-07.json", false,
             },
-            // (8) The env of a task is not a map:
-            {
-                "tasks-08.json", false,
-            },
 // @formatter:on
         });
     }

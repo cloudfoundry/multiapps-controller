@@ -12,15 +12,6 @@ modules:
           command: "echo 1"
           memory: 256M
           disk-quota: 1G
-          env:
-            test_1: test
-            test_2:
-              - name: foo
-                type: foo
-              - name: bar
-                type: bar
-            test_3:
-              baz: qux
         - name: task-2
           command: "echo 2"
 

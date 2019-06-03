@@ -8,18 +8,16 @@ import java.util.stream.Collectors;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
 
-import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.TasksValidator;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
 
     private String parameterName;
-    private CloudTaskMapper cloudTaskMapper;
+    private CloudTaskMapper cloudTaskMapper = new CloudTaskMapper();
 
-    public TaskParametersParser(String parameterName, boolean prettyPrinting) {
+    public TaskParametersParser(String parameterName) {
         this.parameterName = parameterName;
-        this.cloudTaskMapper = new CloudTaskMapper(prettyPrinting);
     }
 
     @Override
@@ -35,29 +33,13 @@ public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
 
     public static class CloudTaskMapper {
 
-        private boolean prettyPrinting;
-
-        public CloudTaskMapper() {
-            this(false);
-        }
-
-        public CloudTaskMapper(boolean prettyPrinting) {
-            this.prettyPrinting = prettyPrinting;
-        }
-
         public CloudTask toCloudTask(Map<String, Object> rawTask) {
             return ImmutableCloudTask.builder()
                 .name(getProperty(rawTask, TasksValidator.TASK_NAME_KEY))
                 .command(getProperty(rawTask, TasksValidator.TASK_COMMAND_KEY))
-                .environmentVariables(getEnvironmentVariables(rawTask))
                 .memory(parseMemory(rawTask))
                 .diskQuota(parseDiskQuota(rawTask))
                 .build();
-        }
-
-        private Map<String, String> getEnvironmentVariables(Map<String, Object> rawTask) {
-            Map<String, Object> env = getProperty(rawTask, TasksValidator.TASK_ENV_KEY);
-            return env == null ? null : new MapToEnvironmentConverter(prettyPrinting).asEnv(env);
         }
 
         private Integer parseMemory(Map<String, Object> rawTask) {

@@ -17,7 +17,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
 
@@ -26,7 +25,6 @@ public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
     private final CloudTask task = ImmutableCloudTask.builder()
         .name("foo")
         .command("echo ${test}")
-        .environmentVariables(MapUtil.asMap("test", "bar"))
         .build();
     private final CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
         .name("dummy")
@@ -66,7 +64,6 @@ public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
         CloudTask startedTask = StepsUtil.getStartedTask(context);
         assertEquals(task.getName(), startedTask.getName());
         assertEquals(task.getCommand(), startedTask.getCommand());
-        assertEquals(task.getEnvironmentVariables(), startedTask.getEnvironmentVariables());
     }
 
     @Override

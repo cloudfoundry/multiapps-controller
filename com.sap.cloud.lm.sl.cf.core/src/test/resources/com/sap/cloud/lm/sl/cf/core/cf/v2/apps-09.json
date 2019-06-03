@@ -5,11 +5,6 @@
     "tasks": [
       {
         "command": "echo 1",
-        "environmentVariables": {
-          "test_1": "test",
-          "test_2": "[{\"name\":\"foo\",\"type\":\"foo\"},{\"name\":\"bar\",\"type\":\"bar\"}]",
-          "test_3": "{\"baz\":\"qux\"}"
-        },
         "memory": 256,
         "diskQuota": 1024,
         "name": "task-1"

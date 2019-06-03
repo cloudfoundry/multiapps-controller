@@ -160,7 +160,7 @@ public class ApplicationCloudModelBuilder {
     }
 
     private TaskParametersParser getTasksParametersParser() {
-        return new TaskParametersParser(SupportedParameters.TASKS, prettyPrinting);
+        return new TaskParametersParser(SupportedParameters.TASKS);
     }
 
     protected Map<String, Map<String, Object>> getBindingParameters(Module module) {
