@@ -42,7 +42,9 @@ $ mvn clean install
 ```
 The deployable result from building components is a WAR file, located at `com.sap.cloud.lm.sl.cf.web/target/com.sap.cloud.lm.sl.cf.web-<version>.war`. 
 
-Additionally, there is certain preprocessing of the [manifest.yml](com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml) that creates a version of the manifest with information about the newly built MultiApps-Controller such as version and path to the built WAR file. 
+Additionally, the project uses [Immutables](https://immutables.github.io/) to generate value objects. As a result, it won't compile in IDEs like Eclipse or IntelliJ unless you also have an enabled annotation processor. See [this guide](https://immutables.github.io/apt.html) for instructions on how to configure your IDE.
+
+There is also a certain preprocessing of the [manifest.yml](com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml) that creates a version of the manifest with information about the newly built MultiApps-Controller such as version and path to the built WAR file. 
 
 This manifest is located at `com.sap.cloud.lm.sl.cf.web/target/manifests/manifest.yml`.
 
