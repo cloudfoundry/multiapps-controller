@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.util;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
 
 import com.sap.cloud.lm.sl.cf.core.parser.TaskParametersParser;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -18,11 +19,16 @@ public class TaskHookParser {
         if (hookParameters.isEmpty()) {
             throw new ContentException(Messages.PARAMETERS_OF_TASK_HOOK_0_ARE_INCOMPLETE, hook.getName());
         }
-        return getHookTask(hookParameters);
+        return getHookTask(hook);
     }
 
-    private CloudTask getHookTask(Map<String, Object> hookParameters) {
-        return new TaskParametersParser.CloudTaskMapper().toCloudTask(hookParameters);
+    private CloudTask getHookTask(Hook hook) {
+        CloudTask task = new TaskParametersParser.CloudTaskMapper().toCloudTask(hook.getParameters());
+        if (task.getName() == null) {
+            return ImmutableCloudTask.copyOf(task)
+                .withName(hook.getName());
+        }
+        return task;
     }
 
 }
