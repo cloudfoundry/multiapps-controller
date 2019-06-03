@@ -1,23 +1,16 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
-import static java.text.MessageFormat.format;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ApplicationNameValidator;
@@ -36,12 +29,8 @@ import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 
 public class MtaDescriptorPropertiesResolver {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MtaDescriptorPropertiesResolver.class);
-
     public static final String IDLE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.IDLE_DOMAIN + "}";
     public static final String IDLE_HOST_PLACEHOLDER = "${" + SupportedParameters.IDLE_HOST + "}";
-
-    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade().setFormattedOutput(true);
 
     private final HandlerFactory handlerFactory;
     private final ConfigurationEntryDao dao;
@@ -82,7 +71,6 @@ public class MtaDescriptorPropertiesResolver {
         if (reserveTemporaryRoute) {
             // temporary placeholders should be set at this point, since they are need for provides/requires placeholder resolution
             editRoutesSetTemporaryPlaceholders(descriptor);
-            LOGGER.debug(format(Messages.DEPLOYMENT_DESCRIPTOR_IDLE_ROUTES, secureSerializer.toJson(descriptor)));
 
             // Resolve again due to new temporary routes
             descriptor = handlerFactory
@@ -94,7 +82,6 @@ public class MtaDescriptorPropertiesResolver {
         List<ParameterValidator> validatorsList = getValidatorsList();
         descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, validatorsList)
             .validate();
-        LOGGER.debug(format(Messages.DEPLOYMENT_DESCRIPTOR_AFTER_PARAMETER_CORRECTION, secureSerializer.toJson(descriptor)));
 
         // Resolve placeholders in properties:
         descriptor = handlerFactory
@@ -107,15 +94,12 @@ public class MtaDescriptorPropertiesResolver {
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(descriptor, dao, cloudTarget,
             configuration);
         resolver.resolve(descriptor);
-        LOGGER.debug(format(Messages.DEPLOYMENT_DESCRIPTOR_AFTER_CROSS_MTA_DEPENDENCY_RESOLUTION, secureSerializer.toJson(descriptor)));
 
         subscriptions = createSubscriptions(descriptorWithUnresolvedReferences, resolver.getResolvedReferences());
-        LOGGER.debug(format(Messages.SUBSCRIPTIONS, secureSerializer.toJson(subscriptions)));
 
         descriptor = handlerFactory
             .getDescriptorReferenceResolver(descriptor, new ResolverBuilder(), new ResolverBuilder(), new ResolverBuilder())
             .resolve();
-        LOGGER.debug(format(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(descriptor)));
 
         descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, validatorsList, true)
             .validate();

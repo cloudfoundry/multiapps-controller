@@ -47,6 +47,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
             descriptor = resolver.resolve(descriptor);
 
             List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
+            getStepLogger().debug(Messages.SUBSCRIPTIONS, secureSerializer.toJson(subscriptions));
             StepsUtil.setSubscriptionsToCreate(context, subscriptions);
 
             StepsUtil.setCompleteDeploymentDescriptor(context, descriptor);
@@ -62,8 +63,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
             getStepLogger().debug("MTA Modules: {0}", mtaModules);
             StepsUtil.setMtaModules(context, mtaModules);
 
-            getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
-                secureSerializer.toJson(descriptor));
+            getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(descriptor));
             getStepLogger().debug(Messages.DESCRIPTOR_PROPERTIES_RESOVED);
 
             return StepPhase.DONE;

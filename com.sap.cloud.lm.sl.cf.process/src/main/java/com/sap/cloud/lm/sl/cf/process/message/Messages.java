@@ -482,5 +482,7 @@ public class Messages {
     public static final String NO_CONTENT_TO_UPLOAD = "No content to upload";
     public static final String NO_BUILD_FOUND_FOR_APPLICATION = "No build found for application \"{0}\"";
     public static final String LAST_BUILD = "Last build: {0}";
+    public static final String RESOLVED_DEPLOYMENT_DESCRIPTOR = "Resolved deployment descriptor: {0}";
+    public static final String SUBSCRIPTIONS = "Subscriptions: {0}";
 
 }

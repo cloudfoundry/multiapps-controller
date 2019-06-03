@@ -191,13 +191,8 @@ public final class Messages {
 
     // Debug messages
     public static final String EXTENSION_DESCRIPTOR = "Extension descriptor \"{0}\": {1}";
-    public static final String DEPLOYMENT_DESCRIPTOR_AFTER_PARAMETER_CORRECTION = "Deployment descriptor after parameter correction: {0}";
-    public static final String DEPLOYMENT_DESCRIPTOR_IDLE_ROUTES = "Deployment descriptor after idle parameters in route: {0}";
     public static final String DEPLOYMENT_DESCRIPTOR = "Deployment descriptor: {0}";
-    public static final String DEPLOYMENT_DESCRIPTOR_AFTER_CROSS_MTA_DEPENDENCY_RESOLUTION = "Deployment descriptor after cross-MTA dependency resolution: {0}";
     public static final String MERGED_DESCRIPTOR = "Merged deployment descriptor: {0}";
-    public static final String RESOLVED_DEPLOYMENT_DESCRIPTOR = "Resolved deployment descriptor: {0}";
-    public static final String SUBSCRIPTIONS = "Subscriptions: {0}";
     public static final String REMOVING_SENSITIVE_ELEMENT = "Removing sensitive element: {0}";
     public static final String DELETING_SUBSCRIPTION = "Deleting configuration subscription: {0}";
     public static final String DELETING_ENTRY = "Deleting configuration entry: {0}";
