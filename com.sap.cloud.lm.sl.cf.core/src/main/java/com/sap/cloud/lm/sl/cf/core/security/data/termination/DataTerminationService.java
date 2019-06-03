@@ -34,8 +34,9 @@ import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 @Component
 public class DataTerminationService {
 
+    private static final String AUTH_ORIGIN = "uaa";
     private static final String SPACE_DELETE_EVENT_TYPE = "audit.space.delete-request";
-    private static final int GET_EVENTS_DAYS_BEFORE = 1;
+    private static final int NUMBER_OF_DAYS_OF_EVENTS = 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(DataTerminationService.class);
 
     @Inject
@@ -109,7 +110,7 @@ public class DataTerminationService {
 
     protected CloudControllerClientImpl getCFClient() {
         CloudCredentials cloudCredentials = new CloudCredentials(configuration.getGlobalAuditorUser(),
-            configuration.getGlobalAuditorPassword(), SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
+            configuration.getGlobalAuditorPassword(), SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET, AUTH_ORIGIN);
 
         CloudControllerClientImpl cfClient = new CloudControllerClientImpl(configuration.getControllerUrl(), cloudCredentials,
             configuration.shouldSkipSslValidation());
@@ -120,13 +121,13 @@ public class DataTerminationService {
     private List<String> getDeleteSpaceEvents() {
         CloudControllerClientImpl cfClient = getCFClient();
         CFOptimizedEventGetter cfOptimizedEventGetter = new CFOptimizedEventGetter(cfClient);
-        return cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE, getDateBeforeTwoDays());
+        return cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE, getDateBeforeDays(NUMBER_OF_DAYS_OF_EVENTS));
     }
 
-    private String getDateBeforeTwoDays() {
+    private String getDateBeforeDays(int numberOfDays) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         long currentDateInMillis = new Date().getTime();
-        long timeInMillisBeforeTwoDays = currentDateInMillis - GET_EVENTS_DAYS_BEFORE * DateUtils.MILLIS_PER_DAY;
+        long timeInMillisBeforeTwoDays = currentDateInMillis - numberOfDays * DateUtils.MILLIS_PER_DAY;
         Date dateBeforeTwoDays = new Date(timeInMillisBeforeTwoDays);
         String result = sdf.format(dateBeforeTwoDays);
         LOGGER.info(Messages.PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES, result);
