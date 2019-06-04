@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.parser;
 
-import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getAll;
+import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPluralOrSingular;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
 
 import java.util.ArrayList;
@@ -171,7 +171,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
 
     private static <T> List<T> getValuesFromSingularName(String singularParameterName, List<Map<String, Object>> parametersList) {
         String pluralParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(singularParameterName);
-        return getAll(parametersList, singularParameterName, pluralParameterName);
+        return getPluralOrSingular(parametersList, pluralParameterName, singularParameterName);
     }
 
     private String appendRoutePathIfPresent(String uri) {
