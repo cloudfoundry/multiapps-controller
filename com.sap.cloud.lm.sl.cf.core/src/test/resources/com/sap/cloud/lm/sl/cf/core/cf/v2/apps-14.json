@@ -1,0 +1,47 @@
+[
+  {
+    "moduleName": "foo",
+    "idleUris": [],
+    "tasks": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.domain.com", 
+      "cfapps.domain.moc"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    },
+    "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
+    "runningInstances": 0,
+    "staging": {
+      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
+    },
+    "uris": [
+       "abc.cfapps.domain.com", 
+       "cba.cfapps.domain.com", 
+       "abc.cfapps.domain.moc", 
+       "cba.cfapps.domain.moc" 
+    ],
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
+      "MTA_SERVICES": "[]",
+      "TARGET_RUNTIME": "tomee"
+    },
+    "name": "foo",
+    "bindingParameters" : {},
+    "routes": []
+  }
+]
