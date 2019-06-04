@@ -16,6 +16,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.Status;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -192,8 +193,6 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     class MonitorUploadStatusCallback implements UploadStatusCallbackExtended {
 
-        static final String READY_STATUS = "ready";
-
         private final CloudApplication app;
         private final File file;
         private final DelegateExecution context;
@@ -222,7 +221,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         @Override
         public boolean onProgress(String status) {
             getStepLogger().debug(Messages.UPLOAD_STATUS_0, status);
-            if (status.equals(READY_STATUS)) {
+            if (status.equals(Status.READY.toString())) {
                 cleanUp(file.toPath());
                 getProcessLogsPersister().persistLogs(StepsUtil.getCorrelationId(context), StepsUtil.getTaskId(context));
             }
