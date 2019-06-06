@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.slf4j.Logger;
@@ -16,6 +17,8 @@ import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaResource;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.model.Version;
@@ -38,11 +41,11 @@ public class ApplicationMtaMetadataParser {
     private static ApplicationMtaMetadata attemptToParseAppMetadata(CloudApplication app) {
         Map<String, String> appEnv = app.getEnv();
         DeployedMtaMetadata mtaMetadata = parseMtaMetadata(app, appEnv);
-        List<String> services = parseServices(appEnv);
+        List<String> serviceNames = parseServices(appEnv);
         String moduleName = parseModuleName(app, appEnv);
         List<String> providedDependencyNames = parseProvidedDependencyNames(app.getName(), appEnv);
 
-        List<Object> metadataFields = Arrays.asList(mtaMetadata, services, moduleName, providedDependencyNames);
+        List<Object> metadataFields = Arrays.asList(mtaMetadata, serviceNames, moduleName, providedDependencyNames);
         if (metadataFields.stream()
                           .allMatch(Objects::isNull)) {
             return null;
@@ -51,7 +54,17 @@ public class ApplicationMtaMetadataParser {
                           .anyMatch(Objects::isNull)) {
             throw new ParsingException(Messages.MTA_METADATA_FOR_APP_0_IS_INCOMPLETE, app.getName());
         }
-        return new ApplicationMtaMetadata(mtaMetadata, services, moduleName, providedDependencyNames);
+        List<DeployedMtaResource> services = serviceNames.stream()
+                                                         .map(n -> DeployedMtaResource.builder()
+                                                                                      .withServiceName(n)
+                                                                                      .build())
+                                                         .collect(Collectors.toList());
+        DeployedMtaModule module = DeployedMtaModule.builder()
+                                                    .withModuleName(moduleName)
+                                                    .withProvidedDependencyNames(providedDependencyNames)
+                                                    .withServices(services)
+                                                    .build();
+        return ApplicationMtaMetadata.builder().withMtaMetadata(mtaMetadata).withModule(module).build();
     }
 
     private static DeployedMtaMetadata parseMtaMetadata(CloudApplication app, Map<String, String> appEnv) {
