@@ -1,18 +1,24 @@
 package com.sap.cloud.lm.sl.cf.core.model;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class DeployedMta {
 
     private DeployedMtaMetadata metadata;
     private List<DeployedMtaModule> modules;
-    private Set<String> services;
+    private List<DeployedMtaResource> services;
+
+    private DeployedMta(Builder builder) {
+        this.metadata = builder.metadata;
+        this.modules = builder.modules;
+        this.services = builder.services;
+    }
 
     public DeployedMta() {
     }
 
-    public DeployedMta(DeployedMtaMetadata metadata, List<DeployedMtaModule> modules, Set<String> services) {
+    public DeployedMta(DeployedMtaMetadata metadata, List<DeployedMtaModule> modules, List<DeployedMtaResource> services) {
         this.metadata = metadata;
         this.modules = modules;
         this.services = services;
@@ -34,11 +40,11 @@ public class DeployedMta {
         this.modules = modules;
     }
 
-    public Set<String> getServices() {
+    public List<DeployedMtaResource> getServices() {
         return services;
     }
 
-    public void setServices(Set<String> services) {
+    public void setServices(List<DeployedMtaResource> services) {
         this.services = services;
     }
 
@@ -73,6 +79,38 @@ public class DeployedMta {
                                                    .equalsIgnoreCase(moduleName))
                            .findFirst()
                            .orElse(null);
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private DeployedMtaMetadata metadata;
+        private List<DeployedMtaModule> modules = new ArrayList<>();
+        private List<DeployedMtaResource> services = new ArrayList<>();
+
+        private Builder() {
+        }
+
+        public Builder withMetadata(DeployedMtaMetadata metadata) {
+            this.metadata = metadata;
+            return this;
+        }
+
+        public Builder withModules(List<DeployedMtaModule> modules) {
+            this.modules = modules;
+            return this;
+        }
+
+        public Builder withServices(List<DeployedMtaResource> services) {
+            this.services = services;
+            return this;
+        }
+
+        public DeployedMta build() {
+            return new DeployedMta(this);
+        }
     }
 
 }

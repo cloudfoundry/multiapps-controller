@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.sap.cloud.lm.sl.cf.core.model.DeployedComponents;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -20,17 +19,18 @@ public class DeployedComponentsDto {
     @XmlElement(name = "mta")
     private List<DeployedMtaDto> mtas;
 
-    @XmlElementWrapper(name = "standaloneApps")
-    @XmlElement(name = "standaloneApp")
-    private List<String> standaloneApps;
+    public static List<DeployedMta> toDeployedMtas(List<DeployedMtaDto> mtas) {
+        return mtas.stream()
+            .map(DeployedMtaDto::toDeployedMta)
+            .collect(Collectors.toList());
+    }
 
     protected DeployedComponentsDto() {
         // Required by JAXB
     }
 
-    public DeployedComponentsDto(DeployedComponents components) {
-        this.mtas = toDtos(components.getMtas());
-        this.standaloneApps = components.getStandaloneApps();
+    public DeployedComponentsDto(List<DeployedMta> mtas) {
+        this.mtas = toDtos(mtas);
     }
 
     private static List<DeployedMtaDto> toDtos(List<DeployedMta> mtas) {
@@ -39,25 +39,8 @@ public class DeployedComponentsDto {
                    .collect(Collectors.toList());
     }
 
-    private static List<DeployedMta> toDeployedMtas(List<DeployedMtaDto> mtas) {
-        return mtas.stream()
-                   .map(DeployedMtaDto::toDeployedMta)
-                   .collect(Collectors.toList());
-    }
 
     public List<DeployedMtaDto> getMtas() {
         return mtas;
     }
-
-    public List<String> getStandaloneApps() {
-        return standaloneApps;
-    }
-
-    public DeployedComponents toDeployedComponents() {
-        DeployedComponents result = new DeployedComponents();
-        result.setMtas(toDeployedMtas(mtas));
-        result.setStandaloneApps(standaloneApps);
-        return result;
-    }
-
 }
