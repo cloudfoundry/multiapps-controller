@@ -38,6 +38,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.AppMetadataMapper;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
@@ -86,6 +87,9 @@ public class ConfigurationEntriesResource {
 
     @Inject
     private ApplicationConfiguration configuration;
+    
+    @Inject
+    private AppMetadataMapper appMetadataMapper;
 
     @Context
     private HttpServletRequest request;
@@ -270,7 +274,7 @@ public class ConfigurationEntriesResource {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
         authorizationChecker.ensureUserIsAuthorized(request, userInfo, org, space, PURGE_COMMAND);
         CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName(), org, space, null);
-        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, entryDao, subscriptionDao);
+        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, entryDao, subscriptionDao, appMetadataMapper);
         purger.purge(org, space);
         return Response.status(Response.Status.NO_CONTENT)
                        .build();

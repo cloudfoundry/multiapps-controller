@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.AppMetadataMapper;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
@@ -32,12 +33,14 @@ public class MtaConfigurationPurger {
     private CloudControllerClient client;
     private ConfigurationEntryDao entryDao;
     private ConfigurationSubscriptionDao subscriptionDao;
+    private AppMetadataMapper appMetadataMapper;
 
     public MtaConfigurationPurger(CloudControllerClient client, ConfigurationEntryDao entryDao,
-                                  ConfigurationSubscriptionDao subscriptionDao) {
+        ConfigurationSubscriptionDao subscriptionDao, AppMetadataMapper appMetadataMapper) {
         this.client = client;
         this.entryDao = entryDao;
         this.subscriptionDao = subscriptionDao;
+        this.appMetadataMapper = appMetadataMapper;
     }
 
     public void purge(String org, String space) {
@@ -104,14 +107,23 @@ public class MtaConfigurationPurger {
     }
 
     private List<ConfigurationEntry> getStillRelevantConfigurationEntries(CloudApplication app) {
-        ApplicationMtaMetadata metadata = ApplicationMtaMetadataParser.parseAppMetadata(app);
+        getApplicationMtaMetadata(app);
+        ApplicationMtaMetadata metadata = getApplicationMtaMetadata(app);
         if (metadata == null) {
             return Collections.emptyList();
         }
-        return metadata.getProvidedDependencyNames()
-                       .stream()
-                       .map(providedDependencyName -> toConfigurationEntry(metadata.getMtaMetadata(), providedDependencyName))
-                       .collect(Collectors.toList());
+        return metadata.getModule().getProvidedDependencyNames()
+            .stream()
+            .map(providedDependencyName -> toConfigurationEntry(metadata.getMtaMetadata(), providedDependencyName))
+            .collect(Collectors.toList());
+    }
+
+    private ApplicationMtaMetadata getApplicationMtaMetadata(CloudApplication app) {
+        if(app.getMetadata() == null) {
+            return ApplicationMtaMetadataParser.parseAppMetadata(app);
+        } else {
+            return appMetadataMapper.mapMetadata(app);
+        }
     }
 
     private ConfigurationEntry toConfigurationEntry(DeployedMtaMetadata metadata, String providedDependencyName) {
