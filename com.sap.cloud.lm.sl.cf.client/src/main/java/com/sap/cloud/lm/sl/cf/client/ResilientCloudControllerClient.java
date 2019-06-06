@@ -46,6 +46,7 @@ import org.cloudfoundry.client.lib.domain.Staging;
 import org.cloudfoundry.client.lib.domain.Upload;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.cloudfoundry.client.lib.rest.CloudControllerRestClient;
+import org.cloudfoundry.client.v3.Metadata;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -932,5 +933,25 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     public void unbindService(String applicationName, String serviceName,
                               ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         executeWithRetry(() -> cc.unbindService(applicationName, serviceName, applicationServicesUpdateCallback));
+    }
+
+    @Override
+    public List<CloudApplication> getApplicationsByMetadata(String labelSelector) {
+        return executeWithRetry(() -> cc.getApplicationsByMetadata(labelSelector));
+    }
+
+    @Override
+    public List<CloudService> getServicesByMetadata(String labelSelector) {
+        return executeWithRetry(() -> cc.getServicesByMetadata(labelSelector));
+    }
+    
+    @Override
+    public void updateApplicationMetadata(UUID guid, Metadata metadata) {
+        executeWithRetry(() -> cc.updateApplicationMetadata(guid, metadata));
+    }
+
+    @Override
+    public void updateServiceMetadata(UUID guid, Metadata metadata) {
+        executeWithRetry(() -> cc.updateServiceMetadata(guid, metadata));
     }
 }
