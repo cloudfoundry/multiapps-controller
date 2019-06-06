@@ -78,7 +78,7 @@ Other platforms might have different names and plans for the PostgreSQL service.
 ## Push the application 
 Push the CF Multiapps Controller application to Cloud Foundry by running the following command from the `com.sap.cloud.lm.sl.cf.web` directory:
 ```
-$ cf push -f target/manifests/manifest.yml
+$ cf push -f manifests/manifest.yml
 ```
 After the push operation completes then the CF Multiapps Controller should be up and running.
 ## Usage via CF MTA plugin
