@@ -22,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaResource;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -126,13 +127,13 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         String existingModuleName = existingModule.getModuleName();
         return modulesToUndeploy.stream()
                                 .map(DeployedMtaModule::getModuleName)
-                                .noneMatch(existingModuleName::equals);
+                                .noneMatch(moduleName -> existingModuleName.equals(moduleName));
     }
 
     private boolean shouldNotDeployModule(Set<String> mtaModules, DeployedMtaModule existingModule) {
         String existingModuleName = existingModule.getModuleName();
         return mtaModules.stream()
-                         .noneMatch(existingModuleName::equals);
+                         .noneMatch(moduleName -> existingModuleName.equals(moduleName));
     }
 
     private void setComponentsToUndeploy(DelegateExecution context, List<String> services, List<CloudApplication> apps,
@@ -142,9 +143,10 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         StepsUtil.setAppsToUndeploy(context, apps);
     }
 
-    private List<String> computeServicesToDelete(List<DeployedMtaModule> modulesWithoutChange, Set<String> existingServices,
-                                                 Set<String> servicesForApplications) {
+    private List<String> computeServicesToDelete(List<DeployedMtaModule> modulesWithoutChange, List<DeployedMtaResource> existingServices,
+        Set<String> servicesForApplications) {
         return existingServices.stream()
+                               .map(s -> s.getServiceName())
                                .filter(service -> shouldDeleteService(modulesWithoutChange, service, servicesForApplications))
                                .sorted()
                                .collect(Collectors.toList());
@@ -153,6 +155,9 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     private boolean shouldDeleteService(List<DeployedMtaModule> modulesToKeep, String service, Set<String> servicesForApplications) {
         return modulesToKeep.stream()
                             .map(DeployedMtaModule::getServices)
+                            .map(c -> c.stream()
+                                       .map(s -> s.getServiceName())
+                                       .collect(Collectors.toList()))
                             .noneMatch(moduleToKeepService -> moduleToKeepService.contains(service))
             && !servicesForApplications.contains(service);
     }
@@ -162,7 +167,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         return deployedMta.getModules()
                           .stream()
                           .filter(deployedModule -> shouldBeCheckedforUndeployment(deployedModule, mtaModules, deploymentDescriptorModules))
-                          .filter(deployedModule -> shouldUndeployModule(deployedModule, appsToDeploy))
+                          .filter(deployedModule -> shouldUndeployModule(deployedModule, mtaModules, appsToDeploy))
                           .collect(Collectors.toList());
     }
 

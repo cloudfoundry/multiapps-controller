@@ -4,10 +4,13 @@ import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -15,6 +18,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.domain.CloudTask;
+import org.cloudfoundry.client.v3.Metadata;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
@@ -22,9 +26,12 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtende
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.AppMetadataMapper;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.MetadataMapper;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaResource;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.parser.ApplicationAttributeUpdateStrategyParser;
 import com.sap.cloud.lm.sl.cf.core.parser.DockerInfoParser;
@@ -37,11 +44,14 @@ import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
+import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.model.Resource;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
@@ -96,26 +106,71 @@ public class ApplicationCloudModelBuilder {
         List<String> uris = getApplicationUris(module);
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, parametersList);
         return ImmutableCloudApplicationExtended.builder()
-                                                .name(NameUtil.getApplicationName(module))
-                                                .moduleName(module.getName())
-                                                .staging(parseParameters(parametersList, new StagingParametersParser()))
-                                                .diskQuota(parseParameters(parametersList,
-                                                                           new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0")))
-                                                .memory(parseParameters(parametersList,
-                                                                        new MemoryParametersParser(SupportedParameters.MEMORY, "0")))
-                                                .instances((Integer) getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0))
-                                                .uris(uris)
-                                                .idleUris(idleUris)
-                                                .services(getAllApplicationServices(module))
-                                                .serviceKeysToInject(getServicesKeysToInject(module))
-                                                .env(applicationEnvCloudModelBuilder.build(module, getApplicationServices(module)))
-                                                .bindingParameters(getBindingParameters(module))
-                                                .tasks(getTasks(parametersList))
-                                                .domains(getApplicationDomains(parametersList, module))
-                                                .restartParameters(parseParameters(parametersList, new RestartParametersParser()))
-                                                .dockerInfo(parseParameters(parametersList, new DockerInfoParser()))
-                                                .attributesUpdateStrategy(getApplicationAttributesUpdateStrategy(parametersList))
-                                                .build();
+            .name(NameUtil.getApplicationName(module))
+            .moduleName(module.getName())
+            .staging(parseParameters(parametersList, new StagingParametersParser()))
+            .diskQuota(parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0")))
+            .memory(parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.MEMORY, "0")))
+            .instances((Integer) getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0))
+            .uris(uris)
+            .idleUris(idleUris)
+            .services(getAllApplicationServices(module))
+            .serviceKeysToInject(getServicesKeysToInject(module))
+            .env(applicationEnvCloudModelBuilder.build(module, getApplicationServices(module)))
+            .bindingParameters(getBindingParameters(module))
+            .tasks(getTasks(parametersList))
+            .domains(getApplicationDomains(parametersList, module))
+            .restartParameters(parseParameters(parametersList, new RestartParametersParser()))
+            .dockerInfo(parseParameters(parametersList, new DockerInfoParser()))
+            .attributesUpdateStrategy(getApplicationAttributesUpdateStrategy(parametersList))
+            .v3Metadata(buildDeployedModuleMetadata(module, uris))
+            .build();
+    }
+
+    private Metadata buildDeployedModuleMetadata(Module module, List<String> uris) {
+        List<DeployedMtaResource> deployedResources = module.getRequiredDependencies().stream()
+            .map(resource -> mapResourceToDeployedMtaResource(resource, module))
+            .collect(Collectors.toList());
+
+        List<String> providedDependenciesNames = module.getProvidedDependencies()
+                                                           .stream()
+                                                           .filter(ProvidedDependency::isPublic)
+                                                           .map(ProvidedDependency::getName)
+                                                           .collect(Collectors.toList());
+
+        return Metadata.builder()
+                .label(MetadataMapper.MTA_ID, deploymentDescriptor.getId())
+                .label(MetadataMapper.MTA_VERSION, deploymentDescriptor.getVersion())
+                .annotation(AppMetadataMapper.MODULE_NAME, module.getName())
+                .annotation(AppMetadataMapper.PROVIDED_DEPENDENCY_NAMES, JsonUtil.toJson(providedDependenciesNames, true))
+                .annotation(AppMetadataMapper.RESOURCES, JsonUtil.toJson(deployedResources, true))
+                .annotation(AppMetadataMapper.URIS, JsonUtil.toJson(uris, true))
+                .build();
+    }
+
+    private DeployedMtaResource mapResourceToDeployedMtaResource(RequiredDependency requiredDependency, Module module) {
+        ResourceAndResourceType applicationService = getApplicationService(requiredDependency.getName());
+        ResourceType resourceType = applicationService.getResourceType();
+        Resource resource = applicationService.getResource();
+        if (resourceType == ResourceType.USER_PROVIDED_SERVICE) {
+            List<DeployedMtaModule> deployedMtaModules = Arrays.asList(DeployedMtaModule.builder()
+                                                                                        .withModuleName(module.getName())
+                                                                                        .withAppName(NameUtil.getApplicationName(module))
+                                                                                        .build());
+            TreeMap<String, Object> credentials = new TreeMap<>((Map<String, Object>) resource.getParameters()
+                                                                                              .getOrDefault(SupportedParameters.SERVICE_CONFIG,
+                                                                                                            Collections.emptyMap()));
+            return DeployedMtaResource.builder()
+                                      .withServiceName(resource.getName())
+                                      .withServiceName(NameUtil.getServiceName(resource))
+                                      .withModules(deployedMtaModules)
+                                      .withAppsCredentials(credentials)
+                                      .build();
+        }
+        return DeployedMtaResource.builder()
+                                  .withServiceName(NameUtil.getServiceName(resource))
+                                  .withResourceName(resource.getName())
+                                  .build();
     }
 
     private AttributeUpdateStrategy getApplicationAttributesUpdateStrategy(List<Map<String, Object>> parametersList) {
