@@ -201,6 +201,22 @@
                         </lifecycleMappingMetadata>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.whitesource</groupId>
+                    <artifactId>whitesource-maven-plugin</artifactId>
+                    <version>19.5.1</version>
+                    <configuration>
+                        <orgToken>${whitesource.org.token}</orgToken>
+                        <product>${whitesource.product}</product>
+                        <userKey>${whitesource.user.key}</userKey>
+                        <checkPolicies>false</checkPolicies>
+                        <failOnError>true</failOnError>
+                        <ignorePomModules>false</ignorePomModules>
+                        <autoDetectProxySettings>true</autoDetectProxySettings>
+                        <forceCheckAllDependencies>true</forceCheckAllDependencies>
+                        <forceUpdate>true</forceUpdate>                  
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
