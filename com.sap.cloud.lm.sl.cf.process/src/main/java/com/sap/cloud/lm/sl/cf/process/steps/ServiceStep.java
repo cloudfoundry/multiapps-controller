@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.flowable.engine.delegate.DelegateExecution;
 

@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.flowable.variable.api.history.HistoricVariableInstance;
@@ -29,6 +30,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaResource;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
@@ -209,7 +211,10 @@ public class ApplicationColorDetectorTest {
         DeployedMta deployedMta = new DeployedMta();
         deployedMta.setMetadata(new DeployedMtaMetadata(id));
         deployedMta.setModules(deployedModules);
-        deployedMta.setServices(services);
+        Set<DeployedMtaResource> deployedServices = services.stream()
+                                         .map(s -> DeployedMtaResource.builder().withServiceName(s).build())
+                                         .collect(Collectors.toSet());
+        deployedMta.setServices(deployedServices);
         return deployedMta;
     }
 
@@ -224,11 +229,7 @@ public class ApplicationColorDetectorTest {
     }
 
     private DeployedMtaModule createMtaModule(String moduleName, String appName, Date createdOn) {
-        DeployedMtaModule deployedMtaModule = new DeployedMtaModule();
-        deployedMtaModule.setModuleName(moduleName);
-        deployedMtaModule.setAppName(appName);
-        deployedMtaModule.setCreatedOn(createdOn);
-        return deployedMtaModule;
+        return DeployedMtaModule.builder().withModuleName(moduleName).withAppName(appName).withCreatedOn(createdOn).build();
     }
 
     private void mockOperationDaoNoOtherOperations(Operation currentOperation) {

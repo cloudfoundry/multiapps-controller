@@ -33,6 +33,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtende
 import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaResource;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -141,7 +142,10 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     private void prepareServices(DeployedMta deployedMta) {
         Set<String> servicesNames = new HashSet<>();
         stepInput.servicesFromDeployedMta.forEach(service -> servicesNames.add(service.getName()));
-        deployedMta.setServices(servicesNames);
+        Set<DeployedMtaResource> deployedServices = servicesNames.stream()
+                                                                 .map(s -> DeployedMtaResource.builder().withServiceName(s).build())
+                                                                 .collect(Collectors.toSet());
+        deployedMta.setServices(deployedServices);
     }
 
     private void prepareContext() {
@@ -156,7 +160,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private List<DeployedMtaModule> simpleAppListToModuleList(List<SimpleApplication> simpleApps) {
         List<DeployedMtaModule> modulesList = new ArrayList<>();
-        simpleApps.forEach(app -> modulesList.add(new DeployedMtaModule(app.name, app.name, null, null, null, null, null)));
+        simpleApps.forEach(app -> modulesList.add(DeployedMtaModule.builder().withAppName(app.name).withModuleName(app.name).build()));
         return modulesList;
     }
 

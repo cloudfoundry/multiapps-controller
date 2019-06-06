@@ -78,12 +78,12 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         flowHandler.printStepStartMessage();
 
-        flowHandler.handleApplicationAttributes();
-        flowHandler.injectServiceKeysCredentialsInAppEnv();
-        flowHandler.handleApplicationServices();
-        flowHandler.handleApplicationEnv();
-
-        flowHandler.printStepEndMessage();
+            flowHandler.handleApplicationAttributes();
+            flowHandler.injectServiceKeysCredentialsInAppEnv();
+            flowHandler.handleApplicationServices();
+            flowHandler.handleApplicationEnv();
+            flowHandler.handleApplicationMetadata();
+            flowHandler.printStepEndMessage();
 
         return StepPhase.DONE;
     }
@@ -154,6 +154,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         public abstract void handleApplicationEnv();
 
+        public abstract void handleApplicationMetadata();
+
         public abstract void printStepEndMessage();
     }
 
@@ -175,7 +177,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                                           .getImage());
             }
             client.createApplication(app.getName(), app.getStaging(), diskQuota, memory, uris, Collections.emptyList(),
-                                     app.getDockerInfo());
+                app.getDockerInfo());
+            CloudApplication application = client.getApplication(app.getName());
+            client.updateApplicationMetadata(application.getMetadata().getGuid(), app.getV3Metadata());
             StepsUtil.setVcapAppPropertiesChanged(execution.getContext(), true);
         }
 
@@ -206,6 +210,12 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.APP_CREATED, app.getName());
         }
 
+        @Override
+        public void handleApplicationMetadata() {
+            CloudApplication application = client.getApplication(app.getName());
+            client.updateApplicationMetadata(application.getMetadata().getGuid(), app.getV3Metadata());
+            getStepLogger().info("updated app metadata name: " + app.getName() + " metadata: " + JsonUtil.toJson(app.getV3Metadata(), true));
+        }
         private void bindService(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
             Map<String, Object> bindingParameters) {
 
@@ -282,6 +292,19 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                 getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingEnv()),
                 getStepLogger()).updateApplication(client, app);
         }
+        @Override
+        public void handleApplicationMetadata() {
+            client.updateApplicationMetadata(existingApp.getMetadata().getGuid(), app.getV3Metadata());
+            getStepLogger().info("updated app metadata name: " + app.getName() + " metadata: " + JsonUtil.toJson(app.getV3Metadata(), true));
+        }
+
+    }
+
+    private UpdateState updateApplicationEnvironment(CloudApplicationExtended app, CloudApplication existingApp,
+        CloudControllerClient client, CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
+        return new EnvironmentApplicationAttributeUpdater(existingApp,
+            getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingEnv()), getStepLogger()).updateApplication(client, app);
+    }
 
         private void reportApplicationUpdateStatus(CloudApplicationExtended app, boolean appPropertiesChanged) {
             if (!appPropertiesChanged) {

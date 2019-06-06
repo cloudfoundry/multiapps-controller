@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.AppMetadataMapper;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
@@ -30,6 +31,9 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
     @Inject
     private ConfigurationEntryDao configurationEntryDao;
 
+    @Inject
+    private AppMetadataMapper appMetadataMapper;
+
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
@@ -38,12 +42,12 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
         }
         getStepLogger().info(Messages.DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP, existingApp.getName());
         String mtaId = (String) execution.getContext()
-                                         .getVariable(Constants.PARAM_MTA_ID);
-        ApplicationMtaMetadata mtaMetadata = ApplicationMtaMetadataParser.parseAppMetadata(existingApp);
+            .getVariable(Constants.PARAM_MTA_ID);
+        ApplicationMtaMetadata mtaMetadata = getMetadata(existingApp);
         if (mtaMetadata == null) {
             return StepPhase.DONE;
         }
-        List<String> providedDependencyNames = mtaMetadata.getProvidedDependencyNames();
+        List<String> providedDependencyNames = mtaMetadata.getModule().getProvidedDependencyNames();
         String org = StepsUtil.getOrg(execution.getContext());
         String space = StepsUtil.getSpace(execution.getContext());
         CloudTarget target = new CloudTarget(org, space);
@@ -66,6 +70,14 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
 
         getStepLogger().debug(Messages.DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP_DELETED, existingApp.getName());
         return StepPhase.DONE;
+    }
+
+    private ApplicationMtaMetadata getMetadata(CloudApplication existingApp) {
+        if(existingApp.getMetadata() == null) {
+            return ApplicationMtaMetadataParser.parseAppMetadata(existingApp);
+        } else {
+            return appMetadataMapper.mapMetadata(existingApp);
+        }
     }
 
     @Override
