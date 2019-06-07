@@ -28,4 +28,9 @@ public class StopApplicationUndeploymentStep extends UndeployAppStep {
         return HookPhase.APPLICATION_BEFORE_STOP_LIVE;
     }
 
+    @Override
+    protected HookPhase getHookPhaseAfterStep(DelegateExecution context) {
+        return HookPhase.APPLICATION_AFTER_STOP_LIVE;
+    }
+
 }
