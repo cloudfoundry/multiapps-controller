@@ -145,8 +145,9 @@ public class Messages {
     public static final String SERVICES_ARE_ALREADY_DELETED = "Services \"{0}\" are already deleted";
 
     // WARN log messages
-    public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service {0}";
-    public static final String CANNOT_RETRIEVE_INSTANCE_OF_SERVICE = "Cannot retrieve instance of service {0}";
+    public static final String CANNOT_RETRIEVE_SERVICE_PARAMETERS = "Cannot retrieve service parameters of service \"{0}\"";
+    public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service \"{0}\"";
+    public static final String CANNOT_RETRIEVE_INSTANCE_OF_SERVICE = "Cannot retrieve service instance of service \"{0}\"";
     public static final String COULD_NOT_DELETE_PROVIDED_DEPENDENCY = "Could not delete published provided dependency \"{0}\" from configuration registry";
     public static final String COULD_NOT_DELETE_ROUTE_FOR_PORT = "Could not delete route for allocated port \"{0}\"";
     public static final String COULD_NOT_DELETE_SERVICE = "Could not delete service \"{0}\", as it does not exist";

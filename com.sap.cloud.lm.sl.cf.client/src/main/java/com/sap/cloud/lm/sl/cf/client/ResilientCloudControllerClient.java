@@ -10,42 +10,8 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.ApplicationLogListener;
-import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
-import org.cloudfoundry.client.lib.ClientHttpResponseCallback;
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerClientImpl;
-import org.cloudfoundry.client.lib.CloudCredentials;
-import org.cloudfoundry.client.lib.RestLogCallback;
-import org.cloudfoundry.client.lib.StartingInfo;
-import org.cloudfoundry.client.lib.StreamingLogToken;
-import org.cloudfoundry.client.lib.UploadStatusCallback;
-import org.cloudfoundry.client.lib.domain.ApplicationLog;
-import org.cloudfoundry.client.lib.domain.ApplicationStats;
-import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudBuild;
-import org.cloudfoundry.client.lib.domain.CloudDomain;
-import org.cloudfoundry.client.lib.domain.CloudEvent;
-import org.cloudfoundry.client.lib.domain.CloudInfo;
-import org.cloudfoundry.client.lib.domain.CloudOrganization;
-import org.cloudfoundry.client.lib.domain.CloudQuota;
-import org.cloudfoundry.client.lib.domain.CloudRoute;
-import org.cloudfoundry.client.lib.domain.CloudSecurityGroup;
-import org.cloudfoundry.client.lib.domain.CloudService;
-import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
-import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
-import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
-import org.cloudfoundry.client.lib.domain.CloudSpace;
-import org.cloudfoundry.client.lib.domain.CloudStack;
-import org.cloudfoundry.client.lib.domain.CloudTask;
-import org.cloudfoundry.client.lib.domain.CloudUser;
-import org.cloudfoundry.client.lib.domain.CrashesInfo;
-import org.cloudfoundry.client.lib.domain.DockerInfo;
-import org.cloudfoundry.client.lib.domain.InstancesInfo;
-import org.cloudfoundry.client.lib.domain.CloudServiceKey;
-import org.cloudfoundry.client.lib.domain.Staging;
-import org.cloudfoundry.client.lib.domain.Upload;
-import org.cloudfoundry.client.lib.domain.UploadToken;
+import org.cloudfoundry.client.lib.*;
+import org.cloudfoundry.client.lib.domain.*;
 import org.cloudfoundry.client.lib.rest.CloudControllerRestClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -217,7 +183,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public CloudServiceBroker getServiceBroker(String name, boolean required) {
         return executeWithRetry(() -> cc.getServiceBroker(name, required));
-
     }
 
     @Override
@@ -228,6 +193,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public CloudServiceInstance getServiceInstance(String service) {
         return executeWithRetry(() -> cc.getServiceInstance(service));
+    }
+
+    @Override
+    public Map<String, Object> getServiceParameters(UUID guid) {
+        return executeWithRetry(() -> cc.getServiceParameters(guid));
     }
 
     @Override
@@ -334,9 +304,9 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     public List<String> updateApplicationServices(String applicationName,
         Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
         ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
-        return executeWithRetry(
-            () -> cc.updateApplicationServices(applicationName, serviceNamesWithBindingParameters, applicationServicesUpdateCallback),
-            HttpStatus.NOT_FOUND);
+        return executeWithRetry(() -> cc.updateApplicationServices(applicationName, serviceNamesWithBindingParameters,
+                                                                   applicationServicesUpdateCallback),
+                                HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -902,8 +872,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     private List<String> toStrings(List<UUID> uuids) {
         return uuids.stream()
-            .map(UUID::toString)
-            .collect(Collectors.toList());
+                    .map(UUID::toString)
+                    .collect(Collectors.toList());
     }
 
     @Override
