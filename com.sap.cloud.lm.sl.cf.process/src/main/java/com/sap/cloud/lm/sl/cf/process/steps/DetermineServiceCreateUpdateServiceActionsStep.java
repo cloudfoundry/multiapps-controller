@@ -3,23 +3,20 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudService;
-import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -66,13 +63,13 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         CloudServiceExtended serviceToProcess = StepsUtil.getServiceToProcess(execution.getContext());
 
         execution.getStepLogger()
-            .info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
+                 .info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
         CloudService existingService = controllerClient.getService(serviceToProcess.getName(), false);
 
         Map<String, List<CloudServiceKey>> serviceKeys = StepsUtil.getServiceKeysToCreate(execution.getContext());
 
         List<ServiceAction> actions = determineActions(controllerClient, spaceId, serviceToProcess, existingService, serviceKeys,
-            execution);
+                                                       execution);
 
         setServiceParameters(serviceToProcess, actions, execution.getContext());
 
@@ -135,14 +132,10 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             actions.add(ServiceAction.UPDATE_TAGS);
         }
 
-        if (existingService != null) {
-            CloudServiceInstance existingServiceInstance = client.getServiceInstance(service.getName(), false);
-            if (existingServiceInstance != null && shouldUpdateCredentials(service, existingServiceInstance.getCredentials())) {
-                getStepLogger().debug("Service parameters should be updated");
-                getStepLogger().debug("New parameters: " + secureSerializer.toJson(service.getCredentials()));
-                getStepLogger().debug("Existing service parameters: " + secureSerializer.toJson(existingServiceInstance.getCredentials()));
-                actions.add(ServiceAction.UPDATE_CREDENTIALS);
-            }
+        if (shouldUpdateCredentials(service, existingService, client)) {
+            getStepLogger().debug("Service parameters should be updated");
+            getStepLogger().debug("New parameters: " + secureSerializer.toJson(service.getCredentials()));
+            actions.add(ServiceAction.UPDATE_CREDENTIALS);
         }
 
         return actions;
@@ -170,8 +163,9 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
             }
         };
-        fileService
-            .processFileContent(new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId, parametersFileProcessor));
+        fileService.processFileContent(new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
+                                                                        appArchiveId,
+                                                                        parametersFileProcessor));
         return serviceReference.get();
     }
 
@@ -183,7 +177,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
         Map<String, Object> result = PropertiesUtil.mergeExtensionProperties(credentials, existingCredentials);
         return ImmutableCloudServiceExtended.copyOf(service)
-            .withCredentials(result);
+                                            .withCredentials(result);
     }
 
     private List<String> getServiceTags(CloudControllerClient client, String spaceId, CloudService service) {
@@ -216,8 +210,11 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         boolean serviceNeedsRecreation = serviceHasDifferentTypeOrLabel(service, existingService);
         if (!StepsUtil.shouldDeleteServices(execution.getContext()) && serviceNeedsRecreation) {
             getStepLogger().debug("Service should be recreated, but delete-services was not enabled.");
-            throw new SLException(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET, service.getResourceName(),
-                buildServiceType(service), existingService.getName(), buildServiceType(existingService));
+            throw new SLException(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET,
+                                  service.getResourceName(),
+                                  buildServiceType(service),
+                                  existingService.getName(),
+                                  buildServiceType(existingService));
         }
         return serviceNeedsRecreation;
     }
@@ -248,8 +245,21 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return !existingServiceTags.equals(service.getTags());
     }
 
-    private boolean shouldUpdateCredentials(CloudServiceExtended service, Map<String, Object> credentials) {
-        return !Objects.equals(service.getCredentials(), credentials);
+    private boolean shouldUpdateCredentials(CloudServiceExtended service, CloudService existingService, CloudControllerClient client) {
+        try {
+            Map<String, Object> serviceParameters = client.getServiceParameters(existingService.getMetadata()
+                                                                                               .getGuid());
+            getStepLogger().debug("Existing service parameters: " + secureSerializer.toJson(serviceParameters));
+            return !Objects.equals(service.getCredentials(), serviceParameters);
+        } catch (CloudOperationException e) {
+            if (HttpStatus.NOT_IMPLEMENTED == e.getStatusCode() || HttpStatus.BAD_REQUEST == e.getStatusCode()) {
+                getStepLogger().warnWithoutProgressMessage(e, Messages.CANNOT_RETRIEVE_SERVICE_PARAMETERS, service.getName());
+                // TODO: Optimization (Hack) that should be deprecated at some point. So here is a todo for that.
+                return MapUtils.isEmpty(service.getCredentials());
+            }
+            getStepLogger().error(e, Messages.CANNOT_RETRIEVE_SERVICE_PARAMETERS, service.getName());
+            return false;
+        }
     }
 
     private ServiceOperation getLastOperation(Map<String, Object> cloudServiceInstance) {
