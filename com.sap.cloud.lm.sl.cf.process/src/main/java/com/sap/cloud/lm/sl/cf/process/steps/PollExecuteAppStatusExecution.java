@@ -52,23 +52,22 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         if (!actions.contains(ApplicationStateAction.EXECUTE)) {
             return AsyncExecutionState.FINISHED;
         }
-        try {
-            CloudControllerClient client = execution.getControllerClient();
-            ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
-            Pair<AppExecutionStatus, String> status = getAppExecutionStatus(execution.getContext(), client, appAttributes, app);
-            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger().getProcessLoggerProvider();
-            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
-            return checkAppExecutionStatus(execution, client, app, appAttributes, status);
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            execution.getStepLogger()
-                .error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
-            throw e;
-        } catch (SLException e) {
-            execution.getStepLogger()
-                .error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
-            throw e;
-        }
+        CloudControllerClient client = execution.getControllerClient();
+        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
+        Pair<AppExecutionStatus, String> status = getAppExecutionStatus(execution.getContext(), client, appAttributes, app);
+        ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
+            .getProcessLoggerProvider();
+        StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
+        return checkAppExecutionStatus(execution, client, app, appAttributes, status);
+
+    }
+
+    @Override
+    public void onPollingError(ExecutionWrapper execution, Exception e) throws Exception {
+        CloudApplication app = getNextApp(execution.getContext());
+        execution.getStepLogger()
+            .error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
+        throw e;
     }
 
     protected CloudApplication getNextApp(DelegateExecution context) {

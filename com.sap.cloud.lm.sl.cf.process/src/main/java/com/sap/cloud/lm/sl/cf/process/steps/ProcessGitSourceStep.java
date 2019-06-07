@@ -96,15 +96,18 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
                 }
             }
             return StepPhase.DONE;
-        } catch (SLException e) {
-            getStepLogger().error(e.getMessage());
-            throw e;
         } catch (GitAPIException | IOException | FileStorageException e) {
             getStepLogger().error(e, Messages.ERROR_DOWNLOADING_DEPLOYABLE_FROM_GIT);
             throw new SLException(e, Messages.ERROR_PROCESSING_GIT_MTA_SOURCE);
         }
     }
-
+    
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e.getMessage());
+        throw e;
+    }
+    
     private GitRepoCloner createCloner(ExecutionWrapper execution) {
         DelegateExecution context = execution.getContext();
         GitRepoCloner cloner = new GitRepoCloner();

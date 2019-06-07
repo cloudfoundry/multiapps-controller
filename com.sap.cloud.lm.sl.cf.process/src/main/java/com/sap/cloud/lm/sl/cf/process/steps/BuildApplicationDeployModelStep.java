@@ -16,7 +16,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
@@ -28,33 +27,34 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
-        try {
-            Module module = StepsUtil.getModuleToDeploy(execution.getContext());
-            getStepLogger().debug(Messages.BUILDING_CLOUD_APP_MODEL, module.getName());
+        Module module = StepsUtil.getModuleToDeploy(execution.getContext());
+        getStepLogger().debug(Messages.BUILDING_CLOUD_APP_MODEL, module.getName());
 
-            Module applicationModule = StepsUtil.findModuleInDeploymentDescriptor(execution.getContext(), module.getName());
-            StepsUtil.setModuleToDeploy(execution.getContext(), applicationModule);
-            CloudApplicationExtended modifiedApp = getApplicationCloudModelBuilder(execution.getContext()).build(applicationModule,
-                moduleToDeployHelper);
-            modifiedApp = ImmutableCloudApplicationExtended.builder()
-                .from(modifiedApp)
-                .env(getApplicationEnv(execution.getContext(), modifiedApp))
-                .uris(getApplicationUris(execution.getContext(), modifiedApp))
-                .build();
-            SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
-            String appJson = secureSerializationFacade.toJson(modifiedApp);
-            getStepLogger().debug(Messages.APP_WITH_UPDATED_ENVIRONMENT, appJson);
-            StepsUtil.setApp(execution.getContext(), modifiedApp);
+        Module applicationModule = StepsUtil.findModuleInDeploymentDescriptor(execution.getContext(), module.getName());
+        StepsUtil.setModuleToDeploy(execution.getContext(), applicationModule);
+        CloudApplicationExtended modifiedApp = getApplicationCloudModelBuilder(execution.getContext()).build(applicationModule,
+            moduleToDeployHelper);
+        modifiedApp = ImmutableCloudApplicationExtended.builder()
+            .from(modifiedApp)
+            .env(getApplicationEnv(execution.getContext(), modifiedApp))
+            .uris(getApplicationUris(execution.getContext(), modifiedApp))
+            .build();
+        SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
+        String appJson = secureSerializationFacade.toJson(modifiedApp);
+        getStepLogger().debug(Messages.APP_WITH_UPDATED_ENVIRONMENT, appJson);
+        StepsUtil.setApp(execution.getContext(), modifiedApp);
 
-            buildConfigurationEntries(execution.getContext(), modifiedApp);
-            StepsUtil.setTasksToExecute(execution.getContext(), modifiedApp.getTasks());
+        buildConfigurationEntries(execution.getContext(), modifiedApp);
+        StepsUtil.setTasksToExecute(execution.getContext(), modifiedApp.getTasks());
 
-            getStepLogger().debug(Messages.CLOUD_APP_MODEL_BUILT);
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_BUILDING_CLOUD_APP_MODEL);
-            throw e;
-        }
+        getStepLogger().debug(Messages.CLOUD_APP_MODEL_BUILT);
         return StepPhase.DONE;
+    }
+
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_BUILDING_CLOUD_APP_MODEL);
+        throw e;
     }
 
     protected Map<String, String> getApplicationEnv(DelegateExecution context, CloudApplicationExtended app) {

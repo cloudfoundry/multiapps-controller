@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -18,7 +17,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("deleteServiceBrokersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -26,27 +24,24 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        try {
-            getStepLogger().debug(Messages.DELETING_SERVICE_BROKERS);
+        getStepLogger().debug(Messages.DELETING_SERVICE_BROKERS);
 
-            List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(execution.getContext());
-            CloudControllerClient client = execution.getControllerClient();
-            List<String> createdOrUpdatedServiceBrokers = getCreatedOrUpdatedServiceBrokerNames(execution.getContext());
+        List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(execution.getContext());
+        CloudControllerClient client = execution.getControllerClient();
+        List<String> createdOrUpdatedServiceBrokers = getCreatedOrUpdatedServiceBrokerNames(execution.getContext());
 
-            for (CloudApplication app : appsToUndeploy) {
-                deleteServiceBrokerIfNecessary(execution.getContext(), app, createdOrUpdatedServiceBrokers, client);
-            }
-
-            getStepLogger().debug(Messages.SERVICE_BROKERS_DELETED);
-            return StepPhase.DONE;
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_DELETING_SERVICE_BROKERS);
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_DELETING_SERVICE_BROKERS);
-            throw e;
+        for (CloudApplication app : appsToUndeploy) {
+            deleteServiceBrokerIfNecessary(execution.getContext(), app, createdOrUpdatedServiceBrokers, client);
         }
+
+        getStepLogger().debug(Messages.SERVICE_BROKERS_DELETED);
+        return StepPhase.DONE;
+    }
+
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_DELETING_SERVICE_BROKERS);
+        throw e;
     }
 
     protected List<String> getCreatedOrUpdatedServiceBrokerNames(DelegateExecution context) {

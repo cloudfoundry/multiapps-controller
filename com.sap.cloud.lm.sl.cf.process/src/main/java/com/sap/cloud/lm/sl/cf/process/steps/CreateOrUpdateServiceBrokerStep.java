@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -24,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("createOrUpdateServiceBrokerStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -34,37 +32,34 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        try {
-            getStepLogger().debug(Messages.CREATING_SERVICE_BROKERS);
+        getStepLogger().debug(Messages.CREATING_SERVICE_BROKERS);
 
-            CloudServiceBroker serviceBroker = getServiceBrokerToCreate(execution.getContext());
-            if (serviceBroker == null) {
-                return StepPhase.DONE;
-            }
-            getStepLogger().debug(MessageFormat.format(Messages.SERVICE_BROKER, secureSerializer.toJson(serviceBroker)));
-
-            CloudControllerClient client = execution.getControllerClient();
-            List<CloudServiceBroker> existingServiceBrokers = client.getServiceBrokers();
-            List<String> existingServiceBrokerNames = getServiceBrokerNames(existingServiceBrokers);
-
-            if (existingServiceBrokerNames.contains(serviceBroker.getName())) {
-                CloudServiceBroker existingBroker = findServiceBroker(existingServiceBrokers, serviceBroker.getName());
-                serviceBroker = updateServiceBroker(execution.getContext(), serviceBroker, existingBroker, client);
-            } else {
-                createServiceBroker(execution.getContext(), serviceBroker, client);
-            }
-
-            StepsUtil.setCreatedOrUpdatedServiceBroker(execution.getContext(), serviceBroker);
-            getStepLogger().debug(Messages.SERVICE_BROKERS_CREATED);
+        CloudServiceBroker serviceBroker = getServiceBrokerToCreate(execution.getContext());
+        if (serviceBroker == null) {
             return StepPhase.DONE;
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_CREATING_SERVICE_BROKERS);
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_CREATING_SERVICE_BROKERS);
-            throw e;
         }
+        getStepLogger().debug(MessageFormat.format(Messages.SERVICE_BROKER, secureSerializer.toJson(serviceBroker)));
+
+        CloudControllerClient client = execution.getControllerClient();
+        List<CloudServiceBroker> existingServiceBrokers = client.getServiceBrokers();
+        List<String> existingServiceBrokerNames = getServiceBrokerNames(existingServiceBrokers);
+
+        if (existingServiceBrokerNames.contains(serviceBroker.getName())) {
+            CloudServiceBroker existingBroker = findServiceBroker(existingServiceBrokers, serviceBroker.getName());
+            serviceBroker = updateServiceBroker(execution.getContext(), serviceBroker, existingBroker, client);
+        } else {
+            createServiceBroker(execution.getContext(), serviceBroker, client);
+        }
+
+        StepsUtil.setCreatedOrUpdatedServiceBroker(execution.getContext(), serviceBroker);
+        getStepLogger().debug(Messages.SERVICE_BROKERS_CREATED);
+        return StepPhase.DONE;
+    }
+
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_CREATING_SERVICE_BROKERS);
+        throw e;
     }
 
     private CloudServiceBroker updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker,

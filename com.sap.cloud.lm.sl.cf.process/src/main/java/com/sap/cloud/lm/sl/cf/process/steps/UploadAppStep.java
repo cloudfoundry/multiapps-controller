@@ -58,36 +58,34 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     public StepPhase executeAsyncStep(ExecutionWrapper execution) throws FileStorageException {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
-        try {
-            getStepLogger().info(Messages.UPLOADING_APP, app.getName());
-            CloudControllerClient client = execution.getControllerClient();
+        getStepLogger().info(Messages.UPLOADING_APP, app.getName());
+        CloudControllerClient client = execution.getControllerClient();
 
-            String appArchiveId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
-            MtaArchiveElements mtaArchiveElements = StepsUtil.getMtaArchiveElements(execution.getContext());
-            String fileName = mtaArchiveElements.getModuleFileName(app.getModuleName());
+        String appArchiveId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
+        MtaArchiveElements mtaArchiveElements = StepsUtil.getMtaArchiveElements(execution.getContext());
+        String fileName = mtaArchiveElements.getModuleFileName(app.getModuleName());
 
-            if (fileName == null) {
-                getStepLogger().debug(Messages.NO_CONTENT_TO_UPLOAD);
+        if (fileName == null) {
+            getStepLogger().debug(Messages.NO_CONTENT_TO_UPLOAD);
 
-                return StepPhase.DONE;
-            }
-
-            getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, fileName, app.getName());
-
-            String newApplicationDigest = getNewApplicationDigest(execution, appArchiveId, fileName);
-            detectApplicationFileDigestChanges(execution, app, client, newApplicationDigest);
-            UploadToken uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
-            getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
-            StepsUtil.setUploadToken(uploadToken, execution.getContext());
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
-            throw e;
+            return StepPhase.DONE;
         }
+
+        getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, fileName, app.getName());
+
+        String newApplicationDigest = getNewApplicationDigest(execution, appArchiveId, fileName);
+        detectApplicationFileDigestChanges(execution, app, client, newApplicationDigest);
+        UploadToken uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
+        getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
+        StepsUtil.setUploadToken(uploadToken, execution.getContext());
         return StepPhase.POLL;
+    }
+
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, StepsUtil.getApp(context)
+            .getName());
+        throw e;
     }
 
     private String getNewApplicationDigest(ExecutionWrapper execution, String appArchiveId, String fileName) throws FileStorageException {

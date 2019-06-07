@@ -21,7 +21,6 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -39,23 +38,20 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         operationDao);
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        try {
-            getStepLogger().debug(Messages.PROCESSING_MTA_ARCHIVE);
+    protected StepPhase executeStep(ExecutionWrapper execution) throws FileStorageException {
+        getStepLogger().debug(Messages.PROCESSING_MTA_ARCHIVE);
 
-            String appArchiveId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
-            processApplicationArchive(execution.getContext(), appArchiveId);
-            setMtaIdForProcess(execution.getContext());
-            getStepLogger().debug(Messages.MTA_ARCHIVE_PROCESSED);
-            return StepPhase.DONE;
-        } catch (FileStorageException fse) {
-            SLException e = new SLException(fse, fse.getMessage());
-            getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_ARCHIVE);
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_ARCHIVE);
-            throw e;
-        }
+        String appArchiveId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
+        processApplicationArchive(execution.getContext(), appArchiveId);
+        setMtaIdForProcess(execution.getContext());
+        getStepLogger().debug(Messages.MTA_ARCHIVE_PROCESSED);
+        return StepPhase.DONE;
+    }
+
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_ARCHIVE);
+        throw e;
     }
 
     private void processApplicationArchive(final DelegateExecution context, String appArchiveId) throws FileStorageException {

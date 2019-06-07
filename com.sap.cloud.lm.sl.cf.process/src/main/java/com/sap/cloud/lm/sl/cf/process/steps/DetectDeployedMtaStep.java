@@ -5,9 +5,8 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -18,7 +17,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("detectDeployedMtaStep")
@@ -32,35 +30,35 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        try {
-            getStepLogger().debug(Messages.DETECTING_DEPLOYED_MTA);
+        getStepLogger().debug(Messages.DETECTING_DEPLOYED_MTA);
 
-            CloudControllerClient client = execution.getControllerClient();
+        CloudControllerClient client = execution.getControllerClient();
 
-            List<CloudApplication> deployedApps = client.getApplications(false);
-            StepsUtil.setDeployedApps(execution.getContext(), deployedApps);
-            String mtaId = (String) execution.getContext()
-                .getVariable(Constants.PARAM_MTA_ID);
+        List<CloudApplication> deployedApps = client.getApplications(false);
+        StepsUtil.setDeployedApps(execution.getContext(), deployedApps);
+        String mtaId = (String) execution.getContext()
+            .getVariable(Constants.PARAM_MTA_ID);
 
-            DeployedMta deployedMta = componentsDetector.apply(deployedApps)
-                .findDeployedMta(mtaId);
-            if (deployedMta == null) {
-                getStepLogger().info(Messages.NO_DEPLOYED_MTA_DETECTED);
-            } else {
-                getStepLogger().debug(Messages.DEPLOYED_MTA, JsonUtil.toJson(deployedMta, true));
-                getStepLogger().info(MessageFormat.format(Messages.DEPLOYED_MTA_DETECTED_WITH_VERSION, deployedMta.getMetadata().getId(), deployedMta.getMetadata().getVersion()));
-            }
-            StepsUtil.setDeployedMta(execution.getContext(), deployedMta);
-            getStepLogger().debug(Messages.DEPLOYED_APPS, secureSerializer.toJson(deployedApps));
-            return StepPhase.DONE;
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_DETECTING_DEPLOYED_MTA);
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_DETECTING_DEPLOYED_MTA);
-            throw e;
+        DeployedMta deployedMta = componentsDetector.apply(deployedApps)
+            .findDeployedMta(mtaId);
+        if (deployedMta == null) {
+            getStepLogger().info(Messages.NO_DEPLOYED_MTA_DETECTED);
+        } else {
+            getStepLogger().debug(Messages.DEPLOYED_MTA, JsonUtil.toJson(deployedMta, true));
+            getStepLogger().info(MessageFormat.format(Messages.DEPLOYED_MTA_DETECTED_WITH_VERSION, deployedMta.getMetadata()
+                .getId(),
+                deployedMta.getMetadata()
+                    .getVersion()));
         }
+        StepsUtil.setDeployedMta(execution.getContext(), deployedMta);
+        getStepLogger().debug(Messages.DEPLOYED_APPS, secureSerializer.toJson(deployedApps));
+        return StepPhase.DONE;
+    }
+
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_DETECTING_DEPLOYED_MTA);
+        throw e;
     }
 
 }

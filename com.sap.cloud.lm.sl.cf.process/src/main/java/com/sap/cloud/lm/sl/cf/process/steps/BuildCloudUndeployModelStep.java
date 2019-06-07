@@ -41,50 +41,50 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
-        try {
-            DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
+        DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
 
-            List<String> deploymentDescriptorModules = getDeploymentDescriptorModules(execution.getContext());
+        List<String> deploymentDescriptorModules = getDeploymentDescriptorModules(execution.getContext());
 
-            if (deployedMta == null) {
-                setComponentsToUndeploy(execution.getContext(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
-                return StepPhase.DONE;
-            }
-
-            List<ConfigurationSubscription> subscriptionsToCreate = StepsUtil.getSubscriptionsToCreate(execution.getContext());
-            Set<String> mtaModules = StepsUtil.getMtaModules(execution.getContext());
-            List<String> appNames = StepsUtil.getAppsToDeploy(execution.getContext());
-            List<CloudApplication> deployedApps = StepsUtil.getDeployedApps(execution.getContext());
-
-            getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
-
-            List<DeployedMtaModule> modulesToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames,
-                deploymentDescriptorModules);
-            getStepLogger().debug(Messages.MODULES_TO_UNDEPLOY, secureSerializer.toJson(modulesToUndeploy));
-
-            List<DeployedMtaModule> modulesWithoutChange = computeModulesWithoutChange(modulesToUndeploy, mtaModules, deployedMta);
-            getStepLogger().debug(Messages.MODULES_NOT_TO_BE_CHANGED, secureSerializer.toJson(modulesWithoutChange));
-
-            List<ConfigurationSubscription> subscriptionsToDelete = computeSubscriptionsToDelete(subscriptionsToCreate, deployedMta,
-                StepsUtil.getSpaceId(execution.getContext()));
-            getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, secureSerializer.toJson(subscriptionsToDelete));
-
-            Set<String> servicesForApplications = getServicesForApplications(execution.getContext());
-            List<String> servicesToDelete = computeServicesToDelete(modulesWithoutChange, deployedMta.getServices(),
-                servicesForApplications);
-            getStepLogger().debug(Messages.SERVICES_TO_DELETE, servicesToDelete);
-
-            List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(modulesToUndeploy, deployedApps);
-            getStepLogger().debug(Messages.APPS_TO_UNDEPLOY, secureSerializer.toJson(appsToUndeploy));
-
-            setComponentsToUndeploy(execution.getContext(), servicesToDelete, appsToUndeploy, subscriptionsToDelete);
-
-            getStepLogger().debug(Messages.CLOUD_UNDEPLOY_MODEL_BUILT);
+        if (deployedMta == null) {
+            setComponentsToUndeploy(execution.getContext(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
             return StepPhase.DONE;
-        } catch (Exception e) {
-            getStepLogger().error(e, Messages.ERROR_BUILDING_CLOUD_UNDEPLOY_MODEL);
-            throw e;
         }
+
+        List<ConfigurationSubscription> subscriptionsToCreate = StepsUtil.getSubscriptionsToCreate(execution.getContext());
+        Set<String> mtaModules = StepsUtil.getMtaModules(execution.getContext());
+        List<String> appNames = StepsUtil.getAppsToDeploy(execution.getContext());
+        List<CloudApplication> deployedApps = StepsUtil.getDeployedApps(execution.getContext());
+
+        getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
+
+        List<DeployedMtaModule> modulesToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames,
+            deploymentDescriptorModules);
+        getStepLogger().debug(Messages.MODULES_TO_UNDEPLOY, secureSerializer.toJson(modulesToUndeploy));
+
+        List<DeployedMtaModule> modulesWithoutChange = computeModulesWithoutChange(modulesToUndeploy, mtaModules, deployedMta);
+        getStepLogger().debug(Messages.MODULES_NOT_TO_BE_CHANGED, secureSerializer.toJson(modulesWithoutChange));
+
+        List<ConfigurationSubscription> subscriptionsToDelete = computeSubscriptionsToDelete(subscriptionsToCreate, deployedMta,
+            StepsUtil.getSpaceId(execution.getContext()));
+        getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, secureSerializer.toJson(subscriptionsToDelete));
+
+        Set<String> servicesForApplications = getServicesForApplications(execution.getContext());
+        List<String> servicesToDelete = computeServicesToDelete(modulesWithoutChange, deployedMta.getServices(), servicesForApplications);
+        getStepLogger().debug(Messages.SERVICES_TO_DELETE, servicesToDelete);
+
+        List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(modulesToUndeploy, deployedApps);
+        getStepLogger().debug(Messages.APPS_TO_UNDEPLOY, secureSerializer.toJson(appsToUndeploy));
+
+        setComponentsToUndeploy(execution.getContext(), servicesToDelete, appsToUndeploy, subscriptionsToDelete);
+
+        getStepLogger().debug(Messages.CLOUD_UNDEPLOY_MODEL_BUILT);
+        return StepPhase.DONE;
+    }
+
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_BUILDING_CLOUD_UNDEPLOY_MODEL);
+        throw e;
     }
 
     private List<String> getDeploymentDescriptorModules(DelegateExecution context) {

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ListUtils;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -45,6 +46,12 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
         return StepPhase.DONE;
     }
 
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_COMPUTING_NEXT_MODULES_FOR_PARALLEL_ITERATION);
+        throw e;
+    }
+
     private List<Module> computeApplicationsForNextIteration(List<Module> allModulesToDeploy, ModuleDependencyChecker dependencyChecker) {
         allModulesToDeploy.removeIf(module -> dependencyChecker.getAlreadyDeployedModules()
             .contains(module.getName()));
@@ -53,4 +60,5 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
             .filter(dependencyChecker::areAllDependenciesSatisfied)
             .collect(Collectors.toList());
     }
+
 }

@@ -7,6 +7,7 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,11 @@ public class RestartSubscribersStep extends SyncFlowableStep {
             restartSubscriber(execution, subscriber);
         }
         return StepPhase.DONE;
+    }
+    
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        throw e;
     }
 
     private void restartSubscriber(ExecutionWrapper execution, CloudApplication subscriber) {

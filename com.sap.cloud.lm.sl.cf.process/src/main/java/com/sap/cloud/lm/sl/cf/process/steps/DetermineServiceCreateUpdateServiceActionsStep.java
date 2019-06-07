@@ -78,6 +78,11 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         StepsUtil.setServiceToProcessName(serviceToProcess.getName(), execution.getContext());
         return StepPhase.DONE;
     }
+    
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        throw e;
+    }
 
     private void setServiceParameters(CloudServiceExtended service, List<ServiceAction> actions, DelegateExecution delegateExecution)
         throws FileStorageException {
