@@ -1,0 +1,20 @@
+[
+  {
+    "id": "id1",
+    "name": "archive.part.thisShouldBeIndex",
+    "namespace": "namespace1",
+    "space": "some-custom-space",
+    "size": 10000,
+    "digest": "fake-digest",
+    "digestAlgorithm": "MD-5"
+  },
+  {
+    "id": "id2",
+    "name": "archive.part.thisShouldBeIndexToo",
+    "namespace": "namespace1",
+    "space": "some-custom-space",
+    "size": 10000,
+    "digest": "fake-digest",
+    "digestAlgorithm": "MD-5"
+  }
+]
