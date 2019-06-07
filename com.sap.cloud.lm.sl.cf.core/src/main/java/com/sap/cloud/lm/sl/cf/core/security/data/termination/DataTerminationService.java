@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.security.data.termination;
 
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -137,7 +138,7 @@ public class DataTerminationService {
         long timeInMillisBeforeTwoDays = currentDateInMillis - numberOfDays * DateUtils.MILLIS_PER_DAY;
         Date dateBeforeTwoDays = new Date(timeInMillisBeforeTwoDays);
         String result = sdf.format(dateBeforeTwoDays);
-        LOGGER.info(Messages.PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES, result);
+        LOGGER.info(MessageFormat.format(Messages.PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES, result));
         return result;
     }
 }
