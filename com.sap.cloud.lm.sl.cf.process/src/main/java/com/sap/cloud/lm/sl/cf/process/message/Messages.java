@@ -60,6 +60,8 @@ public class Messages {
     public static final String PARAMETERS_OF_TASK_HOOK_0_ARE_INCOMPLETE = "Parameters of hook {0} with type \"task\" are incomplete. Expected at least \"command\".";
     public static final String CANNOT_DETERMINE_MODULE_NAME = "Cannot determine module name";
     public static final String CANNOT_DETERMINE_CURRENT_APPLICATION = "Cannot determine current application";
+    public static final String ERROR_DELETING_REMAINING_FILE_PARTS = "Error deleting remaining file parts";
+    public static final String INVALID_FILE_ENTRY_NAME = "Invalid file entry name!";
     // Audit log messages
 
     // ERROR log messages

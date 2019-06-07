@@ -1,13 +1,9 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -16,23 +12,18 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
-import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ArchiveMerger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
 @Component("validateDeployParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ValidateDeployParametersStep extends SyncFlowableStep {
-
-    private static final String PART_POSTFIX = ".part.";
 
     @Inject
     private ApplicationConfiguration configuration;
@@ -102,7 +93,6 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private void validateAppArchiveId(DelegateExecution context) {
         String appArchiveId = StepsUtil.getRequiredString(context, Constants.PARAM_APP_ARCHIVE_ID);
-
         String[] appArchivePartsId = appArchiveId.split(",");
         if (appArchivePartsId.length == 1) {
             findFile(context, appArchiveId);
@@ -113,90 +103,10 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         for (String appArchivePartId : appArchivePartsId) {
             archivePartEntries.add(findFile(context, appArchivePartId));
         }
-        try {
-            getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
-            createArchiveFromParts(context, archivePartEntries);
-        } catch (FileStorageException e) {
-            throw new SLException(e, Messages.ERROR_PROCESSING_ARCHIVE_PARTS_CONTENT, e.getMessage());
-        } catch (IOException e) {
-            throw new SLException(e, Messages.ERROR_MERGING_ARCHIVE_PARTS, e.getMessage());
-        }
-    }
 
-    private void createArchiveFromParts(DelegateExecution context, List<FileEntry> archivePartEntries)
-        throws FileStorageException, IOException {
-        List<FileEntry> sortedParts = sort(archivePartEntries);
-        String archiveName = getArchiveName(sortedParts.get(0));
-        FilePartsMerger archiveMerger = getArchiveMerger(archiveName);
-        FileContentProcessor archivePartProcessor = archiveMerger::merge;
-        try {
-            for (FileEntry fileEntry : sortedParts) {
-                getStepLogger().debug(Messages.MERGING_ARCHIVE_PART, fileEntry.getId(), fileEntry.getName());
-                fileService.processFileContent(new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
-                                                                                fileEntry.getId(),
-                                                                                archivePartProcessor));
-                attemptToDeleteFilePart(fileEntry);
-            }
-        } finally {
-            deleteRemainingFileParts(sortedParts);
-            archiveMerger.close();
-        }
-
-        try {
-            persistMergedArchive(archiveMerger.getMergedFilePath(), context);
-        } finally {
-            Files.deleteIfExists(archiveMerger.getMergedFilePath());
-        }
-    }
-
-    private void deleteRemainingFileParts(List<FileEntry> sortedParts) {
-        for (FileEntry fileEntry : sortedParts) {
-            attemptToDeleteFilePart(fileEntry);
-        }
-    }
-
-    private void attemptToDeleteFilePart(FileEntry fileEntry) {
-        try {
-            fileService.deleteFile(fileEntry.getSpace(), fileEntry.getId());
-        } catch (FileStorageException e) {
-            logger.warn(Messages.ERROR_DELETING_ARCHIVE_PARTS_CONTENT, e);
-        }
-    }
-
-    protected FilePartsMerger getArchiveMerger(String archiveName) throws IOException {
-        return new FilePartsMerger(archiveName);
-    }
-
-    private String getArchiveName(FileEntry fileEntry) {
-        String fileEntryName = fileEntry.getName();
-        return fileEntryName.substring(0, fileEntryName.indexOf(PART_POSTFIX));
-    }
-
-    private void persistMergedArchive(Path archivePath, DelegateExecution context) throws FileStorageException {
-        Configuration fileConfiguration = configuration.getFileConfiguration();
-        String name = archivePath.getFileName()
-                                 .toString();
-        FileEntry uploadedArchive = fileService.addFile(StepsUtil.getSpaceId(context), StepsUtil.getServiceId(context), name,
-                                                        fileConfiguration.getFileUploadProcessor(), archivePath.toFile());
-        context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedArchive.getId());
-    }
-
-    private List<FileEntry> sort(List<FileEntry> archivePartEntries) {
-        return archivePartEntries.stream()
-                                 .sorted((FileEntry entry1, FileEntry entry2) -> {
-                                     String entry1IndexString = entry1.getName()
-                                                                      .substring(entry1.getName()
-                                                                                       .indexOf(PART_POSTFIX)
-                                                                          + PART_POSTFIX.length());
-                                     String entry2IndexString = entry2.getName()
-                                                                      .substring(entry2.getName()
-                                                                                       .indexOf(PART_POSTFIX)
-                                                                          + PART_POSTFIX.length());
-                                     int entry1Index = Integer.parseInt(entry1IndexString);
-                                     int entry2Index = Integer.parseInt(entry2IndexString);
-                                     return Integer.compare(entry1Index, entry2Index);
-                                 })
-                                 .collect(Collectors.toList());
+        StepsUtil.setAsJsonBinaries(context, Constants.VAR_FILE_ENTRIES, archivePartEntries);
+        getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
+        new ArchiveMerger(fileService, getStepLogger(), context, logger).createArchiveFromParts(archivePartEntries, configuration);
     }
 
     private FileEntry findFile(DelegateExecution context, String fileId) {
@@ -222,5 +132,4 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
             throw new SLException(Messages.ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE, startTimeout, Constants.PARAM_START_TIMEOUT);
         }
     }
-
 }

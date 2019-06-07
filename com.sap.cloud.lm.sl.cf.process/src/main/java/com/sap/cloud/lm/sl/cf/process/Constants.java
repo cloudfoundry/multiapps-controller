@@ -164,6 +164,7 @@ public class Constants {
     public static final String VAR_EXECUTED_HOOKS_FOR_PREFIX = "executedHooksFor_";
     public static final String VAR_HOOKS_FOR_EXECUTION = "hooksForExecution";
     public static final String VAR_HOOK_FOR_EXECUTION = "hookForExecution";
+    public static final String VAR_FILE_ENTRIES = "fileEntries";
 
     public static final String TOOL_TYPE = "tool_type";
     public static final String FEEDBACK_MAIL = "feedback_form";

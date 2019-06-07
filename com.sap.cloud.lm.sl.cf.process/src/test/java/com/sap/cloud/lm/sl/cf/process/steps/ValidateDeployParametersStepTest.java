@@ -40,10 +40,16 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
     private final StepInput stepInput;
     private final String expectedExceptionMessage;
     private final boolean isArchiveChunked;
-    private FilePartsMerger merger;
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    private FilePartsMerger merger;
+
+    public ValidateDeployParametersStepTest(StepInput stepInput, String expectedExceptionMessage, boolean isArchiveChunked)
+        throws FileStorageException {
+        this.stepInput = stepInput;
+        this.expectedExceptionMessage = expectedExceptionMessage;
+        this.isArchiveChunked = isArchiveChunked;
+    }
 
     @Parameters
     public static Object[][] getParameters() {
@@ -70,11 +76,12 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
                 + ".part.2", null, 1, VersionRule.HIGHER.toString()), null, true } };
     }
 
-    public ValidateDeployParametersStepTest(StepInput stepInput, String expectedExceptionMessage, boolean isArchiveChunked)
-        throws FileStorageException {
-        this.stepInput = stepInput;
-        this.expectedExceptionMessage = expectedExceptionMessage;
-        this.isArchiveChunked = isArchiveChunked;
+    private static FileEntry createFileEntry(String id, String name, long size) {
+        FileEntry fe = new FileEntry();
+        fe.setId(id);
+        fe.setName(name);
+        fe.setSize(BigInteger.valueOf(size));
+        return fe;
     }
 
     @Before
@@ -152,12 +159,9 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
                .thenReturn(Paths.get(MERGED_ARCHIVE_TEST_MTAR));
     }
 
-    private static FileEntry createFileEntry(String id, String name, long size) {
-        FileEntry fe = new FileEntry();
-        fe.setId(id);
-        fe.setName(name);
-        fe.setSize(BigInteger.valueOf(size));
-        return fe;
+    @Override
+    protected ValidateDeployParametersStep createStep() {
+        return new ValidateDeployParametersStep();
     }
 
     private static class StepInput {
@@ -173,11 +177,6 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
             this.startTimeout = startTimeout;
             this.versionRule = versionRule;
         }
-    }
-
-    @Override
-    protected ValidateDeployParametersStep createStep() {
-        return new ValidateDeployParametersStep();
     }
 
 }
