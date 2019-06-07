@@ -92,7 +92,15 @@ public class ProcessStepHelper {
         try {
             ProgressMessage msg = new ProgressMessage(StepsUtil.getCorrelationId(context), getCurrentActivityId(context), ProgressMessageType.ERROR,
                 MessageFormat.format(Messages.UNEXPECTED_ERROR, t.getMessage()), new Timestamp(System.currentTimeMillis()));
-            progressMessageService.add(msg);
+//            
+//            List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(StepsUtil.getCorrelationId(context));
+//            Optional<ProgressMessage> errorProgressMessage = progressMessages.stream()
+//                .filter(message -> message.getType() == ProgressMessageType.ERROR)
+//                .findAny();
+//            
+//            if(!errorProgressMessage.isPresent()) {
+                progressMessageService.add(msg);
+//            }
         } catch (SLException e) {
             getProcessLogger().error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
         }

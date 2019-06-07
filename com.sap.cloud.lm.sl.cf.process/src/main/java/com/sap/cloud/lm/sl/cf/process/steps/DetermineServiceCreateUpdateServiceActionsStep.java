@@ -85,6 +85,11 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         StepsUtil.setServiceToProcessName(serviceToProcess.getName(), execution.getContext());
         return StepPhase.DONE;
     }
+    
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        throw e;
+    }
 
     private List<ServiceAction> dermineActionsAndHandleExceptions(CloudControllerClient client, String spaceId,
         CloudServiceExtended service, CloudService existingService, Map<String, List<CloudServiceKey>> serviceKeys,

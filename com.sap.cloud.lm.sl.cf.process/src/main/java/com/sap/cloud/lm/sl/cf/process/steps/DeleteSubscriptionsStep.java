@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,12 @@ public class DeleteSubscriptionsStep extends SyncFlowableStep {
 
         getStepLogger().debug(Messages.DELETED_SUBSCRIPTIONS);
         return StepPhase.DONE;
+    }
+    
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_DELETING_SUBSCRIPTIONS);
+        throw e;
     }
 
     private void infoSubscriptionDeletion(ConfigurationSubscription subscription) {

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBroker;
@@ -36,6 +37,7 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
     private final String inputLocation;
     private final String[] expectedDeletedBrokers;
     private final String expectedExceptionMessage;
+    private Class<? extends Throwable> expectedExceptionClass;
 
     private CloudOperationException deleteException;
 
@@ -57,44 +59,45 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
 // @formatter:off
             // (0) One service broker  should be deleted:
             {
-                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, null, null,
+                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, null, null, null
             },
             // (1) No service brokers to delete:
             {
-                "delete-service-brokers-step-input-02.json", new String[] {}, null, null,
+                "delete-service-brokers-step-input-02.json", new String[] {}, null, null, null
             },
             // (2) Two service brokers should be deleted:
             {
-                "delete-service-brokers-step-input-03.json", new String[] { "foo-broker", "bar-broker", }, null, null,
+                "delete-service-brokers-step-input-03.json", new String[] { "foo-broker", "bar-broker", }, null, null, null
             },
             // (3) One service broker should be deleted, but it doesn't exist:
             {
-                "delete-service-brokers-step-input-04.json", new String[] {}, null, null,
+                "delete-service-brokers-step-input-04.json", new String[] {}, null, null, null
             },
             // (4) A module that provides a service broker was renamed (the service broker was updated):
             {
-                "delete-service-brokers-step-input-05.json", new String[] {}, null, null,
+                "delete-service-brokers-step-input-05.json", new String[] {}, null, null, null
             },
             // (5) One service broker  should be deleted, but an exception is thrown by the client:
             {
-                "delete-service-brokers-step-input-01.json", new String[] {}, "Controller operation failed: 418 I'm a teapot", new CloudOperationException(HttpStatus.I_AM_A_TEAPOT),
+                "delete-service-brokers-step-input-01.json", new String[] {}, "Controller operation failed: 418 I'm a teapot", CloudControllerException.class, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT),
             },
             // (6) Service broker should not be deleted and an exception should be thrown, because the user is not an admin and failsafe option is not set:
             {
-                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, "Controller operation failed: 403 Forbidden", new CloudOperationException(HttpStatus.FORBIDDEN),
+                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, "Service broker operation failed: 403 Forbidden", CloudServiceBrokerException.class, new CloudOperationException(HttpStatus.FORBIDDEN),
             },
             // (7) Service broker should not be deleted without an exception, because the user is not an admin and failsafe option is set:
             {
-                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, null, new CloudOperationException(HttpStatus.FORBIDDEN),
+                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, null, null, new CloudOperationException(HttpStatus.FORBIDDEN),
             },
 // @formatter:on
         });
     }
 
     public DeleteServiceBrokersStepTest(String inputLocation, String[] expectedDeletedBrokers, String expectedExceptionMessage,
-        CloudOperationException deleteException) {
+        Class<? extends Throwable> expectedExceptionClass, CloudOperationException deleteException) {
         this.expectedDeletedBrokers = expectedDeletedBrokers;
         this.expectedExceptionMessage = expectedExceptionMessage;
+        this.expectedExceptionClass = (expectedExceptionClass != null) ? expectedExceptionClass : CloudControllerException.class;
         this.inputLocation = inputLocation;
         this.deleteException = deleteException;
     }
@@ -121,7 +124,7 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
         boolean shouldSucceed = true;
         if (expectedExceptionMessage != null) {
             expectedException.expectMessage(expectedExceptionMessage);
-            expectedException.expect(CloudControllerException.class);
+            expectedException.expect(expectedExceptionClass);
             shouldSucceed = false;
         }
         context.setVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS, shouldSucceed);

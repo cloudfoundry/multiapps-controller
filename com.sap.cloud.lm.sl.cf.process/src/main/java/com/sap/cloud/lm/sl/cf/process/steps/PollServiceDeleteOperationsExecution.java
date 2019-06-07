@@ -55,4 +55,5 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
             .filter(Objects::nonNull)
             .anyMatch(e -> eventsGetter.isDeleteEvent(e.getType()));
     }
+
 }

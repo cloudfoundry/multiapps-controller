@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.util;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
@@ -59,10 +60,17 @@ public class FlowableExceptionEventHandler {
         FlowableEngineEvent flowableEngineEvent = (FlowableEngineEvent) event;
 
         String taskId = getCurrentTaskId(flowableEngineEvent);
-        String errorMessage = MessageFormat.format(Messages.EXCEPTION_OCCURED_ERROR_MSG, flowableExceptionMessage);
+        String errorMessage = MessageFormat.format(Messages.PROCESS_FAILED, flowableExceptionMessage);
         String processInstanceId = getProcessInstanceId(flowableEngineEvent);
-        progressMessageService.add(new ProgressMessage(processInstanceId, taskId, ProgressMessageType.ERROR, errorMessage,
-            new Timestamp(System.currentTimeMillis())));
+        List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(processInstanceId);
+        Optional<ProgressMessage> errorProgressMessage = progressMessages.stream()
+            .filter(message -> message.getType() == ProgressMessageType.ERROR)
+            .findAny();
+
+        if (!errorProgressMessage.isPresent()) {
+            progressMessageService.add(new ProgressMessage(processInstanceId, taskId, ProgressMessageType.ERROR, errorMessage,
+                new Timestamp(System.currentTimeMillis())));
+        }
     }
 
     private String getCurrentTaskId(FlowableEngineEvent flowableEngineEvent) {

@@ -3,8 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.function.Supplier;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +11,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class PollExecuteTaskStatusExecution implements AsyncExecution {
 
@@ -30,20 +27,16 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) {
+        return new PollExecuteTaskStatusDelegate(execution).execute();
+    }
+
+    @Override
+    public void onPollingError(ExecutionWrapper execution, Exception e) throws Exception {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
         CloudTask task = StepsUtil.getStartedTask(execution.getContext());
-        try {
-            return new PollExecuteTaskStatusDelegate(execution).execute();
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            execution.getStepLogger()
-                .error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
-            throw e;
-        } catch (SLException e) {
-            execution.getStepLogger()
-                .error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
-            throw e;
-        }
+        execution.getStepLogger()
+            .error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
+        throw e;
     }
 
     public class PollExecuteTaskStatusDelegate {
@@ -106,5 +99,4 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         }
 
     }
-
 }

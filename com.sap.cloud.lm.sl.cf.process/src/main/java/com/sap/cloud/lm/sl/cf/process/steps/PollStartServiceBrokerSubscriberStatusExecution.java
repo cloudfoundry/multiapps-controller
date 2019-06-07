@@ -1,9 +1,12 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import static java.text.MessageFormat.format;
+
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 public class PollStartServiceBrokerSubscriberStatusExecution extends PollStartAppStatusExecution {
 
@@ -12,9 +15,11 @@ public class PollStartServiceBrokerSubscriberStatusExecution extends PollStartAp
     }
 
     @Override
-    protected void onError(ExecutionWrapper execution, String message, Exception e) {
+    public void onPollingError(ExecutionWrapper execution, Exception e) throws Exception {
+        String appToPoll = getAppToPoll(execution.getContext()).getName();
         execution.getStepLogger()
-            .warn(e, message);
+            .warn(e, format(Messages.ERROR_STARTING_APP_1, appToPoll));
+        throw e;
     }
 
     @Override

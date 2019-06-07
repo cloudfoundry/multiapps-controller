@@ -9,6 +9,7 @@ import java.util.Objects;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.junit.Before;
 import org.junit.Rule;
@@ -104,7 +105,7 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
             },
             // (12) Create/update calls for should fail, because both create and update throw an exception and failsafe option is not set: 
             {
-                "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", null, "Controller operation failed: 403 Forbidden", CloudControllerException.class, new CloudOperationException(HttpStatus.FORBIDDEN), new CloudOperationException(HttpStatus.FORBIDDEN),
+                "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", null, "Service broker operation failed: 403 Forbidden", CloudServiceBrokerException.class, new CloudOperationException(HttpStatus.FORBIDDEN), new CloudOperationException(HttpStatus.FORBIDDEN),
             },
             // (13) Update call for broker should be made, although both create and update throw an exception but failsafe option is set: 
             {

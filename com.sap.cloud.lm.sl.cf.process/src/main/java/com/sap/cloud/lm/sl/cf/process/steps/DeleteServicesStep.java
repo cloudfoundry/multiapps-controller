@@ -22,6 +22,7 @@ import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -47,39 +48,40 @@ public class DeleteServicesStep extends AsyncFlowableStep {
 
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws Exception {
-        try {
-            getStepLogger().debug(Messages.DELETING_SERVICES);
+        getStepLogger().debug(Messages.DELETING_SERVICES);
 
-            CloudControllerClient client = execution.getControllerClient();
+        CloudControllerClient client = execution.getControllerClient();
 
-            List<String> servicesToDelete = new ArrayList<>(StepsUtil.getServicesToDelete(execution.getContext()));
+        List<String> servicesToDelete = new ArrayList<>(StepsUtil.getServicesToDelete(execution.getContext()));
 
-            if (servicesToDelete.isEmpty()) {
-                getStepLogger().debug(Messages.MISSING_SERVICES_TO_DELETE);
-                return StepPhase.DONE;
-            }
-
-            Map<String, CloudServiceExtended> servicesData = getServicesData(servicesToDelete, execution);
-            List<String> servicesWithoutData = getServicesWithoutData(servicesToDelete, servicesData);
-            if (!servicesWithoutData.isEmpty()) {
-                execution.getStepLogger()
-                    .info(Messages.SERVICES_ARE_ALREADY_DELETED, servicesWithoutData);
-                servicesToDelete.removeAll(servicesWithoutData);
-            }
-            StepsUtil.setServicesData(execution.getContext(), servicesData);
-
-            Map<String, ServiceOperationType> triggeredServiceOperations = deleteServices(client, servicesToDelete);
-
-            execution.getStepLogger()
-                .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
-            StepsUtil.setTriggeredServiceOperations(execution.getContext(), triggeredServiceOperations);
-
-            getStepLogger().debug(Messages.SERVICES_DELETED);
-            return StepPhase.POLL;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_DELETING_SERVICES);
-            throw e;
+        if (servicesToDelete.isEmpty()) {
+            getStepLogger().debug(Messages.MISSING_SERVICES_TO_DELETE);
+            return StepPhase.DONE;
         }
+
+        Map<String, CloudServiceExtended> servicesData = getServicesData(servicesToDelete, execution);
+        List<String> servicesWithoutData = getServicesWithoutData(servicesToDelete, servicesData);
+        if (!servicesWithoutData.isEmpty()) {
+            execution.getStepLogger()
+                .info(Messages.SERVICES_ARE_ALREADY_DELETED, servicesWithoutData);
+            servicesToDelete.removeAll(servicesWithoutData);
+        }
+        StepsUtil.setServicesData(execution.getContext(), servicesData);
+
+        Map<String, ServiceOperationType> triggeredServiceOperations = deleteServices(client, servicesToDelete);
+
+        execution.getStepLogger()
+            .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
+        StepsUtil.setTriggeredServiceOperations(execution.getContext(), triggeredServiceOperations);
+
+        getStepLogger().debug(Messages.SERVICES_DELETED);
+        return StepPhase.POLL;
+    }
+
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_DELETING_SERVICES);
+        throw e;
     }
 
     private Map<String, CloudServiceExtended> getServicesData(List<String> serviceNames, ExecutionWrapper execution) {

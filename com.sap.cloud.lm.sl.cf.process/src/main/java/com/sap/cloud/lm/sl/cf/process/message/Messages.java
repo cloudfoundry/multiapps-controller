@@ -80,7 +80,11 @@ public class Messages {
     public static final String ERROR_BUILDING_CLOUD_UNDEPLOY_MODEL = "Error building cloud undeployment model";
     public static final String ERROR_DELETING_UNUSED_RESERVED_ROUTES = "Error deleting unused reserved routes";
     public static final String ERROR_ADDING_DOMAINS = "Error adding domains";
+    public static final String ERROR_COMPUTING_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Error computing modules for next parallel iteration";
+    public static final String ERROR_CREATING_SERVICES = "Error creating services";
     public static final String ERROR_DELETING_SERVICES = "Error deleting services";
+    public static final String ERROR_DELETING_SUBSCRIPTIONS = "Error deleting discontinued subscriptions";
+    public static final String ERROR_UNDEPLOYING_APPS = "Error undeploying applications";
     public static final String ERROR_BUILDING_CLOUD_APP_MODEL = "Error building cloud application deploy model";
     public static final String ERROR_CREATING_OR_UPDATING_APP = "Error creating or updating application \"{0}\"";
     public static final String ERROR_UPLOADING_APP = "Error uploading application \"{0}\"";
@@ -241,7 +245,7 @@ public class Messages {
     public static final String APPLICATION_UNCHANGED = "Application \"{0}\" is not modified and will not be updated";
     public static final String WILL_NOT_REBIND_APP_TO_SERVICE = "Service \"{0}\" will not be rebound to application \"{1}\" because the binding parameters are not modified";
     public static final String SERVICE_BROKER_DOES_NOT_EXIST = "Service broker with name \"{0}\" does not exist";
-    public static final String EXCEPTION_OCCURED_ERROR_MSG = "Exception occured during execution: \"{0}\"";
+    public static final String PROCESS_FAILED = "Process failed: \"{0}\"";
     public static final String EXECUTING_HOOK_0 = "Executing hook \"{0}\"";
 
     // DEBUG log messages

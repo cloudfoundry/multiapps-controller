@@ -1,12 +1,9 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.LinkedList;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -37,21 +34,6 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
     @Override
     public StepPhase executeAsyncStep(ExecutionWrapper execution) {
         CloudApplication app = getAppToRestart(execution.getContext());
-        try {
-            restartApp(execution, app);
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            onError(format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
-            throw e;
-        }
-        return StepPhase.POLL;
-    }
-
-    protected CloudApplication getAppToRestart(DelegateExecution context) {
-        return StepsUtil.getApp(context);
-    }
-
-    private void restartApp(ExecutionWrapper execution, CloudApplication app) {
         CloudControllerClient client = execution.getControllerClient();
 
         if (isStarted(client, app.getName())) {
@@ -59,6 +41,17 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
         }
         StartingInfo startingInfo = startApp(client, app);
         setStartupPollingInfo(execution.getContext(), startingInfo);
+        return StepPhase.POLL;
+    }
+    
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_STARTING_APP_1, getAppToRestart(context).getName());
+        throw e;
+    }
+
+    protected CloudApplication getAppToRestart(DelegateExecution context) {
+        return StepsUtil.getApp(context);
     }
 
     private void setStartupPollingInfo(DelegateExecution context, StartingInfo startingInfo) {
@@ -94,10 +87,6 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
     private StartingInfo startApp(CloudControllerClient client, CloudApplication app) {
         getStepLogger().info(Messages.STARTING_APP, app.getName());
         return client.startApplication(app.getName());
-    }
-
-    protected void onError(String message, Exception e) {
-        getStepLogger().error(e, message);
     }
 
     @Override

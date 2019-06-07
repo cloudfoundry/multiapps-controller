@@ -19,7 +19,6 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -38,39 +37,40 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         DelegateExecution context = execution.getContext();
-        try {
-            getStepLogger().debug(Messages.RESOLVING_DESCRIPTOR_PROPERTIES);
+        getStepLogger().debug(Messages.RESOLVING_DESCRIPTOR_PROPERTIES);
 
-            DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
-            MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(context);
+        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(context);
 
-            descriptor = resolver.resolve(descriptor);
+        descriptor = resolver.resolve(descriptor);
 
-            List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
-            getStepLogger().debug(Messages.SUBSCRIPTIONS, secureSerializer.toJson(subscriptions));
-            StepsUtil.setSubscriptionsToCreate(context, subscriptions);
+        List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
+        getStepLogger().debug(Messages.SUBSCRIPTIONS, secureSerializer.toJson(subscriptions));
+        StepsUtil.setSubscriptionsToCreate(context, subscriptions);
 
-            StepsUtil.setCompleteDeploymentDescriptor(context, descriptor);
-            // Set MTA modules in the context
-            List<String> modulesForDeployment = StepsUtil.getModulesForDeployment(context);
-            List<String> invalidModulesSpecifiedForDeployment = findInvalidModulesSpecifiedForDeployment(descriptor, modulesForDeployment);
-            if (!invalidModulesSpecifiedForDeployment.isEmpty()) {
-                throw new IllegalStateException(
-                    MessageFormat.format(Messages.MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES,
-                        StringUtils.join(invalidModulesSpecifiedForDeployment, ", ")));
-            }
-            Set<String> mtaModules = getModuleNames(descriptor, modulesForDeployment);
-            getStepLogger().debug("MTA Modules: {0}", mtaModules);
-            StepsUtil.setMtaModules(context, mtaModules);
-
-            getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(descriptor));
-            getStepLogger().debug(Messages.DESCRIPTOR_PROPERTIES_RESOVED);
-
-            return StepPhase.DONE;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_RESOLVING_DESCRIPTOR_PROPERTIES);
-            throw e;
+        StepsUtil.setCompleteDeploymentDescriptor(context, descriptor);
+        // Set MTA modules in the context
+        List<String> modulesForDeployment = StepsUtil.getModulesForDeployment(context);
+        List<String> invalidModulesSpecifiedForDeployment = findInvalidModulesSpecifiedForDeployment(descriptor, modulesForDeployment);
+        if (!invalidModulesSpecifiedForDeployment.isEmpty()) {
+            throw new IllegalStateException(
+                MessageFormat.format(Messages.MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES,
+                    StringUtils.join(invalidModulesSpecifiedForDeployment, ", ")));
         }
+        Set<String> mtaModules = getModuleNames(descriptor, modulesForDeployment);
+        getStepLogger().debug("MTA Modules: {0}", mtaModules);
+        StepsUtil.setMtaModules(context, mtaModules);
+
+        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(descriptor));
+        getStepLogger().debug(Messages.DESCRIPTOR_PROPERTIES_RESOVED);
+
+        return StepPhase.DONE;
+    }
+
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_RESOLVING_DESCRIPTOR_PROPERTIES);
+        throw e;
     }
 
     protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(DelegateExecution context) {

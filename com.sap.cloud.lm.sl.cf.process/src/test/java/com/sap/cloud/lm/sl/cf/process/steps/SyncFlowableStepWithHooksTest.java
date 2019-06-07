@@ -249,6 +249,7 @@ public class SyncFlowableStepWithHooksTest {
         protected String getModuleName(CloudApplicationExtended cloudApplication) {
             return moduleName;
         }
+
     }
 
     public static class ModuleHooksAgregatorTest {

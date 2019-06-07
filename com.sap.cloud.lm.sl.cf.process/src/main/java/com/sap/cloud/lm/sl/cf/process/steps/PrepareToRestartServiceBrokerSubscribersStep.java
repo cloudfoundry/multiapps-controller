@@ -24,5 +24,10 @@ public class PrepareToRestartServiceBrokerSubscribersStep extends SyncFlowableSt
         context.setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
         return StepPhase.DONE;
     }
+    
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        throw e;
+    }
 
 }

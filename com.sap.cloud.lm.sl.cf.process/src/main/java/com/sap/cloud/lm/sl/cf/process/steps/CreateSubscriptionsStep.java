@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -13,7 +14,6 @@ import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("createSubscriptionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -24,22 +24,23 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        try {
-            getStepLogger().debug(Messages.CREATING_SUBSCRIPTIONS);
+        getStepLogger().debug(Messages.CREATING_SUBSCRIPTIONS);
 
-            List<ConfigurationSubscription> subscriptions = StepsUtil.getSubscriptionsToCreate(execution.getContext());
+        List<ConfigurationSubscription> subscriptions = StepsUtil.getSubscriptionsToCreate(execution.getContext());
 
-            for (ConfigurationSubscription subscription : subscriptions) {
-                createSubscription(subscription);
-                getStepLogger().debug(Messages.CREATED_SUBSCRIPTION, subscription.getId());
-            }
-
-            getStepLogger().debug(Messages.SUBSCRIPTIONS_CREATED);
-            return StepPhase.DONE;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_CREATING_SUBSCRIPTIONS);
-            throw e;
+        for (ConfigurationSubscription subscription : subscriptions) {
+            createSubscription(subscription);
+            getStepLogger().debug(Messages.CREATED_SUBSCRIPTION, subscription.getId());
         }
+
+        getStepLogger().debug(Messages.SUBSCRIPTIONS_CREATED);
+        return StepPhase.DONE;
+    }
+
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_CREATING_SUBSCRIPTIONS);
+        throw e;
     }
 
     private ConfigurationSubscription detectSubscription(String mtaId, String applicationName, String spaceId, String resourceName) {
@@ -69,7 +70,7 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
         }
         dao.add(subscription);
     }
-    
+
     private void infoSubscriptionCreation(ConfigurationSubscription subscription) {
         if (subscription.getModuleDto() != null && subscription.getResourceDto() != null) {
             getStepLogger().info(MessageFormat.format(Messages.CREATING_SUBSCRIPTION_FROM_0_MODULE_TO_1_RESOURCE,
