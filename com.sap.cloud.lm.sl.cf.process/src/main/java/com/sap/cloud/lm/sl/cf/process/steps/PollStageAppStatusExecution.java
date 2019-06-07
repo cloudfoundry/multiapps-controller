@@ -5,8 +5,6 @@ import static java.text.MessageFormat.format;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.PackageState;
 import org.slf4j.Logger;
@@ -20,7 +18,6 @@ import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
 import com.sap.cloud.lm.sl.cf.process.util.StagingState;
 import com.sap.cloud.lm.sl.cf.process.util.StagingState.StagingLogs;
 import com.sap.cloud.lm.sl.cf.process.util.XMLValueFilter;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class PollStageAppStatusExecution implements AsyncExecution {
 
@@ -40,43 +37,40 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         CloudApplication app = StepsUtil.getApp(execution.getContext());
         CloudControllerClient client = execution.getControllerClient();
 
-        try {
-            execution.getStepLogger()
-                .debug(Messages.CHECKING_APP_STATUS, app.getName());
+        execution.getStepLogger()
+            .debug(Messages.CHECKING_APP_STATUS, app.getName());
 
-            StagingState state = applicationStager.getStagingState(execution, client);
+        StagingState state = applicationStager.getStagingState(execution, client);
 
-            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
-                .getProcessLoggerProvider();
-            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
+        ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
+            .getProcessLoggerProvider();
+        StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
 
-            if (!state.getState()
-                .equals(PackageState.STAGED)) {
-                setStagingLogs(state, execution);
+        if (!state.getState()
+            .equals(PackageState.STAGED)) {
+            setStagingLogs(state, execution);
 
-                return checkStagingState(execution, app, state);
-            }
-
-            execution.getStepLogger()
-                .info(Messages.APP_STAGED, app.getName());
-
-            UUID appId = client.getApplication(app.getName())
-                .getMetadata()
-                .getGuid();
-
-            applicationStager.bindDropletToApp(execution, appId, client);
-
-            return AsyncExecutionState.FINISHED;
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            execution.getStepLogger()
-                .error(e, Messages.ERROR_STAGING_APP_1, app.getName());
-            throw e;
-        } catch (SLException e) {
-            execution.getStepLogger()
-                .error(e, Messages.ERROR_STAGING_APP_1, app.getName());
-            throw e;
+            return checkStagingState(execution, app, state);
         }
+
+        execution.getStepLogger()
+            .info(Messages.APP_STAGED, app.getName());
+
+        UUID appId = client.getApplication(app.getName())
+            .getMetadata()
+            .getGuid();
+
+        applicationStager.bindDropletToApp(execution, appId, client);
+
+        return AsyncExecutionState.FINISHED;
+    }
+
+    @Override
+    public void onPollingError(ExecutionWrapper execution, Exception e) throws Exception {
+        CloudApplication app = StepsUtil.getApp(execution.getContext());
+        execution.getStepLogger()
+            .error(e, Messages.ERROR_STAGING_APP_1, app.getName());
+        throw e;
     }
 
     private AsyncExecutionState checkStagingState(ExecutionWrapper execution, CloudApplication app, StagingState state) {

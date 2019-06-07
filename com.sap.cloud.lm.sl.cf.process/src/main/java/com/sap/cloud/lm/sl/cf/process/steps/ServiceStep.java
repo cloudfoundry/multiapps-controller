@@ -47,6 +47,11 @@ public abstract class ServiceStep extends AsyncFlowableStep {
         StepsUtil.isServiceUpdated(true, execution.getContext());
         return StepPhase.POLL;
     }
+    
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        throw e;
+    }
 
     private MethodExecution<String> executeOperationAndHandleExceptions(DelegateExecution execution, CloudControllerClient controllerClient,
                                                 CloudServiceExtended service) {
@@ -59,7 +64,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     }
 
     protected abstract MethodExecution<String> executeOperation(DelegateExecution context, CloudControllerClient controllerClient,
-        CloudServiceExtended service);
+        CloudServiceExtended service) throws Exception;
     
     protected abstract ServiceOperationType getOperationType();
     

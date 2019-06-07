@@ -4,8 +4,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("determineDesiredStateAchievingActionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -37,22 +34,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
     protected ApplicationConfiguration configuration;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper context) {
-        CloudApplication app = StepsUtil.getApp(context.getContext());
-
-        try {
-            return attemptToExecuteStep(context);
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP, app.getName());
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP, app.getName());
-            throw e;
-        }
-    }
-
-    private StepPhase attemptToExecuteStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         String appName = StepsUtil.getApp(execution.getContext())
             .getName();
         CloudControllerClient client = execution.getControllerClient();
@@ -68,6 +50,13 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
 
         StepsUtil.setAppStateActionsToExecute(execution.getContext(), actionsToExecute);
         return StepPhase.DONE;
+    }
+
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP, StepsUtil.getApp(context)
+            .getName());
+        throw e;
     }
 
     private ApplicationStartupState computeCurrentState(CloudApplication app) {
@@ -87,8 +76,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
     }
 
     private boolean determineAppRestart(DelegateExecution context) {
-        String appContentChangedString = StepsUtil.getString(context, Constants.VAR_APP_CONTENT_CHANGED,
-            Boolean.toString(false));
+        String appContentChangedString = StepsUtil.getString(context, Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(false));
         if (Boolean.valueOf(appContentChangedString)) {
             return true;
         }

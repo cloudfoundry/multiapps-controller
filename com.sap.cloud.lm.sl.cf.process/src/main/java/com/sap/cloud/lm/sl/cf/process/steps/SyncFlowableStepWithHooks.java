@@ -42,6 +42,11 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
         return currentStepPhase;
     }
+    
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        throw e;
+    }
 
     private List<Hook> executeHooksForStepPhase(DelegateExecution context, Module moduleToDeploy, StepPhase currentStepPhase) {
         HookPhase currentHookPhaseForExecution = determineHookPhaseForCurrentStepPhase(context, currentStepPhase);

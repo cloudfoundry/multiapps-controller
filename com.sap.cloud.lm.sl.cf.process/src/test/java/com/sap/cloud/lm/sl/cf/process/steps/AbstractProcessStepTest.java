@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
+import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,6 +67,11 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
         @Override
         protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
             throw exceptionSupplier.get();
+        }
+
+        @Override
+        protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+            throw e;
         }
 
     }

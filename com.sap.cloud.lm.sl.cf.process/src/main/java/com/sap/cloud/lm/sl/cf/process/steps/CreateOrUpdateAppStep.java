@@ -18,7 +18,6 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -70,31 +69,29 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) throws FileStorageException {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
-        try {
-            CloudControllerClient client = execution.getControllerClient();
-            CloudApplication existingApp = client.getApplication(app.getName(), false);
-            StepsUtil.setExistingApp(execution.getContext(), existingApp);
+        CloudControllerClient client = execution.getControllerClient();
+        CloudApplication existingApp = client.getApplication(app.getName(), false);
+        StepsUtil.setExistingApp(execution.getContext(), existingApp);
 
-            StepFlowHandler flowHandler = createStepFlowHandler(execution, client, app, existingApp);
+        StepFlowHandler flowHandler = createStepFlowHandler(execution, client, app, existingApp);
 
-            flowHandler.printStepStartMessage();
+        flowHandler.printStepStartMessage();
 
-            flowHandler.handleApplicationAttributes();
-            flowHandler.injectServiceKeysCredentialsInAppEnv();
-            flowHandler.handleApplicationServices();
-            flowHandler.handleApplicationEnv();
+        flowHandler.handleApplicationAttributes();
+        flowHandler.injectServiceKeysCredentialsInAppEnv();
+        flowHandler.handleApplicationServices();
+        flowHandler.handleApplicationEnv();
 
-            flowHandler.printStepEndMessage();
+        flowHandler.printStepEndMessage();
 
-            return StepPhase.DONE;
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_CREATING_OR_UPDATING_APP, app.getName());
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_CREATING_OR_UPDATING_APP, app.getName());
-            throw e;
-        }
+        return StepPhase.DONE;
+    }
+
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_CREATING_OR_UPDATING_APP, StepsUtil.getApp(context)
+            .getName());
+        throw e;
     }
 
     private StepFlowHandler createStepFlowHandler(ExecutionWrapper execution, CloudControllerClient client, CloudApplicationExtended app,

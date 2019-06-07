@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -55,6 +56,11 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
 
         getStepLogger().debug(Messages.PUBLISHED_DEPENDENCIES_DELETED);
         return StepPhase.DONE;
+    }
+    
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        throw e;
     }
 
     private List<ConfigurationEntry> getEntriesToDelete(String mtaId, CloudTarget target, List<ConfigurationEntry> publishedEntries) {

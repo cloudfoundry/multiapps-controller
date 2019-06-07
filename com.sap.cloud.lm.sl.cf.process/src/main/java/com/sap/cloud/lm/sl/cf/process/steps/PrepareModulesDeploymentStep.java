@@ -56,6 +56,11 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
         return StepPhase.DONE;
     }
 
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        throw e;
+    }
+
     protected List<Module> getModulesToDeploy(DelegateExecution context) {
         return StepsUtil.getAllModulesToDeploy(context);
     }

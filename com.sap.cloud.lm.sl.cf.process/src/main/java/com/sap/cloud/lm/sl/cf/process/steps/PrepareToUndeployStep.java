@@ -7,8 +7,6 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -20,7 +18,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("prepareToUndeployStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -35,33 +32,30 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.DETECTING_COMPONENTS_TO_UNDEPLOY);
-        try {
-            String mtaId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_MTA_ID);
+        String mtaId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_MTA_ID);
 
-            StepsUtil.setMtaModules(execution.getContext(), getMtaModules(execution.getContext()));
-            StepsUtil.setPublishedEntries(execution.getContext(), Collections.emptyList());
-            StepsUtil.setModulesToDeploy(execution.getContext(), Collections.emptyList());
-            StepsUtil.setAppsToDeploy(execution.getContext(), Collections.emptyList());
-            StepsUtil.setAllModulesToDeploy(execution.getContext(), Collections.emptyList());
-            StepsUtil.setSubscriptionsToCreate(execution.getContext(), Collections.emptyList());
-            execution.getContext()
-                .setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 2);
+        StepsUtil.setMtaModules(execution.getContext(), getMtaModules(execution.getContext()));
+        StepsUtil.setPublishedEntries(execution.getContext(), Collections.emptyList());
+        StepsUtil.setModulesToDeploy(execution.getContext(), Collections.emptyList());
+        StepsUtil.setAppsToDeploy(execution.getContext(), Collections.emptyList());
+        StepsUtil.setAllModulesToDeploy(execution.getContext(), Collections.emptyList());
+        StepsUtil.setSubscriptionsToCreate(execution.getContext(), Collections.emptyList());
+        execution.getContext()
+            .setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 2);
 
-            conflictPreventerSupplier.apply(operationDao)
-                .acquireLock(mtaId, StepsUtil.getSpaceId(execution.getContext()), execution.getContext()
-                    .getProcessInstanceId());
+        conflictPreventerSupplier.apply(operationDao)
+            .acquireLock(mtaId, StepsUtil.getSpaceId(execution.getContext()), execution.getContext()
+                .getProcessInstanceId());
 
-            getStepLogger().debug(Messages.COMPONENTS_TO_UNDEPLOY_DETECTED);
+        getStepLogger().debug(Messages.COMPONENTS_TO_UNDEPLOY_DETECTED);
 
-            return StepPhase.DONE;
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY);
-            throw e;
-        } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY);
-            throw e;
-        }
+        return StepPhase.DONE;
+    }
+
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY);
+        throw e;
     }
 
     private Set<String> getMtaModules(DelegateExecution context) {

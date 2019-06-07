@@ -21,11 +21,26 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
         return executeAsyncStep(execution);
     }
 
+    @Override
+    protected void onError(ExecutionWrapper execution, Exception e) throws Exception {
+        StepPhase stepPhase = StepsUtil.getStepPhase(execution.getContext());
+        if (stepPhase == StepPhase.POLL) {
+            onPollingError(execution, e);
+        } else {
+            onStepError(execution.getContext(), e);
+        }
+    }
+
     private StepPhase executeStepExecution(ExecutionWrapper execution) throws Exception {
         List<AsyncExecution> stepExecutions = getAsyncStepExecutions(execution);
 
         AsyncExecutionState stepExecutionStatus = getStepExecution(execution, stepExecutions).execute(execution);
         return handleStepExecutionStatus(execution, stepExecutionStatus, stepExecutions);
+    }
+
+    private void onPollingError(ExecutionWrapper execution, Exception e) throws Exception {
+        List<AsyncExecution> stepExecutions = getAsyncStepExecutions(execution);
+        getStepExecution(execution, stepExecutions).onPollingError(execution, e);
     }
 
     private AsyncExecution getStepExecution(ExecutionWrapper execution, List<AsyncExecution> stepOperations) {

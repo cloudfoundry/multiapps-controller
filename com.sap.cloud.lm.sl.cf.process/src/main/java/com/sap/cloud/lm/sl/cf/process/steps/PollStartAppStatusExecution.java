@@ -43,32 +43,26 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         String appToPoll = getAppToPoll(execution.getContext()).getName();
         CloudControllerClient client = execution.getControllerClient();
 
-        try {
-            execution.getStepLogger()
-                .debug(Messages.CHECKING_APP_STATUS, appToPoll);
+        execution.getStepLogger()
+            .debug(Messages.CHECKING_APP_STATUS, appToPoll);
 
-            // We're using the app object returned by the controller, because it includes the router port in its URIs, while the app model
-            // we've built doesn't.
-            CloudApplication app = client.getApplication(appToPoll);
-            List<InstanceInfo> appInstances = getApplicationInstances(client, app);
-            StartupStatus status = getStartupStatus(execution, app, appInstances);
-            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
-                .getProcessLoggerProvider();
-            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
-            return checkStartupStatus(execution, app, status);
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            onError(execution, format(Messages.ERROR_STARTING_APP_1, appToPoll), e);
-            throw e;
-        } catch (SLException e) {
-            onError(execution, format(Messages.ERROR_STARTING_APP_1, appToPoll), e);
-            throw e;
-        }
+        // We're using the app object returned by the controller, because it includes the router port in its URIs, while the app model
+        // we've built doesn't.
+        CloudApplication app = client.getApplication(appToPoll);
+        List<InstanceInfo> appInstances = getApplicationInstances(client, app);
+        StartupStatus status = getStartupStatus(execution, app, appInstances);
+        ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
+            .getProcessLoggerProvider();
+        StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
+        return checkStartupStatus(execution, app, status);
     }
 
-    protected void onError(ExecutionWrapper execution, String message, Exception e) {
+    @Override
+    public void onPollingError(ExecutionWrapper execution, Exception e) throws Exception {
+        String appToPoll = getAppToPoll(execution.getContext()).getName();
         execution.getStepLogger()
-            .error(e, message);
+            .error(e, format(Messages.ERROR_STARTING_APP_1, appToPoll));
+        throw e;
     }
 
     protected void onError(ExecutionWrapper execution, String message) {
@@ -185,5 +179,4 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         }
         return count;
     }
-
 }

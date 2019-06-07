@@ -21,7 +21,6 @@ import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("createServiceStep")
 public class CreateServiceStep extends ServiceStep {
@@ -31,11 +30,12 @@ public class CreateServiceStep extends ServiceStep {
 
     @Override
     protected MethodExecution<String> executeOperation(DelegateExecution execution, CloudControllerClient controllerClient,
-        CloudServiceExtended service) {
+        CloudServiceExtended service) throws FileStorageException {
         return createService(execution, controllerClient, service);
     }
 
-    private MethodExecution<String> createService(DelegateExecution context, CloudControllerClient client, CloudServiceExtended service) {
+    private MethodExecution<String> createService(DelegateExecution context, CloudControllerClient client, CloudServiceExtended service)
+        throws FileStorageException {
         getStepLogger().info(Messages.CREATING_SERVICE_FROM_MTA_RESOURCE, service.getName(), service.getResourceName());
 
         try {
@@ -44,8 +44,6 @@ public class CreateServiceStep extends ServiceStep {
             return createServiceMethodExecution;
         } catch (CloudOperationException e) {
             processServiceCreationFailure(service, e);
-        } catch (FileStorageException e) {
-            throw new SLException(e, e.getMessage());
         }
 
         return new MethodExecution<>(null, ExecutionState.FINISHED);
@@ -70,6 +68,7 @@ public class CreateServiceStep extends ServiceStep {
         if (!service.isOptional()) {
             String detailedDescription = MessageFormat.format(Messages.ERROR_CREATING_SERVICE, service.getName(), service.getLabel(),
                 service.getPlan(), e.getDescription());
+//            getStepLogger().error(e, detailedDescription);
             if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
                 throw new CloudServiceBrokerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
             }

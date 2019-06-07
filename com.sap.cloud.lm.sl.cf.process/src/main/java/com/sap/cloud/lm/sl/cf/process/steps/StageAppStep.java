@@ -5,8 +5,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -28,14 +26,15 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
         CloudApplication app = StepsUtil.getApp(execution.getContext());
-        try {
-            ApplicationStager applicationStager = new ApplicationStager();
-            return applicationStager.stageApp(execution.getContext(), execution.getControllerClient(), app, getStepLogger());
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
-            throw e;
-        }
+        ApplicationStager applicationStager = new ApplicationStager();
+        return applicationStager.stageApp(execution.getContext(), execution.getControllerClient(), app, getStepLogger());
+    }
+
+    @Override
+    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+        getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, StepsUtil.getApp(context)
+            .getName());
+        throw e;
     }
 
     @Override
