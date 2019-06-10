@@ -28,6 +28,8 @@
 
         <bean id="applicationRoutesGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter" />
 
+        <bean id="updateAppStep" class="com.sap.cloud.lm.sl.cf.process.steps.UpdateAppStep" scope="prototype" />
+
         <bean id="serviceBrokerCreator" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokerCreator" />
 
         <bean id="serviceBrokersGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokersGetter" />
