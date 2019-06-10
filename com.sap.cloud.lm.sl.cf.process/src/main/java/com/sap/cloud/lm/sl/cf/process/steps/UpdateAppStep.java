@@ -16,9 +16,6 @@ import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
@@ -28,8 +25,6 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
-@Component("updateAppStep")
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UpdateAppStep extends CreateAppStep {
 
     @Override
@@ -151,7 +146,7 @@ public class UpdateAppStep extends CreateAppStep {
         return hasUnbindedService;
     }
 
-    private void unbindService(String appName, String serviceName, CloudControllerClient client) {
+    protected void unbindService(String appName, String serviceName, CloudControllerClient client) {
         getStepLogger().debug(Messages.UNBINDING_APP_FROM_SERVICE, appName, serviceName);
         client.unbindService(appName, serviceName);
     }
@@ -168,7 +163,7 @@ public class UpdateAppStep extends CreateAppStep {
         return updatedServices;
     }
 
-    private boolean updateServices(CloudApplicationExtended app, CloudApplication existingApp,
+    protected boolean updateServices(CloudApplicationExtended app, CloudApplication existingApp,
         Map<String, Map<String, Object>> bindingParameters, CloudControllerClient client, ExecutionWrapper execution,
         Set<String> updatedServices, List<String> services) {
         boolean hasUpdatedService = false;
@@ -231,7 +226,7 @@ public class UpdateAppStep extends CreateAppStep {
             || (healthCheckType != null && !healthCheckType.equals(existingStaging.getHealthCheckType()))
             || (healthCheckHttpEndpoint != null && !healthCheckHttpEndpoint.equals(existingStaging.getHealthCheckHttpEndpoint()))
             || (sshEnabled != null && !sshEnabled.equals(existingStaging.isSshEnabled())
-                || isDockerInfoModified(existingStaging.getDockerInfo(), staging.getDockerInfo()));
+            || isDockerInfoModified(existingStaging.getDockerInfo(), staging.getDockerInfo()));
     }
 
     private boolean isDockerInfoModified(DockerInfo existingDockerInfo, DockerInfo newDockerInfo) {
