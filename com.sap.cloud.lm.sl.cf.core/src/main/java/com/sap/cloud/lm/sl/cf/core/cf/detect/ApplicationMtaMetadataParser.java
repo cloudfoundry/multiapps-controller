@@ -16,7 +16,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
+import com.sap.cloud.lm.sl.cf.core.model.MtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaResource;
 import com.sap.cloud.lm.sl.common.ParsingException;
@@ -40,7 +40,7 @@ public class ApplicationMtaMetadataParser {
 
     private static ApplicationMtaMetadata attemptToParseAppMetadata(CloudApplication app) {
         Map<String, String> appEnv = app.getEnv();
-        DeployedMtaMetadata mtaMetadata = parseMtaMetadata(app, appEnv);
+        MtaMetadata mtaMetadata = parseMtaMetadata(app, appEnv);
         List<String> serviceNames = parseServices(appEnv);
         String moduleName = parseModuleName(app, appEnv);
         List<String> providedDependencyNames = parseProvidedDependencyNames(app.getName(), appEnv);
@@ -67,7 +67,7 @@ public class ApplicationMtaMetadataParser {
         return ApplicationMtaMetadata.builder().withMtaMetadata(mtaMetadata).withModule(module).build();
     }
 
-    private static DeployedMtaMetadata parseMtaMetadata(CloudApplication app, Map<String, String> appEnv) {
+    private static MtaMetadata parseMtaMetadata(CloudApplication app, Map<String, String> appEnv) {
         String envValue = appEnv.get(Constants.ENV_MTA_METADATA);
         if (envValue == null) {
             return null;
@@ -76,12 +76,12 @@ public class ApplicationMtaMetadataParser {
         return buildMtaMetadata(app, mtaMetadata);
     }
 
-    private static DeployedMtaMetadata buildMtaMetadata(CloudApplication app, Map<String, Object> mtaMetadata) {
+    private static MtaMetadata buildMtaMetadata(CloudApplication app, Map<String, Object> mtaMetadata) {
         String exceptionMessage = MessageFormat.format(Messages.ENV_OF_APP_0_CONTAINS_INVALID_VALUE_FOR_1, app.getName(),
                                                        Constants.ENV_MTA_METADATA);
         String id = (String) getRequired(mtaMetadata, Constants.ATTR_ID, exceptionMessage);
         String version = (String) getRequired(mtaMetadata, Constants.ATTR_VERSION, exceptionMessage);
-        return new DeployedMtaMetadata(id, Version.parseVersion(version));
+        return new MtaMetadata(id, Version.parseVersion(version));
     }
 
     private static List<String> parseServices(Map<String, String> appEnv) {

@@ -2,27 +2,24 @@ package com.sap.cloud.lm.sl.cf.core.cf.detect.process;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
 import com.sap.cloud.lm.sl.cf.core.cf.detect.MtaMetadataExtractor;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.entity.AppMetadataEntity;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.entity.ApplicationMetadataEntity;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaResource;
 
-public class AppMtaMetadataExtractor implements MtaMetadataExtractor<AppMetadataEntity> {
+public class AppMtaMetadataExtractor implements MtaMetadataExtractor<ApplicationMetadataEntity> {
 
     @Override
-    public void extract(AppMetadataEntity metadataEntity, DeployedMta deployedMta) {
+    public void extract(ApplicationMetadataEntity metadataEntity, DeployedMta deployedMta) {
         initMetadata(metadataEntity, deployedMta);
 
-        CloudApplication app = metadataEntity.getApp();
+        CloudApplication app = metadataEntity.getApplication();
         ApplicationMtaMetadata appMetadata = metadataEntity.getApplicationMtaMetadata();
 
         String appName = app.getName();
@@ -32,20 +29,22 @@ public class AppMtaMetadataExtractor implements MtaMetadataExtractor<AppMetadata
                                                                             .equalsIgnoreCase(appName))
                                               .findFirst()
                                               .orElse(addNewModule(deployedMta));
-        module.setValid(true);
 
-        String moduleName = (appMetadata.getModule()
-                                        .getModuleName() != null) ? appMetadata.getModule()
+        String moduleName = (appMetadata.getDeployedMtaModule()
+                                        .getModuleName() != null) ? appMetadata.getDeployedMtaModule()
                                                                                .getModuleName()
                                             : appName;
-        List<String> providedDependencies = (appMetadata.getModule()
-                                                        .getProvidedDependencyNames() != null) ? appMetadata.getModule()
+
+        List<String> providedDependencies = (appMetadata.getDeployedMtaModule()
+                                                        .getProvidedDependencyNames() != null) ? appMetadata.getDeployedMtaModule()
                                                                                                             .getProvidedDependencyNames()
                                                             : new ArrayList<>();
-        List<DeployedMtaResource> appServices = (appMetadata.getModule()
-                                                            .getServices() != null) ? appMetadata.getModule()
+
+        List<DeployedMtaResource> appServices = (appMetadata.getDeployedMtaModule()
+                                                            .getServices() != null) ? appMetadata.getDeployedMtaModule()
                                                                                                  .getServices()
                                                                 : new ArrayList<>();
+
         Date createdOn = app.getMetadata()
                             .getCreatedAt();
         Date updatedOn = app.getMetadata()
@@ -58,13 +57,16 @@ public class AppMtaMetadataExtractor implements MtaMetadataExtractor<AppMetadata
         module.setProvidedDependencyNames(providedDependencies);
         module.setUris(app.getUris());
 
-        appServices.stream() // Do not replace existing module resources. They might be created by service metadata extraction.
-                   .filter(resource -> !containsResource(module.getServices(), resource))
+        appServices.stream()
                    .forEach(resource -> module.getServices()
                                               .add(resource));
 
+        /*
+         * Do not replace existing resources. They might be created by service metadata extraction. This is here only to move the user
+         * provided service metadata to the service metadata because of v3 metadata api limitations regarding user provided services.
+         */
         module.getServices()
-              .stream() // Do not replace existing resources. They might be created by service metadata extraction.
+              .stream()
               .filter(resource -> !containsResource(deployedMta.getServices(), resource))
               .forEach(resource -> deployedMta.getServices()
                                               .add(resource));
@@ -73,16 +75,12 @@ public class AppMtaMetadataExtractor implements MtaMetadataExtractor<AppMetadata
     private boolean containsResource(List<DeployedMtaResource> resources, DeployedMtaResource resource) {
         boolean containsByResourceName = resources.stream()
                                                   .filter(moduleResource -> moduleResource.getResourceName() != null)
-                                                  .filter(moduleResource -> moduleResource.getResourceName()
-                                                                                          .equalsIgnoreCase(resource.getResourceName()))
-                                                  .findAny()
-                                                  .isPresent();
+                                                  .anyMatch(moduleResource -> moduleResource.getResourceName()
+                                                                                            .equalsIgnoreCase(resource.getResourceName()));
         return containsByResourceName || resources.stream()
                                                   .filter(moduleResource -> moduleResource.getServiceName() != null)
-                                                  .filter(moduleResource -> moduleResource.getServiceName()
-                                                                                          .equalsIgnoreCase(resource.getServiceName()))
-                                                  .findAny()
-                                                  .isPresent();
+                                                  .anyMatch(moduleResource -> moduleResource.getServiceName()
+                                                                                            .equalsIgnoreCase(resource.getServiceName()));
     }
 
     private DeployedMtaModule addNewModule(DeployedMta metadata) {

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.detect.MtaMetadataCollector;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.entity.ServiceMetadataEntity;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.ServiceMetadataMapper;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.ServiceMetadataFieldExtractor;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.metadata.criteria.MtaMetadataCriteria;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceMtaMetadata;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -19,7 +19,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class ServiceMetadataCollector implements MtaMetadataCollector<ServiceMetadataEntity> {
 
     @Autowired
-    private ServiceMetadataMapper mapper;
+    private ServiceMetadataFieldExtractor fieldExtractor;
     
     @Override
     public List<ServiceMetadataEntity> collect(MtaMetadataCriteria criteria, CloudControllerClient client) {
@@ -27,7 +27,7 @@ public class ServiceMetadataCollector implements MtaMetadataCollector<ServiceMet
 
         List<CloudService> allServices = client.getServicesByMetadata(criteria.get());
         for (CloudService service : allServices) {
-            ServiceMtaMetadata serviceMetadata = mapper.mapMetadata(service);
+            ServiceMtaMetadata serviceMetadata = fieldExtractor.extractMetadata(service);
 
             if (serviceMetadata == null) {
                 continue;

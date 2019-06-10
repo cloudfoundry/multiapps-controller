@@ -15,7 +15,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.AppMetadataMapper;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.ApplicationMetadataFieldExtractor;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -25,8 +25,8 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
     @Inject
-    private AppMetadataMapper appMetadataMapper;
-
+    private ApplicationMetadataFieldExtractor applicationMetadataMapper;
+    
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         Module moduleToDeploy = determineModuleToDeploy(execution.getContext());
@@ -98,7 +98,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
     protected String getModuleName(CloudApplicationExtended cloudApplication) {
         return getApplicationMtaMetadata(cloudApplication)
-            .getModule()
+            .getDeployedMtaModule()
             .getModuleName();
     }
 
@@ -106,7 +106,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         if(app.getMetadata() == null) {
             return ApplicationMtaMetadataParser.parseAppMetadata(app);
         } else {
-            return appMetadataMapper.mapMetadata(app);
+            return applicationMetadataMapper.extractMetadata(app);
         }
     }
 

@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.model;
 
 public class ServiceMtaMetadata {
 
-    private DeployedMtaMetadata mtaMetadata;
+    private MtaMetadata mtaMetadata;
     private DeployedMtaResource deployedMtaResource;
 
     public ServiceMtaMetadata() {
@@ -13,11 +13,11 @@ public class ServiceMtaMetadata {
         this.deployedMtaResource = builder.deployedMtaResource;
     }
 
-    public DeployedMtaMetadata getMtaMetadata() {
+    public MtaMetadata getMtaMetadata() {
         return mtaMetadata;
     }
 
-    public void setMtaMetadata(DeployedMtaMetadata mtaMetadata) {
+    public void setMtaMetadata(MtaMetadata mtaMetadata) {
         this.mtaMetadata = mtaMetadata;
     }
 
@@ -34,13 +34,13 @@ public class ServiceMtaMetadata {
     }
 
     public static final class Builder {
-        private DeployedMtaMetadata mtaMetadata;
+        private MtaMetadata mtaMetadata;
         private DeployedMtaResource deployedMtaResource;
 
         private Builder() {
         }
 
-        public Builder withMtaMetadata(DeployedMtaMetadata mtaMetadata) {
+        public Builder withMtaMetadata(MtaMetadata mtaMetadata) {
             this.mtaMetadata = mtaMetadata;
             return this;
         }

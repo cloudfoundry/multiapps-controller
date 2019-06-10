@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.AppMetadataMapper;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.ApplicationMetadataFieldExtractor;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
@@ -32,7 +32,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
     private ConfigurationEntryDao configurationEntryDao;
 
     @Inject
-    private AppMetadataMapper appMetadataMapper;
+    private ApplicationMetadataFieldExtractor applicationMetadataMapper;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -47,7 +47,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
         if (mtaMetadata == null) {
             return StepPhase.DONE;
         }
-        List<String> providedDependencyNames = mtaMetadata.getModule().getProvidedDependencyNames();
+        List<String> providedDependencyNames = mtaMetadata.getDeployedMtaModule().getProvidedDependencyNames();
         String org = StepsUtil.getOrg(execution.getContext());
         String space = StepsUtil.getSpace(execution.getContext());
         CloudTarget target = new CloudTarget(org, space);
@@ -76,7 +76,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
         if(existingApp.getMetadata() == null) {
             return ApplicationMtaMetadataParser.parseAppMetadata(existingApp);
         } else {
-            return appMetadataMapper.mapMetadata(existingApp);
+            return applicationMetadataMapper.extractMetadata(existingApp);
         }
     }
 

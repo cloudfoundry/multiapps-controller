@@ -142,9 +142,9 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     private void prepareServices(DeployedMta deployedMta) {
         Set<String> servicesNames = new HashSet<>();
         stepInput.servicesFromDeployedMta.forEach(service -> servicesNames.add(service.getName()));
-        Set<DeployedMtaResource> deployedServices = servicesNames.stream()
+        List<DeployedMtaResource> deployedServices = servicesNames.stream()
                                                                  .map(s -> DeployedMtaResource.builder().withServiceName(s).build())
-                                                                 .collect(Collectors.toSet());
+                                                                 .collect(Collectors.toList());
         deployedMta.setServices(deployedServices);
     }
 

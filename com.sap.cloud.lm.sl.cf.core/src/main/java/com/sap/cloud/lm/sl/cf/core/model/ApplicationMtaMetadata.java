@@ -5,19 +5,19 @@ package com.sap.cloud.lm.sl.cf.core.model;
  */
 public class ApplicationMtaMetadata {
 
-    private DeployedMtaMetadata mtaMetadata;
-    private DeployedMtaModule module;
+    private MtaMetadata mtaMetadata;
+    private DeployedMtaModule deployedMtaModule;
 
     private ApplicationMtaMetadata(Builder builder) {
         this.mtaMetadata = builder.mtaMetadata;
-        this.module = builder.module;
+        this.deployedMtaModule = builder.module;
     }
-
-    public DeployedMtaMetadata getMtaMetadata() {
+    
+    public MtaMetadata getMtaMetadata() {
         return mtaMetadata;
     }
-    public DeployedMtaModule getModule() {
-        return module;
+    public DeployedMtaModule getDeployedMtaModule() {
+        return deployedMtaModule;
     }
 
     public static Builder builder() {
@@ -25,13 +25,13 @@ public class ApplicationMtaMetadata {
     }
 
     public static final class Builder {
-        private DeployedMtaMetadata mtaMetadata;
+        private MtaMetadata mtaMetadata;
         private DeployedMtaModule module;
 
         private Builder() {
         }
 
-        public Builder withMtaMetadata(DeployedMtaMetadata mtaMetadata) {
+        public Builder withMtaMetadata(MtaMetadata mtaMetadata) {
             this.mtaMetadata = mtaMetadata;
             return this;
         }

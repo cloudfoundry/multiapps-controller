@@ -5,7 +5,7 @@ import java.util.List;
 
 public class DeployedMta {
 
-    private DeployedMtaMetadata metadata;
+    private MtaMetadata metadata;
     private List<DeployedMtaModule> modules;
     private List<DeployedMtaResource> services;
 
@@ -18,17 +18,17 @@ public class DeployedMta {
     public DeployedMta() {
     }
 
-    public DeployedMta(DeployedMtaMetadata metadata, List<DeployedMtaModule> modules, List<DeployedMtaResource> services) {
+    public DeployedMta(MtaMetadata metadata, List<DeployedMtaModule> modules, List<DeployedMtaResource> services) {
         this.metadata = metadata;
         this.modules = modules;
         this.services = services;
     }
 
-    public DeployedMtaMetadata getMetadata() {
+    public MtaMetadata getMetadata() {
         return metadata;
     }
 
-    public void setMetadata(DeployedMtaMetadata metadata) {
+    public void setMetadata(MtaMetadata metadata) {
         this.metadata = metadata;
     }
 
@@ -86,14 +86,14 @@ public class DeployedMta {
     }
 
     public static final class Builder {
-        private DeployedMtaMetadata metadata;
+        private MtaMetadata metadata;
         private List<DeployedMtaModule> modules = new ArrayList<>();
         private List<DeployedMtaResource> services = new ArrayList<>();
 
         private Builder() {
         }
 
-        public Builder withMetadata(DeployedMtaMetadata metadata) {
+        public Builder withMetadata(MtaMetadata metadata) {
             this.metadata = metadata;
             return this;
         }

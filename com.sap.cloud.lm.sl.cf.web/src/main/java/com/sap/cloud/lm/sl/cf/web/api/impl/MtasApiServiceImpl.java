@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedComponentsDetector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
+import com.sap.cloud.lm.sl.cf.core.model.MtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.api.MtasApiService;
@@ -30,7 +30,6 @@ import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.security.AuthorizationChecker;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @RequestScoped
 @Component
@@ -108,7 +107,7 @@ public class MtasApiServiceImpl implements MtasApiService {
         return result;
     }
 
-    private Metadata getMetadata(DeployedMtaMetadata metadata) {
+    private Metadata getMetadata(MtaMetadata metadata) {
         Metadata result = new Metadata();
         result.setId(metadata.getId());
         result.setVersion(metadata.getVersion()

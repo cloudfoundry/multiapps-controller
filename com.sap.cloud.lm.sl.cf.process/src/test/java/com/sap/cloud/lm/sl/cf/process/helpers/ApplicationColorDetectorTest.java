@@ -28,7 +28,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
+import com.sap.cloud.lm.sl.cf.core.model.MtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaResource;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
@@ -209,11 +209,11 @@ public class ApplicationColorDetectorTest {
 
     private DeployedMta createMta(String id, Set<String> services, List<DeployedMtaModule> deployedModules) {
         DeployedMta deployedMta = new DeployedMta();
-        deployedMta.setMetadata(new DeployedMtaMetadata(id));
+        deployedMta.setMetadata(new MtaMetadata(id));
         deployedMta.setModules(deployedModules);
-        Set<DeployedMtaResource> deployedServices = services.stream()
+        List<DeployedMtaResource> deployedServices = services.stream()
                                          .map(s -> DeployedMtaResource.builder().withServiceName(s).build())
-                                         .collect(Collectors.toSet());
+                                         .collect(Collectors.toList());
         deployedMta.setServices(deployedServices);
         return deployedMta;
     }

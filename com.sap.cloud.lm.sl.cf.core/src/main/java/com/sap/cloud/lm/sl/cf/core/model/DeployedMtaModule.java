@@ -18,9 +18,6 @@ public class DeployedMtaModule {
     private List<String> providedDependencyNames;
     private List<String> uris;
 
-    @JsonIgnore
-    private boolean isValid;
-
     private DeployedMtaModule(Builder builder) {
         this.moduleName = builder.moduleName;
         this.appName = builder.appName;
@@ -29,7 +26,6 @@ public class DeployedMtaModule {
         this.services = builder.services;
         this.providedDependencyNames = builder.providedDependencyNames;
         this.uris = builder.uris;
-        this.isValid = builder.isValid;
     }
 
     public DeployedMtaModule() {
@@ -91,14 +87,6 @@ public class DeployedMtaModule {
         this.uris = uris;
     }
 
-    public boolean isValid() {
-        return isValid;
-    }
-
-    public void setValid(boolean isValid) {
-        this.isValid = isValid;
-    }
-
     public static Builder builder() {
         return new Builder();
     }
@@ -111,7 +99,6 @@ public class DeployedMtaModule {
         private List<DeployedMtaResource> services = new ArrayList<>();
         private List<String> providedDependencyNames = new ArrayList<>();
         private List<String> uris = new ArrayList<>();
-        private boolean isValid;
 
         private Builder() {
         }
@@ -148,11 +135,6 @@ public class DeployedMtaModule {
 
         public Builder withUris(List<String> uris) {
             this.uris = uris;
-            return this;
-        }
-
-        public Builder withIsValid(boolean isValid) {
-            this.isValid = isValid;
             return this;
         }
 

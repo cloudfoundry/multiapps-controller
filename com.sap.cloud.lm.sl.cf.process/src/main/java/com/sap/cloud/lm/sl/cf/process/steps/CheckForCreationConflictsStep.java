@@ -28,26 +28,21 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedComponentsDetector;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.AppMetadataMapper;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.MetadataMapper;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.metadata.criteria.MtaMetadataCriteria;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.metadata.criteria.MtaMetadataCriteriaBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.ApplicationMetadataFieldExtractor;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaResource;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("checkForCreationConflictsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CheckForCreationConflictsStep extends SyncFlowableStep {
 
     @Autowired
-    private AppMetadataMapper appMetadataMapper;
-
+    private ApplicationMetadataFieldExtractor applicationMetadataMapper;
+    
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws CloudOperationException, SLException {
         DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
@@ -148,12 +143,12 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         if(app.getMetadata() == null) {
             return ApplicationMtaMetadataParser.parseAppMetadata(app);
         } else {
-            return appMetadataMapper.mapMetadata(app);
+            return applicationMetadataMapper.extractMetadata(app);
         }
     }
 
     private boolean isServicePartOfMta(ApplicationMtaMetadata mtaMetadata, CloudServiceExtended service) {
-        return mtaMetadata.getModule().getServices()
+        return mtaMetadata.getDeployedMtaModule().getServices()
                           .stream()
                           .filter(s -> s.getServiceName()
                                         .equals(service.getName()))
@@ -210,7 +205,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         if(metadata == null) {
             return null;
         }
-        return appMetadataMapper.getMtaId(metadata);
+        return applicationMetadataMapper.getMtaId(metadata);
     }
 
     private Map<String, CloudApplication> createExistingApplicationsMap(List<CloudApplication> existingApps) {

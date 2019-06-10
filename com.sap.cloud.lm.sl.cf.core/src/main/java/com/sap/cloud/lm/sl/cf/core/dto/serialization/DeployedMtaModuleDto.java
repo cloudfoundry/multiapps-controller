@@ -30,8 +30,15 @@ public class DeployedMtaModuleDto {
     public DeployedMtaModuleDto(DeployedMtaModule module) {
         this.moduleName = module.getModuleName();
         this.appName = module.getAppName();
-        this.services = module.getServices().stream().map(n -> n.getServiceName()).collect(Collectors.toList());
+        this.services = extractDeployedResourceServiceNames(module);
         this.providedDependencyNames = module.getProvidedDependencyNames();
+    }
+
+    private List<String> extractDeployedResourceServiceNames(DeployedMtaModule module) {
+        return module.getServices()
+                              .stream()
+                              .map(DeployedMtaResource::getServiceName)
+                              .collect(Collectors.toList());
     }
 
     public String getModuleName() {
@@ -52,7 +59,9 @@ public class DeployedMtaModuleDto {
 
     public DeployedMtaModule toDeployedMtaModule() {
         List<DeployedMtaResource> moduleServices = services.stream()
-                                                           .map(n -> DeployedMtaResource.builder().withServiceName(n).build())
+                                                           .map(serviceName -> DeployedMtaResource.builder()
+                                                                                                  .withServiceName(serviceName)
+                                                                                                  .build())
                                                            .collect(Collectors.toList());
         DeployedMtaModule result = DeployedMtaModule.builder()
                                                     .withModuleName(moduleName)

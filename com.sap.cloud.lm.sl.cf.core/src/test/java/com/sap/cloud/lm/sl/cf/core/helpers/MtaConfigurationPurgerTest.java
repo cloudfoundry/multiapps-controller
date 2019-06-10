@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.ApplicationMetadataFieldExtractor;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
@@ -71,7 +72,7 @@ public class MtaConfigurationPurgerTest {
 
     @Test
     public void testPurge() {
-        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, entryDao, subscriptionDao);
+        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, entryDao, subscriptionDao, new ApplicationMetadataFieldExtractor());
         purger.purge("org", "space");
         Mockito.verify(entryDao)
                .remove(ENTRY_ID_TO_REMOVE);

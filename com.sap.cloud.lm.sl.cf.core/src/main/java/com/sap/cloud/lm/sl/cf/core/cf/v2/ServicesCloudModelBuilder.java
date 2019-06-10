@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.MetadataMapper;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.ServiceMetadataMapper;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.MetadataFieldExtractor;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.ServiceMetadataFieldExtractor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaResource;
@@ -55,37 +55,6 @@ public class ServicesCloudModelBuilder {
         return createService(resource, isOptional, shouldIgnoreUpdateErrors);
     }
 
-    private Metadata buildDeployedResourceMetadata(CloudServiceExtended service, Resource resource) {
-
-        List<DeployedMtaModule> boundModules = deploymentDescriptor.getModules()
-                                                                   .stream()
-                                                                   .filter(m -> m.getRequiredDependencies()
-                                                                                 .stream()
-                                                                                 .anyMatch(d -> d.getName()
-                                                                                                 .equalsIgnoreCase(resource.getName())))
-                                                                   .map(this::mapModuleToDeployedMtaModule)
-                                                                   .collect(Collectors.toList());
-
-        Map<String, Object> credentials = service.getCredentials();
-
-        DeployedMtaResource deployedMtaResource = DeployedMtaResource.builder()
-                                                                     .withServiceName(service.getName())
-                                                                     .withResourceName(resource.getName())
-                                                                     .withAppsCredentials(credentials)
-                                                                     .withModules(boundModules)
-                                                                     .build();
-
-        return Metadata.builder()
-                       .label(MetadataMapper.MTA_ID, deploymentDescriptor.getId())
-                       .label(MetadataMapper.MTA_VERSION, deploymentDescriptor.getVersion())
-                       .annotation(ServiceMetadataMapper.RESOURCE, JsonUtil.toJson(deployedMtaResource, true))
-                       .build();
-    }
-
-    private DeployedMtaModule mapModuleToDeployedMtaModule(Module module) {
-        return DeployedMtaModule.builder().withAppName(NameUtil.getApplicationName(module)).withModuleName(module.getName()).build();
-    }
-
     protected boolean isOptional(Resource resource) {
         return false;
     }
@@ -108,7 +77,8 @@ public class ServicesCloudModelBuilder {
                                                         boolean shouldIgnoreUpdateErrors) {
         Map<String, Object> parameters = resource.getParameters();
         SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(serviceName, ResourceType.MANAGED_SERVICE, parameters);
-        ImmutableCloudServiceExtended service = ImmutableCloudServiceExtended.builder()
+        final Map<String, Object> serviceParameters = getServiceParameters(serviceName, parameters);
+        return ImmutableCloudServiceExtended.builder()
             .name(serviceName)
             .resourceName(resource.getName())
             .label((String) parameters.get(SupportedParameters.SERVICE))
@@ -116,14 +86,13 @@ public class ServicesCloudModelBuilder {
             .provider((String) parameters.get(SupportedParameters.SERVICE_PROVIDER))
             .version((String) parameters.get(SupportedParameters.SERVICE_VERSION))
             .tags((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_TAGS, Collections.emptyList()))
-            .credentials(getServiceParameters(serviceName, parameters))
+            .credentials(serviceParameters)
             .alternativeLabels((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES, Collections.emptyList()))
             .isOptional(isOptional)
             .isManaged(true)
             .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
+            .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, resource, serviceParameters))
             .build();
-        Metadata metadata = buildDeployedResourceMetadata(service, resource);
-        return ImmutableCloudServiceExtended.copyOf(service).withV3Metadata(metadata);
     }
 
     protected CloudServiceExtended createUserProvidedService(Resource resource, String serviceName, boolean isOptional,
@@ -147,14 +116,14 @@ public class ServicesCloudModelBuilder {
 
     protected CloudServiceExtended createExistingService(Resource resource, String serviceName, boolean isOptional,
         boolean shouldIgnoreUpdateErrors) {
-        ImmutableCloudServiceExtended service =  ImmutableCloudServiceExtended.builder()
+        Map<String, Object> serviceParameters = getServiceParameters(serviceName, resource.getParameters());
+        return ImmutableCloudServiceExtended.builder()
             .name(serviceName)
             .resourceName(resource.getName())
             .isOptional(isOptional)
             .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
+            .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, resource, serviceParameters))
             .build();
-        Metadata metadata = buildDeployedResourceMetadata(service, resource);
-        return ImmutableCloudServiceExtended.copyOf(service).withV3Metadata(metadata);
     }
 
     @SuppressWarnings("unchecked")

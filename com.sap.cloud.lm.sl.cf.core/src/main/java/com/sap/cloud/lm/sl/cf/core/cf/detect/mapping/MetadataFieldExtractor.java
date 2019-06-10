@@ -4,7 +4,7 @@ import org.cloudfoundry.client.v3.Metadata;
 
 import com.sap.cloud.lm.sl.mta.model.Version;
 
-public class MetadataMapper {
+public class MetadataFieldExtractor {
 
     public static final String MTA_VERSION = "mta_version";
     public static final String MTA_ID = "mta_id";

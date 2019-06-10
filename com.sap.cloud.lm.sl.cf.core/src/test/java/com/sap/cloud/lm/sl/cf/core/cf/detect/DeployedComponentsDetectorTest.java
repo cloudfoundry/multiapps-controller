@@ -29,7 +29,7 @@ public class DeployedComponentsDetectorTest {
     @MethodSource
     public void testDetectAllApplications(String appsResourceLocation, Expectation expectation) throws IOException {
         List<CloudApplication> apps = parseApps(appsResourceLocation);
-        tester.test(() -> new DeployedComponentsDetector().detectAllDeployedComponents(apps), expectation);
+        tester.test(() -> new DeployedComponentsDetector().getAllDeployedMta(null), expectation);
     }
 
     private List<CloudApplication> parseApps(String appsResourceLocation) throws IOException {

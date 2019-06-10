@@ -35,16 +35,19 @@ public class DeployedMtaDto {
     public DeployedMtaDto(DeployedMta mta) {
         this.metadata = new DeployedMtaMetadataDto(mta.getMetadata());
         this.modules = toDtos(mta.getModules());
-        this.services = mta.getServices()
-                           .stream()
-                           .map(s -> s.getServiceName())
-                           .collect(Collectors.toSet());
+        this.services = extractDeployedResourceServiceNames(mta.getServices());
     }
 
     private static List<DeployedMtaModuleDto> toDtos(List<DeployedMtaModule> modules) {
         return modules.stream()
                       .map(DeployedMtaModuleDto::new)
                       .collect(Collectors.toList());
+    }
+
+    private Set<String> extractDeployedResourceServiceNames(List<DeployedMtaResource> deployedMtaResources) {
+        return deployedMtaResources.stream()
+                                   .map(DeployedMtaResource::getServiceName)
+                                   .collect(Collectors.toSet());
     }
 
     private static List<DeployedMtaModule> toDeployedMtaModules(List<DeployedMtaModuleDto> modules) {
@@ -69,12 +72,16 @@ public class DeployedMtaDto {
         DeployedMta result = new DeployedMta();
         result.setMetadata(metadata.toDeployedMtaMetadata());
         result.setModules(toDeployedMtaModules(modules));
-        result.setServices(services.stream()
-                                   .map(n -> DeployedMtaResource.builder()
-                                                                .withServiceName(n)
-                                                                .build())
-                                   .collect(Collectors.toList()));
+        result.setServices(mapServiceNameToDeployedMtaResource(services));
         return result;
+    }
+
+    private List<DeployedMtaResource> mapServiceNameToDeployedMtaResource(Set<String> services) {
+        return services.stream()
+                       .map(n -> DeployedMtaResource.builder()
+                                                    .withServiceName(n)
+                                                    .build())
+                       .collect(Collectors.toList());
     }
 
 }

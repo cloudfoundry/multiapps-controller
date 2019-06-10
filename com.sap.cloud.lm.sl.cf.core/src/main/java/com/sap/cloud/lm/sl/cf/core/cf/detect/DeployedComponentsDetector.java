@@ -1,26 +1,21 @@
 package com.sap.cloud.lm.sl.cf.core.cf.detect;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.cf.detect.entity.MtaMetadataEntity;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.entity.MetadataEntity;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.metadata.criteria.MtaMetadataCriteria;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.metadata.criteria.MtaMetadataCriteriaBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.process.AppMetadataCollector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component
@@ -35,10 +30,10 @@ public class DeployedComponentsDetector {
     private AppMetadataCollector appCollector;
 
     @Autowired
-    private List<MtaMetadataCollector<? extends MtaMetadataEntity>> collectors;
+    private List<MtaMetadataCollector<? extends MetadataEntity>> collectors;
 
     @Autowired
-    private MtaMetadataExtractorFactory<MtaMetadataEntity> metadataExtractorFactory;
+    private MtaMetadataEntityAggregator mtaMetadataEntityAggregator;
 
     public Optional<DeployedMta> getDeployedMta(String mtaId, CloudControllerClient client) {
         MtaMetadataCriteria selectionCriteria = new MtaMetadataCriteriaBuilder().label(MtaMetadataCriteriaBuilder.LABEL_MTA_ID)
@@ -56,24 +51,17 @@ public class DeployedComponentsDetector {
     }
 
     private Optional<List<DeployedMta>> fetchDeployedMtas(MtaMetadataCriteria criteria, CloudControllerClient client) {
-        Map<String, DeployedMta> deployedMtasById = Collections.synchronizedMap(MapUtils.lazyMap(new HashMap<>(), () -> new DeployedMta()));
+        Map<String, List<MetadataEntity>> mtaEntities = collectors.stream()
+                                                                  .map(c -> c.collect(criteria, client))
+                                                                  .flatMap(List::stream)
+                                                                  .collect(Collectors.groupingBy(e -> e.getMtaMetadata()
+                                                                                                          .getId()));
 
-        collectors.stream()
-                  .map(c -> c.collect(criteria, client))
-                  .flatMap(List::stream)
-                  .forEach(e -> {
-                      MtaMetadataExtractor<MtaMetadataEntity> mtaMetadataExtractor = metadataExtractorFactory.get(e);
-                      DeployedMta deployedMta = deployedMtasById.get(e.getMtaMetadata()
-                                                                      .getId());
-                      mtaMetadataExtractor.extract(e, deployedMta);
-                  });
+        List<DeployedMta> deployedMtas = mtaEntities.entrySet()
+                                                    .stream()
+                                                    .map(entry -> mtaMetadataEntityAggregator.aggregate(entry.getValue()))
+                                                    .collect(Collectors.toList());
 
-        if (deployedMtasById.values()
-                            .isEmpty()) {
-            return Optional.empty();
-        }
-
-        List<DeployedMta> deployedMtas = new ArrayList<>(deployedMtasById.values());
         deployedMtas = processDeployedMtas(deployedMtas);
         System.out.println("Detected deployed mtas: " + JsonUtil.toJson(deployedMtas, true));
         return Optional.of(deployedMtas);
@@ -81,9 +69,7 @@ public class DeployedComponentsDetector {
 
     private List<DeployedMta> processDeployedMtas(List<DeployedMta> deployedMtas) {
         System.out.println("Initial deployed mtas: " + JsonUtil.toJson(deployedMtas, true));
-        List<DeployedMta> mtasWithOnlyValidModules = filterValidMtaModules(deployedMtas);
-        System.out.println("mtasWithOnlyValidModules: " + JsonUtil.toJson(mtasWithOnlyValidModules, true));
-        List<DeployedMta> mergedMtasById = mergeDifferentVersionsOfMtasWithSameId(mtasWithOnlyValidModules);
+        List<DeployedMta> mergedMtasById = mergeDifferentVersionsOfMtasWithSameId(deployedMtas);
         System.out.println("mergedMtasById: " + JsonUtil.toJson(mergedMtasById, true));
         return removeEmptyMtas(mergedMtasById);
     }
@@ -92,24 +78,6 @@ public class DeployedComponentsDetector {
         return mtas.stream()
                    .filter(mta -> CollectionUtils.isNotEmpty(mta.getModules()) || CollectionUtils.isNotEmpty(mta.getServices()))
                    .collect(Collectors.toList());
-    }
-
-    private List<DeployedMta> filterValidMtaModules(List<DeployedMta> deployedMtas) {
-        return deployedMtas.stream()
-                           .map(this::getMtaWithOnlyValidModules)
-                           .collect(Collectors.toList());
-    }
-
-    private DeployedMta getMtaWithOnlyValidModules(DeployedMta mta) {
-        List<DeployedMtaModule> validModules = mta.getModules()
-                                                  .stream()
-                                                  .filter(DeployedMtaModule::isValid)
-                                                  .collect(Collectors.toList());
-        return DeployedMta.builder()
-                          .withMetadata(mta.getMetadata())
-                          .withModules(validModules)
-                          .withServices(mta.getServices())
-                          .build();
     }
 
     private List<DeployedMta> mergeDifferentVersionsOfMtasWithSameId(List<DeployedMta> mtas) {
