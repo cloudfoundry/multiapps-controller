@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
@@ -35,6 +36,7 @@ import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import org.springframework.http.HttpStatus;
 
 @RunWith(Parameterized.class)
 public class DetermineServiceCreateUpdateServiceActionsStepTest
@@ -163,6 +165,8 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
                 .thenReturn(existingService);
             Mockito.when(client.getServiceInstance(stepInput.existingService.getName(), false))
                 .thenReturn(existingServiceInstance);
+            Mockito.when(client.getServiceParameters(existingService.getMetadata().getGuid()))
+                .thenThrow(new CloudOperationException(HttpStatus.BAD_REQUEST));
         }
     }
 

@@ -10,6 +10,7 @@
 		"name": "service-1",
 		"label": "label-1-old",
 		"plan": "plan-3",
+		"metadata": {"guid":  "beeb5e8d-4ab9-46ee-9205-455a278743f0"},
 		"tags": []
 	},
 	"shouldRecreateService": true,
