@@ -255,7 +255,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             if (HttpStatus.NOT_IMPLEMENTED == e.getStatusCode() || HttpStatus.BAD_REQUEST == e.getStatusCode()) {
                 getStepLogger().warnWithoutProgressMessage(e, Messages.CANNOT_RETRIEVE_SERVICE_PARAMETERS, service.getName());
                 // TODO: Optimization (Hack) that should be deprecated at some point. So here is a todo for that.
-                return MapUtils.isEmpty(service.getCredentials());
+                return !MapUtils.isEmpty(service.getCredentials());
             }
             getStepLogger().error(e, Messages.CANNOT_RETRIEVE_SERVICE_PARAMETERS, service.getName());
             return false;

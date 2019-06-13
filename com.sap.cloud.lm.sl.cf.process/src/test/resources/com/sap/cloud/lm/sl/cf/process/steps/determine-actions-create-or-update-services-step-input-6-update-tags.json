@@ -12,6 +12,7 @@
 		"name": "service-1",
 		"label": "uaa",
 		"plan": "test",
+		"metadata": {"guid":  "beeb5e8d-4ab9-46ee-9205-455a278743f0"},
 		"tags": [
 			"test-tag-1"
 		]
