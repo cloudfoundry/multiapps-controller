@@ -3,11 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.junit.Assert.assertEquals;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudService;
@@ -84,6 +80,12 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
             {
                 "determine-actions-create-or-update-services-step-input-9-recreate-service-error.json", MessageFormat.format(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET, "service-1", "label-1/plan-3", "service-1", "label-1-old/plan-3"),
             },
+            {
+                "determine-actions-create-or-update-services-step-input-10-update-credentials.json", null
+            },
+                        {
+                "determine-actions-create-or-update-services-step-input-11-no-update-credentials.json", null
+            }
          // @formatter:on
         });
     }
@@ -165,8 +167,10 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
                 .thenReturn(existingService);
             Mockito.when(client.getServiceInstance(stepInput.existingService.getName(), false))
                 .thenReturn(existingServiceInstance);
-            Mockito.when(client.getServiceParameters(existingService.getMetadata().getGuid()))
+            Mockito.when(client.getServiceParameters(UUID.fromString("beeb5e8d-4ab9-46ee-9205-455a278743f0")))
                 .thenThrow(new CloudOperationException(HttpStatus.BAD_REQUEST));
+            Mockito.when(client.getServiceParameters(UUID.fromString("400bfc4d-5fce-4a41-bae7-765345e1ce27")))
+                   .thenReturn(existingServiceInstance.getCredentials());
         }
     }
 

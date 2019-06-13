@@ -49,7 +49,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
             },
             // (2) With non-existing service:
             {
-                "poll-create-services-step-input-02.json", "Cannot retrieve instance of service test-service-2"
+                "poll-create-services-step-input-02.json", "Cannot retrieve service instance of service \"test-service-2\""
             },
             // (3) With non-existing optional service:
             {
