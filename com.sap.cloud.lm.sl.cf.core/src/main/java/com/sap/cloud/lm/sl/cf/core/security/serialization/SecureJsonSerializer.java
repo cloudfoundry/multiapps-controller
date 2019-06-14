@@ -10,7 +10,7 @@ public class SecureJsonSerializer extends SecureSerializer<JsonElement<Object>> 
 
     @Override
     protected JsonElement<Object> toTree(Object object) {
-        Object tree = JsonUtil.createObjectMapper()
+        Object tree = JsonUtil.getObjectMapper()
             .convertValue(object, Object.class);
         return new JsonElement<>("", "", tree);
     }
