@@ -58,7 +58,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
     }
 
     private Module determineModuleFromDescriptor(DelegateExecution context) {
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
         if (deploymentDescriptor == null) {
             // This will be the case only when the process is undeploy.
             return null;
