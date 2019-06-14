@@ -68,10 +68,10 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
         Map<String, List<CloudServiceKey>> serviceKeys = StepsUtil.getServiceKeysToCreate(execution.getContext());
 
+        setServiceParameters(serviceToProcess, execution.getContext());
+
         List<ServiceAction> actions = determineActions(controllerClient, spaceId, serviceToProcess, existingService, serviceKeys,
                                                        execution);
-
-        setServiceParameters(serviceToProcess, actions, execution.getContext());
 
         StepsUtil.setServiceActionsToExecute(actions, execution.getContext());
         StepsUtil.isServiceUpdated(false, execution.getContext());
@@ -79,12 +79,10 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return StepPhase.DONE;
     }
 
-    private void setServiceParameters(CloudServiceExtended service, List<ServiceAction> actions, DelegateExecution delegateExecution)
+    private void setServiceParameters(CloudServiceExtended service, DelegateExecution delegateExecution)
         throws FileStorageException {
-        if (CollectionUtils.isNotEmpty(actions)) {
-            service = prepareServiceParameters(delegateExecution, service);
-            StepsUtil.setServiceToProcess(service, delegateExecution);
-        }
+        service = prepareServiceParameters(delegateExecution, service);
+        StepsUtil.setServiceToProcess(service, delegateExecution);
     }
 
     private List<ServiceAction> determineActions(CloudControllerClient client, String spaceId, CloudServiceExtended service,
@@ -257,8 +255,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                 // TODO: Optimization (Hack) that should be deprecated at some point. So here is a todo for that.
                 return !MapUtils.isEmpty(service.getCredentials());
             }
-            getStepLogger().error(e, Messages.CANNOT_RETRIEVE_SERVICE_PARAMETERS, service.getName());
-            return false;
+            throw e;
         }
     }
 
