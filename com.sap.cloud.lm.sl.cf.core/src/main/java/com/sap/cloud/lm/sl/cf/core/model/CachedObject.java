@@ -25,14 +25,14 @@ public class CachedObject<T> {
         long secondsSinceLastRefresh = TimeUnit.MILLISECONDS.toSeconds(millisecondsSinceLastRefresh);
         if (object == null || secondsSinceLastRefresh > expirationTimeInSeconds) {
             this.object = refreshFunction.get();
-            this.lastRefreshTime = currentTime;
+            this.lastRefreshTime = currentTimeSupplier.get();
         }
         return object;
     }
 
     public synchronized T forceRefresh(Supplier<T> refreshFunction) {
-        lastRefreshTime = currentTimeSupplier.get();
         object = refreshFunction.get();
+        lastRefreshTime = currentTimeSupplier.get();
         return object;
     }
 
