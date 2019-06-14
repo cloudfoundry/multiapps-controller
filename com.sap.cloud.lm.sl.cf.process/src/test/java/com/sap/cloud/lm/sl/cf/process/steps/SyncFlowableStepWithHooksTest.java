@@ -210,7 +210,7 @@ public class SyncFlowableStepWithHooksTest {
     private void prepareDeploymentDescriptor(List<Module> modules) {
         DeploymentDescriptor deploymentDescriptorMock = DeploymentDescriptor.createV3()
             .setModules(modules);
-        StepsUtil.setDeploymentDescriptor(context, deploymentDescriptorMock);
+        StepsUtil.setCompleteDeploymentDescriptor(context, deploymentDescriptorMock);
     }
 
     private class SyncFlowableStepWithHooksMock extends SyncFlowableStepWithHooks {
