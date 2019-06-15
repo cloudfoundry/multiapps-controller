@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
 import static java.text.MessageFormat.format;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -19,6 +18,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
+import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.SchemaVersionDetector;
@@ -29,7 +29,7 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 @RunWith(Parameterized.class)
 public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectMtaSchemaVersionStep> {
 
-    private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("build-cloud-model.yaml",
+    private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = DescriptorTestUtil.loadDeploymentDescriptor("build-cloud-model.yaml",
         DetectMtaSchemaVersionStepTest.class);
 
     @Parameters

@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -10,6 +9,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
+import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
@@ -19,7 +19,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
-    private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("node-hello-mtad.yaml",
+    private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml",
         ProcessDescriptorStepTest.class);
 
     private class ProcessDescriptorStepMock extends ProcessDescriptorStep {

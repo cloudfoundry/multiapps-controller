@@ -14,7 +14,7 @@ import org.junit.Before;
 import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
@@ -56,7 +56,7 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
     }
 
     protected void prepareDescriptor(String descriptorPath) {
-        DeploymentDescriptor descriptor = StepsTestUtil.loadDeploymentDescriptor(descriptorPath, getClass());
+        DeploymentDescriptor descriptor = DescriptorTestUtil.loadDeploymentDescriptor(descriptorPath, getClass());
         StepsUtil.setDeploymentDescriptor(context, descriptor);
     }
 

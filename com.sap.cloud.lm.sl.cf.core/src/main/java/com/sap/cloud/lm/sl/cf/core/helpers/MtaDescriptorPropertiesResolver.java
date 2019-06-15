@@ -25,6 +25,7 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.v3.VisibilityValidator;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.resolvers.NullPropertiesResolverBuilder;
+import com.sap.cloud.lm.sl.mta.resolvers.ReferencesUnescaper;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 
 public class MtaDescriptorPropertiesResolver {
@@ -103,8 +104,13 @@ public class MtaDescriptorPropertiesResolver {
 
         descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, validatorsList, true)
             .validate();
+        unescapeEscapedReferences(descriptor);
 
         return descriptor;
+    }
+
+    private void unescapeEscapedReferences(DeploymentDescriptor descriptor) {
+        new ReferencesUnescaper().unescapeReferences(descriptor);
     }
 
     private DeploymentDescriptor correctEntityNames(DeploymentDescriptor descriptor) {

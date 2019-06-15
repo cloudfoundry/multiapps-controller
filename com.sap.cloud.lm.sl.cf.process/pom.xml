@@ -39,6 +39,11 @@
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.lm.sl.cf</groupId>
+            <artifactId>com.sap.cloud.lm.sl.cf.core</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.sap.cloud.lm.sl.cf</groupId>
             <artifactId>com.sap.cloud.lm.sl.cf.api</artifactId>
         </dependency>
         <dependency>

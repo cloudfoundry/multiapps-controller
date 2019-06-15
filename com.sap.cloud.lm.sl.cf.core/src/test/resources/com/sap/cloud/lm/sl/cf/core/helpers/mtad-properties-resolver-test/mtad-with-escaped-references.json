@@ -1,0 +1,93 @@
+{
+  "majorSchemaVersion" : 2,
+  "schemaVersion" : "2.0.0",
+  "id" : "foo",
+  "version" : "1.0.0",
+  "modules" : [ {
+    "majorSchemaVersion" : 2,
+    "name" : "foo",
+    "type" : "foo",
+    "properties" : {
+      "a" : "~{qux/abc}.${abc}",
+      "b" : "~{qux}.${abc}"
+    },
+    "parameters" : {
+      "c" : "~{qux/abc}.${abc}",
+      "d" : "~{qux}.${abc}"
+    },
+    "requiredDependencies" : [ {
+      "majorSchemaVersion" : 2,
+      "name" : "bar",
+      "properties" : {
+        "e" : "~{qux/abc}.${abc}",
+        "f" : "~{qux}.${abc}"
+      },
+      "parameters" : {
+        "g" : "~{qux/abc}.${abc}",
+        "h" : "~{qux}.${abc}"
+      },
+      "propertiesMetadata" : {
+        "metadata" : { }
+      },
+      "parametersMetadata" : {
+        "metadata" : { }
+      }
+    } ],
+    "providedDependencies" : [ {
+      "majorSchemaVersion" : 2,
+      "name" : "foo",
+      "isPublic" : true,
+      "properties" : {
+        "i" : "~{qux/abc}.${abc}",
+        "j" : "~{qux}.${abc}"
+      },
+      "parameters" : {
+        "k" : "~{qux/abc}.${abc}",
+        "l" : "~{qux}.${abc}"
+      },
+      "propertiesMetadata" : {
+        "metadata" : { }
+      },
+      "parametersMetadata" : {
+        "metadata" : { }
+      }
+    } ],
+    "propertiesMetadata" : {
+      "metadata" : { }
+    },
+    "parametersMetadata" : {
+      "metadata" : { }
+    },
+    "hooks" : [ ]
+  } ],
+  "resources" : [ {
+    "majorSchemaVersion" : 2,
+    "name" : "bar",
+    "type" : "bar",
+    "properties" : {
+      "m" : "~{qux/abc}.${abc}",
+      "n" : "~{qux}.${abc}"
+    },
+    "parameters" : {
+      "o" : "~{qux/abc}.${abc}",
+      "p" : "~{qux}.${abc}"
+    },
+    "isActive" : true,
+    "isOptional" : false,
+    "propertiesMetadata" : {
+      "metadata" : { }
+    },
+    "parametersMetadata" : {
+      "metadata" : { }
+    },
+    "requiredDependencies" : [ ]
+  } ],
+  "parameters" : {
+    "q" : "~{qux/abc}${abc}",
+    "r" : "~{qux}${abc}",
+    "s" : "~{qux/abc}.~{qux}${abc}"
+  },
+  "parametersMetadata" : {
+    "metadata" : { }
+  }
+}

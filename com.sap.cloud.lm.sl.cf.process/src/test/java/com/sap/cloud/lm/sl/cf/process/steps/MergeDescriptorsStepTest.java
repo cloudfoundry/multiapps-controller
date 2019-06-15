@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -13,6 +12,7 @@ import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorMerger;
+import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -24,7 +24,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
-    private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("node-hello-mtad.yaml",
+    private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml",
         MergeDescriptorsStepTest.class);
 
     private class MergeDescriptorsStepMock extends MergeDescriptorsStep {
