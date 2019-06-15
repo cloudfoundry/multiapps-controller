@@ -16,6 +16,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -32,15 +33,15 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
     public void testExecute() throws FileStorageException {
         final String extensionDescriptorString1 = "abc";
         final String extensionDescriptorString2 = "def";
-//        final ExtensionDescriptor extensionDescriptor1 = StepsTestUtil.loadExtensionDescriptor("config-01.mtaext", getClass());
-        final ExtensionDescriptor extensionDescriptor2 = StepsTestUtil.loadExtensionDescriptor("config-02.mtaext", getClass());
-        final ExtensionDescriptor extensionDescriptor3 = StepsTestUtil.loadExtensionDescriptor("config-01.mtaext", getClass());
+        // final ExtensionDescriptor extensionDescriptor1 = DescriptorTestUtil.loadExtensionDescriptor("config-01.mtaext", getClass());
+        final ExtensionDescriptor extensionDescriptor2 = DescriptorTestUtil.loadExtensionDescriptor("config-02.mtaext", getClass());
+        final ExtensionDescriptor extensionDescriptor3 = DescriptorTestUtil.loadExtensionDescriptor("config-01.mtaext", getClass());
         final List<ExtensionDescriptor> extensionDescriptorChain = Arrays.asList(extensionDescriptor2, extensionDescriptor3);
 
         prepare(Arrays.asList(extensionDescriptorString1, extensionDescriptorString2));
         DescriptorParserFacade descriptorParserFacade = Mockito.mock(DescriptorParserFacade.class);
         Mockito.when(descriptorParserFacade.parseExtensionDescriptor(Mockito.<InputStream> any()))
-            .thenReturn(extensionDescriptor2,extensionDescriptor3);
+            .thenReturn(extensionDescriptor2, extensionDescriptor3);
 
         ExtensionDescriptorChainBuilder extensionDescriptorChainBuilder = Mockito.mock(ExtensionDescriptorChainBuilder.class);
         Mockito.when(extensionDescriptorChainBuilder.build(Mockito.any(), Mockito.eq(extensionDescriptorChain)))
@@ -73,7 +74,7 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
 
         context.setVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, String.join(",", fileIdToExtensionDescriptor.keySet()));
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
-        StepsUtil.setDeploymentDescriptor(context, StepsTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass()));
+        StepsUtil.setDeploymentDescriptor(context, DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass()));
 
         prepareFileService(fileIdToExtensionDescriptor);
     }

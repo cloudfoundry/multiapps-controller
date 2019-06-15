@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.process.steps;
+package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
@@ -15,9 +15,9 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -29,11 +29,14 @@ public class MtaDescriptorPropertiesResolverTest {
 // @formatter:off
             Arguments.of(
                 "mtad-properties-resolver-test/mtad-with-route.yaml", new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-route-result.json")
-                ),
+            ),
             Arguments.of(
                 "mtad-properties-resolver-test/mtad-with-domain.yaml", new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-domain-result.json")
-                )
-            );
+            ),
+            Arguments.of(
+                "mtad-properties-resolver-test/mtad-with-escaped-references.yaml", new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-escaped-references.json")
+            )
+        );
 // @formatter:on
     }
 
@@ -62,8 +65,9 @@ public class MtaDescriptorPropertiesResolverTest {
     @ParameterizedTest(name = "{index}: \"{1}.\"")
     @MethodSource
     public void testResolve(String descriptorFile, Expectation expectation) {
-        DeploymentDescriptor descriptor = StepsTestUtil.loadDeploymentDescriptor(descriptorFile, getClass());
+        DeploymentDescriptor descriptor = DescriptorTestUtil.loadDeploymentDescriptor(descriptorFile, getClass());
 
         tester.test(() -> resolver.resolve(descriptor), expectation);
     }
+
 }
