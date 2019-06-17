@@ -304,7 +304,7 @@ public class StepsUtil {
             .collect(Collectors.toList());
     }
 
-    static void setServicesToBind(DelegateExecution context, List<CloudServiceExtended> services) {
+    public static void setServicesToBind(DelegateExecution context, List<CloudServiceExtended> services) {
         List<String> servicesAsStrings = services.stream()
             .map(JsonUtil::toJson)
             .collect(Collectors.toList());
