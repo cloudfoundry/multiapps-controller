@@ -68,7 +68,6 @@ public class CreateServiceStep extends ServiceStep {
         if (!service.isOptional()) {
             String detailedDescription = MessageFormat.format(Messages.ERROR_CREATING_SERVICE, service.getName(), service.getLabel(),
                 service.getPlan(), e.getDescription());
-//            getStepLogger().error(e, detailedDescription);
             if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
                 throw new CloudServiceBrokerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
             }

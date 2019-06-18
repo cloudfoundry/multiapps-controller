@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.InstanceInfo;
 import org.cloudfoundry.client.lib.domain.InstanceState;
@@ -22,7 +20,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class PollStartAppStatusExecution implements AsyncExecution {
 
@@ -57,12 +54,9 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         return checkStartupStatus(execution, app, status);
     }
 
-    @Override
-    public void onPollingError(ExecutionWrapper execution, Exception e) throws Exception {
+    public String getPollingErrorMessage(ExecutionWrapper execution) {
         String appToPoll = getAppToPoll(execution.getContext()).getName();
-        execution.getStepLogger()
-            .error(e, format(Messages.ERROR_STARTING_APP_1, appToPoll));
-        throw e;
+        return format(Messages.ERROR_STARTING_APP_1, appToPoll);
     }
 
     protected void onError(ExecutionWrapper execution, String message) {

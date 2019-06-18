@@ -38,9 +38,8 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_CREATING_SUBSCRIPTIONS);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_CREATING_SUBSCRIPTIONS;
     }
 
     private ConfigurationSubscription detectSubscription(String mtaId, String applicationName, String spaceId, String resourceName) {

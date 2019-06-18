@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -13,7 +14,6 @@ import javax.inject.Inject;
 
 import org.apache.commons.io.FileUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.Status;
@@ -82,10 +82,9 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return MessageFormat.format(Messages.ERROR_UPLOADING_APP, StepsUtil.getApp(context)
             .getName());
-        throw e;
     }
 
     private String getNewApplicationDigest(ExecutionWrapper execution, String appArchiveId, String fileName) throws FileStorageException {

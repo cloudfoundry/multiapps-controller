@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
@@ -43,11 +44,10 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
+    protected String getStepErrorMessage(DelegateExecution context) {
         CloudApplicationExtended app = StepsUtil.getApp(context);
         CloudTask taskToExecute = StepsUtil.getTask(context);
-        getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
-        throw e;
+        return MessageFormat.format(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
     }
 
     @Override

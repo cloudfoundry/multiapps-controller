@@ -28,6 +28,10 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
     public PollServiceCreateOrUpdateOperationsExecution(ServiceGetter serviceInstanceGetter) {
         this.serviceInstanceGetter = serviceInstanceGetter;
     }
+    
+    public String getPollingErrorMessage(ExecutionWrapper execution) {
+        return Messages.ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES;
+    }
 
     @Override
     protected List<CloudServiceExtended> computeServicesToPoll(ExecutionWrapper execution,

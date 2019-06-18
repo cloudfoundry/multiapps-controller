@@ -13,6 +13,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
+import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 @Component("prepareModulesDeploymentStep")
@@ -57,8 +58,8 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_PREPARING_MODULES_DEPLOYMENT;
     }
 
     protected List<Module> getModulesToDeploy(DelegateExecution context) {

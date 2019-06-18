@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,10 +32,9 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return MessageFormat.format(Messages.ERROR_STAGING_APP_1, StepsUtil.getApp(context)
             .getName());
-        throw e;
     }
 
     @Override

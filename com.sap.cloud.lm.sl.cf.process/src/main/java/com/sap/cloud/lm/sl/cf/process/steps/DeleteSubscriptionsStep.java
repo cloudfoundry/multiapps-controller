@@ -43,11 +43,10 @@ public class DeleteSubscriptionsStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.DELETED_SUBSCRIPTIONS);
         return StepPhase.DONE;
     }
-    
+
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_DELETING_SUBSCRIPTIONS);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_DELETING_SUBSCRIPTIONS;
     }
 
     private void infoSubscriptionDeletion(ConfigurationSubscription subscription) {

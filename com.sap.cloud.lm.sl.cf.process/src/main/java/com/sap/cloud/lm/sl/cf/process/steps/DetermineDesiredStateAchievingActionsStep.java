@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -53,10 +54,9 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return MessageFormat.format(Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP, StepsUtil.getApp(context)
             .getName());
-        throw e;
     }
 
     private ApplicationStartupState computeCurrentState(CloudApplication app) {

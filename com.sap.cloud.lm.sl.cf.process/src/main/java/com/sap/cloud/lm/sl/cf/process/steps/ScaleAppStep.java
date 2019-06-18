@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -36,10 +38,9 @@ public class ScaleAppStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_SCALING_APP, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return MessageFormat.format(Messages.ERROR_SCALING_APP, StepsUtil.getApp(context)
             .getName());
-        throw e;
     }
 
 }

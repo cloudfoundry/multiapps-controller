@@ -48,9 +48,8 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS;
     }
 
     private List<String> getExtensionDescriptorFileIds(DelegateExecution context) {

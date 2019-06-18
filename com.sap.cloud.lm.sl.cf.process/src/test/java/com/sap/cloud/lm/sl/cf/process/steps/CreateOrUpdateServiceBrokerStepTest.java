@@ -97,15 +97,15 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
             },
             // (10) A random exception is thrown during create:
             {
-                "create-service-brokers-step-input-15.json", null, null, "Controller operation failed: 418 I'm a teapot", CloudControllerException.class, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT), null,
+                "create-service-brokers-step-input-15.json", null, null, "Controller operation failed: 418 I'm a teapot", SLException.class, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT), null,
             },
             // (11) A random exception is thrown during update:
             {
-                "create-service-brokers-step-input-14.json", null, null, "Controller operation failed: 418 I'm a teapot", CloudControllerException.class, null, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT),
+                "create-service-brokers-step-input-14.json", null, null, "Controller operation failed: 418 I'm a teapot", SLException.class, null, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT),
             },
             // (12) Create/update calls for should fail, because both create and update throw an exception and failsafe option is not set: 
             {
-                "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", null, "Service broker operation failed: 403 Forbidden", CloudServiceBrokerException.class, new CloudOperationException(HttpStatus.FORBIDDEN), new CloudOperationException(HttpStatus.FORBIDDEN),
+                "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", null, "Service broker operation failed: 403 Forbidden", SLException.class, new CloudOperationException(HttpStatus.FORBIDDEN), new CloudOperationException(HttpStatus.FORBIDDEN),
             },
             // (13) Update call for broker should be made, although both create and update throw an exception but failsafe option is set: 
             {

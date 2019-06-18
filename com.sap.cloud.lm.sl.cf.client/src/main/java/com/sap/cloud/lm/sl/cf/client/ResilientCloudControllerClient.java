@@ -305,7 +305,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
         Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
         ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         return executeWithRetry(() -> cc.updateApplicationServices(applicationName, serviceNamesWithBindingParameters,
-                                                                   applicationServicesUpdateCallback),
+                                                                    applicationServicesUpdateCallback),
                                 HttpStatus.NOT_FOUND);
     }
 

@@ -60,7 +60,7 @@ public class FlowableExceptionEventHandler {
         FlowableEngineEvent flowableEngineEvent = (FlowableEngineEvent) event;
 
         String taskId = getCurrentTaskId(flowableEngineEvent);
-        String errorMessage = MessageFormat.format(Messages.PROCESS_FAILED, flowableExceptionMessage);
+        String errorMessage = MessageFormat.format(Messages.UNEXPECTED_ERROR, flowableExceptionMessage);
         String processInstanceId = getProcessInstanceId(flowableEngineEvent);
         List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(processInstanceId);
         Optional<ProgressMessage> errorProgressMessage = progressMessages.stream()

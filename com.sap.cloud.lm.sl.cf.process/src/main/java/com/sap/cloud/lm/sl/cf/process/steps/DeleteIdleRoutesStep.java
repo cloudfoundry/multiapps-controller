@@ -45,9 +45,8 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_DELETING_IDLE_ROUTES);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_DELETING_IDLE_ROUTES;
     }
 
     private void deleteRoute(String uri, CloudControllerClient client) {

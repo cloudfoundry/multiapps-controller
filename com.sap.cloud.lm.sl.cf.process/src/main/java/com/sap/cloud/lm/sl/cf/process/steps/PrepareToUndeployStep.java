@@ -53,9 +53,8 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY;
     }
 
     private Set<String> getMtaModules(DelegateExecution context) {

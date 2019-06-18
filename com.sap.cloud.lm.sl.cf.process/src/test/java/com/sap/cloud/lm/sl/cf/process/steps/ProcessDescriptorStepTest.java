@@ -70,7 +70,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
         step.execute(context);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = SLException.class)
     public void testWithInvalidModulesSpecifiedForDeployment() {
         when(resolver.resolve(any())).thenReturn(DEPLOYMENT_DESCRIPTOR);
         when(context.getVariable(Constants.PARAM_MODULES_FOR_DEPLOYMENT)).thenReturn("foo,bar");

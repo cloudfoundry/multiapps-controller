@@ -13,6 +13,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 public class PollServiceDeleteOperationsExecution extends PollServiceOperationsExecution implements AsyncExecution {
 
@@ -20,6 +21,10 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
 
     public PollServiceDeleteOperationsExecution(EventsGetter eventsGetter) {
         this.eventsGetter = eventsGetter;
+    }
+
+    public String getPollingErrorMessage(ExecutionWrapper execution) {
+        return Messages.ERROR_MONITORING_DELETION_OF_SERVICES;
     }
 
     @Override

@@ -53,9 +53,8 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES;
     }
 
     private List<ConfigurationEntry> publish(List<ConfigurationEntry> entriesToPublish) {

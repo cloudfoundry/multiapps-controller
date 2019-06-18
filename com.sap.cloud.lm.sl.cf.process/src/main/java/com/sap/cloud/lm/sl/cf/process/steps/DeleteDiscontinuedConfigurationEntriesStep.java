@@ -57,10 +57,10 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
         getStepLogger().debug(Messages.PUBLISHED_DEPENDENCIES_DELETED);
         return StepPhase.DONE;
     }
-    
+
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_DELETING_PUBLISHED_DEPENDENCIES;
     }
 
     private List<ConfigurationEntry> getEntriesToDelete(String mtaId, CloudTarget target, List<ConfigurationEntry> publishedEntries) {

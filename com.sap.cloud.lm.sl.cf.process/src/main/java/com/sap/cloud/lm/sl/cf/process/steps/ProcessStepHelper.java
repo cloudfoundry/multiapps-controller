@@ -71,15 +71,18 @@ public class ProcessStepHelper {
     private void logTaskStartup(DelegateExecution context, String taskId) {
         stepLogger.logFlowableTask();
         String message = MessageFormat.format(Messages.EXECUTING_TASK, context.getCurrentActivityId(), context.getProcessInstanceId());
-        progressMessageService.add(new ProgressMessage(StepsUtil.getCorrelationId(context), taskId, ProgressMessageType.TASK_STARTUP, message,
-            new Timestamp(System.currentTimeMillis())));
+        progressMessageService.add(new ProgressMessage(StepsUtil.getCorrelationId(context), taskId, ProgressMessageType.TASK_STARTUP,
+            message, new Timestamp(System.currentTimeMillis())));
     }
 
-    protected void logException(DelegateExecution context, Throwable t) {
+    protected void logExceptionAndStoreProgressMessage(DelegateExecution context, Throwable t) {
+        logException(context, t);
+        storeExceptionInProgressMessageService(context, t);
+    }
+
+    private void logException(DelegateExecution context, Throwable t) {
         LOGGER.error(Messages.EXCEPTION_CAUGHT, t);
         getProcessLogger().error(Messages.EXCEPTION_CAUGHT, t);
-
-        storeExceptionInProgressMessageService(context, t);
 
         if (t instanceof ContentException) {
             StepsUtil.setErrorType(context, ErrorType.CONTENT_ERROR);
@@ -88,19 +91,11 @@ public class ProcessStepHelper {
         }
     }
 
-    public void storeExceptionInProgressMessageService(DelegateExecution context, Throwable t) {
+    private void storeExceptionInProgressMessageService(DelegateExecution context, Throwable t) {
         try {
-            ProgressMessage msg = new ProgressMessage(StepsUtil.getCorrelationId(context), getCurrentActivityId(context), ProgressMessageType.ERROR,
-                MessageFormat.format(Messages.UNEXPECTED_ERROR, t.getMessage()), new Timestamp(System.currentTimeMillis()));
-//            
-//            List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(StepsUtil.getCorrelationId(context));
-//            Optional<ProgressMessage> errorProgressMessage = progressMessages.stream()
-//                .filter(message -> message.getType() == ProgressMessageType.ERROR)
-//                .findAny();
-//            
-//            if(!errorProgressMessage.isPresent()) {
-                progressMessageService.add(msg);
-//            }
+            ProgressMessage msg = new ProgressMessage(StepsUtil.getCorrelationId(context), getCurrentActivityId(context),
+                ProgressMessageType.ERROR, t.getMessage(), new Timestamp(System.currentTimeMillis()));
+            progressMessageService.add(msg);
         } catch (SLException e) {
             getProcessLogger().error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
         }

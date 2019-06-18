@@ -46,9 +46,8 @@ public class DetectMtaSchemaVersionStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_DETECTING_MTA_MAJOR_SCHEMA_VERSION);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_DETECTING_MTA_MAJOR_SCHEMA_VERSION;
     }
 
 }

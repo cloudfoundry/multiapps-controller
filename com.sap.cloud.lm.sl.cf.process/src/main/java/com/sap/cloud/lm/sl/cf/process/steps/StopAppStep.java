@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
+
 import javax.inject.Inject;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -49,10 +51,9 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_STOPPING_APP, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return MessageFormat.format(Messages.ERROR_STOPPING_APP, StepsUtil.getApp(context)
             .getName());
-        throw e;
     }
 
     @Override

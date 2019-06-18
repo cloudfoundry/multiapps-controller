@@ -149,7 +149,7 @@ public class UploadAppStepTest {
             }
             if (expectedCFExceptionMessage != null) {
                 expectedException.expectMessage(expectedCFExceptionMessage);
-                expectedException.expect(CloudControllerException.class);
+                expectedException.expect(SLException.class);
             }
         }
 

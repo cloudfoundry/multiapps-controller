@@ -250,6 +250,11 @@ public class SyncFlowableStepWithHooksTest {
             return moduleName;
         }
 
+        @Override
+        protected String getStepErrorMessage(DelegateExecution context) {
+            return "generic error message";
+        }
+
     }
 
     public static class ModuleHooksAgregatorTest {
@@ -280,6 +285,11 @@ public class SyncFlowableStepWithHooksTest {
                 @Override
                 protected StepPhase executeStepInternal(ExecutionWrapper execution) throws Exception {
                     return StepPhase.DONE;
+                }
+                
+                @Override
+                protected String getStepErrorMessage(DelegateExecution context) {
+                    return "generic error message";
                 }
             }.new ModuleHooksAggregator(context, module);
         }

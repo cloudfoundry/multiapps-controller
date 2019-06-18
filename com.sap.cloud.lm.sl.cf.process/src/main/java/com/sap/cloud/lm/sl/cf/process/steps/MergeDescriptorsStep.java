@@ -46,8 +46,8 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_MERGING_DESCRIPTORS);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_MERGING_DESCRIPTORS;
     }
+
 }

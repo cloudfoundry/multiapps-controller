@@ -1,10 +1,12 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudTask;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,12 @@ public class DeleteApplicationStep extends UndeployAppStep {
         deleteApplication(client, cloudApplicationToUndeploy);
 
         return StepPhase.DONE;
+    }
+
+    @Override
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return MessageFormat.format(Messages.ERROR_DELETING_APP, StepsUtil.getApp(context)
+            .getName());
     }
 
     private void deleteApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy) {

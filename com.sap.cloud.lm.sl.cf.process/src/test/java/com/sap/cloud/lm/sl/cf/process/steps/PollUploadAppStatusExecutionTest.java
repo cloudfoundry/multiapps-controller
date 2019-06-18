@@ -36,7 +36,7 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
 
     private final Status uploadState;
     private final AsyncExecutionState expectedStatus;
-    private final String expectedCfExceptionMessage;
+    private final Exception expectedCfException;
 
     private SimpleApplication application = new SimpleApplication(APP_NAME, 2);
 
@@ -49,7 +49,7 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
 // @formatter:off
             // (00) The previous step used asynchronous upload but getting the upload progress fails with an exception:
             {
-                null, null, CLOUD_OPERATION_EXCEPTION.getMessage(),
+                null, null, CLOUD_OPERATION_EXCEPTION,
             },
             // (01) The previous step used asynchronous upload and it finished successfully:
             {
@@ -75,10 +75,10 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
         });
     }
 
-    public PollUploadAppStatusExecutionTest(Status uploadState, AsyncExecutionState expectedStatus, String expectedCfExceptionMessage) {
+    public PollUploadAppStatusExecutionTest(Status uploadState, AsyncExecutionState expectedStatus, Exception expectedCfException) {
         this.uploadState = uploadState;
         this.expectedStatus = expectedStatus;
-        this.expectedCfExceptionMessage = expectedCfExceptionMessage;
+        this.expectedCfException = expectedCfException;
     }
 
     @Before
@@ -95,14 +95,14 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
     }
 
     private void prepareExpectedException() {
-        if (expectedCfExceptionMessage != null) {
-            expectedException.expectMessage(expectedCfExceptionMessage);
-            expectedException.expect(CloudControllerException.class);
+        if (expectedCfException != null) {
+            expectedException.expectMessage(expectedCfException.getMessage());
+            expectedException.expect(expectedCfException.getClass());
         }
     }
 
     private void prepareClient() {
-        if (expectedCfExceptionMessage != null) {
+        if (expectedCfException != null) {
             when(client.getUploadStatus(UPLOAD_TOKEN)).thenThrow(CLOUD_OPERATION_EXCEPTION);
         } else {
             when(client.getUploadStatus(UPLOAD_TOKEN)).thenReturn(new Upload(uploadState, new ErrorDetails()));

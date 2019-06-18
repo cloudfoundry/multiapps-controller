@@ -39,9 +39,8 @@ public class AddDomainsStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_ADDING_DOMAINS);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_ADDING_DOMAINS;
     }
 
     private List<String> getDomainNames(List<CloudDomain> domains) {

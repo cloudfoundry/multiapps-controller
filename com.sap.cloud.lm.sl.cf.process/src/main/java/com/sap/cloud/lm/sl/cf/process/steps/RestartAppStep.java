@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,11 +44,10 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
         setStartupPollingInfo(execution.getContext(), startingInfo);
         return StepPhase.POLL;
     }
-    
+
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_STARTING_APP_1, getAppToRestart(context).getName());
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return MessageFormat.format(Messages.ERROR_STARTING_APP_1, getAppToRestart(context).getName());
     }
 
     protected CloudApplication getAppToRestart(DelegateExecution context) {

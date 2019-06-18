@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,10 +67,11 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
         getStepLogger().debug(Messages.DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP_DELETED, existingApp.getName());
         return StepPhase.DONE;
     }
-    
+
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return MessageFormat.format(Messages.ERROR_DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP, StepsUtil.getExistingApp(context)
+            .getName());
     }
 
     private List<ConfigurationEntry> getEntriesToDelete(String mtaId, String mtaVersion, CloudTarget target,
