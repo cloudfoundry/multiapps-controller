@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.function.Supplier;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -30,13 +31,10 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         return new PollExecuteTaskStatusDelegate(execution).execute();
     }
 
-    @Override
-    public void onPollingError(ExecutionWrapper execution, Exception e) throws Exception {
+    public String getPollingErrorMessage(ExecutionWrapper execution) {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
         CloudTask task = StepsUtil.getStartedTask(execution.getContext());
-        execution.getStepLogger()
-            .error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
-        throw e;
+        return MessageFormat.format(Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
     }
 
     public class PollExecuteTaskStatusDelegate {

@@ -16,7 +16,9 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
+import com.sap.cloud.lm.sl.common.SLException;
 
 @RunWith(Parameterized.class)
 public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProcessStepTest.MockStep> {
@@ -56,7 +58,8 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
             step.execute(context);
             fail();
         } catch (Exception e) {
-            Mockito.verify(context).setVariable(Constants.VAR_ERROR_TYPE, expectedErrorType.toString());
+            Mockito.verify(context)
+                .setVariable(Constants.VAR_ERROR_TYPE, expectedErrorType.toString());
         }
     }
 
@@ -70,8 +73,8 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
         }
 
         @Override
-        protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-            throw e;
+        protected String getStepErrorMessage(DelegateExecution context) {
+            return "mock error";
         }
 
     }

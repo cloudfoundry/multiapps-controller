@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("prepareToRestartServiceBrokerSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -24,10 +25,10 @@ public class PrepareToRestartServiceBrokerSubscribersStep extends SyncFlowableSt
         context.setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
         return StepPhase.DONE;
     }
-    
+
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_PREPARING_TO_RESTART_SERVICE_BROKER_SUBSCRIBERS;
     }
 
 }

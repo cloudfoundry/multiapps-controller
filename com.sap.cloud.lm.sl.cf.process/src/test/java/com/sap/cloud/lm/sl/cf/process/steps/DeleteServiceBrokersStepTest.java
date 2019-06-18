@@ -28,6 +28,7 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.CreateOrUpdateServiceBrokerStepTest.SimpleApplication;
+import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -79,11 +80,11 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
             },
             // (5) One service broker  should be deleted, but an exception is thrown by the client:
             {
-                "delete-service-brokers-step-input-01.json", new String[] {}, "Controller operation failed: 418 I'm a teapot", CloudControllerException.class, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT),
+                "delete-service-brokers-step-input-01.json", new String[] {}, "Controller operation failed: 418 I'm a teapot", SLException.class, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT),
             },
             // (6) Service broker should not be deleted and an exception should be thrown, because the user is not an admin and failsafe option is not set:
             {
-                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, "Service broker operation failed: 403 Forbidden", CloudServiceBrokerException.class, new CloudOperationException(HttpStatus.FORBIDDEN),
+                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, "Service broker operation failed: 403 Forbidden", SLException.class, new CloudOperationException(HttpStatus.FORBIDDEN),
             },
             // (7) Service broker should not be deleted without an exception, because the user is not an admin and failsafe option is set:
             {

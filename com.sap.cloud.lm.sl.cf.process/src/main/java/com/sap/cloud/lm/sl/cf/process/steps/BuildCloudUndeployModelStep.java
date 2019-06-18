@@ -82,9 +82,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_BUILDING_CLOUD_UNDEPLOY_MODEL);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_BUILDING_CLOUD_UNDEPLOY_MODEL;
     }
 
     private List<String> getDeploymentDescriptorModules(DelegateExecution context) {

@@ -57,9 +57,8 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_CREATING_SERVICE_BROKERS);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_CREATING_SERVICE_BROKERS;
     }
 
     private CloudServiceBroker updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker,

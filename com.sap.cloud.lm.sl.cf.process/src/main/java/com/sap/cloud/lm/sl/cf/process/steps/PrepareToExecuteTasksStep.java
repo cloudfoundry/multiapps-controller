@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -33,10 +34,9 @@ public class PrepareToExecuteTasksStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return MessageFormat.format(Messages.ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP, StepsUtil.getApp(context)
             .getName());
-        throw e;
     }
 
     private boolean platformSupportsTasks(ExecutionWrapper execution) {

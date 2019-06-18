@@ -2,14 +2,13 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -24,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class PollExecuteAppStatusExecution implements AsyncExecution {
@@ -62,12 +60,9 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
 
     }
 
-    @Override
-    public void onPollingError(ExecutionWrapper execution, Exception e) throws Exception {
+    public String getPollingErrorMessage(ExecutionWrapper execution) {
         CloudApplication app = getNextApp(execution.getContext());
-        execution.getStepLogger()
-            .error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
-        throw e;
+        return MessageFormat.format(Messages.ERROR_EXECUTING_APP_1, app.getName());
     }
 
     protected CloudApplication getNextApp(DelegateExecution context) {

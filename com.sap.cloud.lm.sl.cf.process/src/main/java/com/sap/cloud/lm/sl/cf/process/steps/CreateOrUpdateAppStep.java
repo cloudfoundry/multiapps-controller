@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -88,10 +89,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_CREATING_OR_UPDATING_APP, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return MessageFormat.format(Messages.ERROR_CREATING_OR_UPDATING_APP, StepsUtil.getApp(context)
             .getName());
-        throw e;
     }
 
     private StepFlowHandler createStepFlowHandler(ExecutionWrapper execution, CloudControllerClient client, CloudApplicationExtended app,

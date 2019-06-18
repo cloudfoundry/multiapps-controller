@@ -67,9 +67,8 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_COLLECTING_SYSTEM_PARAMETERS);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_COLLECTING_SYSTEM_PARAMETERS;
     }
 
     private String getDefaultDomain(CloudControllerClient client) {

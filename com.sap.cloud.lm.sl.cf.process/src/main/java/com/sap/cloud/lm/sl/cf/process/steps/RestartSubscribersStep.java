@@ -27,10 +27,10 @@ public class RestartSubscribersStep extends SyncFlowableStep {
         }
         return StepPhase.DONE;
     }
-    
+
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_RESTARTING_SUBSCRIBERS;
     }
 
     private void restartSubscriber(ExecutionWrapper execution, CloudApplication subscriber) {

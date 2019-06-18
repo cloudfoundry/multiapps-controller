@@ -15,14 +15,6 @@ public class PollStartServiceBrokerSubscriberStatusExecution extends PollStartAp
     }
 
     @Override
-    public void onPollingError(ExecutionWrapper execution, Exception e) throws Exception {
-        String appToPoll = getAppToPoll(execution.getContext()).getName();
-        execution.getStepLogger()
-            .warn(e, format(Messages.ERROR_STARTING_APP_1, appToPoll));
-        throw e;
-    }
-
-    @Override
     protected void onError(ExecutionWrapper execution, String message) {
         execution.getStepLogger()
             .warn(message);

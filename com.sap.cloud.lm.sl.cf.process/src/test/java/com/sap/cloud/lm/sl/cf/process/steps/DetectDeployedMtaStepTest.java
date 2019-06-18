@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +38,7 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
         step.execute(context);
     }
 
-    @Test(expected = CloudControllerException.class)
+    @Test(expected = SLException.class)
     public void testExecute2() throws Exception {
         when(client.getApplications(false)).thenThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR));
 

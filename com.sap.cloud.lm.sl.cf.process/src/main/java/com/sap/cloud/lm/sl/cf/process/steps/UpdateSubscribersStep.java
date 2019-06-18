@@ -134,9 +134,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_UPDATING_SUBSCRIBERS);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_UPDATING_SUBSCRIBERS;
     }
 
     private void addApplicationToProperList(List<CloudApplication> updatedSubscribers,

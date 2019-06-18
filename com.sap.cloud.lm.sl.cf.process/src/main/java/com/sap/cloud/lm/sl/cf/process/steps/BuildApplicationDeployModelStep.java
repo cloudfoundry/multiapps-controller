@@ -52,9 +52,8 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_BUILDING_CLOUD_APP_MODEL);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_BUILDING_CLOUD_APP_MODEL;
     }
 
     protected Map<String, String> getApplicationEnv(DelegateExecution context, CloudApplicationExtended app) {

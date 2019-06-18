@@ -35,7 +35,6 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.GitRepoCloner;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.SLException;
 
 // Should be executed before ValidateDeployParametersStep as the archive ID is determined during this step execution
 @Component("processGitSourceStep")
@@ -54,60 +53,54 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
     private ApplicationConfiguration configuration;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        try {
-            getStepLogger().info(Messages.DOWNLOADING_DEPLOYABLE);
+    protected StepPhase executeStep(ExecutionWrapper execution) throws IOException, GitAPIException, FileStorageException {
+        getStepLogger().info(Messages.DOWNLOADING_DEPLOYABLE);
 
-            final String gitUri = getGitUri(execution);
-            final String gitRepoPath = (String) execution.getContext()
-                .getVariable(Constants.PARAM_GIT_REPO_PATH);
-            String processId = execution.getContext()
-                .getProcessInstanceId();
-            final String repoName = extractRepoName(gitUri, processId);
-            final Path reposDir = Paths.get(REPOSITORY_DIRECTORY_NAME, repoName);
-            Path gitConfigFilePath = generateGitConfigFilepath(processId);
-            if (!reposDir.toFile()
-                .exists()) {
-                Files.createDirectories(reposDir);
-            }
-            Path mtarZip = null;
-            try {
-
-                GitRepoCloner cloner = createCloner(execution);
-                getStepLogger().info(Messages.CLONING_REPOSITORY, gitUri);
-                cloner.cloneRepo(gitUri, reposDir);
-                final Path mtaRepoPath = reposDir.resolve(gitRepoPath)
-                    .normalize();
-                mtarZip = zipRepoContent(mtaRepoPath);
-                uploadZipToDB(execution.getContext(), mtarZip);
-            } finally {
-                try {
-                    deleteTemporaryRepositoryDirectory(reposDir);
-                    if (gitConfigFilePath.toFile()
-                        .exists()) {
-                        Files.delete(gitConfigFilePath);
-                    }
-                    if (mtarZip != null && mtarZip.toFile()
-                        .exists()) {
-                        FileUtils.deleteDirectory(mtarZip);
-                    }
-                } catch (IOException e) {
-                    // ignore such cases
-                }
-            }
-            return StepPhase.DONE;
-        } catch (GitAPIException | IOException | FileStorageException e) {
-            getStepLogger().error(e, Messages.ERROR_DOWNLOADING_DEPLOYABLE_FROM_GIT);
-            throw new SLException(e, Messages.ERROR_PROCESSING_GIT_MTA_SOURCE);
+        final String gitUri = getGitUri(execution);
+        final String gitRepoPath = (String) execution.getContext()
+            .getVariable(Constants.PARAM_GIT_REPO_PATH);
+        String processId = execution.getContext()
+            .getProcessInstanceId();
+        final String repoName = extractRepoName(gitUri, processId);
+        final Path reposDir = Paths.get(REPOSITORY_DIRECTORY_NAME, repoName);
+        Path gitConfigFilePath = generateGitConfigFilepath(processId);
+        if (!reposDir.toFile()
+            .exists()) {
+            Files.createDirectories(reposDir);
         }
+        Path mtarZip = null;
+        try {
+
+            GitRepoCloner cloner = createCloner(execution);
+            getStepLogger().info(Messages.CLONING_REPOSITORY, gitUri);
+            cloner.cloneRepo(gitUri, reposDir);
+            final Path mtaRepoPath = reposDir.resolve(gitRepoPath)
+                .normalize();
+            mtarZip = zipRepoContent(mtaRepoPath);
+            uploadZipToDB(execution.getContext(), mtarZip);
+        } finally {
+            try {
+                deleteTemporaryRepositoryDirectory(reposDir);
+                if (gitConfigFilePath.toFile()
+                    .exists()) {
+                    Files.delete(gitConfigFilePath);
+                }
+                if (mtarZip != null && mtarZip.toFile()
+                    .exists()) {
+                    FileUtils.deleteDirectory(mtarZip);
+                }
+            } catch (IOException e) {
+                // ignore such cases
+            }
+        }
+        return StepPhase.DONE;
     }
-    
+
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e.getMessage());
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_DOWNLOADING_DEPLOYABLE_FROM_GIT;
     }
-    
+
     private GitRepoCloner createCloner(ExecutionWrapper execution) {
         DelegateExecution context = execution.getContext();
         GitRepoCloner cloner = new GitRepoCloner();

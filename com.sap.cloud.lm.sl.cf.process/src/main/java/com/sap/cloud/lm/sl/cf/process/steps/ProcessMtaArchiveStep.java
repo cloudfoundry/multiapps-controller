@@ -49,9 +49,8 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_ARCHIVE);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_PROCESSING_MTA_ARCHIVE;
     }
 
     private void processApplicationArchive(final DelegateExecution context, String appArchiveId) throws FileStorageException {

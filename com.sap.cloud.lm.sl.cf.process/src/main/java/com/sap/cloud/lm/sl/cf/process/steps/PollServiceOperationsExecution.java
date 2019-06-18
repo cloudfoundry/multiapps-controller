@@ -1,17 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
-import com.sap.cloud.lm.sl.cf.core.cf.services.TypedServiceOperationState;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import org.apache.commons.collections4.CollectionUtils;
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudOperationException;
+import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -23,9 +12,10 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import static java.text.MessageFormat.format;
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudControllerException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
@@ -51,26 +41,15 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
             return AsyncExecutionState.FINISHED;
         }
 
-//<<<<<<< HEAD
-            Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation = new HashMap<>();
-            for (CloudServiceExtended service : servicesToPoll) {
-                ServiceOperation lastServiceOperation = getLastServiceOperationAndHandleExceptions(execution, client, service);
-                if (lastServiceOperation != null) {
-                    servicesWithLastOperation.put(service, lastServiceOperation);
-                }
-                execution.getStepLogger()
-                    .debug(Messages.LAST_OPERATION_FOR_SERVICE, service.getName(), JsonUtil.toJson(lastServiceOperation, true));
-//=======
-//        Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation = new HashMap<>();
-//        for (CloudServiceExtended service : servicesToPoll) {
-//            ServiceOperation lastServiceOperation = getLastServiceOperation(execution, client, service);
-//            if (lastServiceOperation != null) {
-//                servicesWithLastOperation.put(service, lastServiceOperation);
-//>>>>>>> Avoid duplication of error messages
-                execution.getStepLogger()
-                .debug(Messages.LAST_OPERATION_FOR_SERVICE, service.getName(), JsonUtil.toJson(lastServiceOperation, true));
+        Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation = new HashMap<>();
+        for (CloudServiceExtended service : servicesToPoll) {
+            ServiceOperation lastServiceOperation = getLastServiceOperationAndHandleExceptions(execution, client, service);
+            if (lastServiceOperation != null) {
+                servicesWithLastOperation.put(service, lastServiceOperation);
             }
-//        }
+            execution.getStepLogger()
+                .debug(Messages.LAST_OPERATION_FOR_SERVICE, service.getName(), JsonUtil.toJson(lastServiceOperation, true));
+        }
         reportIndividualServiceState(execution, servicesWithLastOperation);
         reportServiceOperationsState(execution, servicesWithLastOperation, triggeredServiceOperations);
         List<CloudServiceExtended> remainingServicesToPoll = getRemainingServicesToPoll(servicesWithLastOperation);
@@ -78,33 +57,10 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
             .debug(Messages.REMAINING_SERVICES_TO_POLL, JsonUtil.toJson(remainingServicesToPoll, true));
         StepsUtil.setServicesToPoll(execution.getContext(), remainingServicesToPoll);
 
-//<<<<<<< HEAD
-//            if (remainingServicesToPoll.isEmpty()) {
-//                return AsyncExecutionState.FINISHED;
-//            }
-//            return AsyncExecutionState.RUNNING;
-//        } catch (CloudOperationException coe) {
-//            CloudControllerException e = new CloudControllerException(coe);
-//            execution.getStepLogger()
-//                .error(e, Messages.ERROR_MONITORING_OPERATIONS_OVER_SERVICES);
-//            throw e;
-//        } catch (SLException e) {
-//            execution.getStepLogger()
-//                .error(e, Messages.ERROR_MONITORING_OPERATIONS_OVER_SERVICES);
-//            throw e;
-//=======
         if (remainingServicesToPoll.isEmpty()) {
             return AsyncExecutionState.FINISHED;
-//>>>>>>> Avoid duplication of error messages
         }
         return AsyncExecutionState.RUNNING;
-    }
-
-    @Override
-    public void onPollingError(ExecutionWrapper execution, Exception e) throws Exception {
-        execution.getStepLogger()
-            .error(e, Messages.ERROR_MONITORING_CREATION_OF_SERVICES);
-        throw e;
     }
 
     protected List<CloudServiceExtended> getServiceOperationsToPoll(ExecutionWrapper execution,
@@ -130,7 +86,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         CloudServiceExtended service);
 
     private ServiceOperation getLastServiceOperationAndHandleExceptions(ExecutionWrapper execution, CloudControllerClient client,
-                                                                        CloudServiceExtended service) {
+        CloudServiceExtended service) {
         try {
             return getLastServiceOperation(execution, client, service);
         } catch (CloudOperationException e) {

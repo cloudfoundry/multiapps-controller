@@ -71,9 +71,8 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
     }
     
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_VALIDATING_APPLICATIONS);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_VALIDATING_APPLICATIONS;
     }
 
     private void validateServicesToCreate(CloudControllerClient client, DelegateExecution context, DeployedMta deployedMta,

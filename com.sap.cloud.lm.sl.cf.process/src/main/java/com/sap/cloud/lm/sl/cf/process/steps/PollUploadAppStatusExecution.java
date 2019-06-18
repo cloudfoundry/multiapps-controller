@@ -45,11 +45,9 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
     }
 
     @Override
-    public void onPollingError(ExecutionWrapper execution, Exception e) throws Exception {
-        execution.getStepLogger()
-            .error(e, Messages.ERROR_CHECKING_UPLOAD_APP_STATUS, StepsUtil.getApp(execution.getContext())
-                .getName());
-        throw e;
+    public String getPollingErrorMessage(ExecutionWrapper execution) {
+        return format(Messages.ERROR_CHECKING_UPLOAD_APP_STATUS, StepsUtil.getApp(execution.getContext())
+            .getName());
     }
 
 }

@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
@@ -29,10 +30,11 @@ public class DetermineTasksFromHookStep extends SyncFlowableStep {
 
         return StepPhase.DONE;
     }
-    
+
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return MessageFormat.format(Messages.ERROR_EXECUTING_HOOK, StepsUtil.getHookForExecution(context)
+            .getName());
     }
 
 }

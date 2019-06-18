@@ -79,9 +79,8 @@ public class DeleteServicesStep extends AsyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        getStepLogger().error(e, Messages.ERROR_DELETING_SERVICES);
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_DELETING_SERVICES;
     }
 
     private Map<String, CloudServiceExtended> getServicesData(List<String> serviceNames, ExecutionWrapper execution) {

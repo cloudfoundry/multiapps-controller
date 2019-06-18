@@ -84,7 +84,6 @@ public class Messages {
     public static final String ERROR_CREATING_SERVICES = "Error creating services";
     public static final String ERROR_DELETING_SERVICES = "Error deleting services";
     public static final String ERROR_DELETING_SUBSCRIPTIONS = "Error deleting discontinued subscriptions";
-    public static final String ERROR_UNDEPLOYING_APPS = "Error undeploying applications";
     public static final String ERROR_BUILDING_CLOUD_APP_MODEL = "Error building cloud application deploy model";
     public static final String ERROR_CREATING_OR_UPDATING_APP = "Error creating or updating application \"{0}\"";
     public static final String ERROR_UPLOADING_APP = "Error uploading application \"{0}\"";
@@ -93,7 +92,15 @@ public class Messages {
     public static final String ERROR_RESERVING_ROUTES = "Error reserving routes for application \"{0}\"";
     public static final String ERROR_CHECKING_UPLOAD_APP_STATUS = "Error checking upload status of application \"{0}\"";
     public static final String ERROR_SCALING_APP = "Error scaling application \"{0}\"";
+    public static final String ERROR_DELETING_APP_ROUTES = "Error deleting routes for application \"{0}\"";
+    public static final String ERROR_DELETING_APP = "Error deleting application \"{0}\"";
+    public static final String ERROR_DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP = "Error deleting discontinued configuration entries for application \"{0}\"";
+    public static final String ERROR_DELETING_PUBLISHED_DEPENDENCIES = "Error deleting discontinued published dependencies";
     public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP = "Error determining actions to execute on application \"{0}\"";
+    public static final String ERROR_EXECUTING_HOOK = "Error executing hook \"{0}\"";
+    public static final String ERROR_INCREMENET_INDEX = "Error incrementing index";
+    public static final String ERROR_PREPARING_MODULES_DEPLOYMENT = "Error preparing modules deployment";
+    public static final String ERROR_COMPUTING_ZDM_SERVICES_FOR_DELETION = "Error comuputing zdm services for deletion";
     public static final String ERROR_STOPPING_APP = "Error stopping application \"{0}\"";
     public static final String ERROR_STAGING_APP_1 = "Error staging application \"{0}\"";
     public static final String ERROR_STAGING_APP_2 = "Staging of application \"{0}\" failed. Download the application logs via the dmol command and check them for more information.";
@@ -103,6 +110,7 @@ public class Messages {
     public static final String ERROR_EXECUTING_APP_1 = "Error executing application \"{0}\"";
     public static final String ERROR_EXECUTING_APP_2 = "Error executing application \"{0}\": {1}";
     public static final String ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP = "Error preparing to execute tasks on application \"{0}\"";
+    public static final String ERROR_PREPARING_TO_RESTART_SERVICE_BROKER_SUBSCRIBERS = "Error preparing to restart service broker subscribers";
     public static final String ERROR_EXECUTING_TASK_ON_APP = "Execution of task \"{0}\" failed. Download the application logs \"{1}\", via the dmol command, and check them for more information.";
     public static final String ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY = "Error detecting components to undeploy";
     public static final String ERROR_DELETING_IDLE_ROUTES = "Error deleting idle routes";
@@ -111,12 +119,14 @@ public class Messages {
     public static final String ERROR_CREATING_SERVICE_BROKERS = "Error creating service brokers";
     public static final String ERROR_DELETING_SERVICE_BROKERS = "Error deleting service brokers";
     public static final String ERROR_UPDATING_SUBSCRIBERS = "Error updating subscribers";
+    public static final String ERROR_RESTARTING_SUBSCRIBERS = "Error restarting subscribers";
     public static final String ERROR_NO_SERVICE_URL_SPECIFIED = "No service URL is specified for service \"{0}\" and application \"{1}\"";
     public static final String ERROR_RETRIEVING_OAUT_TOKEN = "Error retrieving OAuth token";
     public static final String ERROR_PROCESSING_GIT_URI = "Error processing Git URI";
     public static final String ERROR_PROCESSING_GIT_MTA_SOURCE = "Failed to process Git MTA source";
     public static final String ERROR_DOWNLOADING_DEPLOYABLE_FROM_GIT = "Error downloading deployable from Git";
     public static final String ERROR_MONITORING_SUBPROCESS = "Error monitoring subprocess with id {0}";
+    public static final String ERROR_SERVICE_OPERATION = "Service operation failed";
     public static final String ERROR_CREATING_SERVICE = "Error creating service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_UPDATING_SERVICE = "Error updating service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_DELETING_SERVICE = "Error deleting service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
@@ -125,6 +135,9 @@ public class Messages {
     public static final String ERROR_UPDATING_OPTIONAL_SERVICE = "Error updating optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_DELETING_OPTIONAL_SERVICE = "Error deleting optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_MONITORING_OPERATIONS_OVER_SERVICES = "Error monitoring operations over services";
+
+    public static final String ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES = "Error monitoring creation or update of services";
+    public static final String ERROR_MONITORING_DELETION_OF_SERVICES = "Error monitoring deletion of services";
     public static final String SERVICES_ARE_ALREADY_DELETED = "Services \"{0}\" are already deleted";
     public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE = "Error determining actions to execute on service \"{0}\": {1}";
     public static final String ERROR_POLLING_OF_SERVICE = "Error polling last operation of service \"{0}\": {1}";
@@ -245,7 +258,6 @@ public class Messages {
     public static final String APPLICATION_UNCHANGED = "Application \"{0}\" is not modified and will not be updated";
     public static final String WILL_NOT_REBIND_APP_TO_SERVICE = "Service \"{0}\" will not be rebound to application \"{1}\" because the binding parameters are not modified";
     public static final String SERVICE_BROKER_DOES_NOT_EXIST = "Service broker with name \"{0}\" does not exist";
-    public static final String PROCESS_FAILED = "Process failed: \"{0}\"";
     public static final String EXECUTING_HOOK_0 = "Executing hook \"{0}\"";
 
     // DEBUG log messages

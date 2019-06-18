@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("incrementIndexStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -22,8 +23,8 @@ public class IncrementIndexStep extends SyncFlowableStep {
     }
 
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_INCREMENET_INDEX;
     }
 
 }

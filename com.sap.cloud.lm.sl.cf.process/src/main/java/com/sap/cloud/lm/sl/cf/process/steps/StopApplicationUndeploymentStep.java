@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -21,6 +23,12 @@ public class StopApplicationUndeploymentStep extends UndeployAppStep {
         getStepLogger().debug(Messages.APP_STOPPED, cloudApplicationToUndeploy.getName());
 
         return StepPhase.DONE;
+    }
+
+    @Override
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return MessageFormat.format(Messages.ERROR_STOPPING_APP, StepsUtil.getApp(context)
+            .getName());
     }
 
     @Override

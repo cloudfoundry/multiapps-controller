@@ -1,5 +1,16 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.flowable.engine.delegate.DelegateExecution;
+
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
@@ -8,15 +19,6 @@ import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudOperationException;
-import org.flowable.engine.delegate.DelegateExecution;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class ServiceStep extends AsyncFlowableStep {
 
@@ -49,12 +51,12 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     }
     
     @Override
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        throw e;
+    protected String getStepErrorMessage(DelegateExecution context) {
+        return Messages.ERROR_SERVICE_OPERATION;
     }
 
     private MethodExecution<String> executeOperationAndHandleExceptions(DelegateExecution execution, CloudControllerClient controllerClient,
-                                                CloudServiceExtended service) {
+                                                CloudServiceExtended service) throws Exception {
         try {
             return executeOperation(execution, controllerClient, service);
         } catch (CloudOperationException e) {
