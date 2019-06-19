@@ -214,7 +214,8 @@
                         <ignorePomModules>false</ignorePomModules>
                         <autoDetectProxySettings>true</autoDetectProxySettings>
                         <forceCheckAllDependencies>true</forceCheckAllDependencies>
-                        <forceUpdate>true</forceUpdate>                  
+                        <forceUpdate>true</forceUpdate>
+                        <productVersion>cf</productVersion> 
                     </configuration>
                 </plugin>
             </plugins>
