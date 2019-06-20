@@ -939,6 +939,13 @@
         </repository>
     </distributionManagement>
 
+    <repositories>
+        <repository>
+            <id>central-sonatype</id>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+        </repository>
+    </repositories>
+
     <profiles>
         <profile>
             <id>default</id>
