@@ -39,7 +39,8 @@ public class ExecutionRetrier {
             try {
                 return supplier.get();
             } catch (Exception e) {
-                new ExceptionHandlerFactory().geExceptionHandler(e, httpStatuses, failSafe)
+
+                new ExceptionHandlerFactory().getExceptionHandler(e, httpStatuses, failSafe)
                                              .handleException(e);
             }
             CommonUtil.sleep(waitTimeBetweenRetriesInMillis);
