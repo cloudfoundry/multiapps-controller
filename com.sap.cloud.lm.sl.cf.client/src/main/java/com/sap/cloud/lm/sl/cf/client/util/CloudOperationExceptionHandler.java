@@ -1,16 +1,21 @@
 package com.sap.cloud.lm.sl.cf.client.util;
 
-import java.text.MessageFormat;
-import java.util.Set;
-
+import org.apache.commons.compress.utils.Sets;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
+import java.text.MessageFormat;
+import java.util.Set;
+
 public class CloudOperationExceptionHandler implements ExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudOperationExceptionHandler.class);
+
+    private static final Set<HttpStatus> statusesToIgnore = Sets.newHashSet(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.BAD_GATEWAY,
+                                                                            HttpStatus.SERVICE_UNAVAILABLE, HttpStatus.GATEWAY_TIMEOUT,
+                                                                            HttpStatus.REQUEST_TIMEOUT);
 
     private Set<HttpStatus> httpStatuses;
     private boolean isFailSafe;
@@ -40,11 +45,6 @@ public class CloudOperationExceptionHandler implements ExceptionHandler {
                 return true;
             }
         }
-        return e.getStatusCode()
-            .equals(HttpStatus.INTERNAL_SERVER_ERROR)
-            || e.getStatusCode()
-                .equals(HttpStatus.BAD_GATEWAY)
-            || e.getStatusCode()
-                .equals(HttpStatus.SERVICE_UNAVAILABLE);
+        return statusesToIgnore.contains(e.getStatusCode());
     }
 }
