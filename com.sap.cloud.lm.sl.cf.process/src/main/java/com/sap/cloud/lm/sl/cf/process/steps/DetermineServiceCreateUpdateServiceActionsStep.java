@@ -49,10 +49,6 @@ import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 @Component("determineServiceCreateUpdateActionsStep")
 public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowableStep {
 
-    private static final String LAST_SERVICE_OPERATION = "last_operation";
-    private static final String SERVICE_OPERATION_TYPE = "type";
-    private static final String SERVICE_OPERATION_STATE = "state";
-
     @Inject
     private ServiceGetter serviceInstanceGetter;
 
@@ -224,17 +220,22 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             return false;
         }
         ServiceOperation lastOperation = getLastOperation(serviceInstanceEntity);
-        if (lastOperation != null && lastOperation.getType() == ServiceOperationType.CREATE
-            && lastOperation.getState() == ServiceOperationState.FAILED) {
+        if (hasServiceCreateFailedState(lastOperation)) {
             return true;
         }
-        boolean serviceNeedsRecreation = serviceHasDifferentTypeOrLabel(service, existingService);
+        boolean serviceNeedsRecreation = serviceHasDifferentTypeOrLabel(service, existingService)
+            || hasServiceDeleteFailedState(lastOperation);
         if (!StepsUtil.shouldDeleteServices(execution.getContext()) && serviceNeedsRecreation) {
             getStepLogger().debug("Service should be recreated, but delete-services was not enabled.");
             throw new SLException(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET, service.getResourceName(),
                 buildServiceType(service), existingService.getName(), buildServiceType(existingService));
         }
         return serviceNeedsRecreation;
+    }
+
+    private boolean hasServiceCreateFailedState(ServiceOperation lastOperation) {
+        return lastOperation != null && lastOperation.getType() == ServiceOperationType.CREATE
+            && lastOperation.getState() == ServiceOperationState.FAILED;
     }
 
     private boolean serviceHasDifferentTypeOrLabel(CloudServiceExtended service, CloudService existingService) {
@@ -244,6 +245,11 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
         boolean haveDifferentLabels = !Objects.equals(service.getLabel(), existingService.getLabel());
         return haveDifferentTypes || haveDifferentLabels;
+    }
+
+    private boolean hasServiceDeleteFailedState(ServiceOperation lastOperation) {
+        return lastOperation != null && lastOperation.getType() == ServiceOperationType.DELETE
+            && lastOperation.getState() == ServiceOperationState.FAILED;
     }
 
     private String buildServiceType(CloudService service) {
@@ -279,8 +285,9 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
     }
 
+    @SuppressWarnings("unchecked")
     private ServiceOperation getLastOperation(Map<String, Object> cloudServiceInstance) {
-        Map<String, Object> lastOperationAsMap = (Map<String, Object>) cloudServiceInstance.get(LAST_SERVICE_OPERATION);
+        Map<String, Object> lastOperationAsMap = (Map<String, Object>) cloudServiceInstance.get(ServiceOperation.LAST_SERVICE_OPERATION);
         if (lastOperationAsMap == null) {
             return null;
         }
@@ -288,11 +295,10 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     }
 
     private ServiceOperation parseServiceOperationFromMap(Map<String, Object> serviceOperation) {
-        if (serviceOperation.get(SERVICE_OPERATION_TYPE) == null || serviceOperation.get(SERVICE_OPERATION_STATE) == null) {
+        if (serviceOperation.get(ServiceOperation.SERVICE_OPERATION_TYPE) == null
+            || serviceOperation.get(ServiceOperation.SERVICE_OPERATION_STATE) == null) {
             return null;
         }
-        ServiceOperationType type = ServiceOperationType.fromString((String) serviceOperation.get(SERVICE_OPERATION_TYPE));
-        ServiceOperationState state = ServiceOperationState.fromString((String) serviceOperation.get(SERVICE_OPERATION_STATE));
-        return new ServiceOperation(type, null, state);
+        return ServiceOperation.fromMap(serviceOperation);
     }
 }

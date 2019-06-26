@@ -871,14 +871,14 @@ public class StepsUtil {
         return getBoolean(scope, Constants.VAR_SKIP_MANAGE_SERVICE_BROKER);
     }
 
-    public static void setServicesData(VariableScope scope, Map<String, CloudServiceExtended> servicesData) {
+    public static void setServicesData(VariableScope scope, List<CloudServiceExtended> servicesData) {
         scope.setVariable(Constants.VAR_SERVICES_DATA, JsonUtil.toJsonBinary(servicesData));
     }
 
-    public static Map<String, CloudServiceExtended> getServicesData(VariableScope scope) {
-        TypeReference<Map<String, CloudServiceExtended>> type = new TypeReference<Map<String, CloudServiceExtended>>() {
+    public static List<CloudServiceExtended> getServicesData(VariableScope scope) {
+        TypeReference<List<CloudServiceExtended>> type = new TypeReference<List<CloudServiceExtended>>() {
         };
-        return getFromJsonBinary(scope, Constants.VAR_SERVICES_DATA, type, Collections.emptyMap());
+        return getFromJsonBinary(scope, Constants.VAR_SERVICES_DATA, type, Collections.emptyList());
     }
 
     public static CloudApplication getBoundApplication(List<CloudApplication> applications, UUID appGuid) {

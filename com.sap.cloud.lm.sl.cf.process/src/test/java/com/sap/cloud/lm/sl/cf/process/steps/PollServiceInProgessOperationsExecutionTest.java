@@ -4,9 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,16 +20,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
-import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.ParsingException;
+import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class PollServiceOperationsStepTest extends AsyncStepOperationTest<CreateServiceStep> {
+public class PollServiceInProgessOperationsExecutionTest extends AsyncStepOperationTest<CheckForOperationsInProgressStep> {
 
     private static final String TEST_SPACE_ID = "test";
 
@@ -39,76 +36,54 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
-            // (0) With no async services:
+            // (0) With 2 services in progress:
             {
-                "poll-create-services-step-input-00.json", null
+                "poll-check-in-progress-services-step-input-0.json", false, null
             },
-            // (1) With one async service:
+            // (1) With 1 service in progress state and 1 successfully deleted
             {
-                "poll-create-services-step-input-01.json", null
+                "poll-check-in-progress-services-step-input-1.json", true, null
             },
-            // (2) With non-existing service:
+            // (2) With 2 services created successfully and 1 user-provided
             {
-                "poll-create-services-step-input-02.json", "Cannot retrieve service instance of service \"test-service-2\""
+                "poll-check-in-progress-services-step-input-2.json", false, null
             },
-            // (3) With non-existing optional service:
+            // (3) Handle missing response for last service operation
             {
-                "poll-create-services-step-input-03.json", null
-            },
-            // (4) With failure and optional service:
-            {
-                "poll-create-services-step-input-04.json", null
-            },
-            // (5) With failure and optional service:
-            {
-                "poll-create-services-step-input-05.json", "Error creating service \"test-service-2\" from offering \"test\" and plan \"test\": Something happened!"
-            },
-            // (6) With user provided service:
-            {
-                "poll-create-services-step-input-06.json", null
-            },
-            // (7) With failure on update of service:
-            {
-                "poll-create-services-step-input-07.json", null
-            },
-            // (8) With failure on creation of service and update of service:
-            {
-                "poll-create-services-step-input-08.json", "Error creating service \"test-service-2\" from offering \"test\" and plan \"test\": Something happened!"
-            },
-            // (8) With failure on creation of service and no error description:
-            {
-                "poll-create-services-step-input-09.json", "Error creating service \"test-service\" from offering \"test\" and plan \"test\": " + Messages.DEFAULT_FAILED_OPERATION_DESCRIPTION
+                "poll-check-in-progress-services-step-input-3.json", false, "Cannot retrieve service instance of service \"test-service-2\""
             },
 // @formatter:on
         });
     }
 
-    public PollServiceOperationsStepTest(String inputLocation, String expectedExceptionMessage) throws ParsingException, IOException {
+    public PollServiceInProgessOperationsExecutionTest(String inputLocation, boolean wasServiceDeleted, String expectedExceptionMessage) {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, PollServiceOperationsStepTest.class), StepInput.class);
+        this.wasServiceDeleted = wasServiceDeleted;
         this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
     @Mock
     private ServiceGetter serviceInstanceGetter;
     @Mock
-    protected CloudControllerClient client;
+    private EventsGetter eventsGetter;
+    @Mock
+    private CloudControllerClient client;
     @Rule
     public ExpectedException exception = ExpectedException.none();
     private StepInput input;
+    private boolean wasServiceDeleted;
     private String expectedExceptionMessage;
 
     @Before
     public void setUp() {
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
+        context.setVariable(Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
         prepareServiceInstanceGetter();
-        StepsUtil.setServicesToCreate(context, input.services);
-        StepsUtil.setServicesToDelete(context, Collections.emptyList());
-        StepsUtil.setServicesData(context, Collections.emptyList());
-        StepsUtil.setTriggeredServiceOperations(context, input.triggeredServiceOperations);
+        prepareServicesData();
+        prepareEventsGetter();
         if (expectedExceptionMessage != null) {
             exception.expectMessage(expectedExceptionMessage);
         }
-        context.setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, 0);
+        StepsUtil.setTriggeredServiceOperations(context, input.triggeredServiceOperations);
         when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
     }
 
@@ -118,6 +93,20 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
             Mockito.when(serviceInstanceGetter.getServiceInstanceEntity(client, response.getKey(), TEST_SPACE_ID))
                 .thenReturn((Map<String, Object>) response.getValue());
         }
+    }
+
+    private void prepareServicesData() {
+        StepsUtil.setServicesData(context, input.services);
+    }
+
+    private void prepareEventsGetter() {
+        input.services.forEach(service -> Mockito.when(eventsGetter.isDeleteEvent(anyString()))
+            .thenReturn(wasServiceDeleted));
+    }
+
+    @Override
+    protected CheckForOperationsInProgressStep createStep() {
+        return new CheckForOperationsInProgressStep();
     }
 
     @Override
@@ -133,13 +122,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     }
 
     @Override
-    protected CreateServiceStep createStep() {
-        return new CreateServiceStep();
-    }
-
-    @Override
     protected List<AsyncExecution> getAsyncOperations(ExecutionWrapper wrapper) {
         return step.getAsyncStepExecutions(wrapper);
     }
-
 }

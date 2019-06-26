@@ -1,6 +1,15 @@
 package com.sap.cloud.lm.sl.cf.core.cf.services;
 
+import java.util.Map;
+
+import org.apache.commons.collections4.MapUtils;
+
 public class ServiceOperation {
+
+    public static final String LAST_SERVICE_OPERATION = "last_operation";
+    public static final String SERVICE_OPERATION_TYPE = "type";
+    public static final String SERVICE_OPERATION_STATE = "state";
+    public static final String SERVICE_OPERATION_DESCRIPTION = "description";
 
     private ServiceOperationType type;
     private String description;
@@ -22,6 +31,13 @@ public class ServiceOperation {
 
     public ServiceOperationState getState() {
         return state;
+    }
+
+    public static ServiceOperation fromMap(Map<String, Object> serviceOperation) {
+        ServiceOperationType type = ServiceOperationType.fromString(MapUtils.getString(serviceOperation, SERVICE_OPERATION_TYPE));
+        ServiceOperationState state = ServiceOperationState.fromString(MapUtils.getString(serviceOperation, SERVICE_OPERATION_STATE));
+        String description = MapUtils.getString(serviceOperation, SERVICE_OPERATION_DESCRIPTION);
+        return new ServiceOperation(type, description, state);
     }
 
 }
