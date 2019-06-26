@@ -1,0 +1,50 @@
+{
+  "services": [
+    {
+      "name": "test-service-1",
+      "label": "test",
+      "plan": "test",
+      "provider": "test",
+      "version": "test",
+      "metadata": {
+      	"guid": "f4007bf2-9431-11e9-bc42-526af7764f64",
+      	"created_at": "2019-06-21T12:00:00Z",
+      	"updated_at": "2019-06-21T12:00:00Z"
+      }
+    },
+    {
+      "name": "test-service-2",
+      "label": "test",
+      "plan": "test",
+      "provider": "test",
+      "version": "test"
+    },
+    {
+      "name": "test-service-3",
+      "label": "test",
+      "plan": "test",
+      "provider": "test",
+      "version": "test"
+    }
+  ],
+  "triggeredServiceOperations": {
+    "test-service-1": "DELETE",
+    "test-service-2": "CREATE",
+    "test-service-3": "DELETE"
+  },
+  "serviceInstanceResponse": {
+    "test-service-2": {
+      "last_operation": {
+        "type": "create",
+        "state": "succeeded"
+      }
+    },
+    "test-service-3": {
+      "last_operation": {
+        "type": "create",
+        "state": "in progress"
+      }
+    }
+  },
+  "expectedStatus": "RUNNING"
+}

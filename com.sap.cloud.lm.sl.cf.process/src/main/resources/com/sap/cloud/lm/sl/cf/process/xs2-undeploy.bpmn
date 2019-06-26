@@ -48,22 +48,16 @@
     <sequenceFlow id="flow22" sourceRef="restartSubscribersTask" targetRef="prepareToRestartServiceBrokerSubscribersTask"></sequenceFlow>
     <sequenceFlow id="flow23" sourceRef="prepareToRestartServiceBrokerSubscribersTask" targetRef="areAllServiceBrokerSubscribersRestartedGateway"></sequenceFlow>
     <sequenceFlow id="flow24" sourceRef="deleteServiceBrokersTask" targetRef="undeployAppsCallActivity"></sequenceFlow>
-    <sequenceFlow id="prepareToUndeployAppsFlow" sourceRef="shouldDeleteDiscontinuedServiceBrokersGateway" targetRef="undeployAppsCallActivity">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deleteServiceBrokers == false)}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="deleteServiceBrokersFlow" sourceRef="shouldDeleteDiscontinuedServiceBrokersGateway" targetRef="deleteServiceBrokersTask"></sequenceFlow>
     <serviceTask id="restartServiceBrokerSubscriberTask" name="Restart Service Broker Subscriber" flowable:async="true" flowable:delegateExpression="${restartServiceBrokerSubscriberStep}"></serviceTask>
     <sequenceFlow id="notAllServiceBrokerSubscribersAreRestartedFlow" sourceRef="areAllServiceBrokerSubscribersRestartedGateway" targetRef="restartServiceBrokerSubscriberTask"></sequenceFlow>
     <serviceTask id="updateServiceBrokerSubscriberTask" name="Update Service Broker Subscriber" flowable:async="true" flowable:delegateExpression="${updateServiceBrokerSubscriberStep}"></serviceTask>
     <exclusiveGateway id="isServiceBrokerSubscriberStartedGateway" name="Is Service Broker Subscriber Started" default="waitForServiceBrokerSubscriberToStartFlow"></exclusiveGateway>
-    <sequenceFlow id="flow33" sourceRef="restartServiceBrokerSubscriberTask" targetRef="isServiceBrokerSubscriberStartedGateway"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent1" name="PT10S">
       <timerEventDefinition>
         <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
-    <sequenceFlow id="waitForServiceBrokerSubscriberToStartFlow" sourceRef="isServiceBrokerSubscriberStartedGateway" targetRef="timerintermediatecatchevent1"></sequenceFlow>
-    <sequenceFlow id="flow35" sourceRef="timerintermediatecatchevent1" targetRef="restartServiceBrokerSubscriberTask"></sequenceFlow>
     <sequenceFlow id="serviceBrokerSubscriberWasStartedFlow" sourceRef="isServiceBrokerSubscriberStartedGateway" targetRef="updateServiceBrokerSubscriberTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
@@ -71,20 +65,39 @@
     <sequenceFlow id="flow37" sourceRef="updateServiceBrokerSubscriberTask" targetRef="incrementServiceBrokerSubscribersToRestartIndexTask"></sequenceFlow>
     <sequenceFlow id="flow38" sourceRef="incrementServiceBrokerSubscribersToRestartIndexTask" targetRef="areAllServiceBrokerSubscribersRestartedGateway"></sequenceFlow>
     <callActivity id="deleteServicesCallActivity" name="Delete Services Sub Process" flowable:async="true" calledElement="deleteServicesSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
-    <sequenceFlow id="flow40" sourceRef="deleteServicesCallActivity" targetRef="updateSubscribersTask"></sequenceFlow>
-    <exclusiveGateway id="shouldDeleteDiscontinuedServicesGateway" name="Should Delete Discontinued Services" default="deleteDiscontinuedServicesFlow"></exclusiveGateway>
-    <sequenceFlow id="deleteDiscontinuedServicesFlow" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="deleteServicesCallActivity"></sequenceFlow>
+    <exclusiveGateway id="shouldDeleteDiscontinuedServicesGateway" name="Should Delete Discontinued Services" default="CheckServicesToDeleteFlow"></exclusiveGateway>
+    <callActivity id="undeployAppsCallActivity" name="Undeploy App Call Activity" flowable:async="true" calledElement="undeployAppSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="appsToUndeploy" flowable:elementVariable="appToProcess"></multiInstanceLoopCharacteristics>
+    </callActivity>
+    <sequenceFlow id="flow6" sourceRef="deleteDiscontinuedConfigurationEntriesTask" targetRef="shouldDeleteDiscontinuedServiceBrokersGateway"></sequenceFlow>
     <sequenceFlow id="doNotDeleteDiscontinuedServicesFlow" name="Don't delete services" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="updateSubscribersTask">
       <extensionElements>
         <flowable:executionListener event="take" delegateExpression="${doNotDeleteServicesListener}"></flowable:executionListener>
       </extensionElements>
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deleteServices == false)}]]></conditionExpression>
     </sequenceFlow>
-    <callActivity id="undeployAppsCallActivity" name="Undeploy App Call Activity" flowable:async="true" calledElement="undeployAppSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
-      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="appsToUndeploy" flowable:elementVariable="appToProcess"></multiInstanceLoopCharacteristics>
-    </callActivity>
+    <serviceTask id="CheckServicesToDeleteTask" name="Check Services to Delete" flowable:async="true" flowable:delegateExpression="${checkServicesToDeleteStep}"></serviceTask>
+    <sequenceFlow id="CheckServicesToDeleteFlow" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="CheckServicesToDeleteTask"></sequenceFlow>
+    <sequenceFlow id="flow40" sourceRef="deleteServicesCallActivity" targetRef="updateSubscribersTask"></sequenceFlow>
+    <exclusiveGateway id="sid-1B34E2BF-18FD-49A5-9083-4892F4E2BA5C" default="deleteDiscontinuedServicesFlow"></exclusiveGateway>
     <sequenceFlow id="sid-5C5B02D1-A40E-41A4-8C0B-C93A7E500B93" sourceRef="undeployAppsCallActivity" targetRef="shouldDeleteDiscontinuedServicesGateway"></sequenceFlow>
-    <sequenceFlow id="flow6" sourceRef="deleteDiscontinuedConfigurationEntriesTask" targetRef="shouldDeleteDiscontinuedServiceBrokersGateway"></sequenceFlow>
+    <intermediateCatchEvent id="timerintermediatecatchevent2" name="TimerCatchEvent">
+      <timerEventDefinition>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="deleteDiscontinuedServicesFlow" sourceRef="sid-1B34E2BF-18FD-49A5-9083-4892F4E2BA5C" targetRef="deleteServicesCallActivity"></sequenceFlow>
+    <sequenceFlow id="waitToFinish" name="Wait To Finish" sourceRef="sid-1B34E2BF-18FD-49A5-9083-4892F4E2BA5C" targetRef="timerintermediatecatchevent2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "POLL")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow35" sourceRef="timerintermediatecatchevent1" targetRef="restartServiceBrokerSubscriberTask"></sequenceFlow>
+    <sequenceFlow id="waitForServiceBrokerSubscriberToStartFlow" sourceRef="isServiceBrokerSubscriberStartedGateway" targetRef="timerintermediatecatchevent1"></sequenceFlow>
+    <sequenceFlow id="prepareToUndeployAppsFlow" sourceRef="shouldDeleteDiscontinuedServiceBrokersGateway" targetRef="undeployAppsCallActivity">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deleteServiceBrokers == false)}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow33" sourceRef="restartServiceBrokerSubscriberTask" targetRef="isServiceBrokerSubscriberStartedGateway"></sequenceFlow>
+    <sequenceFlow id="flow7" sourceRef="CheckServicesToDeleteTask" targetRef="sid-1B34E2BF-18FD-49A5-9083-4892F4E2BA5C"></sequenceFlow>
+    <sequenceFlow id="flow8" sourceRef="timerintermediatecatchevent2" targetRef="CheckServicesToDeleteTask"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_xs2-undeploy">
     <bpmndi:BPMNPlane bpmnElement="xs2-undeploy" id="BPMNPlane_xs2-undeploy">
@@ -152,11 +165,24 @@
         <omgdc:Bounds height="65.0" width="105.0" x="526.0" y="190.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="shouldDeleteDiscontinuedServicesGateway" id="BPMNShape_shouldDeleteDiscontinuedServicesGateway">
-        <omgdc:Bounds height="40.0" width="40.0" x="730.0" y="202.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="900.5" y="202.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="undeployAppsCallActivity" id="BPMNShape_undeployAppsCallActivity">
-        <omgdc:Bounds height="74.0" width="181.0" x="885.0" y="185.0"></omgdc:Bounds>
+        <omgdc:Bounds height="74.0" width="181.0" x="975.0" y="185.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="CheckServicesToDeleteTask" id="BPMNShape_CheckServicesToDeleteTask">
+        <omgdc:Bounds height="55.0" width="109.0" x="750.0" y="195.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-1B34E2BF-18FD-49A5-9083-4892F4E2BA5C" id="BPMNShape_sid-1B34E2BF-18FD-49A5-9083-4892F4E2BA5C">
+        <omgdc:Bounds height="40.0" width="40.0" x="675.0" y="202.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent2" id="BPMNShape_timerintermediatecatchevent2">
+        <omgdc:Bounds height="31.0" width="31.0" x="679.5" y="144.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="waitToFinish" id="BPMNEdge_waitToFinish">
+        <omgdi:waypoint x="695.34" y="202.84"></omgdi:waypoint>
+        <omgdi:waypoint x="695.1226151971239" y="175.44918782348597"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="mtaDoesNotExistFlow" id="BPMNEdge_mtaDoesNotExistFlow">
         <omgdi:waypoint x="279.6774193548387" y="122.6282258064516"></omgdi:waypoint>
         <omgdi:waypoint x="279.0" y="164.0"></omgdi:waypoint>
@@ -164,8 +190,8 @@
         <omgdi:waypoint x="37.759799621546854" y="205.02041314444045"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
-        <omgdi:waypoint x="1206.9999999998574" y="222.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1065.95" y="222.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1206.999999999988" y="222.1407360406091"></omgdi:waypoint>
+        <omgdi:waypoint x="1155.95" y="222.2703045685279"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="restartSubscribersFlow" id="BPMNEdge_restartSubscribersFlow">
         <omgdi:waypoint x="199.09151376146787" y="241.84942713107242"></omgdi:waypoint>
@@ -196,12 +222,21 @@
         <omgdi:waypoint x="859.999999999975" y="103.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
-        <omgdi:waypoint x="980.9499999999999" y="103.5"></omgdi:waypoint>
-        <omgdi:waypoint x="1207.5" y="103.5"></omgdi:waypoint>
+        <omgdi:waypoint x="980.9499999999971" y="103.40130505709627"></omgdi:waypoint>
+        <omgdi:waypoint x="1207.0325732899023" y="103.03249185667752"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="749.9999999999712" y="222.5"></omgdi:waypoint>
+        <omgdi:waypoint x="714.9090722120379" y="222.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
         <omgdi:waypoint x="251.94999999995042" y="330.5"></omgdi:waypoint>
         <omgdi:waypoint x="309.9999999997673" y="330.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="711.4499983591323" y="160.5"></omgdi:waypoint>
+        <omgdi:waypoint x="804.5" y="160.5"></omgdi:waypoint>
+        <omgdi:waypoint x="804.5" y="195.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow23" id="BPMNEdge_flow23">
         <omgdi:waypoint x="362.3160621761658" y="365.95000000000005"></omgdi:waypoint>
@@ -212,8 +247,10 @@
         <omgdi:waypoint x="458.94999999987306" y="222.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="deleteDiscontinuedServicesFlow" id="BPMNEdge_deleteDiscontinuedServicesFlow">
-        <omgdi:waypoint x="730.0581395348837" y="222.0579941860465"></omgdi:waypoint>
-        <omgdi:waypoint x="630.9499999999999" y="222.34693877551018"></omgdi:waypoint>
+        <omgdi:waypoint x="676.4928819660886" y="221.0"></omgdi:waypoint>
+        <omgdi:waypoint x="653.0" y="221.0"></omgdi:waypoint>
+        <omgdi:waypoint x="653.0" y="222.5"></omgdi:waypoint>
+        <omgdi:waypoint x="630.9499999999999" y="222.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="doNotRestartSubscribersFlow" id="BPMNEdge_doNotRestartSubscribersFlow">
         <omgdi:waypoint x="179.0" y="222.0"></omgdi:waypoint>
@@ -248,26 +285,30 @@
         <omgdi:waypoint x="361.0" y="545.0"></omgdi:waypoint>
         <omgdi:waypoint x="361.83193277310926" y="446.7823529411765"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="prepareToUndeployAppsFlow" id="BPMNEdge_prepareToUndeployAppsFlow">
-        <omgdi:waypoint x="1226.655172413793" y="122.6060344827586"></omgdi:waypoint>
-        <omgdi:waypoint x="1226.0" y="160.0"></omgdi:waypoint>
-        <omgdi:waypoint x="975.0" y="160.0"></omgdi:waypoint>
-        <omgdi:waypoint x="975.2016129032259" y="185.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="CheckServicesToDeleteFlow" id="BPMNEdge_CheckServicesToDeleteFlow">
+        <omgdi:waypoint x="901.0" y="222.5"></omgdi:waypoint>
+        <omgdi:waypoint x="858.9499999999767" y="222.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="deleteServiceBrokersFlow" id="BPMNEdge_deleteServiceBrokersFlow">
         <omgdi:waypoint x="1246.9215811965812" y="103.0"></omgdi:waypoint>
         <omgdi:waypoint x="1262.0" y="103.0"></omgdi:waypoint>
         <omgdi:waypoint x="1262.3781512605042" y="193.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="prepareToUndeployAppsFlow" id="BPMNEdge_prepareToUndeployAppsFlow">
+        <omgdi:waypoint x="1226.655172413793" y="122.6060344827586"></omgdi:waypoint>
+        <omgdi:waypoint x="1226.0" y="160.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1065.5" y="160.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1065.5" y="185.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="doNotDeleteDiscontinuedServicesFlow" id="BPMNEdge_doNotDeleteDiscontinuedServicesFlow">
-        <omgdi:waypoint x="750.0" y="241.9349092284418"></omgdi:waypoint>
-        <omgdi:waypoint x="750.0" y="288.0"></omgdi:waypoint>
+        <omgdi:waypoint x="920.5" y="241.9349092284418"></omgdi:waypoint>
+        <omgdi:waypoint x="920.5" y="288.0"></omgdi:waypoint>
         <omgdi:waypoint x="404.0" y="288.0"></omgdi:waypoint>
         <omgdi:waypoint x="404.29007633587787" y="249.95000000000002"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-5C5B02D1-A40E-41A4-8C0B-C93A7E500B93" id="BPMNEdge_sid-5C5B02D1-A40E-41A4-8C0B-C93A7E500B93">
-        <omgdi:waypoint x="885.0" y="222.0"></omgdi:waypoint>
-        <omgdi:waypoint x="769.904403282871" y="222.0"></omgdi:waypoint>
+        <omgdi:waypoint x="974.9999999999959" y="222.18793103448274"></omgdi:waypoint>
+        <omgdi:waypoint x="940.3385660247559" y="222.06855670103093"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
         <omgdi:waypoint x="349.9999999999806" y="222.36739659367396"></omgdi:waypoint>

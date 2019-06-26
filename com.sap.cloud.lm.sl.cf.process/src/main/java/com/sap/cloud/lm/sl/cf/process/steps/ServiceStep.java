@@ -27,15 +27,15 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     private ServiceUpdater serviceUpdater;
 
     @Inject
-    private ServiceGetter serviceInstanceGetter;
-    
-    
+    private ServiceGetter serviceGetter;
+
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws Exception {
         CloudServiceExtended serviceToProcess = StepsUtil.getServiceToProcess(execution.getContext());
-        MethodExecution<String> methodExecution = executeOperationAndHandleExceptions(execution.getContext(), execution.getControllerClient(), serviceToProcess);
+        MethodExecution<String> methodExecution = executeOperationAndHandleExceptions(execution.getContext(),
+            execution.getControllerClient(), serviceToProcess);
         if (methodExecution.getState()
-                           .equals(ExecutionState.FINISHED)) {
+            .equals(ExecutionState.FINISHED)) {
             return StepPhase.DONE;
         }
 
@@ -43,7 +43,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
         serviceOperation.put(serviceToProcess.getName(), getOperationType());
 
         execution.getStepLogger()
-                 .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(serviceOperation, true));
+            .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(serviceOperation, true));
         StepsUtil.setTriggeredServiceOperations(execution.getContext(), serviceOperation);
 
         StepsUtil.isServiceUpdated(true, execution.getContext());
@@ -56,7 +56,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     }
 
     private MethodExecution<String> executeOperationAndHandleExceptions(DelegateExecution execution, CloudControllerClient controllerClient,
-                                                CloudServiceExtended service) throws Exception {
+                                    			CloudServiceExtended service) throws Exception {
         try {
             return executeOperation(execution, controllerClient, service);
         } catch (CloudOperationException e) {
@@ -67,15 +67,15 @@ public abstract class ServiceStep extends AsyncFlowableStep {
 
     protected abstract MethodExecution<String> executeOperation(DelegateExecution context, CloudControllerClient controllerClient,
         CloudServiceExtended service) throws Exception;
-    
+
     protected abstract ServiceOperationType getOperationType();
-    
+
     public ServiceUpdater getServiceUpdater() {
         return serviceUpdater;
     }
-    
-    public ServiceGetter getServiceInstanceGetter() {
-        return serviceInstanceGetter;
+
+    public ServiceGetter getServiceGetter() {
+        return serviceGetter;
     }
 
 }

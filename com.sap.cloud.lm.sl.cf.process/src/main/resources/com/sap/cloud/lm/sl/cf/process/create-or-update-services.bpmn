@@ -10,8 +10,6 @@
     </serviceTask>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
     <serviceTask id="CreateServiceTask" name="Create" flowable:async="true" flowable:delegateExpression="${createServiceStep}"></serviceTask>
-    <sequenceFlow id="flow19" sourceRef="startevent3" targetRef="DetermineServiceCreateUpdateActionsTask"></sequenceFlow>
-    <sequenceFlow id="flow20" sourceRef="DetermineServiceCreateUpdateActionsTask" targetRef="exclusivegateway2"></sequenceFlow>
     <callActivity id="DeleteServiceCallActivity" name="Delete" flowable:async="true" calledElement="deleteServicesSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
     <serviceTask id="UpdateServicePlanTask" name="Update service plan" flowable:async="true" flowable:delegateExpression="${updateServicePlanStep}"></serviceTask>
     <sequenceFlow id="flow48" sourceRef="UpdateServicePlanTask" targetRef="exclusivegateway10"></sequenceFlow>
@@ -99,14 +97,29 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("UPDATE_CREDENTIALS")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow88" sourceRef="exclusivegateway14" targetRef="exclusivegateway7"></sequenceFlow>
+    <serviceTask id="CheckForOperationsInProgressTask" name="Check for operations in Progress" flowable:async="true" flowable:delegateExpression="${checkForOperationsInProgressStep}"></serviceTask>
+    <exclusiveGateway id="exclusivegateway16" name="Exclusive Gateway" default="DetermineActionsFlow"></exclusiveGateway>
+    <intermediateCatchEvent id="timerintermediatecatchevent5" name="TimerCatchEvent">
+      <timerEventDefinition>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="flow20" sourceRef="DetermineServiceCreateUpdateActionsTask" targetRef="exclusivegateway2"></sequenceFlow>
+    <sequenceFlow id="flow19" sourceRef="startevent3" targetRef="CheckForOperationsInProgressTask"></sequenceFlow>
+    <sequenceFlow id="DetermineActionsFlow" sourceRef="exclusivegateway16" targetRef="DetermineServiceCreateUpdateActionsTask"></sequenceFlow>
+    <sequenceFlow id="waitToFinish" name="Wait To Finish" sourceRef="exclusivegateway16" targetRef="timerintermediatecatchevent5">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "POLL")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow85" sourceRef="CheckForOperationsInProgressTask" targetRef="exclusivegateway16"></sequenceFlow>
+    <sequenceFlow id="flow86" sourceRef="timerintermediatecatchevent5" targetRef="CheckForOperationsInProgressTask"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_createOrUpdateServicesSubProcess">
     <bpmndi:BPMNPlane bpmnElement="createOrUpdateServicesSubProcess" id="BPMNPlane_createOrUpdateServicesSubProcess">
       <bpmndi:BPMNShape bpmnElement="startevent3" id="BPMNShape_startevent3">
-        <omgdc:Bounds height="30.0" width="30.0" x="10.0" y="322.0"></omgdc:Bounds>
+        <omgdc:Bounds height="30.0" width="30.0" x="15.0" y="120.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="DetermineServiceCreateUpdateActionsTask" id="BPMNShape_DetermineServiceCreateUpdateActionsTask">
-        <omgdc:Bounds height="81.0" width="141.0" x="102.0" y="300.0"></omgdc:Bounds>
+        <omgdc:Bounds height="81.0" width="141.0" x="90.0" y="298.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
         <omgdc:Bounds height="40.0" width="40.0" x="286.0" y="319.0"></omgdc:Bounds>
@@ -168,6 +181,19 @@
       <bpmndi:BPMNShape bpmnElement="exclusivegateway15" id="BPMNShape_exclusivegateway15">
         <omgdc:Bounds height="40.0" width="40.0" x="800.0" y="319.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="CheckForOperationsInProgressTask" id="BPMNShape_CheckForOperationsInProgressTask">
+        <omgdc:Bounds height="80.0" width="100.0" x="90.0" y="95.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway16" id="BPMNShape_exclusivegateway16">
+        <omgdc:Bounds height="40.0" width="40.0" x="235.0" y="115.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent5" id="BPMNShape_timerintermediatecatchevent5">
+        <omgdc:Bounds height="31.0" width="31.0" x="390.0" y="119.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="waitToFinish" id="BPMNEdge_waitToFinish">
+        <omgdi:waypoint x="274.44370849933597" y="135.5"></omgdi:waypoint>
+        <omgdi:waypoint x="390.0" y="135.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="UpdateKeysFlow" id="BPMNEdge_UpdateKeysFlow">
         <omgdi:waypoint x="1455.746835443038" y="359.6974683544303"></omgdi:waypoint>
         <omgdi:waypoint x="1455.0" y="418.0"></omgdi:waypoint>
@@ -199,8 +225,14 @@
         <omgdi:waypoint x="948.7401270037484" y="487.00183533593344"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
-        <omgdi:waypoint x="242.94999999999882" y="339.70786516853934"></omgdi:waypoint>
-        <omgdi:waypoint x="286.22222222222166" y="339.22166666666664"></omgdi:waypoint>
+        <omgdi:waypoint x="230.95" y="339.0"></omgdi:waypoint>
+        <omgdi:waypoint x="286.0" y="339.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow86" id="BPMNEdge_flow86">
+        <omgdi:waypoint x="406.0" y="119.5"></omgdi:waypoint>
+        <omgdi:waypoint x="406.0" y="18.0"></omgdi:waypoint>
+        <omgdi:waypoint x="140.0" y="18.0"></omgdi:waypoint>
+        <omgdi:waypoint x="140.0" y="95.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow66" id="BPMNEdge_flow66">
         <omgdi:waypoint x="1475.5489949748744" y="339.59798994974875"></omgdi:waypoint>
@@ -230,9 +262,13 @@
         <omgdi:waypoint x="1323.0" y="406.0"></omgdi:waypoint>
         <omgdi:waypoint x="1360.0" y="406.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow85" id="BPMNEdge_flow85">
+        <omgdi:waypoint x="189.94999999999771" y="135.21623376623376"></omgdi:waypoint>
+        <omgdi:waypoint x="235.41304347826087" y="135.41304347826087"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
-        <omgdi:waypoint x="39.94576019982552" y="337.3546480005282"></omgdi:waypoint>
-        <omgdi:waypoint x="102.0" y="338.8271186440678"></omgdi:waypoint>
+        <omgdi:waypoint x="44.949995093277906" y="135.0"></omgdi:waypoint>
+        <omgdi:waypoint x="89.99999999998712" y="135.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow57" id="BPMNEdge_flow57">
         <omgdi:waypoint x="1609.9499999999905" y="417.77176165803104"></omgdi:waypoint>
@@ -302,6 +338,12 @@
         <omgdi:waypoint x="1380.0" y="386.0"></omgdi:waypoint>
         <omgdi:waypoint x="1380.0" y="340.0"></omgdi:waypoint>
         <omgdi:waypoint x="1436.0" y="340.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="DetermineActionsFlow" id="BPMNEdge_DetermineActionsFlow">
+        <omgdi:waypoint x="255.49999999999997" y="154.43905889145498"></omgdi:waypoint>
+        <omgdi:waypoint x="255.5" y="222.0"></omgdi:waypoint>
+        <omgdi:waypoint x="160.5" y="222.0"></omgdi:waypoint>
+        <omgdi:waypoint x="160.5" y="298.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow73" id="BPMNEdge_flow73">
         <omgdi:waypoint x="1150.0022161814306" y="501.76406495331"></omgdi:waypoint>

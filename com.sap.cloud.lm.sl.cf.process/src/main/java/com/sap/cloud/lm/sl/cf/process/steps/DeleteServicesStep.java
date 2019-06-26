@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudEntity;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -43,6 +44,8 @@ public class DeleteServicesStep extends AsyncFlowableStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
+    @Inject
+    private ServiceGetter serviceGetter;
     @Inject
     private EventsGetter eventsGetter;
 
@@ -59,15 +62,14 @@ public class DeleteServicesStep extends AsyncFlowableStep {
             return StepPhase.DONE;
         }
 
-        Map<String, CloudServiceExtended> servicesData = getServicesData(servicesToDelete, execution);
+        List<CloudServiceExtended> servicesData = getServicesData(servicesToDelete, execution);
         List<String> servicesWithoutData = getServicesWithoutData(servicesToDelete, servicesData);
         if (!servicesWithoutData.isEmpty()) {
-            execution.getStepLogger()
-                .info(Messages.SERVICES_ARE_ALREADY_DELETED, servicesWithoutData);
+        	execution.getStepLogger()
+            .info(Messages.SERVICES_ARE_ALREADY_DELETED, servicesWithoutData);
             servicesToDelete.removeAll(servicesWithoutData);
         }
         StepsUtil.setServicesData(execution.getContext(), servicesData);
-
         Map<String, ServiceOperationType> triggeredServiceOperations = deleteServices(client, servicesToDelete);
 
         execution.getStepLogger()
@@ -83,7 +85,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         return Messages.ERROR_DELETING_SERVICES;
     }
 
-    private Map<String, CloudServiceExtended> getServicesData(List<String> serviceNames, ExecutionWrapper execution) {
+    private List<CloudServiceExtended> getServicesData(List<String> serviceNames, ExecutionWrapper execution) {
         CloudControllerClient client = execution.getControllerClient();
 
         return serviceNames.parallelStream()
@@ -93,13 +95,14 @@ public class DeleteServicesStep extends AsyncFlowableStep {
                 .metadata(service.getMetadata())
                 .name(service.getName())
                 .build())
-            .collect(Collectors.toMap(CloudEntity::getName, e -> e));
+            .collect(Collectors.toList());
     }
 
-    private List<String> getServicesWithoutData(List<String> servicesToDelete, Map<String, CloudServiceExtended> servicesData) {
-        return servicesToDelete.stream()
-            .filter(name -> servicesData.get(name) == null)
+    private List<String> getServicesWithoutData(List<String> servicesToDelete, List<CloudServiceExtended> servicesData) {
+        List<String> servicesNames = servicesData.stream()
+            .map(CloudServiceExtended::getName)
             .collect(Collectors.toList());
+        return new ArrayList<>(CollectionUtils.disjunction(servicesToDelete, servicesNames));
     }
 
     private Map<String, ServiceOperationType> deleteServices(CloudControllerClient client, List<String> serviceNames) {
@@ -200,7 +203,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
-        return Arrays.asList(new PollServiceDeleteOperationsExecution(eventsGetter));
+        return Arrays.asList(new PollServiceInProgressOperationsExecution(serviceGetter, eventsGetter));
     }
 
 }

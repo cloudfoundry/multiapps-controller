@@ -78,7 +78,7 @@ public class CreateServiceStep extends ServiceStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
-        return Arrays.asList(new PollServiceCreateOrUpdateOperationsExecution(getServiceInstanceGetter()));
+        return Arrays.asList(new PollServiceCreateOrUpdateOperationsExecution(getServiceGetter()));
     }
 
     @Override

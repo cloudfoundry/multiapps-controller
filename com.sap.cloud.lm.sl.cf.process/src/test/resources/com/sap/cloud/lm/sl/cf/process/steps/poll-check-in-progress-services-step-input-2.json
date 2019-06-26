@@ -1,0 +1,45 @@
+{
+  "services": [
+    {
+      "name": "test-service-1"
+    },
+    {
+      "name": "test-service-2",
+      "label": "test",
+      "plan": "test",
+      "provider": "test",
+      "version": "test"
+    },
+    {
+      "name": "test-service-3",
+      "label": "test",
+      "plan": "test",
+      "provider": "test",
+      "version": "test"
+    }
+  ],
+  "triggeredServiceOperations": {
+
+  },
+  "serviceInstanceResponse": {
+  "test-service-1": {
+      "last_operation": {
+        "type": "update",
+        "state": "succeeded"
+      }
+    },
+    "test-service-2": {
+      "last_operation": {
+        "type": "create",
+        "state": "succeeded"
+      }
+    },
+    "test-service-3": {
+      "last_operation": {
+        "type": "create",
+        "state": "in progress"
+      }
+    }
+  },
+  "expectedStatus": "FINISHED"
+}

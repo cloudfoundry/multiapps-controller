@@ -261,6 +261,7 @@ public class Messages {
     public static final String WILL_NOT_REBIND_APP_TO_SERVICE = "Service \"{0}\" will not be rebound to application \"{1}\" because the binding parameters are not modified";
     public static final String SERVICE_BROKER_DOES_NOT_EXIST = "Service broker with name \"{0}\" does not exist";
     public static final String EXECUTING_HOOK_0 = "Executing hook \"{0}\"";
+    public static final String POLLING_IN_PROGRESS_SERVICES = "Waiting for previous service operations to finish...";
 
     // DEBUG log messages
     public static final String CLIENT_EXTENSIONS_ARE_NOT_SUPPORTED = "Client extensions are not supported";
@@ -434,6 +435,7 @@ public class Messages {
     public static final String LAST_BUILD = "Last build: {0}";
     public static final String RESOLVED_DEPLOYMENT_DESCRIPTOR = "Resolved deployment descriptor: {0}";
     public static final String SUBSCRIPTIONS = "Subscriptions: {0}";
+    public static final String SERVICES_IN_PROGRESS = "Services in progress state: {0}";
     public static final String BUILD_FOR_PACKAGE_0_ALREADY_EXISTS = "Build for package: \"{0}\" already exists";
 
 }
