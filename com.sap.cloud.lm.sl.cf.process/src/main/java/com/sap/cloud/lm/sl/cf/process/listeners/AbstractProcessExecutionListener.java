@@ -1,13 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
-import javax.inject.Inject;
-
-import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.delegate.ExecutionListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
@@ -16,6 +8,12 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.ExecutionListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 public abstract class AbstractProcessExecutionListener implements ExecutionListener {
 
@@ -63,11 +61,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
 
     protected void logException(DelegateExecution context, Exception e, String message) {
         LOGGER.error(message, e);
-        getProcessLogger().error(message, e);
-    }
-
-    protected ProcessLogger getProcessLogger() {
-        return getStepLogger().getProcessLogger();
+        getStepLogger().errorWithoutProgressMessage(message, e);
     }
 
     protected void finalizeLogs(DelegateExecution context) {

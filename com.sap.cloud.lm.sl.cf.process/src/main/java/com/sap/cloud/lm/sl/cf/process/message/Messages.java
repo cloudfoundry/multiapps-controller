@@ -219,6 +219,7 @@ public class Messages {
     public static final String DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP = "Deleting discontinued configuration entries for application \"{0}\"...";
     public static final String STOPPING_APP = "Stopping application \"{0}\"...";
     public static final String STAGING_APP = "Staging application \"{0}\"...";
+    public static final String BUILD_CREATED = "Build \"{0}\" created ...";
     public static final String STARTING_APP = "Starting application \"{0}\"...";
     public static final String APP_STAGED = "Application \"{0}\" staged";
     public static final String APP_STARTED = "Application \"{0}\" started";
