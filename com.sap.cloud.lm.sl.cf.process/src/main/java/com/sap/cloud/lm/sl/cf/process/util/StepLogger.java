@@ -1,12 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import java.sql.Timestamp;
-import java.text.MessageFormat;
-
-import org.flowable.engine.delegate.DelegateExecution;
-import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
-
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
@@ -16,6 +9,12 @@ import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.common.SLException;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.slf4j.Logger;
+import org.springframework.stereotype.Component;
+
+import java.sql.Timestamp;
+import java.text.MessageFormat;
 
 /**
  * The purpose of this class is to group logging of progress messages and process logs in a single place.
@@ -160,7 +159,7 @@ public class StepLogger implements UserMessageLogger {
         }
     }
 
-    public ProcessLogger getProcessLogger() {
+    private ProcessLogger getProcessLogger() {
         return processLoggerProvider.getLogger(context);
     }
 
