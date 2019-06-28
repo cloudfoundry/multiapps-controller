@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.flowable;
+package com.sap.cloud.lm.sl.cf.process.flowable;
 
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;

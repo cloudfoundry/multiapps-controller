@@ -23,9 +23,9 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
-import com.sap.cloud.lm.sl.cf.core.flowable.AbortProcessAction;
-import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
-import com.sap.cloud.lm.sl.cf.core.flowable.ProcessActionRegistry;
+import com.sap.cloud.lm.sl.cf.process.flowable.AbortProcessAction;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.process.flowable.ProcessActionRegistry;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 public class OperationsCleanerTest {

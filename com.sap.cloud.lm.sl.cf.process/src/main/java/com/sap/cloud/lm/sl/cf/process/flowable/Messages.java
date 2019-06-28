@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.flowable;
+package com.sap.cloud.lm.sl.cf.process.flowable;
 
 public class Messages {
 
