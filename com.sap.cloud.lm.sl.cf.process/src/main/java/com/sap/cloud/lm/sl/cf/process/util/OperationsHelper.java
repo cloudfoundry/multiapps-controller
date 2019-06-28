@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
-import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;

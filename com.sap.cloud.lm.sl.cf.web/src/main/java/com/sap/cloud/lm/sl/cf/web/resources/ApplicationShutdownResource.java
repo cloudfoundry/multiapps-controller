@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.shutdown.model.ApplicationShutdownDto;
 

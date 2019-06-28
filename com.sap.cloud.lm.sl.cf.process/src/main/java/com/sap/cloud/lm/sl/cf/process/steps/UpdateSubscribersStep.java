@@ -36,7 +36,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
-import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.DummyConfigurationFilterParser;

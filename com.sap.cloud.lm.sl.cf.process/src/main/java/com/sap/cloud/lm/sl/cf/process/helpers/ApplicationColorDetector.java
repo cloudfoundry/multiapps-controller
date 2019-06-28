@@ -13,7 +13,7 @@ import org.flowable.variable.api.history.HistoricVariableInstance;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
-import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;

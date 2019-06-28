@@ -4,9 +4,9 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.flowable.AdditionalProcessAction;
-import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
-import com.sap.cloud.lm.sl.cf.core.flowable.RetryProcessAction;
+import com.sap.cloud.lm.sl.cf.process.flowable.AdditionalProcessAction;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.process.flowable.RetryProcessAction;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 

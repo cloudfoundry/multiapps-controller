@@ -14,9 +14,9 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
-import com.sap.cloud.lm.sl.cf.core.flowable.AbortProcessAction;
-import com.sap.cloud.lm.sl.cf.core.flowable.ProcessAction;
-import com.sap.cloud.lm.sl.cf.core.flowable.ProcessActionRegistry;
+import com.sap.cloud.lm.sl.cf.process.flowable.AbortProcessAction;
+import com.sap.cloud.lm.sl.cf.process.flowable.ProcessAction;
+import com.sap.cloud.lm.sl.cf.process.flowable.ProcessActionRegistry;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 

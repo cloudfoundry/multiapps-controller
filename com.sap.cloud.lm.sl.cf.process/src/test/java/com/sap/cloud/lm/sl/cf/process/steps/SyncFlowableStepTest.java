@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
