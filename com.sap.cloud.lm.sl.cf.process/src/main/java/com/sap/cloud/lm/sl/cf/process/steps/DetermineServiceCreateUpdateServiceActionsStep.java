@@ -90,7 +90,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         throws FileStorageException {
         List<ServiceAction> actions = new ArrayList<>();
 
-        List<CloudServiceKey> keys = serviceKeys.get(service.getName());
+        List<CloudServiceKey> keys = serviceKeys.get(service.getResourceName());
         if (shouldUpdateKeys(service, keys)) {
             getStepLogger().debug("Service keys should be updated");
             actions.add(ServiceAction.UPDATE_KEYS);

@@ -33,7 +33,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
         CloudControllerClient client) {
         MethodExecution<String> methodExecution = new MethodExecution<>(null, ExecutionState.FINISHED);
         Map<String, List<CloudServiceKey>> serviceKeysMap = StepsUtil.getServiceKeysToCreate(execution);
-        List<CloudServiceKey> serviceKeys = serviceKeysMap.get(service.getName());
+        List<CloudServiceKey> serviceKeys = serviceKeysMap.get(service.getResourceName());
 
         List<CloudServiceKey> existingServiceKeys = serviceOperationExecutor.executeServiceOperation(service,
             (Supplier<List<CloudServiceKey>>) () -> client.getServiceKeys(service.getName()), getStepLogger());

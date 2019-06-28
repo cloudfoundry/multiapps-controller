@@ -124,6 +124,7 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
 
     private static class SimpleService {
         String name;
+        String resourceName;
         String label;
         String plan;
         String guid;
