@@ -1,6 +1,7 @@
 {
 	"service": {
 		"name": "service-1",
+		"resourceName": "service-1",
 		"label": "hana",
 		"plan": "hdishared",
 		"tags": []
