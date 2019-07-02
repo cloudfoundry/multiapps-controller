@@ -1,6 +1,17 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
+import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
+import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.core.cf.services.TypedServiceOperationState;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import org.apache.commons.collections4.CollectionUtils;
+import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudControllerException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -12,19 +23,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudOperationException;
-
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
-import com.sap.cloud.lm.sl.cf.core.cf.services.TypedServiceOperationState;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import static java.text.MessageFormat.format;
 
 public abstract class PollServiceOperationsExecution implements AsyncExecution {
 
@@ -44,7 +43,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
 
             Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation = new HashMap<>();
             for (CloudServiceExtended service : servicesToPoll) {
-                ServiceOperation lastServiceOperation = getLastServiceOperation(execution, client, service);
+                ServiceOperation lastServiceOperation = getLastServiceOperationAndHandleExceptions(execution, client, service);
                 if (lastServiceOperation != null) {
                     servicesWithLastOperation.put(service, lastServiceOperation);
                 }
@@ -65,11 +64,11 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
             execution.getStepLogger()
-                .error(e, Messages.ERROR_MONITORING_CREATION_OF_SERVICES);
+                .error(e, Messages.ERROR_MONITORING_OPERATIONS_OVER_SERVICES);
             throw e;
         } catch (SLException e) {
             execution.getStepLogger()
-                .error(e, Messages.ERROR_MONITORING_CREATION_OF_SERVICES);
+                .error(e, Messages.ERROR_MONITORING_OPERATIONS_OVER_SERVICES);
             throw e;
         }
     }
@@ -95,6 +94,17 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
 
     protected abstract ServiceOperation getLastServiceOperation(ExecutionWrapper execution, CloudControllerClient client,
         CloudServiceExtended service);
+
+    private ServiceOperation getLastServiceOperationAndHandleExceptions(ExecutionWrapper execution, CloudControllerClient client,
+                                                                        CloudServiceExtended service) {
+        try {
+            return getLastServiceOperation(execution, client, service);
+        } catch (CloudOperationException e) {
+            String errorMessage = format(Messages.ERROR_POLLING_OF_SERVICE, service.getName(), e.getStatusText());
+            CloudControllerException exception = new CloudControllerException(e.getStatusCode(), errorMessage, e.getDescription());
+            throw exception;
+        }
+    }
 
     protected void reportIndividualServiceState(ExecutionWrapper execution,
         Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation) {

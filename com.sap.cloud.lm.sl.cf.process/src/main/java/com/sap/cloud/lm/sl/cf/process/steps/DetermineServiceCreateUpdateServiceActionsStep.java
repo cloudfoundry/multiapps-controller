@@ -1,24 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.inject.Inject;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudService;
-import org.cloudfoundry.client.lib.domain.CloudServiceKey;
-import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
@@ -40,6 +21,28 @@ import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component("determineServiceCreateUpdateActionsStep")
 public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowableStep {
@@ -70,13 +73,25 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
         setServiceParameters(serviceToProcess, execution.getContext());
 
-        List<ServiceAction> actions = determineActions(controllerClient, spaceId, serviceToProcess, existingService, serviceKeys,
-                                                       execution);
+        List<ServiceAction> actions = dermineActionsAndHandleExceptions(controllerClient, spaceId, serviceToProcess, existingService, serviceKeys,
+                                                                        execution);
 
         StepsUtil.setServiceActionsToExecute(actions, execution.getContext());
         StepsUtil.isServiceUpdated(false, execution.getContext());
         StepsUtil.setServiceToProcessName(serviceToProcess.getName(), execution.getContext());
         return StepPhase.DONE;
+    }
+
+    private List<ServiceAction> dermineActionsAndHandleExceptions(CloudControllerClient client, String spaceId, CloudServiceExtended service,
+                                                                  CloudService existingService, Map<String, List<CloudServiceKey>> serviceKeys, ExecutionWrapper execution)
+        throws FileStorageException {
+        try {
+            return determineActions(client, spaceId, service, existingService, serviceKeys, execution);
+        } catch (CloudOperationException e) {
+            String determineServiceActionsFailedMessage = MessageFormat.format(Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE,
+                                                                     service.getName(), e.getStatusText());
+            throw new CloudOperationException(e.getStatusCode(), determineServiceActionsFailedMessage, e.getDescription(), e);
+        }
     }
 
     private void setServiceParameters(CloudServiceExtended service, DelegateExecution delegateExecution)

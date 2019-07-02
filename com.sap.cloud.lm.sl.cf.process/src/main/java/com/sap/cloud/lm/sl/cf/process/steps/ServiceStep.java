@@ -1,14 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.flowable.engine.delegate.DelegateExecution;
-
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
@@ -17,6 +8,15 @@ import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.flowable.engine.delegate.DelegateExecution;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class ServiceStep extends AsyncFlowableStep {
 
@@ -30,23 +30,32 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws Exception {
-        CloudServiceExtended serviceToCreate = StepsUtil.getServiceToProcess(execution.getContext());
-        MethodExecution<String> methodExecution = executeOperation(execution.getContext(), execution.getControllerClient(),
-            serviceToCreate);
+        CloudServiceExtended serviceToProcess = StepsUtil.getServiceToProcess(execution.getContext());
+        MethodExecution<String> methodExecution = executeOperationAndHandleExceptions(execution.getContext(), execution.getControllerClient(), serviceToProcess);
         if (methodExecution.getState()
-            .equals(ExecutionState.FINISHED)) {
+                           .equals(ExecutionState.FINISHED)) {
             return StepPhase.DONE;
         }
 
         Map<String, ServiceOperationType> serviceOperation = new HashMap<>();
-        serviceOperation.put(serviceToCreate.getName(), getOperationType());
+        serviceOperation.put(serviceToProcess.getName(), getOperationType());
 
         execution.getStepLogger()
-            .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(serviceOperation, true));
+                 .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(serviceOperation, true));
         StepsUtil.setTriggeredServiceOperations(execution.getContext(), serviceOperation);
 
         StepsUtil.isServiceUpdated(true, execution.getContext());
         return StepPhase.POLL;
+    }
+
+    private MethodExecution<String> executeOperationAndHandleExceptions(DelegateExecution execution, CloudControllerClient controllerClient,
+                                                CloudServiceExtended service) {
+        try {
+            return executeOperation(execution, controllerClient, service);
+        } catch (CloudOperationException e) {
+            String serviceUpdateFailedMessage = MessageFormat.format(Messages.FAILED_SERVICE_UPDATE, service.getName(), e.getStatusText());
+            throw new CloudOperationException(e.getStatusCode(), serviceUpdateFailedMessage, e.getDescription(), e);
+        }
     }
 
     protected abstract MethodExecution<String> executeOperation(DelegateExecution context, CloudControllerClient controllerClient,
