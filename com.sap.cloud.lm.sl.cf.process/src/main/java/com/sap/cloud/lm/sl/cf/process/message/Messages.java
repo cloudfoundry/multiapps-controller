@@ -120,9 +120,10 @@ public class Messages {
     public static final String ERROR_CREATING_OPTIONAL_SERVICE = "Error creating optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_UPDATING_OPTIONAL_SERVICE = "Error updating optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_DELETING_OPTIONAL_SERVICE = "Error deleting optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
-    public static final String ERROR_MONITORING_CREATION_OF_SERVICES = "Error monitoring creation of services";
+    public static final String ERROR_MONITORING_OPERATIONS_OVER_SERVICES = "Error monitoring operations over services";
     public static final String SERVICES_ARE_ALREADY_DELETED = "Services \"{0}\" are already deleted";
-
+    public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE = "Error determining actions to execute on service \"{0}\": {1}";
+    public static final String ERROR_POLLING_OF_SERVICE = "Error polling last operation of service \"{0}\": {1}";
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_PARAMETERS = "Cannot retrieve service parameters of service \"{0}\"";
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service \"{0}\"";
