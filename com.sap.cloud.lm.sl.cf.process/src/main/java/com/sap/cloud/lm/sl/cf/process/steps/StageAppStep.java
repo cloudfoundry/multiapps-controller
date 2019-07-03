@@ -27,20 +27,20 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
         CloudApplication app = StepsUtil.getApp(execution.getContext());
-        ApplicationStager applicationStager = new ApplicationStager();
-        return applicationStager.stageApp(execution.getContext(), execution.getControllerClient(), app, getStepLogger());
+        ApplicationStager applicationStager = new ApplicationStager(execution.getControllerClient());
+        return applicationStager.stageApp(execution.getContext(), app, getStepLogger());
     }
 
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
         return MessageFormat.format(Messages.ERROR_STAGING_APP_1, StepsUtil.getApp(context)
-            .getName());
+                                                                           .getName());
     }
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
         recentLogsRetriever.setFailSafe(true);
-        return Arrays.asList(new PollStageAppStatusExecution(recentLogsRetriever, new ApplicationStager()));
+        return Arrays.asList(new PollStageAppStatusExecution(recentLogsRetriever, new ApplicationStager(execution.getControllerClient())));
     }
 
     @Override

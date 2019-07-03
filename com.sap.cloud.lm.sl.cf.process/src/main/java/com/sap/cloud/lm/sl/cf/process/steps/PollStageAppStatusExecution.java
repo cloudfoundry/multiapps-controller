@@ -18,7 +18,6 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
 import com.sap.cloud.lm.sl.cf.process.util.StagingState;
 import com.sap.cloud.lm.sl.cf.process.util.StagingState.StagingLogs;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.cf.process.util.XMLValueFilter;
 
 public class PollStageAppStatusExecution implements AsyncExecution {
@@ -40,33 +39,34 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         CloudControllerClient client = execution.getControllerClient();
 
         execution.getStepLogger()
-            .debug(Messages.CHECKING_APP_STATUS, app.getName());
+                 .debug(Messages.CHECKING_APP_STATUS, app.getName());
 
-        StagingState state = applicationStager.getStagingState(execution, client);
+        StagingState state = applicationStager.getStagingState(execution.getContext());
 
         ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
-            .getProcessLoggerProvider();
+                                                               .getProcessLoggerProvider();
         StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
 
         if (!state.getState()
-            .equals(PackageState.STAGED)) {
+                  .equals(PackageState.STAGED)) {
             setStagingLogs(state, execution);
 
             return checkStagingState(execution, app, state);
         }
 
         execution.getStepLogger()
-            .info(Messages.APP_STAGED, app.getName());
+                 .info(Messages.APP_STAGED, app.getName());
 
         UUID appId = client.getApplication(app.getName())
-            .getMetadata()
-            .getGuid();
+                           .getMetadata()
+                           .getGuid();
 
-        applicationStager.bindDropletToApp(execution, appId, client);
+        applicationStager.bindDropletToApp(execution.getContext(), appId);
 
         return AsyncExecutionState.FINISHED;
     }
 
+    @Override
     public String getPollingErrorMessage(ExecutionWrapper execution) {
         CloudApplication app = StepsUtil.getApp(execution.getContext());
         return MessageFormat.format(Messages.ERROR_STAGING_APP_1, app.getName());
@@ -74,11 +74,11 @@ public class PollStageAppStatusExecution implements AsyncExecution {
 
     private AsyncExecutionState checkStagingState(ExecutionWrapper execution, CloudApplication app, StagingState state) {
         if (state.getState()
-            .equals(PackageState.FAILED)) {
+                 .equals(PackageState.FAILED)) {
             // Application staging failed
             String message = format(Messages.ERROR_STAGING_APP_2, app.getName());
             execution.getStepLogger()
-                .error(message);
+                     .error(message);
             return AsyncExecutionState.ERROR;
         }
         // Application not staged yet, wait and try again unless it's a timeout.
@@ -93,10 +93,10 @@ public class PollStageAppStatusExecution implements AsyncExecution {
 
             stagingLogs = new XMLValueFilter(stagingLogs).getFiltered();
             execution.getStepLogger()
-                .debug(stagingLogs);
+                     .debug(stagingLogs);
             offset += stagingLogs.length();
             execution.getContext()
-                .setVariable(Constants.VAR_OFFSET, offset);
+                     .setVariable(Constants.VAR_OFFSET, offset);
         }
     }
 

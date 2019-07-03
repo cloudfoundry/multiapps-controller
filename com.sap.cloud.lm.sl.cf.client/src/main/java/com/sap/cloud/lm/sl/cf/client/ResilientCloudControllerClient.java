@@ -82,13 +82,13 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void bindService(String applicationName, String serviceName, Map<String, Object> parameters,
-        ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+                            ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         executeWithRetry(() -> cc.bindService(applicationName, serviceName, parameters, applicationServicesUpdateCallback));
     }
 
     @Override
     public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, List<String> uris,
-        List<String> serviceNames, DockerInfo dockerInfo) {
+                                  List<String> serviceNames, DockerInfo dockerInfo) {
         executeWithRetry(() -> cc.createApplication(applicationName, staging, disk, memory, uris, serviceNames, dockerInfo));
     }
 
@@ -329,11 +329,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public List<String> updateApplicationServices(String applicationName,
-        Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
-        ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
-        return executeWithRetry(
-            () -> cc.updateApplicationServices(applicationName, serviceNamesWithBindingParameters, applicationServicesUpdateCallback),
-            HttpStatus.NOT_FOUND);
+                                                  Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
+                                                  ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+        return executeWithRetry(() -> cc.updateApplicationServices(applicationName, serviceNamesWithBindingParameters,
+                                                                   applicationServicesUpdateCallback),
+                                HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -751,7 +751,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void openFile(String applicationName, int instanceIndex, String filePath,
-        ClientHttpResponseCallback clientHttpResponseCallback) {
+                         ClientHttpResponseCallback clientHttpResponseCallback) {
         executeWithRetry(() -> cc.openFile(applicationName, instanceIndex, filePath, clientHttpResponseCallback));
     }
 
@@ -908,6 +908,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public List<CloudBuild> getBuildsForPackage(UUID packageGuid) {
+        return executeWithRetry(() -> cc.getBuildsForPackage(packageGuid));
+    }
+
+    @Override
     public CloudBuild getBuild(UUID buildGuid) {
         return executeWithRetry(() -> cc.getBuild(buildGuid));
     }
@@ -923,13 +928,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<CloudBuild> getBuildsForPackage(UUID packageGuid) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void unbindService(String applicationName, String serviceName,
-        ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+                              ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         executeWithRetry(() -> cc.unbindService(applicationName, serviceName, applicationServicesUpdateCallback));
     }
 
