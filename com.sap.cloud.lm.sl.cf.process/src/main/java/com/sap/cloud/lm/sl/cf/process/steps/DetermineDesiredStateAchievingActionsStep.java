@@ -44,9 +44,9 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
         getStepLogger().debug(Messages.CURRENT_STATE, appName, currentState);
         ApplicationStartupState desiredState = computeDesiredState(execution.getContext(), app);
         getStepLogger().debug(Messages.DESIRED_STATE, appName, desiredState);
-        ApplicationStager applicationStager = new ApplicationStager();
+        ApplicationStager applicationStager = new ApplicationStager(execution.getControllerClient());
         Set<ApplicationStateAction> actionsToExecute = getActionsCalculator(execution.getContext()).determineActionsToExecute(currentState,
-            desiredState, applicationStager.isApplicationStagedCorrectly(execution, app));
+            desiredState, applicationStager.isApplicationStagedCorrectly(execution.getStepLogger(), app));
         getStepLogger().debug(Messages.ACTIONS_TO_EXECUTE, appName, actionsToExecute);
 
         StepsUtil.setAppStateActionsToExecute(execution.getContext(), actionsToExecute);

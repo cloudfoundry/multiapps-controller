@@ -63,6 +63,7 @@ public class Messages {
 
     // ERROR log messages
     public static final String COULD_NOT_COMPUTE_ORG_AND_SPACE = "Could not find org and space for space ID \"{0}\"";
+    public static final String NO_BUILDS_FOUND_FOR_PACKAGE = "No builds found for package \"{0}\"";
 
     // Process step errors
     public static final String ERROR_PREPARING_DEPLOY_PARAMETERS = "Error preparing deploy parameters";
@@ -432,5 +433,6 @@ public class Messages {
     public static final String LAST_BUILD = "Last build: {0}";
     public static final String RESOLVED_DEPLOYMENT_DESCRIPTOR = "Resolved deployment descriptor: {0}";
     public static final String SUBSCRIPTIONS = "Subscriptions: {0}";
+    public static final String BUILD_FOR_PACKAGE_0_ALREADY_EXISTS = "Build for package: \"{0}\" already exists";
 
 }
