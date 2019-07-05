@@ -75,7 +75,8 @@ public class ProcessStepHelper {
 
     protected void logException(DelegateExecution context, Throwable t) {
         LOGGER.error(Messages.EXCEPTION_CAUGHT, t);
-        stepLogger.errorWithoutProgressMessage(Messages.EXCEPTION_CAUGHT, t);
+        stepLogger.error(
+            Messages.EXCEPTION_CAUGHT, t);
 
         storeExceptionInProgressMessageService(context, t);
 
@@ -92,7 +93,7 @@ public class ProcessStepHelper {
                 MessageFormat.format(Messages.UNEXPECTED_ERROR, t.getMessage()), new Timestamp(System.currentTimeMillis()));
             progressMessageService.add(msg);
         } catch (SLException e) {
-            stepLogger.errorWithoutProgressMessage(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
+            stepLogger.error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
         }
     }
 

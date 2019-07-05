@@ -61,7 +61,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
 
     protected void logException(DelegateExecution context, Exception e, String message) {
         LOGGER.error(message, e);
-        getStepLogger().errorWithoutProgressMessage(message, e);
+        getStepLogger().error(message, e);
     }
 
     protected void finalizeLogs(DelegateExecution context) {
