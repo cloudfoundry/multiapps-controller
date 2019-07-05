@@ -1,8 +1,20 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.sql.Timestamp;
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.flowable.engine.ProcessEngineConfiguration;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.runtime.Execution;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -10,16 +22,6 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
-import org.flowable.engine.ProcessEngineConfiguration;
-import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.runtime.Execution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.sql.Timestamp;
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class ProcessStepHelper {
 
@@ -75,7 +77,7 @@ public class ProcessStepHelper {
 
     protected void logException(DelegateExecution context, Throwable t) {
         LOGGER.error(Messages.EXCEPTION_CAUGHT, t);
-        stepLogger.errorWithoutProgressMessage(Messages.EXCEPTION_CAUGHT, t);
+        getProcessLogger().error(Messages.EXCEPTION_CAUGHT, t);
 
         storeExceptionInProgressMessageService(context, t);
 
@@ -92,7 +94,7 @@ public class ProcessStepHelper {
                 MessageFormat.format(Messages.UNEXPECTED_ERROR, t.getMessage()), new Timestamp(System.currentTimeMillis()));
             progressMessageService.add(msg);
         } catch (SLException e) {
-            stepLogger.errorWithoutProgressMessage(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
+            getProcessLogger().error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
         }
     }
 
@@ -115,9 +117,12 @@ public class ProcessStepHelper {
     }
 
     private void logDebug(String message) {
-        stepLogger.debug(message);
+        getProcessLogger().debug(message);
     }
 
+    private ProcessLogger getProcessLogger() {
+        return stepLogger.getProcessLogger();
+    }
 
     public void failStepIfProcessIsAborted(DelegateExecution context) {
         Boolean processAborted = (Boolean) processEngineConfiguration.getRuntimeService()
