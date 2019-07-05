@@ -1,5 +1,11 @@
 package com.sap.cloud.lm.sl.cf.process.flowable;
 
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
+import com.sap.cloud.lm.sl.cf.process.util.HistoricVariablesUtil;
+import org.flowable.engine.HistoryService;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,6 +16,8 @@ public abstract class ProcessAction {
 
     protected final FlowableFacade flowableFacade;
     protected final List<AdditionalProcessAction> additionalProcessActions;
+    @Inject
+    private CloudControllerClientProvider clientProvider;
 
     @Inject
     public ProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions) {
@@ -42,4 +50,17 @@ public abstract class ProcessAction {
     protected abstract void executeActualProcessAction(String userId, String superProcessInstanceId);
 
     public abstract String getActionId();
+
+    protected void updateUser(String userId, String executionId) {
+        HistoryService historyService = flowableFacade.getProcessEngine()
+            .getHistoryService();
+        ClientReleaser clientReleaser = new ClientReleaser(clientProvider);
+        String oldUserId = HistoricVariablesUtil.getCurrentUser(historyService, executionId);
+        if (!oldUserId.equals(userId)) {
+            clientReleaser.releaseClientFor(historyService, executionId);
+            flowableFacade.getProcessEngine()
+                .getRuntimeService()
+                .setVariable(executionId, Constants.VAR_USER, userId);
+        }
+    }
 }

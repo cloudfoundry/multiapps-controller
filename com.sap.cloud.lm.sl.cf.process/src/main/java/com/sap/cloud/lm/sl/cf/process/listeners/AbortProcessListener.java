@@ -80,7 +80,8 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
 
         new SafeExecutor().executeSafely(() -> deleteDeploymentFiles(historyService, processInstanceId));
 
-        new SafeExecutor().executeSafely(() -> new ClientReleaser(engineEvent, clientProvider).releaseClient());
+        new SafeExecutor().executeSafely(() -> new ClientReleaser(clientProvider)
+            .releaseClientFor(historyService, engineEvent.getProcessInstanceId()));
 
         new SafeExecutor().executeSafely(() -> {
             if (configuration.shouldGatherUsageStatistics()) {

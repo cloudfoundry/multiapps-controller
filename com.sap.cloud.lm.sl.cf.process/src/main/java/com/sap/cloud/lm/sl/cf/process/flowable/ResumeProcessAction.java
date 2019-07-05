@@ -31,6 +31,7 @@ public class ResumeProcessAction extends ProcessAction {
                 .isEmpty())
             .collect(Collectors.toList());
 
+        updateUser(userId, superProcessInstanceId);
         for (String processAtReceiveTask : processesAtReceiveTask) {
             triggerProcessInstance(userId, processAtReceiveTask);
         }
@@ -39,8 +40,9 @@ public class ResumeProcessAction extends ProcessAction {
     private void triggerProcessInstance(String userId, String processId) {
         List<Execution> executionsAtReceiveTask = flowableFacade.findExecutionsAtReceiveTask(processId);
         if (!executionsAtReceiveTask.isEmpty()) {
-            executionsAtReceiveTask.stream()
-                .forEach(execution -> flowableFacade.trigger(userId, execution.getId()));
+            for (Execution execution : executionsAtReceiveTask) {
+                flowableFacade.trigger(userId, execution.getId());
+            }
             return;
         }
         LOGGER.warn(MessageFormat.format("Process with id {0} is in undetermined process state", processId));
