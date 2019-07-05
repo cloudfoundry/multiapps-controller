@@ -93,31 +93,21 @@ public class StepsUtil {
     }
 
     public static String determineCurrentUser(VariableScope scope, StepLogger stepLogger) {
-        String userId = Authentication.getAuthenticatedUserId();
-        String previousUser = (String) scope.getVariable(Constants.VAR_USER);
-        // Determine the current user
-        if (userId != null && !userId.equals(previousUser)) {
-            stepLogger.debug(Messages.AUTHENTICATED_USER_ID, userId);
-            stepLogger.debug(Messages.PREVIOUS_USER, previousUser);
-        }
+        String userId = (String) scope.getVariable(Constants.VAR_USER);
         if (userId == null) {
-            // If the authenticated user cannot be determined,
-            // use the user saved by the previous service task
-            userId = previousUser;
+            userId = getProcessInitiator(scope, stepLogger);
             if (userId == null) {
-                // If there is no previous user, this must be the first service task
-                // Use the process initiator in this case
-                userId = (String) scope.getVariable(Constants.PARAM_INITIATOR);
-                stepLogger.debug(Messages.PROCESS_INITIATOR, userId);
-                if (userId == null) {
-                    throw new SLException(Messages.CANT_DETERMINE_CURRENT_USER);
-                }
+                throw new SLException(Messages.CANT_DETERMINE_CURRENT_USER);
             }
+            scope.setVariable(Constants.VAR_USER, userId);
         }
-        // Set the current user in the context for use by later service tasks
-        scope.setVariable(Constants.VAR_USER, userId);
-
         return userId;
+    }
+
+    private static String getProcessInitiator(VariableScope scope, StepLogger stepLogger) {
+        String initiator = (String) scope.getVariable(Constants.PARAM_INITIATOR);
+        stepLogger.debug(Messages.PROCESS_INITIATOR, initiator);
+        return initiator;
     }
 
     public static MtaArchiveElements getMtaArchiveElements(VariableScope scope) {

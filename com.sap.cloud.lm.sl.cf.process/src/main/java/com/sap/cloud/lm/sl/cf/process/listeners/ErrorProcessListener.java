@@ -5,6 +5,8 @@ import javax.inject.Inject;
 import org.flowable.common.engine.api.delegate.event.AbstractFlowableEventListener;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEvent;
+import org.flowable.engine.HistoryService;
+import org.flowable.engine.impl.context.Context;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
@@ -27,9 +29,15 @@ public class ErrorProcessListener extends AbstractFlowableEventListener {
         handler.handle(event);
 
         if (event instanceof FlowableEngineEvent) {
-            ClientReleaser clientReleaser = new ClientReleaser((FlowableEngineEvent) event, clientProvider);
-            clientReleaser.releaseClient();
+            releaseClient((FlowableEngineEvent) event);
         }
+    }
+
+    private void releaseClient(FlowableEngineEvent event) {
+        HistoryService historyService = Context.getProcessEngineConfiguration()
+                .getHistoryService();
+        ClientReleaser clientReleaser = new ClientReleaser(clientProvider);
+        clientReleaser.releaseClientFor(historyService, event.getProcessInstanceId());
     }
 
     @Override
