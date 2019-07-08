@@ -9,8 +9,6 @@ import java.util.Collections;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
-import com.sap.cloud.lm.sl.common.util.Pair;
-
 public class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
 
     public DeleteApplicationRoutesStepTest(String stepInputLocation, String stepOutputLocation) throws Exception {
@@ -33,8 +31,8 @@ public class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
     private void assertRoutesWereDeleted() {
         int routesToDeleteCount = stepOutput.expectedRoutesToDelete.size();
         verify(client, times(routesToDeleteCount)).deleteRoute(anyString(), anyString());
-        for (Pair<String, String> hostAndDomain : stepOutput.expectedRoutesToDelete) {
-            verify(client).deleteRoute(hostAndDomain._1, hostAndDomain._2);
+        for (Route route : stepOutput.expectedRoutesToDelete) {
+            verify(client).deleteRoute(route.host, route.domain);
             routesToDeleteCount--;
         }
         assertEquals("A number of routes were not deleted: ", 0, routesToDeleteCount);

@@ -15,11 +15,8 @@ import org.cloudfoundry.client.lib.rest.CloudControllerRestClientFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.cloud.lm.sl.cf.client.CloudFoundryTokenProvider;
 import com.sap.cloud.lm.sl.cf.client.ResilientCloudControllerClient;
-import com.sap.cloud.lm.sl.cf.client.TokenProvider;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.common.util.Pair;
 
 @Named
 public class CloudFoundryClientFactory extends ClientFactory {
@@ -37,31 +34,32 @@ public class CloudFoundryClientFactory extends ClientFactory {
     }
 
     @Override
-    protected Pair<CloudControllerClient, TokenProvider> createClient(CloudCredentials credentials) {
+    protected CloudControllerClient createClient(CloudCredentials credentials) {
         OAuthClient oAuthClient = oAuthClientFactory.createOAuthClient();
         CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials, null,
             oAuthClient);
         addTaggingInterceptor(controllerClient.getRestTemplate());
-        return new Pair<>(new ResilientCloudControllerClient(controllerClient), new CloudFoundryTokenProvider(oAuthClient));
+        return new ResilientCloudControllerClient(controllerClient);
     }
 
     @Override
-    protected Pair<CloudControllerClient, TokenProvider> createClient(CloudCredentials credentials, String org, String space) {
+    protected CloudControllerClient createClient(CloudCredentials credentials, String org, String space) {
         OAuthClient oAuthClient = oAuthClientFactory.createOAuthClient();
         CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials, org, space,
             oAuthClient);
         addTaggingInterceptor(controllerClient.getRestTemplate(), org, space);
-        return new Pair<>(new ResilientCloudControllerClient(controllerClient), new CloudFoundryTokenProvider(oAuthClient));
+        return new ResilientCloudControllerClient(controllerClient);
     }
 
-    protected Pair<CloudControllerClient, TokenProvider> createClient(CloudCredentials credentials, String spaceId) {
+    @Override
+    protected CloudControllerClient createClient(CloudCredentials credentials, String spaceId) {
         CloudSpace target = computeTarget(credentials, spaceId);
         OAuthClient oAuthClient = oAuthClientFactory.createOAuthClient();
         CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials, target,
             oAuthClient);
         addTaggingInterceptor(controllerClient.getRestTemplate(), target.getOrganization()
             .getName(), target.getName());
-        return new Pair<>(new ResilientCloudControllerClient(controllerClient), new CloudFoundryTokenProvider(oAuthClient));
+        return new ResilientCloudControllerClient(controllerClient);
     }
 
     private void addTaggingInterceptor(RestTemplate template) {
@@ -79,8 +77,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
     }
 
     protected CloudSpace computeTarget(CloudCredentials credentials, String spaceId) {
-        CloudControllerClient clientWithoutTarget = createClient(credentials)._1;
+        CloudControllerClient clientWithoutTarget = createClient(credentials);
         return clientWithoutTarget.getSpace(UUID.fromString(spaceId));
     }
-
 }

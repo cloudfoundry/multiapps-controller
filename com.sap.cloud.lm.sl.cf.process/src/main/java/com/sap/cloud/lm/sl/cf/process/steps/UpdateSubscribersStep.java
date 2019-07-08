@@ -53,7 +53,6 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFac
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.helpers.VisitableObject;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
@@ -89,8 +88,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
-    protected BiFunction<ClientHelper, String, Pair<String, String>> orgAndSpaceCalculator = (client, spaceId) -> client
-        .computeOrgAndSpace(spaceId);
+    protected BiFunction<ClientHelper, String, CloudTarget> targetCalculator = ClientHelper::computeTarget;
 
     @Inject
     private ConfigurationSubscriptionDao subscriptionsDao;
@@ -116,14 +114,14 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         List<CloudApplication> updatedServiceBrokerSubscribers = new ArrayList<>();
         for (ConfigurationSubscription subscription : subscriptionsDao.findAll(updatedEntries)) {
             ClientHelper clientHelper = new ClientHelper(clientForCurrentSpace);
-            Pair<String, String> orgAndSpace = orgAndSpaceCalculator.apply(clientHelper, subscription.getSpaceId());
-            if (orgAndSpace == null) {
+            CloudTarget target = targetCalculator.apply(clientHelper, subscription.getSpaceId());
+            if (target == null) {
                 getStepLogger().warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
                 continue;
             }
-            CloudApplication updatedApplication = updateSubscriber(execution, orgAndSpace, subscription);
+            CloudApplication updatedApplication = updateSubscriber(execution, target, subscription);
             if (updatedApplication != null) {
-                updatedApplication = addOrgAndSpaceIfNecessary(updatedApplication, orgAndSpace);
+                updatedApplication = addOrgAndSpaceIfNecessary(updatedApplication, target);
                 addApplicationToProperList(updatedSubscribers, updatedServiceBrokerSubscribers, updatedApplication);
             }
         }
@@ -149,7 +147,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         }
     }
 
-    private CloudApplication addOrgAndSpaceIfNecessary(CloudApplication application, Pair<String, String> orgAndSpace) {
+    private CloudApplication addOrgAndSpaceIfNecessary(CloudApplication application, CloudTarget cloudTarget) {
         // The entity returned by the getApplication(String appName) method of
         // the CF Java client does not contain a CloudOrganization,
         // because the value of the 'inline-relations-depth' is hardcoded to 1
@@ -157,17 +155,17 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         // org.cloudfoundry.client.lib.rest.CloudControllerClientImpl).
         if (application.getSpace() == null || application.getSpace()
             .getOrganization() == null) {
-            CloudSpace space = createDummySpace(orgAndSpace);
+            CloudSpace space = createDummySpace(cloudTarget);
             return ImmutableCloudApplication.copyOf(application)
                 .withSpace(space);
         }
         return application;
     }
 
-    private CloudSpace createDummySpace(Pair<String, String> orgAndSpace) {
-        CloudOrganization org = createDummyOrg(orgAndSpace._1);
+    private CloudSpace createDummySpace(CloudTarget cloudTarget) {
+        CloudOrganization org = createDummyOrg(cloudTarget.getOrg());
         return ImmutableCloudSpace.builder()
-            .name(orgAndSpace._2)
+            .name(cloudTarget.getSpace())
             .organization(org)
             .build();
     }
@@ -187,13 +185,13 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         return new ArrayList<>(applicationsMap.values());
     }
 
-    private CloudApplication updateSubscriber(ExecutionWrapper execution, Pair<String, String> orgAndSpace,
+    private CloudApplication updateSubscriber(ExecutionWrapper execution, CloudTarget cloudTarget,
         ConfigurationSubscription subscription) {
         String appName = subscription.getAppName();
         String mtaId = subscription.getMtaId();
         String subscriptionName = getRequiredDependency(subscription).getName();
         try {
-            return attemptToUpdateSubscriber(execution.getContext(), getClient(execution, orgAndSpace), subscription);
+            return attemptToUpdateSubscriber(execution.getContext(), getClient(execution, cloudTarget), subscription);
         } catch (CloudOperationException | SLException e) {
             getStepLogger().warn(e, Messages.COULD_NOT_UPDATE_SUBSCRIBER, appName, mtaId, subscriptionName);
             return null;
@@ -296,8 +294,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
             .get(0);
     }
 
-    private CloudControllerClient getClient(ExecutionWrapper execution, Pair<String, String> orgAndSpace) {
-        return execution.getControllerClient(orgAndSpace._1, orgAndSpace._2);
+    private CloudControllerClient getClient(ExecutionWrapper execution, CloudTarget cloudTarget) {
+        return execution.getControllerClient(cloudTarget.getOrg(), cloudTarget.getSpace());
     }
 
     private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, HandlerFactory handlerFactory) {

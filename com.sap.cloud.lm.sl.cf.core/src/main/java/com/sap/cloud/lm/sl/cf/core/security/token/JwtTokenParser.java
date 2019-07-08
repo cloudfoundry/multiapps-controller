@@ -19,7 +19,6 @@ import org.springframework.security.oauth2.common.exceptions.InvalidTokenExcepti
 
 import com.sap.cloud.lm.sl.cf.client.uaa.UAAClient;
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
-import com.sap.cloud.lm.sl.common.util.Pair;
 
 @Named
 @Order(0)
@@ -28,7 +27,7 @@ public class JwtTokenParser implements TokenParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenParser.class);
 
     protected final TokenFactory tokenFactory;
-    private volatile Pair<String, String> tokenKey;
+    private volatile TokenKey tokenKey;
     private final UAAClient uaaClient;
 
     @Inject
@@ -67,7 +66,7 @@ public class JwtTokenParser implements TokenParser {
         }
     }
 
-    private Pair<String, String> getCachedTokenKey() {
+    private TokenKey getCachedTokenKey() {
         if (tokenKey == null) {
             synchronized (this) {
                 if (tokenKey == null) {
@@ -82,29 +81,45 @@ public class JwtTokenParser implements TokenParser {
         tokenKey = readTokenKey();
     }
 
-    private static SignatureVerifier getSignatureVerifier(Pair<String, String> tokenKey) {
-        String key = tokenKey._1;
-        String alg = tokenKey._2;
-        SignatureVerifier verifier = null;
+    private static SignatureVerifier getSignatureVerifier(TokenKey tokenKey) {
+        String alg = tokenKey.getAlgorithm();
+        SignatureVerifier verifier;
         // TODO: Find or implement a factory, which would support other algorithms like SHA384withRSA, SHA512withRSA and HmacSHA512.
         if (alg.equals("SHA256withRSA") || alg.equals("RS256"))
-            verifier = new RsaVerifier(key);
+            verifier = new RsaVerifier(tokenKey.getValue());
         else if (alg.equals("HMACSHA256") || alg.equals("HS256"))
-            verifier = new MacSigner(key);
+            verifier = new MacSigner(tokenKey.getValue());
         else
             throw new InternalAuthenticationServiceException("Unsupported verifier algorithm " + alg);
         return verifier;
     }
 
-    private Pair<String, String> readTokenKey() {
+    private TokenKey readTokenKey() {
         Map<String, Object> tokenKeyResponse = uaaClient.readTokenKey();
         Object value = tokenKeyResponse.get("value");
         Object alg = tokenKeyResponse.get("alg");
         if (value == null || alg == null) {
             throw new InternalAuthenticationServiceException("Response from /token_key does not contain a key value or an algorithm");
         }
-        return new Pair<>(value.toString(), alg.toString());
+        return new TokenKey(value.toString(), alg.toString());
 
     }
 
+    private static class TokenKey {
+        private String value;
+        private String algorithm;
+
+        TokenKey(String value, String algorithm) {
+            this.value = value;
+            this.algorithm = algorithm;
+        }
+
+        String getValue() {
+            return value;
+        }
+
+        String getAlgorithm() {
+            return algorithm;
+        }
+    }
 }
