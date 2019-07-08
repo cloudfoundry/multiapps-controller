@@ -252,7 +252,7 @@ public class ApplicationCloudModelBuilder {
     }
 
     protected Resource getResource(String dependencyName) {
-        return handler.findDependency(deploymentDescriptor, dependencyName)._1;
+        return handler.findResource(deploymentDescriptor, dependencyName);
     }
 
     public DeploymentMode getDeploymentMode() {

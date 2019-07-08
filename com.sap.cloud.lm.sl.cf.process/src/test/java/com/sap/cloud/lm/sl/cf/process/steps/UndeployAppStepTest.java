@@ -22,7 +22,6 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
@@ -125,8 +124,12 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     }
 
     protected static class StepOutput {
-        protected List<Pair<String, String>> expectedRoutesToDelete = Collections.emptyList();
+        protected List<Route> expectedRoutesToDelete = Collections.emptyList();
         protected List<String> expectedTasksToCancel = Collections.emptyList();
     }
 
+    protected static class Route {
+        protected String host;
+        protected String domain;
+    }
 }

@@ -10,8 +10,6 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 
 public class ApplicationURI {
 
-    public static final char DEFAULT_HOST_DOMAIN_SEPARATOR = '.';
-
     private String uri;
     private String host;
     private String domain;
@@ -25,8 +23,8 @@ public class ApplicationURI {
     public ApplicationURI(String initial) {
         uri = UriUtil.stripScheme(initial);
 
-        int domainIndex = uri.indexOf(DEFAULT_HOST_DOMAIN_SEPARATOR);
-        int pathIndex = UriUtil.getPathIndexAfter(uri, domainIndex);
+        int domainIndex = uri.indexOf(UriUtil.DEFAULT_HOST_DOMAIN_SEPARATOR);
+        int pathIndex = getPathIndexAfter(domainIndex);
 
         if (domainIndex > 0) {
             setHost(uri.substring(0, domainIndex));
@@ -39,6 +37,14 @@ public class ApplicationURI {
         if (pathIndex < uri.length()) {
             setPath(uri.substring(pathIndex));
         }
+    }
+
+    private int getPathIndexAfter(int pos) {
+        int pathIndex = uri.indexOf(UriUtil.DEFAULT_PATH_SEPARATOR, pos);
+        if (pathIndex < 0) {
+            pathIndex = uri.length();
+        }
+        return pathIndex;
     }
 
     public Map<String, Object> getURIParts() {
@@ -84,7 +90,7 @@ public class ApplicationURI {
 
         if (StringUtils.isNotEmpty(getHost())) {
             url.append(getHost())
-                .append(ApplicationURI.DEFAULT_HOST_DOMAIN_SEPARATOR);
+                .append(UriUtil.DEFAULT_HOST_DOMAIN_SEPARATOR);
         }
 
         url.append(getDomain());

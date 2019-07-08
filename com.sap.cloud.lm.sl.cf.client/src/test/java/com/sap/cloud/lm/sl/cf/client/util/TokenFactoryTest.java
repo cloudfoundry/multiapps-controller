@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -14,7 +15,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.common.util.Pair;
 
 @RunWith(Enclosed.class)
 public class TokenFactoryTest {
@@ -114,13 +114,13 @@ public class TokenFactoryTest {
                 {
                     "a25723f22ac754f792c50f07623dzd75",
                     "aRh98oYD80teGrkjDFzg3ln55EV3O96y",
-                    MapUtil.of(new Pair<>("scope", Arrays.asList("controller.read")), new Pair<>("exp", 999))
+                    MapUtil.of(Pair.of("scope", Arrays.asList("controller.read")), Pair.of("exp", 999))
                 },
                 // (1) Missing exchangedToken:
                 {
                     null,
                     "aRh98oYD80teGrkjDFzg3ln55EV3O96y",
-                    MapUtil.of(new Pair<>("scope", Arrays.asList("controller.read")), new Pair<>("exp", 999))               
+                    MapUtil.of(Pair.of("scope", Arrays.asList("controller.read")), Pair.of("exp", 999))
                 }
 // @formatter:on
             });

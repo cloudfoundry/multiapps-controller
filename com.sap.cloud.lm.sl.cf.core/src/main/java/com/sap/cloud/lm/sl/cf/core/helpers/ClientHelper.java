@@ -3,15 +3,14 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 import java.text.MessageFormat;
 import java.util.UUID;
 
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-
-import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
-import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class ClientHelper {
 
@@ -24,8 +23,8 @@ public class ClientHelper {
     }
 
     public void deleteRoute(String uri) {
-        Pair<String, String> hostAndDomain = UriUtil.getHostAndDomain(uri);
-        client.deleteRoute(hostAndDomain._1, hostAndDomain._2);
+        ApplicationURI route = new ApplicationURI(uri);
+        client.deleteRoute(route.getHost(), route.getDomain());
     }
 
     public String computeSpaceId(String orgName, String spaceName) {
@@ -38,10 +37,10 @@ public class ClientHelper {
         return null;
     }
 
-    public Pair<String, String> computeOrgAndSpace(String spaceId) {
+    public CloudTarget computeTarget(String spaceId) {
         CloudSpace space = attemptToFindSpace(spaceId);
         if (space != null) {
-            return new Pair<>(space.getOrganization()
+            return new CloudTarget(space.getOrganization()
                 .getName(), space.getName());
         }
         return null;

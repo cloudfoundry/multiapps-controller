@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.web.security;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,12 +19,11 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.ClientFactory;
+import com.sap.cloud.lm.sl.cf.core.cf.TokenProviderFactory;
 import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
-import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
@@ -36,8 +34,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     TokenStore tokenStore;
 
     @Autowired
-    @Qualifier("cloudFoundryClientFactory")
-    ClientFactory cloudFoundryClientFactory;
+    @Qualifier("tokenProviderFactory")
+    TokenProviderFactory cloudFoundryTokenProviderFactory;
 
     @Autowired
     ApplicationConfiguration configuration;
@@ -58,8 +56,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             String userName = (String) auth.getPrincipal();
             String password = (String) auth.getCredentials();
 
-            Pair<CloudControllerClient, TokenProvider> client = cloudFoundryClientFactory.createClient(userName, password);
-            TokenProvider tokenProvider = client._2;
+            TokenProvider tokenProvider = cloudFoundryTokenProviderFactory.createTokenProvider(userName, password);
 
             // Get a valid token from the client
             // If this works, consider the request authenticated

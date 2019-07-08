@@ -7,7 +7,6 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
-import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -46,11 +45,11 @@ public class RouteValidator implements ParameterValidator {
 
     protected void correctUriPartIfPresent(ApplicationURI uri, ParameterValidator partValidator) {
         String uriPartName = partValidator.getParameterName();
-        if (uri.getURIPart(uriPartName) == null) {
+        Object part = uri.getURIPart(uriPartName);
+
+        if (part == null) {
             return;
         }
-
-        Object part = uri.getURIPart(uriPartName);
 
         if (partValidator.canCorrect() && !partValidator.isValid(part)) {
             String correctedPart = (String) partValidator.attemptToCorrect(part);
@@ -69,7 +68,8 @@ public class RouteValidator implements ParameterValidator {
             return false;
         }
 
-        Map<String, Object> uriParts = UriUtil.splitUri(routeString);
+        ApplicationURI uri = new ApplicationURI(routeString);
+        Map<String, Object> uriParts = uri.getURIParts();
         boolean partsAreValid = validators.stream()
             .allMatch(validator -> partIsValid(validator, uriParts));
 

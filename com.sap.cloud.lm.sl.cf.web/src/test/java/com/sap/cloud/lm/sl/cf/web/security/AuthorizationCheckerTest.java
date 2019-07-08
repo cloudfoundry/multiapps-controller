@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
@@ -35,7 +36,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
-import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class AuthorizationCheckerTest {
 
@@ -172,9 +172,9 @@ public class AuthorizationCheckerTest {
 
         if (hasAccess) {
             when(client.getSpace(ORG, SPACE, false)).thenReturn(space);
-            when(clientHelper.computeOrgAndSpace(SPACE_ID)).thenReturn(new Pair<String, String>(ORG, SPACE));
+            when(clientHelper.computeTarget(SPACE_ID)).thenReturn(new CloudTarget(ORG, SPACE));
         } else {
-            when(clientHelper.computeOrgAndSpace(SPACE_ID)).thenReturn(null);
+            when(clientHelper.computeTarget(SPACE_ID)).thenReturn(null);
         }
         when(authorizationChecker.getClientHelper(client)).thenReturn(clientHelper);
         userInfo = new UserInfo(USER_ID.toString(), USERNAME, accessToken);

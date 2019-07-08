@@ -15,7 +15,6 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class ConfigurationEntriesUtil {
 
@@ -27,11 +26,6 @@ public class ConfigurationEntriesUtil {
 
     public static String computeProviderId(String mtaId, String providedDependencyName) {
         return mtaId + PROVIDER_ID_DELIMITER + providedDependencyName;
-    }
-
-    public static Pair<String, String> getMtaIdAndProvidedDependencyName(String providerId) {
-        String[] providerIdSplitted = providerId.split(PROVIDER_ID_DELIMITER, 2);
-        return new Pair<>(providerIdSplitted[0], providerIdSplitted[1]);
     }
 
     public static List<ConfigurationEntry> findConfigurationEntries(ConfigurationEntryDao dao, ConfigurationFilter filter,

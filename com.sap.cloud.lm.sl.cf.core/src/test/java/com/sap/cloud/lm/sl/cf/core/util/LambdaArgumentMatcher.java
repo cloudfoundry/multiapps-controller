@@ -8,7 +8,7 @@ public class LambdaArgumentMatcher<T> extends ArgumentMatcher<T> {
 
     private Function<Object, Boolean> matcher;
 
-    public LambdaArgumentMatcher(java.util.function.Function<Object, Boolean> matcher) {
+    public LambdaArgumentMatcher(Function<Object, Boolean> matcher) {
         this.matcher = matcher;
     }
 

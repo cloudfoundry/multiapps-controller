@@ -1,12 +1,12 @@
 {
   "expectedRoutesToDelete": [
     {
-      "_1": "test-app-db",
-      "_2": "example.com"
+      "host": "test-app-db",
+      "domain": "example.com"
     },
     {
-      "_1": "test-app-ui",
-      "_2": "example.com"
+      "host": "test-app-ui",
+      "domain": "example.com"
     }
   ]
 }
