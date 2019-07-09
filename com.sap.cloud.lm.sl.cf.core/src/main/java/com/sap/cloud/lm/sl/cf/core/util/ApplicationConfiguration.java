@@ -83,6 +83,9 @@ public class ApplicationConfiguration {
     static final String CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = "SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS";
     static final String CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = "CONTROLLER_CLIENT_CONNECTION_POOL_SIZE";
     static final String CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE = "CONTROLLER_CLIENT_THREAD_POOL_SIZE";
+    static final String SAP_INTERNAL_DELIVERY = "SAP_INTERNAL_DELIVERY";
+    static final String SUPPORT_COMPONENTS = "SUPPORT_COMPONENTS";
+    static final String INTERNAL_SUPPORT_CHANNEL = "INTERNAL_SUPPORT_CHANNEL";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -119,6 +122,7 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = 20;
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 75;
     public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 75;
+    public static final Boolean DEFAULT_SAP_INTERNAL_DELIVERY = false;
 
     private final Environment environment;
 
@@ -851,6 +855,24 @@ public class ApplicationConfiguration {
         Integer value = environment.getPositiveInteger(CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE);
         LOGGER.info(format(Messages.CONTROLLER_CLIENT_THREAD_POOL_SIZE, value));
         return value;
+    }
+
+    public Boolean isInternalEnvironment() {
+        return environment.getBoolean(SAP_INTERNAL_DELIVERY, DEFAULT_SAP_INTERNAL_DELIVERY);
+    }
+
+    public Map<String, Object> getCloudComponents() {
+        String value = environment.getString(SUPPORT_COMPONENTS);
+        try {
+            return JsonUtil.convertJsonToMap(value);
+        } catch (ParsingException e) {
+            LOGGER.warn(format(Messages.INVALID_SUPPORT_COMPONENTS, value), e);
+            return Collections.emptyMap();
+        }
+    }
+
+    public String getInternalSupportChannel() {
+        return environment.getString(INTERNAL_SUPPORT_CHANNEL);
     }
 
 }

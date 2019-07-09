@@ -207,6 +207,11 @@ public class Messages {
     public static final String REMOVED_TOKENS_1 = "Removed tokens: {0} with clientId: {1}";
     public static final String DELETED_DATA_FOR_NON_EXISTING_USERS = "Deleted data for no-longer existing users.";
     public static final String CREATING_APP_FROM_DOCKER_IMAGE = "Creating app \"{0}\" from Docker image \"{1}\"...";
+    public static final String CREATE_SUPPORT_TICKET_GENERIC_MESSAGE = "If the problem persists, please create a support ticket.";
+    public static final String CREATE_SUPPORT_TICKET_TO_COMPONENT = "Please create a support ticket to {0} component \"{1}\".";
+    public static final String CREATE_SUPPORT_TICKET_TO_SERVICE_BROKER_GENERIC_MESSAGE = "The problem might be in the service broker responsible for service instance \"{0}\"";
+   public static final String CREATE_SUPPORT_TICKET_TO_DS_COMPONENT = "The problem might be in the deployment process";
+    public static final String CREATE_SUPPORT_TICKET_TO_CC_COMPONENT = "The problem might be in the controller";
 
     // Progress messages
 

@@ -12,6 +12,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper;
+import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("updateServiceBrokerSubscriberStep")
@@ -36,7 +38,8 @@ public class UpdateServiceBrokerSubscriberStep extends CreateOrUpdateServiceBrok
             return StepPhase.DONE;
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().warn(e, Messages.FAILED_SERVICE_BROKER_UPDATE, serviceBroker.getName());
+            getStepLogger().warn(MessageFormat.format(Messages.FAILED_SERVICE_BROKER_UPDATE, serviceBroker.getName()), e,
+                                 ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, null, serviceBroker.getName()));
             return StepPhase.DONE;
         }
     }

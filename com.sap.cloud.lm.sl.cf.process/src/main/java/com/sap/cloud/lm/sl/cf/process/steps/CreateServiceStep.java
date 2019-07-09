@@ -21,6 +21,9 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceWithAlternativesCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
+import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper;
+import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("createServiceStep")
@@ -44,7 +47,7 @@ public class CreateServiceStep extends ServiceStep {
             getStepLogger().debug(Messages.SERVICE_CREATED, service.getName());
             return createServiceMethodExecution;
         } catch (CloudOperationException e) {
-            processServiceCreationFailure(service, e);
+            processServiceCreationFailure(context, service, e);
         }
 
         return new MethodExecution<>(null, ExecutionState.FINISHED);
@@ -78,16 +81,19 @@ public class CreateServiceStep extends ServiceStep {
                                     .createService(client, service, StepsUtil.getSpaceId(context));
     }
 
-    private void processServiceCreationFailure(CloudServiceExtended service, CloudOperationException e) {
+    private void processServiceCreationFailure(DelegateExecution context, CloudServiceExtended service, CloudOperationException e) {
         if (!service.isOptional()) {
             String detailedDescription = MessageFormat.format(Messages.ERROR_CREATING_SERVICE, service.getName(), service.getLabel(),
                                                               service.getPlan(), e.getDescription());
             if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
+                StepsUtil.setServiceOffering(context, Constants.VAR_SERVICE_OFFERING, service.getLabel());
                 throw new CloudServiceBrokerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
             }
             throw new CloudControllerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
         }
-        getStepLogger().warn(e, Messages.COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE, service.getName());
+        getStepLogger().warn(MessageFormat.format(Messages.COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE, service.getName()), e,
+                             ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, service.getName(),
+                                                            service.getLabel()));
     }
 
     @Override
@@ -98,6 +104,12 @@ public class CreateServiceStep extends ServiceStep {
     @Override
     protected ServiceOperationType getOperationType() {
         return ServiceOperationType.CREATE;
+    }
+
+    @Override
+    protected String getStepErrorMessageAdditionalDescription(DelegateExecution context) {
+        String offering = StepsUtil.getServiceOffering(context);
+        return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, null, offering);
     }
 
 }

@@ -127,6 +127,11 @@ public class StepLogger implements UserMessageLogger {
         sendProgressMessage(message, ProgressMessageType.WARNING);
     }
 
+    public void warn(String message, Exception e, String tail) {
+        warnWithoutProgressMessage(message);
+        sendProgressMessage(getExtendedMessageWithTail(message, e, tail), ProgressMessageType.WARNING);
+    }
+
     public void debug(String pattern, Object... arguments) {
         debug(MessageFormat.format(pattern, arguments));
     }
@@ -149,16 +154,20 @@ public class StepLogger implements UserMessageLogger {
         return message + ": " + e.getMessage();
     }
 
+    private static String getExtendedMessageWithTail(String message, Exception e, String tail) {
+        return message + ": " + e.getMessage() + ": " + tail;
+    }
+
     private void sendProgressMessage(String message, ProgressMessageType type) {
         try {
             String taskId = StepsUtil.getTaskId(context);
-
             progressMessageService.add(ImmutableProgressMessage.builder()
                                                                .processId(StepsUtil.getCorrelationId(context))
                                                                .taskId(taskId)
                                                                .type(type)
                                                                .text(message)
                                                                .build());
+
         } catch (SLException e) {
             getProcessLogger().error(e);
         }
