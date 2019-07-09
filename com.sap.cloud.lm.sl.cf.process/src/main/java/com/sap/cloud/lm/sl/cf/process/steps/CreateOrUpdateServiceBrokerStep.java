@@ -20,6 +20,8 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper;
+import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
@@ -59,6 +61,12 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
         return Messages.ERROR_CREATING_SERVICE_BROKERS;
+    }
+
+    @Override
+    protected String getStepErrorMessageAdditionalDescription(DelegateExecution context) {
+        String offering = StepsUtil.getServiceOffering(context);
+        return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, null, offering);
     }
 
     private CloudServiceBroker updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker,
@@ -156,8 +164,10 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
                         getStepLogger().warn(Messages.UPDATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName());
                         return;
                     }
+                    StepsUtil.setServiceOffering(context, Constants.VAR_SERVICE_OFFERING, serviceBroker.getName());
                     throw new CloudServiceBrokerException(e);
                 case BAD_GATEWAY:
+                    StepsUtil.setServiceOffering(context, Constants.VAR_SERVICE_OFFERING, serviceBroker.getName());
                     throw new CloudServiceBrokerException(e);
                 default:
                     throw e;

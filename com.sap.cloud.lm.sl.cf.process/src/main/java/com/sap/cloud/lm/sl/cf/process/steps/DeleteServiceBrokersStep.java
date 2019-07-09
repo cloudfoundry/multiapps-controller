@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper;
+import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("deleteServiceBrokersStep")
@@ -43,6 +45,12 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
         return Messages.ERROR_DELETING_SERVICE_BROKERS;
     }
 
+    @Override
+    protected String getStepErrorMessageAdditionalDescription(DelegateExecution context) {
+        String offering = StepsUtil.getServiceOffering(context);
+        return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, null, offering);
+    }
+
     protected List<String> getCreatedOrUpdatedServiceBrokerNames(DelegateExecution context) {
         return StepsUtil.getCreatedOrUpdatedServiceBrokerNames(context);
     }
@@ -68,8 +76,10 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
                             getStepLogger().warn(Messages.DELETE_OF_SERVICE_BROKERS_FAILED_403, name);
                             return;
                         }
+                        StepsUtil.setServiceOffering(context, Constants.VAR_SERVICE_OFFERING, name);
                         throw new CloudServiceBrokerException(e);
                     case BAD_GATEWAY:
+                        StepsUtil.setServiceOffering(context, Constants.VAR_SERVICE_OFFERING, name);
                         throw new CloudServiceBrokerException(e);
                     default:
                         throw e;

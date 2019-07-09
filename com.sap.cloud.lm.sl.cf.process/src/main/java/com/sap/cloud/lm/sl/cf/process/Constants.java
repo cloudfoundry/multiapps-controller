@@ -96,6 +96,7 @@ public class Constants {
     public static final String VAR_ITERATED_MODULES_IN_PARALLEL = "iteratedModulesInParallel";
     public static final String VAR_MODULES_TO_ITERATE_IN_PARALLEL = "modulesToIterateInParallel";
     public static final String VAR_UPDATED_SUBSCRIBERS = "updatedSubscribers";
+    public static final String VAR_SERVICE_OFFERING = "serviceOffering";
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS = "updatedServiceBrokerSubscribers";
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = "updatedServiceBrokerSubscribersCount";
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX = "updatedServiceBrokerSubscribersIndex";

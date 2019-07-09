@@ -28,13 +28,13 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
             AsyncExecutionState stepExecutionStatus = stepExecution.execute(execution);
             return handleStepExecutionStatus(execution, stepExecutionStatus, stepExecutions);
         } catch (Exception e) {
-            processException(e, stepExecution.getPollingErrorMessage(execution));
+            processException(e, stepExecution.getPollingErrorMessage(execution), getStepErrorMessageAdditionalDescription(execution.getContext()));
         }
         return StepPhase.RETRY;
     }
 
     protected void onPollingError(DelegateExecution context, Exception e) throws Exception {
-        processException(e, getStepErrorMessage(context));
+        processException(e, getStepErrorMessage(context), getStepErrorMessageAdditionalDescription(context));
     }
 
     private AsyncExecution getStepExecution(ExecutionWrapper execution, List<AsyncExecution> stepOperations) {
