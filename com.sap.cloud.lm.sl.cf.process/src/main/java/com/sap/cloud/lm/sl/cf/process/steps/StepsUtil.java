@@ -1183,4 +1183,12 @@ public class StepsUtil {
         };
     }
 
+    static String getServiceOffering(VariableScope scope) {
+        return (String) scope.getVariable(Constants.VAR_SERVICE_OFFERING);
+    }
+
+    static void setServiceOffering(VariableScope scope, String variableName, String value) {
+        scope.setVariable(variableName, value);
+    }
+
 }

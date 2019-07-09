@@ -96,6 +96,7 @@ public final class Messages {
     public static final String SPACE_ID_NOT_SPECIFIED_USING_DEFAULT_0 = "Space ID is not specified in the environment. Using default: \"{0}\"";
     public static final String ORG_NAME_NOT_SPECIFIED = "Org name is not specified in the environment.";
     public static final String DEPLOY_SERVICE_URL_NOT_SPECIFIED = "Deploy service URL is not specified in the environment.";
+    public static final String INVALID_SUPPORT_COMPONENTS = "Invalid SUPPORT_COMPONENTS \"{0}\"";
 
     // Info messages
     public static final String XS_TYPE_NOT_SPECIFIED = "XS type is not specified in the environment. Using default: \"{0}\"";

@@ -18,10 +18,13 @@ import org.slf4j.MDC;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
+import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper;
+import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
@@ -48,6 +51,8 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     private ProcessLogsPersister processLogsPersister;
     protected ProcessStepHelper stepHelper;
     private StepLogger stepLogger;
+    @Inject
+    protected ApplicationConfiguration configuration;
 
     @Override
     public void execute(DelegateExecution context) {
@@ -108,12 +113,25 @@ public abstract class SyncFlowableStep implements JavaDelegate {
      *        {@link #handleException(DelegateExecution, Exception) handleException}
      */
     protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        processException(e, getStepErrorMessage(context));
+        processException(e, getStepErrorMessage(context), getErrorMessageAdditionalDescription(e, context));
     }
 
-    protected void processException(Exception e, String detailedMessage) throws Exception {
+    protected void processException(Exception e, String detailedMessage, String description) throws Exception {
         e = handleControllerException(e);
-        throw getExceptionConstructor(e).apply(e, detailedMessage + ": " + e.getMessage());
+        throw getExceptionConstructor(e).apply(e, detailedMessage + ": " + e.getMessage() + " " + description);
+    }
+
+    protected String getErrorMessageAdditionalDescription(Exception e, DelegateExecution context) {
+        if (e instanceof ContentException) {
+            return StringUtils.EMPTY;
+        }
+        if (e instanceof CloudServiceBrokerException) {
+            return getStepErrorMessageAdditionalDescription(context);
+        }
+        if (e instanceof CloudOperationException || e instanceof CloudControllerException) {
+            return ExceptionMessageTailMapper.map(configuration, CloudComponents.CLOUD_CONTROLLER, null, null);
+        }
+        return ExceptionMessageTailMapper.map(configuration, CloudComponents.DEPLOY_SERVICE, null, null);
     }
 
     private static Exception handleControllerException(Exception e) {
@@ -177,6 +195,10 @@ public abstract class SyncFlowableStep implements JavaDelegate {
 
     protected ProcessLogsPersister getProcessLogsPersister() {
         return processLogsPersister;
+    }
+
+    protected String getStepErrorMessageAdditionalDescription(DelegateExecution context) {
+        return StringUtils.EMPTY;
     }
 
 }
