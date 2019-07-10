@@ -10,20 +10,9 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 
 public class ApplicationURI {
 
-    public static final String DEFAULT_SCHEME_SEPARATOR = "://";
-    public static final char DEFAULT_PATH_SEPARATOR = '/';
     public static final char DEFAULT_HOST_DOMAIN_SEPARATOR = '.';
 
-    public static final String SCHEME_PARAMETER = "scheme";
-
-    public static final int STANDARD_HTTP_PORT = 80;
-    public static final int STANDARD_HTTPS_PORT = 443;
-
-    public static final String HTTP_PROTOCOL = "http";
-    public static final String HTTPS_PROTOCOL = "https";
-
     private String uri;
-    private String scheme;
     private String host;
     private String domain;
     private String path;
@@ -34,7 +23,7 @@ public class ApplicationURI {
     }
 
     public ApplicationURI(String initial) {
-        uri = stripScheme(initial);
+        uri = UriUtil.stripScheme(initial);
 
         int domainIndex = uri.indexOf(DEFAULT_HOST_DOMAIN_SEPARATOR);
         int pathIndex = UriUtil.getPathIndexAfter(uri, domainIndex);
@@ -52,20 +41,9 @@ public class ApplicationURI {
         }
     }
 
-    private String stripScheme(String uri) {
-        int protocolIndex = uri.indexOf(DEFAULT_SCHEME_SEPARATOR);
-        if (protocolIndex == -1) {
-            return uri;
-        }
-
-        setScheme(uri.substring(0, protocolIndex));
-        return uri.substring(protocolIndex + DEFAULT_SCHEME_SEPARATOR.length());
-    }
-
     public Map<String, Object> getURIParts() {
         Map<String, Object> uriParts = new HashMap<>();
 
-        uriParts.put(SCHEME_PARAMETER, getScheme());
         uriParts.put(SupportedParameters.HOST, getHost());
         uriParts.put(SupportedParameters.DOMAIN, getDomain());
         uriParts.put(SupportedParameters.ROUTE_PATH, getPath());
@@ -75,8 +53,6 @@ public class ApplicationURI {
 
     public Object getURIPart(String partName) {
         switch (partName) {
-            case SCHEME_PARAMETER:
-                return getScheme();
             case SupportedParameters.HOST:
                 return getHost();
             case SupportedParameters.DOMAIN:
@@ -90,9 +66,6 @@ public class ApplicationURI {
 
     public void setURIPart(String partName, String part) {
         switch (partName) {
-            case SCHEME_PARAMETER:
-                setScheme(part);
-                break;
             case SupportedParameters.HOST:
                 setHost(part);
                 break;
@@ -109,11 +82,6 @@ public class ApplicationURI {
     public String toString() {
         StringBuilder url = new StringBuilder();
 
-        if (StringUtils.isNotEmpty(getScheme())) {
-            url.append(getScheme())
-                .append(ApplicationURI.DEFAULT_SCHEME_SEPARATOR);
-        }
-
         if (StringUtils.isNotEmpty(getHost())) {
             url.append(getHost())
                 .append(ApplicationURI.DEFAULT_HOST_DOMAIN_SEPARATOR);
@@ -126,14 +94,6 @@ public class ApplicationURI {
         }
 
         return url.toString();
-    }
-
-    public String getScheme() {
-        return scheme;
-    }
-
-    public void setScheme(String scheme) {
-        this.scheme = scheme;
     }
 
     public String getHost() {
