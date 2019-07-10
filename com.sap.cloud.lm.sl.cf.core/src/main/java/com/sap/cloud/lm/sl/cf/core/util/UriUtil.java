@@ -76,6 +76,15 @@ public class UriUtil {
 
         return uri.toString();
     }
+    
+    public static String stripScheme(String uri) {
+        int protocolIndex = uri.indexOf(DEFAULT_SCHEME_SEPARATOR);
+        if (protocolIndex == -1) {
+            return uri;
+        }
+
+        return uri.substring(protocolIndex + DEFAULT_SCHEME_SEPARATOR.length());
+    }
 
     public static Pair<String, String> getHostAndDomain(String uri) {
         uri = getUriWithoutScheme(uri);

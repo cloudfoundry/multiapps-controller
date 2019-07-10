@@ -139,7 +139,6 @@ public class UriUtilTest {
         public void testGetUriWithoutSchemeWithApplicationURI() {
             ApplicationURI actualUri = new ApplicationURI(uri);
 
-            actualUri.setScheme(null);
             assertEquals(expectedUri, actualUri.toString());
         }
     }

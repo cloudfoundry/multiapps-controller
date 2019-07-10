@@ -16,6 +16,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
+import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.RoutesValidator;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
@@ -141,7 +142,9 @@ public class UriParametersParser implements ParametersParser<List<String>> {
                 .collect(Collectors.toList());
         }
 
-        return allNonNullRoutes;
+        return allNonNullRoutes.stream()
+            .map(UriUtil::stripScheme)
+            .collect(Collectors.toList());
     }
 
     public String modifyUri(String inputURI, List<Map<String, Object>> customURIParts) {
