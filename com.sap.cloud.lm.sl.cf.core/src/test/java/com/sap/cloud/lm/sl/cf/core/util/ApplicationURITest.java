@@ -1,77 +1,31 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import java.util.stream.Stream;
 
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
-
-@RunWith(Parameterized.class)
 public class ApplicationURITest {
 
-    private String uri;
-    private String expectedHost;
-    private String expectedDomain;
-    private String expectedPath;
-
-    @Parameterized.Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-// @formatter:off
-            // (00)
-            {
-                "https://valid-host.valid-domain", "valid-host","valid-domain", null,
-            },
-            // (01) Test without host:
-            {
-                "https://valid-domain", "", "valid-domain", null,
-            },
-            // (02) Test without host and scheme:
-            {
-                "valid-domain", "", "valid-domain", null,
-            },
-            // (03) Test with path and no host:
-            {
-                "https://valid-domain/really/long/path", "", "valid-domain", "/really/long/path",
-            },
-            // (04) Test with path:
-            {
-                "https://valid-host.valid-domain/really/long/path", "valid-host", "valid-domain", "/really/long/path",
-            },
-            // (05) Test Siemens landscape URI:
-            {
-                "deploy-service.cfapps.industrycloud-staging.siemens.com", "deploy-service", "cfapps.industrycloud-staging.siemens.com", null,
-            },
-// @formatter:on
-        });
+    private static Stream<Arguments> testParameters() {
+        return Stream.of(
+            Arguments.of("https://valid-host.valid-domain", "valid-host","valid-domain", null),
+            Arguments.of("https://valid-domain", "", "valid-domain", null),
+            Arguments.of("valid-domain", "", "valid-domain", null),
+            Arguments.of("https://valid-domain/really/long/path", "", "valid-domain", "/really/long/path"),
+            Arguments.of("https://valid-host.valid-domain/really/long/path", "valid-host", "valid-domain", "/really/long/path"),
+            Arguments.of("deploy-service.cfapps.industrycloud-staging.siemens.com", "deploy-service", "cfapps.industrycloud-staging.siemens.com", null)
+        );
     }
 
-    public ApplicationURITest(String uri, String expectedHost, String expectedDomain, String expectedPath) {
-        this.uri = uri;
-        this.expectedHost = expectedHost;
-        this.expectedDomain = expectedDomain;
-        this.expectedPath = expectedPath;
-    }
-
-    @Test
-    public void testGetHostDomainPath() {
+    @ParameterizedTest
+    @MethodSource("testParameters")
+    public void testGetHostDomainPath(String uri, String expectedHost, String expectedDomain, String expectedPath) {
         ApplicationURI applicationURI = new ApplicationURI(uri);
-        validateHost(applicationURI.getHost());
-        validateDomain(applicationURI.getDomain());
-        validatePath(applicationURI.getPath());
-    }
-
-    private void validatePath(String path) {
-        assertEquals(expectedPath, path);
-    }
-
-    private void validateHost(String host) {
-        assertEquals(expectedHost, host);
-    }
-
-    private void validateDomain(String domain) {
-        assertEquals(expectedDomain, domain);
+        Assertions.assertEquals(expectedDomain, applicationURI.getDomain());
+        Assertions.assertEquals(expectedDomain, ApplicationURI.getDomainFromURI(uri));
+        Assertions.assertEquals(expectedHost, applicationURI.getHost());
+        Assertions.assertEquals(expectedPath, applicationURI.getPath());
     }
 }
