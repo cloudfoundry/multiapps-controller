@@ -1,10 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
-import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import java.util.Comparator;
+import java.util.UUID;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudBuild;
@@ -13,10 +11,11 @@ import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.cloudfoundry.client.lib.util.JsonUtil;
 import org.flowable.engine.delegate.DelegateExecution;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
+import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
+import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 
 public class ApplicationStager {
 
@@ -32,20 +31,9 @@ public class ApplicationStager {
     }
 
     public boolean isApplicationStagedCorrectly(ExecutionWrapper execution, CloudApplication cloudApplication) {
-        // TODO Remove the null filtering.
-        // We are not sure if the controller is returning null for created_at or not, so after the proper v3 client adoption,
-        // we should decide what to do with this filtering.
-        List<CloudBuild> buildsForApplication = execution.getControllerClient()
-                                                         .getBuildsForApplication(cloudApplication.getMetadata()
-                                                                                                  .getGuid());
-        boolean containsNullMetadata = buildsForApplication.stream()
-                                                           .anyMatch(build -> Objects.isNull(build.getMetadata())
-                                                               || Objects.isNull(build.getMetadata()
-                                                                                      .getCreatedAt()));
-        if (containsNullMetadata) {
-            return false;
-        }
-        CloudBuild cloudBuild = buildsForApplication
+        CloudBuild cloudBuild = execution.getControllerClient()
+            .getBuildsForApplication(cloudApplication.getMetadata()
+                .getGuid())
             .stream()
             .max(Comparator.comparing(build -> build.getMetadata()
                 .getCreatedAt()))
