@@ -5,6 +5,9 @@
   <message id="APPLICATION_BEFORE_STOP_LIVE" name="APPLICATION_BEFORE_STOP_LIVE"></message>
   <message id="APPLICATION_AFTER_STOP_IDLE" name="APPLICATION_AFTER_STOP_IDLE"></message>
   <process id="executeTasksSubProcess" name="ExecuteTasks" isExecutable="true">
+    <extensionElements>
+  	  <flowable:eventListener events="JOB_EXECUTION_FAILURE" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+    </extensionElements>
     <serviceTask id="executeTaskTask" name="Execute Task" flowable:async="true" flowable:delegateExpression="${executeTaskStep}"></serviceTask>
     <serviceTask id="incrementTaskIndexTask" name="Increment Task Index" flowable:async="true" flowable:delegateExpression="${incrementIndexStep}"></serviceTask>
     <exclusiveGateway id="sid-D1BA59BB-19D2-40A7-8C50-8DBD35AC6963" default="sid-3F51D90A-8256-4D3E-8BFB-66EEA61C0AB0"></exclusiveGateway>
