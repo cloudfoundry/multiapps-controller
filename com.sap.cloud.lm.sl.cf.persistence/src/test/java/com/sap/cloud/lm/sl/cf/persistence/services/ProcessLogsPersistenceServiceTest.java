@@ -132,7 +132,7 @@ public class ProcessLogsPersistenceServiceTest {
         return new DataSourceWithDialect(TestDataSourceProvider.getDataSource(LIQUIBASE_CHANGELOG_LOCATION));
     }
 
-    private void sweepFiles() throws FileStorageException, Exception {
+    private void sweepFiles() throws Exception {
         processLogsService.deleteBySpace(SPACE_1);
     }
 

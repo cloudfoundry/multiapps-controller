@@ -220,7 +220,7 @@ public class DatabaseFileServiceTest {
         return new DataSourceWithDialect(TestDataSourceProvider.getDataSource(LIQUIBASE_CHANGELOG_LOCATION));
     }
 
-    private void sweepFiles() throws FileStorageException, Exception {
+    private void sweepFiles() throws Exception {
         fileService.deleteBySpace(SPACE_1);
         fileService.deleteBySpace(SPACE_2);
     }
@@ -239,15 +239,11 @@ public class DatabaseFileServiceTest {
 
     private void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {
         fileService
-            .processFileContent(new DefaultFileDownloadProcessor(storedFile.getSpace(), storedFile.getId(), new FileContentProcessor() {
-                @Override
-                public void processFileContent(InputStream contentStream) throws NoSuchAlgorithmException, IOException {
-                    // make a digest out of the content and compare it to the original
-                    final byte[] digest = calculateFileDigest(contentStream);
-                    assertEquals(expectedFileChecksum, DatatypeConverter.printHexBinary(digest)
-                        .toLowerCase());
-                }
-
+            .processFileContent(new DefaultFileDownloadProcessor(storedFile.getSpace(), storedFile.getId(), contentStream -> {
+                // make a digest out of the content and compare it to the original
+                final byte[] digest = calculateFileDigest(contentStream);
+                assertEquals(expectedFileChecksum, DatatypeConverter.printHexBinary(digest)
+                    .toLowerCase());
             }));
     }
 

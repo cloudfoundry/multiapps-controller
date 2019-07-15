@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.persistence.services;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Date;
@@ -101,7 +100,6 @@ public class ObjectStoreFileStorage implements FileStorage {
     @Override
     public void processFileContent(FileDownloadProcessor fileDownloadProcessor) throws FileStorageException {
         FileEntry fileEntry = fileDownloadProcessor.getFileEntry();
-        InputStream fileContentStream = null;
         try {
             Blob blob = blobStore.getBlob(container, fileEntry.getId());
             if (blob == null) {
@@ -109,12 +107,17 @@ public class ObjectStoreFileStorage implements FileStorage {
                     MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(), fileEntry.getSpace()));
             }
             Payload payload = blob.getPayload();
-            fileContentStream = payload.openStream();
+            processContent(fileDownloadProcessor, payload);
+        } catch (Exception e) {
+            throw new FileStorageException(e);
+        }
+    }
+
+    private void processContent(FileDownloadProcessor fileDownloadProcessor, Payload payload) throws FileStorageException {
+        try (InputStream fileContentStream = payload.openStream()) {
             fileDownloadProcessor.processContent(fileContentStream);
         } catch (Exception e) {
             throw new FileStorageException(e);
-        } finally {
-            closeQuietly(fileContentStream);
         }
     }
 
@@ -146,16 +149,19 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     private int removeBlobsByFilter(Predicate<? super StorageMetadata> filter) {
-        Set<String> entriesToDelete = blobStore.list(container, new ListContainerOptions().withDetails())
+        Set<String> entries = getEntryNames(filter);
+        if (!entries.isEmpty()) {
+            blobStore.removeBlobs(container, entries);
+        }
+        return entries.size();
+    }
+
+    private Set<String> getEntryNames(Predicate<? super StorageMetadata> filter) {
+        return blobStore.list(container, new ListContainerOptions().withDetails())
             .stream()
             .filter(filter)
             .map(StorageMetadata::getName)
             .collect(Collectors.toSet());
-
-        if (!entriesToDelete.isEmpty()) {
-            blobStore.removeBlobs(container, entriesToDelete);
-        }
-        return entriesToDelete.size();
     }
 
     private boolean filterByModificationTime(StorageMetadata blobMetadata, Date modificationTime) {
@@ -182,7 +188,6 @@ public class ObjectStoreFileStorage implements FileStorage {
         }
         String spaceParameter = userMetadata.get(FileService.FileServiceColumnNames.SPACE.toLowerCase());
         return space.equals(spaceParameter);
-
     }
 
     private boolean filterBySpaceAndNamespace(StorageMetadata blobMetadata, String space, String namespace) {
@@ -193,18 +198,6 @@ public class ObjectStoreFileStorage implements FileStorage {
         String spaceParameter = userMetadata.get(FileService.FileServiceColumnNames.SPACE.toLowerCase());
         String namespaceParameter = userMetadata.get(FileService.FileServiceColumnNames.NAMESPACE.toLowerCase());
         return space.equals(spaceParameter) && namespace.equals(namespaceParameter);
-
-    }
-
-    private void closeQuietly(InputStream is) {
-        if (is == null) {
-            return;
-        }
-        try {
-            is.close();
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
     }
 
 }

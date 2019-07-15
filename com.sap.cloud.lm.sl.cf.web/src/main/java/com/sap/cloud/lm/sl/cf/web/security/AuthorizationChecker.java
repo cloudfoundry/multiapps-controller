@@ -148,10 +148,8 @@ public class AuthorizationChecker {
                 .contains(userGuid)) {
                 return true;
             }
-            if (client.getSpaceManagers(orgName, spaceName)
-                .contains(userGuid)) {
-                return true;
-            }
+            return client.getSpaceManagers(orgName, spaceName)
+                .contains(userGuid);
         }
         return false;
     }

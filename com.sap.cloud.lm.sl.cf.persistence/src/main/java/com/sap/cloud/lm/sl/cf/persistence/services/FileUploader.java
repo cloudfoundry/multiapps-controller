@@ -14,7 +14,6 @@ import java.text.MessageFormat;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +51,7 @@ public class FileUploader {
             throw new FileStorageException(e);
         }
 
-        File tempFile = null;
+        File tempFile;
         try {
             tempFile = File.createTempFile(PREFIX, EXTENSION);
         } catch (IOException e) {
@@ -60,11 +59,8 @@ public class FileUploader {
         }
 
         // store the passed input to the file system
-        OutputStream outputFileStream = null;
-        OutputStream outputWrapperStream = null;
-        try {
-            outputFileStream = new FileOutputStream(tempFile);
-            outputWrapperStream = fileUploadProcessor.createOutputStreamWrapper(outputFileStream);
+        try (OutputStream outputFileStream = new FileOutputStream(tempFile);
+            OutputStream outputWrapperStream = fileUploadProcessor.createOutputStreamWrapper(outputFileStream)) {
             int read = 0;
             byte[] buffer = new byte[getProcessingBufferSize(fileUploadProcessor)];
             while ((read = is.read(buffer, 0, getProcessingBufferSize(fileUploadProcessor))) > -1) {
@@ -73,13 +69,8 @@ public class FileUploader {
                 size = size.add(BigInteger.valueOf(read)); // original file size
             }
         } catch (IOException e) {
-            if (tempFile != null) {
-                FileUploader.deleteFile(tempFile);
-            }
+            FileUploader.deleteFile(tempFile);
             throw new FileStorageException(e);
-        } finally {
-            IOUtils.closeQuietly(outputWrapperStream);
-            IOUtils.closeQuietly(outputFileStream);
         }
 
         return new FileInfo(tempFile, size, getDigestString(digest.digest()), DIGEST_METHOD);

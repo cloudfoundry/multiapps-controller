@@ -44,10 +44,8 @@ public class ApplicationShutdownResource {
                 cooldownTimeoutInSeconds));
             flowableFacade.shutdownJobExecutor(cooldownTimeoutInSeconds);
         })
-            .thenRun(() -> {
-                LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWNED, appId, appInstanceId, appInstanceIndex,
-                    cooldownTimeoutInSeconds));
-            });
+            .thenRun(() -> LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWNED, appId, appInstanceId, appInstanceIndex,
+                cooldownTimeoutInSeconds)));
 
         return new ApplicationShutdownDto.Builder().isActive(flowableFacade.isJobExecutorActive())
             .appId(appId)

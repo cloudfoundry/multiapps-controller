@@ -278,10 +278,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private String getParameterIds(List<ParameterMetadata> missingRequiredParameters) {
-        List<String> parameterIds = missingRequiredParameters.stream()
+        return missingRequiredParameters.stream()
             .map(ParameterMetadata::getId)
-            .collect(Collectors.toList());
-        return String.join(",", parameterIds);
+            .collect(Collectors.joining(","));
     }
 
     private Set<ParameterMetadata> getRequiredParameters(Set<ParameterMetadata> parameters) {

@@ -135,19 +135,17 @@ public class FileSystemFileStorage implements FileStorage {
             throw new FileStorageException(
                 MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(), fileEntry.getSpace()));
         }
-        InputStream fileContentStream = null;
-        try {
-            Path filePathLocation = getFilePath(fileDownloadProcessor.getFileEntry());
-            logger.trace(MessageFormat.format(Messages.PROCESSING_FILE_0, filePathLocation));
-            fileContentStream = Files.newInputStream(filePathLocation);
+        try (InputStream fileContentStream = getFileContentStream(fileDownloadProcessor.getFileEntry())) {
             fileDownloadProcessor.processContent(fileContentStream);
         } catch (Exception e) {
             throw new FileStorageException(e);
-        } finally {
-            if (fileContentStream != null) {
-                closeQuietly(fileContentStream);
-            }
         }
+    }
+
+    private InputStream getFileContentStream(FileEntry fileEntry) throws IOException {
+        Path fileLocation = getFilePath(fileEntry);
+        logger.trace(MessageFormat.format(Messages.PROCESSING_FILE_0, fileLocation));
+        return Files.newInputStream(fileLocation);
     }
 
     public String getStoragePath() {
@@ -181,14 +179,6 @@ public class FileSystemFileStorage implements FileStorage {
 
     private Path getFilesPerSpaceDirectory(String space) {
         return Paths.get(storagePath, space, DEFAULT_FILES_STORAGE_PATH);
-    }
-
-    private void closeQuietly(InputStream is) {
-        try {
-            is.close();
-        } catch (IOException e) {
-            logger.debug(e.getMessage(), e);
-        }
     }
 
 }
