@@ -5,9 +5,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,13 +34,13 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
 
     public ProcessLogsPersistenceService(DataSourceWithDialect dataSourceWithDialect, boolean isContentStoredAsBlob) {
         super(dataSourceWithDialect,
-            createSqlFileQueryProvider(TABLE_NAME, dataSourceWithDialect.getDataSourceDialect(), isContentStoredAsBlob));
+            createSqlFileQueryProvider(dataSourceWithDialect.getDataSourceDialect(), isContentStoredAsBlob));
     }
 
-    private static SqlFileQueryProvider createSqlFileQueryProvider(String tableName, DataSourceDialect dataSourceDialect,
+    private static SqlFileQueryProvider createSqlFileQueryProvider(DataSourceDialect dataSourceDialect,
         boolean isContentStoredAsBlob) {
-        return isContentStoredAsBlob ? new BlobSqlFileQueryProvider(tableName, dataSourceDialect)
-            : new ByteArraySqlFileQueryProvider(tableName, dataSourceDialect);
+        return isContentStoredAsBlob ? new BlobSqlFileQueryProvider(TABLE_NAME, dataSourceDialect)
+            : new ByteArraySqlFileQueryProvider(TABLE_NAME, dataSourceDialect);
     }
 
     public List<String> getLogNames(String space, String namespace) throws FileStorageException {
@@ -56,12 +58,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
             return null;
         }
 
-        FileContentProcessor streamProcessor = new FileContentProcessor() {
-            @Override
-            public void processFileContent(InputStream is) throws IOException {
-                builder.append(IOUtils.toString(is));
-            }
-        };
+        FileContentProcessor streamProcessor = is -> builder.append(IOUtils.toString(is, Charset.defaultCharset()));
         for (String logId : logIds) {
             processFileContent(new DefaultFileDownloadProcessor(space, logId, streamProcessor));
         }
@@ -71,8 +68,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
     private List<String> getSortedByTimestampFileIds(String space, String namespace, String fileName) throws FileStorageException {
         List<FileEntry> listFiles = listFiles(space, namespace, fileName);
         return listFiles.stream()
-            .sorted((FileEntry f1, FileEntry f2) -> f1.getModified()
-                .compareTo(f2.getModified()))
+            .sorted(Comparator.comparing(FileEntry::getModified))
             .map(FileEntry::getId)
             .collect(Collectors.toList());
     }

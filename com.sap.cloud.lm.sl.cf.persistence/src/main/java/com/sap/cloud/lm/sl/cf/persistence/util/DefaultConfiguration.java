@@ -11,7 +11,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 
 public class DefaultConfiguration implements Configuration {
 
-    private static final Long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4GB
+    private static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024L; // 4GB
 
     private final long maxUploadSize;
 

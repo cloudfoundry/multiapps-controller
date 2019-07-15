@@ -10,9 +10,8 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 public interface Configuration {
 
     /**
-     * Gets file upload processor based on the file name.
+     * Gets file upload processor.
      * 
-     * @param filename file name
      * @return FileUploadProcessor instance
      */
     FileUploadProcessor<? extends OutputStream, ? extends OutputStream> getFileUploadProcessor();

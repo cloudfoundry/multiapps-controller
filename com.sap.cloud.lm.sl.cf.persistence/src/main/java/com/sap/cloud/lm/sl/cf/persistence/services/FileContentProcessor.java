@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
  */
 public interface FileContentProcessor {
 
-    public static final int DEFAULT_BUFFER_SIZE = 4 * 1024;
+    int DEFAULT_BUFFER_SIZE = 4 * 1024;
 
     /**
      * Processes the content of an uploaded file.
@@ -20,6 +20,6 @@ public interface FileContentProcessor {
      * @param is an input stream representing the file content
      * @throws Exception
      */
-    public void processFileContent(InputStream is) throws NoSuchAlgorithmException, IOException, FileStorageException; // NOPMD
+    void processFileContent(InputStream is) throws NoSuchAlgorithmException, IOException, FileStorageException; // NOPMD
 
 }

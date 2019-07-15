@@ -124,11 +124,9 @@ public class ConfigurationEntriesResource {
     }
 
     private ConfigurationEntriesDto wrap(List<ConfigurationEntry> entries) {
-        List<ConfigurationEntryDto> dtos = new ArrayList<>();
-        for (ConfigurationEntry entry : entries) {
-            dtos.add(new ConfigurationEntryDto(entry));
-        }
-        return new ConfigurationEntriesDto(dtos);
+        return new ConfigurationEntriesDto(entries.stream()
+            .map(ConfigurationEntryDto::new)
+            .collect(Collectors.toList()));
     }
 
     @Path("/{id}")

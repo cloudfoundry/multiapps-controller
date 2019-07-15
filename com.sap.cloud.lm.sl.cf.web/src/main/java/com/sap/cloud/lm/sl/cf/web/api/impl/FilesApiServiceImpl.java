@@ -20,7 +20,6 @@ import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,13 +101,9 @@ public class FilesApiServiceImpl implements FilesApiService {
                 continue; // ignore simple (non-file) form fields
             }
 
-            InputStream in = null;
-            try {
-                in = item.openStream();
+            try (InputStream in = item.openStream()) {
                 FileEntry entry = fileService.addFile(spaceGuid, item.getName(), getConfiguration().getFileUploadProcessor(), in);
                 uploadedFiles.add(entry);
-            } finally {
-                IOUtils.closeQuietly(in);
             }
         }
         return uploadedFiles;

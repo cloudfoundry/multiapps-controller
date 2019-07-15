@@ -13,7 +13,7 @@ import org.springframework.web.filter.GenericFilterBean;
 
 public class RequestSizeFilter extends GenericFilterBean {
 
-    private static final long MAX_REQUEST_SIZE_BYTES = 1 * 1024 * 1024L;
+    private static final long MAX_REQUEST_SIZE_BYTES = 1024 * 1024L;
     private static final int PAYLOAD_TOO_LARGE_HTTP_STATUS_CODE = 413;
 
     @Override

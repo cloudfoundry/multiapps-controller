@@ -46,11 +46,11 @@ public class ProcessLoggerProvider {
     }
 
     private String getLoggerName(DelegateExecution context, String logName) {
-        return new StringBuilder(PARENT_LOGGER).append(".")
+        return new StringBuilder(PARENT_LOGGER).append('.')
             .append(getCorrelationId(context))
-            .append(".")
+            .append('.')
             .append(logName)
-            .append(".")
+            .append('.')
             .append(getTaskId(context))
             .toString();
     }

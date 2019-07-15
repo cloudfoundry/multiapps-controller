@@ -64,7 +64,7 @@ public class FileService {
      * @param space
      * @param namespace namespace where the file will be uploaded
      * @param name name of the uploaded file
-     * @param fileProcessor file processor
+     * @param fileInfoProcessor file processor
      * @param is input stream to read the content from
      * @return an object representing the file upload
      * @throws FileStorageException
@@ -127,8 +127,7 @@ public class FileService {
     /**
      * Reads file from the storage.
      *
-     * @param space
-     * @param fileProcessor file processor
+     * @param fileDownloadProcessor file processor
      * @throws FileStorageException
      */
     public void processFileContent(final FileDownloadProcessor fileDownloadProcessor) throws FileStorageException {

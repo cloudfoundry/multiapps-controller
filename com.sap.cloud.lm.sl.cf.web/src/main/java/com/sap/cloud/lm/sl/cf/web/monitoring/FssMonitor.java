@@ -2,8 +2,8 @@ package com.sap.cloud.lm.sl.cf.web.monitoring;
 
 import java.io.File;
 import java.time.LocalDateTime;
-import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 
@@ -17,8 +17,8 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 @Component
 public class FssMonitor {
 
-    Map<File, Long> usedSpaceMap = new Hashtable<>(1);
-    Map<File, LocalDateTime> updateTimesMap = new Hashtable<>(1);
+    Map<File, Long> usedSpaceMap = new ConcurrentHashMap<>(1);
+    Map<File, LocalDateTime> updateTimesMap = new ConcurrentHashMap<>(1);
     private static final Logger LOGGER = LoggerFactory.getLogger(FssMonitor.class);
 
     private Integer updateTimeoutMinutes;

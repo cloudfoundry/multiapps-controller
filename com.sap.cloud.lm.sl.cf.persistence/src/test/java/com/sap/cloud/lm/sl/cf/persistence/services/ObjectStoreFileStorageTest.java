@@ -192,15 +192,11 @@ public class ObjectStoreFileStorageTest {
 
     private void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {
         fileStorage
-            .processFileContent(new DefaultFileDownloadProcessor(storedFile.getSpace(), storedFile.getId(), new FileContentProcessor() {
-                @Override
-                public void processFileContent(InputStream contentStream) throws NoSuchAlgorithmException, IOException {
-                    // make a digest out of the content and compare it to the original
-                    final byte[] digest = calculateFileDigest(contentStream);
-                    assertEquals(expectedFileChecksum, DatatypeConverter.printHexBinary(digest)
-                        .toLowerCase());
-                }
-
+            .processFileContent(new DefaultFileDownloadProcessor(storedFile.getSpace(), storedFile.getId(), contentStream -> {
+                // make a digest out of the content and compare it to the original
+                final byte[] digest = calculateFileDigest(contentStream);
+                assertEquals(expectedFileChecksum, DatatypeConverter.printHexBinary(digest)
+                    .toLowerCase());
             }));
     }
 

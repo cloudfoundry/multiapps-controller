@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.api.impl;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -71,13 +71,10 @@ public class MtasApiServiceImpl implements MtasApiService {
     }
 
     private List<Mta> getMtas(DeployedComponents components) {
-        List<Mta> mtas = new ArrayList<>();
-        List<DeployedMta> deployedMtas = components.getMtas();
-        for (DeployedMta mta : deployedMtas) {
-            mtas.add(getMta(mta));
-        }
-
-        return mtas;
+        return components.getMtas()
+            .stream()
+            .map(this::getMta)
+            .collect(Collectors.toList());
     }
 
     private Mta getMta(DeployedMta mta) {
@@ -89,11 +86,9 @@ public class MtasApiServiceImpl implements MtasApiService {
     }
 
     private List<Module> getModules(List<DeployedMtaModule> modules) {
-        List<Module> result = new ArrayList<>();
-        for (DeployedMtaModule module : modules) {
-            result.add(getModule(module));
-        }
-        return result;
+        return modules.stream()
+            .map(this::getModule)
+            .collect(Collectors.toList());
     }
 
     private Module getModule(DeployedMtaModule module) {
