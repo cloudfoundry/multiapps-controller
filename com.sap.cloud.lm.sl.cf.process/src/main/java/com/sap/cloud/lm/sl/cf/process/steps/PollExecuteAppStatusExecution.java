@@ -29,23 +29,28 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
     private static final Logger LOGGER = LoggerFactory.getLogger(PollExecuteAppStatusExecution.class);
 
     enum AppExecutionStatus {
-        EXECUTING(""),
-        SUCCEEDED(""),
-        FAILED("");
+        EXECUTING, SUCCEEDED, FAILED
+    }
 
-        private String message;
+    private static class AppExecutionDetailedStatus {
+        private final AppExecutionStatus status;
+        private final String message;
 
-        AppExecutionStatus(String message) {
+        AppExecutionDetailedStatus(AppExecutionStatus status, String message) {
+            this.status = status;
             this.message = message;
+        }
+        
+        AppExecutionDetailedStatus(AppExecutionStatus status) {
+            this(status, "");
+        }
+
+        AppExecutionStatus getStatus() {
+            return status;
         }
 
         String getMessage() {
             return message;
-        }
-
-        AppExecutionStatus withMessage(String message) {
-            this.message = message;
-            return this;
         }
     }
 
@@ -68,7 +73,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         }
         CloudControllerClient client = execution.getControllerClient();
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
-        AppExecutionStatus status = getAppExecutionStatus(execution.getContext(), client, appAttributes, app);
+        AppExecutionDetailedStatus status = getAppExecutionStatus(execution.getContext(), client, appAttributes, app);
         ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
             .getProcessLoggerProvider();
         StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
@@ -85,9 +90,9 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         return StepsUtil.getApp(context);
     }
 
-    private AppExecutionStatus getAppExecutionStatus(DelegateExecution context, CloudControllerClient client,
+    private AppExecutionDetailedStatus getAppExecutionStatus(DelegateExecution context, CloudControllerClient client,
         ApplicationAttributes appAttributes, CloudApplication app) {
-        AppExecutionStatus status = AppExecutionStatus.EXECUTING;
+        AppExecutionDetailedStatus status = new AppExecutionDetailedStatus(AppExecutionStatus.EXECUTING);
         long startTime = (long) context.getVariable(Constants.VAR_START_TIME);
         Marker sm = getMarker(appAttributes, SupportedParameters.SUCCESS_MARKER, DEFAULT_SUCCESS_MARKER);
         Marker fm = getMarker(appAttributes, SupportedParameters.FAILURE_MARKER, DEFAULT_FAILURE_MARKER);
@@ -96,7 +101,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
 
         List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName());
         if (recentLogs != null) {
-            Optional<AppExecutionStatus> statusx = recentLogs.stream()
+            Optional<AppExecutionDetailedStatus> statusx = recentLogs.stream()
                 .map(log -> getAppExecutionStatus(log, startTime, sm, fm, deployId))
                 .filter(Objects::nonNull)
                 .reduce((a, b) -> b);
@@ -107,7 +112,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         return status;
     }
 
-    private AppExecutionStatus getAppExecutionStatus(ApplicationLog log, long startTime, Marker sm, Marker fm, String id) {
+    private AppExecutionDetailedStatus getAppExecutionStatus(ApplicationLog log, long startTime, Marker sm, Marker fm, String id) {
         long time = log.getTimestamp()
             .getTime();
         String sourceName = log.getSourceName();
@@ -118,23 +123,23 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         String msg = log.getMessage()
             .trim();
         if (mt != null && mt.equals(sm.messageType) && msg.matches(sm.text) && ((id == null) || msg.contains(id))) {
-            return AppExecutionStatus.SUCCEEDED;
+            return new AppExecutionDetailedStatus(AppExecutionStatus.SUCCEEDED);
         } else if (mt != null && mt.equals(fm.messageType) && msg.matches(fm.text) && ((id == null) || msg.contains(id))) {
-            return AppExecutionStatus.FAILED.withMessage(msg);
+            return new AppExecutionDetailedStatus(AppExecutionStatus.FAILED, msg);
         } else
             return null;
     }
 
     private AsyncExecutionState checkAppExecutionStatus(ExecutionWrapper execution, CloudControllerClient client,
-        CloudApplication app, ApplicationAttributes appAttributes, AppExecutionStatus status) {
-        if (status.equals(AppExecutionStatus.FAILED)) {
+        CloudApplication app, ApplicationAttributes appAttributes, AppExecutionDetailedStatus status) {
+        if (status.getStatus().equals(AppExecutionStatus.FAILED)) {
             // Application execution failed
             String message = format(Messages.ERROR_EXECUTING_APP_2, app.getName(), status.getMessage());
             execution.getStepLogger()
                 .error(message);
             stopApplicationIfSpecified(execution, client, app, appAttributes);
             return AsyncExecutionState.ERROR;
-        } else if (status.equals(AppExecutionStatus.SUCCEEDED)) {
+        } else if (status.getStatus().equals(AppExecutionStatus.SUCCEEDED)) {
             // Application executed successfully
             execution.getStepLogger()
                 .info(Messages.APP_EXECUTED, app.getName());
