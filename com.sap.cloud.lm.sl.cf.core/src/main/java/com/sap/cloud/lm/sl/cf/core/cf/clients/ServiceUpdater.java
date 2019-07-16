@@ -23,6 +23,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
+import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
 
 @Named
 public class ServiceUpdater extends CloudServiceOperator {
@@ -138,8 +139,8 @@ public class ServiceUpdater extends CloudServiceOperator {
             }
             LOGGER.warn(MessageFormat.format("Controller operation failed. Status Code: {0}, Status Text: {1}, Description: {2}",
                 e.getStatusCode(), e.getStatusText(), e.getDescription()), e);
+            return (T) new MethodExecution<String>(null, ExecutionState.FINISHED);
         }
-        return null;
     }
 
 }
