@@ -19,7 +19,6 @@ import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.job.api.Job;
 import org.flowable.job.service.impl.asyncexecutor.AsyncExecutor;
-import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +49,12 @@ public class FlowableFacade {
             return processEngine.getRuntimeService()
                 .startProcessInstanceByKey(processDefinitionKey, variables);
         } finally {
-            // After the setAuthenticatedUserId() method is invoked, all Flowable service methods
-            // executed within the current thread will have access to this userId. Just before
-            // leaving the method, the userId is set to null, preventing other services from using
+            // After the setAuthenticatedUserId() method is invoked, all
+            // Flowable service methods
+            // executed within the current thread will have access to this
+            // userId. Just before
+            // leaving the method, the userId is set to null, preventing other
+            // services from using
             // it unintentionally.
             processEngine.getIdentityService()
                 .setAuthenticatedUserId(null);
@@ -264,7 +266,8 @@ public class FlowableFacade {
                 try {
                     LOGGER.debug(format(Messages.SETTING_VARIABLE, Constants.PROCESS_ABORTED, Boolean.TRUE));
 
-                    // TODO: Use execution ID instead of process instance ID, as they can be
+                    // TODO: Use execution ID instead of process instance ID, as
+                    // they can be
                     // different if the process has parallel executions.
                     processEngine.getRuntimeService()
                         .setVariable(processInstanceId, Constants.PROCESS_ABORTED, Boolean.TRUE);
@@ -341,19 +344,11 @@ public class FlowableFacade {
         return processInstance != null && processInstance.isSuspended();
     }
 
-    public void shutdownJobExecutor(long secondsToWaitOnShutdown) {
-        setSecondsToWaitOnJobExecutorShutdown(secondsToWaitOnShutdown);
+    public void shutdownJobExecutor() {
         LOGGER.info(Messages.SHUTTING_DOWN_FLOWABLE_JOB_EXECUTOR);
         AsyncExecutor asyncExecutor = processEngine.getProcessEngineConfiguration()
             .getAsyncExecutor();
         asyncExecutor.shutdown();
-    }
-
-    private void setSecondsToWaitOnJobExecutorShutdown(long secondsToWaitOnShutdown) {
-        LOGGER.info(format(Messages.SETTING_SECONDS_TO_WAIT_BEFORE_FLOWABLE_JOB_EXECUTOR_SHUTDOWN, secondsToWaitOnShutdown));
-        AsyncExecutor asyncExecutor = processEngine.getProcessEngineConfiguration()
-            .getAsyncExecutor();
-        ((DefaultAsyncJobExecutor) asyncExecutor).setSecondsToWaitOnShutdown(secondsToWaitOnShutdown);
     }
 
     public boolean isJobExecutorActive() {

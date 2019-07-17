@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
+import org.flowable.common.engine.impl.AbstractEngineConfiguration;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RuntimeService;
@@ -92,6 +93,8 @@ public class FlowableConfiguration {
         scale(configuration, jobExecutor);
         jobExecutor.setAsyncJobLockTimeInMillis(JOB_EXECUTOR_LOCK_TIME_IN_MILLIS);
         jobExecutor.setLockOwner(jobExecutorId);
+        jobExecutor.setUnlockOwnedJobs(true);
+        jobExecutor.setTenantId(AbstractEngineConfiguration.NO_TENANT_ID);
         return jobExecutor;
     }
 
