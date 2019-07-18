@@ -64,7 +64,7 @@
         <jclouds.version>2.1.1</jclouds.version>
         <guava.version>27.0.1-jre</guava.version>
         <immutables.version>2.7.5</immutables.version>
-        <com.sap.cloud.lm.sl.open.version>1.75.1</com.sap.cloud.lm.sl.open.version>
+        <com.sap.cloud.lm.sl.open.version>1.76.0</com.sap.cloud.lm.sl.open.version>
     </properties>
     <modules>
         <module>com.sap.cloud.lm.sl.cf.client</module>
