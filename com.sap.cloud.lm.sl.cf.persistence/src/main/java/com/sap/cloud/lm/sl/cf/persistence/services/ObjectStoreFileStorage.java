@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -159,6 +160,7 @@ public class ObjectStoreFileStorage implements FileStorage {
     private Set<String> getEntryNames(Predicate<? super StorageMetadata> filter) {
         return blobStore.list(container, new ListContainerOptions().withDetails())
             .stream()
+            .filter(Objects::nonNull)
             .filter(filter)
             .map(StorageMetadata::getName)
             .collect(Collectors.toSet());
