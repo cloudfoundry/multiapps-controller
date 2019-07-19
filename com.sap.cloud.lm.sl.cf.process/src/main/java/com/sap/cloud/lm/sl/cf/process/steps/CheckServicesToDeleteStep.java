@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -13,12 +13,16 @@ public class CheckServicesToDeleteStep extends CheckForOperationsInProgressStep 
 
     @Override
     protected List<CloudServiceExtended> getServicesToProcess(ExecutionWrapper execution) {
-        List<CloudServiceExtended> services = new ArrayList<>();
-        StepsUtil.getServicesToDelete(execution.getContext())
-            .forEach(serviceName -> services.add(ImmutableCloudServiceExtended.builder()
-                .name(serviceName)
-                .build()));
-        return services;
+        List<String> servicesToDelete = StepsUtil.getServicesToDelete(execution.getContext());
+        return servicesToDelete.stream()
+                               .map(this::buildCloudServiceExtended)
+                               .collect(Collectors.toList());
+    }
+
+    private CloudServiceExtended buildCloudServiceExtended(String serviceName) {
+        return ImmutableCloudServiceExtended.builder()
+                                            .name(serviceName)
+                                            .build();
     }
 
 }

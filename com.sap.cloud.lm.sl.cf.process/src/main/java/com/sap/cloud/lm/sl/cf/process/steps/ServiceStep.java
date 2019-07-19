@@ -12,12 +12,13 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public abstract class ServiceStep extends AsyncFlowableStep {
@@ -27,15 +28,17 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     private ServiceUpdater serviceUpdater;
 
     @Inject
-    private ServiceGetter serviceGetter;
+    private ServiceOperationGetter serviceOperationGetter;
+    @Inject
+    private ServiceProgressReporter serviceProgressReporter;
 
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws Exception {
         CloudServiceExtended serviceToProcess = StepsUtil.getServiceToProcess(execution.getContext());
         MethodExecution<String> methodExecution = executeOperationAndHandleExceptions(execution.getContext(),
-            execution.getControllerClient(), serviceToProcess);
+                                                                                      execution.getControllerClient(), serviceToProcess);
         if (methodExecution.getState()
-            .equals(ExecutionState.FINISHED)) {
+                           .equals(ExecutionState.FINISHED)) {
             return StepPhase.DONE;
         }
 
@@ -43,20 +46,21 @@ public abstract class ServiceStep extends AsyncFlowableStep {
         serviceOperation.put(serviceToProcess.getName(), getOperationType());
 
         execution.getStepLogger()
-            .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(serviceOperation, true));
+                 .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(serviceOperation, true));
         StepsUtil.setTriggeredServiceOperations(execution.getContext(), serviceOperation);
 
         StepsUtil.isServiceUpdated(true, execution.getContext());
         return StepPhase.POLL;
     }
-    
+
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
         return Messages.ERROR_SERVICE_OPERATION;
     }
 
     private MethodExecution<String> executeOperationAndHandleExceptions(DelegateExecution execution, CloudControllerClient controllerClient,
-                                    			CloudServiceExtended service) throws Exception {
+                                                                        CloudServiceExtended service)
+        throws Exception {
         try {
             return executeOperation(execution, controllerClient, service);
         } catch (CloudOperationException e) {
@@ -66,16 +70,20 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     }
 
     protected abstract MethodExecution<String> executeOperation(DelegateExecution context, CloudControllerClient controllerClient,
-        CloudServiceExtended service) throws Exception;
+                                                                CloudServiceExtended service);
 
     protected abstract ServiceOperationType getOperationType();
 
-    public ServiceUpdater getServiceUpdater() {
+    protected ServiceUpdater getServiceUpdater() {
         return serviceUpdater;
     }
 
-    public ServiceGetter getServiceGetter() {
-        return serviceGetter;
+    protected ServiceOperationGetter getServiceOperationGetter() {
+        return serviceOperationGetter;
+    }
+
+    protected ServiceProgressReporter getServiceProgressReporter() {
+        return serviceProgressReporter;
     }
 
 }

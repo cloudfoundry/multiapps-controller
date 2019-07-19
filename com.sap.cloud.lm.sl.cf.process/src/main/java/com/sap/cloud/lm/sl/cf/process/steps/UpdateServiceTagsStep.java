@@ -18,7 +18,7 @@ public class UpdateServiceTagsStep extends ServiceStep {
 
     @Override
     protected MethodExecution<String> executeOperation(DelegateExecution context, CloudControllerClient controllerClient,
-        CloudServiceExtended service) {
+                                                       CloudServiceExtended service) {
         return updateServiceTags(controllerClient, service);
     }
 
@@ -46,7 +46,7 @@ public class UpdateServiceTagsStep extends ServiceStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
-        return Arrays.asList(new PollServiceCreateOrUpdateOperationsExecution(getServiceGetter()));
+        return Arrays.asList(new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(), getServiceProgressReporter()));
     }
 
     @Override

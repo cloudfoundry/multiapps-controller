@@ -1,29 +1,26 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
+import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.common.SLException;
 
-public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceInProgressOperationsExecution implements AsyncExecution {
+public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOperationsExecution implements AsyncExecution {
 
-    private static final String SERVICE_NAME = "name";
-
-    public PollServiceCreateOrUpdateOperationsExecution(ServiceGetter serviceGetter) {
-        super(serviceGetter, null);
-    }
-    
-    public String getPollingErrorMessage(ExecutionWrapper execution) {
-        return Messages.ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES;
+    public PollServiceCreateOrUpdateOperationsExecution(ServiceOperationGetter serviceOperationGetter,
+                                                        ServiceProgressReporter serviceProgressReporter) {
+        super(serviceOperationGetter, serviceProgressReporter);
     }
 
     @Override
@@ -31,34 +28,101 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceInP
         List<CloudServiceExtended> allServicesToCreate = StepsUtil.getServicesToCreate(context);
         // There's no need to poll the creation or update of user-provided services, because it is done synchronously:
         return allServicesToCreate.stream()
-            .filter(s -> !s.isUserProvided())
-            .collect(Collectors.toList());
+                                  .filter(s -> !s.isUserProvided())
+                                  .collect(Collectors.toList());
     }
 
     @Override
-    protected ServiceOperation getLastServiceOperation(ExecutionWrapper execution, CloudControllerClient client,
-        CloudServiceExtended service) {
-        Map<String, Object> serviceInstanceEntity = getServiceInstanceEntity(execution, client, service);
-
-        if (serviceInstanceEntity == null || serviceInstanceEntity.isEmpty()) {
-            handleMissingServiceInstance(execution, service);
-            return null;
-        }
-
-        ServiceOperation lastOperation = getLastOperation(serviceInstanceEntity);
-        return handleFailedUpdateOperation(execution, serviceInstanceEntity, lastOperation);
-    }
-
-    private ServiceOperation handleFailedUpdateOperation(ExecutionWrapper execution, Map<String, Object> cloudServiceInstance,
-        ServiceOperation lastOperation) {
-        // TODO Separate create and update steps
+    protected ServiceOperation mapOperationState(StepLogger stepLogger, ServiceOperation lastServiceOperation,
+                                                 CloudServiceExtended service) {
+        lastServiceOperation = super.mapOperationState(stepLogger, lastServiceOperation, service);
         // Be fault tolerant on failure on update of service
-        if (lastOperation.getType() == ServiceOperationType.UPDATE && lastOperation.getState() == ServiceOperationState.FAILED) {
-            execution.getStepLogger()
-                     .warn(Messages.FAILED_SERVICE_UPDATE, cloudServiceInstance.get(SERVICE_NAME), lastOperation.getDescription());
-            return new ServiceOperation(lastOperation.getType(), lastOperation.getDescription(), ServiceOperationState.SUCCEEDED);
+        if (lastServiceOperation.getType() == ServiceOperationType.UPDATE
+            && lastServiceOperation.getState() == ServiceOperationState.FAILED) {
+            stepLogger.warn(Messages.FAILED_SERVICE_UPDATE, service.getName(), lastServiceOperation.getDescription());
+            return new ServiceOperation(lastServiceOperation.getType(),
+                                        lastServiceOperation.getDescription(),
+                                        ServiceOperationState.SUCCEEDED);
         }
-        return lastOperation;
+        return lastServiceOperation;
     }
 
+    @Override
+    protected void handleMissingOperationState(StepLogger stepLogger, CloudServiceExtended service) {
+        if (!service.isOptional()) {
+            throw new SLException(Messages.CANNOT_RETRIEVE_INSTANCE_OF_SERVICE, service.getName());
+        }
+        // Here we're assuming that we cannot retrieve the service instance, because its creation was synchronous and it failed. If that
+        // is really the case, then showing a warning progress message to the user is unnecessary, since one should have been shown back
+        // in CreateOrUpdateServicesStep.
+        stepLogger.warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE, service.getName());
+    }
+
+    @Override
+    protected void reportServiceState(ExecutionWrapper execution, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
+        if (lastServiceOperation.getState() == ServiceOperationState.SUCCEEDED) {
+            execution.getStepLogger()
+                     .debug(getSuccessMessage(service, lastServiceOperation.getType()));
+            return;
+        }
+
+        if (lastServiceOperation.getState() == ServiceOperationState.FAILED) {
+            handleFailedState(execution.getStepLogger(), service, lastServiceOperation);
+        }
+    }
+
+    private String getSuccessMessage(CloudServiceExtended service, ServiceOperationType type) {
+        switch (type) {
+            case CREATE:
+                return MessageFormat.format(Messages.SERVICE_CREATED, service.getName());
+            case UPDATE:
+                return MessageFormat.format(Messages.SERVICE_UPDATED, service.getName());
+            default:
+                throw new IllegalStateException(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                                                     type));
+        }
+    }
+
+    private void handleFailedState(StepLogger stepLogger, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
+        if (shouldFail(service)) {
+            throw new SLException(getFailureMessage(service, lastServiceOperation));
+        }
+        stepLogger.warn(getWarningMessage(service, lastServiceOperation));
+    }
+
+    private boolean shouldFail(CloudServiceExtended service) {
+        return !service.isOptional();
+    }
+
+    private String getFailureMessage(CloudServiceExtended service, ServiceOperation operation) {
+        switch (operation.getType()) {
+            case CREATE:
+                return MessageFormat.format(Messages.ERROR_CREATING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
+                                            operation.getDescription());
+            case UPDATE:
+                return MessageFormat.format(Messages.ERROR_UPDATING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
+                                            operation.getDescription());
+            default:
+                throw new IllegalStateException(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                                                     operation.getType()));
+        }
+    }
+
+    private String getWarningMessage(CloudServiceExtended service, ServiceOperation operation) {
+        switch (operation.getType()) {
+            case CREATE:
+                return MessageFormat.format(Messages.ERROR_CREATING_OPTIONAL_SERVICE, service.getName(), service.getLabel(),
+                                            service.getPlan(), operation.getDescription());
+            case UPDATE:
+                return MessageFormat.format(Messages.ERROR_UPDATING_OPTIONAL_SERVICE, service.getName(), service.getLabel(),
+                                            service.getPlan(), operation.getDescription());
+            default:
+                throw new IllegalStateException(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                                                     operation.getType()));
+        }
+    }
+
+    public String getPollingErrorMessage(ExecutionWrapper execution) {
+        return Messages.ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES;
+    }
 }

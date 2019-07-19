@@ -17,13 +17,13 @@ public class UpdateServicePlanStep extends ServiceStep {
 
     @Override
     protected MethodExecution<String> executeOperation(DelegateExecution context, CloudControllerClient controllerClient,
-        CloudServiceExtended service) {
+                                                       CloudServiceExtended service) {
         return updateServicePlan(controllerClient, service);
     }
 
     private MethodExecution<String> updateServicePlan(CloudControllerClient client, CloudServiceExtended service) {
-        getStepLogger()
-            .debug(MessageFormat.format("Updating service plan of a service {0} with new plan: {1}", service.getName(), service.getPlan()));
+        getStepLogger().debug(MessageFormat.format("Updating service plan of a service {0} with new plan: {1}", service.getName(),
+                                                   service.getPlan()));
         if (service.shouldIgnoreUpdateErrors()) {
             return getServiceUpdater().updateServicePlanQuietly(client, service.getName(), service.getPlan());
         }
@@ -32,7 +32,7 @@ public class UpdateServicePlanStep extends ServiceStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
-        return Arrays.asList(new PollServiceCreateOrUpdateOperationsExecution(getServiceGetter()));
+        return Arrays.asList(new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(), getServiceProgressReporter()));
     }
 
     @Override
