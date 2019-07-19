@@ -6,10 +6,12 @@ import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
+@Component
 public class ServiceOperationExecutor {
 
     public void executeServiceOperation(CloudServiceExtended service, Runnable serviceOperation, StepLogger stepLogger) {

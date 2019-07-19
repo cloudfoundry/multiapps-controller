@@ -176,6 +176,7 @@ public class Messages {
     public static final String SKIP_SERVICES_DELETION = "Skipping deletion of services, because the command line option \"--delete-services\" is not specified.";
     public static final String UNSUPPORTED_MINOR_VERSION = "Used version \"{0}\" is higher than the supported ones. Some features might not be implemented.";
     public static final String APPLICATION_NOT_STAGED_CORRECTLY = "Application \"{0}\" was not staged correctly during the previous deployment";
+    public static final String MISSING_SERVICE_OPERATION_STATE = "Stopping service operation polling of \"{0}\" due to missing operation state...";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
@@ -260,7 +261,7 @@ public class Messages {
     public static final String WILL_NOT_REBIND_APP_TO_SERVICE = "Service \"{0}\" will not be rebound to application \"{1}\" because the binding parameters are not modified";
     public static final String SERVICE_BROKER_DOES_NOT_EXIST = "Service broker with name \"{0}\" does not exist";
     public static final String EXECUTING_HOOK_0 = "Executing hook \"{0}\"";
-    public static final String POLLING_IN_PROGRESS_SERVICES = "Waiting for previous service operations to finish...";
+    public static final String WAITING_PREVIOUS_OPERATIONS_TO_FINISH = "Waiting for previous service operations to finish...";
 
     // DEBUG log messages
     public static final String CLIENT_EXTENSIONS_ARE_NOT_SUPPORTED = "Client extensions are not supported";
@@ -434,7 +435,7 @@ public class Messages {
     public static final String LAST_BUILD = "Last build: {0}";
     public static final String RESOLVED_DEPLOYMENT_DESCRIPTOR = "Resolved deployment descriptor: {0}";
     public static final String SUBSCRIPTIONS = "Subscriptions: {0}";
-    public static final String SERVICES_IN_PROGRESS = "Services in progress state: {0}";
+    public static final String SERVICES_IN_PROGRESS = "Services in progress: {0}";
     public static final String BUILD_FOR_PACKAGE_0_ALREADY_EXISTS = "Build for package: \"{0}\" already exists";
 
 }

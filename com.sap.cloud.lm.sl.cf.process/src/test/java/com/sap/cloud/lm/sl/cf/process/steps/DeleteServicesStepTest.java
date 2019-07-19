@@ -41,6 +41,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -51,6 +52,8 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -70,16 +73,20 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
     private List<CloudServiceExtended> servicesData = new ArrayList<>();
 
     private CloudMetadata metadata = ImmutableCloudMetadata.builder()
-        .guid(UUID.randomUUID())
-        .build();
+                                                           .guid(UUID.randomUUID())
+                                                           .build();
 
     @Mock
     protected CloudControllerClient client;
 
     @Mock
+    private ServiceProgressReporter serviceProgressReporter;
+    @Mock
     private ServiceGetter serviceGetter;
     @Mock
     private EventsGetter eventsGetter;
+    @InjectMocks
+    private ServiceOperationGetter serviceOperationGetter;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -135,7 +142,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
     @Test
     public void testExecute() throws Exception {
         if (StepsUtil.getServicesToDelete(context)
-            .isEmpty()) {
+                     .isEmpty()) {
             return;
         }
         prepareResponses(STEP_EXECUTION);
@@ -160,11 +167,11 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
 
     private void loadParameters() {
         servicesToDelete = stepInput.servicesToDelete.stream()
-            .map((service) -> service.name)
-            .collect(Collectors.toList());
+                                                     .map((service) -> service.name)
+                                                     .collect(Collectors.toList());
         servicesData = stepInput.servicesToDelete.stream()
-            .map(this::toCloudServiceExtended)
-            .collect(Collectors.toList());
+                                                 .map(this::toCloudServiceExtended)
+                                                 .collect(Collectors.toList());
 
         if (expectedExceptionMessage != null) {
             expectedException.expect(SLException.class);
@@ -174,11 +181,11 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
 
     private CloudServiceExtended toCloudServiceExtended(SimpleService simpleService) {
         return ImmutableCloudServiceExtended.builder()
-            .metadata(ImmutableCloudMetadata.builder()
-                .guid(UUID.fromString(simpleService.guid))
-                .build())
-            .name(simpleService.name)
-            .build();
+                                            .metadata(ImmutableCloudMetadata.builder()
+                                                                            .guid(UUID.fromString(simpleService.guid))
+                                                                            .build())
+                                            .name(simpleService.name)
+                                            .build();
     }
 
     private void prepareContext() {
@@ -193,49 +200,49 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
     private void prepareClient() {
         for (SimpleService service : stepInput.servicesToDelete) {
             Mockito.when(client.getService(Matchers.eq(service.name), Matchers.anyBoolean()))
-                .thenReturn(createCloudService(service));
+                   .thenReturn(createCloudService(service));
             Mockito.when(client.getService(service.name))
-                .thenReturn(createCloudService(service));
+                   .thenReturn(createCloudService(service));
             Mockito.when(client.getServiceInstance(service.name))
-                .thenReturn(createCloudServiceInstance(service));
+                   .thenReturn(createCloudServiceInstance(service));
             if (service.hasBoundApplications) {
                 Mockito.when(client.getApplications())
-                    .thenReturn(Arrays.asList(createCloudApplication(metadata)));
+                       .thenReturn(Arrays.asList(createCloudApplication(metadata)));
             }
             if (service.hasServiceKeys) {
                 Mockito.when(client.getServiceKeys(service.name))
-                    .thenReturn(Arrays.asList(createCloudServiceKey(metadata)));
+                       .thenReturn(Arrays.asList(createCloudServiceKey(metadata)));
             }
             if (service.httpErrorCodeToReturnOnDelete != null) {
                 HttpStatus httpStatusToReturnOnDelete = HttpStatus.valueOf(service.httpErrorCodeToReturnOnDelete);
                 Mockito.doThrow(new CloudOperationException(httpStatusToReturnOnDelete))
-                    .when(client)
-                    .deleteService(service.name);
+                       .when(client)
+                       .deleteService(service.name);
             }
         }
     }
 
     private CloudApplication createCloudApplication(CloudMetadata metadata) {
         return ImmutableCloudApplication.builder()
-            .metadata(metadata)
-            .build();
+                                        .metadata(metadata)
+                                        .build();
     }
 
     private CloudServiceKey createCloudServiceKey(CloudMetadata metadata) {
         return ImmutableCloudServiceKey.builder()
-            .metadata(metadata)
-            .build();
+                                       .metadata(metadata)
+                                       .build();
     }
 
     private CloudService createCloudService(SimpleService service) {
         return ImmutableCloudServiceExtended.builder()
-            .metadata(ImmutableCloudMetadata.builder()
-                .guid(UUID.fromString(service.guid))
-                .build())
-            .name(service.name)
-            .plan(service.plan)
-            .label(service.label)
-            .build();
+                                            .metadata(ImmutableCloudMetadata.builder()
+                                                                            .guid(UUID.fromString(service.guid))
+                                                                            .build())
+                                            .name(service.name)
+                                            .plan(service.plan)
+                                            .label(service.label)
+                                            .build();
     }
 
     @SuppressWarnings("unchecked")
@@ -249,31 +256,31 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         Mockito.reset(eventsGetter);
         Map<String, Map<String, Boolean>> eventsResponse = (Map<String, Map<String, Boolean>>) stepPhaseResponse.get("eventsResponse");
         stepInput.servicesToDelete.stream()
-            .filter(service -> eventsResponse.get(service.name)
-                .containsKey("containsDeleteEvent"))
-            .filter(service -> eventsResponse.get(service.name)
-                .get("containsDeleteEvent")
-                .equals(true))
-            .forEach(service -> {
-                CloudEvent deleteEvent = createDeleteServiceCloudEvent(service);
-                List<CloudEvent> events = createOlderServiceCloudEvents(deleteEvent, 5);
-                events.add(deleteEvent);
-                Collections.shuffle(events);
+                                  .filter(service -> eventsResponse.get(service.name)
+                                                                   .containsKey("containsDeleteEvent"))
+                                  .filter(service -> eventsResponse.get(service.name)
+                                                                   .get("containsDeleteEvent")
+                                                                   .equals(true))
+                                  .forEach(service -> {
+                                      CloudEvent deleteEvent = createDeleteServiceCloudEvent(service);
+                                      List<CloudEvent> events = createOlderServiceCloudEvents(deleteEvent, 5);
+                                      events.add(deleteEvent);
+                                      Collections.shuffle(events);
 
-                Mockito.when(eventsGetter.getEvents(UUID.fromString(service.guid), client))
-                    .thenReturn(events);
-                Mockito.when(eventsGetter.getLastEvent(UUID.fromString(service.guid), client))
-                    .thenReturn(deleteEvent);
-            });
+                                      Mockito.when(eventsGetter.getEvents(UUID.fromString(service.guid), client))
+                                             .thenReturn(events);
+                                      Mockito.when(eventsGetter.getLastEvent(UUID.fromString(service.guid), client))
+                                             .thenReturn(deleteEvent);
+                                  });
         Mockito.when(eventsGetter.isDeleteEvent(SERVICE_EVENT_TYPE_DELETE))
-            .thenCallRealMethod();
+               .thenCallRealMethod();
     }
 
     private CloudServiceInstance createCloudServiceInstance(SimpleService service) {
         return ImmutableCloudServiceInstance.builder()
-            .bindings(createCloudServiceBindings(service))
-            .service(createCloudService(service))
-            .build();
+                                            .bindings(createCloudServiceBindings(service))
+                                            .service(createCloudService(service))
+                                            .build();
     }
 
     private List<CloudServiceBinding> createCloudServiceBindings(SimpleService service) {
@@ -281,19 +288,19 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
             return Collections.emptyList();
         }
         return Arrays.asList(ImmutableCloudServiceBinding.builder()
-            .applicationGuid(metadata.getGuid())
-            .build());
+                                                         .applicationGuid(metadata.getGuid())
+                                                         .build());
     }
 
     private CloudEvent createDeleteServiceCloudEvent(SimpleService service) {
         return ImmutableCloudEvent.builder()
-            .actee(ImmutableParticipant.builder()
-                .guid(UUID.fromString(service.guid))
-                .name(service.name)
-                .build())
-            .type(SERVICE_EVENT_TYPE_DELETE)
-            .timestamp(new Date())
-            .build();
+                                  .actee(ImmutableParticipant.builder()
+                                                             .guid(UUID.fromString(service.guid))
+                                                             .name(service.name)
+                                                             .build())
+                                  .type(SERVICE_EVENT_TYPE_DELETE)
+                                  .timestamp(new Date())
+                                  .build();
     }
 
     private List<CloudEvent> createOlderServiceCloudEvents(CloudEvent lastEvent, int count) {
@@ -302,10 +309,10 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         CloudEvent currentEvent = lastEvent;
         for (int i = 0; i < count; i++) {
             CloudEvent event = ImmutableCloudEvent.builder()
-                .actee(lastEvent.getActee())
-                .type("nonDelete")
-                .timestamp(getOlderDateFromEvent(currentEvent))
-                .build();
+                                                  .actee(lastEvent.getActee())
+                                                  .type("nonDelete")
+                                                  .timestamp(getOlderDateFromEvent(currentEvent))
+                                                  .build();
             events.add(event);
             currentEvent = event;
         }
@@ -315,11 +322,11 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
     private Date getOlderDateFromEvent(CloudEvent lastEvent) {
         ZoneId systemDefaultZone = ZoneId.systemDefault();
         Instant lastEventInstant = lastEvent.getTimestamp()
-            .toInstant();
+                                            .toInstant();
         LocalDateTime lastEventDateTime = LocalDateTime.ofInstant(lastEventInstant, systemDefaultZone);
         LocalDateTime secondBefore = lastEventDateTime.minusSeconds(1);
         Instant secondBeforeInstant = secondBefore.atZone(systemDefaultZone)
-            .toInstant();
+                                                  .toInstant();
         return Date.from(secondBeforeInstant);
     }
 
@@ -327,7 +334,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         for (SimpleService service : stepInput.servicesToDelete) {
             if (!service.hasBoundApplications) {
                 Mockito.verify(client, Mockito.times(1))
-                    .deleteService(service.name);
+                       .deleteService(service.name);
             }
         }
     }
@@ -336,7 +343,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         for (SimpleService service : stepInput.servicesToDelete) {
             if (service.hasBoundApplications) {
                 Mockito.verify(client, Mockito.atLeastOnce())
-                    .unbindService(Mockito.anyString(), Mockito.eq(service.name));
+                       .unbindService(Mockito.anyString(), Mockito.eq(service.name));
             }
         }
     }
@@ -345,7 +352,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         for (SimpleService service : stepInput.servicesToDelete) {
             if (service.hasServiceKeys) {
                 Mockito.verify(client, Mockito.atLeastOnce())
-                    .deleteServiceKey(Mockito.eq(service.name), Mockito.anyString());
+                       .deleteServiceKey(Mockito.eq(service.name), Mockito.anyString());
             }
         }
     }
@@ -367,7 +374,8 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
 
     @Override
     protected DeleteServicesStep createStep() {
-        return new DeleteServicesStep();
+        serviceOperationGetter = new ServiceOperationGetter(serviceGetter, eventsGetter);
+        return new DeleteServicesStep(serviceOperationGetter, serviceProgressReporter);
     }
 
 }

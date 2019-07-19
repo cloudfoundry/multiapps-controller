@@ -64,7 +64,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         CloudServiceExtended serviceToProcess = StepsUtil.getServiceToProcess(execution.getContext());
 
         execution.getStepLogger()
-            .info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
+                 .info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
         CloudService existingService = controllerClient.getService(serviceToProcess.getName(), false);
 
         Map<String, List<CloudServiceKey>> serviceKeys = StepsUtil.getServiceKeysToCreate(execution.getContext());
@@ -74,7 +74,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         serviceToProcess = StepsUtil.getServiceToProcess(execution.getContext());
 
         List<ServiceAction> actions = dermineActionsAndHandleExceptions(controllerClient, spaceId, serviceToProcess, existingService,
-            serviceKeys, execution);
+                                                                        serviceKeys, execution);
 
         StepsUtil.setServiceActionsToExecute(actions, execution.getContext());
         StepsUtil.isServiceUpdated(false, execution.getContext());
@@ -85,17 +85,19 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
         return MessageFormat.format(Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE, StepsUtil.getServiceToProcess(context)
-            .getName());
+                                                                                                       .getName());
     }
 
     private List<ServiceAction> dermineActionsAndHandleExceptions(CloudControllerClient client, String spaceId,
-        CloudServiceExtended service, CloudService existingService, Map<String, List<CloudServiceKey>> serviceKeys,
-        ExecutionWrapper execution) throws FileStorageException {
+                                                                  CloudServiceExtended service, CloudService existingService,
+                                                                  Map<String, List<CloudServiceKey>> serviceKeys,
+                                                                  ExecutionWrapper execution)
+        throws FileStorageException {
         try {
             return determineActions(client, spaceId, service, existingService, serviceKeys, execution);
         } catch (CloudOperationException e) {
             String determineServiceActionsFailedMessage = MessageFormat.format(Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE,
-                service.getName(), e.getStatusText());
+                                                                               service.getName(), e.getStatusText());
             throw new CloudOperationException(e.getStatusCode(), determineServiceActionsFailedMessage, e.getDescription(), e);
         }
     }
@@ -106,7 +108,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     }
 
     private List<ServiceAction> determineActions(CloudControllerClient client, String spaceId, CloudServiceExtended service,
-        CloudService existingService, Map<String, List<CloudServiceKey>> serviceKeys, ExecutionWrapper execution)
+                                                 CloudService existingService, Map<String, List<CloudServiceKey>> serviceKeys,
+                                                 ExecutionWrapper execution)
         throws FileStorageException {
         List<ServiceAction> actions = new ArrayList<>();
 
@@ -172,7 +175,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     }
 
     private CloudServiceExtended setServiceParameters(DelegateExecution context, CloudServiceExtended service, final String appArchiveId,
-        final String fileName) throws FileStorageException {
+                                                      final String fileName)
+        throws FileStorageException {
         AtomicReference<CloudServiceExtended> serviceReference = new AtomicReference<>();
         FileContentProcessor parametersFileProcessor = appArchiveStream -> {
             try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, configuration.getMaxManifestSize())) {
@@ -181,8 +185,9 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
             }
         };
-        fileService
-            .processFileContent(new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId, parametersFileProcessor));
+        fileService.processFileContent(new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
+                                                                        appArchiveId,
+                                                                        parametersFileProcessor));
         return serviceReference.get();
     }
 
@@ -194,7 +199,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
         Map<String, Object> result = PropertiesUtil.mergeExtensionProperties(credentials, existingCredentials);
         return ImmutableCloudServiceExtended.copyOf(service)
-            .withCredentials(result);
+                                            .withCredentials(result);
     }
 
     private List<String> getServiceTags(CloudControllerClient client, String spaceId, CloudService service) {
@@ -215,26 +220,29 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     }
 
     private boolean shouldRecreate(CloudServiceExtended service, CloudService existingService, Map<String, Object> serviceInstanceEntity,
-        ExecutionWrapper execution) {
+                                   ExecutionWrapper execution) {
         if (serviceInstanceEntity == null) {
             return false;
         }
         ServiceOperation lastOperation = getLastOperation(serviceInstanceEntity);
-        if (hasServiceCreateFailedState(lastOperation)) {
+        if (hasServiceFailedState(lastOperation, ServiceOperationType.CREATE)) {
             return true;
         }
         boolean serviceNeedsRecreation = serviceHasDifferentTypeOrLabel(service, existingService)
-            || hasServiceDeleteFailedState(lastOperation);
+            || hasServiceFailedState(lastOperation, ServiceOperationType.DELETE);
         if (!StepsUtil.shouldDeleteServices(execution.getContext()) && serviceNeedsRecreation) {
             getStepLogger().debug("Service should be recreated, but delete-services was not enabled.");
-            throw new SLException(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET, service.getResourceName(),
-                buildServiceType(service), existingService.getName(), buildServiceType(existingService));
+            throw new SLException(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET,
+                                  service.getResourceName(),
+                                  buildServiceType(service),
+                                  existingService.getName(),
+                                  buildServiceType(existingService));
         }
         return serviceNeedsRecreation;
     }
 
-    private boolean hasServiceCreateFailedState(ServiceOperation lastOperation) {
-        return lastOperation != null && lastOperation.getType() == ServiceOperationType.CREATE
+    private boolean hasServiceFailedState(ServiceOperation lastOperation, ServiceOperationType serviceOperationType) {
+        return lastOperation != null && lastOperation.getType() == serviceOperationType
             && lastOperation.getState() == ServiceOperationState.FAILED;
     }
 
@@ -245,11 +253,6 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
         boolean haveDifferentLabels = !Objects.equals(service.getLabel(), existingService.getLabel());
         return haveDifferentTypes || haveDifferentLabels;
-    }
-
-    private boolean hasServiceDeleteFailedState(ServiceOperation lastOperation) {
-        return lastOperation != null && lastOperation.getType() == ServiceOperationType.DELETE
-            && lastOperation.getState() == ServiceOperationState.FAILED;
     }
 
     private String buildServiceType(CloudService service) {
@@ -272,7 +275,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     private boolean shouldUpdateCredentials(CloudServiceExtended service, CloudService existingService, CloudControllerClient client) {
         try {
             Map<String, Object> serviceParameters = client.getServiceParameters(existingService.getMetadata()
-                .getGuid());
+                                                                                               .getGuid());
             getStepLogger().debug("Existing service parameters: " + secureSerializer.toJson(serviceParameters));
             return !Objects.equals(service.getCredentials(), serviceParameters);
         } catch (CloudOperationException e) {

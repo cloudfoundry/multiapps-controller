@@ -1,7 +1,9 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -19,13 +21,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
+import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -89,7 +92,9 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     }
 
     @Mock
-    private ServiceGetter serviceInstanceGetter;
+    private ServiceOperationGetter serviceOperationGetter;
+    @Mock
+    private ServiceProgressReporter serviceProgressReporter;
     @Mock
     protected CloudControllerClient client;
     @Rule
@@ -100,7 +105,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     @Before
     public void setUp() {
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
-        prepareServiceInstanceGetter();
+        prepareServiceOperationGetter();
         StepsUtil.setServicesToCreate(context, input.services);
         StepsUtil.setServicesToDelete(context, Collections.emptyList());
         StepsUtil.setServicesData(context, Collections.emptyList());
@@ -113,11 +118,27 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     }
 
     @SuppressWarnings("unchecked")
-    private void prepareServiceInstanceGetter() {
+    private void prepareServiceOperationGetter() {
         for (Entry<String, Object> response : input.serviceInstanceResponse.entrySet()) {
-            Mockito.when(serviceInstanceGetter.getServiceInstanceEntity(client, response.getKey(), TEST_SPACE_ID))
-                .thenReturn((Map<String, Object>) response.getValue());
+            Map<String, Object> serviceInstanceResponse = (Map<String, Object>) response.getValue();
+            if (serviceInstanceResponse == null) {
+                continue;
+            }
+            Map<String, Object> serviceOperationAsMap = (Map<String, Object>) serviceInstanceResponse.get(ServiceOperation.LAST_SERVICE_OPERATION);
+            CloudServiceExtended service = getCloudServiceExtended(response);
+
+            when(serviceOperationGetter.getLastServiceOperation(any(),
+                                                                eq(service))).thenReturn(ServiceOperation.fromMap(serviceOperationAsMap));
+
         }
+    }
+
+    private CloudServiceExtended getCloudServiceExtended(Entry<String, Object> response) {
+        return input.services.stream()
+                             .filter(serviceToFind -> serviceToFind.getName()
+                                                                   .equals(response.getKey()))
+                             .findFirst()
+                             .get();
     }
 
     @Override

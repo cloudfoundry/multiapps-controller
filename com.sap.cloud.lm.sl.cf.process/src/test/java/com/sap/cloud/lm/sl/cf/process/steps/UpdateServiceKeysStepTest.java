@@ -18,10 +18,12 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -34,7 +36,11 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
     private final StepInput stepInput;
 
     @Mock
-    private ServiceInstanceGetter serviceInstanceGetter;
+    private ServiceOperationGetter serviceOperationGetter;
+    @Mock
+    private ServiceOperationExecutor serviceOperationExecutor;
+    @Mock
+    private ServiceProgressReporter serviceProgressReporter;
     @Mock
     protected ServiceUpdater serviceUpdater;
 
@@ -60,7 +66,8 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
     }
 
     private void prepareClient() {
-        Mockito.when(client.getServiceKeys(stepInput.service.name)).thenReturn(stepInput.existingServiceKeys);
+        Mockito.when(client.getServiceKeys(stepInput.service.name))
+               .thenReturn(stepInput.existingServiceKeys);
     }
 
     private void prepareServiceUpdater(String stepPhase) {
@@ -76,7 +83,7 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
                 throw new UnsupportedOperationException("Unsupported test phase");
         }
         Mockito.when(serviceUpdater.updateServiceTags(Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(methodExec);
+               .thenReturn(methodExec);
     }
 
     @Test
@@ -90,9 +97,10 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
         }
         assertMethodCalls();
     }
-    
+
     private void assertMethodCalls() {
-        Mockito.verify(serviceUpdater, Mockito.times(1)).updateServiceTags(Matchers.any(), Matchers.any(), Matchers.any());
+        Mockito.verify(serviceUpdater, Mockito.times(1))
+               .updateServiceTags(Matchers.any(), Matchers.any(), Matchers.any());
     }
 
     @SuppressWarnings("unchecked")
@@ -113,7 +121,6 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
     private void prepareResponses(String stepPhase) {
         prepareServiceUpdater(stepPhase);
     }
-
 
     private static class StepInput {
         SimpleService service;

@@ -1,103 +1,84 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
+import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.common.SLException;
 
-public class PollServiceInProgressOperationsExecution extends PollServiceOperationsExecution implements AsyncExecution {
+public class PollServiceInProgressOperationsExecution extends PollServiceOperationsExecution {
 
-    private ServiceOperationExecutor serviceOperationExecutor;
-    private ServiceGetter serviceGetter;
-    private EventsGetter eventsGetter;
-
-    public PollServiceInProgressOperationsExecution(ServiceGetter serviceGetter, EventsGetter eventsGetter) {
-        this.serviceGetter = serviceGetter;
-        this.eventsGetter = eventsGetter;
-        serviceOperationExecutor = new ServiceOperationExecutor();
+    public PollServiceInProgressOperationsExecution(ServiceOperationGetter serviceOperationGetter,
+                                                    ServiceProgressReporter serviceProgressReporter) {
+        super(serviceOperationGetter, serviceProgressReporter);
     }
 
     @Override
-    protected List<CloudServiceExtended> computeServicesToPoll(ExecutionWrapper execution,
-                                                               Map<String, ServiceOperationType> triggeredServiceOperations) {
-        List<CloudServiceExtended> servicesData = getServicesData(execution.getContext());
-        return getServicesWithTriggeredOperations(servicesData, triggeredServiceOperations);
-    }
-
     protected List<CloudServiceExtended> getServicesData(DelegateExecution context) {
         return StepsUtil.getServicesData(context);
     }
 
     @Override
-    protected ServiceOperation getLastServiceOperation(ExecutionWrapper execution, CloudControllerClient client,
-                                                       CloudServiceExtended service) {
-        Map<String, Object> serviceInstanceEntity = getServiceInstanceEntity(execution, client, service);
-
-        if (serviceInstanceEntity == null || serviceInstanceEntity.isEmpty()) {
-            ServiceOperation lastOperation = getLastDeleteServiceOperation(execution, service);
-            if (lastOperation != null) {
-                return lastOperation;
-            }
-            handleMissingServiceInstance(execution, service);
-            return null;
+    protected void reportServiceState(ExecutionWrapper execution, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
+        if (lastServiceOperation.getState() == ServiceOperationState.SUCCEEDED) {
+            execution.getStepLogger()
+                     .debug(getSuccessMessage(service, lastServiceOperation.getType()));
+            return;
         }
-        return getLastOperation(serviceInstanceEntity);
-    }
 
-    protected Map<String, Object> getServiceInstanceEntity(ExecutionWrapper execution, CloudControllerClient client,
-                                                           CloudServiceExtended service) {
-        return serviceOperationExecutor.executeServiceOperation(service,
-                                                                () -> serviceGetter.getServiceInstanceEntity(client, service.getName(),
-                                                                                                             StepsUtil.getSpaceId(execution.getContext())),
-                                                                execution.getStepLogger());
-    }
-
-    private ServiceOperation getLastDeleteServiceOperation(ExecutionWrapper execution, CloudServiceExtended service) {
-        if (service.getMetadata() == null) {
-            return null;
+        if (lastServiceOperation.getState() == ServiceOperationState.FAILED) {
+            throw new SLException(getFailureMessage(service, lastServiceOperation));
         }
-        boolean isServiceDeleted = isServiceDeleted(execution, service.getMetadata()
-                                                                      .getGuid());
-        ServiceOperationState operationState = isServiceDeleted ? ServiceOperationState.SUCCEEDED : ServiceOperationState.IN_PROGRESS;
-        return new ServiceOperation(ServiceOperationType.DELETE, ServiceOperationType.DELETE.name(), operationState);
     }
 
-    private boolean isServiceDeleted(ExecutionWrapper execution, UUID uuid) {
-        List<CloudEvent> serviceEvent = eventsGetter.getEvents(uuid, execution.getControllerClient());
-        return serviceEvent.stream()
-                           .filter(Objects::nonNull)
-                           .anyMatch(e -> eventsGetter.isDeleteEvent(e.getType()));
+    @Override
+    protected void handleMissingOperationState(StepLogger stepLogger, CloudServiceExtended service) {
+        stepLogger.warnWithoutProgressMessage(Messages.MISSING_SERVICE_OPERATION_STATE, service.getName());
     }
 
-    @SuppressWarnings("unchecked")
-    protected ServiceOperation getLastOperation(Map<String, Object> serviceInstanceEntity) {
-        Map<String, Object> lastOperationAsMap = (Map<String, Object>) serviceInstanceEntity.get(ServiceOperation.LAST_SERVICE_OPERATION);
-        ServiceOperation lastOperation = ServiceOperation.fromMap(lastOperationAsMap);
-        return handleFailedOperationWithoutDescription(lastOperation);
-    }
-
-    private ServiceOperation handleFailedOperationWithoutDescription(ServiceOperation lastOperation) {
-        if (lastOperation.getDescription() == null && lastOperation.getState() == ServiceOperationState.FAILED) {
-            return new ServiceOperation(lastOperation.getType(), Messages.DEFAULT_FAILED_OPERATION_DESCRIPTION, lastOperation.getState());
+    private String getSuccessMessage(CloudServiceExtended service, ServiceOperationType type) {
+        switch (type) {
+            case CREATE:
+                return MessageFormat.format(Messages.SERVICE_CREATED, service.getName());
+            case UPDATE:
+                return MessageFormat.format(Messages.SERVICE_UPDATED, service.getName());
+            case DELETE:
+                return MessageFormat.format(Messages.SERVICE_DELETED, service.getName());
+            default:
+                throw new IllegalStateException(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                                                     type));
         }
-        return lastOperation;
+    }
+
+    private String getFailureMessage(CloudServiceExtended service, ServiceOperation lastServiceOperation) {
+        switch (lastServiceOperation.getType()) {
+            case CREATE:
+                return MessageFormat.format(Messages.ERROR_CREATING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
+                                            lastServiceOperation.getDescription());
+            case UPDATE:
+                return MessageFormat.format(Messages.ERROR_UPDATING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
+                                            lastServiceOperation.getDescription());
+            case DELETE:
+                return MessageFormat.format(Messages.ERROR_DELETING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
+                                            lastServiceOperation.getDescription());
+            default:
+                throw new IllegalStateException(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                                                                     lastServiceOperation.getType()));
+        }
     }
 
     @Override
     public String getPollingErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_MONITORING_OPERATIONS_OVER_SERVICES;
     }
+
 }

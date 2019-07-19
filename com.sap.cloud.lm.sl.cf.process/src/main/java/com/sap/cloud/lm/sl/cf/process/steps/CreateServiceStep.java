@@ -19,7 +19,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceWithAlternativesCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
-import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("createServiceStep")
@@ -30,12 +29,11 @@ public class CreateServiceStep extends ServiceStep {
 
     @Override
     protected MethodExecution<String> executeOperation(DelegateExecution execution, CloudControllerClient controllerClient,
-        CloudServiceExtended service) throws FileStorageException {
+                                                       CloudServiceExtended service) {
         return createService(execution, controllerClient, service);
     }
 
-    private MethodExecution<String> createService(DelegateExecution context, CloudControllerClient client, CloudServiceExtended service)
-        throws FileStorageException {
+    private MethodExecution<String> createService(DelegateExecution context, CloudControllerClient client, CloudServiceExtended service) {
         getStepLogger().info(Messages.CREATING_SERVICE_FROM_MTA_RESOURCE, service.getName(), service.getResourceName());
 
         try {
@@ -50,7 +48,7 @@ public class CreateServiceStep extends ServiceStep {
     }
 
     private MethodExecution<String> createCloudService(DelegateExecution context, CloudControllerClient client,
-        CloudServiceExtended service) throws FileStorageException {
+                                                       CloudServiceExtended service) {
         if (service.isUserProvided()) {
             client.createUserProvidedService(service, service.getCredentials());
             return new MethodExecution<>(null, ExecutionState.FINISHED);
@@ -59,15 +57,15 @@ public class CreateServiceStep extends ServiceStep {
     }
 
     private MethodExecution<String> createManagedService(DelegateExecution context, CloudControllerClient client,
-        CloudServiceExtended service) throws FileStorageException {
+                                                         CloudServiceExtended service) {
         return serviceCreatorFactory.createInstance(getStepLogger())
-            .createService(client, service, StepsUtil.getSpaceId(context));
+                                    .createService(client, service, StepsUtil.getSpaceId(context));
     }
 
     private void processServiceCreationFailure(CloudServiceExtended service, CloudOperationException e) {
         if (!service.isOptional()) {
             String detailedDescription = MessageFormat.format(Messages.ERROR_CREATING_SERVICE, service.getName(), service.getLabel(),
-                service.getPlan(), e.getDescription());
+                                                              service.getPlan(), e.getDescription());
             if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
                 throw new CloudServiceBrokerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
             }
@@ -78,7 +76,7 @@ public class CreateServiceStep extends ServiceStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
-        return Arrays.asList(new PollServiceCreateOrUpdateOperationsExecution(getServiceGetter()));
+        return Arrays.asList(new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(), getServiceProgressReporter()));
     }
 
     @Override
