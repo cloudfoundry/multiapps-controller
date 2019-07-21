@@ -8,6 +8,7 @@
         <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationSubscriptionDto</class>
         <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto</class>
         <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationEntryDto</class>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.ProgressMessageDto</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />

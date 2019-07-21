@@ -15,10 +15,10 @@ import org.flowable.engine.runtime.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.core.dao.ProgressMessageDao;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -28,11 +28,11 @@ public class FlowableExceptionEventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowableExceptionEventHandler.class);
 
-    private ProgressMessageService progressMessageService;
+    private ProgressMessageDao progressMessageDao;
     private FlowableFacade flowableFacade;
 
-    public FlowableExceptionEventHandler(ProgressMessageService progressMessageService, FlowableFacade flowableFacade) {
-        this.progressMessageService = progressMessageService;
+    public FlowableExceptionEventHandler(ProgressMessageDao progressMessageDao, FlowableFacade flowableFacade) {
+        this.progressMessageDao = progressMessageDao;
         this.flowableFacade = flowableFacade;
     }
 
@@ -72,8 +72,7 @@ public class FlowableExceptionEventHandler {
 
         String taskId = getCurrentTaskId(flowableEngineEvent);
         String errorMessage = MessageFormat.format(Messages.UNEXPECTED_ERROR, flowableExceptionMessage);
-
-        progressMessageService.add(ImmutableProgressMessage.builder()
+        progressMessageDao.add(ImmutableProgressMessage.builder()
             .processId(processInstanceId)
             .taskId(taskId)
             .type(ProgressMessageType.ERROR)
@@ -83,11 +82,9 @@ public class FlowableExceptionEventHandler {
     }
 
     private boolean isErrorProgressMessagePresented(String processInstanceId) {
-        List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(processInstanceId);
+        List<ProgressMessage> progressMessages = progressMessageDao.find(processInstanceId);
         return progressMessages.stream()
-            .filter(this::isErrorMessage)
-            .findAny()
-            .isPresent();
+            .anyMatch(this::isErrorMessage);
     }
 
     private boolean isErrorMessage(ProgressMessage message) {
@@ -112,9 +109,8 @@ public class FlowableExceptionEventHandler {
 
             // Based on the above comment, one of the executions will have null activityId(because it will be the monitoring one) and thus
             // should be excluded from the list of executions
-            Execution currentExecutionForProces = CommonUtil.isNullOrEmpty(currentExecutionsForProcess) ? null
+            return CommonUtil.isNullOrEmpty(currentExecutionsForProcess) ? null
                 : findCurrentExecution(currentExecutionsForProcess);
-            return currentExecutionForProces;
         } catch (Throwable e) {
             return null;
         }

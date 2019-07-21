@@ -6,6 +6,7 @@ import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
@@ -58,6 +59,7 @@ public class DatabaseConfiguration {
 
     @Inject
     @Bean
+    @Primary
     public LocalContainerEntityManagerFactoryBean defaultEntityManagerFactory(DataSource dataSource,
         EclipseLinkJpaVendorAdapter eclipseLinkJpaVendorAdapter) {
         return getLocalContainerEntityManagerFactoryBean(dataSource, eclipseLinkJpaVendorAdapter,

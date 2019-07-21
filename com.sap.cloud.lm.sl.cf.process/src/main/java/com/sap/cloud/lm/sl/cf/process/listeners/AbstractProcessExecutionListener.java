@@ -7,10 +7,10 @@ import org.flowable.engine.delegate.ExecutionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.core.dao.ProgressMessageDao;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
@@ -24,7 +24,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractProcessExecutionListener.class);
 
     @Inject
-    private ProgressMessageService progressMessageService;
+    private ProgressMessageDao progressMessageDao;
     @Inject
     private StepLogger.Factory stepLoggerFactory;
     @Inject
@@ -91,7 +91,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     }
 
     private StepLogger createStepLogger(DelegateExecution context) {
-        return stepLoggerFactory.create(context, progressMessageService, processLoggerProvider, getLogger());
+        return stepLoggerFactory.create(context, progressMessageDao, processLoggerProvider, getLogger());
     }
 
     protected abstract void notifyInternal(DelegateExecution context) throws Exception;

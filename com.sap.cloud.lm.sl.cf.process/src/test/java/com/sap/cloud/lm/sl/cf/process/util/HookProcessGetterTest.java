@@ -11,9 +11,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.sap.cloud.lm.sl.cf.core.dao.ProgressMessageDao;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.model.Hook;
@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.mta.model.Hook;
 public class HookProcessGetterTest {
 
     @Mock
-    private ProgressMessageService progressMessageService;
+    private ProgressMessageDao progressMessageDao;
 
     @Mock
     private FlowableFacade flowableFacade;
@@ -41,7 +41,7 @@ public class HookProcessGetterTest {
         String result = getProcessDefinitionForHookWithType("task");
         Assertions.assertEquals("executeHookTasksSubProcess", result);
 
-        Mockito.verifyZeroInteractions(progressMessageService, flowableFacade, context);
+        Mockito.verifyZeroInteractions(progressMessageDao, flowableFacade, context);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class HookProcessGetterTest {
 
         Assertions.assertEquals("Unsupported hook type \"unsupported-hook-type\"", thrownException.getMessage());
 
-        Mockito.verify(progressMessageService)
+        Mockito.verify(progressMessageDao)
             .add(ImmutableProgressMessage.builder()
                 .processId("foo-process-id")
                 .taskId("foo-current-activity-id")
@@ -67,7 +67,7 @@ public class HookProcessGetterTest {
     }
 
     private String getProcessDefinitionForHookWithType(String hookType) {
-        HookProcessGetter hookProcessGetter = new HookProcessGetterMock(progressMessageService, flowableFacade);
+        HookProcessGetter hookProcessGetter = new HookProcessGetterMock(progressMessageDao, flowableFacade);
         Hook testHook = Hook.createV3()
             .setName("foo")
             .setType(hookType);
@@ -77,8 +77,8 @@ public class HookProcessGetterTest {
 
     private class HookProcessGetterMock extends HookProcessGetter {
 
-        public HookProcessGetterMock(ProgressMessageService progressMessageService, FlowableFacade flowableFacade) {
-            super(progressMessageService, flowableFacade);
+        public HookProcessGetterMock(ProgressMessageDao progressMessageDao, FlowableFacade flowableFacade) {
+            super(progressMessageDao, flowableFacade);
         }
 
         @Override

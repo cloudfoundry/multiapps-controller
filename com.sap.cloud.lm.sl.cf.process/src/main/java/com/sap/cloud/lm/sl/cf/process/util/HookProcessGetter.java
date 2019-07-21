@@ -9,9 +9,9 @@ import javax.inject.Inject;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.core.dao.ProgressMessageDao;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -20,12 +20,12 @@ import com.sap.cloud.lm.sl.mta.model.Hook;
 @Component("hookProcessGetter")
 public class HookProcessGetter {
 
-    private ProgressMessageService progressMessageService;
+    private ProgressMessageDao progressMessageDao;
     private FlowableFacade flowableFacade;
 
     @Inject
-    public HookProcessGetter(ProgressMessageService progressMessageService, FlowableFacade flowableFacade) {
-        this.progressMessageService = progressMessageService;
+    public HookProcessGetter(ProgressMessageDao progressMessageDao, FlowableFacade flowableFacade) {
+        this.progressMessageDao = progressMessageDao;
         this.flowableFacade = flowableFacade;
     }
 
@@ -42,7 +42,7 @@ public class HookProcessGetter {
     }
 
     private void preserveErrorMessage(DelegateExecution context, String errorMessage) {
-        progressMessageService.add(ImmutableProgressMessage.builder()
+        progressMessageDao.add(ImmutableProgressMessage.builder()
             .processId(flowableFacade.getProcessInstanceId(context.getId()))
             .taskId(context.getCurrentActivityId())
             .type(ProgressMessageType.ERROR)

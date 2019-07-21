@@ -12,7 +12,6 @@ import com.sap.cloud.lm.sl.cf.persistence.services.ObjectStoreFileStorage;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.FileServiceFactoryBean;
 
 @Configuration
@@ -37,12 +36,6 @@ public class ServicesConfiguration {
     @Bean
     public ProcessLogsPersistenceService processLogsPersistenceService(DataSourceWithDialect dataSourceWithDialect) {
         return new ProcessLogsPersistenceService(dataSourceWithDialect, false);
-    }
-
-    @Inject
-    @Bean
-    public ProgressMessageService progressMessageService(DataSourceWithDialect dateSourceWithDialect) {
-        return new ProgressMessageService(dateSourceWithDialect);
     }
 
     @Inject

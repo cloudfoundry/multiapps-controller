@@ -6,12 +6,12 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.core.dao.ProgressMessageDao;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -23,14 +23,14 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class StepLogger implements UserMessageLogger {
 
     protected DelegateExecution context;
-    protected ProgressMessageService progressMessageService;
+    protected ProgressMessageDao progressMessageDao;
     protected ProcessLoggerProvider processLoggerProvider;
     protected Logger simpleStepLogger;
 
-    public StepLogger(DelegateExecution context, ProgressMessageService progressMessageService, ProcessLoggerProvider processLoggerProvider,
+    public StepLogger(DelegateExecution context, ProgressMessageDao progressMessageDao, ProcessLoggerProvider processLoggerProvider,
         Logger simpleStepLogger) {
         this.context = context;
-        this.progressMessageService = progressMessageService;
+        this.progressMessageDao = progressMessageDao;
         this.processLoggerProvider = processLoggerProvider;
         this.simpleStepLogger = simpleStepLogger;
     }
@@ -152,8 +152,7 @@ public class StepLogger implements UserMessageLogger {
     private void sendProgressMessage(String message, ProgressMessageType type) {
         try {
             String taskId = StepsUtil.getTaskId(context);
-
-            progressMessageService.add(ImmutableProgressMessage.builder()
+            progressMessageDao.add(ImmutableProgressMessage.builder()
                 .processId(StepsUtil.getCorrelationId(context))
                 .taskId(taskId)
                 .type(type)
@@ -184,9 +183,9 @@ public class StepLogger implements UserMessageLogger {
     @Component
     public static class Factory {
 
-        public StepLogger create(DelegateExecution context, ProgressMessageService progressMessageService,
+        public StepLogger create(DelegateExecution context, ProgressMessageDao progressMessageDao,
             ProcessLoggerProvider processLoggerProvider, Logger logger) {
-            return new StepLogger(context, progressMessageService, processLoggerProvider, logger);
+            return new StepLogger(context, progressMessageDao, processLoggerProvider, logger);
         }
 
     }

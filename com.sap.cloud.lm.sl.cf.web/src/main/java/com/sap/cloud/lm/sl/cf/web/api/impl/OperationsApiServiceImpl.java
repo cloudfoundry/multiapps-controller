@@ -28,20 +28,20 @@ import org.slf4j.LoggerFactory;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
+import com.sap.cloud.lm.sl.cf.core.dao.ProgressMessageDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
-import com.sap.cloud.lm.sl.cf.process.flowable.AbortProcessAction;
-import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
-import com.sap.cloud.lm.sl.cf.process.flowable.ProcessAction;
-import com.sap.cloud.lm.sl.cf.process.flowable.ProcessActionRegistry;
-import com.sap.cloud.lm.sl.cf.process.flowable.ResumeProcessAction;
-import com.sap.cloud.lm.sl.cf.process.flowable.RetryProcessAction;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
+import com.sap.cloud.lm.sl.cf.process.flowable.AbortProcessAction;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.process.flowable.ProcessAction;
+import com.sap.cloud.lm.sl.cf.process.flowable.ProcessActionRegistry;
+import com.sap.cloud.lm.sl.cf.process.flowable.ResumeProcessAction;
+import com.sap.cloud.lm.sl.cf.process.flowable.RetryProcessAction;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
 import com.sap.cloud.lm.sl.cf.web.api.OperationsApiService;
@@ -73,7 +73,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Inject
     private OperationsHelper operationsHelper;
     @Inject
-    private ProgressMessageService progressMessageService;
+    private ProgressMessageDao progressMessageDao;
     @Inject
     private ProcessActionRegistry processActionRegistry;
 
@@ -315,7 +315,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private List<Message> getOperationMessages(Operation operation) {
-        List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(operation.getProcessId());
+        List<ProgressMessage> progressMessages = progressMessageDao.find(operation.getProcessId());
         return progressMessages.stream()
             .filter(message -> message.getType() != ProgressMessageType.TASK_STARTUP)
             .map(this::getMessage)

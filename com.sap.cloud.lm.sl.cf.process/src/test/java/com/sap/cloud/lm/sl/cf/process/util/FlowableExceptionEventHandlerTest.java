@@ -23,15 +23,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.sap.cloud.lm.sl.cf.core.dao.ProgressMessageDao;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 
 public class FlowableExceptionEventHandlerTest {
 
     @Mock
-    private ProgressMessageService progressMessageServiceMock;
+    private ProgressMessageDao progressMessageDaoMock;
 
     @Mock
     private FlowableFacade flowableFacadeMock;
@@ -48,7 +48,7 @@ public class FlowableExceptionEventHandlerTest {
     public void testWithEventWhichIsNotCorrectType() {
         testSimpleWithEventAndExceptionEvent(new FlowableIdmEventImpl(FlowableIdmEventType.CUSTOM), null);
 
-        Mockito.verifyZeroInteractions(progressMessageServiceMock, flowableFacadeMock);
+        Mockito.verifyZeroInteractions(progressMessageDaoMock, flowableFacadeMock);
     }
 
     @Test
@@ -59,14 +59,14 @@ public class FlowableExceptionEventHandlerTest {
 
         testSimpleWithEventAndExceptionEvent(new FlowableEngineEventImpl(FlowableEngineEventType.CUSTOM), mockedExceptionEvent);
 
-        Mockito.verifyZeroInteractions(progressMessageServiceMock, flowableFacadeMock);
+        Mockito.verifyZeroInteractions(progressMessageDaoMock, flowableFacadeMock);
     }
 
     @Test
     public void testWithErrorMessageAlreadyPresented() {
         Mockito.when(flowableFacadeMock.getProcessInstanceId(Mockito.anyString()))
             .thenReturn("foo");
-        Mockito.when(progressMessageServiceMock.findByProcessId("foo"))
+        Mockito.when(progressMessageDaoMock.find("foo"))
             .thenReturn(Arrays.asList(ImmutableProgressMessage.builder()
                 .processId("foo")
                 .taskId("")
@@ -76,11 +76,11 @@ public class FlowableExceptionEventHandlerTest {
         FlowableExceptionEvent mockedExceptionEvent = Mockito.mock(FlowableExceptionEvent.class);
         Mockito.when(mockedExceptionEvent.getCause())
             .thenReturn(new Exception("test-message"));
-        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageServiceMock, flowableFacadeMock,
+        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageDaoMock, flowableFacadeMock,
             mockedExceptionEvent);
         handler.handle(new FlowableEngineEventImpl(FlowableEngineEventType.CUSTOM));
 
-        Mockito.verify(progressMessageServiceMock, Mockito.never())
+        Mockito.verify(progressMessageDaoMock, Mockito.never())
             .add(Mockito.any());
     }
 
@@ -101,7 +101,7 @@ public class FlowableExceptionEventHandlerTest {
         Mockito.when(flowableFacadeMock.getProcessInstanceId(Mockito.anyString()))
             .thenReturn("foo");
 
-        Mockito.when(progressMessageServiceMock.findByProcessId("foo"))
+        Mockito.when(progressMessageDaoMock.find("foo"))
             .thenReturn(Collections.emptyList());
 
         FlowableExceptionEvent mockedExceptionEvent = Mockito.mock(FlowableExceptionEvent.class);
@@ -126,12 +126,12 @@ public class FlowableExceptionEventHandlerTest {
         Mockito.when(mockProcessEngineConfiguration.getRuntimeService())
             .thenReturn(runtimeServiceMock);
 
-        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageServiceMock, flowableFacadeMock,
+        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageDaoMock, flowableFacadeMock,
             mockedExceptionEvent).withProcessEngineConfiguration(mockProcessEngineConfiguration);
 
         handler.handle(new FlowableEngineEventImpl(FlowableEngineEventType.CUSTOM, "bar", "foo", "testing"));
 
-        Mockito.verify(progressMessageServiceMock, Mockito.times(1))
+        Mockito.verify(progressMessageDaoMock, Mockito.times(1))
             .add(ImmutableProgressMessage.builder()
                 .processId("foo")
                 .taskId("barbar")
@@ -172,9 +172,9 @@ public class FlowableExceptionEventHandlerTest {
         private FlowableExceptionEvent flowableExceptionEvent;
         private ProcessEngineConfiguration processEngineConfiguration;
 
-        public FlowableExceptionEventHandlerMock(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
+        public FlowableExceptionEventHandlerMock(ProgressMessageDao progressMessageDao, FlowableFacade flowableFacade,
             FlowableExceptionEvent flowableExceptionEvent) {
-            super(progressMessageService, flowableFacade);
+            super(progressMessageDao, flowableFacade);
             this.flowableExceptionEvent = flowableExceptionEvent;
         }
 

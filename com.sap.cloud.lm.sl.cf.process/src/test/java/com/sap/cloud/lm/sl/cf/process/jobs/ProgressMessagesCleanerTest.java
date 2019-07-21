@@ -10,14 +10,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
+import com.sap.cloud.lm.sl.cf.core.dao.ProgressMessageDao;
 
 public class ProgressMessagesCleanerTest {
 
     private static final Date EXPIRATION_TIME = new Date(5000);
 
     @Mock
-    private ProgressMessageService progressMessageService;
+    private ProgressMessageDao progressMessageDao;
     @InjectMocks
     private ProgressMessagesCleaner cleaner;
 
@@ -29,7 +29,7 @@ public class ProgressMessagesCleanerTest {
     @Test
     public void testExecute() {
         cleaner.execute(EXPIRATION_TIME);
-        verify(progressMessageService).removeOlderThan(EXPIRATION_TIME);
+        verify(progressMessageDao).removeOlderThan(EXPIRATION_TIME);
     }
 
 }

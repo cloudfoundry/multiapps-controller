@@ -10,12 +10,12 @@ import org.flowable.engine.runtime.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.core.dao.ProgressMessageDao;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
@@ -26,15 +26,15 @@ public class ProcessStepHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessStepHelper.class);
 
-    private ProgressMessageService progressMessageService;
+    private ProgressMessageDao progressMessageDao;
     private ProcessLogsPersister processLogsPersister;
     private StepLogger stepLogger;
 
     private ProcessEngineConfiguration processEngineConfiguration;
 
-    public ProcessStepHelper(ProgressMessageService progressMessageService, StepLogger stepLogger,
-        ProcessLogsPersister processLogsPersister, ProcessEngineConfiguration processEngineConfigurationSupplier) {
-        this.progressMessageService = progressMessageService;
+    public ProcessStepHelper(ProgressMessageDao progressMessageDao, StepLogger stepLogger, ProcessLogsPersister processLogsPersister,
+        ProcessEngineConfiguration processEngineConfigurationSupplier) {
+        this.progressMessageDao = progressMessageDao;
         this.stepLogger = stepLogger;
         this.processLogsPersister = processLogsPersister;
         this.processEngineConfiguration = processEngineConfigurationSupplier;
@@ -70,8 +70,7 @@ public class ProcessStepHelper {
     private void logTaskStartup(DelegateExecution context, String taskId) {
         stepLogger.logFlowableTask();
         String message = MessageFormat.format(Messages.EXECUTING_TASK, context.getCurrentActivityId(), context.getProcessInstanceId());
-
-        progressMessageService.add(ImmutableProgressMessage.builder()
+        progressMessageDao.add(ImmutableProgressMessage.builder()
             .processId(StepsUtil.getCorrelationId(context))
             .taskId(taskId)
             .type(ProgressMessageType.TASK_STARTUP)
@@ -81,7 +80,7 @@ public class ProcessStepHelper {
 
     protected void logExceptionAndStoreProgressMessage(DelegateExecution context, Throwable t) {
         logException(context, t);
-        storeExceptionInProgressMessageService(context, t);
+        storeExceptionAsProgressMessage(context, t);
     }
 
     private void logException(DelegateExecution context, Throwable t) {
@@ -95,17 +94,13 @@ public class ProcessStepHelper {
         }
     }
 
-    private void storeExceptionInProgressMessageService(DelegateExecution context, Throwable throwable) {
-        try {
-            progressMessageService.add(ImmutableProgressMessage.builder()
-                .processId(StepsUtil.getCorrelationId(context))
-                .taskId(getCurrentActivityId(context))
-                .type(ProgressMessageType.ERROR)
-                .text(throwable.getMessage())
-                .build());
-        } catch (SLException e) {
-            getProcessLogger().error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
-        }
+    private void storeExceptionAsProgressMessage(DelegateExecution context, Throwable throwable) {
+        progressMessageDao.add(ImmutableProgressMessage.builder()
+            .processId(StepsUtil.getCorrelationId(context))
+            .taskId(getCurrentActivityId(context))
+            .type(ProgressMessageType.ERROR)
+            .text(throwable.getMessage())
+            .build());
     }
 
     // This method is needed because sometimes the DelegateExecution::getCurrentActivityId returns null

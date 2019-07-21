@@ -42,7 +42,7 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     @Inject
     // The @Named annotation is needed for the Jersey-Spring integration in order to identify which
-    // FileService managed instance (FileService or ProgressMessageService) to inject.
+    // FileService managed instance (FileService) to inject.
     @Named("fileService")
     private FileService fileService;
 

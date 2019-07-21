@@ -18,10 +18,10 @@ import org.slf4j.MDC;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.core.dao.ProgressMessageDao;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
@@ -36,7 +36,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     @Inject
     private StepLogger.Factory stepLoggerFactory;
     @Inject
-    private ProgressMessageService progressMessageService;
+    private ProgressMessageDao progressMessageDao;
     @Inject
     @Named("fileService")
     protected FileService fileService;
@@ -98,8 +98,8 @@ public abstract class SyncFlowableStep implements JavaDelegate {
      * Handle exception thrown during {@link #executeStep(ExecutionWrapper) executeStep}
      * </p>
      * <p>
-     * Can be overridden if standard behavior does not fulfill custom step requirements.
-     * For example, exception can be parsed to other exception or not thrown at all.
+     * Can be overridden if standard behavior does not fulfill custom step requirements. For example, exception can be parsed to other
+     * exception or not thrown at all.
      * </p>
      * <p>
      * 
@@ -151,7 +151,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     }
 
     protected void initializeStepLogger(DelegateExecution context) {
-        stepLogger = stepLoggerFactory.create(context, progressMessageService, processLoggerProvider, logger);
+        stepLogger = stepLoggerFactory.create(context, progressMessageDao, processLoggerProvider, logger);
     }
 
     protected Exception getWithProperMessage(Exception e) {
@@ -163,14 +163,14 @@ public abstract class SyncFlowableStep implements JavaDelegate {
 
     protected ProcessStepHelper getStepHelper() {
         if (stepHelper == null) {
-            stepHelper = new ProcessStepHelper(getProgressMessageService(), getStepLogger(), getProcessLogsPersister(),
+            stepHelper = new ProcessStepHelper(getProgressMessageDao(), getStepLogger(), getProcessLogsPersister(),
                 processEngineConfiguration);
         }
         return stepHelper;
     }
 
-    protected ProgressMessageService getProgressMessageService() {
-        return progressMessageService;
+    protected ProgressMessageDao getProgressMessageDao() {
+        return progressMessageDao;
     }
 
     protected ProcessLogsPersister getProcessLogsPersister() {

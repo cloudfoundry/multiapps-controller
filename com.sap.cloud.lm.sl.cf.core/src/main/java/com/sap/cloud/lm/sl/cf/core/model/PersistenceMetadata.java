@@ -14,6 +14,12 @@ public class PersistenceMetadata {
         public static final String FIND_ALL_SUBSCRIPTIONS = "find_all_subscriptions";
         public static final String FIND_ALL_SUBSCRIPTIONS_BY_SPACE_ID = "find_all_subscriptions_guid";
 
+        public static final String FIND_ALL_PROGRESS_MESSAGES = "find_all_progress_messages";
+        public static final String FIND_PROGRESS_MESSAGES_BY_PROCESS_ID = "find_progress_messages_by_process_id";
+        public static final String DELETE_PROGRESS_MESSAGES_BY_PROCESS_ID = "delete_progress_messages_by_process_id";
+        public static final String DELETE_PROGRESS_MESSAGES_OLDER_THAN = "delete_progress_messages_older_than";
+        public static final String DELETE_PROGRESS_MESSAGES_BY_PROCESS_AND_TASK_ID_AND_TYPE = "delete_progress_messages_by_process_id_and_task_id_and_type";
+
     }
 
     public static class QueryParameters {
@@ -28,6 +34,7 @@ public class PersistenceMetadata {
 
         public static final String CONFIGURATION_ENTRY_TABLE = "configuration_registry";
         public static final String CONFIGURATION_SUBSCRIPTION_TABLE = "configuration_subscription";
+        public static final String PROGRESS_MESSAGE_TABLE = "progress_message";
 
     }
 
@@ -36,6 +43,7 @@ public class PersistenceMetadata {
         public static final String DEPLOY_TARGET_SEQUENCE = "deploy_target_sequence";
         public static final String CONFIGURATION_ENTRY_SEQUENCE = "configuration_entry_sequence";
         public static final String CONFIGURATION_SUBSCRIPTION_SEQUENCE = "configuration_subscription_sequence";
+        public static final String PROGRESS_MESSAGE_SEQUENCE = "ID_SEQ";
 
     }
 
@@ -66,6 +74,13 @@ public class PersistenceMetadata {
         public static final String ONGOING_OPERATION_MTA_ID = "mtaId";
 
         public static final String DEPLOY_TARGET_NAME = "name";
+
+        public static final String PROGRESS_MESSAGE_ID = "id";
+        public static final String PROGRESS_MESSAGE_PROCESS_ID = "process_id";
+        public static final String PROGRESS_MESSAGE_TASK_ID = "task_id";
+        public static final String PROGRESS_MESSAGE_TYPE = "type";
+        public static final String PROGRESS_MESSAGE_TEXT = "text";
+        public static final String PROGRESS_MESSAGE_TIMESTAMP = "timestamp";
 
     }
 
