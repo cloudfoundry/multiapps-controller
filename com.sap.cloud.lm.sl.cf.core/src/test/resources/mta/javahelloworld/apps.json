@@ -4,7 +4,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "routes": [],
     "domains": [
       "cfapps.neo.ondemand.com"
     ],
@@ -46,7 +45,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "routes": [],
     "domains": [
       "cfapps.neo.ondemand.com"
     ],
@@ -91,7 +89,6 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "routes": [],
     "domains": [
       "cfapps.neo.ondemand.com"
     ],
