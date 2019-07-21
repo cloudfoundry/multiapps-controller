@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.core.dao;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -14,23 +13,18 @@ import com.sap.cloud.lm.sl.cf.core.helpers.OperationFactory;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 @Component
-public class OperationDao {
+public class OperationDao extends AbstractDao<Operation, OperationDto, String> {
 
     @Inject
     OperationDtoDao dao;
     @Inject
     OperationFactory operationFactory;
 
-    public void add(Operation operation) {
-        OperationDto dto = operationFactory.toPersistenceDto(operation);
-        dao.add(dto);
+    public void update(Operation operation) {
+        update(operation.getProcessId(), operation);
     }
 
-    public void remove(String processId) {
-        dao.remove(processId);
-    }
-
-    public void removeAll(List<String> processIds) {
+    public void removeBy(List<String> processIds) {
         for (String processId : processIds) {
             dao.remove(processId);
         }
@@ -40,37 +34,28 @@ public class OperationDao {
         return dao.removeExpiredInFinalState(expirationTime);
     }
 
-    public Operation find(String processId) {
-        OperationDto dto = dao.find(processId);
-        if (dto == null) {
-            return null;
-        }
-        return operationFactory.fromPersistenceDto(dto);
-    }
-
     public Operation findRequired(String processId) {
         OperationDto dto = dao.findRequired(processId);
-        return operationFactory.fromPersistenceDto(dto);
+        return fromDto(dto);
     }
 
     public List<Operation> find(OperationFilter filter) {
         List<OperationDto> dtos = dao.find(filter);
-        return toOperations(dtos);
+        return fromDtos(dtos);
     }
 
-    public List<Operation> findAll() {
-        List<OperationDto> dtos = dao.findAll();
-        return toOperations(dtos);
+    @Override
+    protected AbstractDtoDao<OperationDto, String> getDtoDao() {
+        return dao;
     }
 
-    public void merge(Operation operation) {
-        OperationDto dto = operationFactory.toPersistenceDto(operation);
-        dao.merge(dto);
+    @Override
+    protected Operation fromDto(OperationDto operationDto) {
+        return operationDto != null ? operationFactory.fromPersistenceDto(operationDto) : null;
     }
 
-    private List<Operation> toOperations(List<OperationDto> dtos) {
-        return dtos.stream()
-            .map(dto -> operationFactory.fromPersistenceDto(dto))
-            .collect(Collectors.toList());
+    @Override
+    protected OperationDto toDto(Operation operation) {
+        return operationFactory.toPersistenceDto(operation);
     }
 }

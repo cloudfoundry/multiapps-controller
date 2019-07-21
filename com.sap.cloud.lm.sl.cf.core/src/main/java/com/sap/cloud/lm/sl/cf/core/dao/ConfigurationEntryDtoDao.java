@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.RollbackException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -34,104 +33,24 @@ import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 
 @Component
-public class ConfigurationEntryDtoDao {
+public class ConfigurationEntryDtoDao extends AbstractDtoDao<ConfigurationEntryDto, Long> {
 
     public static final BiFunction<CloudTarget, CloudTarget, Boolean> TARGET_WILDCARD_FILTER = new TargetWildcardFilter();
 
     @Inject
-    protected EntityManagerFactory entityManagerFactory;
-
-    public ConfigurationEntryDto add(ConfigurationEntryDto entry) {
-        try {
-            return new TransactionalExecutor<ConfigurationEntryDto>(createEntityManager()).execute(manager -> {
-                manager.persist(entry);
-                return entry;
-            });
-        } catch (RollbackException e) {
-            throw new ConflictException(e, Messages.CONFIGURATION_ENTRY_ALREADY_EXISTS, entry.getProviderNid(), entry.getProviderId(),
-                entry.getProviderVersion(), entry.getTargetOrg(), entry.getTargetSpace());
-        }
-    }
-
-    public ConfigurationEntryDto update(long id, ConfigurationEntryDto entryDelta) {
-        try {
-            return new TransactionalExecutor<ConfigurationEntryDto>(createEntityManager()).execute(manager -> {
-                ConfigurationEntryDto existingEntry = findInternal(id, manager);
-                if (existingEntry == null) {
-                    throw new NotFoundException(Messages.CONFIGURATION_ENTRY_NOT_FOUND, id);
-                }
-                ConfigurationEntryDto entry = merge(existingEntry, entryDelta);
-                manager.merge(entry);
-                return entry;
-            });
-        } catch (RollbackException e) {
-            ConfigurationEntryDto entry = merge(find(id), entryDelta);
-            throw new ConflictException(e, Messages.CONFIGURATION_ENTRY_ALREADY_EXISTS, entry.getProviderNid(), entry.getProviderId(),
-                entry.getProviderVersion(), entry.getTargetOrg(), entry.getTargetSpace());
-        }
-    }
-
-    public void remove(long id) {
-        new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
-            ConfigurationEntryDto entry = findInternal(id, manager);
-            if (entry == null) {
-                throw new NotFoundException(Messages.CONFIGURATION_ENTRY_NOT_FOUND, id);
-            }
-            manager.remove(entry);
-            return null;
-        });
-    }
-
-    public List<ConfigurationEntryDto> removeAll(List<ConfigurationEntryDto> configurationEntries) {
-        return new TransactionalExecutor<List<ConfigurationEntryDto>>(createEntityManager()).execute(manager -> {
-            for (ConfigurationEntryDto configurationEntryDto : configurationEntries) {
-                manager.remove(configurationEntryDto);
-            }
-            return configurationEntries;
-        });
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<ConfigurationEntryDto> findAll() {
-        return new Executor<List<ConfigurationEntryDto>>(createEntityManager())
-            .execute(manager -> manager.createNamedQuery(NamedQueries.FIND_ALL_ENTRIES)
-                .getResultList());
+    public ConfigurationEntryDtoDao(EntityManagerFactory entityManagerFactory) {
+        super(entityManagerFactory);
     }
 
     public List<ConfigurationEntryDto> find(String providerNid, String providerId, CloudTarget targetSpace,
         Map<String, Object> requiredProperties, String mtaId) {
-        return new Executor<List<ConfigurationEntryDto>>(createEntityManager())
-            .execute(manager -> findInternal(providerNid, providerId, targetSpace, requiredProperties, mtaId, manager));
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<ConfigurationEntryDto> find(String spaceGuid) {
-        return new Executor<List<ConfigurationEntryDto>>(createEntityManager())
-            .execute(manager -> manager.createNamedQuery(NamedQueries.FIND_ALL_ENTRIES_BY_SPACE_ID)
-                .setParameter(ConfigurationEntryDto.FieldNames.SPACE_ID, spaceGuid)
-                .getResultList());
+        return execute(manager -> findInternal(providerNid, providerId, targetSpace, requiredProperties, mtaId, manager));
     }
 
     private List<ConfigurationEntryDto> findInternal(String providerNid, String providerId, CloudTarget targetSpace,
         Map<String, Object> requiredProperties, String mtaId, EntityManager manager) {
-
         TypedQuery<ConfigurationEntryDto> query = createQuery(providerNid, providerId, targetSpace, mtaId, manager);
-
         return filter(query.getResultList(), requiredProperties, targetSpace);
-    }
-
-    public ConfigurationEntryDto find(long id) {
-        return new Executor<ConfigurationEntryDto>(createEntityManager()).execute(manager -> {
-            ConfigurationEntryDto entry = findInternal(id, manager);
-            if (entry == null) {
-                throw new NotFoundException(Messages.CONFIGURATION_ENTRY_NOT_FOUND, id);
-            }
-            return entry;
-        });
-    }
-
-    public boolean exists(long id) {
-        return new Executor<Boolean>(createEntityManager()).execute(manager -> findInternal(id, manager) != null);
     }
 
     private TypedQuery<ConfigurationEntryDto> createQuery(String providerNid, String providerId, CloudTarget targetSpace, String mtaId,
@@ -163,14 +82,6 @@ public class ConfigurationEntryDtoDao {
             .where(predicates.toArray(new Predicate[0])));
     }
 
-    private ConfigurationEntryDto findInternal(long id, EntityManager manager) {
-        return manager.find(ConfigurationEntryDto.class, id);
-    }
-
-    private EntityManager createEntityManager() {
-        return entityManagerFactory.createEntityManager();
-    }
-
     private List<ConfigurationEntryDto> filter(List<ConfigurationEntryDto> entries, Map<String, Object> requiredProperties,
         CloudTarget requestedSpace) {
 
@@ -182,8 +93,20 @@ public class ConfigurationEntryDtoDao {
         return stream.collect(Collectors.toList());
     }
 
-    private ConfigurationEntryDto merge(ConfigurationEntryDto existingEntry, ConfigurationEntryDto entry) {
-        long id = existingEntry.getId();
+    @SuppressWarnings("unchecked")
+    public List<ConfigurationEntryDto> find(String spaceGuid) {
+        return execute(manager -> manager.createNamedQuery(NamedQueries.FIND_ALL_ENTRIES_BY_SPACE_ID)
+            .setParameter(ConfigurationEntryDto.FieldNames.SPACE_ID, spaceGuid)
+            .getResultList());
+    }
+
+    public boolean exists(long id) {
+        return execute(manager -> findInternal(manager, id) != null);
+    }
+
+    @Override
+    protected ConfigurationEntryDto merge(ConfigurationEntryDto existingEntry, ConfigurationEntryDto entry) {
+        long id = existingEntry.getPrimaryKey();
         String providerNid = ObjectUtils.firstNonNull(removeDefault(entry.getProviderNid()), existingEntry.getProviderNid());
         String providerId = ObjectUtils.firstNonNull(entry.getProviderId(), existingEntry.getProviderId());
         String targetOrg = ObjectUtils.firstNonNull(entry.getTargetOrg(), existingEntry.getTargetOrg());
@@ -198,6 +121,28 @@ public class ConfigurationEntryDtoDao {
 
     private String removeDefault(String value) {
         return value.equals(PersistenceMetadata.NOT_AVAILABLE) ? null : value;
+    }
+
+    @Override
+    protected void onEntityNotFound(Long id) {
+        throw new NotFoundException(Messages.CONFIGURATION_ENTRY_NOT_FOUND, id);
+    }
+
+    @Override
+    protected void onEntityConflict(ConfigurationEntryDto entry, Throwable t) {
+        throw (ConflictException) new ConflictException(Messages.CONFIGURATION_ENTRY_ALREADY_EXISTS, entry.getProviderNid(),
+            entry.getProviderId(), entry.getProviderVersion(), entry.getTargetOrg(), entry.getTargetSpace()).initCause(t);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected Class<ConfigurationEntryDto> getDtoClass() {
+        return ConfigurationEntryDto.class;
+    }
+
+    @Override
+    protected String getFindAllNamedQuery() {
+        return NamedQueries.FIND_ALL_ENTRIES;
     }
 
 }

@@ -6,7 +6,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.RollbackException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -24,43 +23,22 @@ import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 
 @Component
-public class ConfigurationSubscriptionDtoDao {
-
-    private EntityManagerFactory entityManagerFactory;
+public class ConfigurationSubscriptionDtoDao extends AbstractDtoDao<ConfigurationSubscriptionDto, Long> {
 
     @Inject
     public ConfigurationSubscriptionDtoDao(EntityManagerFactory entityManagerFactory) {
-        this.entityManagerFactory = entityManagerFactory;
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<ConfigurationSubscriptionDto> findAll() {
-        return new Executor<List<ConfigurationSubscriptionDto>>(createEntityManager())
-            .execute(manager -> manager.createNamedQuery(NamedQueries.FIND_ALL_SUBSCRIPTIONS)
-                .getResultList());
+        super(entityManagerFactory);
     }
 
     public List<ConfigurationSubscriptionDto> findAll(String mtaId, String appName, String spaceId, String resourceName) {
-        return new Executor<List<ConfigurationSubscriptionDto>>(createEntityManager())
-            .execute(manager -> findAllInternal(mtaId, appName, spaceId, resourceName, manager));
+        return execute(manager -> findAllInternal(mtaId, appName, spaceId, resourceName, manager));
     }
 
     @SuppressWarnings("unchecked")
     public List<ConfigurationSubscriptionDto> findAll(String guid) {
-        return new Executor<List<ConfigurationSubscriptionDto>>(createEntityManager())
-            .execute(manager -> manager.createNamedQuery(NamedQueries.FIND_ALL_SUBSCRIPTIONS_BY_SPACE_ID)
-                .setParameter(ConfigurationSubscriptionDto.FieldNames.SPACE_ID, guid)
-                .getResultList());
-    }
-
-    public ConfigurationSubscriptionDto find(long id) {
-        return new Executor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
-            ConfigurationSubscriptionDto subscription = findInternal(id, manager);
-            if (subscription == null) {
-                throw new NotFoundException(Messages.CONFIGURATION_SUBSCRIPTION_NOT_FOUND, id);
-            }
-            return subscription;
-        });
+        return execute(manager -> manager.createNamedQuery(NamedQueries.FIND_ALL_SUBSCRIPTIONS_BY_SPACE_ID)
+            .setParameter(ConfigurationSubscriptionDto.FieldNames.SPACE_ID, guid)
+            .getResultList());
     }
 
     private List<ConfigurationSubscriptionDto> findAllInternal(String mtaId, String appName, String spaceId, String resourceName,
@@ -73,56 +51,6 @@ public class ConfigurationSubscriptionDtoDao {
         setQueryParameter(query, ConfigurationSubscriptionDto.FieldNames.MTA_ID, mtaId);
 
         return query.getResultList();
-    }
-
-    public ConfigurationSubscriptionDto add(ConfigurationSubscriptionDto subscription) {
-        try {
-            return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
-                manager.persist(subscription);
-                return subscription;
-            });
-        } catch (RollbackException e) {
-            throw new ConflictException(e, Messages.CONFIGURATION_SUBSCRIPTION_ALREADY_EXISTS, subscription.getMtaId(),
-                subscription.getAppName(), subscription.getResourceName(), subscription.getSpaceId());
-        }
-    }
-
-    public ConfigurationSubscriptionDto update(long id, ConfigurationSubscriptionDto delta) {
-        try {
-            return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
-                ConfigurationSubscriptionDto existingSubscription = findInternal(id, manager);
-                if (existingSubscription == null) {
-                    throw new NotFoundException(Messages.CONFIGURATION_SUBSCRIPTION_NOT_FOUND, id);
-                }
-                ConfigurationSubscriptionDto result = merge(existingSubscription, delta);
-                manager.merge(result);
-                return result;
-            });
-        } catch (RollbackException e) {
-            ConfigurationSubscriptionDto subscription = merge(find(id), delta);
-            throw new ConflictException(e, Messages.CONFIGURATION_SUBSCRIPTION_ALREADY_EXISTS, subscription.getMtaId(),
-                subscription.getAppName(), subscription.getResourceName(), subscription.getSpaceId());
-        }
-    }
-
-    public ConfigurationSubscriptionDto remove(long id) {
-        return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
-            ConfigurationSubscriptionDto subscription = findInternal(id, manager);
-            if (subscription == null) {
-                throw new NotFoundException(Messages.CONFIGURATION_SUBSCRIPTION_NOT_FOUND, id);
-            }
-            manager.remove(subscription);
-            return subscription;
-        });
-    }
-
-    public List<ConfigurationSubscriptionDto> removeAll(List<ConfigurationSubscriptionDto> configurationSubscriptionEntities) {
-        return new TransactionalExecutor<List<ConfigurationSubscriptionDto>>(createEntityManager()).execute(manager -> {
-            for (ConfigurationSubscriptionDto configurationSubscriptionDto : configurationSubscriptionEntities) {
-                manager.remove(configurationSubscriptionDto);
-            }
-            return configurationSubscriptionEntities;
-        });
     }
 
     private void setQueryParameter(TypedQuery<ConfigurationSubscriptionDto> query, String parameterName, String parameterValue) {
@@ -155,8 +83,9 @@ public class ConfigurationSubscriptionDtoDao {
             .where(predicates.toArray(new Predicate[0])));
     }
 
-    private ConfigurationSubscriptionDto merge(ConfigurationSubscriptionDto existingSubscription, ConfigurationSubscriptionDto delta) {
-        long id = existingSubscription.getId();
+    @Override
+    protected ConfigurationSubscriptionDto merge(ConfigurationSubscriptionDto existingSubscription, ConfigurationSubscriptionDto delta) {
+        long id = existingSubscription.getPrimaryKey();
         String mtaId = ObjectUtils.firstNonNull(delta.getMtaId(), existingSubscription.getMtaId());
         String appName = ObjectUtils.firstNonNull(delta.getAppName(), existingSubscription.getAppName());
         String spaceId = ObjectUtils.firstNonNull(delta.getSpaceId(), existingSubscription.getSpaceId());
@@ -167,11 +96,25 @@ public class ConfigurationSubscriptionDtoDao {
         return new ConfigurationSubscriptionDto(id, mtaId, spaceId, appName, filter, moduleContent, resourceName, resourceProperties);
     }
 
-    private ConfigurationSubscriptionDto findInternal(long id, EntityManager manager) {
-        return manager.find(ConfigurationSubscriptionDto.class, id);
+    @Override
+    protected void onEntityNotFound(Long id) {
+        throw new NotFoundException(Messages.CONFIGURATION_SUBSCRIPTION_NOT_FOUND, id);
     }
 
-    private EntityManager createEntityManager() {
-        return entityManagerFactory.createEntityManager();
+    @Override
+    protected void onEntityConflict(ConfigurationSubscriptionDto subscription, Throwable t) {
+        throw (ConflictException) new ConflictException(Messages.CONFIGURATION_SUBSCRIPTION_ALREADY_EXISTS, subscription.getMtaId(),
+            subscription.getAppName(), subscription.getResourceName(), subscription.getSpaceId()).initCause(t);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected Class<ConfigurationSubscriptionDto> getDtoClass() {
+        return ConfigurationSubscriptionDto.class;
+    }
+
+    @Override
+    protected String getFindAllNamedQuery() {
+        return NamedQueries.FIND_ALL_SUBSCRIPTIONS;
     }
 }

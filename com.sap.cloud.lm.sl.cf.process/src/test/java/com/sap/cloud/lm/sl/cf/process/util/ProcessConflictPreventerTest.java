@@ -44,7 +44,7 @@ public class ProcessConflictPreventerTest {
                 .build();
             when(daoMock.find(expectedFilter)).thenReturn(Arrays.asList(operation));
             processConflictPreventerMock.acquireLock(testMtaId, testSpaceId, testProcessId);
-            verify(daoMock).merge(daoMock.findRequired(testProcessId));
+            verify(daoMock).update(daoMock.findRequired(testProcessId));
         } catch (SLException e) {
             assertEquals("Conflicting process \"test-process-id\" found for MTA \"test-mta-id\"", e.getMessage());
         }

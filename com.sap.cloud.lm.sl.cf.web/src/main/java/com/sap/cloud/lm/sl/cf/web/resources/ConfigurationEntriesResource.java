@@ -6,7 +6,6 @@ import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.getGloba
 import static java.text.MessageFormat.format;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -188,11 +187,11 @@ public class ConfigurationEntriesResource {
         if (configurationEntry.getTargetSpace() == null) {
             throw new ParsingException(Messages.ORG_SPACE_NOT_SPECIFIED_2);
         }
-        ConfigurationEntry result = entryDao.add(configurationEntry);
+        entryDao.add(configurationEntry);
         AuditLoggingProvider.getFacade()
-            .logConfigCreate(result);
+            .logConfigCreate(configurationEntry);
         return Response.status(Response.Status.CREATED)
-            .entity(new ConfigurationEntryDto(result))
+            .entity(new ConfigurationEntryDto(configurationEntry))
             .build();
         // TODO: check if this would work fine:
         // return Response.status(Response.Status.CREATED).entity(dto).build();

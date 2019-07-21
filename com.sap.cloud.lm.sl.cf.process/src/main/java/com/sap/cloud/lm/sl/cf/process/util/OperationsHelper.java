@@ -72,7 +72,7 @@ public class OperationsHelper {
         if (ongoingOperation.hasAcquiredLock() && (state.equals(State.ABORTED) || state.equals(State.FINISHED))) {
             ongoingOperation.acquiredLock(false);
             ongoingOperation.setState(state);
-            this.dao.merge(ongoingOperation);
+            this.dao.update(ongoingOperation);
         }
         return state;
     }

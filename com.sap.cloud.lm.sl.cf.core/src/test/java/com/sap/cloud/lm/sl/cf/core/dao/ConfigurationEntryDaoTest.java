@@ -328,7 +328,8 @@ public class ConfigurationEntryDaoTest {
             public void test() {
                 TESTER.test(() -> {
 
-                    return removeId(dao.add(input.configurationEntry));
+                    dao.add(input.configurationEntry);
+                    return removeId(input.configurationEntry);
 
                 }, expectation);
             }
@@ -347,8 +348,9 @@ public class ConfigurationEntryDaoTest {
             public void test() {
                 TESTER.test(() -> {
 
-                    return removeId(dao.find(findConfigurationEntries(input, dao).get(0)
-                        .getId()));
+                    long id = findConfigurationEntries(input, dao).get(0)
+                        .getId();
+                    return removeId(dao.find(id));
 
                 }, expectation);
             }
@@ -457,8 +459,7 @@ public class ConfigurationEntryDaoTest {
     }
 
     private static ConfigurationEntryDao createDao() {
-        ConfigurationEntryDtoDao dtoDao = new ConfigurationEntryDtoDao();
-        dtoDao.entityManagerFactory = EMF;
+        ConfigurationEntryDtoDao dtoDao = new ConfigurationEntryDtoDao(EMF);
         ConfigurationEntryDao dao = new ConfigurationEntryDao();
         dao.dao = dtoDao;
         return dao;

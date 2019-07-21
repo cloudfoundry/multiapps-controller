@@ -106,4 +106,5 @@ public class ConfigurationEntry implements AuditableConfiguration {
         configurationIdentifiers.add(new ConfigurationIdentifier("configuration content", content));
         return configurationIdentifiers;
     }
+
 }

@@ -222,7 +222,11 @@ public class ConfigurationSubscriptionDaoTest {
 
             @Override
             protected void test() throws Exception {
-                TESTER.test(() -> removeId(dao.remove(findOne(input, dao).getId())), expectation);
+                TESTER.test(() -> {
+                    ConfigurationSubscription configurationSubscription = findOne(input, dao);
+                    dao.remove(configurationSubscription.getId());
+                    return removeId(configurationSubscription);
+                }, expectation);
             }
 
         }
@@ -276,7 +280,10 @@ public class ConfigurationSubscriptionDaoTest {
 
             @Override
             protected void test() {
-                TESTER.test(() -> removeId(getDao().add(input.subscription)), expectation);
+                TESTER.test(() -> {
+                    getDao().add(input.subscription);
+                    return removeId(input.subscription);
+                }, expectation);
             }
 
         }
@@ -303,7 +310,7 @@ public class ConfigurationSubscriptionDaoTest {
         @Test
         public void testFind() {
             try {
-                getDao().find(1);
+                getDao().find(1l);
                 fail();
             } catch (NotFoundException e) {
                 assertEquals(MessageFormat.format(Messages.CONFIGURATION_SUBSCRIPTION_NOT_FOUND, 1), e.getMessage());
@@ -315,8 +322,8 @@ public class ConfigurationSubscriptionDaoTest {
             try {
                 ResourceDto resourceDto = new ResourceDto("", Collections.emptyMap());
                 ModuleDto moduleDto = new ModuleDto("", Collections.emptyMap(), Collections.emptyList(), Collections.emptyList());
-                getDao().update(1, new ConfigurationSubscription(0, "", "", "", new ConfigurationFilter(null, null, null, null, null),
-                    moduleDto, resourceDto));
+                getDao().update(1l, new ConfigurationSubscription(0, "", "", "",
+                    new ConfigurationFilter(null, null, null, null, null), moduleDto, resourceDto));
                 fail();
             } catch (SLException e) {
                 assertEquals(MessageFormat.format(Messages.CONFIGURATION_SUBSCRIPTION_NOT_FOUND, 1), e.getMessage());
@@ -326,7 +333,7 @@ public class ConfigurationSubscriptionDaoTest {
         @Test
         public void testRemove() {
             try {
-                getDao().remove(1);
+                getDao().remove(1l);
                 fail();
             } catch (NotFoundException e) {
                 assertEquals(MessageFormat.format(Messages.CONFIGURATION_SUBSCRIPTION_NOT_FOUND, 1), e.getMessage());

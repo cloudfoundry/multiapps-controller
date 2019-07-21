@@ -21,58 +21,24 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OrderDirection;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 
 @Component
-public class OperationDtoDao {
-
-    private EntityManagerFactory entityManagerFactory;
+public class OperationDtoDao extends AbstractDtoDao<OperationDto, String> {
 
     @Inject
     public OperationDtoDao(EntityManagerFactory entityManagerFactory) {
-        this.entityManagerFactory = entityManagerFactory;
-    }
-
-    public void add(OperationDto operation) {
-        new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
-            if (existsInternal(manager, operation.getProcessId())) {
-                throw new ConflictException(Messages.OPERATION_ALREADY_EXISTS, operation.getProcessId());
-            }
-            manager.persist(operation);
-            return null;
-        });
-    }
-
-    private EntityManager createEntityManager() {
-        return entityManagerFactory.createEntityManager();
-    }
-
-    private boolean existsInternal(EntityManager manager, String processId) {
-        return manager.find(OperationDto.class, processId) != null;
-    }
-
-    public void remove(String processId) {
-        new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
-            OperationDto dto = manager.find(OperationDto.class, processId);
-            if (dto == null) {
-                throw new NotFoundException(Messages.OPERATION_NOT_FOUND, processId);
-            }
-            manager.remove(dto);
-            return null;
-        });
+        super(entityManagerFactory);
     }
 
     public int removeExpiredInFinalState(Date expirationTime) {
-        return new TransactionalExecutor<Integer>(createEntityManager())
-            .execute(manager -> manager.createNamedQuery("remove_expired_in_final_state")
+        return executeInTransaction(
+            manager -> manager.createNamedQuery(PersistenceMetadata.NamedQueries.DELETE_EXPIRED_OPERATIONS_IN_FINAL_STATE)
                 .setParameter("expirationTime", expirationTime, TemporalType.TIMESTAMP)
                 .executeUpdate());
-    }
-
-    public OperationDto find(String processId) {
-        return new Executor<OperationDto>(createEntityManager()).execute(manager -> manager.find(OperationDto.class, processId));
     }
 
     public OperationDto findRequired(String processId) {
@@ -84,24 +50,7 @@ public class OperationDtoDao {
     }
 
     public List<OperationDto> find(OperationFilter filter) {
-        return new Executor<List<OperationDto>>(createEntityManager()).execute(manager -> createQuery(manager, filter).getResultList());
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<OperationDto> findAll() {
-        return new Executor<List<OperationDto>>(createEntityManager()).execute(manager -> manager.createNamedQuery("find_all")
-            .getResultList());
-    }
-
-    public void merge(OperationDto operation) {
-        new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
-            OperationDto dto = manager.find(OperationDto.class, operation.getProcessId());
-            if (dto == null) {
-                throw new NotFoundException(Messages.OPERATION_NOT_FOUND, operation.getProcessId());
-            }
-            manager.merge(operation);
-            return null;
-        });
+        return execute(manager -> createQuery(manager, filter).getResultList());
     }
 
     private TypedQuery<OperationDto> createQuery(EntityManager manager, OperationFilter operationFilter) {
@@ -186,6 +135,33 @@ public class OperationDtoDao {
         return states.stream()
             .map(State::toString)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    protected OperationDto merge(OperationDto existingDto, OperationDto newDto) {
+        return newDto;
+    }
+
+    @Override
+    protected void onEntityNotFound(String processId) {
+        throw new NotFoundException(Messages.OPERATION_NOT_FOUND, processId);
+    }
+
+    @Override
+    protected void onEntityConflict(OperationDto operation, Throwable t) {
+        String processId = operation.getPrimaryKey();
+        throw (ConflictException) new ConflictException(Messages.OPERATION_ALREADY_EXISTS, processId).initCause(t);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected Class<OperationDto> getDtoClass() {
+        return OperationDto.class;
+    }
+
+    @Override
+    protected String getFindAllNamedQuery() {
+        return PersistenceMetadata.NamedQueries.FIND_ALL_OPERATIONS;
     }
 
 }

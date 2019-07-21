@@ -6,6 +6,9 @@ public class PersistenceMetadata {
 
     public static class NamedQueries {
 
+        public static final String DELETE_EXPIRED_OPERATIONS_IN_FINAL_STATE = "remove_expired_operations_in_final_state";
+        public static final String FIND_ALL_OPERATIONS = "find_all_operations";
+
         public static final String FIND_ALL_ENTRIES = "find_all_entries";
         public static final String FIND_ALL_ENTRIES_BY_SPACE_ID = "find_all_entries_guid";
         public static final String FIND_ALL_SUBSCRIPTIONS = "find_all_subscriptions";

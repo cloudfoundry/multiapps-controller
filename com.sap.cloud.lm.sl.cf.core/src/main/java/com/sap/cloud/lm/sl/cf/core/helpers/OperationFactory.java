@@ -15,7 +15,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 public class OperationFactory {
 
     public Operation fromPersistenceDto(OperationDto dto) {
-        return new Operation().processId(dto.getProcessId())
+        return new Operation().processId(dto.getPrimaryKey())
             .processType(toProcessType(dto.getProcessType()))
             .startedAt(toZonedDateTime(dto.getStartedAt()))
             .endedAt(toZonedDateTime(dto.getEndedAt()))

@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,19 +36,19 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
 // @formatter:off
             // (0)
             {
-                new StepInput(Arrays.asList(1, 2, 3),  Arrays.asList(1, 2, 3)), null,
+                new StepInput(Arrays.asList(1l, 2l, 3l),  Arrays.asList(1l, 2l, 3l)), null,
             },
             // (1)
             {
-                new StepInput(Arrays.asList(1, 2, 3),  Arrays.asList(1, 2, 3, 4, 5, 6)), null,
+                new StepInput(Arrays.asList(1l, 2l, 3l),  Arrays.asList(1l, 2l, 3l, 4l, 5l, 6l)), null,
             },
             // (2)
             {
-               new StepInput(Collections.emptyList(),  Arrays.asList(1, 2, 3)), null,
+               new StepInput(Collections.emptyList(),  Arrays.asList(1l, 2l, 3l)), null,
             },
             // (3) A NotFoundException should not be thrown if the subscriptions were already deleted:
             {
-                new StepInput(Arrays.asList(1, 2, 3), Collections.emptyList()), null,
+                new StepInput(Arrays.asList(1l, 2l, 3l), Collections.emptyList()), null,
             },
 // @formatter:on
         });
@@ -66,7 +66,7 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         loadParameters();
         prepareContext();
         prepareDao();
@@ -76,13 +76,13 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
         StepsUtil.setSubscriptionsToDelete(context, asSubscriptions(input.subscriptionsToDelete));
     }
 
-    private List<ConfigurationSubscription> asSubscriptions(List<Integer> subscriptionsToDelete) {
+    private List<ConfigurationSubscription> asSubscriptions(List<Long> subscriptionsToDelete) {
         return subscriptionsToDelete.stream()
-            .map((subscription) -> asSubscription(subscription))
+            .map(this::asSubscription)
             .collect(Collectors.toList());
     }
 
-    private ConfigurationSubscription asSubscription(Integer subscriptionnId) {
+    private ConfigurationSubscription asSubscription(Long subscriptionnId) {
         return new ConfigurationSubscription(subscriptionnId, null, null, null, null, null, null);
     }
 
@@ -92,21 +92,22 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
         }
     }
 
-    private void prepareDao() throws Exception {
-        List<Integer> nonExistingSubscriptions = new ArrayList<>(input.subscriptionsToDelete);
+    private void prepareDao() {
+        List<Long> nonExistingSubscriptions = new ArrayList<>(input.subscriptionsToDelete);
         nonExistingSubscriptions.removeAll(input.existingSubscriptions);
-        for (Integer subscription : nonExistingSubscriptions) {
-            when(dao.remove(subscription)).thenThrow(new NotFoundException(Messages.CONFIGURATION_SUBSCRIPTION_NOT_FOUND, subscription));
+        for (Long subscription : nonExistingSubscriptions) {
+            doThrow(new NotFoundException(Messages.CONFIGURATION_SUBSCRIPTION_NOT_FOUND, subscription)).when(dao)
+                .remove(subscription);
         }
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();
 
-        for (Integer subscription : input.existingSubscriptions) {
+        for (Long subscription : input.existingSubscriptions) {
             if (input.subscriptionsToDelete.contains(subscription)) {
                 Mockito.verify(dao, times(1))
                     .remove(subscription);
@@ -119,10 +120,10 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
 
     private static class StepInput {
 
-        public List<Integer> subscriptionsToDelete;
-        public List<Integer> existingSubscriptions;
+        public List<Long> subscriptionsToDelete;
+        public List<Long> existingSubscriptions;
 
-        public StepInput(List<Integer> subscriptionsToDelete, List<Integer> existingSubscriptions) {
+        public StepInput(List<Long> subscriptionsToDelete, List<Long> existingSubscriptions) {
             this.subscriptionsToDelete = subscriptionsToDelete;
             this.existingSubscriptions = existingSubscriptions;
         }

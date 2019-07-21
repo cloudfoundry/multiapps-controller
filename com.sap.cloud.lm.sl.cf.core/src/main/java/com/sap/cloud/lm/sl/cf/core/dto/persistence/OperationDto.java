@@ -6,19 +6,19 @@ import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata;
+
 @Entity
 @Table(name = "operation")
 @Cacheable(false)
-@NamedQueries({ @NamedQuery(name = "find_all", query = "SELECT o FROM OperationDto o ORDER BY o.startedAt"),
-    // TODO: Replace this named query by building it dynamically with JPA's criteria API (requires JPA 2.1).
-    @NamedQuery(name = "remove_expired_in_final_state", query = "DELETE FROM OperationDto o WHERE o.finalState IS NOT NULL AND o.startedAt < :expirationTime") })
-public class OperationDto {
+@NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_OPERATIONS, query = "SELECT o FROM OperationDto o ORDER BY o.startedAt")
+@NamedQuery(name = PersistenceMetadata.NamedQueries.DELETE_EXPIRED_OPERATIONS_IN_FINAL_STATE, query = "DELETE FROM OperationDto o WHERE o.finalState IS NOT NULL AND o.startedAt < :expirationTime")
+public class OperationDto implements DtoWithPrimaryKey<String> {
 
     public static class AttributeNames {
 
@@ -81,7 +81,8 @@ public class OperationDto {
         this.finalState = finalState;
     }
 
-    public String getProcessId() {
+    @Override
+    public String getPrimaryKey() {
         return processId;
     }
 

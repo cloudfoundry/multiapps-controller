@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 
 @Component
-public class ConfigurationEntryDao {
+public class ConfigurationEntryDao extends AbstractDao<ConfigurationEntry, ConfigurationEntryDto, Long> {
 
     @Inject
     protected ConfigurationEntryDtoDao dao;
@@ -24,14 +24,13 @@ public class ConfigurationEntryDao {
     private static final BiFunction<ConfigurationEntry, String, Boolean> VERSION_FILTER = new VersionFilter();
     private static final BiFunction<ConfigurationEntry, List<CloudTarget>, Boolean> VISIBILITY_FILTER = new VisibilityFilter();
 
-    public List<ConfigurationEntry> find(String nid, String id, String version, CloudTarget target, Map<String, Object> requiredProperties,
-        String mtaId, List<CloudTarget> cloudTargets) {
-        return filter(toConfigurationEntries(dao.find(nid, id, target, requiredProperties, mtaId)), version, cloudTargets);
+    public boolean exists(long id) {
+        return dao.exists(id);
     }
 
     public List<ConfigurationEntry> find(String nid, String id, String version, CloudTarget target, Map<String, Object> requiredProperties,
-        String mtaId) {
-        return find(nid, id, version, target, requiredProperties, mtaId, null);
+        String mtaId, List<CloudTarget> cloudTargets) {
+        return filter(fromDtos(dao.find(nid, id, target, requiredProperties, mtaId)), version, cloudTargets);
     }
 
     private List<ConfigurationEntry> filter(List<ConfigurationEntry> entries, String version, List<CloudTarget> cloudTargets) {
@@ -41,48 +40,33 @@ public class ConfigurationEntryDao {
             .collect(Collectors.toList());
     }
 
-    private List<ConfigurationEntry> toConfigurationEntries(List<ConfigurationEntryDto> dtos) {
-        return dtos.stream()
-            .map(ConfigurationEntryDto::toConfigurationEntry)
-            .collect(Collectors.toList());
-    }
-
-    public ConfigurationEntry update(long id, ConfigurationEntry entry) {
-        return dao.update(id, new ConfigurationEntryDto(entry))
-            .toConfigurationEntry();
-    }
-
-    public ConfigurationEntry find(long id) {
-        return dao.find(id)
-            .toConfigurationEntry();
+    public List<ConfigurationEntry> find(String nid, String id, String version, CloudTarget target, Map<String, Object> requiredProperties,
+        String mtaId) {
+        return find(nid, id, version, target, requiredProperties, mtaId, null);
     }
 
     public List<ConfigurationEntry> find(String spaceGuid) {
-        return toConfigurationEntries(dao.find(spaceGuid));
+        return fromDtos(dao.find(spaceGuid));
     }
 
-    public void remove(long id) {
-        dao.remove(id);
+    @Override
+    public ConfigurationEntry find(Long id) {
+        return fromDto(dao.findRequired(id));
     }
 
-    public List<ConfigurationEntry> removeAll(List<ConfigurationEntry> configurationEntries) {
-        for (ConfigurationEntry configurationEntry : configurationEntries) {
-            dao.remove(configurationEntry.getId());
-        }
-        return configurationEntries;
+    @Override
+    protected AbstractDtoDao<ConfigurationEntryDto, Long> getDtoDao() {
+        return dao;
     }
 
-    public ConfigurationEntry add(ConfigurationEntry entry) {
-        return dao.add(new ConfigurationEntryDto(entry))
-            .toConfigurationEntry();
+    @Override
+    protected ConfigurationEntry fromDto(ConfigurationEntryDto configurationEntryDto) {
+        return configurationEntryDto != null ? configurationEntryDto.toConfigurationEntry() : null;
     }
 
-    public boolean exists(long id) {
-        return dao.exists(id);
-    }
-
-    public List<ConfigurationEntry> findAll() {
-        return toConfigurationEntries(dao.findAll());
+    @Override
+    protected ConfigurationEntryDto toDto(ConfigurationEntry configurationEntry) {
+        return new ConfigurationEntryDto(configurationEntry);
     }
 
 }

@@ -70,7 +70,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
         operation.setState(State.FINISHED);
         operation.setEndedAt(ZonedDateTime.now());
         operation.setAcquiredLock(false);
-        operationDao.merge(operation);
+        operationDao.update(operation);
         LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
     }
 

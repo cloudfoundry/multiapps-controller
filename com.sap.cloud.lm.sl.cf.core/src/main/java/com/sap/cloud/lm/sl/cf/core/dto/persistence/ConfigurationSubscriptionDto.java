@@ -13,7 +13,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -31,16 +30,15 @@ import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableNames;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
+@Entity
 @Table(name = TableNames.CONFIGURATION_SUBSCRIPTION_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = {
     TableColumnNames.CONFIGURATION_SUBSCRIPTION_APP_NAME, TableColumnNames.CONFIGURATION_SUBSCRIPTION_MTA_ID,
     TableColumnNames.CONFIGURATION_SUBSCRIPTION_SPACE_ID, TableColumnNames.CONFIGURATION_SUBSCRIPTION_RESOURCE_NAME }) })
-@Entity
 @Access(AccessType.FIELD)
 @SequenceGenerator(name = SequenceNames.CONFIGURATION_SUBSCRIPTION_SEQUENCE, sequenceName = SequenceNames.CONFIGURATION_SUBSCRIPTION_SEQUENCE, initialValue = 1, allocationSize = 1)
-@NamedQueries({
-    @NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_SUBSCRIPTIONS, query = "SELECT cs FROM ConfigurationSubscriptionDto cs"),
-    @NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_SUBSCRIPTIONS_BY_SPACE_ID, query = "SELECT cs FROM ConfigurationSubscriptionDto cs WHERE cs.spaceId = :spaceId") })
-public class ConfigurationSubscriptionDto {
+@NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_SUBSCRIPTIONS, query = "SELECT cs FROM ConfigurationSubscriptionDto cs")
+@NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_SUBSCRIPTIONS_BY_SPACE_ID, query = "SELECT cs FROM ConfigurationSubscriptionDto cs WHERE cs.spaceId = :spaceId")
+public class ConfigurationSubscriptionDto implements DtoWithPrimaryKey<Long> {
 
     public static class FieldNames {
 
@@ -145,7 +143,8 @@ public class ConfigurationSubscriptionDto {
         return fields;
     }
 
-    public long getId() {
+    @Override
+    public Long getPrimaryKey() {
         return id;
     }
 

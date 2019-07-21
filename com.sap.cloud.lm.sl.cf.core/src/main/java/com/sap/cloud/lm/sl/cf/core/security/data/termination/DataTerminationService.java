@@ -88,7 +88,7 @@ public class DataTerminationService {
             .map(Operation::getProcessId)
             .collect(Collectors.toList());
         auditLogDeletion(operationsToBeDeleted);
-        operationDao.removeAll(result);
+        operationDao.removeBy(result);
     }
 
     private void deleteConfigurationSubscriptionOrphanData(String spaceId) {

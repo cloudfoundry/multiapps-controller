@@ -31,7 +31,7 @@ public class ProcessConflictPreventer {
         Operation currentOperation = dao.findRequired(processId);
         currentOperation.setMtaId(mtaId);
         currentOperation.acquiredLock(true);
-        dao.merge(currentOperation);
+        dao.update(currentOperation);
 
         LOGGER.info(format(Messages.ACQUIRED_LOCK, processId, mtaId));
     }

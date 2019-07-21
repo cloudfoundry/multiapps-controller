@@ -29,11 +29,11 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class MtaConfigurationPurgerTest {
 
-    private static final int ENTRY_ID_TO_REMOVE = 0;
-    private static final int ENTRY_ID_TO_KEEP_1 = 1;
-    private static final int ENTRY_ID_TO_KEEP_2 = 2;
-    private static final int SUBSCRIPTION_ID_TO_REMOVE = 2;
-    private static final int SUBSCRIPTION_ID_TO_KEEP = 3;
+    private static final long ENTRY_ID_TO_REMOVE = 0;
+    private static final long ENTRY_ID_TO_KEEP_1 = 1;
+    private static final long ENTRY_ID_TO_KEEP_2 = 2;
+    private static final long SUBSCRIPTION_ID_TO_REMOVE = 2;
+    private static final long SUBSCRIPTION_ID_TO_KEEP = 3;
     private static final String APPLICATION_NAME_TO_KEEP = "app-to-keep";
     private static final String APPLICATION_NAME_TO_REMOVE = "app-to-remove";
     private static final String RESOURCE_LOCATION = "application-env-01.json";
@@ -126,11 +126,11 @@ public class MtaConfigurationPurgerTest {
         return JsonUtil.convertJsonToMap(envJson);
     }
 
-    private ConfigurationSubscription createSubscription(int id, String applicationName) {
+    private ConfigurationSubscription createSubscription(long id, String applicationName) {
         return new ConfigurationSubscription(id, null, null, applicationName, null, null, null);
     }
 
-    private ConfigurationEntry createEntry(int id, String providerId) {
+    private ConfigurationEntry createEntry(long id, String providerId) {
         return new ConfigurationEntry(id, ConfigurationEntriesUtil.PROVIDER_NID, providerId, Version.parseVersion("1.0.0"),
             new CloudTarget(TARGET_ORG, TARGET_SPACE), null, null, null);
     }

@@ -281,9 +281,6 @@ public class ConfigurationEntriesResourceTest {
         protected void test() throws Exception {
 
             TESTER.test(() -> {
-                ConfigurationEntryDto dto = getDto();
-                ConfigurationEntryMatcher entryMatcher = new ConfigurationEntryMatcher(dto);
-                when(dao.add(argThat(entryMatcher))).thenReturn(dto.toConfigurationEntry());
 
                 return new RestResponse(resource.createConfigurationEntry(input.getEntryXml()));
 
@@ -294,14 +291,6 @@ public class ConfigurationEntriesResourceTest {
         protected void setUp() throws Exception {
             MockitoAnnotations.initMocks(this);
             AuditLoggingProvider.setFacade(auditLoggingFacade);
-        }
-
-        private ConfigurationEntryDto getDto() throws Exception {
-            return provideDefaultsForFields(XmlUtil.fromXml(input.getEntryXml(), ConfigurationEntryDto.class));
-        }
-
-        private ConfigurationEntryDto provideDefaultsForFields(ConfigurationEntryDto dto) {
-            return new ConfigurationEntryDto(dto.toConfigurationEntry());
         }
     }
 
