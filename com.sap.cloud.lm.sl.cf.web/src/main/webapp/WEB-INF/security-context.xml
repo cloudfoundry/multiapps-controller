@@ -35,39 +35,9 @@
 
     <sec:http-firewall ref="customHttpFirewall" />
 
-    <bean id="delegatingAuthenticationEntryPoint"
-        class="org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint">
-        <constructor-arg>
-            <map>
-                <!-- TODO: Support case-insensitive bearer -->
-                <entry key="hasHeader('Authorization','bearer')" value-ref="oauthAuthenticationEntryPoint" />
-            </map>
-        </constructor-arg>
-        <property name="defaultEntryPoint" ref="basicAuthenticationEntryPoint" />
+    <bean class="org.springframework.security.web.access.expression.WebExpressionVoter">
+        <property name="expressionHandler" ref="oauthWebExpressionHandler" />
     </bean>
-
-    <bean id="oauthAuthenticationEntryPoint"
-        class="org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint">
-        <property name="realmName" value="CF Deploy Service" />
-    </bean>
-
-    <bean id="basicAuthenticationEntryPoint"
-        class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
-        <property name="realmName" value="CF Deploy Service" />
-    </bean>
-
-    <bean id="accessDecisionManager" class="org.springframework.security.access.vote.UnanimousBased">
-        <constructor-arg>
-            <list>
-                <bean class="org.springframework.security.web.access.expression.WebExpressionVoter">
-                    <property name="expressionHandler" ref="oauthWebExpressionHandler" />
-                </bean>
-                <bean class="org.springframework.security.access.vote.AuthenticatedVoter" />
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean id="correlationIdFilter" class="com.sap.cloud.lm.sl.cf.web.resources.CorrelationIdFilter" />
 
     <oauth:web-expression-handler id="oauthWebExpressionHandler" />
 
@@ -75,23 +45,6 @@
         <sec:authentication-provider ref="customAuthenticationProvider" />
     </sec:authentication-manager>
 
-    <bean id="customAuthenticationProvider"
-        class="com.sap.cloud.lm.sl.cf.web.security.CustomAuthenticationProvider" />
-
     <oauth:resource-server id="resourceServerFilter" resource-id="springsec"
         token-services-ref="customTokenServices" />
-
-    <bean id="accessDeniedHandler" class="com.sap.cloud.lm.sl.cf.web.security.CsrfAccessDeniedHandler" />
-
-    <bean id="csrfHeadersFilter" class="com.sap.cloud.lm.sl.cf.web.security.CsrfHeadersFilter" />
-
-    <bean id="requestSizeFilter" class="com.sap.cloud.lm.sl.cf.web.security.RequestSizeFilter" />
-
-    <bean id="authFilter" class="com.sap.cloud.lm.sl.cf.web.security.AuthorizationFilter" />
-
-    <bean id="tokenStore" class="com.sap.cloud.lm.sl.cf.web.security.TokenStoreFactory"
-        factory-method="getTokenStore">
-        <constructor-arg ref="dataSource" />
-    </bean>
-
 </beans>

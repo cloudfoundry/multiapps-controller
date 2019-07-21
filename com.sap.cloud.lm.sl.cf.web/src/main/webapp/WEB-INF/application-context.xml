@@ -1,43 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
-    xmlns:context="http://www.springframework.org/schema/context"
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
 
-    xsi:schemaLocation="
+	xsi:schemaLocation="
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context-4.2.xsd">
 
-    <import resource="db-context.xml" />
-    <import resource="services-context.xml" />
-    <import resource="security-context.xml" />
-    <import resource="quartz-context.xml" />
+	<context:component-scan
+		base-package="com.sap.cloud.lm.sl.cf" />
 
-    <context:component-scan base-package="com.sap.cloud.lm.sl.cf" />
+	<import resource="security-context.xml" />
 
-    <bean id="buildCloudDeployModelStep" class="com.sap.cloud.lm.sl.cf.process.steps.BuildCloudDeployModelStep"
-        scope="prototype" />
-
-    <bean id="processDescriptorStep" class="com.sap.cloud.lm.sl.cf.process.steps.ProcessDescriptorStep"
-        scope="prototype" />
-
-    <bean id="buildApplicationDeployModelStep"
-        class="com.sap.cloud.lm.sl.cf.process.steps.BuildApplicationDeployModelStep" scope="prototype" />
-
-    <bean id="operationMetadataMapper"
-        class="com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper" />
-
-    <bean id="jmxExporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
-        <property name="beans">
-            <map>
-                <entry key="com.sap.cloud.lm.sl.cf.web.monitoring:type=Metrics,name=MetricsMBean"
-                    value-ref="metricsBean" />
-            </map>
-        </property>
-    </bean>
-
-    <bean id="metricsBean" class="com.sap.cloud.lm.sl.cf.web.monitoring.Metrics" />
-
-    <bean id="moduleDeployProcessGetter" class="com.sap.cloud.lm.sl.cf.process.util.ModuleDeployProcessGetter" />
-    <bean id="moduleToDeployHelper" class="com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper" />
 </beans>
