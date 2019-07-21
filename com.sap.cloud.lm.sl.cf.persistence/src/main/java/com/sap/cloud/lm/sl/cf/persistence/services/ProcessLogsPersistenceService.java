@@ -13,33 +13,28 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Named;
+
 import org.apache.commons.io.IOUtils;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
-import com.sap.cloud.lm.sl.cf.persistence.dialects.DataSourceDialect;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
-import com.sap.cloud.lm.sl.cf.persistence.query.providers.BlobSqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.ByteArraySqlFileQueryProvider;
-import com.sap.cloud.lm.sl.cf.persistence.query.providers.SqlFileQueryProvider;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.DigestHelper;
 
+@Named("processLogsPersistenceService")
 public class ProcessLogsPersistenceService extends DatabaseFileService {
 
     private static final String DIGEST_METHOD = "MD5";
     public static final String TABLE_NAME = "process_log";
 
-    public ProcessLogsPersistenceService(DataSourceWithDialect dataSourceWithDialect, boolean isContentStoredAsBlob) {
-        super(dataSourceWithDialect, createSqlFileQueryProvider(dataSourceWithDialect.getDataSourceDialect(), isContentStoredAsBlob));
-    }
-
-    private static SqlFileQueryProvider createSqlFileQueryProvider(DataSourceDialect dataSourceDialect, boolean isContentStoredAsBlob) {
-        return isContentStoredAsBlob ? new BlobSqlFileQueryProvider(TABLE_NAME, dataSourceDialect)
-            : new ByteArraySqlFileQueryProvider(TABLE_NAME, dataSourceDialect);
+    public ProcessLogsPersistenceService(DataSourceWithDialect dataSourceWithDialect) {
+        super(dataSourceWithDialect, new ByteArraySqlFileQueryProvider(TABLE_NAME, dataSourceWithDialect.getDataSourceDialect()));
     }
 
     public List<String> getLogNames(String space, String namespace) throws FileStorageException {

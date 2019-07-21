@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.web.security;
 
 import java.io.IOException;
 
+import javax.inject.Named;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author i031908
  *
  */
+@Named("csrfHeadersFilter")
 public class CsrfHeadersFilter extends OncePerRequestFilter {
 
     private static final String SPRING_SECURITY_CSRF_SESSION_ATTRIBUTE = "_csrf";

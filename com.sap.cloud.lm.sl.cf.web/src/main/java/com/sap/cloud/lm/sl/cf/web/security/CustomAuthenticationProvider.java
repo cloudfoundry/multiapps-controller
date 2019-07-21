@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.security;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 
+@Named("customAuthenticationProvider")
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomAuthenticationProvider.class);

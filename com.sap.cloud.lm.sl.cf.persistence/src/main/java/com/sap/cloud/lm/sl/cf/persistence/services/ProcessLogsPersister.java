@@ -1,9 +1,11 @@
 package com.sap.cloud.lm.sl.cf.persistence.services;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.springframework.scheduling.annotation.Async;
 
+@Named("processLogsPersister")
 public class ProcessLogsPersister {
 
     @Inject

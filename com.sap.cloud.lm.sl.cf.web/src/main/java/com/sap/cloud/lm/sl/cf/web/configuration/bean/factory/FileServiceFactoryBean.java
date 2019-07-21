@@ -1,7 +1,11 @@
 package com.sap.cloud.lm.sl.cf.web.configuration.bean.factory;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.services.DatabaseFileService;
@@ -10,24 +14,16 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorage;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileSystemFileStorage;
 import com.sap.cloud.lm.sl.cf.persistence.services.ObjectStoreFileStorage;
 
+@Named("fileService")
 public class FileServiceFactoryBean implements FactoryBean<FileService>, InitializingBean {
 
+    @Inject
     private DataSourceWithDialect dataSourceWithDialect;
+    @Autowired(required = false)
     private FileSystemFileStorage fileSystemFileStorage;
+    @Autowired(required = false)
     private ObjectStoreFileStorage objectStoreFileStorage;
     private FileService fileService;
-
-    public void setDataSourceWithDialect(DataSourceWithDialect dataSourceWithDialect) {
-        this.dataSourceWithDialect = dataSourceWithDialect;
-    }
-
-    public void setFileSystemFileStorage(FileSystemFileStorage fileSystemFileStorage) {
-        this.fileSystemFileStorage = fileSystemFileStorage;
-    }
-
-    public void setObjectStoreFileStorage(ObjectStoreFileStorage objectStoreFileStorage) {
-        this.objectStoreFileStorage = objectStoreFileStorage;
-    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
