@@ -21,6 +21,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
+import com.sap.cloud.lm.sl.cf.core.dao.HistoricOperationEventDao;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
@@ -64,6 +65,8 @@ public class StartProcessListenerTest {
     private ProcessTypeParser processTypeParser;
     @Mock
     private ProcessLogsPersistenceService processLogsPersistenceService;
+    @Mock
+    private HistoricOperationEventDao historicOperationEventDao;
     @Spy
     private ProcessTypeToOperationMetadataMapper processTypeToServiceMetadataMapper = new ProcessTypeToOperationMetadataMapper();
     @Spy

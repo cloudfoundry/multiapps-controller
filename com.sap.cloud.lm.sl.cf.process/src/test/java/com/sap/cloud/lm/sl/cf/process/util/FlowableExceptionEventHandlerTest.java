@@ -34,6 +34,9 @@ public class FlowableExceptionEventHandlerTest {
     private ProgressMessageDao progressMessageDaoMock;
 
     @Mock
+    private HistoricOperationEventPersister historicOperationEventPersisterMock;
+
+    @Mock
     private FlowableFacade flowableFacadeMock;
 
     private Date now = DateTime.now()
@@ -76,8 +79,8 @@ public class FlowableExceptionEventHandlerTest {
         FlowableExceptionEvent mockedExceptionEvent = Mockito.mock(FlowableExceptionEvent.class);
         Mockito.when(mockedExceptionEvent.getCause())
             .thenReturn(new Exception("test-message"));
-        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageDaoMock, flowableFacadeMock,
-            mockedExceptionEvent);
+        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageDaoMock, historicOperationEventPersisterMock,
+            flowableFacadeMock, mockedExceptionEvent);
         handler.handle(new FlowableEngineEventImpl(FlowableEngineEventType.CUSTOM));
 
         Mockito.verify(progressMessageDaoMock, Mockito.never())
@@ -126,8 +129,8 @@ public class FlowableExceptionEventHandlerTest {
         Mockito.when(mockProcessEngineConfiguration.getRuntimeService())
             .thenReturn(runtimeServiceMock);
 
-        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageDaoMock, flowableFacadeMock,
-            mockedExceptionEvent).withProcessEngineConfiguration(mockProcessEngineConfiguration);
+        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageDaoMock, historicOperationEventPersisterMock,
+            flowableFacadeMock, mockedExceptionEvent).withProcessEngineConfiguration(mockProcessEngineConfiguration);
 
         handler.handle(new FlowableEngineEventImpl(FlowableEngineEventType.CUSTOM, "bar", "foo", "testing"));
 
@@ -163,7 +166,7 @@ public class FlowableExceptionEventHandlerTest {
     }
 
     private void testSimpleWithEventAndExceptionEvent(FlowableEvent event, FlowableExceptionEvent exceptionEvent) {
-        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(null, null, exceptionEvent);
+        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(null, null, null, exceptionEvent);
         handler.handle(event);
     }
 
@@ -172,9 +175,10 @@ public class FlowableExceptionEventHandlerTest {
         private FlowableExceptionEvent flowableExceptionEvent;
         private ProcessEngineConfiguration processEngineConfiguration;
 
-        public FlowableExceptionEventHandlerMock(ProgressMessageDao progressMessageDao, FlowableFacade flowableFacade,
+        public FlowableExceptionEventHandlerMock(ProgressMessageDao progressMessageDao,
+            HistoricOperationEventPersister historicOperationEventPersister, FlowableFacade flowableFacade,
             FlowableExceptionEvent flowableExceptionEvent) {
-            super(progressMessageDao, flowableFacade);
+            super(progressMessageDao, historicOperationEventPersister, flowableFacade);
             this.flowableExceptionEvent = flowableExceptionEvent;
         }
 

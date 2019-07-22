@@ -32,6 +32,7 @@ public class Operation implements AuditableConfiguration {
     private String user = null;
     private Boolean acquiredLock = null;
     private State state = null;
+    private ErrorType errorType = null;
     private List<Message> messages = new ArrayList<>();
     private Map<String, Object> parameters = new HashMap<>();
 
@@ -200,6 +201,21 @@ public class Operation implements AuditableConfiguration {
         this.parameters = parameters;
     }
 
+    /**
+     **/
+    public Operation errorType(ErrorType errorType) {
+        this.errorType = errorType;
+        return this;
+    }
+
+    public ErrorType getErrorType() {
+        return errorType;
+    }
+
+    public void setErrorType(ErrorType errorType) {
+        this.errorType = errorType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -213,12 +229,14 @@ public class Operation implements AuditableConfiguration {
             && Objects.equals(startedAt, operation.startedAt) && Objects.equals(endedAt, operation.endedAt)
             && Objects.equals(spaceId, operation.spaceId) && Objects.equals(mtaId, operation.mtaId) && Objects.equals(user, operation.user)
             && Objects.equals(acquiredLock, operation.acquiredLock) && Objects.equals(state, operation.state)
-            && Objects.equals(messages, operation.messages) && Objects.equals(parameters, operation.parameters);
+            && Objects.equals(errorType, operation.errorType) && Objects.equals(messages, operation.messages)
+            && Objects.equals(parameters, operation.parameters);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(processId, processType, startedAt, endedAt, spaceId, mtaId, user, acquiredLock, state, messages, parameters);
+        return Objects.hash(processId, processType, startedAt, endedAt, spaceId, mtaId, user, acquiredLock, state, errorType, messages,
+            parameters);
     }
 
     @Override
@@ -252,6 +270,9 @@ public class Operation implements AuditableConfiguration {
             .append("\n");
         sb.append("    state: ")
             .append(toIndentedString(state))
+            .append("\n");
+        sb.append("    errorType: ")
+            .append(toIndentedString(errorType))
             .append("\n");
         sb.append("    messages: ")
             .append(toIndentedString(messages))
@@ -294,6 +315,7 @@ public class Operation implements AuditableConfiguration {
         identifiersList.add(new ConfigurationIdentifier("mta id", mtaId));
         identifiersList.add(new ConfigurationIdentifier("user", user));
         identifiersList.add(new ConfigurationIdentifier("state", Objects.toString(state)));
+        identifiersList.add(new ConfigurationIdentifier("error type", Objects.toString(errorType)));
         return identifiersList;
     }
 }

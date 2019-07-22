@@ -30,9 +30,12 @@ public class FlowableExceptionEventHandler {
 
     private ProgressMessageDao progressMessageDao;
     private FlowableFacade flowableFacade;
+    private HistoricOperationEventPersister historicOperationEventPersister;
 
-    public FlowableExceptionEventHandler(ProgressMessageDao progressMessageDao, FlowableFacade flowableFacade) {
+    public FlowableExceptionEventHandler(ProgressMessageDao progressMessageDao,
+        HistoricOperationEventPersister historicOperationEventPersister, FlowableFacade flowableFacade) {
         this.progressMessageDao = progressMessageDao;
+        this.historicOperationEventPersister = historicOperationEventPersister;
         this.flowableFacade = flowableFacade;
     }
 
@@ -42,17 +45,18 @@ public class FlowableExceptionEventHandler {
         }
 
         FlowableExceptionEvent flowableExceptionEvent = getFlowableExceptionEvent(event);
-        String flowableExceptionStackTrace = ExceptionUtils.getStackTrace(flowableExceptionEvent.getCause());
+        Throwable exception = flowableExceptionEvent.getCause();
+        String flowableExceptionStackTrace = ExceptionUtils.getStackTrace(exception);
         LOGGER.error(flowableExceptionStackTrace);
-        String flowableExceptionMessage = flowableExceptionEvent.getCause()
-            .getMessage();
 
-        if (flowableExceptionMessage == null) {
+        if (exception.getMessage() == null) {
             return;
         }
 
+        FlowableEngineEvent engineEvent = (FlowableEngineEvent) event;
+        historicOperationEventPersister.add(flowableFacade.getProcessInstanceId(engineEvent.getExecutionId()), exception.getCause());
         try {
-            tryToPreserveFlowableException(event, flowableExceptionMessage);
+            tryToPreserveFlowableException(event, exception.getMessage());
         } catch (SLException e) {
             LOGGER.warn(e.getMessage());
         }
@@ -109,8 +113,7 @@ public class FlowableExceptionEventHandler {
 
             // Based on the above comment, one of the executions will have null activityId(because it will be the monitoring one) and thus
             // should be excluded from the list of executions
-            return CommonUtil.isNullOrEmpty(currentExecutionsForProcess) ? null
-                : findCurrentExecution(currentExecutionsForProcess);
+            return CommonUtil.isNullOrEmpty(currentExecutionsForProcess) ? null : findCurrentExecution(currentExecutionsForProcess);
         } catch (Throwable e) {
             return null;
         }

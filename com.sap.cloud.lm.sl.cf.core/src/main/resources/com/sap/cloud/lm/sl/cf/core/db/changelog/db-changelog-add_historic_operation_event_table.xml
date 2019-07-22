@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+	<changeSet author="sap.com" id="add_historic_operation_event_table">
+		<createSequence sequenceName="historic_operation_event_sequence"
+			startValue="1" incrementBy="1" />
+		<createTable tableName="historic_operation_event">
+			<column name="id" type="BIGINT">
+				<constraints primaryKey="true" primaryKeyName="historic_operation_event_pk"
+					nullable="false" />
+			</column>
+			<column name="process_id" type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="event" type="VARCHAR(100)">
+				<constraints nullable="false" />
+			</column>
+			<column name="timestamp" type="TIMESTAMP">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+	</changeSet>
+</databaseChangeLog>

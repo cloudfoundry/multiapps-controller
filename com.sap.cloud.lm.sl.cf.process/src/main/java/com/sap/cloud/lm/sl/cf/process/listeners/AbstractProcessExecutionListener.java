@@ -14,6 +14,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.cf.process.util.HistoricOperationEventPersister;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -31,6 +32,8 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     private ProcessLoggerProvider processLoggerProvider;
     @Inject
     private ProcessLogsPersister processLogsPersister;
+    @Inject
+    private HistoricOperationEventPersister historicOperationEventPersister;
 
     private StepLogger stepLogger;
 
@@ -82,12 +85,16 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
         String taskId = (String) context.getVariable(Constants.TASK_ID);
         return taskId != null ? taskId : context.getCurrentActivityId();
     }
-    
+
     protected StepLogger getStepLogger() {
         if (stepLogger == null) {
             throw new IllegalStateException(Messages.STEP_LOGGER_NOT_INITIALIZED);
         }
         return stepLogger;
+    }
+
+    protected HistoricOperationEventPersister getHistoricOperationEventPersister() {
+        return historicOperationEventPersister;
     }
 
     private StepLogger createStepLogger(DelegateExecution context) {

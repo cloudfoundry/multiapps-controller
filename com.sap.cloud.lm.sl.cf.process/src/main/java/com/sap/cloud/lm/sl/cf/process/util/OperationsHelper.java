@@ -12,11 +12,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.core.dao.HistoricOperationEventDao;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
+import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent;
+import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
+import com.sap.cloud.lm.sl.cf.web.api.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
@@ -32,6 +36,9 @@ public class OperationsHelper {
 
     @Inject
     private FlowableFacade flowableFacade;
+
+    @Inject
+    private HistoricOperationEventDao historicOperationEventDao;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsHelper.class);
 
@@ -57,6 +64,37 @@ public class OperationsHelper {
         for (Operation ongoingOperation : existingOngoingOperations) {
             addState(ongoingOperation);
         }
+    }
+
+    public void addErrorType(Operation operation) {
+        if (operation.getState() == State.ERROR) {
+            operation.setErrorType(getErrorType(operation));
+        }
+    }
+
+    public ErrorType getErrorType(Operation operation) {
+        List<HistoricOperationEvent> historicEvents = historicOperationEventDao.find(operation.getProcessId());
+        EventType historicErrorType = null;
+        for (HistoricOperationEvent historicEvent : historicEvents) {
+            if (historicEvent.getType() == EventType.RETRIED) {
+                historicErrorType = null;
+            }
+            if ((historicEvent.getType() == EventType.FAILED_BY_CONTENT_ERROR || historicEvent.getType() == EventType.FAILED_BY_INFRASTRUCTURE_ERROR)
+                && historicErrorType != EventType.FAILED_BY_INFRASTRUCTURE_ERROR) {
+                historicErrorType = historicEvent.getType();
+            }
+        }
+        return toErrorType(historicErrorType);
+    }
+
+    public ErrorType toErrorType(EventType historicType) {
+        if (historicType == EventType.FAILED_BY_CONTENT_ERROR) {
+            return ErrorType.CONTENT;
+        }
+        if (historicType == EventType.FAILED_BY_INFRASTRUCTURE_ERROR) {
+            return ErrorType.INFRASTRUCTURE;
+        }
+        return null;
     }
 
     public void addState(Operation ongoingOperation) {

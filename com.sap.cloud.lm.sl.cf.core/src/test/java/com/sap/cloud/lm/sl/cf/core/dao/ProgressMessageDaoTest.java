@@ -28,7 +28,7 @@ public class ProgressMessageDaoTest {
 
     private ProgressMessageDao dao = createDao();
     private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("TestDefault");
-    private static final ProgressMessage PROGRESS_MESSAGE_1 = getProgressMessage(1l, "1", "taskId", ProgressMessageType.INFO, "Text");
+    private static final ProgressMessage PROGRESS_MESSAGE_1 = getProgressMessage(1, "1", "taskId", ProgressMessageType.INFO, "Text");
     private static final ProgressMessage PROGRESS_MESSAGE_1_1 = getProgressMessage(2, "1", "taskId1", ProgressMessageType.INFO, "Text1");
     private static final ProgressMessage PROGRESS_MESSAGE_1_2 = getProgressMessage(3, "1", "taskId2", ProgressMessageType.INFO, "Text2");
 

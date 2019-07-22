@@ -14,6 +14,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.ProgressMessageDao;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
 import com.sap.cloud.lm.sl.cf.process.util.FlowableExceptionEventHandler;
+import com.sap.cloud.lm.sl.cf.process.util.HistoricOperationEventPersister;
 
 @Component("errorProcessListener")
 public class ErrorProcessListener extends AbstractFlowableEventListener {
@@ -23,13 +24,17 @@ public class ErrorProcessListener extends AbstractFlowableEventListener {
 
     @Inject
     private ProgressMessageDao progressMessageDao;
-    
+
+    @Inject
+    private HistoricOperationEventPersister historicOperationEventPersister;
+
     @Inject
     private FlowableFacade flowableFacade;
 
     @Override
     public void onEvent(FlowableEvent event) {
-        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandler(progressMessageDao, flowableFacade);
+        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandler(progressMessageDao, historicOperationEventPersister,
+            flowableFacade);
         handler.handle(event);
 
         if (event instanceof FlowableEngineEvent) {

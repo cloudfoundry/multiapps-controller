@@ -178,7 +178,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             throw new NotFoundException(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_NOT_FOUND, operationId);
         }
         operationsHelper.addState(operation);
-        if ("messages".equals(embed)) {
+        operationsHelper.addErrorType(operation);
+        if (embed.contains("messages")) {
             operation.setMessages(getOperationMessages(operation));
         }
         return operation;

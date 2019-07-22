@@ -45,4 +45,5 @@
     <include
         file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_extend_provider_id_column.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop_deploy_target_tables.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_historic_operation_event_table.xml"/>
 </databaseChangeLog>
