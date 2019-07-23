@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -42,8 +42,13 @@ public class HookProcessGetter {
     }
 
     private void preserveErrorMessage(DelegateExecution context, String errorMessage) {
-        progressMessageService.add(new ProgressMessage(flowableFacade.getProcessInstanceId(context.getId()), context.getCurrentActivityId(),
-            ProgressMessageType.ERROR, errorMessage, getCurrentTime()));
+        progressMessageService.add(ImmutableProgressMessage.builder()
+            .processId(flowableFacade.getProcessInstanceId(context.getId()))
+            .taskId(context.getCurrentActivityId())
+            .type(ProgressMessageType.ERROR)
+            .text(errorMessage)
+            .timestamp(getCurrentTime())
+            .build());
     }
 
     protected Date getCurrentTime() {

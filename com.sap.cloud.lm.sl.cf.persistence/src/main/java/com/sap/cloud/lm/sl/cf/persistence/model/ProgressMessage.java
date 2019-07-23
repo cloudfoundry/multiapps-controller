@@ -1,109 +1,33 @@
 package com.sap.cloud.lm.sl.cf.persistence.model;
 
+import java.sql.Timestamp;
 import java.util.Date;
-import java.util.Objects;
 
-public class ProgressMessage {
-    private static final int MAX_TEXT_LENGTH = 4000;
+import org.immutables.value.Value;
+import org.immutables.value.Value.Immutable;
 
-    private long id;
-    private String processId;
-    private String taskId;
-    private ProgressMessageType type;
-    private String text;
-    private Date timestamp;
+@Immutable
+public interface ProgressMessage {
 
-    public ProgressMessage() {
+    @Value.Default
+    default long getId() {
+        return 0;
     }
 
-    public ProgressMessage(String processId, String taskId, ProgressMessageType type, String text, Date timestamp) {
-        this.processId = processId;
-        this.taskId = taskId;
-        this.type = type;
-        setText(text);
-        this.timestamp = timestamp;
+    String getProcessId();
+
+    String getTaskId();
+
+    ProgressMessageType getType();
+
+    String getText();
+
+    @Value.Default
+    default Date getTimestamp() {
+        return new Timestamp(System.currentTimeMillis());
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getProcessId() {
-        return processId;
-    }
-
-    public void setProcessId(String processId) {
-        this.processId = processId;
-    }
-
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
-
-    public ProgressMessageType getType() {
-        return type;
-    }
-
-    public void setType(ProgressMessageType type) {
-        this.type = type;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        if (text.length() > MAX_TEXT_LENGTH) {
-            this.text = text.substring(0, MAX_TEXT_LENGTH - 3) + "...";
-        } else {
-            this.text = text;
-        }
-    }
-
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public enum ProgressMessageType {
+    enum ProgressMessageType {
         ERROR, WARNING, INFO, EXT, TASK_STARTUP,
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, processId, taskId, text, timestamp, type);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        ProgressMessage other = (ProgressMessage) obj;
-        return id == other.id && Objects.equals(processId, other.processId) && Objects.equals(taskId, other.taskId)
-            && Objects.equals(text, other.text) && Objects.equals(timestamp, other.timestamp) && type == other.type;
-    }
-
-    @Override
-    public String toString() {
-        return "ProgressMessage [id=" + id + ", processId=" + processId + ", taskId=" + taskId + ", type=" + type + ", text=" + text
-            + ", timestamp=" + timestamp + "]";
     }
 }

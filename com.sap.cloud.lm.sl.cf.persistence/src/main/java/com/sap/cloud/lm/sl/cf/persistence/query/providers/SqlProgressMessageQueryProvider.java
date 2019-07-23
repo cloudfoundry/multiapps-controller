@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.dialects.DataSourceDialect;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.query.SqlQuery;
@@ -18,6 +19,7 @@ import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
 
 public class SqlProgressMessageQueryProvider {
 
+    private static final int MAX_TEXT_LENGTH = 4000;
     private static final String COLUMN_NAME_ID = "ID";
     private static final String COLUMN_NAME_PROCESS_ID = "PROCESS_ID";
     private static final String COLUMN_NAME_TASK_ID = "TASK_ID";
@@ -51,7 +53,7 @@ public class SqlProgressMessageQueryProvider {
                 statement.setString(2, message.getTaskId());
                 statement.setString(3, message.getType()
                     .name());
-                statement.setString(4, message.getText());
+                statement.setString(4, getProgressMessageText(message.getText()));
                 statement.setTimestamp(5, new Timestamp(message.getTimestamp()
                     .getTime()));
                 int rowsInserted = statement.executeUpdate();
@@ -67,7 +69,7 @@ public class SqlProgressMessageQueryProvider {
             PreparedStatement statement = null;
             try {
                 statement = connection.prepareStatement(getQuery(UPDATE_MESSAGE_BY_ID, tableName));
-                statement.setString(1, newMessage.getText());
+                statement.setString(1, getProgressMessageText(newMessage.getText()));
                 statement.setTimestamp(2, new Timestamp(newMessage.getTimestamp()
                     .getTime()));
                 statement.setLong(3, existingId);
@@ -77,6 +79,14 @@ public class SqlProgressMessageQueryProvider {
                 JdbcUtil.closeQuietly(statement);
             }
         };
+    }
+
+    private String getProgressMessageText(String progressMessageText) {
+        if (progressMessageText.length() > MAX_TEXT_LENGTH) {
+            return progressMessageText.substring(0, MAX_TEXT_LENGTH - 3) + "...";
+        }
+        return progressMessageText;
+
     }
 
     public SqlQuery<Integer> getRemoveByProcessIdQuery(final String processId) {
@@ -142,16 +152,19 @@ public class SqlProgressMessageQueryProvider {
     }
 
     private ProgressMessage getMessage(ResultSet resultSet) throws SQLException {
-        ProgressMessage message = new ProgressMessage();
-        message.setId(resultSet.getLong(COLUMN_NAME_ID));
-        message.setProcessId(resultSet.getString(COLUMN_NAME_PROCESS_ID));
-        message.setTaskId(resultSet.getString(COLUMN_NAME_TASK_ID));
-        message.setText(resultSet.getString(COLUMN_NAME_TEXT));
-        message.setType(ProgressMessageType.valueOf(resultSet.getString(COLUMN_NAME_TYPE)));
+        return ImmutableProgressMessage.builder()
+            .id(resultSet.getLong(COLUMN_NAME_ID))
+            .processId(resultSet.getString(COLUMN_NAME_PROCESS_ID))
+            .taskId(resultSet.getString(COLUMN_NAME_TASK_ID))
+            .text(resultSet.getString(COLUMN_NAME_TEXT))
+            .type(ProgressMessageType.valueOf(resultSet.getString(COLUMN_NAME_TYPE)))
+            .timestamp(getTimestamp(resultSet))
+            .build();
+    }
+
+    private Date getTimestamp(ResultSet resultSet) throws SQLException {
         Timestamp dbTimestamp = resultSet.getTimestamp(COLUMN_NAME_TIMESTAMP);
-        Date timestamp = (dbTimestamp == null) ? new Date() : new Date(dbTimestamp.getTime());
-        message.setTimestamp(timestamp);
-        return message;
+        return (dbTimestamp == null) ? new Date() : new Date(dbTimestamp.getTime());
     }
 
     private String getQuery(String statementTemplate, String tableName) {

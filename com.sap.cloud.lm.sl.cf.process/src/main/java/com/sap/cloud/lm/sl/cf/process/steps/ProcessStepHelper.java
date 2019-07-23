@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
-import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
@@ -71,8 +70,13 @@ public class ProcessStepHelper {
     private void logTaskStartup(DelegateExecution context, String taskId) {
         stepLogger.logFlowableTask();
         String message = MessageFormat.format(Messages.EXECUTING_TASK, context.getCurrentActivityId(), context.getProcessInstanceId());
-        progressMessageService.add(new ProgressMessage(StepsUtil.getCorrelationId(context), taskId, ProgressMessageType.TASK_STARTUP,
-            message, new Timestamp(System.currentTimeMillis())));
+
+        progressMessageService.add(ImmutableProgressMessage.builder()
+            .processId(StepsUtil.getCorrelationId(context))
+            .taskId(taskId)
+            .type(ProgressMessageType.TASK_STARTUP)
+            .text(message)
+            .build());
     }
 
     protected void logExceptionAndStoreProgressMessage(DelegateExecution context, Throwable t) {
@@ -91,11 +95,14 @@ public class ProcessStepHelper {
         }
     }
 
-    private void storeExceptionInProgressMessageService(DelegateExecution context, Throwable t) {
+    private void storeExceptionInProgressMessageService(DelegateExecution context, Throwable throwable) {
         try {
-            ProgressMessage msg = new ProgressMessage(StepsUtil.getCorrelationId(context), getCurrentActivityId(context),
-                ProgressMessageType.ERROR, t.getMessage(), new Timestamp(System.currentTimeMillis()));
-            progressMessageService.add(msg);
+            progressMessageService.add(ImmutableProgressMessage.builder()
+                .processId(StepsUtil.getCorrelationId(context))
+                .taskId(getCurrentActivityId(context))
+                .type(ProgressMessageType.ERROR)
+                .text(throwable.getMessage())
+                .build());
         } catch (SLException e) {
             getProcessLogger().error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
         }
