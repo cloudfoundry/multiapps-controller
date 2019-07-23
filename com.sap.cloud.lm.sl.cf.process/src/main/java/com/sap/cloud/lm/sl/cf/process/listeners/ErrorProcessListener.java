@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
 import com.sap.cloud.lm.sl.cf.process.util.FlowableExceptionEventHandler;
 
@@ -22,10 +23,13 @@ public class ErrorProcessListener extends AbstractFlowableEventListener {
 
     @Inject
     private ProgressMessageService progressMessageService;
+    
+    @Inject
+    private FlowableFacade flowableFacade;
 
     @Override
     public void onEvent(FlowableEvent event) {
-        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandler(progressMessageService);
+        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandler(progressMessageService, flowableFacade);
         handler.handle(event);
 
         if (event instanceof FlowableEngineEvent) {
