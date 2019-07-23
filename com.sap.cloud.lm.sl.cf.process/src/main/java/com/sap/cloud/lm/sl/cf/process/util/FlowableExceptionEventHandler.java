@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.util;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
@@ -11,15 +10,13 @@ import org.flowable.common.engine.api.delegate.event.FlowableEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableExceptionEvent;
 import org.flowable.engine.impl.context.Context;
 import org.flowable.engine.runtime.Execution;
-import org.flowable.variable.api.history.HistoricVariableInstance;
-import org.flowable.variable.api.persistence.entity.VariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
-import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
@@ -29,9 +26,11 @@ public class FlowableExceptionEventHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowableExceptionEventHandler.class);
 
     private ProgressMessageService progressMessageService;
+    private FlowableFacade flowableFacade;
 
-    public FlowableExceptionEventHandler(ProgressMessageService progressMessageService) {
+    public FlowableExceptionEventHandler(ProgressMessageService progressMessageService, FlowableFacade flowableFacade) {
         this.progressMessageService = progressMessageService;
+        this.flowableFacade = flowableFacade;
     }
 
     public void handle(FlowableEvent event) {
@@ -59,25 +58,35 @@ public class FlowableExceptionEventHandler {
     private void tryToPreserveFlowableException(FlowableEvent event, String flowableExceptionMessage) {
         FlowableEngineEvent flowableEngineEvent = (FlowableEngineEvent) event;
 
+        String processInstanceId = flowableFacade.getProcessInstanceId(flowableEngineEvent.getExecutionId());
+        if (isErrorProgressMessagePresented(processInstanceId)) {
+            return;
+        }
+
         String taskId = getCurrentTaskId(flowableEngineEvent);
         String errorMessage = MessageFormat.format(Messages.UNEXPECTED_ERROR, flowableExceptionMessage);
-        String processInstanceId = getProcessInstanceId(flowableEngineEvent);
-        List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(processInstanceId);
-        Optional<ProgressMessage> errorProgressMessage = progressMessages.stream()
-            .filter(message -> message.getType() == ProgressMessageType.ERROR)
-            .findAny();
 
-        if (!errorProgressMessage.isPresent()) {
-            progressMessageService.add(new ProgressMessage(processInstanceId, taskId, ProgressMessageType.ERROR, errorMessage,
-                new Timestamp(System.currentTimeMillis())));
-        }
+        progressMessageService.add(new ProgressMessage(processInstanceId, taskId, ProgressMessageType.ERROR, errorMessage,
+            new Timestamp(System.currentTimeMillis())));
+    }
+
+    private boolean isErrorProgressMessagePresented(String processInstanceId) {
+        List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(processInstanceId);
+        return progressMessages.stream()
+            .filter(this::isErrorMessage)
+            .findAny()
+            .isPresent();
+    }
+
+    private boolean isErrorMessage(ProgressMessage message) {
+        return message.getType() == ProgressMessageType.ERROR;
     }
 
     private String getCurrentTaskId(FlowableEngineEvent flowableEngineEvent) {
         Execution currentExecutionForProces = findCurrentExecution(flowableEngineEvent);
 
         return currentExecutionForProces != null ? currentExecutionForProces.getActivityId()
-            : getVariable(flowableEngineEvent, Constants.TASK_ID);
+            : flowableFacade.getCurrentTaskId(flowableEngineEvent.getExecutionId());
     }
 
     private Execution findCurrentExecution(FlowableEngineEvent flowableEngineEvent) {
@@ -107,34 +116,4 @@ public class FlowableExceptionEventHandler {
             .orElse(null);
     }
 
-    private String getProcessInstanceId(FlowableEvent event) {
-        return getVariable((FlowableEngineEvent) event, Constants.VAR_CORRELATION_ID);
-    }
-
-    private String getVariable(FlowableEngineEvent event, String variableName) {
-        VariableInstance variableInstance = Context.getProcessEngineConfiguration()
-            .getRuntimeService()
-            .getVariableInstance(event.getExecutionId(), variableName);
-
-        if (variableInstance == null) {
-            return getVariableFromHistoryService(event, variableName);
-        }
-
-        return variableInstance.getTextValue();
-    }
-
-    private String getVariableFromHistoryService(FlowableEngineEvent event, String variableName) {
-        HistoricVariableInstance historicVariableInstance = Context.getProcessEngineConfiguration()
-            .getHistoryService()
-            .createHistoricVariableInstanceQuery()
-            .executionId(event.getExecutionId())
-            .variableName(variableName)
-            .singleResult();
-
-        if (historicVariableInstance == null) {
-            return null;
-        }
-
-        return (String) historicVariableInstance.getValue();
-    }
 }

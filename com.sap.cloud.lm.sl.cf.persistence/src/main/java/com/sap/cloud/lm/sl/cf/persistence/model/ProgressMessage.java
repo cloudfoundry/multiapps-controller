@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.persistence.model;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class ProgressMessage {
     private static final int MAX_TEXT_LENGTH = 4000;
@@ -77,6 +78,27 @@ public class ProgressMessage {
 
     public enum ProgressMessageType {
         ERROR, WARNING, INFO, EXT, TASK_STARTUP,
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, processId, taskId, text, timestamp, type);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ProgressMessage other = (ProgressMessage) obj;
+        return id == other.id && Objects.equals(processId, other.processId) && Objects.equals(taskId, other.taskId)
+            && Objects.equals(text, other.text) && Objects.equals(timestamp, other.timestamp) && type == other.type;
     }
 
     @Override

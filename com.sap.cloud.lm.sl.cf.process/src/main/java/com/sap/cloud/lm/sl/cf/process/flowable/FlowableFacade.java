@@ -20,6 +20,7 @@ import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.job.api.Job;
 import org.flowable.job.service.impl.asyncexecutor.AsyncExecutor;
 import org.flowable.variable.api.history.HistoricVariableInstance;
+import org.flowable.variable.api.persistence.entity.VariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -61,14 +62,37 @@ public class FlowableFacade {
         }
     }
 
-    public void startProcessByMessage(String message, Map<String, Object> processVariables) {
-        processEngine.getRuntimeService()
-            .startProcessInstanceByMessage(message, processVariables);
+    public String getProcessInstanceId(String executionId) {
+        return getVariable(executionId, Constants.CORRELATION_ID);
     }
 
-    public void messageEventReceived(String messageName, String executionId) {
-        processEngine.getRuntimeService()
-            .messageEventReceived(messageName, executionId);
+    public String getCurrentTaskId(String executionId) {
+        return getVariable(executionId, Constants.TASK_ID);
+    }
+
+    private String getVariable(String executionId, String variableName) {
+        VariableInstance variableInstance = processEngine.getRuntimeService()
+            .getVariableInstance(executionId, variableName);
+
+        if (variableInstance == null) {
+            return getVariableFromHistoryService(executionId, variableName);
+        }
+
+        return variableInstance.getTextValue();
+    }
+
+    private String getVariableFromHistoryService(String executionId, String variableName) {
+        HistoricVariableInstance historicVariableInstance = processEngine.getHistoryService()
+            .createHistoricVariableInstanceQuery()
+            .executionId(executionId)
+            .variableName(variableName)
+            .singleResult();
+
+        if (historicVariableInstance == null) {
+            return null;
+        }
+
+        return (String) historicVariableInstance.getValue();
     }
 
     public State getProcessInstanceState(String processInstanceId) {

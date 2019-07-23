@@ -12,7 +12,7 @@
     <sequenceFlow id="sid-280CF873-10CA-48E2-AF62-2BCB2EF9A88B" sourceRef="startEvent" targetRef="deleteApplicationRoutesTask"></sequenceFlow>
     <exclusiveGateway id="hasStepWithHooksCompleted" default="reExecuteStepFlow"></exclusiveGateway>
     <sequenceFlow id="sid-FADBD1D2-1017-45BA-B386-9565BCD623E7" sourceRef="deleteApplicationRoutesTask" targetRef="stopApplicationUndeploymentTask"></sequenceFlow>
-    <callActivity id="executeHooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution)}" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+    <callActivity id="executeHooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution, execution)}" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="checkIfStepHasCompleted" sourceRef="executeHooksCallActivity" targetRef="hasStepWithHooksCompleted"></sequenceFlow>
