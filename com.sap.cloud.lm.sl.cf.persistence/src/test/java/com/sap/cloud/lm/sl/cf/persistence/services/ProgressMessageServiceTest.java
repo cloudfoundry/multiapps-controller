@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
@@ -49,14 +50,30 @@ public class ProgressMessageServiceTest {
     }
 
     private void initializeData() {
-        progressMessage1 = new ProgressMessage(PROCESS_INSTANCE_ID_1, TASK_ID_1, ProgressMessageType.ERROR, MESSAGE_TEXT_1,
-            new Timestamp(System.currentTimeMillis()));
-        progressMessage2 = new ProgressMessage(PROCESS_INSTANCE_ID_1, TASK_ID_2, ProgressMessageType.INFO, MESSAGE_TEXT_2,
-            new Timestamp(System.currentTimeMillis()));
-        progressMessage3 = new ProgressMessage(PROCESS_INSTANCE_ID_2, TASK_ID_1, ProgressMessageType.INFO, MESSAGE_TEXT_1,
-            new Timestamp(System.currentTimeMillis()));
-        progressMessage4 = new ProgressMessage(PROCESS_INSTANCE_ID_2, TASK_ID_2, ProgressMessageType.INFO, MESSAGE_TEXT_2,
-            new Timestamp(System.currentTimeMillis()));
+        progressMessage1 = ImmutableProgressMessage.builder()
+            .processId(PROCESS_INSTANCE_ID_1)
+            .taskId(TASK_ID_1)
+            .type(ProgressMessageType.ERROR)
+            .text(MESSAGE_TEXT_1)
+            .build();
+        progressMessage2 = ImmutableProgressMessage.builder()
+            .processId(PROCESS_INSTANCE_ID_1)
+            .taskId(TASK_ID_2)
+            .type(ProgressMessageType.INFO)
+            .text(MESSAGE_TEXT_2)
+            .build();
+        progressMessage3 = ImmutableProgressMessage.builder()
+            .processId(PROCESS_INSTANCE_ID_2)
+            .taskId(TASK_ID_1)
+            .type(ProgressMessageType.INFO)
+            .text(MESSAGE_TEXT_1)
+            .build();
+        progressMessage4 = ImmutableProgressMessage.builder()
+            .processId(PROCESS_INSTANCE_ID_2)
+            .taskId(TASK_ID_2)
+            .type(ProgressMessageType.INFO)
+            .text(MESSAGE_TEXT_2)
+            .build();
 
         List<ProgressMessage> messages = Arrays.asList(progressMessage1, progressMessage2, progressMessage3, progressMessage4);
         for (ProgressMessage message : messages) {
@@ -77,9 +94,13 @@ public class ProgressMessageServiceTest {
     public void testUpdate() {
         final String PROCESS_ID = "test-update-processId";
         final String TASK_ID = "test-update-taskId";
-
-        ProgressMessage progressMessage = new ProgressMessage(PROCESS_ID, TASK_ID, ProgressMessageType.INFO, "test-update-info-message",
-            new Timestamp(System.currentTimeMillis()));
+        ProgressMessage progressMessage = ImmutableProgressMessage.builder()
+            .processId(PROCESS_ID)
+            .taskId(TASK_ID)
+            .type(ProgressMessageType.INFO)
+            .text("test-update-info-message")
+            .timestamp(new Timestamp(System.currentTimeMillis()))
+            .build();
         boolean insertSuccess = service.add(progressMessage);
         assertTrue(insertSuccess);
 
@@ -92,9 +113,12 @@ public class ProgressMessageServiceTest {
         List<ProgressMessage> messagesByProcessId = service.findByProcessId(PROCESS_ID);
         assertEquals(1, messagesByProcessId.size());
         ProgressMessage messageToUpdate = messagesByProcessId.get(0);
-
-        ProgressMessage updatedProgressMessage = new ProgressMessage(PROCESS_ID, TASK_ID, ProgressMessageType.INFO,
-            "test-update-new-info-message", new Timestamp(System.currentTimeMillis()));
+        ProgressMessage updatedProgressMessage = ImmutableProgressMessage.builder()
+            .processId(PROCESS_ID)
+            .taskId(TASK_ID)
+            .type(ProgressMessageType.INFO)
+            .text("test-update-new-info-message")
+            .build();
         boolean updateSuccess = service.update(messageToUpdate.getId(), updatedProgressMessage);
         assertTrue(updateSuccess);
 

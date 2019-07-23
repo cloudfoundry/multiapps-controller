@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
@@ -57,8 +57,13 @@ public class HookProcessGetterTest {
         Assertions.assertEquals("Unsupported hook type \"unsupported-hook-type\"", thrownException.getMessage());
 
         Mockito.verify(progressMessageService)
-            .add(new ProgressMessage("foo-process-id", "foo-current-activity-id", ProgressMessageType.ERROR, thrownException.getMessage(),
-                now));
+            .add(ImmutableProgressMessage.builder()
+                .processId("foo-process-id")
+                .taskId("foo-current-activity-id")
+                .type(ProgressMessageType.ERROR)
+                .text(thrownException.getMessage())
+                .timestamp(now)
+                .build());
     }
 
     private String getProcessDefinitionForHookWithType(String hookType) {

@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.List;
 
@@ -13,6 +12,7 @@ import org.flowable.engine.runtime.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
@@ -66,8 +66,12 @@ public class FlowableExceptionEventHandler {
         String taskId = getCurrentTaskId(flowableEngineEvent);
         String errorMessage = MessageFormat.format(Messages.UNEXPECTED_ERROR, flowableExceptionMessage);
 
-        progressMessageService.add(new ProgressMessage(processInstanceId, taskId, ProgressMessageType.ERROR, errorMessage,
-            new Timestamp(System.currentTimeMillis())));
+        progressMessageService.add(ImmutableProgressMessage.builder()
+            .processId(processInstanceId)
+            .taskId(taskId)
+            .type(ProgressMessageType.ERROR)
+            .text(errorMessage)
+            .build());
     }
 
     private boolean isErrorProgressMessagePresented(String processInstanceId) {
