@@ -33,7 +33,7 @@ public class ObjectStoreFileStorage implements FileStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectStoreFileStorage.class);
 
-    private static final int RETRY_BASE_WAIT_TIME_IN_MILLIS = 5000;
+    private static final long RETRY_BASE_WAIT_TIME_IN_MILLIS = 5000L;
 
     private BlobStore blobStore;
     private String container;

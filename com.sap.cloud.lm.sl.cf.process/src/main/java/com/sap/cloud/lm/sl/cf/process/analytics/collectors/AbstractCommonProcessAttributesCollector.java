@@ -32,7 +32,7 @@ public abstract class AbstractCommonProcessAttributesCollector<T extends Abstrac
     }
  // @formatter:on
 
-    private <A> A getAttribute(DelegateExecution context, String variableName, Supplier<A> attributeValueSupplier) {
+    protected <A> A getAttribute(DelegateExecution context, String variableName, Supplier<A> attributeValueSupplier) {
         return context.getVariable(variableName) != null ? attributeValueSupplier.get() : null;
     }
 }

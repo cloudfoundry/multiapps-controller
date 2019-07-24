@@ -27,7 +27,7 @@ public class JwtTokenParser implements TokenParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenParser.class);
 
     protected final TokenFactory tokenFactory;
-    private volatile TokenKey tokenKey;
+    private TokenKey tokenKey;
     private final UAAClient uaaClient;
 
     @Inject
