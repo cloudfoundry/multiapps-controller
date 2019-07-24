@@ -25,7 +25,6 @@ import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.UploadToken;
-import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.impl.context.Context;
@@ -58,8 +57,8 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -315,16 +314,16 @@ public class StepsUtil {
         setAsJsonBinary(scope, Constants.VAR_UPDATED_SUBSCRIBERS, apps);
     }
 
-    public static List<CloudApplication> getServiceBrokerSubscribersToRestart(VariableScope scope) {
-        TypeReference<List<CloudApplication>> type = new TypeReference<List<CloudApplication>>() {
-        };
-        return getFromJsonBinary(scope, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS, type);
-    }
-
     static CloudApplication getServiceBrokerSubscriberToRestart(VariableScope scope) {
         List<CloudApplication> apps = getServiceBrokerSubscribersToRestart(scope);
         int index = (Integer) scope.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
         return apps.get(index);
+    }
+
+    public static List<CloudApplication> getServiceBrokerSubscribersToRestart(VariableScope scope) {
+        TypeReference<List<CloudApplication>> type = new TypeReference<List<CloudApplication>>() {
+        };
+        return getFromJsonBinary(scope, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS, type);
     }
 
     static void setUpdatedServiceBrokerSubscribers(VariableScope scope, List<CloudApplication> apps) {
@@ -478,10 +477,14 @@ public class StepsUtil {
     }
 
     public static void setVariableInParentProcess(DelegateExecution context, String variablePrefix, Object variableValue) {
-        String moduleName = StepsUtil.getApp(context)
-            .getModuleName();
+        CloudApplicationExtended cloudApplication = StepsUtil.getApp(context);
+        if (cloudApplication == null) {
+            throw new IllegalStateException(Messages.CANNOT_DETERMINE_CURRENT_APPLICATION);
+        }
+
+        String moduleName = cloudApplication.getModuleName();
         if (moduleName == null) {
-            throw new IllegalStateException("Not able to determine module name.");
+            throw new IllegalStateException(Messages.CANNOT_DETERMINE_MODULE_NAME);
         }
         String exportedVariableName = variablePrefix + moduleName;
 

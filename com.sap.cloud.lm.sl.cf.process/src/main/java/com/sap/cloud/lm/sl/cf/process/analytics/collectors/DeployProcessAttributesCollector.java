@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.analytics.collectors;
 
 import java.math.BigInteger;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
@@ -69,10 +68,6 @@ public class DeployProcessAttributesCollector extends AbstractCommonProcessAttri
             .stream()
             .filter(operationType -> operationType == targetType)
             .count();
-    }
-
-    private <T> T getAttribute(DelegateExecution context, String variableName, Supplier<T> attributeValueSupplier) {
-        return context.getVariable(variableName) != null ? attributeValueSupplier.get() : null;
     }
 
     public BigInteger getMtaSize(DelegateExecution context) {

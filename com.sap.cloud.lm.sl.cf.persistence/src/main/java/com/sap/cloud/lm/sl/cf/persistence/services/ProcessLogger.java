@@ -69,7 +69,7 @@ public class ProcessLogger extends Logger {
     }
 
     @Override
-    public void removeAllAppenders() {
+    public synchronized void removeAllAppenders() {
         logger.removeAllAppenders();
     }
 

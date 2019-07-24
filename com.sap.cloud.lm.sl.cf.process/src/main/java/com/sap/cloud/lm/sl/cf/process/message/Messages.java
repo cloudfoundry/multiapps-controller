@@ -58,7 +58,8 @@ public class Messages {
     public static final String COULD_NOT_FIND_APPLICATION_WITH_GUID_0 = "Could not find application with guid \"{0}\"";
     public static final String GIT_URI_IS_NOT_SPECIFIED = "Git URI is not specified";
     public static final String PARAMETERS_OF_TASK_HOOK_0_ARE_INCOMPLETE = "Parameters of hook {0} with type \"task\" are incomplete. Expected at least \"command\".";
-
+    public static final String CANNOT_DETERMINE_MODULE_NAME = "Cannot determine module name";
+    public static final String CANNOT_DETERMINE_CURRENT_APPLICATION = "Cannot determine current application";
     // Audit log messages
 
     // ERROR log messages

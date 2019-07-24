@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.flowable.engine.ManagementService;
@@ -160,4 +161,5 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     private String getTaskId() {
         return TEST_TASK_ID;
     }
+
 }

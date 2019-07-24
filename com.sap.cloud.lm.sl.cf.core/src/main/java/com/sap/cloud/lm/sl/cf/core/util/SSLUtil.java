@@ -13,20 +13,18 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.commons.io.IOUtils;
-
 public class SSLUtil {
 
     private static final X509TrustManager NULL_TRUST_MANAGER = new X509TrustManager() {
 
         @Override
         public void checkClientTrusted(X509Certificate[] xcs, String string) throws java.security.cert.CertificateException {
-            // Do nothing.
+            // NOSONAR
         }
 
         @Override
         public void checkServerTrusted(X509Certificate[] xcs, String string) throws java.security.cert.CertificateException {
-            // Do nothing.
+            // NOSONAR
         }
 
         @Override
@@ -47,9 +45,7 @@ public class SSLUtil {
     }
 
     public static void useCaCertificateValidation(String certificatePath) {
-        InputStream is = null;
-        try {
-            is = new FileInputStream(certificatePath);
+        try (InputStream is = new FileInputStream(certificatePath)) {
 
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 
@@ -67,8 +63,6 @@ public class SSLUtil {
             SSLContext.setDefault(context);
         } catch (Exception e) {
             throw new IllegalStateException(e);
-        } finally {
-            IOUtils.closeQuietly(is);
         }
     }
 
