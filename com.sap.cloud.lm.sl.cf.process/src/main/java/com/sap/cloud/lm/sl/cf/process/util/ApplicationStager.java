@@ -17,6 +17,7 @@ import org.cloudfoundry.client.lib.util.JsonUtil;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.http.HttpStatus;
 
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
@@ -35,8 +36,25 @@ public class ApplicationStager {
         if (buildGuid == null) {
             return new StagingState(PackageState.STAGED, null);
         }
-        CloudBuild build = client.getBuild(buildGuid);
+        CloudBuild build = getBuild(context, buildGuid);
         return getStagingState(build);
+    }
+
+    private CloudBuild getBuild(DelegateExecution context, UUID buildGuid) {
+        try {
+            return client.getBuild(buildGuid);
+        } catch (CloudOperationException e) {
+            if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
+                checkIfApplicationExists(context);
+            }
+            throw e;
+        }
+    }
+
+    private void checkIfApplicationExists(DelegateExecution context) {
+        CloudApplicationExtended app = StepsUtil.getApp(context);
+        // This will produce an exception with a more meaningful message why the build is missing
+        client.getApplication(app.getName());
     }
 
     private StagingState getStagingState(CloudBuild build) {

@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.util;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 
 import java.util.Arrays;
@@ -11,8 +12,14 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.*;
+import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudBuild;
 import org.cloudfoundry.client.lib.domain.CloudBuild.DropletInfo;
+import org.cloudfoundry.client.lib.domain.CloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
+import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
+import org.cloudfoundry.client.lib.domain.PackageState;
+import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,6 +77,50 @@ public class ApplicationStagerTest {
         StagingState stagingState = applicationStager.getStagingState(execution.getContext());
         assertEquals(PackageState.FAILED, stagingState.getState());
         assertEquals("Error occurred while creating a build!", stagingState.getError());
+    }
+
+    @Test
+    public void testBuildStateNotFoundAppNotFound() {
+        ImmutableCloudApplication application = ImmutableCloudApplication.builder()
+                                                                         .name(APP_NAME)
+                                                                         .build();
+        Mockito.when(context.getVariable(Constants.VAR_APP_TO_PROCESS))
+               .thenReturn(JsonUtil.toJson(application));
+        Mockito.when(client.getBuild(BUILD_GUID))
+               .thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND));
+        Mockito.when(client.getApplication(APP_NAME))
+               .thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND));
+        try {
+            applicationStager.getStagingState(execution.getContext());
+            fail("staging should fail!");
+        } catch (CloudOperationException e) {
+            Mockito.verify(client, Mockito.times(1))
+                   .getBuild(BUILD_GUID);
+            Mockito.verify(client, Mockito.times(1))
+                   .getApplication(APP_NAME);
+        }
+    }
+
+    @Test
+    public void testBuildStateNotFoundAppFound() {
+        ImmutableCloudApplication application = ImmutableCloudApplication.builder()
+                                                                         .name(APP_NAME)
+                                                                         .build();
+        Mockito.when(context.getVariable(Constants.VAR_APP_TO_PROCESS))
+               .thenReturn(JsonUtil.toJson(application));
+        Mockito.when(client.getBuild(BUILD_GUID))
+               .thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND));
+        Mockito.when(client.getApplication(APP_NAME))
+               .thenReturn(application);
+        try {
+            applicationStager.getStagingState(execution.getContext());
+            fail("staging should fail!");
+        } catch (CloudOperationException e) {
+            Mockito.verify(client, Mockito.times(1))
+                   .getBuild(BUILD_GUID);
+            Mockito.verify(client, Mockito.times(1))
+                   .getApplication(APP_NAME);
+        }
     }
 
     @Test
