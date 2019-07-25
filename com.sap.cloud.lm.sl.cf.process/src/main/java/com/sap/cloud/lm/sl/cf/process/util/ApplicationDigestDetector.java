@@ -16,7 +16,7 @@ public class ApplicationDigestDetector {
 
     public String getExistingApplicationDigest() {
         CloudApplication existingApp = client.getApplication(app.getName());
-        ApplicationFileDigestDetector applicationFileDigestDetector = new ApplicationFileDigestDetector(existingApp);
+        ApplicationFileDigestDetector applicationFileDigestDetector = new ApplicationFileDigestDetector(existingApp.getEnv());
         return applicationFileDigestDetector.detectCurrentAppFileDigest();
     }
 
