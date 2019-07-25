@@ -1,8 +1,10 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
@@ -10,7 +12,6 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters.RoutingParameterSet;
 import com.sap.cloud.lm.sl.cf.core.parser.IdleUriParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.UriParametersParser;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
@@ -44,11 +45,11 @@ public class ApplicationUrisCloudModelBuilder {
     }
 
     private List<String> appendExistingUris(List<String> uris, DeployedMtaModule deployedModule) {
-        List<String> result = new ArrayList<>(uris);
+        Set<String> result = new HashSet<>(uris);
         if (deployedModule != null) {
             result.addAll(deployedModule.getUris());
         }
-        return ListUtil.removeDuplicates(result);
+        return new ArrayList<>(result);
     }
 
     public List<String> getApplicationDomains(Module module, List<Map<String, Object>> propertiesList) {

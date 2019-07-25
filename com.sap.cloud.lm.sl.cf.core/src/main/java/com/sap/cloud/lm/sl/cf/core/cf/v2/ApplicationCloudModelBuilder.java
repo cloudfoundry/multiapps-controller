@@ -5,9 +5,13 @@ import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.domain.CloudTask;
@@ -33,7 +37,6 @@ import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
@@ -200,17 +203,17 @@ public class ApplicationCloudModelBuilder {
     }
 
     protected List<String> getApplicationServices(Module module, Predicate<ResourceAndResourceType> filterRule) {
-        List<String> services = new ArrayList<>();
+        Set<String> services = new LinkedHashSet<>();
         for (RequiredDependency dependency : module.getRequiredDependencies()) {
-            ResourceAndResourceType pair = getApplicationService(dependency.getName());
-            if (pair != null && filterRule.test(pair)) {
-                CollectionUtils.addIgnoreNull(services, NameUtil.getServiceName(pair.getResource()));
+            ResourceAndResourceType resourceWithType = getResourceWithType(dependency.getName());
+            if (resourceWithType != null && filterRule.test(resourceWithType)) {
+                CollectionUtils.addIgnoreNull(services, NameUtil.getServiceName(resourceWithType.getResource()));
             }
         }
-        return ListUtil.removeDuplicates(services);
+        return new ArrayList<>(services);
     }
 
-    protected ResourceAndResourceType getApplicationService(String dependencyName) {
+    protected ResourceAndResourceType getResourceWithType(String dependencyName) {
         Resource resource = getResource(dependencyName);
         if (resource != null && CloudModelBuilderUtil.isService(resource)) {
             ResourceType serviceType = CloudModelBuilderUtil.getResourceType(resource.getParameters());
@@ -220,12 +223,11 @@ public class ApplicationCloudModelBuilder {
     }
 
     protected List<ServiceKeyToInject> getServicesKeysToInject(Module module) {
-        List<ServiceKeyToInject> serviceKeysToInject = new ArrayList<>();
-        for (RequiredDependency dependency : module.getRequiredDependencies()) {
-            ServiceKeyToInject serviceKey = getServiceKeyToInject(dependency);
-            CollectionUtils.addIgnoreNull(serviceKeysToInject, serviceKey);
-        }
-        return serviceKeysToInject;
+        return module.getRequiredDependencies()
+            .stream()
+            .map(this::getServiceKeyToInject)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
     protected ServiceKeyToInject getServiceKeyToInject(RequiredDependency dependency) {

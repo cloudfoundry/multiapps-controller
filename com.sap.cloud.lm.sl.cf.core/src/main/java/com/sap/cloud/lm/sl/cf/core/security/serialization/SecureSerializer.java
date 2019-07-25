@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.security.serialization;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 public abstract class SecureSerializer<E extends Element> {
@@ -39,15 +39,14 @@ public abstract class SecureSerializer<E extends Element> {
     }
 
     private void modifySensitiveElements(CompositeElement element) {
-        List<Element> elementsToModify = new ArrayList<>();
-        element.getMembers()
-            .forEach(nestedElement -> {
-                if (isSensitive(nestedElement)) {
-                    elementsToModify.add(0, nestedElement);
-                } else {
-                    modifySensitiveElements(nestedElement);
-                }
-            });
+        List<Element> elementsToModify = new LinkedList<>();
+        for (Element nestedElement : element.getMembers()) {
+            if (isSensitive(nestedElement)) {
+                elementsToModify.add(0, nestedElement);
+            } else {
+                modifySensitiveElements(nestedElement);
+            }
+        }
         modifyElements(element, elementsToModify);
     }
 

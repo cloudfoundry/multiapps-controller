@@ -34,8 +34,7 @@ public class ExecutionRetrier {
     }
 
     public <T> T executeWithRetry(Supplier<T> supplier, HttpStatus... httpStatusesToIgnore) {
-        Set<HttpStatus> httpStatuses = new HashSet<>();
-        httpStatuses.addAll(Arrays.asList(httpStatusesToIgnore));
+        Set<HttpStatus> httpStatuses = new HashSet<>(Arrays.asList(httpStatusesToIgnore));
         for (int i = 1; i < retryCount; i++) {
             try {
                 return supplier.get();

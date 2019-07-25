@@ -76,18 +76,17 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
                 MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
                 // Set MTA archive modules in the context
                 Map<String, String> mtaArchiveModules = helper.getMtaArchiveModules();
-                mtaArchiveModules.forEach((moduleName, fileName) -> mtaArchiveElements.addModuleFileName(moduleName, fileName));
+                mtaArchiveModules.forEach(mtaArchiveElements::addModuleFileName);
                 getStepLogger().debug("MTA Archive Modules: {0}", mtaArchiveModules.keySet());
                 StepsUtil.setMtaArchiveModules(context, mtaArchiveModules.keySet());
 
                 Map<String, String> mtaArchiveRequiresDependencies = helper.getMtaRequiresDependencies();
-                mtaArchiveRequiresDependencies
-                    .forEach((requiresName, fileName) -> mtaArchiveElements.addRequiredDependencyFileName(requiresName, fileName));
+                mtaArchiveRequiresDependencies.forEach(mtaArchiveElements::addRequiredDependencyFileName);
                 getStepLogger().debug("MTA Archive Requires: {0}", mtaArchiveRequiresDependencies.keySet());
 
                 // Set MTA archive resources in the context
                 Map<String, String> mtaArchiveResources = helper.getMtaArchiveResources();
-                mtaArchiveResources.forEach((resourceName, fileName) -> mtaArchiveElements.addResourceFileName(resourceName, fileName));
+                mtaArchiveResources.forEach(mtaArchiveElements::addResourceFileName);
                 getStepLogger().debug("MTA Archive Resources: {0}", mtaArchiveResources.keySet());
 
                 StepsUtil.setMtaArchiveElements(context, mtaArchiveElements);
