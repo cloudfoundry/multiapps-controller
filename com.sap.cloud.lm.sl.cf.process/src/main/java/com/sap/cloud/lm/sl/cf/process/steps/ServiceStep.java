@@ -59,8 +59,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     }
 
     private MethodExecution<String> executeOperationAndHandleExceptions(DelegateExecution execution, CloudControllerClient controllerClient,
-                                                                        CloudServiceExtended service)
-        throws Exception {
+                                                                        CloudServiceExtended service) {
         try {
             return executeOperation(execution, controllerClient, service);
         } catch (CloudOperationException e) {
