@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class JsonMapElement extends JsonElement<Map<String, Object>> implements MapElement {
 
@@ -15,11 +16,10 @@ public class JsonMapElement extends JsonElement<Map<String, Object>> implements 
 
     @Override
     public Collection<Element> getMembers() {
-        List<Element> members = new ArrayList<>();
-        for (Map.Entry<String, Object> element : object.entrySet()) {
-            members.add(toJsonElement(element));
-        }
-        return members;
+        return object.entrySet()
+            .stream()
+            .map(this::toJsonElement)
+            .collect(Collectors.toList());
     }
 
     private Element toJsonElement(Map.Entry<String, Object> element) {

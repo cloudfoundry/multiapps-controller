@@ -26,7 +26,7 @@ public class AbortFailedProcessCommandFactory extends NoJobRetryCommandFactory {
     }
 
     protected String getAbortReason() {
-        return State.ABORTED.value();
+        return State.ABORTED.name();
     }
 
     protected static class AbortFailedProcessCommand implements Command<Object> {

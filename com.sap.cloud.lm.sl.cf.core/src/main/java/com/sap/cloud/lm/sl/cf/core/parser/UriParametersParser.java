@@ -12,8 +12,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.CollectionUtils;
-
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
@@ -53,7 +51,6 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     }
 
     private List<String> getUris(List<Map<String, Object>> parametersList) {
-
         List<String> routes = getApplicationRoutes(parametersList);
         if (!routes.isEmpty()) {
             return routes;
@@ -72,15 +69,11 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     }
 
     public List<String> getApplicationDomains(List<Map<String, Object>> parametersList) {
-        List<String> domains;
         List<String> routes = getApplicationRoutes(parametersList);
         if (!routes.isEmpty()) {
-            domains = getDomainsFromRoutes(routes);
-        } else {
-            domains = getDomainValues(parametersList);
+            return getDomainsFromRoutes(routes);
         }
-
-        return domains;
+        return getDomainValues(parametersList);
     }
 
     private List<String> getHostValues(List<Map<String, Object>> parametersList) {
@@ -126,25 +119,25 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     }
 
     public List<String> getApplicationRoutes(List<Map<String, Object>> parametersList) {
-
         List<Map<String, Object>> routesMaps = RoutesValidator
             .applyRoutesType(PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.ROUTES, null));
 
-        List<String> allNonNullRoutes = CollectionUtils.emptyIfNull(routesMaps)
-            .stream()
-            .map(routesMap -> (String) routesMap.get(SupportedParameters.ROUTE))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
-
-        if (modifyRoute) {
-            return allNonNullRoutes.stream()
-                .map(route -> modifyUri(route, parametersList))
-                .collect(Collectors.toList());
+        if (routesMaps == null) {
+            return Collections.emptyList();
         }
 
-        return allNonNullRoutes.stream()
-            .map(UriUtil::stripScheme)
+        return routesMaps.stream()
+            .map(routesMap -> (String) routesMap.get(SupportedParameters.ROUTE))
+            .filter(Objects::nonNull)
+            .map(route -> modifyRoute(route, parametersList))
             .collect(Collectors.toList());
+    }
+
+    private String modifyRoute(String route, List<Map<String, Object>> parametersList) {
+        if (modifyRoute) {
+            return modifyUri(route, parametersList);
+        }
+        return UriUtil.stripScheme(route);
     }
 
     public String modifyUri(String inputURI, List<Map<String, Object>> customURIParts) {

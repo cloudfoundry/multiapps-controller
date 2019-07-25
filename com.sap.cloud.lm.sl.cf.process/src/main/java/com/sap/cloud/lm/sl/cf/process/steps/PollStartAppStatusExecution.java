@@ -2,10 +2,10 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -74,10 +74,10 @@ public class PollStartAppStatusExecution implements AsyncExecution {
 
         if (appInstances != null) {
             int expectedInstances = app.getInstances();
-            int runningInstances = getInstanceCount(appInstances, InstanceState.RUNNING);
-            int flappingInstances = getInstanceCount(appInstances, InstanceState.FLAPPING);
-            int crashedInstances = getInstanceCount(appInstances, InstanceState.CRASHED);
-            int startingInstances = getInstanceCount(appInstances, InstanceState.STARTING);
+            long runningInstances = getInstanceCount(appInstances, InstanceState.RUNNING);
+            long flappingInstances = getInstanceCount(appInstances, InstanceState.FLAPPING);
+            long crashedInstances = getInstanceCount(appInstances, InstanceState.CRASHED);
+            long startingInstances = getInstanceCount(appInstances, InstanceState.STARTING);
 
             showInstancesStatus(execution, app.getName(), appInstances, runningInstances, expectedInstances);
 
@@ -128,7 +128,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         return null;
     }
 
-    private void showInstancesStatus(ExecutionWrapper execution, String appName, List<InstanceInfo> instances, int runningInstances,
+    private void showInstancesStatus(ExecutionWrapper execution, String appName, List<InstanceInfo> instances, long runningInstances,
         int expectedInstances) {
 
         // Determine state counts
@@ -139,23 +139,29 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             for (InstanceInfo instance : instances) {
                 final String state = instance.getState()
                     .toString();
-                final Integer stateCount = stateCounts.get(state);
-                stateCounts.put(state, (stateCount == null) ? 1 : (stateCount + 1));
+                stateCounts.compute(state, this::computeStateCount);
             }
         }
 
         // Compose state strings
-        List<String> stateStrings = new ArrayList<>();
-        for (Map.Entry<String, Integer> sc : stateCounts.entrySet()) {
-            stateStrings.add(format("{0} {1}", sc.getValue(), sc.getKey()
-                .toLowerCase()));
-        }
+        String states = stateCounts.entrySet()
+            .stream()
+            .map(this::formatStateString)
+            .collect(Collectors.joining(","));
 
         // Print message
-        String message = format(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, appName, runningInstances, expectedInstances,
-            String.join(",", stateStrings));
+        String message = format(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, appName, runningInstances, expectedInstances, states);
         execution.getStepLogger()
             .debug(message);
+    }
+
+    private Integer computeStateCount(String state, Integer previousStateCount) {
+        return previousStateCount == null ? 1 : previousStateCount + 1;
+    }
+
+    private String formatStateString(Map.Entry<String, Integer> entry) {
+        return format("{0} {1}", entry.getValue(), entry.getKey()
+            .toLowerCase());
     }
 
     private static List<InstanceInfo> getApplicationInstances(CloudControllerClient client, CloudApplication app) {
@@ -163,14 +169,10 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         return (instancesInfo != null) ? instancesInfo.getInstances() : null;
     }
 
-    private static int getInstanceCount(List<InstanceInfo> instances, InstanceState state) {
-        int count = 0;
-        for (InstanceInfo instance : instances) {
-            if (instance.getState()
-                .equals(state)) {
-                count++;
-            }
-        }
-        return count;
+    private static long getInstanceCount(List<InstanceInfo> instances, InstanceState state) {
+        return instances.stream()
+            .filter(instance -> instance.getState()
+                .equals(state))
+            .count();
     }
 }

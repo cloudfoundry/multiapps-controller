@@ -225,7 +225,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         State operationState = operation.getState() != null ? operation.getState() : operationsHelper.computeState(operation);
         switch (operationState) {
             case FINISHED:
-                return Collections.emptyList();
             case ABORTED:
                 return Collections.emptyList();
             case ERROR:
@@ -235,7 +234,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             case ACTION_REQUIRED:
                 return new ArrayList<>(Arrays.asList(AbortProcessAction.ACTION_ID_ABORT, ResumeProcessAction.ACTION_ID_RESUME));
         }
-        throw new IllegalStateException("State " + operationState.value() + " not recognised!");
+        throw new IllegalStateException("State " + operationState.name() + " not recognised!");
     }
 
     private void addServiceParameters(Operation operation, String spaceGuid) {
