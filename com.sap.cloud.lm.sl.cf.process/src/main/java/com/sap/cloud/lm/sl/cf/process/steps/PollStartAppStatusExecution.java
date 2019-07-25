@@ -156,7 +156,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     }
 
     private Integer computeStateCount(String state, Integer previousStateCount) {
-        return previousStateCount == null ? 1 : previousStateCount + 1;
+        return previousStateCount == null ? 1 : (previousStateCount + 1);
     }
 
     private String formatStateString(Map.Entry<String, Integer> entry) {
