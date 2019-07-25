@@ -102,7 +102,7 @@ public class ObjectStoreFileStorage implements FileStorage {
     public void processFileContent(FileDownloadProcessor fileDownloadProcessor) throws FileStorageException {
         FileEntry fileEntry = fileDownloadProcessor.getFileEntry();
         try {
-            Blob blob = blobStore.getBlob(container, fileEntry.getId());
+            Blob blob = getBlobWithRetries(fileEntry, 3);
             if (blob == null) {
                 throw new FileStorageException(
                     MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(), fileEntry.getSpace()));
@@ -113,7 +113,7 @@ public class ObjectStoreFileStorage implements FileStorage {
             throw new FileStorageException(e);
         }
     }
-
+    
     private void processContent(FileDownloadProcessor fileDownloadProcessor, Payload payload) throws FileStorageException {
         try (InputStream fileContentStream = payload.openStream()) {
             fileDownloadProcessor.processContent(fileContentStream);
@@ -128,15 +128,34 @@ public class ObjectStoreFileStorage implements FileStorage {
                 blobStore.putBlob(container, blob);
                 return;
             } catch (HttpResponseException e) {
-                LOGGER.warn(MessageFormat.format(Messages.BLOB_STORE_PUT_BLOB_FAILED, i, retries, e.getMessage()), e);
+                LOGGER.warn(MessageFormat.format(Messages.ATTEMPT_TO_UPLOAD_BLOB_FAILED, i, retries, e.getMessage()), e);
                 if (i == retries) {
                     throw e;
                 }
             }
-            CommonUtil.sleep(i * RETRY_BASE_WAIT_TIME_IN_MILLIS);
+            CommonUtil.sleep(i * getRetryWaitTime());
         }
     }
 
+    private Blob getBlobWithRetries(FileEntry fileEntry, int retries) {
+        for (int i = 1; i <= retries; i++) {
+            Blob blob = blobStore.getBlob(container, fileEntry.getId());
+            if (blob != null) {
+                return blob;
+            }
+            LOGGER.warn(Messages.ATTEMPT_TO_DOWNLOAD_MISSING_BLOB, i, retries, fileEntry.getId());
+            if (i == retries) {
+                break;
+            }
+            CommonUtil.sleep(i * getRetryWaitTime());
+        }
+        return null;
+    }
+
+    protected long getRetryWaitTime() {
+        return RETRY_BASE_WAIT_TIME_IN_MILLIS;
+    }
+    
     private Map<String, String> createFileEntryMetadata(FileEntry fileEntry) {
         Map<String, String> metadata = new HashMap<>();
         metadata.put(FileService.FileServiceColumnNames.SPACE.toLowerCase(), fileEntry.getSpace());
