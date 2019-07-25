@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
-import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.UploadToken;

@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.junit.Before;
 import org.junit.Rule;

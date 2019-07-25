@@ -1,12 +1,15 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
+import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableExceptionEvent;
+import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.impl.context.Context;
 import org.flowable.engine.runtime.Execution;
 import org.slf4j.Logger;
@@ -38,7 +41,7 @@ public class FlowableExceptionEventHandler {
             return;
         }
 
-        FlowableExceptionEvent flowableExceptionEvent = (FlowableExceptionEvent) event;
+        FlowableExceptionEvent flowableExceptionEvent = getFlowableExceptionEvent(event);
         String flowableExceptionStackTrace = ExceptionUtils.getStackTrace(flowableExceptionEvent.getCause());
         LOGGER.error(flowableExceptionStackTrace);
         String flowableExceptionMessage = flowableExceptionEvent.getCause()
@@ -53,6 +56,10 @@ public class FlowableExceptionEventHandler {
         } catch (SLException e) {
             LOGGER.warn(e.getMessage());
         }
+    }
+
+    protected FlowableExceptionEvent getFlowableExceptionEvent(FlowableEvent event) {
+        return (FlowableExceptionEvent) event;
     }
 
     private void tryToPreserveFlowableException(FlowableEvent event, String flowableExceptionMessage) {
@@ -71,6 +78,7 @@ public class FlowableExceptionEventHandler {
             .taskId(taskId)
             .type(ProgressMessageType.ERROR)
             .text(errorMessage)
+            .timestamp(getCurrentTimestamp())
             .build());
     }
 
@@ -96,8 +104,7 @@ public class FlowableExceptionEventHandler {
     private Execution findCurrentExecution(FlowableEngineEvent flowableEngineEvent) {
         try {
             // This is needed because when there are parallel CallActivity, the query will return multiple results for just one Execution
-            List<Execution> currentExecutionsForProcess = Context.getProcessEngineConfiguration()
-                .getRuntimeService()
+            List<Execution> currentExecutionsForProcess = getProcessEngineConfiguration().getRuntimeService()
                 .createExecutionQuery()
                 .executionId(flowableEngineEvent.getExecutionId())
                 .processInstanceId(flowableEngineEvent.getProcessInstanceId())
@@ -113,6 +120,10 @@ public class FlowableExceptionEventHandler {
         }
     }
 
+    protected ProcessEngineConfiguration getProcessEngineConfiguration() {
+        return Context.getProcessEngineConfiguration();
+    }
+
     private Execution findCurrentExecution(List<Execution> currentExecutionsForProcess) {
         return currentExecutionsForProcess.stream()
             .filter(execution -> execution.getActivityId() != null)
@@ -120,4 +131,7 @@ public class FlowableExceptionEventHandler {
             .orElse(null);
     }
 
+    protected Date getCurrentTimestamp() {
+        return new Timestamp(System.currentTimeMillis());
+    }
 }
