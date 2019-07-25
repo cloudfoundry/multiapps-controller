@@ -1,9 +1,9 @@
 {
 	"application" : {
 		"name":"test-app-1",
-		"env": [
-          "serviceKeyCredentials={\n  \"user\": \"service-key-user\",\n  \"password\": \"service-key-password\"\n}"
-        ],
+		"env": {
+          "serviceKeyCredentials": "{\n  \"user\": \"service-key-user\",\n  \"password\": \"service-key-password\"\n}"
+        },
 		"services":[
 			"test-service-1", "test-service-2" 
 		],

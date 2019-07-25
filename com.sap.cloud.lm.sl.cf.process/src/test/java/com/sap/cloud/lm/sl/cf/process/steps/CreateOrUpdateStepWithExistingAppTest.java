@@ -127,6 +127,10 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
             // Test if healthCheckHttpEndpoint parameter is updated
             {
                 "update-app-step-input-20.json", null,
+            },
+            // Test if healthCheckHttpEndpoint parameter is updated
+            {
+                "update-app-step-input-21.json", null,
             }
 // @formatter:on
         });
@@ -162,35 +166,35 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         CloudApplicationExtended cloudApp = input.application.toCloudApp();
         if (input.updateStaging) {
             Mockito.verify(client)
-                .updateApplicationStaging(Mockito.eq(appName), Mockito.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
+                   .updateApplicationStaging(Mockito.eq(appName), Mockito.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
         }
         if (input.updateMemory) {
             Mockito.verify(client)
-                .updateApplicationMemory(appName, cloudApp.getMemory());
+                   .updateApplicationMemory(appName, cloudApp.getMemory());
         }
         if (input.updateDiskQuota) {
             Mockito.verify(client)
-                .updateApplicationDiskQuota(appName, cloudApp.getDiskQuota());
+                   .updateApplicationDiskQuota(appName, cloudApp.getDiskQuota());
         }
         if (input.updateUris) {
             Mockito.verify(client)
-                .updateApplicationUris(appName, cloudApp.getUris());
+                   .updateApplicationUris(appName, cloudApp.getUris());
         }
         if (input.updateEnv) {
             Mockito.verify(client)
-                .updateApplicationEnv(appName, cloudApp.getEnv());
+                   .updateApplicationEnv(appName, cloudApp.getEnv());
         }
     }
 
     private void validateBindServices() {
         Map<String, Map<String, Object>> currentBindingParameters = input.application.toCloudApp()
-            .getBindingParameters();
+                                                                                     .getBindingParameters();
         Map<String, Map<String, Object>> test = new HashMap<>();
         for (String serviceToBind : expectedServicesToBind) {
             test.put(mapToCloudService(serviceToBind).getName(), getBindingParametersForService(currentBindingParameters, serviceToBind));
         }
         Mockito.verify(client)
-            .updateApplicationServices(input.existingApplication.name, test, step.getApplicationServicesUpdateCallback(context));
+               .updateApplicationServices(input.existingApplication.name, test, step.getApplicationServicesUpdateCallback(context));
     }
 
     private Map<String, Object> getBindingParametersForService(Map<String, Map<String, Object>> bindingParameters, String serviceName) {
@@ -200,7 +204,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     private void validateUnbindServices() {
         for (String notRquiredService : notRequiredServices) {
             Mockito.verify(client)
-                .unbindService(input.existingApplication.name, notRquiredService);
+                   .unbindService(input.existingApplication.name, notRquiredService);
         }
     }
 
@@ -226,7 +230,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
 
     private void mockServiceRetrieval(String service) {
         Mockito.when(client.getService(service))
-            .thenReturn(mapToCloudService(service));
+               .thenReturn(mapToCloudService(service));
     }
 
     private void prepareExistingServiceBindings() {
@@ -237,22 +241,22 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
                 serviceBindings.add(simpleBinding.toCloudServiceBinding());
             }
             Mockito.when(cloudServiceInstance.getBindings())
-                .thenReturn(serviceBindings);
+                   .thenReturn(serviceBindings);
             Mockito.when(client.getServiceInstance(serviceName))
-                .thenReturn(cloudServiceInstance);
+                   .thenReturn(cloudServiceInstance);
         }
 
         for (String serviceName : input.existingServiceKeys.keySet()) {
             List<CloudServiceKey> serviceKeys = input.existingServiceKeys.get(serviceName);
             Mockito.when(client.getServiceKeys(eq(serviceName)))
-                .thenReturn(ListUtil.upcast(serviceKeys));
+                   .thenReturn(ListUtil.upcast(serviceKeys));
         }
     }
 
     private List<CloudServiceExtended> mapToCloudServices() {
         return input.application.services.stream()
-            .map(serviceName -> mapToCloudService(serviceName))
-            .collect(Collectors.toList());
+                                         .map(serviceName -> mapToCloudService(serviceName))
+                                         .collect(Collectors.toList());
     }
 
     private CloudServiceExtended mapToCloudService(String serviceName) {
@@ -270,14 +274,14 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
 
     private void prepareDiscontinuedServices() {
         List<String> discontinuedServices = input.existingApplication.services.stream()
-            .filter((service) -> !input.application.services.contains(service))
-            .collect(Collectors.toList());
+                                                                              .filter((service) -> !input.application.services.contains(service))
+                                                                              .collect(Collectors.toList());
         notRequiredServices.addAll(discontinuedServices);
     }
 
     private void prepareContext() {
         Mockito.when(client.getApplication(eq(input.existingApplication.name), eq(false)))
-            .thenReturn(input.existingApplication.toCloudApp());
+               .thenReturn(input.existingApplication.toCloudApp());
         CloudApplicationExtended cloudApp = input.application.toCloudApp();
         // TODO
         StepsUtil.setAppsToDeploy(context, Collections.emptyList());
@@ -308,9 +312,9 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
 
         CloudServiceBinding toCloudServiceBinding() {
             return ImmutableCloudServiceBinding.builder()
-                .applicationGuid(NameUtil.getUUID(applicationName))
-                .bindingOptions(bindingOptions)
-                .build();
+                                               .applicationGuid(NameUtil.getUUID(applicationName))
+                                               .bindingOptions(bindingOptions)
+                                               .build();
         }
     }
 
@@ -318,6 +322,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         String name;
         List<String> services = Collections.emptyList();
         Map<String, Map<String, Object>> bindingParameters = Collections.emptyMap();
+        Map<String, String> env = Collections.emptyMap();
         List<ServiceKeyToInject> serviceKeysToInject = Collections.emptyList();
         String command;
         List<String> uris = Collections.emptyList();
@@ -332,28 +337,30 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
 
         CloudApplicationExtended toCloudApp() {
             return ImmutableCloudApplicationExtended.builder()
-                .attributesUpdateStrategy(ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy.builder()
-                    .shouldKeepExistingServiceBindings(shouldKeepServiceBindings)
-                    .build())
-                .name(name)
-                .moduleName("test")
-                .staging(ImmutableStaging.builder().command(command)
-                    .buildpackUrl(buildpackUrl)
-                    .healthCheckTimeout(0)
-                    .detectedBuildpack("none")
-                    .healthCheckType(healthCheckType)
-                    .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
-                    .isSshEnabled(sshEnabled)
-                    .build())
-                .memory(memory)
-                .instances(instances)
-                .uris(uris)
-                .services(services)
-                .state(State.STARTED)
-                .diskQuota(diskQuota)
-                .bindingParameters(bindingParameters)
-                .serviceKeysToInject(serviceKeysToInject)
-                .build();
+                                                    .attributesUpdateStrategy(ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy.builder()
+                                                                                                                                                .shouldKeepExistingServiceBindings(shouldKeepServiceBindings)
+                                                                                                                                                .build())
+                                                    .name(name)
+                                                    .moduleName("test")
+                                                    .staging(ImmutableStaging.builder()
+                                                                             .command(command)
+                                                                             .buildpackUrl(buildpackUrl)
+                                                                             .healthCheckTimeout(0)
+                                                                             .detectedBuildpack("none")
+                                                                             .healthCheckType(healthCheckType)
+                                                                             .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
+                                                                             .isSshEnabled(sshEnabled)
+                                                                             .build())
+                                                    .memory(memory)
+                                                    .instances(instances)
+                                                    .uris(uris)
+                                                    .env(env)
+                                                    .services(services)
+                                                    .state(State.STARTED)
+                                                    .diskQuota(diskQuota)
+                                                    .bindingParameters(bindingParameters)
+                                                    .serviceKeysToInject(serviceKeysToInject)
+                                                    .build();
         }
 
     }
@@ -367,11 +374,11 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
 
         CloudServiceExtended toCloudService() {
             return ImmutableCloudServiceExtended.builder()
-                .metadata(ImmutableCloudMetadata.builder()
-                    .guid(NameUtil.getUUID(name))
-                    .build())
-                .name(name)
-                .build();
+                                                .metadata(ImmutableCloudMetadata.builder()
+                                                                                .guid(NameUtil.getUUID(name))
+                                                                                .build())
+                                                .name(name)
+                                                .build();
         }
     }
 

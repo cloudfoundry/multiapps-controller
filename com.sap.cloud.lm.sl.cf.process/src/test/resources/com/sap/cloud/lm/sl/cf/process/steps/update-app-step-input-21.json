@@ -1,0 +1,23 @@
+{
+	"application" : {
+		"name":"test-app-1",
+		"memory" : 0,
+		"instances" : 1,
+		"diskQuota": 0
+	},
+	"existingApplication" : {
+		"name":"test-app-1",
+		"memory" : 0,
+		"instances" : 1,
+		"env": {
+			"DEPLOY_ATTRIBUTES": "{invalid json!}"
+		},
+		"diskQuota": 0
+	},
+	"existingServiceBindings": {},
+	"updateStaging":"false",
+	"updateMemory":"false",
+	"updateDiskQuota":"false",
+	"updateUris":"false",
+	"updateEnv":"true"
+}
