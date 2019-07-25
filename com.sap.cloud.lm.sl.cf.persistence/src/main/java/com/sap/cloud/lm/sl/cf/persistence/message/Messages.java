@@ -9,7 +9,6 @@ public final class Messages {
     public static final String NO_VIRUS_SCANNER_CONFIGURED = "Virus scanner not configured";
     public static final String FILE_UPLOAD_FAILED = "Upload of file \"{0}\" to \"{1}\" failed";
     public static final String FILE_NOT_FOUND = "File \"{0}\" not found";
-    public static final String BLOB_STORE_PUT_BLOB_FAILED = "Attempt [{0}/{1}] to upload blob to ObjectStore failed with \"{2}\"";
     public static final String ERROR_SAVING_MESSAGE = "Error saving message with process ID \"{0}\", task ID \"{1}\"";
     public static final String ERROR_UPDATING_MESSAGE = "Error updating message with ID \"{0}\"";
     public static final String ERROR_DELETING_MESSAGES_WITH_PROCESS_ID = "Error deleting messages with process ID \"{0}\"";
@@ -39,6 +38,8 @@ public final class Messages {
     public static final String COULD_NOT_CLOSE_CONNECTION = "Could not close connection.";
     public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction!";
     public static final String COULD_NOT_PERSIST_LOGS_FILE = "Could not persist logs file: {0}";
+    public static final String ATTEMPT_TO_UPLOAD_BLOB_FAILED = "Attempt [{0}/{1}] to upload blob to ObjectStore failed with \"{2}\"";
+    public static final String ATTEMPT_TO_DOWNLOAD_MISSING_BLOB = "Attempt [{0}/{1}] to download missing blob {2} from ObjectStore";
 
     // INFO log messages:
 

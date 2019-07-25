@@ -49,7 +49,12 @@ public class ObjectStoreFileStorageTest {
     @Before
     public void setUp() throws Exception {
         createBlobStoreContext();
-        fileStorage = new ObjectStoreFileStorage(blobStoreContext.getBlobStore(), CONTAINER);
+        fileStorage = new ObjectStoreFileStorage(blobStoreContext.getBlobStore(), CONTAINER) {
+            @Override
+            protected long getRetryWaitTime() {
+                return 1;
+            }
+        };
         spaceId = UUID.randomUUID()
             .toString();
         namespace = UUID.randomUUID()
