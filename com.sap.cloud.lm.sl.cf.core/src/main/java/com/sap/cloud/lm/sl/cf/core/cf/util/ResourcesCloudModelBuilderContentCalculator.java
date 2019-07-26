@@ -49,17 +49,15 @@ public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBu
     }
 
     private void warnInactiveService(Resource resource) {
-        if (userMessageLogger == null) {
-            return;
+        if (userMessageLogger != null) {
+            userMessageLogger.warn(Messages.SERVICE_IS_NOT_ACTIVE, resource.getName());
         }
-        userMessageLogger.warn(Messages.SERVICE_IS_NOT_ACTIVE, resource.getName());
     }
 
     private void warnInvalidResourceType(Resource resource) {
-        if (userMessageLogger == null || !(isOptional(resource))) {
-            return;
+        if (userMessageLogger != null && isOptional(resource)) {
+            userMessageLogger.warn(Messages.OPTIONAL_RESOURCE_IS_NOT_SERVICE, resource.getName());
         }
-        userMessageLogger.warn(Messages.OPTIONAL_RESOURCE_IS_NOT_SERVICE, resource.getName());
     }
 
     private boolean isOptional(Resource resource) {

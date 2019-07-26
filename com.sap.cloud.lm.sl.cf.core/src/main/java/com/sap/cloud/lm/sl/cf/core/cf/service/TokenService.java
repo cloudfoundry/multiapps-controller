@@ -20,7 +20,6 @@ public class TokenService {
     /**
      * Chooses a token among all tokens for this user in the token store.
      * 
-     * @param tokenStore the token store to search in
      * @param userName the username
      * @return the chosen token, or null if no token was found
      */

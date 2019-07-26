@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -173,13 +172,10 @@ public class ConfigurationEntryDtoDao {
 
     private List<ConfigurationEntryDto> filter(List<ConfigurationEntryDto> entries, Map<String, Object> requiredProperties,
         CloudTarget requestedSpace) {
-
-        Stream<ConfigurationEntryDto> stream = entries.stream();
-        stream = stream.filter(entry -> CONTENT_FILTER.apply(entry.getContent(), requiredProperties));
-
-        stream = stream
-            .filter(entry -> TARGET_WILDCARD_FILTER.apply(new CloudTarget(entry.getTargetOrg(), entry.getTargetSpace()), requestedSpace));
-        return stream.collect(Collectors.toList());
+        return entries.stream()
+            .filter(entry -> CONTENT_FILTER.apply(entry.getContent(), requiredProperties))
+            .filter(entry -> TARGET_WILDCARD_FILTER.apply(new CloudTarget(entry.getTargetOrg(), entry.getTargetSpace()), requestedSpace))
+            .collect(Collectors.toList());
     }
 
     private ConfigurationEntryDto merge(ConfigurationEntryDto existingEntry, ConfigurationEntryDto entry) {

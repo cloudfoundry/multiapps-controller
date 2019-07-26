@@ -75,7 +75,7 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
 
     private void validateServiceInstanceResponse(Map<String, Object> serviceInstancesResponse) {
         List<Map<String, Object>> resources = getResourcesFromResponse(serviceInstancesResponse);
-        Assert.notNull(serviceInstancesResponse.containsKey(getResourcesName()), MessageFormat.format(Messages.ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MISSING_FIELD, getResourcesName()));
+        Assert.isTrue(serviceInstancesResponse.containsKey(getResourcesName()), MessageFormat.format(Messages.ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MISSING_FIELD, getResourcesName()));
         Assert.isTrue(resources == null || resources.size() <= 1, Messages.ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MORE_THEN_ONE_RESULT);
     }
 

@@ -292,9 +292,8 @@ public class MtaArchiveBuilder {
     private void putModuleEntry(Map<String, List<Module>> map, Module module) {
         String modulePath = module.getPath();
         if (modulePath != null) {
-            List<Module> moduleList = map.computeIfAbsent(modulePath, path -> new ArrayList<>());
-            moduleList.add(module);
+            map.computeIfAbsent(modulePath, k -> new ArrayList<>())
+                .add(module);
         }
-
     }
 }

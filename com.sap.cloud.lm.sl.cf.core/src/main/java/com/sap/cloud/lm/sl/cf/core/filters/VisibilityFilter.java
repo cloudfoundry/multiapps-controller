@@ -17,12 +17,8 @@ public class VisibilityFilter implements BiFunction<ConfigurationEntry, List<Clo
             return true;
         }
         List<CloudTarget> visibilityTargets = getVisibilityTargets(entry);
-        for (CloudTarget cloudTarget : cloudTargets) {
-            if (isVisible(cloudTarget, visibilityTargets)) {
-                return true;
-            }
-        }
-        return false;
+        return cloudTargets.stream()
+            .anyMatch(cloudTarget -> isVisible(cloudTarget, visibilityTargets));
     }
 
     private static boolean isVisible(CloudTarget cloudTarget, List<CloudTarget> visibilityCloudTargets) {

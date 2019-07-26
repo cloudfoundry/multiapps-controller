@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 public class MapToEnvironmentConverter {
 
@@ -13,10 +14,9 @@ public class MapToEnvironmentConverter {
 
     public Map<String, String> asEnv(Map<String, Object> map) {
         Map<String, String> result = new TreeMap<>();
-        for (String key : map.keySet()) {
-            Object v = map.get(key);
-            String s = objectToEnvValueConverter.convert(v);
-            result.put(key, s);
+        for (Entry<String, Object> entry : map.entrySet()) {
+            String value = objectToEnvValueConverter.convert(entry.getValue());
+            result.put(entry.getKey(), value);
         }
         return result;
     }

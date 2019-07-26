@@ -31,9 +31,7 @@ public class OperationDao {
     }
 
     public void removeAll(List<String> processIds) {
-        for (String processId : processIds) {
-            dao.remove(processId);
-        }
+        processIds.forEach(dao::remove);
     }
 
     public int removeExpiredInFinalState(Date expirationTime) {

@@ -22,11 +22,8 @@ public class RestartOnEnvChangeValidator implements ParameterValidator {
             && !isValidBooleanParameter(parameters.get(SupportedParameters.VCAP_SERVICES_ENV))) {
             return false;
         }
-        if (parameters.containsKey(SupportedParameters.USER_PROVIDED_ENV)
-            && !isValidBooleanParameter(parameters.get(SupportedParameters.USER_PROVIDED_ENV))) {
-            return false;
-        }
-        return true;
+        return !parameters.containsKey(SupportedParameters.USER_PROVIDED_ENV)
+            || isValidBooleanParameter(parameters.get(SupportedParameters.USER_PROVIDED_ENV));
     }
 
     private boolean isValidBooleanParameter(Object parameter) {

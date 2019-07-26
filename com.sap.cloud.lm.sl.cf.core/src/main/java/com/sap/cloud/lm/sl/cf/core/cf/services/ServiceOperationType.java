@@ -6,17 +6,11 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 
 public enum ServiceOperationType {
 
-    CREATE("create"), UPDATE("update"), DELETE("delete");
-
-    private final String name;
-
-    private ServiceOperationType(String name) {
-        this.name = name;
-    }
+    CREATE, UPDATE, DELETE;
 
     @Override
     public String toString() {
-        return name;
+        return name().toLowerCase();
     }
 
     public static ServiceOperationType fromString(String value) {

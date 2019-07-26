@@ -2,53 +2,53 @@ package com.sap.cloud.lm.sl.cf.core.util;
 
 public interface UserMessageLogger {
 
-    public void logFlowableTask();
+    void logFlowableTask();
 
-    public void infoWithoutProgressMessage(String pattern, Object... arguments);
+    void infoWithoutProgressMessage(String pattern, Object... arguments);
 
-    public void infoWithoutProgressMessage(String message);
+    void infoWithoutProgressMessage(String message);
 
-    public void info(String pattern, Object... arguments);
+    void info(String pattern, Object... arguments);
 
-    public void info(String message);
+    void info(String message);
 
-    public void errorWithoutProgressMessage(Exception e, String pattern, Object... arguments);
+    void errorWithoutProgressMessage(Exception e, String pattern, Object... arguments);
 
-    public void errorWithoutProgressMessage(Exception e, String message);
+    void errorWithoutProgressMessage(Exception e, String message);
 
-    public void errorWithoutProgressMessage(String pattern, Object... arguments);
+    void errorWithoutProgressMessage(String pattern, Object... arguments);
 
-    public void errorWithoutProgressMessage(String message);
+    void errorWithoutProgressMessage(String message);
 
-    public void error(Exception e, String pattern, Object... arguments);
+    void error(Exception e, String pattern, Object... arguments);
 
-    public void error(Exception e, String message);
+    void error(Exception e, String message);
 
-    public void error(String pattern, Object... arguments);
+    void error(String pattern, Object... arguments);
 
-    public void error(String message);
+    void error(String message);
 
-    public void warnWithoutProgressMessage(Exception e, String pattern, Object... arguments);
+    void warnWithoutProgressMessage(Exception e, String pattern, Object... arguments);
 
-    public void warnWithoutProgressMessage(Exception e, String message);
+    void warnWithoutProgressMessage(Exception e, String message);
 
-    public void warnWithoutProgressMessage(String pattern, Object... arguments);
+    void warnWithoutProgressMessage(String pattern, Object... arguments);
 
-    public void warnWithoutProgressMessage(String message);
+    void warnWithoutProgressMessage(String message);
 
-    public void warn(Exception e, String pattern, Object... arguments);
+    void warn(Exception e, String pattern, Object... arguments);
 
-    public void warn(Exception e, String message);
+    void warn(Exception e, String message);
 
-    public void warn(String pattern, Object... arguments);
+    void warn(String pattern, Object... arguments);
 
-    public void warn(String message);
+    void warn(String message);
 
-    public void debug(String pattern, Object... arguments);
+    void debug(String pattern, Object... arguments);
 
-    public void debug(String message);
+    void debug(String message);
 
-    public void trace(String pattern, Object... arguments);
+    void trace(String pattern, Object... arguments);
 
-    public void trace(String message);
+    void trace(String message);
 }

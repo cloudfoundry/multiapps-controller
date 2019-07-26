@@ -131,7 +131,7 @@ public class MtaDescriptorPropertiesResolver {
 
             for (Map<String, Object> route : routes) {
                 Object routeValue = route.get(SupportedParameters.ROUTE);
-                if (routeValue != null && routeValue instanceof String) {
+                if (routeValue instanceof String) {
                     route.put(SupportedParameters.ROUTE, replacePartsWithIdlePlaceholders((String) routeValue));
                 }
             }

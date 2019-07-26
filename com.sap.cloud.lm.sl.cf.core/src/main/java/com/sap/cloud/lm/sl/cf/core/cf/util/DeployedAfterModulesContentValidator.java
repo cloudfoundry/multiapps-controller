@@ -1,14 +1,10 @@
 package com.sap.cloud.lm.sl.cf.core.cf.util;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
@@ -28,36 +24,27 @@ public class DeployedAfterModulesContentValidator implements ModulesContentValid
     public void validate(List<Module> modules) {
         List<String> modulesInModelNames = getModuleNames(modules);
 
-        Map<String, List<String>> modulesWithDependenciesNotInModel = modules.stream()
+        List<String> modulesWithDependenciesNotDeployed = modules.stream()
             .filter(module -> module.getMajorSchemaVersion() >= 3)
-            .collect(Collectors.toMap(Module::getName, module -> getDependenciesNotInModel(module, modulesInModelNames)));
-
-        List<String> modulesWithDependeciesNotDeployed = modulesWithDependenciesNotInModel.entrySet()
-            .stream()
-            .filter(moduleWithDependencies -> !areModulesAlreadyDeployed(client, moduleWithDependencies.getValue()))
-            .map(Map.Entry::getKey)
+            .filter(module -> !areModuleDependenciesResolvable(module, modulesInModelNames))
+            .map(Module::getName)
             .collect(Collectors.toList());
 
-        if (modulesWithDependeciesNotDeployed.isEmpty()) {
-            return;
+        if (!modulesWithDependenciesNotDeployed.isEmpty()) {
+            throw new ContentException(Messages.UNRESOLVED_MODULE_DEPENDENCIES,
+                String.join(DEFAULT_MESSAGE_DELIMITER, modulesWithDependenciesNotDeployed));
         }
-        throw new ContentException(Messages.UNRESOLVED_MODULE_DEPENDENCIES,
-            String.join(DEFAULT_MESSAGE_DELIMITER, modulesWithDependeciesNotDeployed));
     }
 
-    private List<String> getDependenciesNotInModel(Module module, List<String> modulesInModelNames) {
-        Collection<String> moduleDependencies = CollectionUtils.emptyIfNull(module.getDeployedAfter());
+    private boolean areModuleDependenciesResolvable(Module module, List<String> modulesInModelNames) {
+        List<String> moduleDependencies = module.getDeployedAfter();
+        if (moduleDependencies == null) {
+            return true;
+        }
         return moduleDependencies.stream()
             .filter(dependency -> !modulesInModelNames.contains(dependency))
-            .collect(Collectors.toList());
-    }
-
-    private boolean areModulesAlreadyDeployed(CloudControllerClient client, List<String> deployedAfter) {
-        List<CloudApplication> dependencyModulesApplications = deployedAfter.stream()
             .map(dependencyModule -> client.getApplication(dependencyModule, false))
-            .filter(Objects::isNull)
-            .collect(Collectors.toList());
-        return dependencyModulesApplications.isEmpty();
+            .noneMatch(Objects::isNull);
     }
 
     private List<String> getModuleNames(List<Module> modules) {

@@ -49,7 +49,7 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
 
     private void initializeModulesDependecyTypes(List<? extends Module> modulesForDeployment) {
         for (Module module : modulesForDeployment) {
-            String dependencyType = getDependencyType( module);
+            String dependencyType = getDependencyType(module);
             Map<String, Object> parameters = new TreeMap<>(module.getParameters());
             parameters.put(SupportedParameters.DEPENDENCY_TYPE, dependencyType);
             module.setParameters(parameters);
@@ -80,15 +80,14 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
     }
 
     private void printMTAModuleNotFoundWarning(String name) {
-        if (userMessageLogger == null) {
-            return;
+        if (userMessageLogger != null) {
+            userMessageLogger.warn(Messages.NOT_DESCRIBED_MODULE, name);
         }
-        userMessageLogger.warn(Messages.NOT_DESCRIBED_MODULE, name);
     }
 
     private boolean isDockerModule(Module module) {
-        Map<String, Object> moduleParameters = module.getParameters();
-        return moduleParameters.containsKey(SupportedParameters.DOCKER);
+        return module.getParameters()
+            .containsKey(SupportedParameters.DOCKER);
     }
 
     private boolean isModulePresentInArchive(Module module, Set<String> modulesInArchive) {
