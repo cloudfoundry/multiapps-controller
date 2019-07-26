@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -56,20 +58,19 @@ public class RoutesValidator implements ParameterValidator {
         }
 
         return routesList.stream()
-            .map(route -> attemptToCorrectParameterMap(route))
+            .map(this::attemptToCorrectParameterMap)
             .collect(Collectors.toList());
     }
 
     private Map<String, Object> attemptToCorrectParameterMap(Map<String, Object> originalElem) {
-        Map<String, Object> correctedElem = new TreeMap<>();
-
-        for (String key : originalElem.keySet()) {
-            if (validators.containsKey(key)) {
-                correctedElem.put(key, attemptToCorrectParameter(validators.get(key), originalElem.get(key)));
+        Map<String, Object> result = new TreeMap<>();
+        for (Entry<String, Object> entry : originalElem.entrySet()) {
+            if (validators.containsKey(entry.getKey())) {
+                Object value = attemptToCorrectParameter(validators.get(entry.getKey()), entry.getValue());
+                result.put(entry.getKey(), value);
             }
         }
-
-        return correctedElem;
+        return result;
     }
 
     private Object attemptToCorrectParameter(ParameterValidator validator, Object parameter) {
@@ -97,7 +98,7 @@ public class RoutesValidator implements ParameterValidator {
                 return null;
             }
 
-            return (List<Map<String, Object>>) routes;
+            return routesList;
         }
 
         return null;

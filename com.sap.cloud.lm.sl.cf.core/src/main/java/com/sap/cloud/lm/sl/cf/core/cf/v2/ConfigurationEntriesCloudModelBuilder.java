@@ -1,14 +1,13 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
+import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
@@ -18,7 +17,6 @@ import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.model.ParametersContainer;
 import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
@@ -35,40 +33,21 @@ public class ConfigurationEntriesCloudModelBuilder {
     }
 
     public Map<String, List<ConfigurationEntry>> build(DeploymentDescriptor deploymentDescriptor) {
-        Map<String, List<ProvidedDependency>> publicProvidedDependencies = getPublicProvidedDependencies(deploymentDescriptor);
-        return createConfigurationEntries(deploymentDescriptor, publicProvidedDependencies);
-    }
-
-    private Map<String, List<ProvidedDependency>> getPublicProvidedDependencies(DeploymentDescriptor deploymentDescriptor) {
-        Map<String, List<ProvidedDependency>> resultMap = new HashMap<>();
-        for (Module module : deploymentDescriptor.getModules()) {
-            resultMap.put(module.getName(), getPublicProvidedDependencies(module));
-        }
-        return resultMap;
-    }
-
-    private List<ProvidedDependency> getPublicProvidedDependencies(Module module) {
-        return module.getProvidedDependencies()
+        return deploymentDescriptor.getModules()
             .stream()
-            .filter(ProvidedDependency::isPublic)
-            .collect(Collectors.toList());
+            .collect(Collectors.toMap(Module::getName, module -> createConfigurationEntries(module, deploymentDescriptor)));
     }
 
-    private Map<String, List<ConfigurationEntry>> createConfigurationEntries(DeploymentDescriptor deploymentDescriptor,
-        Map<String, List<ProvidedDependency>> providedDependencies) {
-        Map<String, List<ConfigurationEntry>> result = new TreeMap<>();
-        for (Entry<String, List<ProvidedDependency>> providedDependency : providedDependencies.entrySet()) {
-            result.put(providedDependency.getKey(),
-                createConfigurationEntriesForModule(deploymentDescriptor, providedDependency.getValue()));
-        }
-        return result;
-    }
-
-    private List<ConfigurationEntry> createConfigurationEntriesForModule(DeploymentDescriptor deploymentDescriptor,
-        List<ProvidedDependency> providedDependencies) {
-        return providedDependencies.stream()
+    private List<ConfigurationEntry> createConfigurationEntries(Module module, DeploymentDescriptor deploymentDescriptor) {
+        return getPublicProvidedDependencies(module)
             .map(providedDependency -> createConfigurationEntry(deploymentDescriptor, providedDependency))
             .collect(Collectors.toList());
+    }
+
+    private Stream<ProvidedDependency> getPublicProvidedDependencies(Module module) {
+        return module.getProvidedDependencies()
+            .stream()
+            .filter(ProvidedDependency::isPublic);
     }
 
     private ConfigurationEntry createConfigurationEntry(DeploymentDescriptor deploymentDescriptor, ProvidedDependency providedDependency) {
@@ -109,8 +88,6 @@ public class ConfigurationEntriesCloudModelBuilder {
     }
 
     private List<CloudTarget> getDefaultVisibility() {
-        List<CloudTarget> visibility = new ArrayList<>();
-        visibility.add(new CloudTarget(orgName, "*"));
-        return visibility;
+        return Arrays.asList(new CloudTarget(orgName, "*"));
     }
 }

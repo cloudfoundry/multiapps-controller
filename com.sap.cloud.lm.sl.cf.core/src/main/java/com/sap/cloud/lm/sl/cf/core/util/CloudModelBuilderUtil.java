@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
@@ -14,19 +15,15 @@ import com.sap.cloud.lm.sl.mta.model.Resource;
 public class CloudModelBuilderUtil {
 
     public static Set<String> getDeployedModuleNames(List<DeployedMtaModule> deployedModules) {
-        Set<String> deployedModuleNames = new TreeSet<>();
-        for (DeployedMtaModule deployedModule : deployedModules) {
-            deployedModuleNames.add(deployedModule.getModuleName());
-        }
-        return deployedModuleNames;
+        return deployedModules.stream()
+            .map(DeployedMtaModule::getModuleName)
+            .collect(Collectors.toCollection(TreeSet::new));
     }
 
     public static Set<String> getDeployedAppNames(List<DeployedMtaModule> deployedModules) {
-        Set<String> deployedAppNames = new TreeSet<>();
-        for (DeployedMtaModule deployedModule : deployedModules) {
-            deployedAppNames.add(deployedModule.getAppName());
-        }
-        return deployedAppNames;
+        return deployedModules.stream()
+            .map(DeployedMtaModule::getAppName)
+            .collect(Collectors.toCollection(TreeSet::new));
     }
 
     public static boolean isService(Resource resource) {

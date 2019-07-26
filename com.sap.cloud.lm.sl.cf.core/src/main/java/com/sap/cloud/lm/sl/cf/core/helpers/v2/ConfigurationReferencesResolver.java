@@ -100,11 +100,11 @@ public class ConfigurationReferencesResolver extends Visitor {
     }
 
     protected List<RequiredDependency> getUpdatedRequiredDependencies(DeploymentDescriptor descriptor, Module module) {
-        List<RequiredDependency> requiredDependencies = new ArrayList<>();
-        for (RequiredDependency dependency : module.getRequiredDependencies()) {
-            requiredDependencies.addAll(expandRequiredDependencyIfNecessary(descriptor, module, dependency));
-        }
-        return requiredDependencies;
+        return module.getRequiredDependencies()
+            .stream()
+            .map(dependency -> expandRequiredDependencyIfNecessary(descriptor, module, dependency))
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     protected RequiredDependency createRequiredDependency(Resource resource, RequiredDependency dependency) {

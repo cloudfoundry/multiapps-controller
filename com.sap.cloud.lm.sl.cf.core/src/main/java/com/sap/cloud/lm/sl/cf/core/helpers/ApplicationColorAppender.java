@@ -35,7 +35,7 @@ public class ApplicationColorAppender extends Visitor {
     }
 
     protected String getAppName(Map<String, Object> moduleProperties, String moduleName) {
-        return (String) moduleProperties.getOrDefault(SupportedParameters.APP_NAME, moduleName) + applicationColor.asSuffix();
+        return moduleProperties.getOrDefault(SupportedParameters.APP_NAME, moduleName) + applicationColor.asSuffix();
     }
 
 }

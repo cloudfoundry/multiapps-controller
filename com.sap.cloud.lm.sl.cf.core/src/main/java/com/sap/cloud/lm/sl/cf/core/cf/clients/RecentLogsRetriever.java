@@ -48,10 +48,7 @@ public class RecentLogsRetriever extends CustomControllerClient {
 
     protected ExecutionRetrier getRetrier() {
         ExecutionRetrier retrier = new ExecutionRetrier();
-        if (failSafe) {
-            retrier = retrier.failSafe();
-        }
-        return retrier;
+        return failSafe ? retrier.failSafe() : retrier;
     }
 
     public void setFailSafe(boolean failSafe) {

@@ -47,25 +47,19 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
     }
 
     private List<CloudServiceOffering> getServiceOfferings(CloudControllerClient client, CloudService service) {
-        List<CloudServiceOffering> offerings = client.getServiceOfferings();
-        offerings = filterByLabel(offerings, service.getLabel());
-        offerings = filterByVersion(offerings, service.getVersion());
-        return offerings;
-    }
-
-    private List<CloudServiceOffering> filterByLabel(List<CloudServiceOffering> offerings, String label) {
-        return offerings.stream()
-            .filter(offering -> label.equals(offering.getName()))
+        return client.getServiceOfferings()
+            .stream()
+            .filter(offering -> isSameLabel(offering, service.getLabel()))
+            .filter(offering -> isSameVersion(offering, service.getVersion()))
             .collect(Collectors.toList());
     }
 
-    protected List<CloudServiceOffering> filterByVersion(List<CloudServiceOffering> offerings, String version) {
-        if (version == null) {
-            return offerings;
-        }
-        return offerings.stream()
-            .filter(offering -> version.equals(offering.getVersion()))
-            .collect(Collectors.toList());
+    private boolean isSameLabel(CloudServiceOffering offering, String label) {
+        return label.equals(offering.getName());
+    }
+
+    private boolean isSameVersion(CloudServiceOffering offering, String version) {
+        return version == null || version.equals(offering.getVersion());
     }
 
 }

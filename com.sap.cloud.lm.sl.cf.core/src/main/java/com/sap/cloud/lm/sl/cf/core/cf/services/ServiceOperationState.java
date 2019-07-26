@@ -6,11 +6,13 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 
 public enum ServiceOperationState {
 
-    SUCCEEDED("succeeded"), FAILED("failed"), IN_PROGRESS("in progress");
+    SUCCEEDED("succeeded"),
+    FAILED("failed"),
+    IN_PROGRESS("in progress");
 
     private final String name;
 
-    private ServiceOperationState(String name) {
+    ServiceOperationState(String name) {
         this.name = name;
     }
 

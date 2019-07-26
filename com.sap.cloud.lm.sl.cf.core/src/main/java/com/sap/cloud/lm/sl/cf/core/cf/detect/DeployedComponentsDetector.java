@@ -69,19 +69,24 @@ public class DeployedComponentsDetector {
 
     private DeployedComponents createComponents(Map<DeployedMtaMetadata, List<DeployedMtaModule>> modulesMap,
         Map<DeployedMtaMetadata, Set<String>> servicesMap, List<String> standaloneApps) {
-        List<DeployedMta> mtas = new ArrayList<>();
-        for (Entry<DeployedMtaMetadata, List<DeployedMtaModule>> entry : modulesMap.entrySet()) {
-            List<DeployedMtaModule> modules = entry.getValue();
-            DeployedMtaMetadata mtaId = entry.getKey();
-            mtas.add(new DeployedMta(mtaId, modules, servicesMap.get(mtaId)));
-        }
-        mtas = mergeDifferentVersionsOfMtasWithSameId(mtas);
+        List<DeployedMta> mtas = modulesMap.entrySet()
+            .stream()
+            .map(entry -> createDeployedMta(entry, servicesMap))
+            .collect(Collectors.collectingAndThen(Collectors.toList(), this::mergeDifferentVersionsOfMtasWithSameId));
         return new DeployedComponents(mtas, standaloneApps);
     }
 
+    private DeployedMta createDeployedMta(Entry<DeployedMtaMetadata, List<DeployedMtaModule>> entry,
+        Map<DeployedMtaMetadata, Set<String>> servicesMap) {
+        List<DeployedMtaModule> modules = entry.getValue();
+        DeployedMtaMetadata mtaId = entry.getKey();
+        return new DeployedMta(mtaId, modules, servicesMap.get(mtaId));
+    }
+
     private List<DeployedMta> mergeDifferentVersionsOfMtasWithSameId(List<DeployedMta> mtas) {
+        Set<String> mtaIds = getMtaIds(mtas);
         List<DeployedMta> result = new ArrayList<>();
-        for (String mtaId : getMtaIds(mtas)) {
+        for (String mtaId : mtaIds) {
             List<DeployedMta> mtasWithSameId = getMtasWithSameId(mtas, mtaId);
             if (mtasWithSameId.size() > 1) {
                 result.add(mergeMtas(mtaId, mtasWithSameId));

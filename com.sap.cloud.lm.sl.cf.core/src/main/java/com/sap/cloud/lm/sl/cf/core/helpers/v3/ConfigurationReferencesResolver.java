@@ -101,12 +101,11 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     }
 
     protected List<RequiredDependency> getUpdatedRequiredDependencies(DeploymentDescriptor descriptor, Resource resource) {
-        List<RequiredDependency> requiredDependencies = new ArrayList<>();
-        for (RequiredDependency dependency : resource.getRequiredDependencies()) {
-            List<RequiredDependency> dependencies = expandRequiredDependencyIfNecessary(descriptor, resource, dependency);
-            requiredDependencies.addAll(dependencies);
-        }
-        return requiredDependencies;
+        return resource.getRequiredDependencies()
+            .stream()
+            .map(dependency -> expandRequiredDependencyIfNecessary(descriptor, resource, dependency))
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -129,7 +128,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
             return;
         }
         if (!sourceResource.isActive()) {
-            inactiveConfigResources.add((Resource) sourceResource);
+            inactiveConfigResources.add(sourceResource);
             // bind empty collection of resources to this config resource in order to replace it with nothing so it is not processed
             ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter, sourceResource,
                 Collections.emptyList());

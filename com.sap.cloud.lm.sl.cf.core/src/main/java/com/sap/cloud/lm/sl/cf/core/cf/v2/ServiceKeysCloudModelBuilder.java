@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
 import java.text.MessageFormat;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,7 +12,6 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceKey;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
-import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Resource;
@@ -28,13 +26,10 @@ public class ServiceKeysCloudModelBuilder {
     }
 
     public Map<String, List<CloudServiceKey>> build() {
-        Map<String, List<CloudServiceKey>> serviceKeys = new HashMap<>();
-        for (Resource resource : deploymentDescriptor.getResources()) {
-            if (CloudModelBuilderUtil.isService(resource)) {
-                serviceKeys.put(resource.getName(), getServiceKeysForService(resource));
-            }
-        }
-        return serviceKeys;
+        return deploymentDescriptor.getResources()
+            .stream()
+            .filter(CloudModelBuilderUtil::isService)
+            .collect(Collectors.toMap(Resource::getName, this::getServiceKeysForService));
     }
 
     protected List<CloudServiceKey> getServiceKeysForService(Resource resource) {

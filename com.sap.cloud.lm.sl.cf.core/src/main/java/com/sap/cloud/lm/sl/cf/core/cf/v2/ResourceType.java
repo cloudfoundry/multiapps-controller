@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -7,17 +8,17 @@ import java.util.Set;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 
 public enum ResourceType {
-    MANAGED_SERVICE("managed-service", SupportedParameters.SERVICE, SupportedParameters.SERVICE_PLAN), USER_PROVIDED_SERVICE(
-        "user-provided-service"), EXISTING_SERVICE("existing-service"), EXISTING_SERVICE_KEY("existing-service-key");
+    MANAGED_SERVICE("managed-service", SupportedParameters.SERVICE, SupportedParameters.SERVICE_PLAN),
+    USER_PROVIDED_SERVICE("user-provided-service"),
+    EXISTING_SERVICE("existing-service"),
+    EXISTING_SERVICE_KEY("existing-service-key");
 
     private String name;
     private final Set<String> requiredParameters = new HashSet<>();
 
-    private ResourceType(String value, String... requiredParameters) {
+    ResourceType(String value, String... requiredParameters) {
         this.name = value;
-        for (String requiredParameter : requiredParameters) {
-            this.requiredParameters.add(requiredParameter);
-        }
+        Collections.addAll(this.requiredParameters, requiredParameters);
     }
 
     @Override

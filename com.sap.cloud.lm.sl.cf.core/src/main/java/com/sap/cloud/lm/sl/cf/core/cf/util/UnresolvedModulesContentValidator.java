@@ -1,10 +1,9 @@
 package com.sap.cloud.lm.sl.cf.core.cf.util;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.SetUtils;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
@@ -23,18 +22,26 @@ public class UnresolvedModulesContentValidator implements ModulesContentValidato
     @Override
     public void validate(List<Module> modules) {
         Set<String> unresolvedModules = getUnresolvedModules(modules);
-        if (unresolvedModules.isEmpty()) {
-            return;
+        if (!unresolvedModules.isEmpty()) {
+            throw new ContentException(Messages.UNRESOLVED_MTA_MODULES, unresolvedModules);
         }
-        throw new ContentException(Messages.UNRESOLVED_MTA_MODULES, unresolvedModules);
     }
 
     private Set<String> getUnresolvedModules(List<Module> calculatedModules) {
         Set<String> calculatedModuleNames = calculatedModules.stream()
             .map(Module::getName)
             .collect(Collectors.toSet());
-        return SetUtils.difference(allMtaModules, SetUtils.union(calculatedModuleNames, deployedModules))
-            .toSet();
+        Set<String> resolvedModuleNames = getResolvedModuleNames(calculatedModuleNames);
+
+        return allMtaModules.stream()
+            .filter(module -> !resolvedModuleNames.contains(module))
+            .collect(Collectors.toSet());
+    }
+
+    private Set<String> getResolvedModuleNames(Set<String> moduleNames) {
+        Set<String> resolvedModuleNames = new HashSet<>(moduleNames);
+        resolvedModuleNames.addAll(deployedModules);
+        return resolvedModuleNames;
     }
 
 }

@@ -1,8 +1,8 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v3;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 
@@ -18,13 +18,11 @@ public class ServiceKeysCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf
 
     @Override
     public Map<String, List<CloudServiceKey>> build() {
-        Map<String, List<CloudServiceKey>> serviceKeys = new HashMap<>();
-        for (Resource resource : deploymentDescriptor.getResources()) {
-            if (CloudModelBuilderUtil.isService(resource) && resource.isActive()) {
-                serviceKeys.put(resource.getName(), getServiceKeysForService(resource));
-            }
-        }
-        return serviceKeys;
+        return deploymentDescriptor.getResources()
+            .stream()
+            .filter(CloudModelBuilderUtil::isService)
+            .filter(Resource::isActive)
+            .collect(Collectors.toMap(Resource::getName, this::getServiceKeysForService));
     }
 
 }
