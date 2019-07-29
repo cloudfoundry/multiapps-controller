@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.model;
 import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 import org.junit.Test;
@@ -13,8 +14,8 @@ public class CachedObjectTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testGet() {
-        Supplier<Long> currentTimeSupplier = Mockito.mock(Supplier.class);
-        Mockito.when(currentTimeSupplier.get())
+        LongSupplier currentTimeSupplier = Mockito.mock(LongSupplier.class);
+        Mockito.when(currentTimeSupplier.getAsLong())
             .thenReturn(0L, toMillis(5), toMillis(15), toMillis(25), toMillis(30));
 
         Supplier<String> refreshFunction = Mockito.mock(Supplier.class);
@@ -33,8 +34,8 @@ public class CachedObjectTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testForceRefresh() {
-        Supplier<Long> currentTimeSupplier = Mockito.mock(Supplier.class);
-        Mockito.when(currentTimeSupplier.get())
+        LongSupplier currentTimeSupplier = Mockito.mock(LongSupplier.class);
+        Mockito.when(currentTimeSupplier.getAsLong())
             .thenReturn(0L, toMillis(5), toMillis(10), toMillis(15), toMillis(25));
 
         Supplier<String> refreshFunction = Mockito.mock(Supplier.class);

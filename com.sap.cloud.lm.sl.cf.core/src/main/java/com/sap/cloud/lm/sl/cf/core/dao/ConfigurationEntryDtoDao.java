@@ -5,7 +5,7 @@ import static com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter.CONTEN
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -35,7 +35,7 @@ import com.sap.cloud.lm.sl.common.NotFoundException;
 @Component
 public class ConfigurationEntryDtoDao {
 
-    public static final BiFunction<CloudTarget, CloudTarget, Boolean> TARGET_WILDCARD_FILTER = new TargetWildcardFilter();
+    public static final BiPredicate<CloudTarget, CloudTarget> TARGET_WILDCARD_FILTER = new TargetWildcardFilter();
 
     @Inject
     protected EntityManagerFactory entityManagerFactory;
@@ -173,8 +173,8 @@ public class ConfigurationEntryDtoDao {
     private List<ConfigurationEntryDto> filter(List<ConfigurationEntryDto> entries, Map<String, Object> requiredProperties,
         CloudTarget requestedSpace) {
         return entries.stream()
-            .filter(entry -> CONTENT_FILTER.apply(entry.getContent(), requiredProperties))
-            .filter(entry -> TARGET_WILDCARD_FILTER.apply(new CloudTarget(entry.getTargetOrg(), entry.getTargetSpace()), requestedSpace))
+            .filter(entry -> CONTENT_FILTER.test(entry.getContent(), requiredProperties))
+            .filter(entry -> TARGET_WILDCARD_FILTER.test(new CloudTarget(entry.getTargetOrg(), entry.getTargetSpace()), requestedSpace))
             .collect(Collectors.toList());
     }
 

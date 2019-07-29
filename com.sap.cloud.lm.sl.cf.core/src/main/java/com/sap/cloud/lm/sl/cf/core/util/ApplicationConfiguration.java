@@ -648,7 +648,7 @@ public class ApplicationConfiguration {
                 return uris;
             }
         }
-        return null;
+        return Collections.emptyList();
     }
 
     private Boolean areDummyTokensEnabledThroughEnvironment() {

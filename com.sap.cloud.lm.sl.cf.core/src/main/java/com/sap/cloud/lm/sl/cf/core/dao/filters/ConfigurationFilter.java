@@ -1,14 +1,16 @@
 package com.sap.cloud.lm.sl.cf.core.dao.filters;
 
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
@@ -29,8 +31,9 @@ public class ConfigurationFilter {
     private CloudTarget targetSpace;
     @XmlElement(name = "provider-version")
     private String providerVersion;
-
-    private transient boolean strictTargetSpace;
+    @XmlTransient
+    @JsonIgnore
+    private boolean strictTargetSpace;
 
     public ConfigurationFilter() {
 
@@ -89,13 +92,13 @@ public class ConfigurationFilter {
             .satisfies(providerVersion))) {
             return false;
         }
-        return requiredContent == null || CONTENT_FILTER.apply(entry.getContent(), requiredContent);
+        return requiredContent == null || CONTENT_FILTER.test(entry.getContent(), requiredContent);
     }
 
-    public static final BiFunction<String, Map<String, Object>, Boolean> CONTENT_FILTER = new BiFunction<String, Map<String, Object>, Boolean>() {
+    public static final BiPredicate<String, Map<String, Object>> CONTENT_FILTER = new BiPredicate<String, Map<String, Object>>() {
 
         @Override
-        public Boolean apply(String content, Map<String, Object> requiredProperties) {
+        public boolean test(String content, Map<String, Object> requiredProperties) {
             if (requiredProperties == null || requiredProperties.isEmpty()) {
                 return true;
             }

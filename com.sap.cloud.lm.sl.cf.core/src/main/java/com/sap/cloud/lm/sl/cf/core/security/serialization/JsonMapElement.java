@@ -2,9 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.security.serialization;
 
 import static com.sap.cloud.lm.sl.mta.util.ValidatorUtil.getPrefixedName;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 

@@ -30,13 +30,13 @@ public class ParametersValidatorHelper {
                 continue;
             }
 
-            correctedParameters = correctInvalidSingleParameters(prefix, container, validator, parameters, correctedParameters);
-            correctedParameters = correctInvalidPluralParameters(prefix, container, validator, parameters, correctedParameters);
+            correctInvalidSingleParameters(prefix, container, validator, parameters, correctedParameters);
+            correctInvalidPluralParameters(prefix, container, validator, parameters, correctedParameters);
         }
         return MapUtil.merge(parameters, correctedParameters);
     }
 
-    private Map<String, Object> correctInvalidSingleParameters(String prefix, Object container, ParameterValidator validator,
+    private void correctInvalidSingleParameters(String prefix, Object container, ParameterValidator validator,
         Map<String, Object> parameters, Map<String, Object> correctedParameters) {
         String parameterName = validator.getParameterName();
 
@@ -46,22 +46,20 @@ public class ParametersValidatorHelper {
         if (!Objects.equals(initialParameterValue, correctParameterValue)) {
             correctedParameters.put(parameterName, correctParameterValue);
         }
-
-        return correctedParameters;
     }
 
-    private Map<String, Object> correctInvalidPluralParameters(String prefix, Object container, ParameterValidator validator,
+    private void correctInvalidPluralParameters(String prefix, Object container, ParameterValidator validator,
         Map<String, Object> parameters, Map<String, Object> correctedParameters) {
         String parameterPluralName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(validator.getParameterName());
 
         if (parameterPluralName == null || !parameters.containsKey(parameterPluralName)) {
-            return correctedParameters;
+            return;
         }
 
         @SuppressWarnings("unchecked")
         List<Object> initialParameterValues = (List<Object>) parameters.get(parameterPluralName);
         if (initialParameterValues == null || initialParameterValues.isEmpty()) {
-            return correctedParameters;
+            return;
         }
 
         List<Object> correctedParameterValues = initialParameterValues.stream()
@@ -69,8 +67,6 @@ public class ParametersValidatorHelper {
                 validator))
             .collect(Collectors.toList());
         correctedParameters.put(parameterPluralName, correctedParameterValues);
-
-        return correctedParameters;
     }
 
     private Object validateAndCorrect(Object container, String parameterName, Object parameter, ParameterValidator validator) {
