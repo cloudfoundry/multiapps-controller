@@ -286,8 +286,7 @@ public class ConfigurationSubscriptionDaoTest {
         }
 
         private static List<ConfigurationSubscription> findAll(String guid, ConfigurationSubscriptionDao dao) {
-            List<ConfigurationSubscription> subscriptions = dao.findAll(guid);
-            return subscriptions;
+            return dao.findAll(guid);
         }
 
         private static ConfigurationSubscription findOne(FindOneTestInput input, ConfigurationSubscriptionDao dao) {

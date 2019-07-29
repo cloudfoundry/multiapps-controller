@@ -83,8 +83,9 @@ public class ConfigurationReferencesResolver extends Visitor {
             module.setRequiredDependencies(getUpdatedRequiredDependencies(descriptor, module));
 
             Map<String, Object> properties = module.getProperties();
-            for (RequiredDependency originalDependency : expandedDependenciesMap.keySet()) {
-                List<RequiredDependency> expandedOriginalDependency = expandedDependenciesMap.get(originalDependency);
+            for (Map.Entry<RequiredDependency, List<RequiredDependency>> entry : expandedDependenciesMap.entrySet()) {
+                RequiredDependency originalDependency = entry.getKey();
+                List<RequiredDependency> expandedOriginalDependency = entry.getValue();
                 PropertiesExpander expander = new PropertiesExpander(originalDependency.getName(), getNames(expandedOriginalDependency));
                 properties = expander.expand(properties);
                 expandedProperties.addAll(expander.getExpandedProperties());

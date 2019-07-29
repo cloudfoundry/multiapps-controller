@@ -1,8 +1,8 @@
 package com.sap.cloud.lm.sl.cf.core.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -289,7 +289,7 @@ public class ConfigurationEntryDaoTest {
 
                     ConfigurationEntry entry = findConfigurationEntries(input, dao).get(0);
                     dao.remove(entry.getId());
-                    assertTrue(!dao.exists(entry.getId()));
+                    assertFalse(dao.exists(entry.getId()));
 
                 }, expectation);
             }
@@ -306,12 +306,8 @@ public class ConfigurationEntryDaoTest {
 
             @Override
             protected void test() throws Exception {
-                TESTER.test(() -> {
-
-                    return removeId(dao.update(findConfigurationEntries(input, dao).get(0)
-                        .getId(), input.configurationEntry));
-
-                }, expectation);
+                TESTER.test(() -> removeId(dao.update(findConfigurationEntries(input, dao).get(0)
+                    .getId(), input.configurationEntry)), expectation);
             }
 
         }
@@ -326,11 +322,7 @@ public class ConfigurationEntryDaoTest {
 
             @Override
             public void test() {
-                TESTER.test(() -> {
-
-                    return removeId(dao.add(input.configurationEntry));
-
-                }, expectation);
+                TESTER.test(() -> removeId(dao.add(input.configurationEntry)), expectation);
             }
 
         }
@@ -345,12 +337,8 @@ public class ConfigurationEntryDaoTest {
 
             @Override
             public void test() {
-                TESTER.test(() -> {
-
-                    return removeId(dao.find(findConfigurationEntries(input, dao).get(0)
-                        .getId()));
-
-                }, expectation);
+                TESTER.test(() -> removeId(dao.find(findConfigurationEntries(input, dao).get(0)
+                    .getId())), expectation);
             }
 
         }
@@ -363,11 +351,7 @@ public class ConfigurationEntryDaoTest {
 
             @Override
             public void test() {
-                TESTER.test(() -> {
-
-                    return removeIds(findConfigurationEntries(input, createDao()));
-
-                }, expectation);
+                TESTER.test(() -> removeIds(findConfigurationEntries(input, createDao())), expectation);
             }
         }
 
@@ -379,11 +363,7 @@ public class ConfigurationEntryDaoTest {
 
             @Override
             public void test() {
-                TESTER.test(() -> {
-
-                    return removeIds(findConfigurationEntriesGuid(input, createDao()));
-
-                }, expectation);
+                TESTER.test(() -> removeIds(findConfigurationEntriesGuid(input, createDao())), expectation);
             }
         }
 

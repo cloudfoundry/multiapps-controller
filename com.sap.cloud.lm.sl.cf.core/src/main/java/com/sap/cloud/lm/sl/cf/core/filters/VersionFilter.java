@@ -1,14 +1,14 @@
 package com.sap.cloud.lm.sl.cf.core.filters;
 
-import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
-public class VersionFilter implements BiFunction<ConfigurationEntry, String, Boolean> {
+public class VersionFilter implements BiPredicate<ConfigurationEntry, String> {
 
     @Override
-    public Boolean apply(ConfigurationEntry entry, String requirement) {
+    public boolean test(ConfigurationEntry entry, String requirement) {
         if (requirement == null) {
             return true;
         }

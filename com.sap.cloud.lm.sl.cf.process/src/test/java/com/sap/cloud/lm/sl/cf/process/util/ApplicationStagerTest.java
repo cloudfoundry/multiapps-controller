@@ -215,7 +215,7 @@ public class ApplicationStagerTest {
     public void testStageAppIfThereIsNoUploadToken() {
         Mockito.when(context.getVariable(Constants.VAR_UPLOAD_TOKEN))
                .thenReturn(null);
-        assertEquals(applicationStager.stageApp(context, null, null), StepPhase.DONE);
+        assertEquals(StepPhase.DONE, applicationStager.stageApp(context, null, null));
     }
 
     @Test

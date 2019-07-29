@@ -75,7 +75,7 @@ public class ApplicationShutdownDto {
         }
     }
 
-    public static enum Status {
+    public enum Status {
         FINISHED, RUNNING;
     }
 }

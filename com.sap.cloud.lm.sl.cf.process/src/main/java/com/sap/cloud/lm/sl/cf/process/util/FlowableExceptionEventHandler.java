@@ -85,9 +85,7 @@ public class FlowableExceptionEventHandler {
     private boolean isErrorProgressMessagePresented(String processInstanceId) {
         List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(processInstanceId);
         return progressMessages.stream()
-            .filter(this::isErrorMessage)
-            .findAny()
-            .isPresent();
+            .anyMatch(this::isErrorMessage);
     }
 
     private boolean isErrorMessage(ProgressMessage message) {

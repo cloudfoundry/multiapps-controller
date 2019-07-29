@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.dao;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -21,8 +21,8 @@ public class ConfigurationEntryDao {
     @Inject
     protected ConfigurationEntryDtoDao dao;
 
-    private static final BiFunction<ConfigurationEntry, String, Boolean> VERSION_FILTER = new VersionFilter();
-    private static final BiFunction<ConfigurationEntry, List<CloudTarget>, Boolean> VISIBILITY_FILTER = new VisibilityFilter();
+    private static final BiPredicate<ConfigurationEntry, String> VERSION_FILTER = new VersionFilter();
+    private static final BiPredicate<ConfigurationEntry, List<CloudTarget>> VISIBILITY_FILTER = new VisibilityFilter();
 
     public List<ConfigurationEntry> find(String nid, String id, String version, CloudTarget target, Map<String, Object> requiredProperties,
         String mtaId, List<CloudTarget> cloudTargets) {
@@ -36,8 +36,8 @@ public class ConfigurationEntryDao {
 
     private List<ConfigurationEntry> filter(List<ConfigurationEntry> entries, String version, List<CloudTarget> cloudTargets) {
         return entries.stream()
-            .filter(entry -> VERSION_FILTER.apply(entry, version))
-            .filter(entry -> VISIBILITY_FILTER.apply(entry, cloudTargets))
+            .filter(entry -> VERSION_FILTER.test(entry, version))
+            .filter(entry -> VISIBILITY_FILTER.test(entry, cloudTargets))
             .collect(Collectors.toList());
     }
 
