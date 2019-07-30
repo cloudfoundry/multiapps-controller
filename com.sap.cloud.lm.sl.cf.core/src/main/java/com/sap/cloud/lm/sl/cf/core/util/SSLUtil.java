@@ -15,6 +15,9 @@ import javax.net.ssl.X509TrustManager;
 
 public class SSLUtil {
 
+    private SSLUtil() {
+    }
+
     private static final X509TrustManager NULL_TRUST_MANAGER = new X509TrustManager() {
 
         @Override

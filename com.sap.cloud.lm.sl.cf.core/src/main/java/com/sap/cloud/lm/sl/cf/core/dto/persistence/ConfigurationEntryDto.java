@@ -10,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -35,14 +34,17 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 @Table(name = TableNames.CONFIGURATION_ENTRY_TABLE, uniqueConstraints = {
     @UniqueConstraint(columnNames = { TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_NID, TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_ID,
         TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_VERSION, TableColumnNames.CONFIGURATION_ENTRY_TARGET_SPACE }) })
-@NamedQueries({ @NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_ENTRIES, query = "SELECT ce FROM ConfigurationEntryDto ce"),
-    @NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_ENTRIES_BY_SPACE_ID, query = "SELECT ce FROM ConfigurationEntryDto ce WHERE ce.spaceId = :spaceId") })
+@NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_ENTRIES, query = "SELECT ce FROM ConfigurationEntryDto ce")
+@NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_ENTRIES_BY_SPACE_ID, query = "SELECT ce FROM ConfigurationEntryDto ce WHERE ce.spaceId = :spaceId")
 @SequenceGenerator(name = SequenceNames.CONFIGURATION_ENTRY_SEQUENCE, sequenceName = SequenceNames.CONFIGURATION_ENTRY_SEQUENCE, initialValue = 1, allocationSize = 1)
 @XmlRootElement(name = "configuration-entry")
 @XmlAccessorType(value = XmlAccessType.FIELD)
 public class ConfigurationEntryDto {
 
     public static class FieldNames {
+
+        private FieldNames() {
+        }
 
         public static final String ID = "id";
         public static final String PROVIDER_ID = "providerId";

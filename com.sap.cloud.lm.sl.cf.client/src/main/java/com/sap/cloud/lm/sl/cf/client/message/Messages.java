@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.client.message;
 
 public class Messages {
+
     public static final String CANT_CREATE_CLIENT = "Could not create XsClient instance for URL \"{0}\" with org \"{1}\" and space \"{2}\"";
     public static final String CANT_GET_XS_INFO = "Could not get XS info";
     public static final String CANT_GET_ORGS = "Could not get organizations";

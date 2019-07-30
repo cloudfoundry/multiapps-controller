@@ -7,6 +7,9 @@ import com.sap.cloud.lm.sl.common.ContentException;
 
 public class MtaPathValidator {
 
+    private MtaPathValidator() {
+    }
+
     public static void validatePath(String path) {
         if (containsWindowsSeparators(path)) {
             throw new ContentException(Messages.PATH_MUST_NOT_CONTAIN_WINDOWS_SEPARATORS, path);

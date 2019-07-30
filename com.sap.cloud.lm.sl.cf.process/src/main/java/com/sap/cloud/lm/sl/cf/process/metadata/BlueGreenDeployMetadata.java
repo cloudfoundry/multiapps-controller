@@ -135,6 +135,9 @@ public class BlueGreenDeployMetadata {
             .build());
     }
 
+    private BlueGreenDeployMetadata() {
+    }
+
     public static OperationMetadata getMetadata() {
         return OperationMetadata.builder()
             .parameters(PARAMS)

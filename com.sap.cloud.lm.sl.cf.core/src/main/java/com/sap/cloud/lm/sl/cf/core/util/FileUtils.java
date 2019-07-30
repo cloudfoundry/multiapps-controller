@@ -17,6 +17,9 @@ public class FileUtils {
     public static final String PATH_SHOULD_NOT_BE_ABSOLUTE = "Archive entry name \"{0}\" should not be absolute";
     public static final String PATH_SHOULD_BE_NORMALIZED = "Archive entry name \"{0}\" should be normalized";
 
+    private FileUtils() {
+    }
+
     public static void deleteDirectory(Path path) throws IOException {
         Files.walkFileTree(path, new DeleteDirVisitor());
     }

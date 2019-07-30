@@ -17,7 +17,10 @@ public class UriUtil {
 
     public static final String HTTP_PROTOCOL = "http";
     public static final String HTTPS_PROTOCOL = "https";
-    
+
+    private UriUtil() {
+    }
+
     public static String stripScheme(String uri) {
         int protocolIndex = uri.indexOf(DEFAULT_SCHEME_SEPARATOR);
         if (protocolIndex == -1) {

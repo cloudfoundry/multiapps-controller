@@ -168,9 +168,14 @@ public class SupportedParameters {
     }
 
     public static class ApplicationUpdateStarategy {
+
+        private ApplicationUpdateStarategy() {
+        }
+
         public static final String SERVICE_BINDINGS_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY = "service-bindings";
         public static final String EXISTING_ROUTES_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY = "routes";
         public static final String ENV_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY = "env";
+
     }
 
 }

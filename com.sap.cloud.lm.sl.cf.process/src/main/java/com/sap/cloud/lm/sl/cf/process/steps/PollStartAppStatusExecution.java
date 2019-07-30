@@ -137,9 +137,9 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             stateCounts.put(InstanceState.STARTING.toString(), 0);
         } else {
             for (InstanceInfo instance : instances) {
-                final String state = instance.getState()
+                String state = instance.getState()
                     .toString();
-                stateCounts.compute(state, this::computeStateCount);
+                incrementStateCount(stateCounts, state);
             }
         }
 
@@ -155,8 +155,9 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             .debug(message);
     }
 
-    private Integer computeStateCount(String state, Integer previousStateCount) {
-        return previousStateCount == null ? 1 : previousStateCount + 1;
+    private void incrementStateCount(Map<String, Integer> stateCounts, String state) {
+        int stateCount = stateCounts.getOrDefault(state, 1);
+        stateCounts.put(state, stateCount + 1);
     }
 
     private String formatStateString(Map.Entry<String, Integer> entry) {

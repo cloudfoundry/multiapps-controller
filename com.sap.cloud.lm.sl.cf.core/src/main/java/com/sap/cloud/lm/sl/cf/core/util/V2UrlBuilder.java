@@ -7,7 +7,10 @@ import java.util.stream.Collectors;
 public class V2UrlBuilder {
 
     private static final CharSequence V2_QUERY_PREFIX = "q=";
-    
+
+    private V2UrlBuilder() {
+    }
+
     private static String buildQueryString(String separator, Set<String> fields) {
         String queryValue = fields.stream()
             .map(e -> String.join("", e, ":{", e, "}"))
@@ -18,5 +21,5 @@ public class V2UrlBuilder {
     public static String build(Supplier<String> urlSupplier, String v2QuerySeparator, Set<String> fields) {
         return String.join("", urlSupplier.get(), buildQueryString(v2QuerySeparator, fields));
     }
-    
+
 }

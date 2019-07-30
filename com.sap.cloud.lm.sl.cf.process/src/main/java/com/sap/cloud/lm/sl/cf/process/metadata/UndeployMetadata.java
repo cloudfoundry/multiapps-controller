@@ -45,6 +45,9 @@ public class UndeployMetadata {
             .build());
     }
 
+    private UndeployMetadata() {
+    }
+
     public static OperationMetadata getMetadata() {
         return OperationMetadata.builder()
             .parameters(PARAMS)

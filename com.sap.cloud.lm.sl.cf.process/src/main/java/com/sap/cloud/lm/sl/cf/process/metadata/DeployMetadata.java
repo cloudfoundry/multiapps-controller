@@ -126,6 +126,9 @@ public class DeployMetadata {
             .build());
     }
 
+    private DeployMetadata() {
+    }
+
     public static OperationMetadata getMetadata() {
         return OperationMetadata.builder()
             .parameters(PARAMS)

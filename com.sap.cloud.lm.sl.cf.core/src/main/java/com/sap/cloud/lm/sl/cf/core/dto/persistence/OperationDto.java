@@ -6,7 +6,6 @@ import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -15,12 +14,15 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "operation")
 @Cacheable(false)
-@NamedQueries({ @NamedQuery(name = "find_all", query = "SELECT o FROM OperationDto o ORDER BY o.startedAt"),
-    // TODO: Replace this named query by building it dynamically with JPA's criteria API (requires JPA 2.1).
-    @NamedQuery(name = "remove_expired_in_final_state", query = "DELETE FROM OperationDto o WHERE o.finalState IS NOT NULL AND o.startedAt < :expirationTime") })
+@NamedQuery(name = "find_all", query = "SELECT o FROM OperationDto o ORDER BY o.startedAt")
+// TODO: Replace this named query by building it dynamically with JPA's criteria API (requires JPA 2.1).
+@NamedQuery(name = "remove_expired_in_final_state", query = "DELETE FROM OperationDto o WHERE o.finalState IS NOT NULL AND o.startedAt < :expirationTime")
 public class OperationDto {
 
     public static class AttributeNames {
+
+        private AttributeNames() {
+        }
 
         public static final String PROCESS_ID = "processId";
         public static final String PROCESS_TYPE = "processType";

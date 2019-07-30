@@ -18,6 +18,9 @@ import com.sap.cloud.lm.sl.common.ParsingException;
 
 public class ConfigurationEntriesUtil {
 
+    private ConfigurationEntriesUtil() {
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationEntriesUtil.class);
 
     public static final String PROVIDER_NID = "mta";
@@ -59,7 +62,8 @@ public class ConfigurationEntriesUtil {
     }
 
     public static List<ConfigurationEntry> findConfigurationEntriesInGlobalConfigurationSpace(ConfigurationEntryDao dao, String providerNid,
-        String providerVersion, String providerId, Map<String, Object> requiredContent, List<CloudTarget> cloudTargets, CloudTarget globalConfigTarget) {
+        String providerVersion, String providerId, Map<String, Object> requiredContent, List<CloudTarget> cloudTargets,
+        CloudTarget globalConfigTarget) {
         LOGGER.debug(
             "searching for configuration entries with provider nid {}, id {}, version {}, global config space space {}, content {}, visibleTargets {}",
             providerNid, providerId, providerVersion, globalConfigTarget, requiredContent, cloudTargets);
@@ -75,7 +79,7 @@ public class ConfigurationEntriesUtil {
 
         return new CloudTarget(deployServiceOrgName, globalConfigSpace);
     }
-    
+
     public static String computeTargetSpace(CloudTarget target) {
         return target.getOrg() + TARGET_DELIMITER + target.getSpace();
     }

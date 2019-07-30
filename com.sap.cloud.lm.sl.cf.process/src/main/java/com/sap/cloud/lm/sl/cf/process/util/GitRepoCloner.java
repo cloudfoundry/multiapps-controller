@@ -101,14 +101,18 @@ public class GitRepoCloner {
                 File configFile = fs.getGitSystemConfig();
                 if (configFile == null) {
                     return new FileBasedConfig(null, fs) {
+
+                        @Override
                         public void load() {
                             // empty, do not load
                         }
 
+                        @Override
                         public boolean isOutdated() {
                             // regular class would bomb here
                             return false;
                         }
+
                     };
                 }
                 return new FileBasedConfig(parent, configFile, fs);

@@ -14,6 +14,9 @@ import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class CloudModelBuilderUtil {
 
+    private CloudModelBuilderUtil() {
+    }
+
     public static Set<String> getDeployedModuleNames(List<DeployedMtaModule> deployedModules) {
         return deployedModules.stream()
             .map(DeployedMtaModule::getModuleName)

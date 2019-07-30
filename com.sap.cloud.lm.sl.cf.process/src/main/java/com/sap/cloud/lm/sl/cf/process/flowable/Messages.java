@@ -2,6 +2,9 @@ package com.sap.cloud.lm.sl.cf.process.flowable;
 
 public class Messages {
 
+    private Messages() {
+    }
+
     // Exception messages
 
     public static final String ABORT_OPERATION_TIMED_OUT = "Abort operation timed out";
