@@ -71,8 +71,8 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     public void setUp() throws Exception {
         prepareContext();
         prepareClient();
-        Mockito.when(client.getTasks(Mockito.anyString()))
-            .thenReturn(Collections.emptyList());
+        Mockito.when(client.areTasksSupported())
+            .thenReturn(!stepInput.tasksPerApplication.isEmpty());
     }
 
     @Test

@@ -19,7 +19,10 @@ public class DeleteApplicationStep extends UndeployAppStep {
 
     @Override
     protected StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy) {
-        cancelRunningTasks(client, cloudApplicationToUndeploy);
+        if (client.areTasksSupported()) {
+            cancelRunningTasks(client, cloudApplicationToUndeploy);
+        }
+
         deleteApplication(client, cloudApplicationToUndeploy);
 
         return StepPhase.DONE;

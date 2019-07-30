@@ -34,7 +34,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
 
         CloudControllerClient client = execution.getControllerClient();
 
-        List<CloudApplication> deployedApps = client.getApplications();
+        List<CloudApplication> deployedApps = client.getApplications(false);
         StepsUtil.setDeployedApps(execution.getContext(), deployedApps);
         String mtaId = (String) execution.getContext()
             .getVariable(Constants.PARAM_MTA_ID);
