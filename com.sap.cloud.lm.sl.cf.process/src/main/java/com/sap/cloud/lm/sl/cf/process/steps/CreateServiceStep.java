@@ -71,10 +71,6 @@ public class CreateServiceStep extends ServiceStep {
 
     private MethodExecution<String> createManagedService(DelegateExecution context, CloudControllerClient client,
                                                          CloudServiceExtended service) {
-        if (serviceExists(service, client)) {
-            getStepLogger().info(com.sap.cloud.lm.sl.cf.core.message.Messages.SERVICE_ALREADY_EXISTS, service.getName());
-            return new MethodExecution<>(null, ExecutionState.FINISHED);
-        }
         return serviceCreatorFactory.createInstance(getStepLogger())
                                     .createService(client, service, StepsUtil.getSpaceId(context));
     }

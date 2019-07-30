@@ -16,7 +16,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.slf4j.Logger;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileUploadProcessor;
@@ -137,11 +136,5 @@ public class ArchiveMergerTest {
     private List<FileEntry> createFileEntriesFromFile(String fileName) {
         FileEntry[] fileEntries = JsonUtil.fromJson(TestUtil.getResourceAsString(fileName, getClass()), FileEntry[].class);
         return Arrays.asList(fileEntries);
-    }
-
-    private FileEntry loadUploadedFileEntryFromFile(String fileName) {
-        String uploadedFileEntryJson = TestUtil.getResourceAsString(fileName, getClass());
-        return JsonUtil.fromJson(uploadedFileEntryJson, new TypeReference<FileEntry>() {
-        });
     }
 }
