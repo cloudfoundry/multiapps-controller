@@ -13,11 +13,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.junit.After;
 import org.junit.Before;
@@ -60,11 +58,9 @@ public class UploadAppStepTest {
 
         private static final String APP_NAME = "sample-app-backend";
         private static final String APP_FILE = "web.zip";
+        private static final String TOKEN = "token";
         private static final String SPACE = "space";
         private static final String APP_ARCHIVE = "sample-app.mtar";
-        private static final UploadToken UPLOAD_TOKEN = ImmutableUploadToken.builder()
-            .packageGuid(UUID.randomUUID())
-            .build();
 
         public TemporaryFolder tempDir = new TemporaryFolder();
         @Rule
@@ -80,9 +76,21 @@ public class UploadAppStepTest {
                 },
                 // (01)
                 {
-                    format(Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, APP_FILE), null,
+                    null, null,
                 },
                 // (02)
+                {
+                    format(Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, APP_FILE), null,
+                },
+                // (03)
+                {
+                    format(Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, APP_FILE), null,
+                },
+                // (04)
+                {
+                    null, createException(CO_EXCEPTION).getMessage(),
+                },
+                // (05)
                 {
                     null, createException(CO_EXCEPTION).getMessage(),
                 },
@@ -124,7 +132,8 @@ public class UploadAppStepTest {
                 throw e;
             }
 
-            assertCall(Constants.VAR_UPLOAD_TOKEN, JsonUtil.toJson(UPLOAD_TOKEN));
+            String uploadTokenJson = JsonUtil.toJson(new UploadToken(TOKEN, null));
+            assertCall(Constants.VAR_UPLOAD_TOKEN, uploadTokenJson);
         }
 
         private void assertCall(String variableName, String variableValue) {
@@ -160,7 +169,7 @@ public class UploadAppStepTest {
 
         public void prepareClients() throws Exception {
             if (expectedIOExceptionMessage == null && expectedCFExceptionMessage == null) {
-                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenReturn(UPLOAD_TOKEN);
+                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenReturn(new UploadToken(TOKEN, null));
             } else if (expectedIOExceptionMessage != null) {
                 when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(IO_EXCEPTION);
             } else if (expectedCFExceptionMessage != null) {
@@ -276,9 +285,7 @@ public class UploadAppStepTest {
 
         private void prepareContext() {
             // module name must be null
-            CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
-                .name(APP_NAME)
-                .build();
+            CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder().name(APP_NAME).build();
             StepsUtil.setApp(context, app);
             context.setVariable(Constants.VAR_MODULES_INDEX, 0);
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);

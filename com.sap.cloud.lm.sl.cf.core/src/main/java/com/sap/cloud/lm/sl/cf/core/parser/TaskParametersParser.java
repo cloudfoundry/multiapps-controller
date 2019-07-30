@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
-import org.cloudfoundry.client.lib.domain.CloudTask.Limits;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
 
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.TasksValidator;
@@ -38,14 +37,8 @@ public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
             return ImmutableCloudTask.builder()
                 .name(getProperty(rawTask, TasksValidator.TASK_NAME_KEY))
                 .command(getProperty(rawTask, TasksValidator.TASK_COMMAND_KEY))
-                .limits(parseLimits(rawTask))
-                .build();
-        }
-
-        private Limits parseLimits(Map<String, Object> rawTask) {
-            return ImmutableCloudTask.ImmutableLimits.builder()
                 .memory(parseMemory(rawTask))
-                .disk(parseDiskQuota(rawTask))
+                .diskQuota(parseDiskQuota(rawTask))
                 .build();
         }
 

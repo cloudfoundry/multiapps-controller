@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.ApplicationLogListener;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
@@ -20,6 +21,7 @@ import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.UploadStatusCallback;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
+import org.cloudfoundry.client.lib.domain.ApplicationStats;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudBuild;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
@@ -160,6 +162,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public List<CloudApplication> getApplications() {
         return executeWithRetry(() -> cc.getApplications(), HttpStatus.NOT_FOUND);
+    }
+
+    @Override
+    public List<CloudApplication> getApplications(boolean fetchAdditionalInfo) {
+        return executeWithRetry(() -> cc.getApplications(fetchAdditionalInfo), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -390,8 +397,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public Upload getUploadStatus(UUID packageGuid) {
-        return executeWithRetry(() -> cc.getUploadStatus(packageGuid));
+    public Upload getUploadStatus(String uploadToken) {
+        return executeWithRetry(() -> cc.getUploadStatus(uploadToken));
     }
 
     @Override
@@ -535,18 +542,23 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public Map<String, String> getApplicationEnvironment(String applicationName) {
+    public Map<String, Object> getApplicationEnvironment(String applicationName) {
         return executeWithRetry(() -> cc.getApplicationEnvironment(applicationName));
     }
 
     @Override
-    public Map<String, String> getApplicationEnvironment(UUID appGuid) {
+    public Map<String, Object> getApplicationEnvironment(UUID appGuid) {
         return executeWithRetry(() -> cc.getApplicationEnvironment(appGuid));
     }
 
     @Override
     public List<CloudEvent> getApplicationEvents(String applicationName) {
         return executeWithRetry(() -> cc.getApplicationEvents(applicationName), HttpStatus.NOT_FOUND);
+    }
+
+    @Override
+    public ApplicationStats getApplicationStats(String applicationName) {
+        return executeWithRetry(() -> cc.getApplicationStats(applicationName));
     }
 
     @Override
@@ -655,18 +667,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<UUID> getSpaceAuditors() {
-        return executeWithRetry(() -> cc.getSpaceAuditors(), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
     public List<UUID> getSpaceAuditors(String spaceName) {
         return executeWithRetry(() -> cc.getSpaceAuditors(spaceName), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<UUID> getSpaceAuditors(String organizationName, String spaceName) {
-        return executeWithRetry(() -> cc.getSpaceAuditors(organizationName, spaceName), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -675,8 +677,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<UUID> getSpaceDevelopers() {
-        return executeWithRetry(() -> cc.getSpaceDevelopers(), HttpStatus.NOT_FOUND);
+    public List<UUID> getSpaceAuditors(String organizationName, String spaceName) {
+        return executeWithRetry(() -> cc.getSpaceAuditors(organizationName, spaceName), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -685,18 +687,13 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<UUID> getSpaceDevelopers(String organizationName, String spaceName) {
-        return executeWithRetry(() -> cc.getSpaceDevelopers(organizationName, spaceName), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
     public List<UUID> getSpaceDevelopers(UUID spaceGuid) {
         return executeWithRetry(() -> cc.getSpaceDevelopers(spaceGuid), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public List<UUID> getSpaceManagers() {
-        return executeWithRetry(() -> cc.getSpaceManagers(), HttpStatus.NOT_FOUND);
+    public List<UUID> getSpaceDevelopers(String organizationName, String spaceName) {
+        return executeWithRetry(() -> cc.getSpaceDevelopers(organizationName, spaceName), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -705,13 +702,13 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<UUID> getSpaceManagers(String organizationName, String spaceName) {
-        return executeWithRetry(() -> cc.getSpaceManagers(organizationName, spaceName), HttpStatus.NOT_FOUND);
+    public List<UUID> getSpaceManagers(UUID spaceGuid) {
+        return executeWithRetry(() -> cc.getSpaceManagers(spaceGuid), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public List<UUID> getSpaceManagers(UUID spaceGuid) {
-        return executeWithRetry(() -> cc.getSpaceManagers(spaceGuid), HttpStatus.NOT_FOUND);
+    public List<UUID> getSpaceManagers(String organizationName, String spaceName) {
+        return executeWithRetry(() -> cc.getSpaceManagers(organizationName, spaceName), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -875,6 +872,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public boolean areTasksSupported() {
+        return executeWithRetry(() -> cc.areTasksSupported());
+    }
+
+    @Override
     public CloudTask getTask(UUID taskGuid) {
         return executeWithRetry(() -> cc.getTask(taskGuid));
     }
@@ -900,6 +902,12 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     private void executeWithRetry(Runnable runnable, HttpStatus... httpStatusesToIgnore) {
         retrier.executeWithRetry(runnable, httpStatusesToIgnore);
+    }
+
+    private List<String> toStrings(List<UUID> uuids) {
+        return uuids.stream()
+                    .map(UUID::toString)
+                    .collect(Collectors.toList());
     }
 
     @Override
@@ -932,5 +940,4 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
                               ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         executeWithRetry(() -> cc.unbindService(applicationName, serviceName, applicationServicesUpdateCallback));
     }
-
 }

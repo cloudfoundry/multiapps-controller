@@ -1,6 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +43,13 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
     public void testExecuteWhenTasksAreSupported() throws Exception {
         // Given:
         StepsUtil.setTasksToExecute(context, createDummyApplicationWithTasks(0).getTasks());
+        when(client.areTasksSupported()).thenReturn(true);
 
         // When:
         step.execute(context);
+
+        // Then:
+        assertTrue((boolean) context.getVariable(Constants.VAR_PLATFORM_SUPPORTS_TASKS));
     }
 
     private CloudApplicationExtended createDummyApplicationWithTasks(int numberOfTasks) {
