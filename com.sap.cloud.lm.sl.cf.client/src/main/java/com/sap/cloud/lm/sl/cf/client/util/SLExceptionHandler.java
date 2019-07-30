@@ -8,7 +8,7 @@ public class SLExceptionHandler implements ExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(SLExceptionHandler.class);
 
     @Override
-    public void handleException(Exception e) throws RuntimeException {
+    public void handleException(Exception e) {
         LOGGER.warn(e.getMessage(), e);
     }
 }
