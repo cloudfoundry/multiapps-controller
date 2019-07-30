@@ -169,6 +169,8 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
         final Path zipFilePath = Paths.get(mtaPath.toString() + MTAR_EXTENTION);
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(zipFilePath.toFile()))) {
             Files.walkFileTree(mtaPath, new SimpleFileVisitor<Path>() {
+
+                @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     if (shouldOmmitFile(file)) {
                         return FileVisitResult.CONTINUE;
@@ -180,6 +182,7 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
                     return FileVisitResult.CONTINUE;
                 }
 
+                @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                     if (shouldOmmitDirectory(dir)) {
                         return FileVisitResult.SKIP_SUBTREE;
@@ -189,6 +192,7 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
                     zipOutputStream.closeEntry();
                     return FileVisitResult.CONTINUE;
                 }
+
             });
         }
         return zipFilePath;

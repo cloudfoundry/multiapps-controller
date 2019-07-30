@@ -24,6 +24,9 @@ public class ApplicationMtaMetadataParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationMtaMetadataParser.class);
 
+    private ApplicationMtaMetadataParser() {
+    }
+
     public static ApplicationMtaMetadata parseAppMetadata(CloudApplication app) {
         try {
             return attemptToParseAppMetadata(app);

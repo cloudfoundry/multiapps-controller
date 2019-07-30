@@ -4,6 +4,9 @@ public class AuditLoggingProvider {
 
     private static AuditLoggingFacade facade;
 
+    private AuditLoggingProvider() {
+    }
+
     public static void setFacade(AuditLoggingFacade facade) {
         AuditLoggingProvider.facade = facade;
     }

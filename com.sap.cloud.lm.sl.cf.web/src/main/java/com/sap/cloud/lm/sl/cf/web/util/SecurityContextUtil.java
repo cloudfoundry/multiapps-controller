@@ -7,6 +7,9 @@ import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 
 public class SecurityContextUtil {
 
+    private SecurityContextUtil() {
+    }
+
     public static UserInfo getUserInfo() {
         Authentication authentication = SecurityContextHolder.getContext()
             .getAuthentication();

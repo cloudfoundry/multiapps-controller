@@ -14,6 +14,9 @@ public class TokenStoreFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenStoreFactory.class);
 
+    private TokenStoreFactory() {
+    }
+
     public static JdbcTokenStore getTokenStore(DataSource dbDataSource) {
         LOGGER.info(MessageFormat.format(Messages.OAUTH_TOKEN_STORE, "JdbcTokenStore"));
         return new JdbcTokenStore(dbDataSource);

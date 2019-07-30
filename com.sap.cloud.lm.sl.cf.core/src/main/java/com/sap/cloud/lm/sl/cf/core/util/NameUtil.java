@@ -16,6 +16,9 @@ public class NameUtil {
 
     public static class NameRequirements {
 
+        private NameRequirements() {
+        }
+
         public static final String XS_APP_NAME_PATTERN = "(?!sap_system)[a-zA-Z0-9\\._\\-\\\\/]{1,240}";
         public static final String CONTAINER_NAME_PATTERN = "[A-Z0-9][_A-Z0-9]{0,63}";
 
@@ -28,6 +31,9 @@ public class NameUtil {
         public static final String XS_APP_NAME_ILLEGAL_CHARACTERS = "[^a-zA-Z0-9\\._\\-\\\\/]";
         public static final String CONTAINER_NAME_ILLEGAL_CHARACTERS = "[^_A-Z0-9]";
 
+    }
+
+    private NameUtil() {
     }
 
     public static String getNamespacePrefix(String namespace) {

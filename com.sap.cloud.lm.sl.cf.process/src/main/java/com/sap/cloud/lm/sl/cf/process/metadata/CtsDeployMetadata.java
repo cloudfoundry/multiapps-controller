@@ -11,7 +11,7 @@ import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
 public class CtsDeployMetadata {
 
-    private final static Set<ParameterMetadata> PARAMS = new HashSet<>();
+    private static final Set<ParameterMetadata> PARAMS = new HashSet<>();
 
     static {
         PARAMS.add(ParameterMetadata.builder()
@@ -140,6 +140,9 @@ public class CtsDeployMetadata {
             .id(Constants.PARAM_GIT_REPOSITORY_LIST)
             .type(ParameterType.TABLE)
             .build());
+    }
+
+    private CtsDeployMetadata() {
     }
 
     public static OperationMetadata getMetadata() {

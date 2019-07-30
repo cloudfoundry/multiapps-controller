@@ -8,6 +8,10 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 
 public class SpecialResourceTypesRequiredParametersUtil {
+
+    private SpecialResourceTypesRequiredParametersUtil() {
+    }
+
     public static void checkRequiredParameters(String serviceName, ResourceType resourceType, Map<String, Object> parameters) {
         Set<String> requiredParameters = resourceType.getRequiredParameters();
         for (String parameter : requiredParameters) {

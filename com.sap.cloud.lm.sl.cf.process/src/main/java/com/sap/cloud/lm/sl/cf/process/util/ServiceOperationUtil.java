@@ -11,6 +11,9 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 public class ServiceOperationUtil {
 
+    private ServiceOperationUtil() {
+    }
+
     public static Map<String, Object> getServiceKeyCredentials(CloudControllerClient client, String serviceName, String serviceKeyName) {
         List<CloudServiceKey> existingServiceKeys = client.getServiceKeys(serviceName);
         CloudServiceKey foundServiceKey = existingServiceKeys.stream()

@@ -51,7 +51,7 @@ public class NullProcessLogger extends ProcessLogger {
     }
 
     @Override
-    public void removeAllAppenders() {
+    public synchronized void removeAllAppenders() {
         logNullCorrelationId();
     }
 

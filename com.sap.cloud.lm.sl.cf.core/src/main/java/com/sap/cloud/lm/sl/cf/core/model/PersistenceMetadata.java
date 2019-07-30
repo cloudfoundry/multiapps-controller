@@ -2,9 +2,15 @@ package com.sap.cloud.lm.sl.cf.core.model;
 
 public class PersistenceMetadata {
 
+    private PersistenceMetadata() {
+    }
+
     public static final String NOT_AVAILABLE = "N/A";
 
     public static class NamedQueries {
+
+        private NamedQueries() {
+        }
 
         public static final String FIND_ALL_ENTRIES = "find_all_entries";
         public static final String FIND_ALL_ENTRIES_BY_SPACE_ID = "find_all_entries_guid";
@@ -15,6 +21,9 @@ public class PersistenceMetadata {
 
     public static class QueryParameters {
 
+        private QueryParameters() {
+        }
+
         public static final String MTA_ID = "mtaId";
         public static final String LAST_QUERY_PARAM = "last";
         public static final String STATUS_QUERY_PARAM = "status";
@@ -23,12 +32,18 @@ public class PersistenceMetadata {
 
     public static class TableNames {
 
+        private TableNames() {
+        }
+
         public static final String CONFIGURATION_ENTRY_TABLE = "configuration_registry";
         public static final String CONFIGURATION_SUBSCRIPTION_TABLE = "configuration_subscription";
 
     }
 
     public static class SequenceNames {
+
+        private SequenceNames() {
+        }
 
         public static final String DEPLOY_TARGET_SEQUENCE = "deploy_target_sequence";
         public static final String CONFIGURATION_ENTRY_SEQUENCE = "configuration_entry_sequence";
@@ -37,6 +52,9 @@ public class PersistenceMetadata {
     }
 
     public static class TableColumnNames {
+
+        private TableColumnNames() {
+        }
 
         public static final String CONFIGURATION_ENTRY_ID = "id";
         public static final String CONFIGURATION_ENTRY_PROVIDER_NID = "provider_nid";

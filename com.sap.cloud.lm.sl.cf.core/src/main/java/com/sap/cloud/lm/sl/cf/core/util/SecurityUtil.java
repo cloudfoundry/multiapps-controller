@@ -21,6 +21,9 @@ public class SecurityUtil {
     public static final String CLIENT_ID = "cf";
     public static final String CLIENT_SECRET = "";
 
+    private SecurityUtil() {
+    }
+
     public static OAuth2Authentication createAuthentication(String clientId, Set<String> scope, UserInfo userInfo) {
         List<SimpleGrantedAuthority> authorities = getAuthorities(scope);
         OAuth2Request request = new OAuth2Request(new HashMap<String, String>(), clientId, authorities, true, scope, null, null, null,
