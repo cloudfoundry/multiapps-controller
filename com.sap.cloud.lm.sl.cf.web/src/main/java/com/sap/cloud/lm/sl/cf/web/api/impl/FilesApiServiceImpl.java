@@ -53,15 +53,15 @@ public class FilesApiServiceImpl implements FilesApiService {
         try {
             List<FileEntry> entries = fileService.listFiles(spaceGuid, null);
             List<FileMetadata> files = entries.stream()
-                .map(this::parseFileEntry)
-                .collect(Collectors.toList());
+                                              .map(this::parseFileEntry)
+                                              .collect(Collectors.toList());
             return Response.ok()
-                .entity(files)
-                .build();
+                           .entity(files)
+                           .build();
         } catch (FileStorageException e) {
             LOGGER.error(Messages.COULD_NOT_GET_FILES, e);
             throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR)
-                .build());
+                                                      .build());
         }
     }
 
@@ -71,14 +71,14 @@ public class FilesApiServiceImpl implements FilesApiService {
             FileEntry fileEntry = uploadFiles(request, spaceGuid).get(0);
             FileMetadata fileMetadata = parseFileEntry(fileEntry);
             AuditLoggingProvider.getFacade()
-                .logConfigCreate(fileMetadata);
+                                .logConfigCreate(fileMetadata);
             return Response.status(Status.CREATED)
-                .entity(fileMetadata)
-                .build();
+                           .entity(fileMetadata)
+                           .build();
         } catch (Exception e) {
             LOGGER.error(Messages.COULD_NOT_UPLOAD_FILE, e);
             throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR)
-                .build());
+                                                      .build());
         }
     }
 

@@ -15,8 +15,7 @@ import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 class DBAppender extends org.apache.log4j.AppenderSkeleton implements org.apache.log4j.Appender {
 
     interface LogEventAdapter {
-        void eventToStatement(String category, LoggingEvent event, UserInfo userInfo, PreparedStatement statement)
-            throws SQLException;
+        void eventToStatement(String category, LoggingEvent event, UserInfo userInfo, PreparedStatement statement) throws SQLException;
     }
 
     interface ExceptionHandler {
@@ -30,7 +29,7 @@ class DBAppender extends org.apache.log4j.AppenderSkeleton implements org.apache
     private UserInfoProvider userInfoProvider;
 
     DBAppender(DataSource dataSource, String sql, LogEventAdapter eventAdapter, ExceptionHandler exceptionHandler,
-        UserInfoProvider userInfoProvider) {
+               UserInfoProvider userInfoProvider) {
         this.dataSource = Objects.requireNonNull(dataSource);
         this.sql = Objects.requireNonNull(sql);
         this.eventAdapter = Objects.requireNonNull(eventAdapter);
@@ -40,8 +39,7 @@ class DBAppender extends org.apache.log4j.AppenderSkeleton implements org.apache
 
     @Override
     protected void append(LoggingEvent event) {
-        try (Connection connection = dataSource.getConnection();
-            PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(sql)) {
             eventAdapter.eventToStatement(getName(), event, userInfoProvider.getUserInfo(), stmt);
             stmt.executeUpdate();
         } catch (SQLException e) {

@@ -16,7 +16,7 @@ public class DefaultDataSourceDialect implements DataSourceDialect {
     @Override
     public InputStream getBinaryStreamFromBlob(ResultSet rs, String columnName) throws SQLException {
         return rs.getBlob(columnName)
-            .getBinaryStream();
+                 .getBinaryStream();
     }
 
     @Override

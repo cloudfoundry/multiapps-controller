@@ -21,10 +21,10 @@ public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBu
     @Override
     public List<Resource> calculateContentForBuilding(List<? extends Resource> elements) {
         return elements.stream()
-            .filter(this::isActive)
-            .filter(this::isResourceSpecifiedForDeployment)
-            .filter(this::isService)
-            .collect(Collectors.toList());
+                       .filter(this::isActive)
+                       .filter(this::isResourceSpecifiedForDeployment)
+                       .filter(this::isService)
+                       .collect(Collectors.toList());
     }
 
     private boolean isService(Resource resource) {

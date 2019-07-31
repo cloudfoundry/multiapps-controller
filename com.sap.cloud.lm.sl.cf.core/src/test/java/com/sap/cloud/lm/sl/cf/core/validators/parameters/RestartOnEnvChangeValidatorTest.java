@@ -26,7 +26,7 @@ class RestartOnEnvChangeValidatorTest {
     @Test
     void testGetContainerType() {
         assertTrue(validator.getContainerType()
-            .isAssignableFrom(Module.class));
+                            .isAssignableFrom(Module.class));
     }
 
     @ParameterizedTest
@@ -63,6 +63,5 @@ class RestartOnEnvChangeValidatorTest {
         // @formatter:on
         );
     }
-
 
 }

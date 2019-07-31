@@ -35,16 +35,16 @@ public class CFOptimizedEventGetter extends CustomControllerClient {
 
     private List<String> executeFindEventsRequest(Map<String, Object> urlVariables) {
         String controllerUrl = client.getCloudControllerUrl()
-            .toString();
+                                     .toString();
         List<Map<String, Object>> response = getAllResources(getRestTemplate(client), controllerUrl,
-            FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT, urlVariables);
+                                                             FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT, urlVariables);
         return extractSpaceIds(response);
     }
 
     private List<String> extractSpaceIds(List<Map<String, Object>> events) {
         return events.stream()
-            .map(this::extractSpaceId)
-            .collect(Collectors.toList());
+                     .map(this::extractSpaceId)
+                     .collect(Collectors.toList());
     }
 
     @SuppressWarnings("unchecked")

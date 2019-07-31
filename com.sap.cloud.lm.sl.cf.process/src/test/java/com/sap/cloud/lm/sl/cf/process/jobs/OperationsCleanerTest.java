@@ -57,9 +57,9 @@ public class OperationsCleanerTest {
     @Test
     public void testExpiredOperationsAreAborted() {
         Operation operation1 = new Operation().processId(OPERATION_ID_1)
-            .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1));
+                                              .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1));
         Operation operation2 = new Operation().processId(OPERATION_ID_2)
-            .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2));
+                                              .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2));
         List<Operation> operationsList = Arrays.asList(operation1, operation2);
 
         when(dao.find(createExpectedFilterForPage(0))).thenReturn(operationsList);
@@ -72,14 +72,14 @@ public class OperationsCleanerTest {
     @Test
     public void testAbortResilience() {
         Operation operation1 = new Operation().processId(OPERATION_ID_1)
-            .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1));
+                                              .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1));
         Operation operation2 = new Operation().processId(OPERATION_ID_2)
-            .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2));
+                                              .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2));
         List<Operation> operationsList = Arrays.asList(operation1, operation2);
 
         when(dao.find(createExpectedFilterForPage(0))).thenReturn(operationsList);
         doThrow(new FlowableOptimisticLockingException("I'm an exception")).when(flowableFacade)
-            .deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
+                                                                           .deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
 
         cleaner.execute(EXPIRATION_TIME);
         verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
@@ -89,11 +89,11 @@ public class OperationsCleanerTest {
     @Test
     public void testPaging() {
         Operation operation1 = new Operation().processId(OPERATION_ID_1)
-            .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1));
+                                              .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1));
         Operation operation2 = new Operation().processId(OPERATION_ID_2)
-            .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2));
+                                              .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2));
         Operation operation3 = new Operation().processId(OPERATION_ID_3)
-            .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2));
+                                              .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2));
         List<Operation> operationsPage1 = Arrays.asList(operation1, operation2);
         List<Operation> operationsPage2 = Arrays.asList(operation3);
 
@@ -118,11 +118,11 @@ public class OperationsCleanerTest {
 
     private OperationFilter createExpectedFilterForPage(int pageIndex) {
         return new OperationFilter.Builder().inNonFinalState()
-            .startedBefore(EXPIRATION_TIME)
-            .firstElement(pageIndex * PAGE_SIZE)
-            .maxResults(PAGE_SIZE)
-            .orderByProcessId()
-            .build();
+                                            .startedBefore(EXPIRATION_TIME)
+                                            .firstElement(pageIndex * PAGE_SIZE)
+                                            .maxResults(PAGE_SIZE)
+                                            .orderByProcessId()
+                                            .build();
     }
 
 }

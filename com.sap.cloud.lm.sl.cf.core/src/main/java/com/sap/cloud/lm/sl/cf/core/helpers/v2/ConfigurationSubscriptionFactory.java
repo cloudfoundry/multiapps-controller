@@ -23,7 +23,7 @@ public class ConfigurationSubscriptionFactory {
     private static final int MTA_MAJOR_SCHEMA_VERSION = 2;
 
     public List<ConfigurationSubscription> create(DeploymentDescriptor descriptor,
-        Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId) {
+                                                  Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId) {
         List<String> dependenciesToIgnore = new ArrayList<>(resolvedResources.keySet());
         descriptor = getPartialDescriptorReferenceResolver(descriptor, dependenciesToIgnore).resolve();
         List<ConfigurationSubscription> result = new ArrayList<>();
@@ -31,7 +31,7 @@ public class ConfigurationSubscriptionFactory {
             for (RequiredDependency dependency : module.getRequiredDependencies()) {
                 if (shouldCreateSubscription(dependency)) {
                     CollectionUtils.addIgnoreNull(result,
-                        createSubscription(spaceId, descriptor.getId(), module, dependency, resolvedResources));
+                                                  createSubscription(spaceId, descriptor.getId(), module, dependency, resolvedResources));
                 }
             }
         }
@@ -39,16 +39,16 @@ public class ConfigurationSubscriptionFactory {
     }
 
     protected DescriptorReferenceResolver getPartialDescriptorReferenceResolver(DeploymentDescriptor descriptor,
-        List<String> dependenciesToIgnore) {
+                                                                                List<String> dependenciesToIgnore) {
         return new PartialDescriptorReferenceResolver(descriptor, dependenciesToIgnore);
     }
 
     protected ConfigurationSubscription createSubscription(String spaceId, String mtaId, Module module, RequiredDependency dependency,
-        Map<String, ResolvedConfigurationReference> resolvedResources) {
+                                                           Map<String, ResolvedConfigurationReference> resolvedResources) {
         ResolvedConfigurationReference resolvedReference = resolvedResources.get(dependency.getName());
         ConfigurationFilter filter = resolvedReference.getReferenceFilter();
         String appName = (String) module.getParameters()
-            .get(SupportedParameters.APP_NAME);
+                                        .get(SupportedParameters.APP_NAME);
         Resource resource = resolvedReference.getReference();
         Module adaptedModule = getContainingOneRequiresDependency(module, dependency);
 
@@ -57,14 +57,14 @@ public class ConfigurationSubscriptionFactory {
 
     protected Module getContainingOneRequiresDependency(Module module, RequiredDependency dependency) {
         return Module.createV2()
-            .setName(module.getName())
-            .setType(module.getType())
-            .setPath(module.getPath())
-            .setDescription(module.getDescription())
-            .setProperties(module.getProperties())
-            .setParameters(module.getParameters())
-            .setProvidedDependencies(module.getProvidedDependencies())
-            .setRequiredDependencies(Arrays.asList(dependency));
+                     .setName(module.getName())
+                     .setType(module.getType())
+                     .setPath(module.getPath())
+                     .setDescription(module.getDescription())
+                     .setProperties(module.getProperties())
+                     .setParameters(module.getParameters())
+                     .setProvidedDependencies(module.getProvidedDependencies())
+                     .setRequiredDependencies(Arrays.asList(dependency));
     }
 
     protected int getMajorSchemaVersion() {
@@ -73,7 +73,7 @@ public class ConfigurationSubscriptionFactory {
 
     private boolean shouldCreateSubscription(RequiredDependency dependency) {
         return (boolean) dependency.getParameters()
-            .getOrDefault(SupportedParameters.MANAGED, false);
+                                   .getOrDefault(SupportedParameters.MANAGED, false);
     }
 
 }

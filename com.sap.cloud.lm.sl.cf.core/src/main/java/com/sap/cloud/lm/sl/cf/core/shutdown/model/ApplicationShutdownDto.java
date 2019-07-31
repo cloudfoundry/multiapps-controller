@@ -7,8 +7,8 @@ public class ApplicationShutdownDto {
     private String appInstanceIndex;
     private long cooldownTimeoutInSeconds;
 
-    private ApplicationShutdownDto(Status status, String appId,
-        String appInstanceId, String appInstanceIndex, long cooldownTimeoutInSeconds) {
+    private ApplicationShutdownDto(Status status, String appId, String appInstanceId, String appInstanceIndex,
+                                   long cooldownTimeoutInSeconds) {
         this.status = status;
         this.appId = appId;
         this.appInstanceId = appInstanceId;
@@ -43,10 +43,9 @@ public class ApplicationShutdownDto {
         private String appInstanceIndex;
         private long cooldownTimeoutInSeconds;
 
-        public ApplicationShutdownDto build(){
-            return new ApplicationShutdownDto(isActive ? Status.RUNNING : Status.FINISHED, appId, appInstanceId,
-                appInstanceIndex,
-                cooldownTimeoutInSeconds);
+        public ApplicationShutdownDto build() {
+            return new ApplicationShutdownDto(isActive ? Status.RUNNING
+                : Status.FINISHED, appId, appInstanceId, appInstanceIndex, cooldownTimeoutInSeconds);
         }
 
         public Builder isActive(boolean isActive) {

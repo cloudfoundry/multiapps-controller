@@ -90,7 +90,7 @@ public class ApplicationURI {
 
         if (StringUtils.isNotEmpty(getHost())) {
             url.append(getHost())
-                .append(UriUtil.DEFAULT_HOST_DOMAIN_SEPARATOR);
+               .append(UriUtil.DEFAULT_HOST_DOMAIN_SEPARATOR);
         }
 
         url.append(getDomain());

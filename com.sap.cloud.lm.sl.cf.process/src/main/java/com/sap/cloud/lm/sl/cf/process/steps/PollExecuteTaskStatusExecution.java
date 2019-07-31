@@ -59,20 +59,20 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         private CloudTask.State getCurrentState() {
             CloudControllerClient client = execution.getControllerClient();
             return client.getTask(taskToPoll.getMetadata()
-                .getGuid())
-                .getState();
+                                            .getGuid())
+                         .getState();
         }
 
         private void reportCurrentState(CloudTask.State currentState) {
             execution.getStepLogger()
-                .debug(Messages.TASK_EXECUTION_STATUS, currentState.toString()
-                    .toLowerCase());
+                     .debug(Messages.TASK_EXECUTION_STATUS, currentState.toString()
+                                                                        .toLowerCase());
         }
 
         private void saveAppLogs() {
             CloudControllerClient client = execution.getControllerClient();
             ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
-                .getProcessLoggerProvider();
+                                                                   .getProcessLoggerProvider();
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
         }
 
@@ -90,7 +90,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         private AsyncExecutionState handleFinalState(CloudTask.State state) {
             if (state.equals(CloudTask.State.FAILED)) {
                 execution.getStepLogger()
-                    .error(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToPoll.getName(), app.getName());
+                         .error(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToPoll.getName(), app.getName());
                 return AsyncExecutionState.ERROR;
             }
             return AsyncExecutionState.FINISHED;

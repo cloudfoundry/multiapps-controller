@@ -21,12 +21,12 @@ public class ConfigurationReferenceResolver extends com.sap.cloud.lm.sl.cf.core.
         Map<String, Object> properties = mergeProperties(resource, entry);
         Map<String, Object> parameters = removeConfigurationParameters(resource.getParameters());
         return createResource().setName(indexedResourceName)
-            .setDescription(resource.getDescription())
-            .setProperties(properties)
-            .setParameters(parameters)
-            .setPropertiesMetadata(resource.getPropertiesMetadata())
-            .setParametersMetadata(resource.getParametersMetadata())
-            .setRequiredDependencies(resource.getRequiredDependencies());
+                               .setDescription(resource.getDescription())
+                               .setProperties(properties)
+                               .setParameters(parameters)
+                               .setPropertiesMetadata(resource.getPropertiesMetadata())
+                               .setParametersMetadata(resource.getParametersMetadata())
+                               .setRequiredDependencies(resource.getRequiredDependencies());
     }
 
     @Override

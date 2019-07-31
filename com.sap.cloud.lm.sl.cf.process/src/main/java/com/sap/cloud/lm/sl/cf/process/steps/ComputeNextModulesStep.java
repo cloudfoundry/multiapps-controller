@@ -28,8 +28,10 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
         List<Module> completedModules = StepsUtil.getIteratedModulesInParallel(execution.getContext());
 
         DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
-        ModuleDependencyChecker dependencyChecker = new ModuleDependencyChecker(execution.getControllerClient(), descriptor.getModules(),
-            allModulesToDeploy, completedModules);
+        ModuleDependencyChecker dependencyChecker = new ModuleDependencyChecker(execution.getControllerClient(),
+                                                                                descriptor.getModules(),
+                                                                                allModulesToDeploy,
+                                                                                completedModules);
 
         getStepLogger().debug("Completed modules detected: " + dependencyChecker.getAlreadyDeployedModules());
         getStepLogger().debug("All modules for deploy detected: " + dependencyChecker.getModulesForDeployment());
@@ -53,11 +55,11 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
 
     private List<Module> computeApplicationsForNextIteration(List<Module> allModulesToDeploy, ModuleDependencyChecker dependencyChecker) {
         allModulesToDeploy.removeIf(module -> dependencyChecker.getAlreadyDeployedModules()
-            .contains(module.getName()));
+                                                               .contains(module.getName()));
 
         return allModulesToDeploy.stream()
-            .filter(dependencyChecker::areAllDependenciesSatisfied)
-            .collect(Collectors.toList());
+                                 .filter(dependencyChecker::areAllDependenciesSatisfied)
+                                 .collect(Collectors.toList());
     }
 
 }

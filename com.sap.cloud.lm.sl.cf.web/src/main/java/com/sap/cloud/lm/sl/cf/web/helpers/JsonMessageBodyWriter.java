@@ -65,7 +65,8 @@ public class JsonMessageBodyWriter<T> implements MessageBodyWriter<T> {
 
     @Override
     public void writeTo(T t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-        MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException {
+                        MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
+        throws IOException {
 
         String json = JsonUtil.toJson(t);
         entityStream.write(json.getBytes(getCharset(mediaType)));
@@ -73,7 +74,7 @@ public class JsonMessageBodyWriter<T> implements MessageBodyWriter<T> {
 
     private Charset getCharset(MediaType mediaType) {
         String charsetName = mediaType.getParameters()
-            .get(MediaType.CHARSET_PARAMETER);
+                                      .get(MediaType.CHARSET_PARAMETER);
         return charsetName == null ? StandardCharsets.UTF_8 : Charset.forName(charsetName);
     }
 

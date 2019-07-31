@@ -18,7 +18,7 @@ public class VersionJsonDeserializer extends StdDeserializer<Version> {
     @Override
     public Version deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         String value = parser.getCodec()
-            .readValue(parser, String.class);
+                             .readValue(parser, String.class);
         return Version.parseVersion(value);
     }
 

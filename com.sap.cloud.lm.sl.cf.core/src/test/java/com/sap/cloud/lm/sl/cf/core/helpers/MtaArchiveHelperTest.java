@@ -55,7 +55,7 @@ public class MtaArchiveHelperTest {
     public void testResources() {
         Set<String> descriptorResources = getResourcesNamesFromDescriptor();
         Set<String> mtaResources = helper.getMtaArchiveResources()
-            .keySet();
+                                         .keySet();
 
         assertEquals(descriptorResources.size(), mtaResources.size());
 
@@ -68,7 +68,7 @@ public class MtaArchiveHelperTest {
     public void testDependencies() {
         Set<String> descriptorDependencies = getRequiredDependenciesNamesFromDescriptor();
         Set<String> mtaDependencies = helper.getMtaRequiresDependencies()
-            .keySet();
+                                            .keySet();
 
         assertEquals(descriptorDependencies.size(), mtaDependencies.size());
 
@@ -79,18 +79,18 @@ public class MtaArchiveHelperTest {
 
     private Set<String> getResourcesNamesFromDescriptor() {
         return descriptor.getResources()
-            .stream()
-            .map(Resource::getName)
-            .collect(Collectors.toSet());
+                         .stream()
+                         .map(Resource::getName)
+                         .collect(Collectors.toSet());
     }
 
     private Set<String> getRequiredDependenciesNamesFromDescriptor() {
         return descriptor.getModules()
-            .stream()
-            .map(Module::getRequiredDependencies)
-            .flatMap(dependency -> dependency.stream()
-                .map(RequiredDependency::getName))
-            .collect(Collectors.toSet());
+                         .stream()
+                         .map(Module::getRequiredDependencies)
+                         .flatMap(dependency -> dependency.stream()
+                                                          .map(RequiredDependency::getName))
+                         .collect(Collectors.toSet());
     }
 
 }

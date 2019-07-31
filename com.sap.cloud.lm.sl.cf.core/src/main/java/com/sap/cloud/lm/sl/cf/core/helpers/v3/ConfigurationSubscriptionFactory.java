@@ -18,21 +18,21 @@ public class ConfigurationSubscriptionFactory extends com.sap.cloud.lm.sl.cf.cor
 
     @Override
     protected DescriptorReferenceResolver getPartialDescriptorReferenceResolver(DeploymentDescriptor descriptor,
-        List<String> dependenciesToIgnore) {
+                                                                                List<String> dependenciesToIgnore) {
         return new PartialDescriptorReferenceResolver(descriptor, dependenciesToIgnore);
     }
 
     @Override
     protected ConfigurationSubscription createSubscription(String spaceId, String mtaId, Module module, RequiredDependency dependency,
-        Map<String, ResolvedConfigurationReference> resolvedResources) {
+                                                           Map<String, ResolvedConfigurationReference> resolvedResources) {
         ResolvedConfigurationReference resolvedReference = resolvedResources.get(dependency.getName());
         if (!resolvedReference.getReference()
-            .isActive()) {
+                              .isActive()) {
             return null;
         }
         ConfigurationFilter filter = resolvedReference.getReferenceFilter();
         String appName = (String) module.getParameters()
-            .get(SupportedParameters.APP_NAME);
+                                        .get(SupportedParameters.APP_NAME);
         Resource resource = resolvedReference.getReference();
         Module adaptedModule = getContainingOneRequiresDependency(module, dependency);
 

@@ -65,6 +65,6 @@ public class VisibilityValidatorTest {
     @Test
     public void testGetContainerType() {
         assertTrue(validator.getContainerType()
-            .isAssignableFrom(ProvidedDependency.class));
+                            .isAssignableFrom(ProvidedDependency.class));
     }
 }

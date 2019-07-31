@@ -78,8 +78,8 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
 
     private List<ConfigurationSubscription> asSubscriptions(List<Integer> subscriptionsToDelete) {
         return subscriptionsToDelete.stream()
-            .map((subscription) -> asSubscription(subscription))
-            .collect(Collectors.toList());
+                                    .map((subscription) -> asSubscription(subscription))
+                                    .collect(Collectors.toList());
     }
 
     private ConfigurationSubscription asSubscription(Integer subscriptionnId) {
@@ -109,10 +109,10 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
         for (Integer subscription : input.existingSubscriptions) {
             if (input.subscriptionsToDelete.contains(subscription)) {
                 Mockito.verify(dao, times(1))
-                    .remove(subscription);
+                       .remove(subscription);
             } else {
                 Mockito.verify(dao, times(0))
-                    .remove(subscription);
+                       .remove(subscription);
             }
         }
     }

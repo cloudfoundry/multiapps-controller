@@ -156,19 +156,19 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
 
     private void prepareDeploymentDescriptor() {
         List<Module> modules = input.deploymentDescriptorModules.stream()
-            .map(this::getModuleFromName)
-            .collect(Collectors.toList());
+                                                                .map(this::getModuleFromName)
+                                                                .collect(Collectors.toList());
         deploymentDescriptor = DeploymentDescriptor.createV2()
-            .setModules(modules)
-            .setSchemaVersion("2")
-            .setId("id")
-            .setVersion("1");
+                                                   .setModules(modules)
+                                                   .setSchemaVersion("2")
+                                                   .setId("id")
+                                                   .setVersion("1");
     }
 
     private Module getModuleFromName(String moduleName) {
         return Module.createV2()
-            .setName(moduleName)
-            .setType("a");
+                     .setName(moduleName)
+                     .setType("a");
     }
 
     private void loadParameters() throws Exception {
@@ -217,14 +217,15 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
     private void prepareDao() {
         if (deployedMta != null) {
             when(dao.findAll(deployedMta.getMetadata()
-                .getId(), null, SPACE_ID, null)).thenReturn(filter(existingSubscriptions));
+                                        .getId(),
+                             null, SPACE_ID, null)).thenReturn(filter(existingSubscriptions));
         }
     }
 
     private List<ConfigurationSubscription> filter(List<ConfigurationSubscription> existingSubscriptions) {
         return existingSubscriptions.stream()
-            .filter((subscription) -> SPACE_ID.equals(subscription.getSpaceId()))
-            .collect(Collectors.toList());
+                                    .filter((subscription) -> SPACE_ID.equals(subscription.getSpaceId()))
+                                    .collect(Collectors.toList());
     }
 
     @Test
@@ -245,8 +246,8 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
             return null;
         }
         return appsToUndeploy.stream()
-            .map((app) -> app.getName())
-            .collect(Collectors.toList());
+                             .map((app) -> app.getName())
+                             .collect(Collectors.toList());
     }
 
     private static class StepInput {
@@ -262,8 +263,8 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         public Set<String> deploymentDescriptorModules;
 
         public StepInput(String modulesToDeployLocation, String appsToDeployLocation, List<String> services, String deployedAppsLocation,
-            Set<String> mtaModules, String deployedMtaLocation, String subscriptionsToCreateLocation, String existingSubscriptionsLocation,
-            Set<String> deploymentDescriptorModules) {
+                         Set<String> mtaModules, String deployedMtaLocation, String subscriptionsToCreateLocation,
+                         String existingSubscriptionsLocation, Set<String> deploymentDescriptorModules) {
             this.modulesToDeployLocation = modulesToDeployLocation;
             this.appsToDeployLocation = appsToDeployLocation;
             this.services = services;

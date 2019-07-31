@@ -40,16 +40,16 @@ public class ApplicationAttributesTest {
         ParsingException e = assertThrows(ParsingException.class, () -> appAttributes.get(attributeName, Boolean.class));
 
         String expectedMessage = MessageFormat.format(Messages.ATTRIBUTE_0_OF_APP_1_IS_OF_TYPE_2_INSTEAD_OF_3, attributeName, APP_NAME,
-            String.class.getSimpleName(), Boolean.class.getSimpleName());
+                                                      String.class.getSimpleName(), Boolean.class.getSimpleName());
         assertEquals(expectedMessage, e.getMessage());
     }
 
     @Test
     public void testGetWithInvalidAttributes() {
         CloudApplication app = ImmutableCloudApplication.builder()
-            .name(APP_NAME)
-            .env(MapUtil.asMap("DEPLOY_ATTRIBUTES", "INVALID_JSON_OBJECT"))
-            .build();
+                                                        .name(APP_NAME)
+                                                        .env(MapUtil.asMap("DEPLOY_ATTRIBUTES", "INVALID_JSON_OBJECT"))
+                                                        .build();
 
         ParsingException e = assertThrows(ParsingException.class, () -> ApplicationAttributes.fromApplication(app));
 
@@ -60,8 +60,8 @@ public class ApplicationAttributesTest {
     @Test
     public void testGetWithMissingAttributes() {
         CloudApplication app = ImmutableCloudApplication.builder()
-            .name(APP_NAME)
-            .build();
+                                                        .name(APP_NAME)
+                                                        .build();
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
 
         assertNull(appAttributes.get("service-broker-url", String.class));
@@ -71,9 +71,9 @@ public class ApplicationAttributesTest {
     @Test
     public void testGetWithNullAttributes() {
         CloudApplication app = ImmutableCloudApplication.builder()
-            .name(APP_NAME)
-            .env(MapUtil.asMap("DEPLOY_ATTRIBUTES", "null"))
-            .build();
+                                                        .name(APP_NAME)
+                                                        .env(MapUtil.asMap("DEPLOY_ATTRIBUTES", "null"))
+                                                        .build();
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
 
         assertNull(appAttributes.get("service-broker-url", String.class));

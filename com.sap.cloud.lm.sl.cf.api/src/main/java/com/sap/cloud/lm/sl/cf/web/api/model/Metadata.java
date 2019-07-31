@@ -67,8 +67,12 @@ public class Metadata {
         StringBuilder sb = new StringBuilder();
         sb.append("class Metadata {\n");
 
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    version: ").append(toIndentedString(version)).append("\n");
+        sb.append("    id: ")
+          .append(toIndentedString(id))
+          .append("\n");
+        sb.append("    version: ")
+          .append(toIndentedString(version))
+          .append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -80,6 +84,7 @@ public class Metadata {
         if (o == null) {
             return "null";
         }
-        return o.toString().replace("\n", "\n    ");
+        return o.toString()
+                .replace("\n", "\n    ");
     }
 }

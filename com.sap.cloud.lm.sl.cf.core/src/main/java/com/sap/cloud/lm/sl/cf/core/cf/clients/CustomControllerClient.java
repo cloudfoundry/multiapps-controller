@@ -31,7 +31,7 @@ public abstract class CustomControllerClient {
     }
 
     protected List<Map<String, Object>> getAllResources(RestTemplate restTemplate, String controllerUrl, String urlPath,
-        Map<String, Object> urlVariables) {
+                                                        Map<String, Object> urlVariables) {
         List<Map<String, Object>> allResources = new ArrayList<>();
         String nextUrl = urlPath;
         while (!StringUtils.isEmpty(nextUrl)) {
@@ -42,7 +42,7 @@ public abstract class CustomControllerClient {
 
     @SuppressWarnings("unchecked")
     protected String addPageOfResources(RestTemplate restTemplate, String controllerUrl, String path,
-        List<Map<String, Object>> allResources, Map<String, Object> urlVariables) {
+                                        List<Map<String, Object>> allResources, Map<String, Object> urlVariables) {
         String response = restTemplate.getForObject(getUrl(controllerUrl, path), String.class, urlVariables);
         Map<String, Object> responseMap = JsonUtil.convertJsonToMap(response);
         validateResponse(responseMap);

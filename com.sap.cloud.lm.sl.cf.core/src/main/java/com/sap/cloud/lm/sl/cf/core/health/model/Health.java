@@ -32,13 +32,13 @@ public class Health {
 
     private static List<HealthCheckOperation> toHealthCheckOperations(List<Operation> operations) {
         return operations.stream()
-            .map(HealthCheckOperation::fromOperation)
-            .collect(Collectors.toList());
+                         .map(HealthCheckOperation::fromOperation)
+                         .collect(Collectors.toList());
     }
 
     private static boolean containsOnlyFinishedOperations(List<HealthCheckOperation> operations) {
         return operations.stream()
-            .allMatch(operation -> operation.getState() == State.FINISHED);
+                         .allMatch(operation -> operation.getState() == State.FINISHED);
     }
 
 }

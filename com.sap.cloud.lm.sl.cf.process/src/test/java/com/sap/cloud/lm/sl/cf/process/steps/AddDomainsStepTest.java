@@ -50,7 +50,7 @@ public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
     public void setUp() throws Exception {
         prepareContext();
         Mockito.when(client.getDomains())
-            .thenReturn(getExistingDomainsList());
+               .thenReturn(getExistingDomainsList());
         nonExistingCustomDomains = getNonExistingDomainsList();
     }
 
@@ -62,7 +62,7 @@ public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
 
         for (String nonExistingCustomDomain : nonExistingCustomDomains) {
             Mockito.verify(client, Mockito.times(1))
-                .addDomain(nonExistingCustomDomain);
+                   .addDomain(nonExistingCustomDomain);
         }
     }
 
@@ -74,8 +74,8 @@ public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
         List<CloudDomain> result = new ArrayList<>();
         for (String existingDomain : existingDomains) {
             result.add(ImmutableCloudDomain.builder()
-                .name(existingDomain)
-                .build());
+                                           .name(existingDomain)
+                                           .build());
         }
         return result;
     }

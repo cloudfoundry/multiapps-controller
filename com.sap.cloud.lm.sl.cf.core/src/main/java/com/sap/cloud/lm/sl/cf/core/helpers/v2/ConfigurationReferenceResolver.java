@@ -56,15 +56,15 @@ public class ConfigurationReferenceResolver {
         Map<String, Object> properties = mergeProperties(resource, entry);
         Map<String, Object> parameters = removeConfigurationParameters(resource.getParameters());
         return createResource().setName(indexedResourceName)
-            .setDescription(resource.getDescription())
-            .setProperties(properties)
-            .setParameters(parameters);
+                               .setDescription(resource.getDescription())
+                               .setProperties(properties)
+                               .setParameters(parameters);
     }
 
     protected Map<String, Object> removeConfigurationParameters(Map<String, Object> resourcePropertiesMap) {
         Map<String, Object> result = new TreeMap<>(resourcePropertiesMap);
         result.keySet()
-            .removeAll(SupportedParameters.CONFIGURATION_REFERENCE_PARAMETERS);
+              .removeAll(SupportedParameters.CONFIGURATION_REFERENCE_PARAMETERS);
         return result;
     }
 

@@ -19,10 +19,10 @@ public class ServiceKeysCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf
     @Override
     public Map<String, List<CloudServiceKey>> build() {
         return deploymentDescriptor.getResources()
-            .stream()
-            .filter(CloudModelBuilderUtil::isService)
-            .filter(Resource::isActive)
-            .collect(Collectors.toMap(Resource::getName, this::getServiceKeysForService));
+                                   .stream()
+                                   .filter(CloudModelBuilderUtil::isService)
+                                   .filter(Resource::isActive)
+                                   .collect(Collectors.toMap(Resource::getName, this::getServiceKeysForService));
     }
 
 }

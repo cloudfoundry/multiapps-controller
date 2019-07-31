@@ -64,8 +64,8 @@ public class BootstrapServlet extends HttpServlet {
             initExtras();
             executeAsyncDatabaseChanges();
             processEngine.getProcessEngineConfiguration()
-                .getAsyncExecutor()
-                .start();
+                         .getAsyncExecutor()
+                         .start();
             LOGGER.info(Messages.ALM_SERVICE_ENV_INITIALIZED);
         } catch (Exception e) {
             LOGGER.error("Initialization error", e);

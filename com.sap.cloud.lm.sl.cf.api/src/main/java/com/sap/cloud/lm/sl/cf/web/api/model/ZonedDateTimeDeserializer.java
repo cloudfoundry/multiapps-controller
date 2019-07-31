@@ -18,7 +18,7 @@ public class ZonedDateTimeDeserializer extends StdDeserializer<ZonedDateTime> {
     @Override
     public ZonedDateTime deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         String zonedDateTime = parser.getCodec()
-            .readValue(parser, String.class);
+                                     .readValue(parser, String.class);
         return ZonedDateTime.parse(zonedDateTime, Operation.DATE_TIME_FORMATTER);
     }
 

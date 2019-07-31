@@ -131,13 +131,28 @@ public class SupportedParameters {
     public static final String ORG = "org";
     public static final String SPACE = "space";
 
-    public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Collections.unmodifiableSet(
-        new HashSet<>(Arrays.asList(PROVIDER_NID, PROVIDER_ID, TARGET, VERSION, MTA_ID, MTA_VERSION, MTA_PROVIDES_DEPENDENCY)));
+    public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(PROVIDER_NID,
+                                                                                                                                 PROVIDER_ID,
+                                                                                                                                 TARGET,
+                                                                                                                                 VERSION,
+                                                                                                                                 MTA_ID,
+                                                                                                                                 MTA_VERSION,
+                                                                                                                                 MTA_PROVIDES_DEPENDENCY)));
 
     public static final Set<String> APP_ATTRIBUTES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(EXECUTE_APP, SUCCESS_MARKER,
-        FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID, REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,
-        REGISTER_SERVICE_URL_SERVICE_URL, CREATE_SERVICE_BROKER, SERVICE_BROKER_NAME, SERVICE_BROKER_USERNAME, SERVICE_BROKER_PASSWORD,
-        SERVICE_BROKER_URL, SERVICE_BROKER_SPACE_SCOPED, DEPENDENCY_TYPE, NO_START, UPLOAD_TIMEOUT)));
+                                                                                                             FAILURE_MARKER, STOP_APP,
+                                                                                                             CHECK_DEPLOY_ID,
+                                                                                                             REGISTER_SERVICE_URL,
+                                                                                                             REGISTER_SERVICE_URL_SERVICE_NAME,
+                                                                                                             REGISTER_SERVICE_URL_SERVICE_URL,
+                                                                                                             CREATE_SERVICE_BROKER,
+                                                                                                             SERVICE_BROKER_NAME,
+                                                                                                             SERVICE_BROKER_USERNAME,
+                                                                                                             SERVICE_BROKER_PASSWORD,
+                                                                                                             SERVICE_BROKER_URL,
+                                                                                                             SERVICE_BROKER_SPACE_SCOPED,
+                                                                                                             DEPENDENCY_TYPE, NO_START,
+                                                                                                             UPLOAD_TIMEOUT)));
 
     public static final Map<String, String> SINGULAR_PLURAL_MAPPING;
 

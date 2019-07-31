@@ -102,16 +102,16 @@ public class ApplicationZipBuilderTest {
         try (InputStream zipStream = Files.newInputStream(appPath)) {
             Set<String> zipEntriesName = getZipEntriesName(zipStream);
             assertTrue(Collections.disjoint(relativizedFilePaths, zipEntriesName),
-                MessageFormat.format("Expected resources:{0} but was:{1}", relativizedFilePaths, zipEntriesName));
+                       MessageFormat.format("Expected resources:{0} but was:{1}", relativizedFilePaths, zipEntriesName));
         }
     }
 
     private Set<String> relativizeUploadedFilesPaths(ApplicationZipBuilder zipBuilder, String fileName, Set<String> alreadyUploadedFiles) {
         Set<String> relativizedFilePaths = new HashSet<>();
         alreadyUploadedFiles.stream()
-            .forEach(filePath -> {
-                relativizedFilePaths.add(FileUtils.getRelativePath(fileName, filePath));
-            });
+                            .forEach(filePath -> {
+                                relativizedFilePaths.add(FileUtils.getRelativePath(fileName, filePath));
+                            });
         return relativizedFilePaths;
     }
 
@@ -142,7 +142,7 @@ public class ApplicationZipBuilderTest {
         };
         ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(mtar, fileName);
         Assertions.assertThrows(SLException.class,
-            () -> appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext, logger));
+                                () -> appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext, logger));
     }
 
 }

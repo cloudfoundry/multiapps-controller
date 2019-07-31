@@ -28,7 +28,8 @@ public class HealthRetriever {
         this(operationDao, configuration, ZonedDateTime::now);
     }
 
-    protected HealthRetriever(OperationDao operationDao, ApplicationConfiguration configuration, Supplier<ZonedDateTime> currentTimeSupplier) {
+    protected HealthRetriever(OperationDao operationDao, ApplicationConfiguration configuration,
+                              Supplier<ZonedDateTime> currentTimeSupplier) {
         this.operationDao = operationDao;
         this.configuration = configuration;
         this.currentTimeSupplier = currentTimeSupplier;
@@ -39,13 +40,13 @@ public class HealthRetriever {
         ZonedDateTime currentTime = currentTimeSupplier.get();
         ZonedDateTime xSecondsAgo = currentTime.minusSeconds(healthCheckConfiguration.getTimeRangeInSeconds());
         OperationFilter filter = new OperationFilter.Builder().mtaId(healthCheckConfiguration.getMtaId())
-            .spaceId(healthCheckConfiguration.getSpaceId())
-            .user(healthCheckConfiguration.getUserName())
-            .endedAfter(Date.from(xSecondsAgo.toInstant()))
-            .inFinalState()
-            .orderByEndTime()
-            .descending()
-            .build();
+                                                              .spaceId(healthCheckConfiguration.getSpaceId())
+                                                              .user(healthCheckConfiguration.getUserName())
+                                                              .endedAfter(Date.from(xSecondsAgo.toInstant()))
+                                                              .inFinalState()
+                                                              .orderByEndTime()
+                                                              .descending()
+                                                              .build();
         List<Operation> healthCheckOperations = operationDao.find(filter);
         return Health.fromOperations(healthCheckOperations);
     }

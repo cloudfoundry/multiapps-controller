@@ -3,7 +3,12 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.junit.Assert.assertEquals;
 
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudService;
@@ -23,6 +28,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
@@ -32,7 +38,6 @@ import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import org.springframework.http.HttpStatus;
 
 @RunWith(Parameterized.class)
 public class DetermineServiceCreateUpdateServiceActionsStepTest
@@ -91,8 +96,9 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
     }
 
     public DetermineServiceCreateUpdateServiceActionsStepTest(String stepInput, String expectedExceptionMessage) throws Exception {
-        this.stepInput = JsonUtil
-            .fromJson(TestUtil.getResourceAsString(stepInput, DetermineServiceCreateUpdateServiceActionsStepTest.class), StepInput.class);
+        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput,
+                                                                        DetermineServiceCreateUpdateServiceActionsStepTest.class),
+                                           StepInput.class);
         if (expectedExceptionMessage != null) {
             expectedException.expectMessage(expectedExceptionMessage);
         }
@@ -108,7 +114,7 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
     private void prepareServiceInstanceGetter() {
         Mockito.reset(serviceInstanceGetter);
         Mockito.when(serviceInstanceGetter.getServiceInstanceEntity(Matchers.any(), Matchers.any(), Matchers.any()))
-            .thenReturn(stepInput.getExistingServiceInstanceEntity());
+               .thenReturn(stepInput.getExistingServiceInstanceEntity());
     }
 
     private void prepareContext() {
@@ -131,27 +137,27 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
         List<ServiceAction> serviceActionsToExecute = StepsUtil.getServiceActionsToExecute(context);
         if (stepInput.shouldCreateService) {
             collector.checkThat("Actions should contain " + ServiceAction.CREATE, serviceActionsToExecute.contains(ServiceAction.CREATE),
-                Is.is(true));
+                                Is.is(true));
         }
         if (stepInput.shouldRecreateService) {
             collector.checkThat("Actions should contain " + ServiceAction.RECREATE,
-                serviceActionsToExecute.contains(ServiceAction.RECREATE), Is.is(true));
+                                serviceActionsToExecute.contains(ServiceAction.RECREATE), Is.is(true));
         }
         if (stepInput.shouldUpdateServicePlan) {
             collector.checkThat("Actions should contain " + ServiceAction.UPDATE_PLAN,
-                serviceActionsToExecute.contains(ServiceAction.UPDATE_PLAN), Is.is(true));
+                                serviceActionsToExecute.contains(ServiceAction.UPDATE_PLAN), Is.is(true));
         }
         if (stepInput.shouldUpdateServiceTags) {
             collector.checkThat("Actions should contain " + ServiceAction.UPDATE_TAGS,
-                serviceActionsToExecute.contains(ServiceAction.UPDATE_TAGS), Is.is(true));
+                                serviceActionsToExecute.contains(ServiceAction.UPDATE_TAGS), Is.is(true));
         }
         if (stepInput.shouldUpdateServiceCredentials) {
             collector.checkThat("Actions should contain " + ServiceAction.UPDATE_CREDENTIALS,
-                serviceActionsToExecute.contains(ServiceAction.UPDATE_CREDENTIALS), Is.is(true));
+                                serviceActionsToExecute.contains(ServiceAction.UPDATE_CREDENTIALS), Is.is(true));
         }
         if (stepInput.shouldUpdateServiceKeys) {
             collector.checkThat("Actions should contain " + ServiceAction.UPDATE_KEYS,
-                serviceActionsToExecute.contains(ServiceAction.UPDATE_KEYS), Is.is(true));
+                                serviceActionsToExecute.contains(ServiceAction.UPDATE_KEYS), Is.is(true));
         }
     }
 
@@ -164,11 +170,11 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
             CloudService existingService = stepInput.getCloudService(stepInput.existingService);
             CloudServiceInstance existingServiceInstance = stepInput.getCloudServiceInstance(stepInput.existingService);
             Mockito.when(client.getService(stepInput.existingService.getName(), false))
-                .thenReturn(existingService);
+                   .thenReturn(existingService);
             Mockito.when(client.getServiceInstance(stepInput.existingService.getName(), false))
-                .thenReturn(existingServiceInstance);
+                   .thenReturn(existingServiceInstance);
             Mockito.when(client.getServiceParameters(UUID.fromString("beeb5e8d-4ab9-46ee-9205-455a278743f0")))
-                .thenThrow(new CloudOperationException(HttpStatus.BAD_REQUEST));
+                   .thenThrow(new CloudOperationException(HttpStatus.BAD_REQUEST));
             Mockito.when(client.getServiceParameters(UUID.fromString("400bfc4d-5fce-4a41-bae7-765345e1ce27")))
                    .thenReturn(existingServiceInstance.getCredentials());
         }
@@ -202,16 +208,16 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
 
         public CloudService getCloudService(CloudServiceExtended service) {
             return ImmutableCloudService.builder()
-                .from(service)
-                .build();
+                                        .from(service)
+                                        .build();
         }
 
         public CloudServiceInstance getCloudServiceInstance(CloudServiceExtended service) {
             return ImmutableCloudServiceInstance.builder()
-                .metadata(service.getMetadata())
-                .name(service.getName())
-                .credentials(service.getCredentials())
-                .build();
+                                                .metadata(service.getMetadata())
+                                                .name(service.getName())
+                                                .credentials(service.getCredentials())
+                                                .build();
         }
 
         public Map<String, Object> getExistingServiceInstanceEntity() {
@@ -222,9 +228,9 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
             if (lastOperationForExistingService != null) {
                 Map<String, String> operation = new HashMap<>();
                 operation.put("type", lastOperationForExistingService.getType()
-                    .toString());
+                                                                     .toString());
                 operation.put("state", lastOperationForExistingService.getState()
-                    .toString());
+                                                                      .toString());
                 result.put("last_operation", operation);
             }
             if (existingService.getTags() != null) {

@@ -30,7 +30,7 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectMtaSchemaVersionStep> {
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = DescriptorTestUtil.loadDeploymentDescriptor("build-cloud-model.yaml",
-        DetectMtaSchemaVersionStepTest.class);
+                                                                                                                  DetectMtaSchemaVersionStepTest.class);
 
     @Parameters
     public static Collection<Object[]> getParameters() {

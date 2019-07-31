@@ -53,9 +53,8 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         List<String> modulesForDeployment = StepsUtil.getModulesForDeployment(context);
         List<String> invalidModulesSpecifiedForDeployment = findInvalidModulesSpecifiedForDeployment(descriptor, modulesForDeployment);
         if (!invalidModulesSpecifiedForDeployment.isEmpty()) {
-            throw new IllegalStateException(
-                MessageFormat.format(Messages.MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES,
-                    StringUtils.join(invalidModulesSpecifiedForDeployment, ", ")));
+            throw new IllegalStateException(MessageFormat.format(Messages.MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES,
+                                                                 StringUtils.join(invalidModulesSpecifiedForDeployment, ", ")));
         }
         Set<String> mtaModules = getModuleNames(descriptor, modulesForDeployment);
         getStepLogger().debug("MTA Modules: {0}", mtaModules);
@@ -80,20 +79,26 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         boolean useNamespaces = StepsUtil.getUseNamespaces(context);
         boolean setIdleRoutes = StepsUtil.getUseIdleUris(context);
 
-        return new MtaDescriptorPropertiesResolver(handlerFactory, configurationEntryDao, cloudTarget, currentSpaceId, configuration,
-            useNamespaces, useNamespacesForServices, setIdleRoutes);
+        return new MtaDescriptorPropertiesResolver(handlerFactory,
+                                                   configurationEntryDao,
+                                                   cloudTarget,
+                                                   currentSpaceId,
+                                                   configuration,
+                                                   useNamespaces,
+                                                   useNamespacesForServices,
+                                                   setIdleRoutes);
     }
 
     private Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor, List<String> moduleNamesForDeployment) {
         if (moduleNamesForDeployment == null) {
             return deploymentDescriptor.getModules()
-                .stream()
-                .map(Module::getName)
-                .collect(Collectors.toSet());
+                                       .stream()
+                                       .map(Module::getName)
+                                       .collect(Collectors.toSet());
         }
 
         return moduleNamesForDeployment.stream()
-            .collect(Collectors.toSet());
+                                       .collect(Collectors.toSet());
     }
 
     private List<String> findInvalidModulesSpecifiedForDeployment(DeploymentDescriptor descriptor, List<String> modulesForDeployment) {
@@ -101,12 +106,12 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
             return Collections.emptyList();
         }
         Set<String> deploymentDescriptorModuleNames = descriptor.getModules()
-            .stream()
-            .map(Module::getName)
-            .collect(Collectors.toSet());
+                                                                .stream()
+                                                                .map(Module::getName)
+                                                                .collect(Collectors.toSet());
         return modulesForDeployment.stream()
-            .filter(moduleSpecifiedForDeployment -> !deploymentDescriptorModuleNames.contains(moduleSpecifiedForDeployment))
-            .collect(Collectors.toList());
+                                   .filter(moduleSpecifiedForDeployment -> !deploymentDescriptorModuleNames.contains(moduleSpecifiedForDeployment))
+                                   .collect(Collectors.toList());
     }
 
 }

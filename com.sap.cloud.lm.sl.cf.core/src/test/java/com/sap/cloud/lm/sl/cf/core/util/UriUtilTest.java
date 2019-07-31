@@ -1,14 +1,15 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
-import com.sap.cloud.lm.sl.common.NotFoundException;
+import java.util.Arrays;
+import java.util.List;
+
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudDomain;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudRoute;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.List;
+import com.sap.cloud.lm.sl.common.NotFoundException;
 
 public class UriUtilTest {
 
@@ -18,11 +19,11 @@ public class UriUtilTest {
     private static final String PORT_BASED_URI_WITHOUT_SCHEME = "valid-domain:4000";
 
     private CloudRoute route = ImmutableCloudRoute.builder()
-        .host("valid-host")
-        .domain(ImmutableCloudDomain.builder()
-            .name("valid-domain")
-            .build())
-        .build();
+                                                  .host("valid-host")
+                                                  .domain(ImmutableCloudDomain.builder()
+                                                                              .name("valid-domain")
+                                                                              .build())
+                                                  .build();
 
     @Test
     public void testFindRouteWithHostBasedUriWithPort() {

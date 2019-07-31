@@ -82,7 +82,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
         String taskId = (String) context.getVariable(Constants.TASK_ID);
         return taskId != null ? taskId : context.getCurrentActivityId();
     }
-    
+
     protected StepLogger getStepLogger() {
         if (stepLogger == null) {
             throw new IllegalStateException(Messages.STEP_LOGGER_NOT_INITIALIZED);

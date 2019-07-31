@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class ModuleToDeployHelper {
-    
+
     public boolean isApplication(Module module) {
         return true;
     }

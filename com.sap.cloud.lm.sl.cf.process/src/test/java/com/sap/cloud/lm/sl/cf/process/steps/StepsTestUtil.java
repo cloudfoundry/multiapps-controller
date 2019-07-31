@@ -17,7 +17,7 @@ public class StepsTestUtil {
         for (String appInArray : appsInArray) {
             // FIXME: This does not work! It will always return the last app in the array.
             Mockito.when(context.getVariable(Constants.VAR_APP_TO_PROCESS))
-                .thenReturn(appInArray);
+                   .thenReturn(appInArray);
         }
     }
 

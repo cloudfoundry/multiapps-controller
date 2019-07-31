@@ -123,8 +123,7 @@ public class AnalyticsCollectorTest {
         when(context.getVariable(Constants.VAR_APPS_TO_DEPLOY)).thenReturn(mockedListAsBytesWithStrings(1));
         when(context.getVariable(Constants.VAR_PUBLISHED_ENTRIES)).thenReturn(mockedListWithObjects(1));
         when(context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE)).thenReturn(mockedListWithObjects(3));
-        when(context.getVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS))
-            .thenReturn(JsonUtil.toJsonBinary(TRIGGERED_SERVICE_OPERATIONS));
+        when(context.getVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS)).thenReturn(JsonUtil.toJsonBinary(TRIGGERED_SERVICE_OPERATIONS));
         when(context.getVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE)).thenReturn(JsonUtil.toJsonBinary(Collections.emptyMap()));
 
         when(context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE)).thenReturn(mockedListWithObjects(2));
@@ -173,8 +172,8 @@ public class AnalyticsCollectorTest {
         List<String> list = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             CloudApplication app = ImmutableCloudApplication.builder()
-                .name(Integer.toString(i))
-                .build();
+                                                            .name(Integer.toString(i))
+                                                            .build();
             list.add(JsonUtil.toJson(app));
         }
         return list;

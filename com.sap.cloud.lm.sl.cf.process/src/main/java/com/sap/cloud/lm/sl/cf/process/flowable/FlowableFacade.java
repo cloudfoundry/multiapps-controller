@@ -46,9 +46,9 @@ public class FlowableFacade {
     public ProcessInstance startProcess(String userId, String processDefinitionKey, Map<String, Object> variables) {
         try {
             processEngine.getIdentityService()
-                .setAuthenticatedUserId(userId);
+                         .setAuthenticatedUserId(userId);
             return processEngine.getRuntimeService()
-                .startProcessInstanceByKey(processDefinitionKey, variables);
+                                .startProcessInstanceByKey(processDefinitionKey, variables);
         } finally {
             // After the setAuthenticatedUserId() method is invoked, all
             // Flowable service methods
@@ -58,7 +58,7 @@ public class FlowableFacade {
             // services from using
             // it unintentionally.
             processEngine.getIdentityService()
-                .setAuthenticatedUserId(null);
+                         .setAuthenticatedUserId(null);
         }
     }
 
@@ -72,7 +72,7 @@ public class FlowableFacade {
 
     private String getVariable(String executionId, String variableName) {
         VariableInstance variableInstance = processEngine.getRuntimeService()
-            .getVariableInstance(executionId, variableName);
+                                                         .getVariableInstance(executionId, variableName);
 
         if (variableInstance == null) {
             return getVariableFromHistoryService(executionId, variableName);
@@ -83,10 +83,10 @@ public class FlowableFacade {
 
     private String getVariableFromHistoryService(String executionId, String variableName) {
         HistoricVariableInstance historicVariableInstance = processEngine.getHistoryService()
-            .createHistoricVariableInstanceQuery()
-            .executionId(executionId)
-            .variableName(variableName)
-            .singleResult();
+                                                                         .createHistoricVariableInstanceQuery()
+                                                                         .executionId(executionId)
+                                                                         .variableName(variableName)
+                                                                         .singleResult();
 
         if (historicVariableInstance == null) {
             return null;
@@ -127,17 +127,17 @@ public class FlowableFacade {
 
     private boolean hasDeleteReason(String processId) {
         HistoricProcessInstance historicProcessInstance = processEngine.getHistoryService()
-            .createHistoricProcessInstanceQuery()
-            .processInstanceId(processId)
-            .singleResult();
+                                                                       .createHistoricProcessInstanceQuery()
+                                                                       .processInstanceId(processId)
+                                                                       .singleResult();
         return historicProcessInstance != null && processHierarchyHasDeleteReason(historicProcessInstance);
     }
 
     public ProcessInstance getProcessInstance(String processId) {
         return processEngine.getRuntimeService()
-            .createProcessInstanceQuery()
-            .processInstanceId(processId)
-            .singleResult();
+                            .createProcessInstanceQuery()
+                            .processInstanceId(processId)
+                            .singleResult();
     }
 
     private boolean processHierarchyHasDeleteReason(HistoricProcessInstance historicProcessInstance) {
@@ -146,11 +146,11 @@ public class FlowableFacade {
         }
 
         List<HistoricProcessInstance> children = processEngine.getHistoryService()
-            .createHistoricProcessInstanceQuery()
-            .superProcessInstanceId(historicProcessInstance.getId())
-            .list();
+                                                              .createHistoricProcessInstanceQuery()
+                                                              .superProcessInstanceId(historicProcessInstance.getId())
+                                                              .list();
         return children.stream()
-            .anyMatch(this::processHierarchyHasDeleteReason);
+                       .anyMatch(this::processHierarchyHasDeleteReason);
     }
 
     private boolean hasDeadLetterJobs(String processId) {
@@ -160,46 +160,46 @@ public class FlowableFacade {
     private List<Job> getDeadLetterJobs(String processId) {
         List<Execution> allProcessExecutions = getAllProcessExecutions(processId);
         return allProcessExecutions.stream()
-            .map(this::getDeadLetterJobsForExecution)
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+                                   .map(this::getDeadLetterJobsForExecution)
+                                   .flatMap(Collection::stream)
+                                   .collect(Collectors.toList());
     }
 
     private List<Job> getDeadLetterJobsForExecution(Execution execution) {
         return processEngine.getManagementService()
-            .createDeadLetterJobQuery()
-            .processInstanceId(execution.getProcessInstanceId())
-            .list();
+                            .createDeadLetterJobQuery()
+                            .processInstanceId(execution.getProcessInstanceId())
+                            .list();
     }
 
     public List<String> getHistoricSubProcessIds(String correlationId) {
         return retrieveVariablesByCorrelationId(correlationId).stream()
-            .map(HistoricVariableInstance::getProcessInstanceId)
-            .filter(id -> !id.equals(correlationId))
-            .collect(Collectors.toList());
+                                                              .map(HistoricVariableInstance::getProcessInstanceId)
+                                                              .filter(id -> !id.equals(correlationId))
+                                                              .collect(Collectors.toList());
     }
 
     private List<HistoricVariableInstance> retrieveVariablesByCorrelationId(String correlationId) {
         return processEngine.getHistoryService()
-            .createHistoricVariableInstanceQuery()
-            .variableValueEquals(Constants.CORRELATION_ID, correlationId)
-            .orderByProcessInstanceId()
-            .asc()
-            .list();
+                            .createHistoricVariableInstanceQuery()
+                            .variableValueEquals(Constants.CORRELATION_ID, correlationId)
+                            .orderByProcessInstanceId()
+                            .asc()
+                            .list();
     }
 
     public HistoricVariableInstance getHistoricVariableInstance(String processInstanceId, String variableName) {
         return processEngine.getHistoryService()
-            .createHistoricVariableInstanceQuery()
-            .processInstanceId(processInstanceId)
-            .variableName(variableName)
-            .singleResult();
+                            .createHistoricVariableInstanceQuery()
+                            .processInstanceId(processInstanceId)
+                            .variableName(variableName)
+                            .singleResult();
     }
 
     public List<String> getActiveHistoricSubProcessIds(String correlationId) {
         return getHistoricSubProcessIds(correlationId).stream()
-            .filter(this::isActive)
-            .collect(Collectors.toList());
+                                                      .filter(this::isActive)
+                                                      .collect(Collectors.toList());
     }
 
     private boolean isActive(String processId) {
@@ -208,37 +208,38 @@ public class FlowableFacade {
 
     private HistoricActivityInstance getHistoricActivityInstance(String processId, String activityType) {
         return processEngine.getHistoryService()
-            .createHistoricActivityInstanceQuery()
-            .activityType(activityType)
-            .processInstanceId(processId)
-            .singleResult();
+                            .createHistoricActivityInstanceQuery()
+                            .activityType(activityType)
+                            .processInstanceId(processId)
+                            .singleResult();
     }
 
     public String getActivityType(String processInstanceId, String executionId, String activityId) {
         List<HistoricActivityInstance> historicInstancesList = processEngine.getHistoryService()
-            .createHistoricActivityInstanceQuery()
-            .processInstanceId(processInstanceId)
-            .activityId(activityId)
-            .executionId(executionId)
-            .orderByHistoricActivityInstanceEndTime()
-            .desc()
-            .list();
+                                                                            .createHistoricActivityInstanceQuery()
+                                                                            .processInstanceId(processInstanceId)
+                                                                            .activityId(activityId)
+                                                                            .executionId(executionId)
+                                                                            .orderByHistoricActivityInstanceEndTime()
+                                                                            .desc()
+                                                                            .list();
         return !historicInstancesList.isEmpty() ? historicInstancesList.get(0)
-            .getActivityType() : null;
+                                                                       .getActivityType()
+            : null;
     }
 
     public Execution getProcessExecution(String processInstanceId) {
         return getExecutionsByProcessId(processInstanceId).stream()
-            .filter(execution -> execution.getActivityId() != null)
-            .findFirst()
-            .orElse(null);
+                                                          .filter(execution -> execution.getActivityId() != null)
+                                                          .findFirst()
+                                                          .orElse(null);
     }
 
     private List<Execution> getExecutionsByProcessId(String processInstanceId) {
         return processEngine.getRuntimeService()
-            .createExecutionQuery()
-            .rootProcessInstanceId(processInstanceId)
-            .list();
+                            .createExecutionQuery()
+                            .rootProcessInstanceId(processInstanceId)
+                            .list();
     }
 
     public void executeJob(String userId, String processInstanceId) {
@@ -254,36 +255,36 @@ public class FlowableFacade {
         for (Job deadLetterJob : deadLetterJobs) {
             try {
                 processEngine.getIdentityService()
-                    .setAuthenticatedUserId(userId);
+                             .setAuthenticatedUserId(userId);
                 moveDeadLetterJobToExecutableJob(deadLetterJob);
             } finally {
                 processEngine.getIdentityService()
-                    .setAuthenticatedUserId(null);
+                             .setAuthenticatedUserId(null);
             }
         }
     }
 
     private void moveDeadLetterJobToExecutableJob(Job deadLetterJob) {
         processEngine.getManagementService()
-            .moveDeadLetterJobToExecutableJob(deadLetterJob.getId(), DEFAULT_JOB_RETRIES);
+                     .moveDeadLetterJobToExecutableJob(deadLetterJob.getId(), DEFAULT_JOB_RETRIES);
     }
 
     public void trigger(String userId, String executionId) {
         try {
             processEngine.getIdentityService()
-                .setAuthenticatedUserId(userId);
+                         .setAuthenticatedUserId(userId);
             processEngine.getRuntimeService()
-                .trigger(executionId);
+                         .trigger(executionId);
         } finally {
             processEngine.getIdentityService()
-                .setAuthenticatedUserId(null);
+                         .setAuthenticatedUserId(null);
         }
     }
 
     public void deleteProcessInstance(String userId, String processInstanceId, String deleteReason) {
         try {
             processEngine.getIdentityService()
-                .setAuthenticatedUserId(userId);
+                         .setAuthenticatedUserId(userId);
 
             long deadline = System.currentTimeMillis() + DEFAULT_ABORT_TIMEOUT_MS;
             while (true) {
@@ -294,9 +295,9 @@ public class FlowableFacade {
                     // they can be
                     // different if the process has parallel executions.
                     processEngine.getRuntimeService()
-                        .setVariable(processInstanceId, Constants.PROCESS_ABORTED, Boolean.TRUE);
+                                 .setVariable(processInstanceId, Constants.PROCESS_ABORTED, Boolean.TRUE);
                     processEngine.getRuntimeService()
-                        .deleteProcessInstance(processInstanceId, deleteReason);
+                                 .deleteProcessInstance(processInstanceId, deleteReason);
                     break;
                 } catch (FlowableOptimisticLockingException e) {
                     if (isPastDeadline(deadline)) {
@@ -307,7 +308,7 @@ public class FlowableFacade {
             }
         } finally {
             processEngine.getIdentityService()
-                .setAuthenticatedUserId(null);
+                         .setAuthenticatedUserId(null);
         }
     }
 
@@ -324,8 +325,8 @@ public class FlowableFacade {
         List<Execution> allProcessExecutions = getActiveProcessExecutions(processInstanceId);
 
         return allProcessExecutions.stream()
-            .filter(execution -> !findCurrentActivitiesAtReceiveTask(execution).isEmpty())
-            .collect(Collectors.toList());
+                                   .filter(execution -> !findCurrentActivitiesAtReceiveTask(execution).isEmpty())
+                                   .collect(Collectors.toList());
 
     }
 
@@ -333,34 +334,34 @@ public class FlowableFacade {
         List<Execution> allProcessExecutions = getAllProcessExecutions(processInstanceId);
 
         return allProcessExecutions.stream()
-            .filter(e -> e.getActivityId() != null)
-            .collect(Collectors.toList());
+                                   .filter(e -> e.getActivityId() != null)
+                                   .collect(Collectors.toList());
     }
 
     private List<Execution> getAllProcessExecutions(String processInstanceId) {
         return processEngine.getRuntimeService()
-            .createExecutionQuery()
-            .rootProcessInstanceId(processInstanceId)
-            .list();
+                            .createExecutionQuery()
+                            .rootProcessInstanceId(processInstanceId)
+                            .list();
     }
 
     private List<HistoricActivityInstance> findCurrentActivitiesAtReceiveTask(Execution execution) {
         return processEngine.getHistoryService()
-            .createHistoricActivityInstanceQuery()
-            .activityId(execution.getActivityId())
-            .executionId(execution.getId())
-            .activityType("receiveTask")
-            .list();
+                            .createHistoricActivityInstanceQuery()
+                            .activityId(execution.getActivityId())
+                            .executionId(execution.getId())
+                            .activityType("receiveTask")
+                            .list();
     }
 
     public void activateProcessInstance(String processInstanceId) {
         processEngine.getRuntimeService()
-            .activateProcessInstanceById(processInstanceId);
+                     .activateProcessInstanceById(processInstanceId);
     }
 
     public void suspendProcessInstance(String processInstanceId) {
         processEngine.getRuntimeService()
-            .suspendProcessInstanceById(processInstanceId);
+                     .suspendProcessInstanceById(processInstanceId);
     }
 
     public boolean isProcessInstanceSuspended(String processInstanceId) {
@@ -371,14 +372,14 @@ public class FlowableFacade {
     public void shutdownJobExecutor() {
         LOGGER.info(Messages.SHUTTING_DOWN_FLOWABLE_JOB_EXECUTOR);
         AsyncExecutor asyncExecutor = processEngine.getProcessEngineConfiguration()
-            .getAsyncExecutor();
+                                                   .getAsyncExecutor();
         asyncExecutor.shutdown();
     }
 
     public boolean isJobExecutorActive() {
         return processEngine.getProcessEngineConfiguration()
-            .getAsyncExecutor()
-            .isActive();
+                            .getAsyncExecutor()
+                            .isActive();
     }
 
     public ProcessEngine getProcessEngine() {
@@ -387,16 +388,17 @@ public class FlowableFacade {
 
     public String findHistoricProcessInstanceIdByProcessDefinitionKey(String processInstanceId, String processDefinitionKey) {
         return findHistoricProcessInstanceIdsAndProcessDefinitionKey(getHistoricSubProcessIds(processInstanceId).stream()
-            .collect(Collectors.toSet()), processDefinitionKey);
+                                                                                                                .collect(Collectors.toSet()),
+                                                                     processDefinitionKey);
     }
 
     private String findHistoricProcessInstanceIdsAndProcessDefinitionKey(Set<String> processInstanceIds, String processDefinitionKey) {
         return processEngine.getHistoryService()
-            .createHistoricProcessInstanceQuery()
-            .processInstanceIds(processInstanceIds)
-            .processDefinitionKey(processDefinitionKey)
-            .singleResult()
-            .getId();
+                            .createHistoricProcessInstanceQuery()
+                            .processInstanceIds(processInstanceIds)
+                            .processDefinitionKey(processDefinitionKey)
+                            .singleResult()
+                            .getId();
     }
 
 }

@@ -6,7 +6,6 @@ import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.getGloba
 import static java.text.MessageFormat.format;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,12 +67,9 @@ public class ConfigurationEntriesResource {
     private static final String KEYVALUE_SEPARATOR = ":";
     private static final String PURGE_COMMAND = "Purge configuration entries and subscriptions";
 
-    private static final URL CREATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION = ConfigurationEntriesResource.class
-        .getResource("/create-configuration-entry-schema.xsd");
-    private static final URL UPDATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION = ConfigurationEntriesResource.class
-        .getResource("/update-configuration-entry-schema.xsd");
-    private static final URL CONFIGURATION_FILTER_SCHEMA_LOCATION = ConfigurationEntriesResource.class
-        .getResource("/configuration-filter-schema.xsd");
+    private static final URL CREATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION = ConfigurationEntriesResource.class.getResource("/create-configuration-entry-schema.xsd");
+    private static final URL UPDATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION = ConfigurationEntriesResource.class.getResource("/update-configuration-entry-schema.xsd");
+    private static final URL CONFIGURATION_FILTER_SCHEMA_LOCATION = ConfigurationEntriesResource.class.getResource("/configuration-filter-schema.xsd");
     protected Supplier<UserInfo> userInfoSupplier = SecurityContextUtil::getUserInfo;
 
     @Inject
@@ -99,8 +95,8 @@ public class ConfigurationEntriesResource {
             CloudTarget globalConfigTarget = getGlobalConfigTarget(configuration);
             List<ConfigurationEntry> entries = findConfigurationEntries(entryDao, filter, getUserTargets(), globalConfigTarget);
             return Response.status(Response.Status.OK)
-                .entity(wrap(entries))
-                .build();
+                           .entity(wrap(entries))
+                           .build();
         } catch (IllegalArgumentException e) {
             /**
              * Thrown if the version parameter is not a valid version requirement.
@@ -113,28 +109,29 @@ public class ConfigurationEntriesResource {
         UserInfo userInfo = userInfoSupplier.get();
         CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName());
         return client.getSpaces()
-            .stream()
-            .map(this::getCloudTarget)
-            .collect(Collectors.toList());
+                     .stream()
+                     .map(this::getCloudTarget)
+                     .collect(Collectors.toList());
     }
 
     private CloudTarget getCloudTarget(CloudSpace cloudSpace) {
         return new CloudTarget(cloudSpace.getOrganization()
-            .getName(), cloudSpace.getName());
+                                         .getName(),
+                               cloudSpace.getName());
     }
 
     private ConfigurationEntriesDto wrap(List<ConfigurationEntry> entries) {
         return new ConfigurationEntriesDto(entries.stream()
-            .map(ConfigurationEntryDto::new)
-            .collect(Collectors.toList()));
+                                                  .map(ConfigurationEntryDto::new)
+                                                  .collect(Collectors.toList()));
     }
 
     @Path("/{id}")
     @GET
     public Response getConfigurationEntry(@PathParam(ID) long id) {
         return Response.status(Response.Status.OK)
-            .entity(new ConfigurationEntryDto(entryDao.find(id)))
-            .build();
+                       .entity(new ConfigurationEntryDto(entryDao.find(id)))
+                       .build();
     }
 
     private Map<String, Object> parseContentFilterParameter(List<String> content) {
@@ -190,10 +187,10 @@ public class ConfigurationEntriesResource {
         }
         ConfigurationEntry result = entryDao.add(configurationEntry);
         AuditLoggingProvider.getFacade()
-            .logConfigCreate(result);
+                            .logConfigCreate(result);
         return Response.status(Response.Status.CREATED)
-            .entity(new ConfigurationEntryDto(result))
-            .build();
+                       .entity(new ConfigurationEntryDto(result))
+                       .build();
         // TODO: check if this would work fine:
         // return Response.status(Response.Status.CREATED).entity(dto).build();
     }
@@ -209,11 +206,11 @@ public class ConfigurationEntriesResource {
 
         ConfigurationEntry result = entryDao.update(id, dto.toConfigurationEntry());
         AuditLoggingProvider.getFacade()
-            .logConfigUpdate(result);
+                            .logConfigUpdate(result);
 
         return Response.status(Response.Status.OK)
-            .entity(new ConfigurationEntryDto(result))
-            .build();
+                       .entity(new ConfigurationEntryDto(result))
+                       .build();
     }
 
     private ConfigurationEntryDto parseDto(String dXml, URL schemaLocation) {
@@ -226,13 +223,13 @@ public class ConfigurationEntriesResource {
         ConfigurationEntry entry = entryDao.find(id);
         if (entry == null) {
             return Response.status(Response.Status.NOT_FOUND)
-                .build();
+                           .build();
         }
         entryDao.remove(id);
         AuditLoggingProvider.getFacade()
-            .logConfigDelete(entry);
+                            .logConfigDelete(entry);
         return Response.status(Response.Status.NO_CONTENT)
-            .build();
+                       .build();
     }
 
     @GET
@@ -266,8 +263,8 @@ public class ConfigurationEntriesResource {
     public Response purgeConfigurationRegistry(@QueryParam("org") String org, @QueryParam("space") String space) {
         if (StringUtils.isEmpty(org) || StringUtils.isEmpty(space)) {
             return Response.status(Response.Status.BAD_REQUEST)
-                .entity(Messages.ORG_AND_SPACE_MUST_BE_SPECIFIED)
-                .build();
+                           .entity(Messages.ORG_AND_SPACE_MUST_BE_SPECIFIED)
+                           .build();
         }
 
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
@@ -276,6 +273,6 @@ public class ConfigurationEntriesResource {
         MtaConfigurationPurger purger = new MtaConfigurationPurger(client, entryDao, subscriptionDao);
         purger.purge(org, space);
         return Response.status(Response.Status.NO_CONTENT)
-            .build();
+                       .build();
     }
 }

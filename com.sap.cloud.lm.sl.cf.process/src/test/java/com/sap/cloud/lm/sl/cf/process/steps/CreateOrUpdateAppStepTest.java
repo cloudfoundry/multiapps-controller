@@ -116,9 +116,9 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
         }
         application = stepInput.applications.get(stepInput.applicationIndex);
         application = ImmutableCloudApplicationExtended.builder()
-            .from(application)
-            .moduleName("test")
-            .build();
+                                                       .from(application)
+                                                       .moduleName("test")
+                                                       .build();
     }
 
     private void prepareContext() {
@@ -134,9 +134,9 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
 
     private List<CloudServiceExtended> mapToCloudServiceExtended() {
         return application.getServices()
-            .stream()
-            .map(serviceName -> extracted(serviceName))
-            .collect(Collectors.toList());
+                          .stream()
+                          .map(serviceName -> extracted(serviceName))
+                          .collect(Collectors.toList());
     }
 
     private CloudServiceExtended extracted(String serviceName) {
@@ -146,8 +146,8 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
             }
         }
         return ImmutableCloudServiceExtended.builder()
-            .name(serviceName)
-            .build();
+                                            .name(serviceName)
+                                            .build();
     }
 
     private void prepareClient() {
@@ -155,23 +155,23 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
             CloudServiceExtended service = simpleService.toCloudServiceExtended();
             if (!service.isOptional()) {
                 Mockito.when(client.getService(service.getName()))
-                    .thenReturn(service);
+                       .thenReturn(service);
             }
         }
 
         for (String appName : stepInput.bindingErrors.keySet()) {
             String serviceName = stepInput.bindingErrors.get(appName);
-            Mockito
-                .doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                    expectedExceptionMessage + "Something happened!"))
-                .when(client)
-                .bindService(Mockito.eq(appName), Mockito.eq(serviceName), Mockito.any(), Mockito.any());
+            Mockito.doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR,
+                                                        HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                                                        expectedExceptionMessage + "Something happened!"))
+                   .when(client)
+                   .bindService(Mockito.eq(appName), Mockito.eq(serviceName), Mockito.any(), Mockito.any());
         }
 
         for (String serviceName : stepInput.existingServiceKeys.keySet()) {
             List<CloudServiceKey> serviceKeys = stepInput.existingServiceKeys.get(serviceName);
             Mockito.when(client.getServiceKeys(eq(serviceName)))
-                .thenReturn(ListUtil.upcast(serviceKeys));
+                   .thenReturn(ListUtil.upcast(serviceKeys));
         }
     }
 
@@ -180,18 +180,18 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
         Integer memory = (application.getMemory() != 0) ? application.getMemory() : null;
 
         Mockito.verify(client)
-            .createApplication(eq(application.getName()), argThat(GenericArgumentMatcher.forObject(application.getStaging())),
-                eq(diskQuota), eq(memory), eq(application.getUris()), eq(Collections.emptyList()), eq(null));
+               .createApplication(eq(application.getName()), argThat(GenericArgumentMatcher.forObject(application.getStaging())),
+                                  eq(diskQuota), eq(memory), eq(application.getUris()), eq(Collections.emptyList()), eq(null));
         for (String service : application.getServices()) {
             if (!isOptional(service)) {
                 Mockito.verify(client)
-                    .bindService(application.getName(), service,
-                        getBindingParametersForService(application.getBindingParameters(), service),
-                        step.getApplicationServicesUpdateCallback(context));
+                       .bindService(application.getName(), service,
+                                    getBindingParametersForService(application.getBindingParameters(), service),
+                                    step.getApplicationServicesUpdateCallback(context));
             }
         }
         Mockito.verify(client)
-            .updateApplicationEnv(application.getName(), application.getEnv());
+               .updateApplicationEnv(application.getName(), application.getEnv());
     }
 
     private Map<String, Object> getBindingParametersForService(Map<String, Map<String, Object>> bindingParameters, String serviceName) {

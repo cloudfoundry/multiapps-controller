@@ -155,7 +155,7 @@ public class SystemParameters {
 
         resourceSystemParameters.put(SupportedParameters.SERVICE_NAME, resource.getName());
         resourceSystemParameters.put(SupportedParameters.DEFAULT_CONTAINER_NAME,
-            NameUtil.computeValidContainerName(organization, space, resource.getName()));
+                                     NameUtil.computeValidContainerName(organization, space, resource.getName()));
         resourceSystemParameters.put(SupportedParameters.DEFAULT_XS_APP_NAME, NameUtil.computeValidXsAppName(resource.getName()));
 
         resourceSystemParameters.put(SupportedParameters.GENERATED_USER, credentialsGenerator.next(GENERATED_CREDENTIALS_LENGTH));
@@ -166,7 +166,7 @@ public class SystemParameters {
 
     private String getDefaultHost(String moduleName) {
         String host = (targetName + " " + moduleName).replaceAll("\\s", "-")
-            .toLowerCase();
+                                                     .toLowerCase();
         if (!HOST_VALIDATOR.isValid(host)) {
             return HOST_VALIDATOR.attemptToCorrect(host);
         }

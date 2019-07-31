@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.persistence.processors;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
+
 import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;

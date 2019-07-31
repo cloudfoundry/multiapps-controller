@@ -34,7 +34,8 @@ public class ApplicationAttributeUpdateStrategyParser implements ParametersParse
     @SuppressWarnings("unchecked")
     private Map<String, Boolean> getAttributesUpdateStrategyParameter(List<Map<String, Object>> parametersList) {
         return (Map<String, Boolean>) getPropertyValue(parametersList,
-            SupportedParameters.KEEP_EXISTING_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY, Collections.emptyMap());
+                                                       SupportedParameters.KEEP_EXISTING_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY,
+                                                       Collections.emptyMap());
     }
 
     private Boolean shouldKeepExistingEnv(Map<String, Boolean> attributesUpdateStrategy) {
@@ -46,8 +47,7 @@ public class ApplicationAttributeUpdateStrategyParser implements ParametersParse
     }
 
     private Boolean shouldKeepExistingServiceBindings(Map<String, Boolean> attributesUpdateStrategy) {
-        return attributesUpdateStrategy
-            .get(SupportedParameters.ApplicationUpdateStarategy.SERVICE_BINDINGS_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY);
+        return attributesUpdateStrategy.get(SupportedParameters.ApplicationUpdateStarategy.SERVICE_BINDINGS_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY);
     }
 
 }

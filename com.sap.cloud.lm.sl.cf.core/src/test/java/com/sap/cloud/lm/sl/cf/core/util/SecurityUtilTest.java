@@ -23,9 +23,9 @@ public class SecurityUtilTest {
         assertEquals(expectedUserInfo.getId(), userInfo.getId());
         assertEquals(expectedUserInfo.getName(), userInfo.getName());
         assertEquals(expectedUserInfo.getToken()
-            .getValue(),
-            userInfo.getToken()
-                .getValue());
+                                     .getValue(),
+                     userInfo.getToken()
+                             .getValue());
     }
 
     public static Stream<Arguments> testGetTokenUserInfo() {

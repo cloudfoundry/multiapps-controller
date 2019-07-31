@@ -47,7 +47,7 @@ public class UpdateServiceCredentialsStepTest extends SyncFlowableStepTest<Updat
 
     public UpdateServiceCredentialsStepTest(String stepInput, String expectedExceptionMessage) throws Exception {
         this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, UpdateServiceCredentialsStepTest.class),
-            StepInput.class);
+                                           StepInput.class);
     }
 
     @Before
@@ -68,7 +68,7 @@ public class UpdateServiceCredentialsStepTest extends SyncFlowableStepTest<Updat
                 throw new UnsupportedOperationException("Unsupported test phase");
         }
         Mockito.when(serviceUpdater.updateServiceParameters(Matchers.any(), Matchers.any(), Matchers.any()))
-            .thenReturn(methodExec);
+               .thenReturn(methodExec);
     }
 
     @Test
@@ -88,7 +88,8 @@ public class UpdateServiceCredentialsStepTest extends SyncFlowableStepTest<Updat
     }
 
     private void assertMethodCalls() {
-        Mockito.verify(serviceUpdater, Mockito.times(1)).updateServiceParameters(Matchers.any(), Matchers.any(), Matchers.any());
+        Mockito.verify(serviceUpdater, Mockito.times(1))
+               .updateServiceParameters(Matchers.any(), Matchers.any(), Matchers.any());
     }
 
     @SuppressWarnings("unchecked")

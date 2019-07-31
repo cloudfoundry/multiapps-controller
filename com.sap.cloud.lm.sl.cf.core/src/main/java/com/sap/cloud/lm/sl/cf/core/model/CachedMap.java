@@ -13,8 +13,8 @@ public class CachedMap<K, V> {
     private long expirationTimeInSeconds;
     private LongSupplier currentTimeSupplier = System::currentTimeMillis;
 
-    private Map<K, CachedObject<V>> referenceMap = Collections
-        .synchronizedMap(new ReferenceMap<>(ReferenceStrength.HARD, ReferenceStrength.SOFT));
+    private Map<K, CachedObject<V>> referenceMap = Collections.synchronizedMap(new ReferenceMap<>(ReferenceStrength.HARD,
+                                                                                                  ReferenceStrength.SOFT));
 
     public CachedMap(long expirationTimeInSeconds) {
         this.expirationTimeInSeconds = expirationTimeInSeconds;

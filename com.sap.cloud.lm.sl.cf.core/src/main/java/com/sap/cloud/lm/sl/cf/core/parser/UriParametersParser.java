@@ -32,7 +32,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     }
 
     public UriParametersParser(String defaultHost, String defaultDomain, String hostParameterName, String domainParameterName,
-        boolean modifyRoute, String routePath) {
+                               boolean modifyRoute, String routePath) {
         this.defaultHost = defaultHost;
         this.defaultDomain = defaultDomain;
         this.hostParameterName = hostParameterName;
@@ -119,18 +119,19 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     }
 
     public List<String> getApplicationRoutes(List<Map<String, Object>> parametersList) {
-        List<Map<String, Object>> routesMaps = RoutesValidator
-            .applyRoutesType(PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.ROUTES, null));
+        List<Map<String, Object>> routesMaps = RoutesValidator.applyRoutesType(PropertiesUtil.getPropertyValue(parametersList,
+                                                                                                               SupportedParameters.ROUTES,
+                                                                                                               null));
 
         if (routesMaps == null) {
             return Collections.emptyList();
         }
 
         return routesMaps.stream()
-            .map(routesMap -> (String) routesMap.get(SupportedParameters.ROUTE))
-            .filter(Objects::nonNull)
-            .map(route -> modifyRoute(route, parametersList))
-            .collect(Collectors.toList());
+                         .map(routesMap -> (String) routesMap.get(SupportedParameters.ROUTE))
+                         .filter(Objects::nonNull)
+                         .map(route -> modifyRoute(route, parametersList))
+                         .collect(Collectors.toList());
     }
 
     private String modifyRoute(String route, List<Map<String, Object>> parametersList) {
@@ -159,10 +160,10 @@ public class UriParametersParser implements ParametersParser<List<String>> {
 
     private List<String> getDomainsFromRoutes(List<String> routes) {
         return routes.stream()
-            .map(ApplicationURI::getDomainFromURI)
-            .filter(Objects::nonNull)
-            .distinct()
-            .collect(Collectors.toList());
+                     .map(ApplicationURI::getDomainFromURI)
+                     .filter(Objects::nonNull)
+                     .distinct()
+                     .collect(Collectors.toList());
     }
 
     private static <T> List<T> getValuesFromSingularName(String singularParameterName, List<Map<String, Object>> parametersList) {

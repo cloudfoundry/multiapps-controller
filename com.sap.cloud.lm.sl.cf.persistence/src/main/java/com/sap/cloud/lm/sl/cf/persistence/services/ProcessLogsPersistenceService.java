@@ -33,12 +33,10 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
     public static final String TABLE_NAME = "process_log";
 
     public ProcessLogsPersistenceService(DataSourceWithDialect dataSourceWithDialect, boolean isContentStoredAsBlob) {
-        super(dataSourceWithDialect,
-            createSqlFileQueryProvider(dataSourceWithDialect.getDataSourceDialect(), isContentStoredAsBlob));
+        super(dataSourceWithDialect, createSqlFileQueryProvider(dataSourceWithDialect.getDataSourceDialect(), isContentStoredAsBlob));
     }
 
-    private static SqlFileQueryProvider createSqlFileQueryProvider(DataSourceDialect dataSourceDialect,
-        boolean isContentStoredAsBlob) {
+    private static SqlFileQueryProvider createSqlFileQueryProvider(DataSourceDialect dataSourceDialect, boolean isContentStoredAsBlob) {
         return isContentStoredAsBlob ? new BlobSqlFileQueryProvider(TABLE_NAME, dataSourceDialect)
             : new ByteArraySqlFileQueryProvider(TABLE_NAME, dataSourceDialect);
     }
@@ -46,9 +44,9 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
     public List<String> getLogNames(String space, String namespace) throws FileStorageException {
         List<FileEntry> logFiles = listFiles(space, namespace);
         return logFiles.stream()
-            .map(FileEntry::getName)
-            .distinct()
-            .collect(Collectors.toList());
+                       .map(FileEntry::getName)
+                       .distinct()
+                       .collect(Collectors.toList());
     }
 
     public String getLogContent(String space, String namespace, String logName) throws FileStorageException {
@@ -68,17 +66,18 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
     private List<String> getSortedByTimestampFileIds(String space, String namespace, String fileName) throws FileStorageException {
         List<FileEntry> listFiles = listFiles(space, namespace, fileName);
         return listFiles.stream()
-            .sorted(Comparator.comparing(FileEntry::getModified))
-            .map(FileEntry::getId)
-            .collect(Collectors.toList());
+                        .sorted(Comparator.comparing(FileEntry::getModified))
+                        .map(FileEntry::getId)
+                        .collect(Collectors.toList());
     }
 
     private List<FileEntry> listFiles(final String space, final String namespace, final String fileName) throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesQuery(space, namespace, fileName));
         } catch (SQLException e) {
-            throw new FileStorageException(
-                MessageFormat.format(Messages.ERROR_GETTING_FILES_WITH_SPACE_NAMESPACE_AND_NAME, space, namespace, fileName), e);
+            throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_FILES_WITH_SPACE_NAMESPACE_AND_NAME, space,
+                                                                namespace, fileName),
+                                           e);
         }
     }
 
@@ -102,8 +101,10 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
 
     private FileEntry createFileEntry(final String space, final String namespace, final String remoteLogName, File localLog)
         throws NoSuchAlgorithmException, IOException {
-        FileInfo localLogFileInfo = new FileInfo(localLog, BigInteger.valueOf(localLog.length()),
-            DigestHelper.computeFileChecksum(localLog.toPath(), DIGEST_METHOD), DIGEST_METHOD);
+        FileInfo localLogFileInfo = new FileInfo(localLog,
+                                                 BigInteger.valueOf(localLog.length()),
+                                                 DigestHelper.computeFileChecksum(localLog.toPath(), DIGEST_METHOD),
+                                                 DIGEST_METHOD);
         return createFileEntry(space, namespace, remoteLogName, localLogFileInfo);
     }
 

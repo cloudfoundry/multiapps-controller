@@ -37,7 +37,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         String appName = StepsUtil.getApp(execution.getContext())
-            .getName();
+                                  .getName();
         CloudControllerClient client = execution.getControllerClient();
         CloudApplication app = client.getApplication(appName);
         ApplicationStartupState currentState = computeCurrentState(app);
@@ -46,7 +46,9 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
         getStepLogger().debug(Messages.DESIRED_STATE, appName, desiredState);
         ApplicationStager applicationStager = new ApplicationStager(execution.getControllerClient());
         Set<ApplicationStateAction> actionsToExecute = getActionsCalculator(execution.getContext()).determineActionsToExecute(currentState,
-            desiredState, applicationStager.isApplicationStagedCorrectly(execution.getStepLogger(), app));
+                                                                                                                              desiredState,
+                                                                                                                              applicationStager.isApplicationStagedCorrectly(execution.getStepLogger(),
+                                                                                                                                                                             app));
         getStepLogger().debug(Messages.ACTIONS_TO_EXECUTE, appName, actionsToExecute);
 
         StepsUtil.setAppStateActionsToExecute(execution.getContext(), actionsToExecute);
@@ -56,18 +58,18 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
         return MessageFormat.format(Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP, StepsUtil.getApp(context)
-            .getName());
+                                                                                                   .getName());
     }
 
     private ApplicationStartupState computeCurrentState(CloudApplication app) {
         return appStateCalculatorSupplier.get()
-            .computeCurrentState(app);
+                                         .computeCurrentState(app);
     }
 
     private ApplicationStartupState computeDesiredState(DelegateExecution context, CloudApplication app) {
         boolean shouldNotStartAnyApp = (boolean) context.getVariable(Constants.PARAM_NO_START);
         return appStateCalculatorSupplier.get()
-            .computeDesiredState(app, shouldNotStartAnyApp);
+                                         .computeDesiredState(app, shouldNotStartAnyApp);
     }
 
     private ActionCalculator getActionsCalculator(DelegateExecution context) {

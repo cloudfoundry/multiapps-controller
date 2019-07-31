@@ -15,9 +15,9 @@ public class JsonMapElement extends JsonElement<Map<String, Object>> implements 
     @Override
     public Collection<Element> getMembers() {
         return object.entrySet()
-            .stream()
-            .map(this::toJsonElement)
-            .collect(Collectors.toList());
+                     .stream()
+                     .map(this::toJsonElement)
+                     .collect(Collectors.toList());
     }
 
     private Element toJsonElement(Map.Entry<String, Object> element) {

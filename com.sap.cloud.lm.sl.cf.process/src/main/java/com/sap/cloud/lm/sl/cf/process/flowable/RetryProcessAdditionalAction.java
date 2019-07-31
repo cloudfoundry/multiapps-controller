@@ -34,7 +34,7 @@ public class RetryProcessAdditionalAction implements AdditionalProcessAction {
         for (String failedActivityId : failedActivityIds) {
             try {
                 progressMessageService.removeByProcessInstanceIdAndTaskIdAndType(processInstanceId, failedActivityId,
-                    ProgressMessageType.ERROR);
+                                                                                 ProgressMessageType.ERROR);
             } catch (SLException e) {
                 LOGGER.error(Messages.ERROR_DELETING_PROGRESS_MESSAGE, e);
             }
@@ -45,8 +45,8 @@ public class RetryProcessAdditionalAction implements AdditionalProcessAction {
         List<Execution> executionsForProcess = flowableFacade.getActiveProcessExecutions(superProcessInstanceId);
 
         return executionsForProcess.stream()
-            .map(e -> e.getActivityId())
-            .collect(Collectors.toList());
+                                   .map(e -> e.getActivityId())
+                                   .collect(Collectors.toList());
     }
 
     @Override

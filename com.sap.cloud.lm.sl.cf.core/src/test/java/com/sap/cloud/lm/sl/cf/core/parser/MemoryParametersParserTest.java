@@ -81,7 +81,7 @@ public class MemoryParametersParserTest {
     }
 
     public MemoryParametersParserTest(String memoryString, Integer expectedParsedMemory,
-        Class<? extends RuntimeException> expectedExceptionClass) {
+                                      Class<? extends RuntimeException> expectedExceptionClass) {
         this.memoryString = memoryString;
         this.expectedParsedMemory = expectedParsedMemory;
         this.expectedExceptionClass = expectedExceptionClass;

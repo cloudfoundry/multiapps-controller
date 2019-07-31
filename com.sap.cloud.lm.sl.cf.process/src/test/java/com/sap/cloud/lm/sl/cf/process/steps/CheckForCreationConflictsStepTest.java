@@ -95,7 +95,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     public CheckForCreationConflictsStepTest(String stepInput, String expectedExceptionMessage, boolean shouldWarn) throws Exception {
         this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CheckForCreationConflictsStepTest.class),
-            StepInput.class);
+                                           StepInput.class);
         this.expectedExceptionMessage = expectedExceptionMessage;
         this.shouldWarn = shouldWarn;
     }
@@ -115,7 +115,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
         assertStepFinishedSuccessfully();
         if (shouldWarn) {
             Mockito.verify(stepLogger, Mockito.atLeastOnce())
-                .warn(Mockito.anyString());
+                   .warn(Mockito.anyString());
         }
     }
 
@@ -176,34 +176,34 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private List<SimpleApplication> findBoundApplications(String serviceName, List<SimpleApplication> applications) {
         return applications.stream()
-            .filter((application) -> application.boundServices.contains(serviceName))
-            .collect(Collectors.toList());
+                           .filter((application) -> application.boundServices.contains(serviceName))
+                           .collect(Collectors.toList());
     }
 
     private CloudServiceInstance createServiceInstance(CloudServiceExtended service, List<SimpleApplication> boundApplications) {
         return ImmutableCloudServiceInstance.builder()
-            .bindings(createServiceBindings(boundApplications))
-            .credentials(service.getCredentials())
-            .build();
+                                            .bindings(createServiceBindings(boundApplications))
+                                            .credentials(service.getCredentials())
+                                            .build();
     }
 
     private List<CloudServiceBinding> createServiceBindings(List<SimpleApplication> boundApplications) {
         return boundApplications.stream()
-            .map(boundApplication -> createServiceBinding(boundApplication))
-            .collect(Collectors.toList());
+                                .map(boundApplication -> createServiceBinding(boundApplication))
+                                .collect(Collectors.toList());
     }
 
     private CloudServiceBinding createServiceBinding(SimpleApplication boundApplication) {
         return ImmutableCloudServiceBinding.builder()
-            .applicationGuid(NameUtil.getUUID(boundApplication.name))
-            .build();
+                                           .applicationGuid(NameUtil.getUUID(boundApplication.name))
+                                           .build();
     }
 
     private void prepareExistingServices() {
         List<CloudService> existingServices = new ArrayList<>();
         stepInput.existingServices.forEach(service -> existingServices.add(service));
         Mockito.when(client.getServices())
-            .thenReturn(existingServices);
+               .thenReturn(existingServices);
         prepareServiceInstances();
 
     }
@@ -214,7 +214,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private void prepareServiceInstance(CloudServiceExtended service, CloudServiceInstance instance) {
         Mockito.when(client.getServiceInstance(service.getName()))
-            .thenReturn(instance);
+               .thenReturn(instance);
     }
 
     @Override
@@ -233,7 +233,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     }
 
     private static final MapToEnvironmentConverter ENV_CONVERTER = new MapToEnvironmentConverter(false);
-    
+
     private static class SimpleApplication {
 
         String name;
@@ -242,12 +242,12 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
         CloudApplicationExtended toCloudApplication() {
             return ImmutableCloudApplicationExtended.builder()
-                .metadata(ImmutableCloudMetadata.builder()
-                    .guid(NameUtil.getUUID(name))
-                    .build())
-                .name(name)
-                .env(ENV_CONVERTER.asEnv(env))
-                .build();
+                                                    .metadata(ImmutableCloudMetadata.builder()
+                                                                                    .guid(NameUtil.getUUID(name))
+                                                                                    .build())
+                                                    .name(name)
+                                                    .env(ENV_CONVERTER.asEnv(env))
+                                                    .build();
         }
     }
 

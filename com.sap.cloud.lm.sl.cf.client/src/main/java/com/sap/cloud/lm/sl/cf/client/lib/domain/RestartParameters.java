@@ -11,7 +11,7 @@ public class RestartParameters {
     }
 
     public RestartParameters(boolean shouldRestartOnVcapAppChange, boolean shouldRestartOnVcapServicesChange,
-        boolean shouldRestartOnUserProvidedChange) {
+                             boolean shouldRestartOnUserProvidedChange) {
         this.shouldRestartOnVcapAppChange = shouldRestartOnVcapAppChange;
         this.shouldRestartOnVcapServicesChange = shouldRestartOnVcapServicesChange;
         this.shouldRestartOnUserProvidedChange = shouldRestartOnUserProvidedChange;

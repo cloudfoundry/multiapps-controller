@@ -34,7 +34,7 @@ public abstract class AbstractCommonProcessAttributes {
     }
 
     public AbstractCommonProcessAttributes(Integer subscriptionsToDelete, Integer deletedEntries, Integer appsToUndeploy,
-        Integer servicesToDelete, Integer updatedSubscribers, Integer updatedServiceBrokerSubscribers) {
+                                           Integer servicesToDelete, Integer updatedSubscribers, Integer updatedServiceBrokerSubscribers) {
         super();
         this.subscriptionsToDelete = subscriptionsToDelete;
         this.deletedEntries = deletedEntries;

@@ -13,7 +13,7 @@ public class ProvidedDependencyParametersValidator extends ParametersValidator<P
     protected ProvidedDependency providedDependency;
 
     public ProvidedDependencyParametersValidator(String prefix, Module module, ProvidedDependency providedDependency,
-        ParametersValidatorHelper helper) {
+                                                 ParametersValidatorHelper helper) {
         super(prefix, providedDependency.getName(), helper, Module.class);
         this.providedDependency = providedDependency;
     }

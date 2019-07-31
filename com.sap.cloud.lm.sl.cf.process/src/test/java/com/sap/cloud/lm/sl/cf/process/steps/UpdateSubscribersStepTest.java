@@ -125,7 +125,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
     private StepInput input;
 
     public UpdateSubscribersStepTest(String inputLocation, String expectedOutputLocation, int majorSchemaVersion,
-        String expectedExceptionMessage) {
+                                     String expectedExceptionMessage) {
         this.expectedOutputLocation = expectedOutputLocation;
         this.majorSchemaVersion = majorSchemaVersion;
         this.expectedExceptionMessage = expectedExceptionMessage;
@@ -155,7 +155,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
     private void prepareContext() {
         context.setVariable(Constants.VAR_SPACE, input.currentSpace.getName());
         context.setVariable(Constants.VAR_ORG, input.currentSpace.getOrganization()
-            .getName());
+                                                                 .getName());
 
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, majorSchemaVersion);
         context.setVariable(Constants.PARAM_USE_NAMESPACES, false);
@@ -167,14 +167,14 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         context.setVariable(Constants.VAR_USER, USER);
         step.targetCalculator = (client, spaceId) -> new CloudTarget(spaceId, spaceId);
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
-            .thenReturn(Arrays.asList("test-subprocess-id"));
+               .thenReturn(Arrays.asList("test-subprocess-id"));
         HistoricVariableInstance varInstanceMock = Mockito.mock(HistoricVariableInstance.class);
         Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES))
-            .thenReturn(varInstanceMock);
+               .thenReturn(varInstanceMock);
         Mockito.when(varInstanceMock.getValue())
-            .thenReturn(getBytes(getPublishedEntries()));
+               .thenReturn(getBytes(getPublishedEntries()));
         Mockito.when(moduleToDeployHelper.isApplication((Module) any()))
-            .thenReturn(true);
+               .thenReturn(true);
     }
 
     private byte[] getBytes(List<ConfigurationEntry> publishedEntries) {
@@ -183,14 +183,14 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
 
     private List<ConfigurationEntry> getDeletedEntries() {
         return input.subscribersToUpdate.stream()
-            .flatMap((subscriber) -> subscriber.relevantDeletedEntries.stream())
-            .collect(Collectors.toList());
+                                        .flatMap((subscriber) -> subscriber.relevantDeletedEntries.stream())
+                                        .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> getPublishedEntries() {
         return input.subscribersToUpdate.stream()
-            .flatMap((subscriber) -> subscriber.relevantPublishedEntries.stream())
-            .collect(Collectors.toList());
+                                        .flatMap((subscriber) -> subscriber.relevantPublishedEntries.stream())
+                                        .collect(Collectors.toList());
     }
 
     private void prepareClients() throws Exception {
@@ -203,7 +203,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
 
     private void prepareClientProvider(CloudSpace space, CloudControllerClient clientMock) throws Exception {
         String orgName = space.getOrganization()
-            .getName();
+                              .getName();
         String spaceName = space.getName();
         when(clientProvider.getControllerClient(eq(USER), eq(orgName), eq(spaceName), anyString())).thenReturn(clientMock);
     }
@@ -229,11 +229,11 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
 
     private boolean isSameSpace(CloudSpace space1, CloudSpace space2) {
         return space1.getName()
-            .equals(space2.getName())
+                     .equals(space2.getName())
             && space1.getOrganization()
-                .getName()
-                .equals(space2.getOrganization()
-                    .getName());
+                     .getName()
+                     .equals(space2.getOrganization()
+                                   .getName());
     }
 
     @SuppressWarnings("unchecked")
@@ -245,7 +245,8 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         }
         if (!userHasPermissions(subscriber.app.getSpace(), UserPermission.WRITE)) {
             doThrow(new CloudOperationException(HttpStatus.FORBIDDEN)).when(client)
-                .updateApplicationEnv(eq(subscriber.subscription.getAppName()), any(Map.class));
+                                                                      .updateApplicationEnv(eq(subscriber.subscription.getAppName()),
+                                                                                            any(Map.class));
         }
     }
 
@@ -255,16 +256,17 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         for (SubscriberToUpdate subscriber : input.subscribersToUpdate) {
             ConfigurationFilter filter = subscriber.subscription.getFilter();
             List<CloudTarget> targets = Arrays.asList(new CloudTarget(input.currentSpace.getOrganization()
-                .getName(), input.currentSpace.getName()));
+                                                                                        .getName(),
+                                                                      input.currentSpace.getName()));
             when(entriesDao.find(filter.getProviderNid(), filter.getProviderId(), filter.getProviderVersion(), filter.getTargetSpace(),
-                filter.getRequiredContent(), null, targets)).thenReturn(getAllEntries(subscriber));
+                                 filter.getRequiredContent(), null, targets)).thenReturn(getAllEntries(subscriber));
         }
     }
 
     private List<ConfigurationSubscription> getSubscriptions() {
         return input.subscribersToUpdate.stream()
-            .map((subscriber) -> subscriber.subscription)
-            .collect(Collectors.toList());
+                                        .map((subscriber) -> subscriber.subscription)
+                                        .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> getAllEntries(SubscriberToUpdate subscriber) {
@@ -291,7 +293,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         for (CloudSpace space : clients.keySet()) {
             if (userHasPermissions(space, UserPermission.READ, UserPermission.WRITE)) {
                 List<CloudApplication> callArgumentsOfUpdateApplicationEnvMethod = getCallArgumentsOfUpdateApplicationEnvMethod(space,
-                    clients.get(space));
+                                                                                                                                clients.get(space));
                 result.callArgumentsOfUpdateApplicationEnvMethod.addAll(callArgumentsOfUpdateApplicationEnvMethod);
             }
         }
@@ -318,24 +320,25 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         UserRole userRole = getUserRole(space);
         if (userRole == null) {
             throw new IllegalStateException(MessageFormat.format(NO_USER_ROLES_DEFINED_FOR_ORG_AND_SPACE, space.getOrganization()
-                .getName(), space.getName()));
+                                                                                                               .getName(),
+                                                                 space.getName()));
         }
         return userRole.permissions.containsAll(Arrays.asList(permissions));
     }
 
     private UserRole getUserRole(CloudSpace space) {
         return input.userRoles.stream()
-            .filter((role) -> isSameSpace(role.space, space))
-            .findFirst()
-            .orElse(null);
+                              .filter((role) -> isSameSpace(role.space, space))
+                              .findFirst()
+                              .orElse(null);
     }
 
     private CloudApplication createApp(String name, CloudSpace space, Map<String, String> env) {
         return ImmutableCloudApplication.builder()
-            .name(name)
-            .space(space)
-            .env(env)
-            .build();
+                                        .name(name)
+                                        .space(space)
+                                        .env(env)
+                                        .build();
     }
 
     private static class SubscriberToUpdate {

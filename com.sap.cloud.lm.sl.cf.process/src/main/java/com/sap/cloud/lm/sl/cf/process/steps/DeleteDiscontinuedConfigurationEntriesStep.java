@@ -12,11 +12,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -35,7 +35,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.DELETING_PUBLISHED_DEPENDENCIES);
         String mtaId = (String) execution.getContext()
-            .getVariable(Constants.PARAM_MTA_ID);
+                                         .getVariable(Constants.PARAM_MTA_ID);
         String org = StepsUtil.getOrg(execution.getContext());
         String space = StepsUtil.getSpace(execution.getContext());
         CloudTarget target = new CloudTarget(org, space);
@@ -67,8 +67,8 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
         List<ConfigurationEntry> allEntriesForCurrentMta = getEntries(mtaId, target);
         List<Long> publishedEntryIds = getEntryIds(publishedEntries);
         return allEntriesForCurrentMta.stream()
-            .filter(entry -> !publishedEntryIds.contains(entry.getId()))
-            .collect(Collectors.toList());
+                                      .filter(entry -> !publishedEntryIds.contains(entry.getId()))
+                                      .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> getEntries(String mtaId, CloudTarget target) {
@@ -77,8 +77,8 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
 
     private List<Long> getEntryIds(List<ConfigurationEntry> configurationEntries) {
         return configurationEntries.stream()
-            .map(ConfigurationEntry::getId)
-            .collect(Collectors.toList());
+                                   .map(ConfigurationEntry::getId)
+                                   .collect(Collectors.toList());
     }
 
 }

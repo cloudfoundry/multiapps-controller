@@ -39,7 +39,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
     protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = CredentialsGenerator::new;
     protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance()
-        .getTime());
+                                                                                                               .getTime());
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -54,7 +54,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
         DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
         SystemParameters systemParameters = createSystemParameters(execution.getContext(), client, defaultDomainName,
-            reserveTemporaryRoutes);
+                                                                   reserveTemporaryRoutes);
         systemParameters.injectInto(descriptor);
         getStepLogger().debug(Messages.DESCRIPTOR_WITH_SYSTEM_PARAMETERS, secureSerializer.toJson(descriptor));
 
@@ -80,25 +80,25 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
     }
 
     private SystemParameters createSystemParameters(DelegateExecution context, CloudControllerClient client, String defaultDomain,
-        boolean reserveTemporaryRoutes) {
+                                                    boolean reserveTemporaryRoutes) {
         String authorizationEndpoint = client.getCloudInfo()
-            .getAuthorizationEndpoint();
+                                             .getAuthorizationEndpoint();
         String user = (String) context.getVariable(Constants.VAR_USER);
 
         URL controllerUrl = configuration.getControllerUrl();
         String deployServiceUrl = configuration.getDeployServiceUrl();
 
         return new SystemParameters.Builder().organization(StepsUtil.getOrg(context))
-            .space(StepsUtil.getSpace(context))
-            .user(user)
-            .defaultDomain(defaultDomain)
-            .controllerUrl(controllerUrl)
-            .authorizationEndpoint(authorizationEndpoint)
-            .deployServiceUrl(deployServiceUrl)
-            .reserveTemporaryRoutes(reserveTemporaryRoutes)
-            .credentialsGenerator(credentialsGeneratorSupplier.get())
-            .timestampSupplier(timestampSupplier)
-            .build();
+                                             .space(StepsUtil.getSpace(context))
+                                             .user(user)
+                                             .defaultDomain(defaultDomain)
+                                             .controllerUrl(controllerUrl)
+                                             .authorizationEndpoint(authorizationEndpoint)
+                                             .deployServiceUrl(deployServiceUrl)
+                                             .reserveTemporaryRoutes(reserveTemporaryRoutes)
+                                             .credentialsGenerator(credentialsGeneratorSupplier.get())
+                                             .timestampSupplier(timestampSupplier)
+                                             .build();
     }
 
     private void determineIsVersionAccepted(DelegateExecution context, DeploymentDescriptor descriptor) {
@@ -119,8 +119,8 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         if (deploymentType == DeploymentType.REDEPLOYMENT) {
             throw new ContentException(Messages.SAME_VERSION_ALREADY_DEPLOYED);
         }
-        throw new IllegalStateException(
-            MessageFormat.format(Messages.VERSION_RULE_DOES_NOT_ALLOW_DEPLOYMENT_TYPE, versionRule, deploymentType));
+        throw new IllegalStateException(MessageFormat.format(Messages.VERSION_RULE_DOES_NOT_ALLOW_DEPLOYMENT_TYPE, versionRule,
+                                                             deploymentType));
     }
 
     private DeploymentType getDeploymentType(DeployedMta deployedMta, Version newMtaVersion) {
@@ -128,12 +128,12 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
             return DeploymentType.DEPLOYMENT;
         }
         if (deployedMta.getMetadata()
-            .isVersionUnknown()) {
+                       .isVersionUnknown()) {
             getStepLogger().warn(Messages.IGNORING_VERSION_RULE);
             return DeploymentType.UPGRADE;
         }
         Version deployedMtaVersion = deployedMta.getMetadata()
-            .getVersion();
+                                                .getVersion();
         getStepLogger().info(Messages.DEPLOYED_MTA_VERSION, deployedMtaVersion);
         return DeploymentType.fromVersions(deployedMtaVersion, newMtaVersion);
     }

@@ -202,9 +202,10 @@ public class ConfigurationEntryDaoTest {
 
         @Before
         public void prepare() throws Exception {
-            List<ConfigurationEntry> entries = JsonUtil.convertJsonToList(
-                TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION, getClass()), new TypeReference<List<ConfigurationEntry>>() {
-                });
+            List<ConfigurationEntry> entries = JsonUtil.convertJsonToList(TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION,
+                                                                                                       getClass()),
+                                                                          new TypeReference<List<ConfigurationEntry>>() {
+                                                                          });
 
             for (ConfigurationEntry entry : entries) {
                 dao.add(entry);
@@ -226,7 +227,7 @@ public class ConfigurationEntryDaoTest {
         private static class RemoveTestInput extends FindTestInput {
 
             public RemoveTestInput(String nid, String id, String version, CloudTarget target, Map<String, Object> requiredProperties,
-                List<CloudTarget> cloudTargets, String spaceId) {
+                                   List<CloudTarget> cloudTargets, String spaceId) {
                 super(nid, id, version, target, requiredProperties, null, cloudTargets, spaceId);
             }
 
@@ -237,7 +238,8 @@ public class ConfigurationEntryDaoTest {
             public ConfigurationEntry configurationEntry;
 
             public UpdateTestInput(String nid, String id, String version, CloudTarget target, String configurationEntryLocation,
-                List<CloudTarget> cloudTarget, String spaceId) throws Exception {
+                                   List<CloudTarget> cloudTarget, String spaceId)
+                throws Exception {
                 super(nid, id, version, target, Collections.emptyMap(), null, cloudTarget, spaceId);
                 configurationEntry = TestInput.loadJsonInput(configurationEntryLocation, ConfigurationEntry.class, getClass());
             }
@@ -252,7 +254,7 @@ public class ConfigurationEntryDaoTest {
             public List<CloudTarget> cloudTargets;
 
             public FindTestInput(String nid, String id, String version, CloudTarget target, Map<String, Object> requiredProperties,
-                String mtaId, List<CloudTarget> cloudTargets, String spaceId) {
+                                 String mtaId, List<CloudTarget> cloudTargets, String spaceId) {
                 this.version = version;
                 this.nid = nid;
                 this.target = target;
@@ -307,7 +309,9 @@ public class ConfigurationEntryDaoTest {
             @Override
             protected void test() throws Exception {
                 TESTER.test(() -> removeId(dao.update(findConfigurationEntries(input, dao).get(0)
-                    .getId(), input.configurationEntry)), expectation);
+                                                                                          .getId(),
+                                                      input.configurationEntry)),
+                            expectation);
             }
 
         }
@@ -338,7 +342,8 @@ public class ConfigurationEntryDaoTest {
             @Override
             public void test() {
                 TESTER.test(() -> removeId(dao.find(findConfigurationEntries(input, dao).get(0)
-                    .getId())), expectation);
+                                                                                        .getId())),
+                            expectation);
             }
 
         }
@@ -427,8 +432,8 @@ public class ConfigurationEntryDaoTest {
 
     private static List<ConfigurationEntry> removeIds(List<ConfigurationEntry> entries) {
         return entries.stream()
-            .map(ConfigurationEntryDaoTest::removeId)
-            .collect(Collectors.toList());
+                      .map(ConfigurationEntryDaoTest::removeId)
+                      .collect(Collectors.toList());
     }
 
     private static ConfigurationEntry removeId(ConfigurationEntry entry) {

@@ -52,10 +52,10 @@ public class DeleteSubscriptionsStep extends SyncFlowableStep {
     private void infoSubscriptionDeletion(ConfigurationSubscription subscription) {
         if (subscription.getModuleDto() != null && subscription.getResourceDto() != null) {
             getStepLogger().info(MessageFormat.format(Messages.DELETING_DISCONTINUED_SUBSCRIPTION_FROM_0_MODULE_TO_1_RESOURCE,
-                subscription.getModuleDto()
-                    .getName(),
-                subscription.getResourceDto()
-                    .getName()));
+                                                      subscription.getModuleDto()
+                                                                  .getName(),
+                                                      subscription.getResourceDto()
+                                                                  .getName()));
         }
     }
 

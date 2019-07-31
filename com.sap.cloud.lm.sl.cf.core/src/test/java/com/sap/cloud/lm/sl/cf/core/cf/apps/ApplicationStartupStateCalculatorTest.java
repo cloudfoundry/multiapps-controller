@@ -119,7 +119,7 @@ public class ApplicationStartupStateCalculatorTest {
         private CloudApplication app;
 
         public DesiredApplicationStartupStateCalculatorTest(String pathToFileContainingAppJson, boolean shouldNotStartAnyApp,
-            ApplicationStartupState expectedState) {
+                                                            ApplicationStartupState expectedState) {
             this.pathToFileContainingAppJson = pathToFileContainingAppJson;
             this.shouldNotStartAnyApp = shouldNotStartAnyApp;
             this.expectedState = expectedState;

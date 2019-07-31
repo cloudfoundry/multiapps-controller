@@ -45,7 +45,7 @@ public class FlowableExceptionEventHandler {
         String flowableExceptionStackTrace = ExceptionUtils.getStackTrace(flowableExceptionEvent.getCause());
         LOGGER.error(flowableExceptionStackTrace);
         String flowableExceptionMessage = flowableExceptionEvent.getCause()
-            .getMessage();
+                                                                .getMessage();
 
         if (flowableExceptionMessage == null) {
             return;
@@ -74,18 +74,18 @@ public class FlowableExceptionEventHandler {
         String errorMessage = MessageFormat.format(Messages.UNEXPECTED_ERROR, flowableExceptionMessage);
 
         progressMessageService.add(ImmutableProgressMessage.builder()
-            .processId(processInstanceId)
-            .taskId(taskId)
-            .type(ProgressMessageType.ERROR)
-            .text(errorMessage)
-            .timestamp(getCurrentTimestamp())
-            .build());
+                                                           .processId(processInstanceId)
+                                                           .taskId(taskId)
+                                                           .type(ProgressMessageType.ERROR)
+                                                           .text(errorMessage)
+                                                           .timestamp(getCurrentTimestamp())
+                                                           .build());
     }
 
     private boolean isErrorProgressMessagePresented(String processInstanceId) {
         List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(processInstanceId);
         return progressMessages.stream()
-            .anyMatch(this::isErrorMessage);
+                               .anyMatch(this::isErrorMessage);
     }
 
     private boolean isErrorMessage(ProgressMessage message) {
@@ -103,10 +103,10 @@ public class FlowableExceptionEventHandler {
         try {
             // This is needed because when there are parallel CallActivity, the query will return multiple results for just one Execution
             List<Execution> currentExecutionsForProcess = getProcessEngineConfiguration().getRuntimeService()
-                .createExecutionQuery()
-                .executionId(flowableEngineEvent.getExecutionId())
-                .processInstanceId(flowableEngineEvent.getProcessInstanceId())
-                .list();
+                                                                                         .createExecutionQuery()
+                                                                                         .executionId(flowableEngineEvent.getExecutionId())
+                                                                                         .processInstanceId(flowableEngineEvent.getProcessInstanceId())
+                                                                                         .list();
 
             // Based on the above comment, one of the executions will have null activityId(because it will be the monitoring one) and thus
             // should be excluded from the list of executions
@@ -124,9 +124,9 @@ public class FlowableExceptionEventHandler {
 
     private Execution findCurrentExecution(List<Execution> currentExecutionsForProcess) {
         return currentExecutionsForProcess.stream()
-            .filter(execution -> execution.getActivityId() != null)
-            .findFirst()
-            .orElse(null);
+                                          .filter(execution -> execution.getActivityId() != null)
+                                          .findFirst()
+                                          .orElse(null);
     }
 
     protected Date getCurrentTimestamp() {

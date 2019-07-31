@@ -71,7 +71,7 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
     public UpdateSubscribedServiceBrokerStepTest(String inputLocation, String expectedExceptionMessage, String warningMessage)
         throws ParsingException, IOException {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, UpdateSubscribedServiceBrokerStepTest.class),
-            StepInput.class);
+                                       StepInput.class);
         this.expectedExceptionMessage = expectedExceptionMessage;
         this.warningMessage = warningMessage;
     }
@@ -88,10 +88,10 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
 
     private void prepareClient() {
         Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false)))
-            .thenReturn(null);
+               .thenReturn(null);
         if (input.brokerApplication.brokerName.equals(input.brokerFromClient.name)) {
             Mockito.when(client.getServiceBroker(input.brokerFromClient.name, false))
-                .thenReturn(input.brokerFromClient.toServiceBroker());
+                   .thenReturn(input.brokerFromClient.toServiceBroker());
         }
     }
 
@@ -112,16 +112,16 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
     private void validateExecution() {
         if (warningMessage != null) {
             Mockito.verify(stepLogger)
-                .warn(warningMessage);
+                   .warn(warningMessage);
         } else {
             CloudServiceBroker expectedBroker = ImmutableCloudServiceBroker.builder()
-                .name(input.brokerApplication.brokerName)
-                .username(input.brokerApplication.brokerUsername)
-                .password(input.brokerApplication.brokerPassword)
-                .url(input.brokerApplication.brokerUrl)
-                .build();
+                                                                           .name(input.brokerApplication.brokerName)
+                                                                           .username(input.brokerApplication.brokerUsername)
+                                                                           .password(input.brokerApplication.brokerPassword)
+                                                                           .url(input.brokerApplication.brokerUrl)
+                                                                           .build();
             Mockito.verify(client)
-                .updateServiceBroker(Mockito.argThat(GenericArgumentMatcher.forObject(expectedBroker)));
+                   .updateServiceBroker(Mockito.argThat(GenericArgumentMatcher.forObject(expectedBroker)));
         }
     }
 
@@ -145,9 +145,10 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
         CloudApplicationExtended toCloudApplication() {
             Map<String, Object> brokerDetails = getBrokerDetails();
             return ImmutableCloudApplicationExtended.builder()
-                .name(name)
-                .env(MapUtil.asMap(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(brokerDetails)))
-                .build();
+                                                    .name(name)
+                                                    .env(MapUtil.asMap(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES,
+                                                                       JsonUtil.toJson(brokerDetails)))
+                                                    .build();
         }
 
         private Map<String, Object> getBrokerDetails() {
@@ -167,8 +168,8 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
         CloudServiceBroker toServiceBroker() {
             return (name == null) ? null
                 : ImmutableCloudServiceBroker.builder()
-                    .name(name)
-                    .build();
+                                             .name(name)
+                                             .build();
         }
     }
 }

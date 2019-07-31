@@ -82,21 +82,21 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
             return null;
         }
         return deploymentDescriptor.getModules()
-            .stream()
-            .filter(module -> moduleNameFromApplicationEnvironment.equals(module.getName()))
-            .findFirst()
-            .orElse(null);
+                                   .stream()
+                                   .filter(module -> moduleNameFromApplicationEnvironment.equals(module.getName()))
+                                   .findFirst()
+                                   .orElse(null);
     }
 
     protected String getModuleName(CloudApplicationExtended cloudApplication) {
         return ApplicationMtaMetadataParser.parseAppMetadata(cloudApplication)
-            .getModuleName();
+                                           .getModuleName();
     }
 
     private Module findModuleByNameFromDeploymentDescriptor(HandlerFactory handlerFactory, DeploymentDescriptor deploymentDescriptor,
-        String moduleName) {
+                                                            String moduleName) {
         return handlerFactory.getDescriptorHandler()
-            .findModule(deploymentDescriptor, moduleName);
+                             .findModule(deploymentDescriptor, moduleName);
     }
 
     private List<Hook> getHooksForCurrentPhase(DelegateExecution context, Module moduleToDeploy, HookPhase currentHookPhaseForExecution) {
@@ -152,7 +152,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         public List<Hook> aggregateHooks(HookPhase currentHookPhaseForExecution) {
             Map<String, List<String>> alreadyExecutedHooksForModule = getAlreadyExecutedHooks();
             List<Hook> hooksCalculatedForExecution = determineHooksForExecution(alreadyExecutedHooksForModule,
-                currentHookPhaseForExecution);
+                                                                                currentHookPhaseForExecution);
             updateExecutedHooksForModule(alreadyExecutedHooksForModule, currentHookPhaseForExecution, hooksCalculatedForExecution);
             return hooksCalculatedForExecution;
         }
@@ -162,15 +162,15 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         }
 
         private List<Hook> determineHooksForExecution(Map<String, List<String>> alreadyExecutedHooks,
-            HookPhase hookPhaseForCurrentStepPhase) {
+                                                      HookPhase hookPhaseForCurrentStepPhase) {
             List<Hook> moduleHooksToExecuteOnCurrentStepPhase = collectHooksWithPhase(moduleToDeploy, hookPhaseForCurrentStepPhase);
             return getHooksForExecution(alreadyExecutedHooks, moduleHooksToExecuteOnCurrentStepPhase, hookPhaseForCurrentStepPhase);
         }
 
         private List<Hook> collectHooksWithPhase(Module moduleToDeploy, HookPhase hookTypeForCurrentStepPhase) {
             return getModuleHooks(moduleToDeploy).stream()
-                .filter(hook -> mapToHookPhases(hook.getPhases()).contains(hookTypeForCurrentStepPhase))
-                .collect(Collectors.toList());
+                                                 .filter(hook -> mapToHookPhases(hook.getPhases()).contains(hookTypeForCurrentStepPhase))
+                                                 .collect(Collectors.toList());
         }
 
         private List<Hook> getModuleHooks(Module moduleToDeploy) {
@@ -183,22 +183,22 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
         private List<HookPhase> mapToHookPhases(List<String> hookPhases) {
             return hookPhases.stream()
-                .map(HookPhase::fromString)
-                .collect(Collectors.toList());
+                             .map(HookPhase::fromString)
+                             .collect(Collectors.toList());
         }
 
         private List<Hook> getHooksForExecution(Map<String, List<String>> alreadyExecutedHooks, List<Hook> moduleHooksToBeExecuted,
-            HookPhase hookPhaseForCurrentStepPhase) {
+                                                HookPhase hookPhaseForCurrentStepPhase) {
 
             List<Hook> notExecutedHooks = moduleHooksToBeExecuted.stream()
-                .filter(hook -> !alreadyExecutedHooks.containsKey(hook.getName()))
-                .collect(Collectors.toList());
+                                                                 .filter(hook -> !alreadyExecutedHooks.containsKey(hook.getName()))
+                                                                 .collect(Collectors.toList());
 
             List<Hook> hooksWithNonExecutedPhases = moduleHooksToBeExecuted.stream()
-                .filter(hookToBeExecuted -> alreadyExecutedHooks.containsKey(hookToBeExecuted.getName()))
-                .filter(hookToBeExecuted -> !getExecutedHookPhasesForHook(alreadyExecutedHooks, hookToBeExecuted.getName())
-                    .contains(hookPhaseForCurrentStepPhase))
-                .collect(Collectors.toList());
+                                                                           .filter(hookToBeExecuted -> alreadyExecutedHooks.containsKey(hookToBeExecuted.getName()))
+                                                                           .filter(hookToBeExecuted -> !getExecutedHookPhasesForHook(alreadyExecutedHooks,
+                                                                                                                                     hookToBeExecuted.getName()).contains(hookPhaseForCurrentStepPhase))
+                                                                           .collect(Collectors.toList());
 
             return ListUtils.union(notExecutedHooks, hooksWithNonExecutedPhases);
         }
@@ -209,23 +209,23 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         }
 
         private void updateExecutedHooksForModule(Map<String, List<String>> alreadyExecutedHooks, HookPhase currentHookPhaseForExecution,
-            List<Hook> hooksForExecution) {
+                                                  List<Hook> hooksForExecution) {
             Map<String, List<String>> result = new HashMap<>(alreadyExecutedHooks);
             updateExecutedHooks(result, currentHookPhaseForExecution, hooksForExecution);
             StepsUtil.setExecutedHooksForModule(context, moduleToDeploy.getName(), result);
         }
 
         private void updateExecutedHooks(Map<String, List<String>> alreadyExecutedHooks, HookPhase currentHookPhaseForExecution,
-            List<Hook> hooksForExecution) {
+                                         List<Hook> hooksForExecution) {
             hooksForExecution.forEach(hook -> updateHook(alreadyExecutedHooks, currentHookPhaseForExecution, hook));
         }
 
         private void updateHook(Map<String, List<String>> alreadyExecutedHooks, HookPhase currentHookPhaseForExecution, Hook hook) {
             List<String> hookPhasesBasedOnCurrentHookPhase = getHookPhasesBasedOnCurrentHookPhase(currentHookPhaseForExecution,
-                hook.getPhases());
+                                                                                                  hook.getPhases());
             if (alreadyExecutedHooks.containsKey(hook.getName())) {
                 alreadyExecutedHooks.get(hook.getName())
-                    .addAll(hookPhasesBasedOnCurrentHookPhase);
+                                    .addAll(hookPhasesBasedOnCurrentHookPhase);
                 return;
             }
             alreadyExecutedHooks.put(hook.getName(), hookPhasesBasedOnCurrentHookPhase);
@@ -233,8 +233,8 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
         private List<String> getHookPhasesBasedOnCurrentHookPhase(HookPhase currentHookPhaseForExecution, List<String> hookPhases) {
             return hookPhases.stream()
-                .filter(phase -> HookPhase.fromString(phase) == currentHookPhaseForExecution)
-                .collect(Collectors.toList());
+                             .filter(phase -> HookPhase.fromString(phase) == currentHookPhaseForExecution)
+                             .collect(Collectors.toList());
         }
     }
 

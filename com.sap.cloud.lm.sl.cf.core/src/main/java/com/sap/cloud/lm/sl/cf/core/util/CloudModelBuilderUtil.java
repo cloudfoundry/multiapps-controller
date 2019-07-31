@@ -19,14 +19,14 @@ public class CloudModelBuilderUtil {
 
     public static Set<String> getDeployedModuleNames(List<DeployedMtaModule> deployedModules) {
         return deployedModules.stream()
-            .map(DeployedMtaModule::getModuleName)
-            .collect(Collectors.toCollection(TreeSet::new));
+                              .map(DeployedMtaModule::getModuleName)
+                              .collect(Collectors.toCollection(TreeSet::new));
     }
 
     public static Set<String> getDeployedAppNames(List<DeployedMtaModule> deployedModules) {
         return deployedModules.stream()
-            .map(DeployedMtaModule::getAppName)
-            .collect(Collectors.toCollection(TreeSet::new));
+                              .map(DeployedMtaModule::getAppName)
+                              .collect(Collectors.toCollection(TreeSet::new));
     }
 
     public static boolean isService(Resource resource) {

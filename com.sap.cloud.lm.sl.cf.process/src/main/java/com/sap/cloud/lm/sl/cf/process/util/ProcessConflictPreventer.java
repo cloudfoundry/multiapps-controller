@@ -50,15 +50,15 @@ public class ProcessConflictPreventer {
 
     private List<String> getOperationIds(List<Operation> operations) {
         return operations.stream()
-            .map(Operation::getProcessId)
-            .collect(Collectors.toList());
+                         .map(Operation::getProcessId)
+                         .collect(Collectors.toList());
     }
 
     private List<Operation> findConflictingOperations(String mtaId, String spaceId) {
         OperationFilter filter = new OperationFilter.Builder().mtaId(mtaId)
-            .spaceId(spaceId)
-            .withAcquiredLock()
-            .build();
+                                                              .spaceId(spaceId)
+                                                              .withAcquiredLock()
+                                                              .build();
         return dao.find(filter);
     }
 

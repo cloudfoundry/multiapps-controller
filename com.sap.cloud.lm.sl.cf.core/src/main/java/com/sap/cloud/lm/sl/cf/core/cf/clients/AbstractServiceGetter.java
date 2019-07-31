@@ -28,20 +28,22 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> getServiceInstanceEntity(CloudControllerClient client, String serviceName, String spaceId) {
-        Map<String, Object> serviceInstance = new CustomControllerClientErrorHandler()
-            .handleErrorsOrReturnResult(() -> attemptToGetServiceInstance(client, serviceName, spaceId));
+        Map<String, Object> serviceInstance = new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetServiceInstance(client,
+                                                                                                                                                    serviceName,
+                                                                                                                                                    spaceId));
         return serviceInstance != null ? (Map<String, Object>) serviceInstance.get(getEntityName()) : Collections.emptyMap();
     }
 
     public Map<String, Object> getServiceInstance(CloudControllerClient client, String serviceName, String spaceId) {
-        return new CustomControllerClientErrorHandler()
-            .handleErrorsOrReturnResult(() -> attemptToGetServiceInstance(client, serviceName, spaceId));
+        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetServiceInstance(client, serviceName,
+                                                                                                                     spaceId));
     }
 
     private Map<String, Object> attemptToGetServiceInstance(CloudControllerClient client, String serviceName, String spaceId) {
         Map<String, Object> queryParameters = buildQueryParameters(serviceName, spaceId);
         String serviceInstancesEndpoint = getUrl(client.getCloudControllerUrl()
-            .toString(), getServiceInstanceURL(queryParameters.keySet()));
+                                                       .toString(),
+                                                 getServiceInstanceURL(queryParameters.keySet()));
 
         return getCloudServiceInstance(client, serviceInstancesEndpoint, queryParameters);
     }
@@ -54,7 +56,7 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
     }
 
     private Map<String, Object> getCloudServiceInstance(CloudControllerClient client, String serviceInstancesEndpoint,
-        Map<String, Object> queryParameters) {
+                                                        Map<String, Object> queryParameters) {
         String response = getRestTemplate(client).getForObject(serviceInstancesEndpoint, String.class, queryParameters);
         Map<String, Object> serviceInstancesResponse = parseResponse(response);
         return getCloudServiceInstance(serviceInstancesResponse);
@@ -75,7 +77,8 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
 
     private void validateServiceInstanceResponse(Map<String, Object> serviceInstancesResponse) {
         List<Map<String, Object>> resources = getResourcesFromResponse(serviceInstancesResponse);
-        Assert.isTrue(serviceInstancesResponse.containsKey(getResourcesName()), MessageFormat.format(Messages.ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MISSING_FIELD, getResourcesName()));
+        Assert.isTrue(serviceInstancesResponse.containsKey(getResourcesName()),
+                      MessageFormat.format(Messages.ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MISSING_FIELD, getResourcesName()));
         Assert.isTrue(resources == null || resources.size() <= 1, Messages.ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MORE_THEN_ONE_RESULT);
     }
 

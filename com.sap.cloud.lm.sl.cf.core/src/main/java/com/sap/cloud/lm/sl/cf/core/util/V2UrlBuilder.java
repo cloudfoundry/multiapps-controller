@@ -13,8 +13,8 @@ public class V2UrlBuilder {
 
     private static String buildQueryString(String separator, Set<String> fields) {
         String queryValue = fields.stream()
-            .map(e -> String.join("", e, ":{", e, "}"))
-            .collect(Collectors.joining(separator));
+                                  .map(e -> String.join("", e, ":{", e, "}"))
+                                  .collect(Collectors.joining(separator));
         return String.join("", V2_QUERY_PREFIX, queryValue);
     }
 

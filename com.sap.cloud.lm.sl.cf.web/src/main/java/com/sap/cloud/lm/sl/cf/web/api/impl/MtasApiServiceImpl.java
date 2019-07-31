@@ -47,16 +47,16 @@ public class MtasApiServiceImpl implements MtasApiService {
             throw new NotFoundException(Messages.MTA_NOT_FOUND, mtaId);
         }
         return Response.ok()
-            .entity(getMta(mta))
-            .build();
+                       .entity(getMta(mta))
+                       .build();
     }
 
     public Response getMtas(SecurityContext securityContext, String spaceGuid, HttpServletRequest request) {
         authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), spaceGuid, ACTION);
         DeployedComponents deployedComponents = detectDeployedComponents(spaceGuid);
         return Response.ok()
-            .entity(getMtas(deployedComponents))
-            .build();
+                       .entity(getMtas(deployedComponents))
+                       .build();
 
     }
 
@@ -72,9 +72,9 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     private List<Mta> getMtas(DeployedComponents components) {
         return components.getMtas()
-            .stream()
-            .map(this::getMta)
-            .collect(Collectors.toList());
+                         .stream()
+                         .map(this::getMta)
+                         .collect(Collectors.toList());
     }
 
     private Mta getMta(DeployedMta mta) {
@@ -87,8 +87,8 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     private List<Module> getModules(List<DeployedMtaModule> modules) {
         return modules.stream()
-            .map(this::getModule)
-            .collect(Collectors.toList());
+                      .map(this::getModule)
+                      .collect(Collectors.toList());
     }
 
     private Module getModule(DeployedMtaModule module) {
@@ -105,7 +105,7 @@ public class MtasApiServiceImpl implements MtasApiService {
         Metadata result = new Metadata();
         result.setId(metadata.getId());
         result.setVersion(metadata.getVersion()
-            .toString());
+                                  .toString());
         return result;
     }
 }

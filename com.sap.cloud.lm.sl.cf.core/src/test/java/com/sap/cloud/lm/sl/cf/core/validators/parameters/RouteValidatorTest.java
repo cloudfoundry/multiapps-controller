@@ -78,7 +78,7 @@ public class RouteValidatorTest {
     @Test
     public void testGetContainerType() {
         assertTrue(validator.getContainerType()
-            .isAssignableFrom(Module.class));
+                            .isAssignableFrom(Module.class));
     }
 
 }

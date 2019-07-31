@@ -227,38 +227,38 @@ public class Operation implements AuditableConfiguration {
         sb.append("class Operation {\n");
 
         sb.append("    processId: ")
-            .append(toIndentedString(processId))
-            .append("\n");
+          .append(toIndentedString(processId))
+          .append("\n");
         sb.append("    processType: ")
-            .append(toIndentedString(processType))
-            .append("\n");
+          .append(toIndentedString(processType))
+          .append("\n");
         sb.append("    startedAt: ")
-            .append(toIndentedString(startedAt))
-            .append("\n");
+          .append(toIndentedString(startedAt))
+          .append("\n");
         sb.append("    endedAt: ")
-            .append(toIndentedString(endedAt))
-            .append("\n");
+          .append(toIndentedString(endedAt))
+          .append("\n");
         sb.append("    spaceId: ")
-            .append(toIndentedString(spaceId))
-            .append("\n");
+          .append(toIndentedString(spaceId))
+          .append("\n");
         sb.append("    mtaId: ")
-            .append(toIndentedString(mtaId))
-            .append("\n");
+          .append(toIndentedString(mtaId))
+          .append("\n");
         sb.append("    user: ")
-            .append(toIndentedString(user))
-            .append("\n");
+          .append(toIndentedString(user))
+          .append("\n");
         sb.append("    acquiredLock: ")
-            .append(toIndentedString(acquiredLock))
-            .append("\n");
+          .append(toIndentedString(acquiredLock))
+          .append("\n");
         sb.append("    state: ")
-            .append(toIndentedString(state))
-            .append("\n");
+          .append(toIndentedString(state))
+          .append("\n");
         sb.append("    messages: ")
-            .append(toIndentedString(messages))
-            .append("\n");
+          .append(toIndentedString(messages))
+          .append("\n");
         sb.append("    parameters: ")
-            .append(toIndentedString(parameters))
-            .append("\n");
+          .append(toIndentedString(parameters))
+          .append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -271,7 +271,7 @@ public class Operation implements AuditableConfiguration {
             return "null";
         }
         return o.toString()
-            .replace("\n", "\n    ");
+                .replace("\n", "\n    ");
     }
 
     @Override

@@ -42,7 +42,7 @@ public class FssMonitor {
     private boolean isCacheValid(File filePath) {
         LocalDateTime lastChecked = updateTimesMap.get(filePath);
         LocalDateTime invalidateDeadline = LocalDateTime.now()
-            .minusMinutes(updateTimeoutMinutes);
+                                                        .minusMinutes(updateTimeoutMinutes);
         return invalidateDeadline.isBefore(lastChecked);
     }
 

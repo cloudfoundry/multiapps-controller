@@ -13,7 +13,7 @@ public class RequiredDependencyParametersValidator extends ParametersValidator<R
     protected RequiredDependency requiredDependency;
 
     public RequiredDependencyParametersValidator(String prefix, Module module, RequiredDependency requiredDependency,
-        ParametersValidatorHelper helper) {
+                                                 ParametersValidatorHelper helper) {
         super(prefix, requiredDependency.getName(), helper, Module.class);
         this.module = module;
         this.requiredDependency = requiredDependency;

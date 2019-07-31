@@ -119,7 +119,8 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     private Class<? extends RuntimeException> expectedExceptionType;
 
     public ServiceWithAlternativesCreatorTest(String inputLocation, String expected,
-        Class<? extends RuntimeException> expectedExceptionClass) throws ParsingException, IOException {
+                                              Class<? extends RuntimeException> expectedExceptionClass)
+        throws ParsingException, IOException {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, ServiceWithAlternativesCreatorTest.class), Input.class);
         this.expectedExceptionMessage = expected;
         this.expectedExceptionType = expectedExceptionClass;
@@ -140,10 +141,9 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
                 continue;
             }
             HttpStatus httpStatusCode = HttpStatus.valueOf(exchange.responseCode);
-            Mockito
-                .when(getMockedRestTemplate().exchange(Matchers.eq(getControllerUrl() + CREATE_SERVICE_URL), Matchers.eq(HttpMethod.POST),
-                    Matchers.any(), Matchers.eq(String.class)))
-                .thenThrow(new CloudOperationException(httpStatusCode));
+            Mockito.when(getMockedRestTemplate().exchange(Matchers.eq(getControllerUrl() + CREATE_SERVICE_URL),
+                                                          Matchers.eq(HttpMethod.POST), Matchers.any(), Matchers.eq(String.class)))
+                   .thenThrow(new CloudOperationException(httpStatusCode));
         }
     }
 
@@ -164,8 +164,8 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     private void validateRestCall() {
         for (Exchange exchange : input.expectedExchanges) {
             Mockito.verify(getMockedRestTemplate())
-                .exchange(Matchers.eq(getControllerUrl() + CREATE_SERVICE_URL), Matchers.eq(HttpMethod.POST), Matchers.any(),
-                    Matchers.eq(String.class));
+                   .exchange(Matchers.eq(getControllerUrl() + CREATE_SERVICE_URL), Matchers.eq(HttpMethod.POST), Matchers.any(),
+                             Matchers.eq(String.class));
         }
     }
 

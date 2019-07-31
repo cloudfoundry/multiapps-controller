@@ -42,7 +42,7 @@ public class RecentLogsRetrieverTest {
     private RestTemplate restTemplate;
 
     private ExecutionRetrier fastRetrier = new ExecutionRetrier().withRetryCount(1)
-        .withWaitTimeBetweenRetriesInMillis(1);
+                                                                 .withWaitTimeBetweenRetriesInMillis(1);
 
     private RecentLogsRetriever recentLogsRetriever;
 
@@ -64,45 +64,43 @@ public class RecentLogsRetrieverTest {
         this.recentLogsRetriever = new RecentLogsRetrieverMock(restTemplateFactory);
         CloudInfo cloudInfo = Mockito.mock(CloudInfo.class);
         Mockito.when(cloudInfo.getLoggingEndpoint())
-            .thenReturn(LOGGING_ENDPOINT_URL);
+               .thenReturn(LOGGING_ENDPOINT_URL);
         Mockito.when(client.getCloudInfo())
-            .thenReturn(cloudInfo);
+               .thenReturn(cloudInfo);
         Mockito.when(client.getApplication(APP_NAME))
-            .thenReturn(createDummpyApp());
+               .thenReturn(createDummpyApp());
         Mockito.when(client.getCloudControllerUrl())
-            .thenReturn(new URL(CONTROLLER_URL));
+               .thenReturn(new URL(CONTROLLER_URL));
         Mockito.when(restTemplateFactory.getRestTemplate(client))
-            .thenReturn(restTemplate);
+               .thenReturn(restTemplate);
     }
 
     @Test
     public void testGetRecentLogsWithError() {
-        Mockito
-            .when(restTemplate.exchange(LOGGING_ENDPOINT_URL + RecentLogsRetriever.RECENT_LOGS_ENDPOINT, HttpMethod.GET, null,
-                Resource.class, APP_UUID))
-            .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Something fails"));
+        Mockito.when(restTemplate.exchange(LOGGING_ENDPOINT_URL + RecentLogsRetriever.RECENT_LOGS_ENDPOINT, HttpMethod.GET, null,
+                                           Resource.class, APP_UUID))
+               .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Something fails"));
 
         tester.test(() -> recentLogsRetriever.getRecentLogs(client, APP_NAME),
-            new Expectation(Expectation.Type.EXCEPTION, "500 Something fails"));
+                    new Expectation(Expectation.Type.EXCEPTION, "500 Something fails"));
     }
 
     @Test
     public void testGetRecentLogsWithErrorFailSafe() {
         fastRetrier = fastRetrier.failSafe();
-        Mockito
-            .when(restTemplate.exchange(LOGGING_ENDPOINT_URL + RecentLogsRetriever.RECENT_LOGS_ENDPOINT, HttpMethod.GET, null,
-                Resource.class, APP_UUID))
-            .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Something fails"));
+        Mockito.when(restTemplate.exchange(LOGGING_ENDPOINT_URL + RecentLogsRetriever.RECENT_LOGS_ENDPOINT, HttpMethod.GET, null,
+                                           Resource.class, APP_UUID))
+               .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Something fails"));
         assertEquals(null, recentLogsRetriever.getRecentLogs(client, APP_NAME));
     }
 
     private CloudApplication createDummpyApp() {
         return ImmutableCloudApplication.builder()
-            .metadata(ImmutableCloudMetadata.builder()
-                .guid(APP_UUID)
-                .build())
-            .name(APP_NAME)
-            .build();
+                                        .metadata(ImmutableCloudMetadata.builder()
+                                                                        .guid(APP_UUID)
+                                                                        .build())
+                                        .name(APP_NAME)
+                                        .build();
     }
 
 }

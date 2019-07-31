@@ -13,7 +13,6 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 @Component("prepareModulesDeploymentStep")
@@ -32,18 +31,18 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
 
         // Initialize the iteration over the applications list:
         execution.getContext()
-            .setVariable(Constants.VAR_MODULES_COUNT, modulesToDeploy.size());
+                 .setVariable(Constants.VAR_MODULES_COUNT, modulesToDeploy.size());
         execution.getContext()
-            .setVariable(Constants.VAR_MODULES_INDEX, 0);
+                 .setVariable(Constants.VAR_MODULES_INDEX, 0);
         execution.getContext()
-            .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
+                 .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
 
         execution.getContext()
-            .setVariable(Constants.REBUILD_APP_ENV, true);
+                 .setVariable(Constants.REBUILD_APP_ENV, true);
         execution.getContext()
-            .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, true);
+                 .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, true);
         execution.getContext()
-            .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, true);
+                 .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, true);
 
         StepsUtil.setModulesToDeploy(execution.getContext(), modulesToDeploy);
 

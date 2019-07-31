@@ -123,8 +123,8 @@ public class ProcessLogsPersistenceServiceTest {
 
     private File getResourceAsFile(String name) throws URISyntaxException {
         URL resource = Thread.currentThread()
-            .getContextClassLoader()
-            .getResource(name);
+                             .getContextClassLoader()
+                             .getResource(name);
         return new File(resource.toURI());
     }
 
@@ -139,8 +139,8 @@ public class ProcessLogsPersistenceServiceTest {
     private void tearDownConnection() throws Exception {
         // actually close the connection
         testDataSource.getDataSource()
-            .getConnection()
-            .close();
+                      .getConnection()
+                      .close();
     }
 
 }

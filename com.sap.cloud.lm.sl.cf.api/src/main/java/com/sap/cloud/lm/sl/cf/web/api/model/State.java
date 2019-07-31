@@ -9,15 +9,12 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "")
 @XmlEnum(State.class)
 public enum State {
-    RUNNING,
-    FINISHED,
-    ERROR,
-    ABORTED,
-    ACTION_REQUIRED;
+    RUNNING, FINISHED, ERROR, ABORTED, ACTION_REQUIRED;
 
     public static State fromValue(String v) {
         for (State b : State.values()) {
-            if (b.name().equals(v)) {
+            if (b.name()
+                 .equals(v)) {
                 return b;
             }
         }

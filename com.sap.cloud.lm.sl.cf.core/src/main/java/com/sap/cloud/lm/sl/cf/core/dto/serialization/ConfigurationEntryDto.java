@@ -103,8 +103,14 @@ public class ConfigurationEntryDto {
 
     public ConfigurationEntry toConfigurationEntry() {
         CloudTarget target = cloudTarget == null ? ConfigurationEntriesUtil.createImplicitCloudTarget(targetSpace) : cloudTarget;
-        return new ConfigurationEntry(id, getOriginal(providerNid), providerId, getParsedVersion(getOriginal(providerVersion)), target,
-            content, visibility, spaceId);
+        return new ConfigurationEntry(id,
+                                      getOriginal(providerNid),
+                                      providerId,
+                                      getParsedVersion(getOriginal(providerVersion)),
+                                      target,
+                                      content,
+                                      visibility,
+                                      spaceId);
     }
 
     private Version getParsedVersion(String versionString) {

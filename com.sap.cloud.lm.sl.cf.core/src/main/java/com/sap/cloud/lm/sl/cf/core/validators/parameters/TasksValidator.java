@@ -26,15 +26,15 @@ public class TasksValidator implements ParameterValidator {
 
     static {
         TASK.add(TASK_NAME_KEY, new ElementBuilder().type(String.class)
-            .required(true)
-            .buildSimple());
+                                                    .required(true)
+                                                    .buildSimple());
         TASK.add(TASK_COMMAND_KEY, new ElementBuilder().type(String.class)
-            .required(true)
-            .buildSimple());
+                                                       .required(true)
+                                                       .buildSimple());
         TASK.add(TASK_MEMORY_KEY, new ElementBuilder().type(String.class)
-            .buildSimple());
+                                                      .buildSimple());
         TASK.add(TASK_DISK_QUOTA_KEY, new ElementBuilder().type(String.class)
-            .buildSimple());
+                                                          .buildSimple());
     }
 
     @SuppressWarnings("unchecked")

@@ -17,7 +17,7 @@ public class EnvironmentApplicationAttributeUpdater extends ApplicationAttribute
     @Override
     protected boolean shouldUpdateAttribute(CloudApplication app) {
         return !app.getEnv()
-            .equals(existingApp.getEnv());
+                   .equals(existingApp.getEnv());
     }
 
     @Override
@@ -26,7 +26,7 @@ public class EnvironmentApplicationAttributeUpdater extends ApplicationAttribute
         stepLogger.debug("Updated env: {0}", JsonUtil.toJson(app.getEnv(), true));
 
         Map<String, String> updateEnv = ElementUpdater.getUpdater(updateBehavior)
-            .updateMap(existingApp.getEnv(), app.getEnv());
+                                                      .updateMap(existingApp.getEnv(), app.getEnv());
         client.updateApplicationEnv(app.getName(), updateEnv);
 
         return UpdateState.UPDATED;

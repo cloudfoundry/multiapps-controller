@@ -46,7 +46,7 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
     @Before
     public void setUp() {
         Mockito.when(context.getProcessInstanceId())
-            .thenReturn(PROCESS_ID);
+               .thenReturn(PROCESS_ID);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
             fail();
         } catch (Exception e) {
             Mockito.verify(context)
-                .setVariable(Constants.VAR_ERROR_TYPE, expectedErrorType.toString());
+                   .setVariable(Constants.VAR_ERROR_TYPE, expectedErrorType.toString());
         }
     }
 

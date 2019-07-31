@@ -82,15 +82,15 @@ public class HealthCheckOperation {
     public static HealthCheckOperation fromOperation(Operation operation) {
         long durationInSeconds = ChronoUnit.SECONDS.between(operation.getStartedAt(), operation.getEndedAt());
         return new Builder().id(operation.getProcessId())
-            .type(operation.getProcessType())
-            .startedAt(operation.getStartedAt())
-            .endedAt(operation.getEndedAt())
-            .durationInSeconds(durationInSeconds)
-            .state(operation.getState())
-            .spaceId(operation.getSpaceId())
-            .mtaId(operation.getMtaId())
-            .user(operation.getUser())
-            .build();
+                            .type(operation.getProcessType())
+                            .startedAt(operation.getStartedAt())
+                            .endedAt(operation.getEndedAt())
+                            .durationInSeconds(durationInSeconds)
+                            .state(operation.getState())
+                            .spaceId(operation.getSpaceId())
+                            .mtaId(operation.getMtaId())
+                            .user(operation.getUser())
+                            .build();
     }
 
     public static class Builder {

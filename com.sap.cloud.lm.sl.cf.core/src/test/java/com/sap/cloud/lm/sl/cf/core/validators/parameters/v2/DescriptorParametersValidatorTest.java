@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.mta.model.Resource;
 public class DescriptorParametersValidatorTest {
 
     protected static final List<ParameterValidator> PARAMETER_VALIDATORS = Arrays.asList(new HostValidator(), new DomainValidator(),
-        new TestValidator(), new RouteValidator());
+                                                                                         new TestValidator(), new RouteValidator());
 
     private Tester tester = Tester.forClass(getClass());
 

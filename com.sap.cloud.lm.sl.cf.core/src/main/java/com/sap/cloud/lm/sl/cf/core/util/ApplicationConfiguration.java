@@ -216,20 +216,23 @@ public class ApplicationConfiguration {
         Set<String> notSensitiveConfigVariables = getNotSensitiveConfigVariables();
         Map<String, String> env = environment.getAllVariables();
         return env.entrySet()
-            .stream()
-            .filter(envVariable -> notSensitiveConfigVariables.contains(envVariable.getKey()))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                  .stream()
+                  .filter(envVariable -> notSensitiveConfigVariables.contains(envVariable.getKey()))
+                  .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private Set<String> getNotSensitiveConfigVariables() {
         return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_DB_TYPE, CFG_PLATFORM, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE,
-            CFG_MAX_MANIFEST_SIZE, CFG_MAX_RESOURCE_FILE_SIZE, CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED,
-            CFG_GLOBAL_AUDITOR_USER, CFG_STEP_POLLING_INTERVAL_IN_SECONDS, CFG_SKIP_SSL_VALIDATION, CFG_VERSION,
-            CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE,
-            CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL, CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS,
-            CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS,
-            CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
-            CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE));
+                                           CFG_MAX_MANIFEST_SIZE, CFG_MAX_RESOURCE_FILE_SIZE, CFG_USE_XS_AUDIT_LOGGING,
+                                           CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED, CFG_GLOBAL_AUDITOR_USER,
+                                           CFG_STEP_POLLING_INTERVAL_IN_SECONDS, CFG_SKIP_SSL_VALIDATION, CFG_VERSION,
+                                           CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS,
+                                           CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL,
+                                           CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS,
+                                           CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS,
+                                           CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
+                                           CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
+                                           CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE));
     }
 
     public Configuration getFileConfiguration() {
@@ -728,12 +731,11 @@ public class ApplicationConfiguration {
     }
 
     private HealthCheckConfiguration getHealthCheckConfigurationFromEnvironment() {
-        HealthCheckConfiguration healthCheckConfiguration = new HealthCheckConfiguration.Builder()
-            .spaceId(getHealthCheckSpaceIdFromEnvironment())
-            .mtaId(getHealthCheckMtaIdFromEnvironment())
-            .userName(getHealthCheckUserFromEnvironment())
-            .timeRangeInSeconds(getHealthCheckTimeRangeFromEnvironment())
-            .build();
+        HealthCheckConfiguration healthCheckConfiguration = new HealthCheckConfiguration.Builder().spaceId(getHealthCheckSpaceIdFromEnvironment())
+                                                                                                  .mtaId(getHealthCheckMtaIdFromEnvironment())
+                                                                                                  .userName(getHealthCheckUserFromEnvironment())
+                                                                                                  .timeRangeInSeconds(getHealthCheckTimeRangeFromEnvironment())
+                                                                                                  .build();
         LOGGER.info(format(Messages.HEALTH_CHECK_CONFIGURATION, JsonUtil.toJson(healthCheckConfiguration, true)));
         return healthCheckConfiguration;
     }
@@ -811,7 +813,7 @@ public class ApplicationConfiguration {
 
     private Integer getFlowableJobExecutorQueueCapacityFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
-            DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY);
+                                                       DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY);
         LOGGER.info(format(Messages.FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, value));
         return value;
     }
@@ -833,14 +835,14 @@ public class ApplicationConfiguration {
 
     private Integer getSpaceDeveloperCacheTimeInSecondsFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS,
-            DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
+                                                       DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
         LOGGER.info(format(Messages.SPACE_DEVELOPERS_CACHE_TIME_IN_SECONDS, value));
         return value;
     }
 
     private Integer getControllerClientConnectionPoolSizeFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
-            DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE);
+                                                       DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE);
         LOGGER.info(format(Messages.CONTROLLER_CLIENT_CONNECTION_POOL_SIZE, value));
         return value;
     }

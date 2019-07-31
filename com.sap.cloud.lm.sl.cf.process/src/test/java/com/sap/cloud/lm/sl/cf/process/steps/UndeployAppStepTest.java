@@ -72,7 +72,7 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
         prepareContext();
         prepareClient();
         Mockito.when(client.areTasksSupported())
-            .thenReturn(!stepInput.tasksPerApplication.isEmpty());
+               .thenReturn(!stepInput.tasksPerApplication.isEmpty());
     }
 
     @Test
@@ -102,19 +102,19 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
 
     private void prepareClient() {
         Mockito.when(applicationRoutesGetter.getRoutes(any(), anyString()))
-            .thenAnswer((invocation) -> {
+               .thenAnswer((invocation) -> {
 
-                String appName = (String) invocation.getArguments()[1];
-                return stepInput.appRoutesPerApplication.get(appName);
+                   String appName = (String) invocation.getArguments()[1];
+                   return stepInput.appRoutesPerApplication.get(appName);
 
-            });
+               });
         Mockito.when(client.getTasks(anyString()))
-            .thenAnswer((invocation) -> {
+               .thenAnswer((invocation) -> {
 
-                String appName = (String) invocation.getArguments()[0];
-                return stepInput.tasksPerApplication.get(appName);
+                   String appName = (String) invocation.getArguments()[0];
+                   return stepInput.tasksPerApplication.get(appName);
 
-            });
+               });
     }
 
     protected static class StepInput {

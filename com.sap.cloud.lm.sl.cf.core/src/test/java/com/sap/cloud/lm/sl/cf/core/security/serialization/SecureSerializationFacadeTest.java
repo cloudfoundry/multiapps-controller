@@ -26,7 +26,7 @@ public class SecureSerializationFacadeTest {
     private Expectation expectation;
 
     public SecureSerializationFacadeTest(String objectLocation, Class<?> classOfObject, Collection<String> sensitiveElementNames,
-        Expectation expectation) {
+                                         Expectation expectation) {
         this.objectLocation = objectLocation;
         this.sensitiveElementNames = sensitiveElementNames;
         this.classOfObject = classOfObject;
@@ -66,8 +66,8 @@ public class SecureSerializationFacadeTest {
         Object object = JsonUtil.fromJson(getResourceAsString(objectLocation), classOfObject);
         tester.test(() -> {
             String json = new SecureSerializationFacade().setFormattedOutput(true)
-                .setSensitiveElementNames(sensitiveElementNames)
-                .toJson(object);
+                                                         .setSensitiveElementNames(sensitiveElementNames)
+                                                         .toJson(object);
             return TestUtil.removeCarriageReturns(json);
         }, expectation);
     }

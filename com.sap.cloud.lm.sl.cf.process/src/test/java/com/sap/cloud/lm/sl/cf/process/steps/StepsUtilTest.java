@@ -28,31 +28,31 @@ public class StepsUtilTest {
     @Test
     public void testGetServicesToCreateWithCredentials() throws Exception {
         CloudServiceExtended service = ImmutableCloudServiceExtended.builder()
-            .name("my-service")
-            .putCredential("integer-value", (Integer) 1)
-            .putCredential("double-value", (Double) 1.4)
-            .putCredential("string-value", (String) "1")
-            .build();
+                                                                    .name("my-service")
+                                                                    .putCredential("integer-value", (Integer) 1)
+                                                                    .putCredential("double-value", (Double) 1.4)
+                                                                    .putCredential("string-value", (String) "1")
+                                                                    .build();
 
         StepsUtil.setServicesToCreate(context, Arrays.asList(service));
         List<CloudServiceExtended> actualServicesToCreate = StepsUtil.getServicesToCreate(context);
 
         assertEquals(1, actualServicesToCreate.size());
         assertTrue(!actualServicesToCreate.get(0)
-            .getCredentials()
-            .isEmpty());
+                                          .getCredentials()
+                                          .isEmpty());
         assertEquals(Integer.class, actualServicesToCreate.get(0)
-            .getCredentials()
-            .get("integer-value")
-            .getClass());
+                                                          .getCredentials()
+                                                          .get("integer-value")
+                                                          .getClass());
         assertEquals(Double.class, actualServicesToCreate.get(0)
-            .getCredentials()
-            .get("double-value")
-            .getClass());
+                                                         .getCredentials()
+                                                         .get("double-value")
+                                                         .getClass());
         assertEquals(String.class, actualServicesToCreate.get(0)
-            .getCredentials()
-            .get("string-value")
-            .getClass());
+                                                         .getCredentials()
+                                                         .get("string-value")
+                                                         .getClass());
     }
 
     @Test
@@ -65,30 +65,30 @@ public class StepsUtilTest {
         bindingParameters.put("service-1", serviceBindingParameters);
 
         CloudApplicationExtended application = ImmutableCloudApplicationExtended.builder()
-            .name("my-application")
-            .bindingParameters(bindingParameters)
-            .build();
+                                                                                .name("my-application")
+                                                                                .bindingParameters(bindingParameters)
+                                                                                .build();
 
         StepsUtil.setApp(context, application);
         CloudApplicationExtended actualAppToDeploy = StepsUtil.getApp(context);
 
         assertTrue(!actualAppToDeploy.getBindingParameters()
-            .isEmpty());
+                                     .isEmpty());
         assertTrue(!actualAppToDeploy.getBindingParameters()
-            .get("service-1")
-            .isEmpty());
+                                     .get("service-1")
+                                     .isEmpty());
         assertEquals(Integer.class, actualAppToDeploy.getBindingParameters()
-            .get("service-1")
-            .get("integer-value")
-            .getClass());
+                                                     .get("service-1")
+                                                     .get("integer-value")
+                                                     .getClass());
         assertEquals(Double.class, actualAppToDeploy.getBindingParameters()
-            .get("service-1")
-            .get("double-value")
-            .getClass());
+                                                    .get("service-1")
+                                                    .get("double-value")
+                                                    .getClass());
         assertEquals(String.class, actualAppToDeploy.getBindingParameters()
-            .get("service-1")
-            .get("string-value")
-            .getClass());
+                                                    .get("service-1")
+                                                    .get("string-value")
+                                                    .getClass());
     }
 
     @Test

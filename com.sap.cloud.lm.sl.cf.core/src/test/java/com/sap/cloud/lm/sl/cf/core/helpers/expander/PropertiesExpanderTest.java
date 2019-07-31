@@ -62,7 +62,7 @@ public class PropertiesExpanderTest {
     private Expectation expectation;
 
     public PropertiesExpanderTest(String propertiesLocation, String originalDependencyName, List<String> newDependencyNames,
-        Expectation expectation, List<String> expandedProperties) {
+                                  Expectation expectation, List<String> expandedProperties) {
         this.newDependencyNames = newDependencyNames;
         this.propertiesLocation = propertiesLocation;
         this.originalDependencyName = originalDependencyName;

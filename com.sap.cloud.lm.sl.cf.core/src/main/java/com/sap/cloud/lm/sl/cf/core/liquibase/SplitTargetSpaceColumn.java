@@ -48,7 +48,7 @@ public class SplitTargetSpaceColumn extends AbstractDataTransformationChange<Map
             preparedStatement.setLong(3, entry.getKey());
             preparedStatement.addBatch();
             logger.debug(String.format("Executed update for row ID: '%s' , TARGET_ORG: '%s' , TARGET_SPACE: '%s'", entry.getKey(),
-                cloudTarget.getOrg(), cloudTarget.getSpace()));
+                                       cloudTarget.getOrg(), cloudTarget.getSpace()));
         }
     }
 

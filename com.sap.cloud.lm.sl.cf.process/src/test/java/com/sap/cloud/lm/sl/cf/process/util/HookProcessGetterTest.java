@@ -47,30 +47,30 @@ public class HookProcessGetterTest {
     @Test
     public void testWithHookWhichIsOfUnsupportedType() {
         Mockito.when(flowableFacade.getProcessInstanceId(Mockito.anyString()))
-            .thenReturn("foo-process-id");
+               .thenReturn("foo-process-id");
         Mockito.when(context.getCurrentActivityId())
-            .thenReturn("foo-current-activity-id");
+               .thenReturn("foo-current-activity-id");
 
         Throwable thrownException = Assertions.assertThrows(IllegalStateException.class,
-            () -> getProcessDefinitionForHookWithType("unsupported-hook-type"));
+                                                            () -> getProcessDefinitionForHookWithType("unsupported-hook-type"));
 
         Assertions.assertEquals("Unsupported hook type \"unsupported-hook-type\"", thrownException.getMessage());
 
         Mockito.verify(progressMessageService)
-            .add(ImmutableProgressMessage.builder()
-                .processId("foo-process-id")
-                .taskId("foo-current-activity-id")
-                .type(ProgressMessageType.ERROR)
-                .text(thrownException.getMessage())
-                .timestamp(now)
-                .build());
+               .add(ImmutableProgressMessage.builder()
+                                            .processId("foo-process-id")
+                                            .taskId("foo-current-activity-id")
+                                            .type(ProgressMessageType.ERROR)
+                                            .text(thrownException.getMessage())
+                                            .timestamp(now)
+                                            .build());
     }
 
     private String getProcessDefinitionForHookWithType(String hookType) {
         HookProcessGetter hookProcessGetter = new HookProcessGetterMock(progressMessageService, flowableFacade);
         Hook testHook = Hook.createV3()
-            .setName("foo")
-            .setType(hookType);
+                            .setName("foo")
+                            .setType(hookType);
 
         return hookProcessGetter.get(JsonUtil.toJson(testHook), context);
     }

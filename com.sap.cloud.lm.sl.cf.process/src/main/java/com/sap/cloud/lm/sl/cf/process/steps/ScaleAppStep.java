@@ -40,7 +40,7 @@ public class ScaleAppStep extends SyncFlowableStep {
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
         return MessageFormat.format(Messages.ERROR_SCALING_APP, StepsUtil.getApp(context)
-            .getName());
+                                                                         .getName());
     }
 
 }

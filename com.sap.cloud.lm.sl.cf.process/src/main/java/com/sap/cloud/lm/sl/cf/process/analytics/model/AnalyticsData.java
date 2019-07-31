@@ -57,8 +57,8 @@ public class AnalyticsData {
     }
 
     public AnalyticsData(String processId, ProcessType processType, long startTime, long endTime, long processDurationInSeconds,
-        State processFinalState, String mtaId, String org, String space, String controllerUrl,
-        AbstractCommonProcessAttributes commonProcessVariables) {
+                         State processFinalState, String mtaId, String org, String space, String controllerUrl,
+                         AbstractCommonProcessAttributes commonProcessVariables) {
         this.processId = processId;
         this.processType = processType;
         this.startTime = startTime;

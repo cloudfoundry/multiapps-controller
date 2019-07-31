@@ -34,7 +34,7 @@ public class DetermineTasksFromHookStep extends SyncFlowableStep {
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
         return MessageFormat.format(Messages.ERROR_EXECUTING_HOOK, StepsUtil.getHookForExecution(context)
-            .getName());
+                                                                            .getName());
     }
 
 }

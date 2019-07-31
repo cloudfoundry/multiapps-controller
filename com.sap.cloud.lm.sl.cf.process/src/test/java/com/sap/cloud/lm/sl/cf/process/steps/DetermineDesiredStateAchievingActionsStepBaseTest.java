@@ -57,8 +57,9 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     public ExpectedException expectedException = ExpectedException.none();
 
     public DetermineDesiredStateAchievingActionsStepBaseTest(ApplicationStartupState currentAppState,
-        ApplicationStartupState desiredAppState, boolean hasAppChanged, Set<ApplicationStateAction> expectedAppStateActions,
-        List<CloudBuild> cloudBuilds) {
+                                                             ApplicationStartupState desiredAppState, boolean hasAppChanged,
+                                                             Set<ApplicationStateAction> expectedAppStateActions,
+                                                             List<CloudBuild> cloudBuilds) {
         this.currentAppState = currentAppState;
         this.desiredAppState = desiredAppState;
         this.hasAppChanged = hasAppChanged;
@@ -81,16 +82,16 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
 
     protected static CloudBuild createCloudBuild(CloudBuild.State state, Date createdAt, String error) {
         return ImmutableCloudBuild.builder()
-            .metadata(ImmutableCloudMetadata.builder()
-                .guid(FAKE_UUID)
-                .createdAt(createdAt)
-                .build())
-            .dropletInfo(ImmutableDropletInfo.builder()
-                .guid(FAKE_UUID)
-                .build())
-            .state(state)
-            .error(error)
-            .build();
+                                  .metadata(ImmutableCloudMetadata.builder()
+                                                                  .guid(FAKE_UUID)
+                                                                  .createdAt(createdAt)
+                                                                  .build())
+                                  .dropletInfo(ImmutableDropletInfo.builder()
+                                                                   .guid(FAKE_UUID)
+                                                                   .build())
+                                  .state(state)
+                                  .error(error)
+                                  .build();
     }
 
     protected static Date parseDate(String date) {
@@ -122,17 +123,17 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     private void prepareClient() {
         RestartParameters restartParameters = getRestartParameters();
         CloudMetadata metadata = ImmutableCloudMetadata.builder()
-            .guid(FAKE_UUID)
-            .build();
+                                                       .guid(FAKE_UUID)
+                                                       .build();
 
         CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
-            .metadata(metadata)
-            .name(DUMMY)
-            .restartParameters(restartParameters)
-            .build();
+                                                                        .metadata(metadata)
+                                                                        .name(DUMMY)
+                                                                        .restartParameters(restartParameters)
+                                                                        .build();
         context.setVariable(Constants.VAR_APP_TO_PROCESS, JsonUtil.toJson(app));
         when(client.getApplication(anyString())).thenReturn(app);
         when(client.getBuildsForApplication(app.getMetadata()
-            .getGuid())).thenReturn(cloudBuilds);
+                                               .getGuid())).thenReturn(cloudBuilds);
     }
 }

@@ -6,8 +6,8 @@ import java.util.function.BiPredicate;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -40,12 +40,12 @@ public class ConfigurationFilter {
     }
 
     public ConfigurationFilter(String providerNid, String providerId, String providerVersion, CloudTarget targetSpace,
-        Map<String, Object> requiredContent) {
+                               Map<String, Object> requiredContent) {
         this(providerNid, providerId, providerVersion, targetSpace, requiredContent, true);
     }
 
     public ConfigurationFilter(String providerNid, String providerId, String providerVersion, CloudTarget targetSpace,
-        Map<String, Object> requiredContent, boolean strictTargetSpace) {
+                               Map<String, Object> requiredContent, boolean strictTargetSpace) {
         this.providerId = providerId;
         this.requiredContent = requiredContent;
         this.providerNid = providerNid;
@@ -89,7 +89,7 @@ public class ConfigurationFilter {
             return false;
         }
         if (providerVersion != null && (entry.getProviderVersion() == null || !entry.getProviderVersion()
-            .satisfies(providerVersion))) {
+                                                                                    .satisfies(providerVersion))) {
             return false;
         }
         return requiredContent == null || CONTENT_FILTER.test(entry.getContent(), requiredContent);
@@ -107,8 +107,8 @@ public class ConfigurationFilter {
                 return false;
             }
             return requiredProperties.entrySet()
-                .stream()
-                .allMatch(requiredEntry -> exists(parsedContent, requiredEntry));
+                                     .stream()
+                                     .allMatch(requiredEntry -> exists(parsedContent, requiredEntry));
         }
 
         private boolean exists(Map<String, Object> content, Map.Entry<String, Object> requiredEntry) {

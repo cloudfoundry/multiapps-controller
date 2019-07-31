@@ -54,7 +54,7 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
             new ClientHelper(client).deleteRoute(uri);
         } catch (CloudOperationException e) {
             if (!e.getStatusCode()
-                .equals(HttpStatus.CONFLICT)) {
+                  .equals(HttpStatus.CONFLICT)) {
                 throw e;
             }
             getStepLogger().info(Messages.ROUTE_NOT_DELETED, uri);

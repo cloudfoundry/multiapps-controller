@@ -1,13 +1,14 @@
 package com.sap.cloud.lm.sl.cf.core.cf;
 
-import com.sap.cloud.lm.sl.cf.client.CloudFoundryTokenProvider;
-import com.sap.cloud.lm.sl.cf.client.TokenProvider;
-import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.cloudfoundry.client.lib.CloudCredentials;
 import org.cloudfoundry.client.lib.oauth2.OAuthClient;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import com.sap.cloud.lm.sl.cf.client.CloudFoundryTokenProvider;
+import com.sap.cloud.lm.sl.cf.client.TokenProvider;
+import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 
 @Named
 public class TokenProviderFactory {

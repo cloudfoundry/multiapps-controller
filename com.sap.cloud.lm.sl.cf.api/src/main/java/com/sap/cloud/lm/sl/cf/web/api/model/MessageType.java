@@ -32,7 +32,8 @@ public enum MessageType {
 
     public static MessageType fromValue(String v) {
         for (MessageType b : MessageType.values()) {
-            if (String.valueOf(b.value).equals(v)) {
+            if (String.valueOf(b.value)
+                      .equals(v)) {
                 return b;
             }
         }

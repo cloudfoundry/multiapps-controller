@@ -18,17 +18,17 @@ public class TargetWildcardFilter implements BiPredicate<CloudTarget, CloudTarge
 
         if (ANY_TARGET_WILDCARD.equals(requestedTarget.getOrg())) {
             return actualEntryTarget.getSpace()
-                .equals(requestedTarget.getSpace());
+                                    .equals(requestedTarget.getSpace());
         }
 
         if (ANY_TARGET_WILDCARD.equals(requestedTarget.getSpace())) {
             return actualEntryTarget.getOrg()
-                .equals(requestedTarget.getOrg());
+                                    .equals(requestedTarget.getOrg());
         }
 
         return actualEntryTarget.getOrg()
-            .equals(requestedTarget.getOrg())
+                                .equals(requestedTarget.getOrg())
             && actualEntryTarget.getSpace()
-                .equals(requestedTarget.getSpace());
+                                .equals(requestedTarget.getSpace());
     }
 }

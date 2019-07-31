@@ -75,8 +75,8 @@ public class FlowableHistoricDataCleanerTest {
 
     private long getTotalProcessesCount(List<List<HistoricProcessInstance>> pages) {
         return pages.stream()
-            .flatMap(page -> page.stream())
-            .count();
+                    .flatMap(page -> page.stream())
+                    .count();
     }
 
     @Test
@@ -89,7 +89,7 @@ public class FlowableHistoricDataCleanerTest {
         HistoricProcessInstanceQuery query = mockHistoricProcessInstanceQueryWithPages(Arrays.asList(page1, page2));
         when(historyService.createHistoricProcessInstanceQuery()).thenReturn(query);
         doThrow(new FlowableObjectNotFoundException("Oops! Someone was faster than you!")).when(historyService)
-            .deleteHistoricProcessInstance(OPERATION_ID_1);
+                                                                                          .deleteHistoricProcessInstance(OPERATION_ID_1);
 
         cleaner.execute(EXPIRATION_TIME);
         verify(historyService).deleteHistoricProcessInstance(OPERATION_ID_1);

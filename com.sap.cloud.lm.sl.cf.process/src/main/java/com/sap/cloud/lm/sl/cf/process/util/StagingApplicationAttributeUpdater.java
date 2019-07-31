@@ -38,7 +38,7 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
 
     private boolean isDockerInfoModified(DockerInfo existingDockerInfo, DockerInfo newDockerInfo) {
         return existingDockerInfo != null && newDockerInfo != null && !existingDockerInfo.getImage()
-            .equals(newDockerInfo.getImage());
+                                                                                         .equals(newDockerInfo.getImage());
     }
 
     @Override

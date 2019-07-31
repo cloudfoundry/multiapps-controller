@@ -26,8 +26,7 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
     @Inject
     private OperationDao operationDao;
 
-    protected Function<OperationDao, ProcessConflictPreventer> conflictPreventerSupplier = dao -> new ProcessConflictPreventer(
-        operationDao);
+    protected Function<OperationDao, ProcessConflictPreventer> conflictPreventerSupplier = dao -> new ProcessConflictPreventer(operationDao);
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -41,11 +40,11 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
         StepsUtil.setAllModulesToDeploy(execution.getContext(), Collections.emptyList());
         StepsUtil.setSubscriptionsToCreate(execution.getContext(), Collections.emptyList());
         execution.getContext()
-            .setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 2);
+                 .setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 2);
 
         conflictPreventerSupplier.apply(operationDao)
-            .acquireLock(mtaId, StepsUtil.getSpaceId(execution.getContext()), execution.getContext()
-                .getProcessInstanceId());
+                                 .acquireLock(mtaId, StepsUtil.getSpaceId(execution.getContext()), execution.getContext()
+                                                                                                            .getProcessInstanceId());
 
         getStepLogger().debug(Messages.COMPONENTS_TO_UNDEPLOY_DETECTED);
 
@@ -64,9 +63,9 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
         }
 
         return deployedMta.getModules()
-            .stream()
-            .map(DeployedMtaModule::getModuleName)
-            .collect(Collectors.toSet());
+                          .stream()
+                          .map(DeployedMtaModule::getModuleName)
+                          .collect(Collectors.toSet());
     }
 
 }

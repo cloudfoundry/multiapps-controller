@@ -59,7 +59,8 @@ public class UriParametersParserTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testUriParameterParsing(String host, String domain, List<String> hosts, List<String> domains, List<String> routes, Expectation expectation) {
+    public void testUriParameterParsing(String host, String domain, List<String> hosts, List<String> domains, List<String> routes,
+                                        Expectation expectation) {
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put(SupportedParameters.HOST, host);
         parameterMap.put(SupportedParameters.HOSTS, hosts);

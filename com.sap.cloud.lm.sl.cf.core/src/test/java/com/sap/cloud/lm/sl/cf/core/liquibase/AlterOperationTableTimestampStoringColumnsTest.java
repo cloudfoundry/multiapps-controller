@@ -66,7 +66,7 @@ public class AlterOperationTableTimestampStoringColumnsTest {
     private Class<? extends Throwable> expectedExceptionType;
 
     public AlterOperationTableTimestampStoringColumnsTest(String originalOperationsJsonLocation, String expectedOperationsJsonLocation,
-        Class<? extends Exception> expectedExceptionType) {
+                                                          Class<? extends Exception> expectedExceptionType) {
         this.originalOperationsJsonLocation = originalOperationsJsonLocation;
         this.expectedOperationsJsonLocation = expectedOperationsJsonLocation;
         this.expectedExceptionType = expectedExceptionType;

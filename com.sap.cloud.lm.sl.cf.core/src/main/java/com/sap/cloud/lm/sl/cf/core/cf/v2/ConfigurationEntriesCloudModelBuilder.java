@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,20 +34,21 @@ public class ConfigurationEntriesCloudModelBuilder {
 
     public Map<String, List<ConfigurationEntry>> build(DeploymentDescriptor deploymentDescriptor) {
         return deploymentDescriptor.getModules()
-            .stream()
-            .collect(Collectors.toMap(Module::getName, module -> createConfigurationEntries(module, deploymentDescriptor)));
+                                   .stream()
+                                   .collect(Collectors.toMap(Module::getName,
+                                                             module -> createConfigurationEntries(module, deploymentDescriptor)));
     }
 
     private List<ConfigurationEntry> createConfigurationEntries(Module module, DeploymentDescriptor deploymentDescriptor) {
-        return getPublicProvidedDependencies(module)
-            .map(providedDependency -> createConfigurationEntry(deploymentDescriptor, providedDependency))
-            .collect(Collectors.toList());
+        return getPublicProvidedDependencies(module).map(providedDependency -> createConfigurationEntry(deploymentDescriptor,
+                                                                                                        providedDependency))
+                                                    .collect(Collectors.toList());
     }
 
     private Stream<ProvidedDependency> getPublicProvidedDependencies(Module module) {
         return module.getProvidedDependencies()
-            .stream()
-            .filter(ProvidedDependency::isPublic);
+                     .stream()
+                     .filter(ProvidedDependency::isPublic);
     }
 
     private ConfigurationEntry createConfigurationEntry(DeploymentDescriptor deploymentDescriptor, ProvidedDependency providedDependency) {
@@ -69,15 +70,15 @@ public class ConfigurationEntriesCloudModelBuilder {
         visibility.add(new CloudTarget(orgName, spaceName));
 
         for (Map<String, Object> visibleTarget : visibleTargets) {
-            visibility.add(
-                new CloudTarget(getElement(visibleTarget, SupportedParameters.ORG), getElement(visibleTarget, SupportedParameters.SPACE)));
+            visibility.add(new CloudTarget(getElement(visibleTarget, SupportedParameters.ORG),
+                                           getElement(visibleTarget, SupportedParameters.SPACE)));
         }
         return new ArrayList<>(visibility);
     }
 
     protected List<Map<String, Object>> getVisibleTargets(ProvidedDependency providedDependency) {
         return CommonUtil.cast(providedDependency.getParameters()
-            .get(SupportedParameters.VISIBILITY));
+                                                 .get(SupportedParameters.VISIBILITY));
     }
 
     private String getElement(Map<String, Object> map, String elementName) {

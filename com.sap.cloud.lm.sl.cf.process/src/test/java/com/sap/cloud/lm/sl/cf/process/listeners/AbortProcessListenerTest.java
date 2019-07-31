@@ -90,7 +90,7 @@ public class AbortProcessListenerTest {
         AbortProcessListener abortListener = new AbortProcessListenerMock();
 
         public AbortProcessListenerFileCleanupTest(String archiveIds, String extensionDescriptorIds, boolean shouldKeepFiles,
-            String[] expectedFileIdsToSweep) {
+                                                   String[] expectedFileIdsToSweep) {
             this.archiveIds = archiveIds;
             this.extensionDescriptorIds = extensionDescriptorIds;
             this.shouldKeepFiles = shouldKeepFiles;
@@ -107,7 +107,7 @@ public class AbortProcessListenerTest {
             abortListener.deleteDeploymentFiles(mock(HistoryService.class), PROCESS_INSTANCE_ID);
             for (String fileId : expectedFileIdsToSweep) {
                 Mockito.verify(fileService)
-                    .deleteFile(SPACE_ID, fileId);
+                       .deleteFile(SPACE_ID, fileId);
             }
         }
 
@@ -117,7 +117,7 @@ public class AbortProcessListenerTest {
 
             @Override
             protected HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId,
-                String parameter) {
+                                                                           String parameter) {
                 switch (parameter) {
                     case com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID:
                         return createInstanceMock(SPACE_ID);
@@ -135,7 +135,7 @@ public class AbortProcessListenerTest {
             private HistoricVariableInstance createInstanceMock(Object parameterValue) {
                 HistoricVariableInstance instanceMock = Mockito.mock(HistoricVariableInstance.class);
                 Mockito.when(instanceMock.getValue())
-                    .thenReturn(parameterValue);
+                       .thenReturn(parameterValue);
                 return instanceMock;
             }
 

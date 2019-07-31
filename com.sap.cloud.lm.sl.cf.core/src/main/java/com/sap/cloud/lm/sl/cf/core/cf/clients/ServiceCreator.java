@@ -38,7 +38,7 @@ public class ServiceCreator extends CloudServiceOperator {
 
         RestTemplate restTemplate = getRestTemplate(client);
         String cloudControllerUrl = client.getCloudControllerUrl()
-            .toString();
+                                          .toString();
         CloudServicePlan cloudServicePlan = findPlanForService(client, service);
 
         Map<String, Object> serviceRequest = createServiceRequest(service, spaceId, cloudServicePlan);
@@ -53,8 +53,8 @@ public class ServiceCreator extends CloudServiceOperator {
         serviceRequest.put(SPACE_GUID, spaceId);
         serviceRequest.put(SERVICE_NAME, service.getName());
         serviceRequest.put(SERVICE_PLAN_GUID, cloudServicePlan.getMetadata()
-            .getGuid()
-            .toString());
+                                                              .getGuid()
+                                                              .toString());
         serviceRequest.put(SERVICE_PARAMETERS, service.getCredentials());
         serviceRequest.put(SERVICE_TAGS, service.getTags());
         return serviceRequest;

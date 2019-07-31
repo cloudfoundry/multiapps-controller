@@ -34,9 +34,9 @@ public class FlowableConfigurationTest {
     @MethodSource
     public void testJobExecutorId(String applicationId, Integer applicationInstanceIndex, String expectedJobExecutorId) {
         Mockito.when(applicationConfiguration.getApplicationInstanceIndex())
-            .thenReturn(applicationInstanceIndex);
+               .thenReturn(applicationInstanceIndex);
         Mockito.when(applicationConfiguration.getApplicationId())
-            .thenReturn(applicationId);
+               .thenReturn(applicationId);
 
         String jobExecutorId = flowableConfiguration.jobExecutorId(applicationConfiguration);
 

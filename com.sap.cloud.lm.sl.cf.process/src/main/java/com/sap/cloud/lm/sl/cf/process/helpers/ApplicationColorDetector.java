@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.helpers;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -13,13 +12,13 @@ import org.flowable.variable.api.history.HistoricVariableInstance;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
-import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
@@ -43,19 +42,19 @@ public class ApplicationColorDetector {
         ApplicationColor olderApplicationColor = getOlderApplicationColor(deployedMta);
         Operation currentOperation = operationDao.find(correlationId);
 
-        List<Operation> operations = operationDao
-            .find(createLatestOperationFilter(currentOperation.getMtaId(), currentOperation.getSpaceId()));
+        List<Operation> operations = operationDao.find(createLatestOperationFilter(currentOperation.getMtaId(),
+                                                                                   currentOperation.getSpaceId()));
         if (CollectionUtils.isEmpty(operations)) {
             return olderApplicationColor;
         }
 
         if (operations.get(0)
-            .getState() != State.ABORTED) {
+                      .getState() != State.ABORTED) {
             return olderApplicationColor;
         }
-        String xs2BlueGreenDeployHistoricProcessInstanceId = flowableFacade
-            .findHistoricProcessInstanceIdByProcessDefinitionKey(operations.get(0)
-                .getProcessId(), Constants.BLUE_GREEN_DEPLOY_SERVICE_ID);
+        String xs2BlueGreenDeployHistoricProcessInstanceId = flowableFacade.findHistoricProcessInstanceIdByProcessDefinitionKey(operations.get(0)
+                                                                                                                                          .getProcessId(),
+                                                                                                                                Constants.BLUE_GREEN_DEPLOY_SERVICE_ID);
 
         ApplicationColor latestDeployedColor = getColorFromHistoricProcess(xs2BlueGreenDeployHistoricProcessInstanceId);
         Phase phase = getPhaseFromHistoricProcess(xs2BlueGreenDeployHistoricProcessInstanceId);
@@ -77,8 +76,9 @@ public class ApplicationColorDetector {
                 deployedApplicationColor = (moduleApplicationColor);
             }
             if (deployedApplicationColor != moduleApplicationColor) {
-                throw new ConflictException(Messages.CONFLICTING_APP_COLORS, deployedMta.getMetadata()
-                    .getId());
+                throw new ConflictException(Messages.CONFLICTING_APP_COLORS,
+                                            deployedMta.getMetadata()
+                                                       .getId());
             }
         }
         return deployedApplicationColor;
@@ -86,29 +86,29 @@ public class ApplicationColorDetector {
 
     private ApplicationColor getOlderApplicationColor(DeployedMta deployedMta) {
         return deployedMta.getModules()
-            .stream()
-            .min(Comparator.comparing(DeployedMtaModule::getCreatedOn))
-            .map(this::getApplicationColor)
-            .orElse(null);
+                          .stream()
+                          .min(Comparator.comparing(DeployedMtaModule::getCreatedOn))
+                          .map(this::getApplicationColor)
+                          .orElse(null);
     }
 
     private ApplicationColor getApplicationColor(DeployedMtaModule deployedMtaModule) {
         return Arrays.stream(ApplicationColor.values())
-            .filter(color -> deployedMtaModule.getAppName()
-                .endsWith(color.asSuffix()))
-            .findFirst()
-            .orElse(COLOR_OF_APPLICATIONS_WITHOUT_SUFFIX);
+                     .filter(color -> deployedMtaModule.getAppName()
+                                                       .endsWith(color.asSuffix()))
+                     .findFirst()
+                     .orElse(COLOR_OF_APPLICATIONS_WITHOUT_SUFFIX);
     }
 
     private OperationFilter createLatestOperationFilter(String mtaId, String spaceId) {
         return new OperationFilter.Builder().mtaId(mtaId)
-            .processType(ProcessType.BLUE_GREEN_DEPLOY)
-            .spaceId(spaceId)
-            .inFinalState()
-            .orderByEndTime()
-            .descending()
-            .maxResults(1)
-            .build();
+                                            .processType(ProcessType.BLUE_GREEN_DEPLOY)
+                                            .spaceId(spaceId)
+                                            .inFinalState()
+                                            .orderByEndTime()
+                                            .descending()
+                                            .maxResults(1)
+                                            .build();
     }
 
     private Phase getPhaseFromHistoricProcess(String processInstanceId) {
@@ -122,7 +122,7 @@ public class ApplicationColorDetector {
 
     private ApplicationColor getColorFromHistoricProcess(String processInstanceId) {
         HistoricVariableInstance colorVariableInstance = flowableFacade.getHistoricVariableInstance(processInstanceId,
-            Constants.VAR_MTA_COLOR);
+                                                                                                    Constants.VAR_MTA_COLOR);
         if (colorVariableInstance == null) {
             return null;
         }

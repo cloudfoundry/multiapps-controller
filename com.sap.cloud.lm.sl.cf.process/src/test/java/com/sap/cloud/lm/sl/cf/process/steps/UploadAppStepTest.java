@@ -138,7 +138,7 @@ public class UploadAppStepTest {
 
         private void assertCall(String variableName, String variableValue) {
             Mockito.verify(context)
-                .setVariable(variableName, variableValue);
+                   .setVariable(variableName, variableValue);
         }
 
         public void loadParameters() throws Exception {
@@ -154,9 +154,9 @@ public class UploadAppStepTest {
 
         public void prepareContext() throws Exception {
             CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
-                .name(APP_NAME)
-                .moduleName(APP_NAME)
-                .build();
+                                                                            .name(APP_NAME)
+                                                                            .moduleName(APP_NAME)
+                                                                            .build();
             StepsUtil.setApp(context, app);
             context.setVariable(Constants.VAR_MODULES_INDEX, 0);
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
@@ -188,7 +188,7 @@ public class UploadAppStepTest {
                     return null;
                 }
             }).when(fileService)
-                .processFileContent(any());
+              .processFileContent(any());
         }
 
         private class UploadAppStepMock extends UploadAppStep {
@@ -200,7 +200,7 @@ public class UploadAppStepTest {
 
             @Override
             protected ApplicationArchiveContext createApplicationArchiveContext(InputStream appArchiveStream, String fileName,
-                long maxSize) {
+                                                                                long maxSize) {
                 return super.createApplicationArchiveContext(getClass().getResourceAsStream(APP_ARCHIVE), fileName, maxSize);
             }
 
@@ -243,8 +243,8 @@ public class UploadAppStepTest {
         @Test
         public void testGetTimeoutWithoutAppParameter() {
             CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
-                .name(APP_NAME)
-                .build();
+                                                                            .name(APP_NAME)
+                                                                            .build();
 
             testGetTimeout(app, UploadAppStep.DEFAULT_APP_UPLOAD_TIMEOUT);
         }
@@ -252,9 +252,10 @@ public class UploadAppStepTest {
         @Test
         public void testGetTimeoutWithAppParameter() {
             CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
-                .name(APP_NAME)
-                .env(MapUtil.asMap(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, "{\"upload-timeout\":1800}"))
-                .build();
+                                                                            .name(APP_NAME)
+                                                                            .env(MapUtil.asMap(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES,
+                                                                                               "{\"upload-timeout\":1800}"))
+                                                                            .build();
 
             testGetTimeout(app, 1800);
         }
@@ -285,7 +286,9 @@ public class UploadAppStepTest {
 
         private void prepareContext() {
             // module name must be null
-            CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder().name(APP_NAME).build();
+            CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
+                                                                            .name(APP_NAME)
+                                                                            .build();
             StepsUtil.setApp(context, app);
             context.setVariable(Constants.VAR_MODULES_INDEX, 0);
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);

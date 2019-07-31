@@ -366,7 +366,7 @@ public class MockDelegateExecution implements DelegateExecution {
     public FlowElement getCurrentFlowElement() {
         FlowElement mockFlowElement = Mockito.mock(FlowElement.class);
         Mockito.when(mockFlowElement.getName())
-            .thenReturn("Default Name");
+               .thenReturn("Default Name");
         return mockFlowElement;
     }
 

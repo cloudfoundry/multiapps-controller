@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
@@ -34,6 +33,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 
@@ -65,24 +65,24 @@ public class AuthorizationCheckerTest {
 
     public static Stream<Arguments> checkPermissionsTest() {
         return Stream.of(
-            // (0) User has access
-            Arguments.of(true, true),
-            // (1) User has access but no permissions
-            Arguments.of(true, false),
-            // (2) User has permissions but no access
-            Arguments.of(false, true),
-            // (3) User has no permissions and no access
-            Arguments.of(false, false));
+                         // (0) User has access
+                         Arguments.of(true, true),
+                         // (1) User has access but no permissions
+                         Arguments.of(true, false),
+                         // (2) User has permissions but no access
+                         Arguments.of(false, true),
+                         // (3) User has no permissions and no access
+                         Arguments.of(false, false));
     }
 
     public static Stream<Arguments> checkPermissionTest2() {
         return Stream.of(
-            // (0) User has access
-            Arguments.of(true, true),
-            // (1) User has access but no permissions
-            // Arguments.of(true, false),
-            // (3) User has permissions but no access
-            Arguments.of(false, true));
+                         // (0) User has access
+                         Arguments.of(true, true),
+                         // (1) User has access but no permissions
+                         // Arguments.of(true, false),
+                         // (3) User has permissions but no access
+                         Arguments.of(false, true));
         // (4) User has no permissions and no access
         // Arguments.of(false, false));
     }
@@ -126,17 +126,17 @@ public class AuthorizationCheckerTest {
 
         assertTrue(authorizationChecker.checkPermissions(userInfo, SPACE_ID, false));
         Mockito.verify(client, Mockito.times(1))
-            .getSpaceDevelopers(Mockito.eq(UUID.fromString(SPACE_ID)));
+               .getSpaceDevelopers(Mockito.eq(UUID.fromString(SPACE_ID)));
 
         assertTrue(authorizationChecker.checkPermissions(userInfo, SPACE_ID, false));
         Mockito.verify(client, Mockito.times(1))
-            .getSpaceDevelopers(Mockito.eq(UUID.fromString(SPACE_ID)));
+               .getSpaceDevelopers(Mockito.eq(UUID.fromString(SPACE_ID)));
 
         assertTrue(authorizationChecker.checkPermissions(userInfo, SECOND_SPACE_ID, false));
         Mockito.verify(client, Mockito.times(1))
-            .getSpaceDevelopers(Mockito.eq(UUID.fromString(SPACE_ID)));
+               .getSpaceDevelopers(Mockito.eq(UUID.fromString(SPACE_ID)));
         Mockito.verify(client, Mockito.times(1))
-            .getSpaceDevelopers(Mockito.eq(UUID.fromString(SECOND_SPACE_ID)));
+               .getSpaceDevelopers(Mockito.eq(UUID.fromString(SECOND_SPACE_ID)));
     }
 
     @Test
@@ -146,7 +146,7 @@ public class AuthorizationCheckerTest {
 
         assertTrue(authorizationChecker.checkPermissions(userInfo, THIRD_SPACE_ID, false));
         Mockito.verify(client, Mockito.times(1))
-            .getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)));
+               .getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)));
 
         UUID newUserId = UUID.fromString("6c02b5bc-b9b1-38d7-b332-1dfdb2ba85a0");
         UserInfo negativeUser = new UserInfo(newUserId.toString(), "newUser", userInfo.getToken());
@@ -155,19 +155,19 @@ public class AuthorizationCheckerTest {
 
         assertTrue(authorizationChecker.checkPermissions(negativeUser, THIRD_SPACE_ID, false));
         Mockito.verify(client, Mockito.times(2))
-            .getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)));
+               .getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)));
     }
 
     private void setUpMocks(boolean hasPermissions, boolean hasAccess, Exception e) {
         DefaultOAuth2AccessToken accessToken = new DefaultOAuth2AccessToken("testTokenValue");
         accessToken.setScope(new HashSet<>());
         CloudOrganization organization = ImmutableCloudOrganization.builder()
-            .name(ORG)
-            .build();
+                                                                   .name(ORG)
+                                                                   .build();
         CloudSpace space = ImmutableCloudSpace.builder()
-            .name(SPACE)
-            .organization(organization)
-            .build();
+                                              .name(SPACE)
+                                              .organization(organization)
+                                              .build();
         ClientHelper clientHelper = Mockito.mock(ClientHelper.class);
 
         if (hasAccess) {
@@ -192,7 +192,6 @@ public class AuthorizationCheckerTest {
         }
 
         when(clientProvider.getControllerClient(userInfo.getName())).thenReturn(client);
-        when(applicationConfiguration.getFssCacheUpdateTimeoutMinutes())
-            .thenReturn(ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
+        when(applicationConfiguration.getFssCacheUpdateTimeoutMinutes()).thenReturn(ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
     }
 }

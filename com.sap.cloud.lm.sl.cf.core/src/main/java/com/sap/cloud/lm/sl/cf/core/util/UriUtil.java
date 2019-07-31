@@ -2,9 +2,10 @@ package com.sap.cloud.lm.sl.cf.core.util;
 
 import java.util.List;
 
+import org.cloudfoundry.client.lib.domain.CloudRoute;
+
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.NotFoundException;
-import org.cloudfoundry.client.lib.domain.CloudRoute;
 
 public class UriUtil {
 
@@ -31,17 +32,17 @@ public class UriUtil {
 
     public static CloudRoute findRoute(List<CloudRoute> routes, String uri) {
         return routes.stream()
-            .filter(route -> routeMatchesUri(route, uri))
-            .findAny()
-            .orElseThrow(() -> new NotFoundException(Messages.ROUTE_NOT_FOUND, uri));
+                     .filter(route -> routeMatchesUri(route, uri))
+                     .findAny()
+                     .orElseThrow(() -> new NotFoundException(Messages.ROUTE_NOT_FOUND, uri));
     }
 
     public static boolean routeMatchesUri(CloudRoute route, String uri) {
         ApplicationURI appUri = new ApplicationURI(uri);
         return route.getHost()
-            .equals(appUri.getHost())
+                    .equals(appUri.getHost())
             && route.getDomain()
-                .getName()
-                .equals(appUri.getDomain());
+                    .getName()
+                    .equals(appUri.getDomain());
     }
 }

@@ -37,7 +37,7 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
         Platform platform = configuration.getPlatform();
         DeploymentDescriptor descriptor = getMtaDescriptorMerger(handlerFactory, platform).merge(deploymentDescriptor,
-            extensionDescriptors);
+                                                                                                 extensionDescriptors);
 
         StepsUtil.setDeploymentDescriptor(execution.getContext(), descriptor);
         getStepLogger().debug(Messages.DESCRIPTORS_MERGED);

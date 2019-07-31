@@ -30,9 +30,9 @@ public abstract class CreateOrUpdateAppStepBaseTest extends SyncFlowableStepTest
 
         CloudServiceExtended toCloudServiceExtended() {
             return ImmutableCloudServiceExtended.builder()
-                .name(name)
-                .isOptional(isOptional)
-                .build();
+                                                .name(name)
+                                                .isOptional(isOptional)
+                                                .build();
         }
     }
 }

@@ -36,15 +36,15 @@ public class ServicesCloudModelBuilder {
 
     public List<CloudServiceExtended> build(List<Resource> resourcesToProcess) {
         return resourcesToProcess.stream()
-            .map(this::getService)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+                                 .map(this::getService)
+                                 .filter(Objects::nonNull)
+                                 .collect(Collectors.toList());
     }
 
     protected CloudServiceExtended getService(Resource resource) {
         boolean isOptional = isOptional(resource);
         boolean shouldIgnoreUpdateErrors = (boolean) resource.getParameters()
-            .getOrDefault(SupportedParameters.IGNORE_UPDATE_ERRORS, false);
+                                                             .getOrDefault(SupportedParameters.IGNORE_UPDATE_ERRORS, false);
         return createService(resource, isOptional, shouldIgnoreUpdateErrors);
     }
 
@@ -67,28 +67,30 @@ public class ServicesCloudModelBuilder {
 
     @SuppressWarnings("unchecked")
     protected CloudServiceExtended createManagedService(Resource resource, String serviceName, boolean isOptional,
-        boolean shouldIgnoreUpdateErrors) {
+                                                        boolean shouldIgnoreUpdateErrors) {
         Map<String, Object> parameters = resource.getParameters();
         SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(serviceName, ResourceType.MANAGED_SERVICE, parameters);
 
         return ImmutableCloudServiceExtended.builder()
-            .name(serviceName)
-            .resourceName(resource.getName())
-            .label((String) parameters.get(SupportedParameters.SERVICE))
-            .plan((String) parameters.get(SupportedParameters.SERVICE_PLAN))
-            .provider((String) parameters.get(SupportedParameters.SERVICE_PROVIDER))
-            .version((String) parameters.get(SupportedParameters.SERVICE_VERSION))
-            .tags((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_TAGS, Collections.emptyList()))
-            .credentials(getServiceParameters(serviceName, parameters))
-            .alternativeLabels((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES, Collections.emptyList()))
-            .isOptional(isOptional)
-            .isManaged(true)
-            .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
-            .build();
+                                            .name(serviceName)
+                                            .resourceName(resource.getName())
+                                            .label((String) parameters.get(SupportedParameters.SERVICE))
+                                            .plan((String) parameters.get(SupportedParameters.SERVICE_PLAN))
+                                            .provider((String) parameters.get(SupportedParameters.SERVICE_PROVIDER))
+                                            .version((String) parameters.get(SupportedParameters.SERVICE_VERSION))
+                                            .tags((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_TAGS,
+                                                                                         Collections.emptyList()))
+                                            .credentials(getServiceParameters(serviceName, parameters))
+                                            .alternativeLabels((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES,
+                                                                                                      Collections.emptyList()))
+                                            .isOptional(isOptional)
+                                            .isManaged(true)
+                                            .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
+                                            .build();
     }
 
     protected CloudServiceExtended createUserProvidedService(Resource resource, String serviceName, boolean isOptional,
-        boolean shouldIgnoreUpdateErrors) {
+                                                             boolean shouldIgnoreUpdateErrors) {
         Map<String, Object> parameters = resource.getParameters();
         SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(serviceName, ResourceType.USER_PROVIDED_SERVICE, parameters);
         Map<String, Object> credentials = getServiceParameters(serviceName, parameters);
@@ -97,23 +99,23 @@ public class ServicesCloudModelBuilder {
             LOGGER.warn(MessageFormat.format(Messages.IGNORING_LABEL_FOR_USER_PROVIDED_SERVICE, label, serviceName));
         }
         return ImmutableCloudServiceExtended.builder()
-            .name(serviceName)
-            .resourceName(resource.getName())
-            .credentials(credentials)
-            .isOptional(isOptional)
-            .isManaged(true)
-            .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
-            .build();
+                                            .name(serviceName)
+                                            .resourceName(resource.getName())
+                                            .credentials(credentials)
+                                            .isOptional(isOptional)
+                                            .isManaged(true)
+                                            .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
+                                            .build();
     }
 
     protected CloudServiceExtended createExistingService(Resource resource, String serviceName, boolean isOptional,
-        boolean shouldIgnoreUpdateErrors) {
+                                                         boolean shouldIgnoreUpdateErrors) {
         return ImmutableCloudServiceExtended.builder()
-            .name(serviceName)
-            .resourceName(resource.getName())
-            .isOptional(isOptional)
-            .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
-            .build();
+                                            .name(serviceName)
+                                            .resourceName(resource.getName())
+                                            .isOptional(isOptional)
+                                            .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
+                                            .build();
     }
 
     @SuppressWarnings("unchecked")
@@ -130,9 +132,9 @@ public class ServicesCloudModelBuilder {
 
     protected String getInvalidServiceConfigTypeErrorMessage(String serviceName, Object serviceParameters) {
         return MessageFormat.format(com.sap.cloud.lm.sl.mta.message.Messages.INVALID_TYPE_FOR_KEY,
-            ValidatorUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_CONFIG), Map.class.getSimpleName(),
-            serviceParameters.getClass()
-                .getSimpleName());
+                                    ValidatorUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_CONFIG),
+                                    Map.class.getSimpleName(), serviceParameters.getClass()
+                                                                                .getSimpleName());
     }
 
 }

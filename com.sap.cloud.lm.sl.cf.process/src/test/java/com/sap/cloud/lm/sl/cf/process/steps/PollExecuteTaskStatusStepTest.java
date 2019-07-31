@@ -34,8 +34,8 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
 
     private static final UUID TASK_UUID = UUID.randomUUID();
     private static final CloudApplicationExtended APPLICATION = ImmutableCloudApplicationExtended.builder()
-        .name(APPLICATION_NAME)
-        .build();
+                                                                                                 .name(APPLICATION_NAME)
+                                                                                                 .build();
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -90,11 +90,11 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
     private AsyncExecutionState expectedExecutionStatus;
 
     private CloudTask task = ImmutableCloudTask.builder()
-        .metadata(ImmutableCloudMetadata.builder()
-            .guid(TASK_UUID)
-            .build())
-        .name(TASK_NAME)
-        .build();
+                                               .metadata(ImmutableCloudMetadata.builder()
+                                                                               .guid(TASK_UUID)
+                                                                               .build())
+                                               .name(TASK_NAME)
+                                               .build();
 
     public PollExecuteTaskStatusStepTest(CloudTask.State currentTaskState, long currentTime, AsyncExecutionState expectedExecutionStatus) {
         this.currentTaskState = currentTaskState;
@@ -119,9 +119,9 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
 
     private void prepareClientExtensions() {
         CloudTask taskWithState = ImmutableCloudTask.builder()
-            .from(task)
-            .state(currentTaskState)
-            .build();
+                                                    .from(task)
+                                                    .state(currentTaskState)
+                                                    .build();
         when(client.getTask(TASK_UUID)).thenReturn(taskWithState);
     }
 

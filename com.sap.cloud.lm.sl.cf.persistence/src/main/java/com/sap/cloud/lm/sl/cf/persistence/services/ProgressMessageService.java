@@ -62,8 +62,9 @@ public class ProgressMessageService {
 
     public int removeByProcessInstanceIdAndTaskIdAndType(final String processId, String taskId, ProgressMessageType progressMessageType) {
         try {
-            return getSqlQueryExecutor().execute(getSqlProgressMessageQueryProvider()
-                .getRemoveByProcessInstanceIdAndTaskIdAndTypeQuery(processId, taskId, progressMessageType));
+            return getSqlQueryExecutor().execute(getSqlProgressMessageQueryProvider().getRemoveByProcessInstanceIdAndTaskIdAndTypeQuery(processId,
+                                                                                                                                        taskId,
+                                                                                                                                        progressMessageType));
         } catch (SQLException e) {
             throw new SLException(e, Messages.ERROR_DELETING_MESSAGES_FOR_PROCESS_ID_AND_TASK_ID, processId, taskId);
         }

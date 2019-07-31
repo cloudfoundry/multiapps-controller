@@ -44,8 +44,8 @@ public class MtaDescriptorPropertiesResolver {
     private final boolean reserveTemporaryRoute;
 
     public MtaDescriptorPropertiesResolver(HandlerFactory handlerFactory, ConfigurationEntryDao dao, CloudTarget cloudTarget,
-        String currentSpaceId, ApplicationConfiguration configuration, boolean useNamespaces, boolean useNamespacesForServices,
-        boolean reserveTemporaryRoute) {
+                                           String currentSpaceId, ApplicationConfiguration configuration, boolean useNamespaces,
+                                           boolean useNamespacesForServices, boolean reserveTemporaryRoute) {
         this.handlerFactory = handlerFactory;
         this.dao = dao;
         this.cloudTarget = cloudTarget;
@@ -58,52 +58,49 @@ public class MtaDescriptorPropertiesResolver {
 
     public List<ParameterValidator> getValidatorsList() {
         return Arrays.asList(new HostValidator(), new DomainValidator(), new RoutesValidator(), new TasksValidator(),
-            new VisibilityValidator(), new RestartOnEnvChangeValidator());
+                             new VisibilityValidator(), new RestartOnEnvChangeValidator());
     }
 
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) {
         descriptor = correctEntityNames(descriptor);
         // Resolve placeholders in parameters:
-        descriptor = handlerFactory
-            .getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(), new ResolverBuilder(),
-                SupportedParameters.SINGULAR_PLURAL_MAPPING)
-            .resolve();
+        descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(), new ResolverBuilder(),
+                                                                     SupportedParameters.SINGULAR_PLURAL_MAPPING)
+                                   .resolve();
 
         if (reserveTemporaryRoute) {
             // temporary placeholders should be set at this point, since they are need for provides/requires placeholder resolution
             editRoutesSetTemporaryPlaceholders(descriptor);
 
             // Resolve again due to new temporary routes
-            descriptor = handlerFactory
-                .getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(), new ResolverBuilder(),
-                    SupportedParameters.SINGULAR_PLURAL_MAPPING)
-                .resolve();
+            descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(),
+                                                                         new ResolverBuilder(), SupportedParameters.SINGULAR_PLURAL_MAPPING)
+                                       .resolve();
         }
 
         List<ParameterValidator> validatorsList = getValidatorsList();
         descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, validatorsList)
-            .validate();
+                                   .validate();
 
         // Resolve placeholders in properties:
-        descriptor = handlerFactory
-            .getDescriptorPlaceholderResolver(descriptor, new ResolverBuilder(), new NullPropertiesResolverBuilder(),
-                SupportedParameters.SINGULAR_PLURAL_MAPPING)
-            .resolve();
+        descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, new ResolverBuilder(), new NullPropertiesResolverBuilder(),
+                                                                     SupportedParameters.SINGULAR_PLURAL_MAPPING)
+                                   .resolve();
 
         DeploymentDescriptor descriptorWithUnresolvedReferences = DeploymentDescriptor.copyOf(descriptor);
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(descriptor, dao, cloudTarget,
-            configuration);
+                                                                                                     configuration);
         resolver.resolve(descriptor);
 
         subscriptions = createSubscriptions(descriptorWithUnresolvedReferences, resolver.getResolvedReferences());
 
-        descriptor = handlerFactory
-            .getDescriptorReferenceResolver(descriptor, new ResolverBuilder(), new ResolverBuilder(), new ResolverBuilder())
-            .resolve();
+        descriptor = handlerFactory.getDescriptorReferenceResolver(descriptor, new ResolverBuilder(), new ResolverBuilder(),
+                                                                   new ResolverBuilder())
+                                   .resolve();
 
         descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, validatorsList, true)
-            .validate();
+                                   .validate();
         unescapeEscapedReferences(descriptor);
 
         return descriptor;
@@ -115,9 +112,11 @@ public class MtaDescriptorPropertiesResolver {
 
     private DeploymentDescriptor correctEntityNames(DeploymentDescriptor descriptor) {
         List<ParameterValidator> correctors = Arrays.asList(new ApplicationNameValidator(descriptor.getId(), useNamespaces),
-            new ServiceNameValidator(descriptor.getId(), useNamespaces, useNamespacesForServices));
+                                                            new ServiceNameValidator(descriptor.getId(),
+                                                                                     useNamespaces,
+                                                                                     useNamespacesForServices));
         return handlerFactory.getDescriptorParametersValidator(descriptor, correctors)
-            .validate();
+                             .validate();
     }
 
     private void editRoutesSetTemporaryPlaceholders(DeploymentDescriptor descriptor) {
@@ -146,9 +145,9 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     private List<ConfigurationSubscription> createSubscriptions(DeploymentDescriptor descriptorWithUnresolvedReferences,
-        Map<String, ResolvedConfigurationReference> resolvedResources) {
+                                                                Map<String, ResolvedConfigurationReference> resolvedResources) {
         return handlerFactory.getConfigurationSubscriptionFactory()
-            .create(descriptorWithUnresolvedReferences, resolvedResources, currentSpaceId);
+                             .create(descriptorWithUnresolvedReferences, resolvedResources, currentSpaceId);
     }
 
     public List<ConfigurationSubscription> getSubscriptions() {

@@ -179,13 +179,13 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         assertEquals(1, modules.size());
         Module foo = modules.get(0);
         assertEquals("bar", foo.getParameters()
-            .get(SupportedParameters.APP_NAME));
+                               .get(SupportedParameters.APP_NAME));
 
         List<Resource> resources = descriptor.getResources();
         assertEquals(1, resources.size());
         Resource baz = resources.get(0);
         assertEquals("qux", baz.getParameters()
-            .get(SupportedParameters.SERVICE_NAME));
+                               .get(SupportedParameters.SERVICE_NAME));
     }
 
 }

@@ -19,14 +19,15 @@ public class ApplicationCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf
     private static final int MTA_MAJOR_VERSION = 3;
 
     public ApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
-        String deployId, UserMessageLogger stepLogger) {
+                                        String deployId, UserMessageLogger stepLogger) {
         super(deploymentDescriptor, prettyPrinting, deployedMta, deployId, stepLogger);
     }
 
     @Override
     public DeploymentMode getDeploymentMode() {
         boolean parallelDeploymentsEnabled = (boolean) deploymentDescriptor.getParameters()
-            .getOrDefault(SupportedParameters.ENABLE_PARALLEL_DEPLOYMENTS, false);
+                                                                           .getOrDefault(SupportedParameters.ENABLE_PARALLEL_DEPLOYMENTS,
+                                                                                         false);
         return parallelDeploymentsEnabled ? DeploymentMode.PARALLEL : DeploymentMode.SEQUENTIAL;
     }
 
@@ -42,8 +43,8 @@ public class ApplicationCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf
 
     @Override
     protected List<String> getApplicationServices(Module module) {
-        return getApplicationServices(module,
-            resourceAndType -> filterExistingServicesRule(resourceAndType) && onlyActiveServicesRule(resourceAndType));
+        return getApplicationServices(module, resourceAndType -> filterExistingServicesRule(resourceAndType)
+            && onlyActiveServicesRule(resourceAndType));
     }
 
     @Override
@@ -57,6 +58,6 @@ public class ApplicationCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf
 
     private boolean onlyActiveServicesRule(ResourceAndResourceType resourceAndResourceType) {
         return resourceAndResourceType.getResource()
-            .isActive();
+                                      .isActive();
     }
 }

@@ -45,9 +45,9 @@ public class FileServiceFileStorageTest {
         this.temporaryStorageLocation = Files.createTempDirectory("testfileStorage");
         fileStorage = new FileSystemFileStorage(temporaryStorageLocation.toString());
         spaceId = UUID.randomUUID()
-            .toString();
+                      .toString();
         namespace = UUID.randomUUID()
-            .toString();
+                        .toString();
     }
 
     @After
@@ -74,7 +74,7 @@ public class FileServiceFileStorageTest {
         List<FileEntry> withoutContent = fileStorage.getFileEntriesWithoutContent(fileEntries);
         assertEquals(1, withoutContent.size());
         assertEquals(nonExistingFile.getId(), withoutContent.get(0)
-            .getId());
+                                                            .getId());
     }
 
     @Test
@@ -138,7 +138,7 @@ public class FileServiceFileStorageTest {
     public void processFileContent() throws Exception {
         FileEntry fileEntry = addFile(TEST_FILE_LOCATION);
         String testFileDigest = DigestHelper.computeFileChecksum(Paths.get(TEST_FILE_LOCATION), DIGEST_METHOD)
-            .toLowerCase();
+                                            .toLowerCase();
         validateFileContent(fileEntry, testFileDigest);
     }
 
@@ -147,7 +147,7 @@ public class FileServiceFileStorageTest {
         String fileId = "not-existing-file-id";
         String fileSpace = "not-existing-space-id";
         String fileDigest = DigestHelper.computeFileChecksum(Paths.get(TEST_FILE_LOCATION), DIGEST_METHOD)
-            .toLowerCase();
+                                        .toLowerCase();
         FileEntry dummyFileEntry = new FileEntry();
         dummyFileEntry.setId(fileId);
         dummyFileEntry.setSpace(fileSpace);
@@ -155,13 +155,12 @@ public class FileServiceFileStorageTest {
     }
 
     private void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {
-        fileStorage
-            .processFileContent(new DefaultFileDownloadProcessor(storedFile.getSpace(), storedFile.getId(), contentStream -> {
-                // make a digest out of the content and compare it to the original
-                final byte[] digest = calculateFileDigest(contentStream);
-                assertEquals(expectedFileChecksum, DatatypeConverter.printHexBinary(digest)
-                    .toLowerCase());
-            }));
+        fileStorage.processFileContent(new DefaultFileDownloadProcessor(storedFile.getSpace(), storedFile.getId(), contentStream -> {
+            // make a digest out of the content and compare it to the original
+            final byte[] digest = calculateFileDigest(contentStream);
+            assertEquals(expectedFileChecksum, DatatypeConverter.printHexBinary(digest)
+                                                                .toLowerCase());
+        }));
     }
 
     private byte[] calculateFileDigest(InputStream contentStream) throws NoSuchAlgorithmException, IOException {
@@ -180,7 +179,7 @@ public class FileServiceFileStorageTest {
 
     private FileEntry addFile(String pathString, String space, String namespace) throws Exception {
         Path testFilePath = Paths.get(pathString)
-            .toAbsolutePath();
+                                 .toAbsolutePath();
         FileEntry fileEntry = createFileEntry(space, namespace);
         fileStorage.addFile(fileEntry, testFilePath.toFile());
         return fileEntry;
@@ -193,7 +192,7 @@ public class FileServiceFileStorageTest {
     private FileEntry createFileEntry(String space, String namespace) {
         FileEntry fileEntry = new FileEntry();
         fileEntry.setId(UUID.randomUUID()
-            .toString());
+                            .toString());
         fileEntry.setSpace(space);
         fileEntry.setNamespace(namespace);
         return fileEntry;

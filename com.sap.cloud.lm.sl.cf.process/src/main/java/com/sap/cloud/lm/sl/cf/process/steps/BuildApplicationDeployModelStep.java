@@ -33,12 +33,12 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         Module applicationModule = StepsUtil.findModuleInDeploymentDescriptor(execution.getContext(), module.getName());
         StepsUtil.setModuleToDeploy(execution.getContext(), applicationModule);
         CloudApplicationExtended modifiedApp = getApplicationCloudModelBuilder(execution.getContext()).build(applicationModule,
-            moduleToDeployHelper);
+                                                                                                             moduleToDeployHelper);
         modifiedApp = ImmutableCloudApplicationExtended.builder()
-            .from(modifiedApp)
-            .env(getApplicationEnv(execution.getContext(), modifiedApp))
-            .uris(getApplicationUris(execution.getContext(), modifiedApp))
-            .build();
+                                                       .from(modifiedApp)
+                                                       .env(getApplicationEnv(execution.getContext(), modifiedApp))
+                                                       .uris(getApplicationUris(execution.getContext(), modifiedApp))
+                                                       .build();
         SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
         String appJson = secureSerializationFacade.toJson(modifiedApp);
         getStepLogger().debug(Messages.APP_WITH_UPDATED_ENVIRONMENT, appJson);

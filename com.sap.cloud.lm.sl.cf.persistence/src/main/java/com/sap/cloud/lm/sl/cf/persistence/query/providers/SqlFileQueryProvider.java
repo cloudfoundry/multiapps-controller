@@ -61,7 +61,7 @@ public abstract class SqlFileQueryProvider {
                 statement.setString(6, fileEntry.getDigest());
                 statement.setString(7, fileEntry.getDigestAlgorithm());
                 statement.setTimestamp(8, new Timestamp(fileEntry.getModified()
-                    .getTime()));
+                                                                 .getTime()));
                 setContentBinaryStream(statement, 9, content);
                 return statement.executeUpdate() > 0;
             } finally {
@@ -85,7 +85,7 @@ public abstract class SqlFileQueryProvider {
                 statement.setString(6, fileEntry.getDigest());
                 statement.setString(7, fileEntry.getDigestAlgorithm());
                 statement.setTimestamp(8, new Timestamp(fileEntry.getModified()
-                    .getTime()));
+                                                                 .getTime()));
                 return statement.executeUpdate() > 0;
             } finally {
                 JdbcUtil.closeQuietly(statement);
@@ -187,15 +187,15 @@ public abstract class SqlFileQueryProvider {
             try {
                 statement = connection.prepareStatement(getSelectWithContentQuery());
                 statement.setString(1, fileDownloadProcessor.getFileEntry()
-                    .getId());
+                                                            .getId());
                 statement.setString(2, fileDownloadProcessor.getFileEntry()
-                    .getSpace());
+                                                            .getSpace());
                 resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     processFileContent(resultSet, fileDownloadProcessor);
                 } else {
                     throw new SQLException(MessageFormat.format(Messages.FILE_NOT_FOUND, fileDownloadProcessor.getFileEntry()
-                        .getId()));
+                                                                                                              .getId()));
                 }
             } finally {
                 JdbcUtil.closeQuietly(resultSet);

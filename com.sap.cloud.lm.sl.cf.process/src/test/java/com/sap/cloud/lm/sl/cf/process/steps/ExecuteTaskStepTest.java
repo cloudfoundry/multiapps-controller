@@ -23,12 +23,12 @@ public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
     private static final long DUMMY_TIME = 100;
 
     private final CloudTask task = ImmutableCloudTask.builder()
-        .name("foo")
-        .command("echo ${test}")
-        .build();
+                                                     .name("foo")
+                                                     .command("echo ${test}")
+                                                     .build();
     private final CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
-        .name("dummy")
-        .build();
+                                                                                  .name("dummy")
+                                                                                  .build();
 
     @Before
     public void setUp() {
@@ -42,8 +42,8 @@ public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
         StepsUtil.setTasksToExecute(context, Arrays.asList(task));
         context.setVariable(Constants.VAR_TASKS_INDEX, 0);
 
-        when(client.runTask(eq(app.getName()), argThat(GenericArgumentMatcher.forObject(task))))
-            .thenReturn(ImmutableCloudTask.copyOf(task));
+        when(client.runTask(eq(app.getName()),
+                            argThat(GenericArgumentMatcher.forObject(task)))).thenReturn(ImmutableCloudTask.copyOf(task));
 
         // When:
         step.execute(context);

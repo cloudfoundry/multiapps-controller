@@ -67,7 +67,7 @@ public class UpdateServiceTagsStepTest extends SyncFlowableStepTest<UpdateServic
                 throw new UnsupportedOperationException("Unsupported test phase");
         }
         Mockito.when(serviceUpdater.updateServiceTags(Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(methodExec);
+               .thenReturn(methodExec);
     }
 
     @Test
@@ -84,9 +84,10 @@ public class UpdateServiceTagsStepTest extends SyncFlowableStepTest<UpdateServic
         assertStepPhase(POLLING);
         assertMethodCalls();
     }
-    
+
     private void assertMethodCalls() {
-        Mockito.verify(serviceUpdater, Mockito.times(1)).updateServiceTags(Matchers.any(), Matchers.any(), Matchers.any());
+        Mockito.verify(serviceUpdater, Mockito.times(1))
+               .updateServiceTags(Matchers.any(), Matchers.any(), Matchers.any());
     }
 
     @SuppressWarnings("unchecked")
@@ -103,7 +104,6 @@ public class UpdateServiceTagsStepTest extends SyncFlowableStepTest<UpdateServic
     private void prepareResponses(String stepPhase) {
         prepareServiceUpdater(stepPhase);
     }
-
 
     private static class StepInput {
         SimpleService service;

@@ -35,21 +35,21 @@ public class FlowableActionFactoryTest {
     @Test
     public void testAbortAction() {
         Mockito.when(processActionRegistry.getAction(ABORT_ACTION_ID))
-            .thenReturn(new AbortProcessAction(facade, Arrays.asList(additionalProcessAction)));
+               .thenReturn(new AbortProcessAction(facade, Arrays.asList(additionalProcessAction)));
         testAction(ABORT_ACTION_ID, AbortProcessAction.class);
     }
 
     @Test
     public void testRetryAction() {
         Mockito.when(processActionRegistry.getAction(RETRY_ACTION_ID))
-            .thenReturn(new RetryProcessAction(facade, Arrays.asList(additionalProcessAction)));
+               .thenReturn(new RetryProcessAction(facade, Arrays.asList(additionalProcessAction)));
         testAction(RETRY_ACTION_ID, RetryProcessAction.class);
     }
 
     @Test
     public void testResumeAction() {
         Mockito.when(processActionRegistry.getAction(RESUME_ACTION_ID))
-            .thenReturn(new ResumeProcessAction(facade, Arrays.asList(additionalProcessAction)));
+               .thenReturn(new ResumeProcessAction(facade, Arrays.asList(additionalProcessAction)));
         testAction(RESUME_ACTION_ID, ResumeProcessAction.class);
     }
 

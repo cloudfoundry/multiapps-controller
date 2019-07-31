@@ -71,7 +71,7 @@ public class OperationDto {
     }
 
     public OperationDto(String processId, String processType, Date startedAt, Date endedAt, String spaceId, String mtaId, String user,
-        boolean acquiredLock, String finalState) {
+                        boolean acquiredLock, String finalState) {
         this.processId = processId;
         this.processType = processType;
         this.startedAt = startedAt;

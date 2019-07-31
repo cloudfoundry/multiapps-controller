@@ -46,9 +46,9 @@ public class AbortFailedProcessCommandFactory extends NoJobRetryCommandFactory {
             Object result = delegate.execute(commandContext);
             String processInstanceId = getProcessId(commandContext);
             HistoricVariableInstance corelationId = getHistoryService(commandContext).createHistoricVariableInstanceQuery()
-                .processInstanceId(processInstanceId)
-                .variableName(Constants.VAR_CORRELATION_ID)
-                .singleResult();
+                                                                                     .processInstanceId(processInstanceId)
+                                                                                     .variableName(Constants.VAR_CORRELATION_ID)
+                                                                                     .singleResult();
             if (!processInstanceId.equals(corelationId.getValue())) {
                 return result;
             }
@@ -63,16 +63,16 @@ public class AbortFailedProcessCommandFactory extends NoJobRetryCommandFactory {
 
         private String getProcessId(CommandContext commandContext) {
             JobEntity job = CommandContextUtil.getJobServiceConfiguration()
-                .getJobEntityManager()
-                .findById(jobId);
+                                              .getJobEntityManager()
+                                              .findById(jobId);
             return job.getProcessInstanceId();
         }
 
         private HistoricVariableInstance getAbortOnErrorVariable(CommandContext commandContext, String processId) {
             return getHistoryService(commandContext).createHistoricVariableInstanceQuery()
-                .processInstanceId(processId)
-                .variableName(Constants.PARAM_ABORT_ON_ERROR)
-                .singleResult();
+                                                    .processInstanceId(processId)
+                                                    .variableName(Constants.PARAM_ABORT_ON_ERROR)
+                                                    .singleResult();
         }
 
         private boolean shouldAbortProcess(HistoricVariableInstance abortOnErrorVariable) {
@@ -87,12 +87,12 @@ public class AbortFailedProcessCommandFactory extends NoJobRetryCommandFactory {
 
         private HistoryService getHistoryService(CommandContext commandContext) {
             return Context.getProcessEngineConfiguration(commandContext)
-                .getHistoryService();
+                          .getHistoryService();
         }
 
         private RuntimeService getRuntimeService(CommandContext commandContext) {
             return Context.getProcessEngineConfiguration(commandContext)
-                .getRuntimeService();
+                          .getRuntimeService();
         }
 
     }

@@ -94,7 +94,7 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
     }
 
     public DeleteServiceBrokersStepTest(String inputLocation, String[] expectedDeletedBrokers, String expectedExceptionMessage,
-        Class<? extends Throwable> expectedExceptionClass, CloudOperationException deleteException) {
+                                        Class<? extends Throwable> expectedExceptionClass, CloudOperationException deleteException) {
         this.expectedDeletedBrokers = expectedDeletedBrokers;
         this.expectedExceptionMessage = expectedExceptionMessage;
         this.expectedExceptionClass = (expectedExceptionClass != null) ? expectedExceptionClass : CloudControllerException.class;
@@ -137,37 +137,37 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
 
     private List<CloudApplication> toCloudApplications(List<SimpleApplication> applications) {
         return applications.stream()
-            .map((application) -> application.toCloudApplication())
-            .collect(Collectors.toList());
+                           .map((application) -> application.toCloudApplication())
+                           .collect(Collectors.toList());
     }
 
     private void prepareClient() {
         Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false)))
-            .then(new Answer<CloudServiceBroker>() {
-                @Override
-                public CloudServiceBroker answer(InvocationOnMock invocation) {
-                    String serviceBrokerName = (String) invocation.getArguments()[0];
-                    if (input.existingServiceBrokers.contains(serviceBrokerName)) {
-                        return ImmutableCloudServiceBroker.builder()
-                            .name(serviceBrokerName)
-                            .build();
-                    }
-                    return null;
-                }
-            });
+               .then(new Answer<CloudServiceBroker>() {
+                   @Override
+                   public CloudServiceBroker answer(InvocationOnMock invocation) {
+                       String serviceBrokerName = (String) invocation.getArguments()[0];
+                       if (input.existingServiceBrokers.contains(serviceBrokerName)) {
+                           return ImmutableCloudServiceBroker.builder()
+                                                             .name(serviceBrokerName)
+                                                             .build();
+                       }
+                       return null;
+                   }
+               });
         if (deleteException != null) {
             Mockito.doThrow(deleteException)
-                .when(client)
-                .deleteServiceBroker(Mockito.any());
+                   .when(client)
+                   .deleteServiceBroker(Mockito.any());
         }
     }
 
     private String[] captureStepOutput() {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(client, Mockito.times(expectedDeletedBrokers.length))
-            .deleteServiceBroker(captor.capture());
+               .deleteServiceBroker(captor.capture());
         return captor.getAllValues()
-            .toArray(new String[0]);
+                     .toArray(new String[0]);
     }
 
     private static class StepInput {

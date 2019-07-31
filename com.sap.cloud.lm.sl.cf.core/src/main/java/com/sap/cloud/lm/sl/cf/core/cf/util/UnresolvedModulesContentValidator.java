@@ -29,13 +29,13 @@ public class UnresolvedModulesContentValidator implements ModulesContentValidato
 
     private Set<String> getUnresolvedModules(List<Module> calculatedModules) {
         Set<String> calculatedModuleNames = calculatedModules.stream()
-            .map(Module::getName)
-            .collect(Collectors.toSet());
+                                                             .map(Module::getName)
+                                                             .collect(Collectors.toSet());
         Set<String> resolvedModuleNames = getResolvedModuleNames(calculatedModuleNames);
 
         return allMtaModules.stream()
-            .filter(module -> !resolvedModuleNames.contains(module))
-            .collect(Collectors.toSet());
+                            .filter(module -> !resolvedModuleNames.contains(module))
+                            .collect(Collectors.toSet());
     }
 
     private Set<String> getResolvedModuleNames(Set<String> moduleNames) {

@@ -20,7 +20,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml",
-        ProcessDescriptorStepTest.class);
+                                                                                                                  ProcessDescriptorStepTest.class);
 
     private class ProcessDescriptorStepMock extends ProcessDescriptorStep {
 
@@ -60,7 +60,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
         tester.test(() -> StepsUtil.getSubscriptionsToCreate(context), new Expectation("[]"));
 
         tester.test(() -> StepsUtil.getCompleteDeploymentDescriptor(context),
-            new Expectation(Expectation.Type.JSON, "node-hello-mtad-1.yaml.json"));
+                    new Expectation(Expectation.Type.JSON, "node-hello-mtad-1.yaml.json"));
     }
 
     @Test(expected = SLException.class)

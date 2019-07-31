@@ -22,23 +22,23 @@ import com.sap.cloud.lm.sl.mta.model.Platform;
 public interface HelperFactoryConstructor {
 
     ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting,
-        DeployedMta deployedMta, String deployId, UserMessageLogger stepLogger);
+                                                                 DeployedMta deployedMta, String deployId, UserMessageLogger stepLogger);
 
     ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor);
 
     ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor);
 
     ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, ConfigurationEntryDao dao,
-        CloudTarget cloudTarget, ApplicationConfiguration configuration);
+                                                                       CloudTarget cloudTarget, ApplicationConfiguration configuration);
 
     ConfigurationReferencesResolver getConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
-        CloudTarget cloudTarget, ApplicationConfiguration configuration);
+                                                                       CloudTarget cloudTarget, ApplicationConfiguration configuration);
 
     DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
-        List<ParameterValidator> parameterValidators);
+                                                                   List<ParameterValidator> parameterValidators);
 
     DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
-        List<ParameterValidator> parameterValidators, boolean doNotCorrect);
+                                                                   List<ParameterValidator> parameterValidators, boolean doNotCorrect);
 
     PlatformMerger getPlatformMerger(Platform platform);
 

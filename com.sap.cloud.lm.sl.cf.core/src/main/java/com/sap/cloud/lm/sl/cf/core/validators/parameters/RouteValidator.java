@@ -71,7 +71,7 @@ public class RouteValidator implements ParameterValidator {
         ApplicationURI uri = new ApplicationURI(routeString);
         Map<String, Object> uriParts = uri.getURIParts();
         boolean partsAreValid = validators.stream()
-            .allMatch(validator -> partIsValid(validator, uriParts));
+                                          .allMatch(validator -> partIsValid(validator, uriParts));
 
         boolean hostPresent = uriParts.containsKey(SupportedParameters.HOST);
         return hostPresent && partsAreValid;
@@ -94,8 +94,8 @@ public class RouteValidator implements ParameterValidator {
     @Override
     public boolean canCorrect() {
         return validators.stream()
-            .map(ParameterValidator::canCorrect)
-            .reduce(false, Boolean::logicalOr);
+                         .map(ParameterValidator::canCorrect)
+                         .reduce(false, Boolean::logicalOr);
     }
 
 }

@@ -9,7 +9,7 @@ public class IdleUriParametersParser extends UriParametersParser {
     }
 
     public IdleUriParametersParser(String defaultHost, String defaultDomain, String hostParameterName, String domainParameterName,
-        String routePath) {
+                                   String routePath) {
         super(defaultHost, defaultDomain, hostParameterName, domainParameterName, true, routePath);
     }
 

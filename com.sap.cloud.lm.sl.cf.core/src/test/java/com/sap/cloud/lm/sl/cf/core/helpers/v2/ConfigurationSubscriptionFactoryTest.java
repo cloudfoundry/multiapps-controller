@@ -53,7 +53,7 @@ public class ConfigurationSubscriptionFactoryTest {
     private Expectation expectation;
 
     public ConfigurationSubscriptionFactoryTest(String mtadFilePath, List<String> configurationResources, String spaceId,
-        Expectation expectation) {
+                                                Expectation expectation) {
         this.mtadFilePath = mtadFilePath;
         this.configurationResources = configurationResources;
         this.spaceId = spaceId;
@@ -69,7 +69,7 @@ public class ConfigurationSubscriptionFactoryTest {
     }
 
     protected void testCreate(DeploymentDescriptor mtad, Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId,
-        Expectation expectation) {
+                              Expectation expectation) {
         tester.test(() -> {
             return new ConfigurationSubscriptionFactory().create(mtad, resolvedResources, spaceId);
         }, expectation);
@@ -84,7 +84,7 @@ public class ConfigurationSubscriptionFactoryTest {
     }
 
     private ResolvedConfigurationReference getResolvedConfigurationReference(DeploymentDescriptor descriptor,
-        String configurationResource) {
+                                                                             String configurationResource) {
         DescriptorHandler handler = new DescriptorHandler();
         Resource resource = (Resource) handler.findResource(descriptor, configurationResource);
         return new ResolvedConfigurationReference(createDummyFilter(), resource, Collections.emptyList());

@@ -37,17 +37,17 @@ public abstract class CloudServiceOperatorTest {
 
     private void prepareRestTemplateFactory() {
         Mockito.when(restTemplateFactory.getRestTemplate(client))
-            .thenReturn(restTemplate);
+               .thenReturn(restTemplate);
     }
 
     private void prepareClient() throws IOException {
         URL controllerUrl = new URL(CONTROLLER_URL);
         Mockito.when(client.getCloudControllerUrl())
-            .thenReturn(controllerUrl);
+               .thenReturn(controllerUrl);
 
         List<CloudServiceOffering> serviceOfferings = loadServiceOfferingsFromFile(SERVICE_OFFERINGS_RESPONSE_PATH);
         Mockito.when(client.getServiceOfferings())
-            .thenReturn(serviceOfferings);
+               .thenReturn(serviceOfferings);
     }
 
     private List<CloudServiceOffering> loadServiceOfferingsFromFile(String filePath) throws IOException {

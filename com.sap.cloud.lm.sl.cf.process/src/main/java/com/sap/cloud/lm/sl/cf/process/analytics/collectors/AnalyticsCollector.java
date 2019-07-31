@@ -52,11 +52,20 @@ public class AnalyticsCollector {
         String org = StepsUtil.getOrg(context);
         String space = StepsUtil.getSpace(context);
         String controllerUrl = configuration.getControllerUrl()
-            .toString();
+                                            .toString();
         AbstractCommonProcessAttributes attributes = getProcessType(processType).collectProcessVariables(context);
 
-        return new AnalyticsData(processId, processType, startTime, endTime, processDuration, null, mtaId, org, space, controllerUrl,
-            attributes);
+        return new AnalyticsData(processId,
+                                 processType,
+                                 startTime,
+                                 endTime,
+                                 processDuration,
+                                 null,
+                                 mtaId,
+                                 org,
+                                 space,
+                                 controllerUrl,
+                                 attributes);
 
     }
 
@@ -73,10 +82,10 @@ public class AnalyticsCollector {
     public long getStartTime(DelegateExecution context, String processId) {
         HistoryService historyService = processEngineConfiguration.getHistoryService();
         HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery()
-            .processInstanceId(processId)
-            .singleResult();
+                                                                .processInstanceId(processId)
+                                                                .singleResult();
         return processInstance.getStartTime()
-            .getTime();
+                              .getTime();
     }
 
     protected long getEndTime() {

@@ -104,10 +104,10 @@ public class StartProcessListenerTest {
         loadParameters();
         prepareContext();
         Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(stepLogger);
+               .thenReturn(stepLogger);
         Mockito.doNothing()
-            .when(processLogsPersister)
-            .persistLogs(processInstanceId, TASK_ID);
+               .when(processLogsPersister)
+               .persistLogs(processInstanceId, TASK_ID);
     }
 
     @Test
@@ -120,11 +120,11 @@ public class StartProcessListenerTest {
     private void prepareContext() {
         listener.currentTimeSupplier = currentTimeSupplier;
         Mockito.when(context.getProcessInstanceId())
-            .thenReturn(processInstanceId);
+               .thenReturn(processInstanceId);
         Mockito.when(context.getVariables())
-            .thenReturn(Collections.emptyMap());
+               .thenReturn(Collections.emptyMap());
         Mockito.when(processTypeParser.getProcessType(context))
-            .thenReturn(processType);
+               .thenReturn(processType);
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
         context.setVariable(Constants.VAR_USER, USER);
         context.setVariable(Constants.VAR_CORRELATION_ID, processInstanceId);
@@ -141,15 +141,15 @@ public class StartProcessListenerTest {
     private void verifyOperationInsertion() throws SLException, ConflictException {
         String user = StepsUtil.determineCurrentUser(context, stepLogger);
         Operation operation = new Operation().processId(processInstanceId)
-            .processType(processType)
-            .spaceId(SPACE_ID)
-            .startedAt(START_TIME)
-            .user(user)
-            .acquiredLock(false);
+                                             .processType(processType)
+                                             .spaceId(SPACE_ID)
+                                             .startedAt(START_TIME)
+                                             .user(user)
+                                             .acquiredLock(false);
         Mockito.verify(dao)
-            .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
+               .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
         Mockito.verify(processLogsPersister, Mockito.atLeastOnce())
-            .persistLogs(processInstanceId, TASK_ID);
+               .persistLogs(processInstanceId, TASK_ID);
     }
 
 }

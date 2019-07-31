@@ -78,7 +78,7 @@ public class ApplicationArchiveReaderTest {
                     throw new IllegalArgumentException(MessageFormat.format(FileUtils.PATH_SHOULD_BE_NORMALIZED, path));
                 }
                 if (FilenameUtils.getPrefixLength(path) != 0 || Paths.get(path)
-                    .isAbsolute()) {
+                                                                     .isAbsolute()) {
                     throw new IllegalArgumentException(MessageFormat.format(FileUtils.PATH_SHOULD_NOT_BE_ABSOLUTE, path));
                 }
             }

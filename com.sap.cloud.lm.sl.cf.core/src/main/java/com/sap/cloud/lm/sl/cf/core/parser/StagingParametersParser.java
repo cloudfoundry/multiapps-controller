@@ -23,18 +23,18 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         Integer healthCheckTimeout = (Integer) getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_TIMEOUT, null);
         String healthCheckType = (String) getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_TYPE, null);
         String healthCheckHttpEndpoint = (String) getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_HTTP_ENDPOINT,
-            getDefaultHealthCheckHttpEndpoint(healthCheckType));
+                                                                   getDefaultHealthCheckHttpEndpoint(healthCheckType));
         Boolean isSshEnabled = (Boolean) getPropertyValue(parametersList, SupportedParameters.ENABLE_SSH, null);
         DockerInfo dockerInfo = new DockerInfoParser().parse(parametersList);
         return new Staging.StagingBuilder().command(command)
-            .buildpackUrl(buildpack)
-            .stack(stack)
-            .healthCheckTimeout(healthCheckTimeout)
-            .healthCheckType(healthCheckType)
-            .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
-            .sshEnabled(isSshEnabled)
-            .dockerInfo(dockerInfo)
-            .build();
+                                           .buildpackUrl(buildpack)
+                                           .stack(stack)
+                                           .healthCheckTimeout(healthCheckTimeout)
+                                           .healthCheckType(healthCheckType)
+                                           .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
+                                           .sshEnabled(isSshEnabled)
+                                           .dockerInfo(dockerInfo)
+                                           .build();
     }
 
     private String getDefaultHealthCheckHttpEndpoint(String healthCheckType) {

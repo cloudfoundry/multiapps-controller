@@ -41,7 +41,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         CloudControllerClient client = execution.getControllerClient();
 
         execution.getStepLogger()
-            .debug(Messages.CHECKING_APP_STATUS, appToPoll);
+                 .debug(Messages.CHECKING_APP_STATUS, appToPoll);
 
         // We're using the app object returned by the controller, because it includes the router port in its URIs, while the app model
         // we've built doesn't.
@@ -49,7 +49,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         List<InstanceInfo> appInstances = getApplicationInstances(client, app);
         StartupStatus status = getStartupStatus(execution, app, appInstances);
         ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
-            .getProcessLoggerProvider();
+                                                               .getProcessLoggerProvider();
         StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
         return checkStartupStatus(execution, app, status);
     }
@@ -61,7 +61,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
 
     protected void onError(ExecutionWrapper execution, String message) {
         execution.getStepLogger()
-            .error(message);
+                 .error(message);
     }
 
     protected CloudApplication getAppToPoll(DelegateExecution context) {
@@ -109,10 +109,10 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             List<String> uris = app.getUris();
             if (uris.isEmpty()) {
                 execution.getStepLogger()
-                    .info(Messages.APP_STARTED, app.getName());
+                         .info(Messages.APP_STARTED, app.getName());
             } else {
                 execution.getStepLogger()
-                    .info(Messages.APP_STARTED_URLS, app.getName(), String.join(",", uris));
+                         .info(Messages.APP_STARTED_URLS, app.getName(), String.join(",", uris));
             }
             return AsyncExecutionState.FINISHED;
         }
@@ -129,7 +129,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     }
 
     private void showInstancesStatus(ExecutionWrapper execution, String appName, List<InstanceInfo> instances, long runningInstances,
-        int expectedInstances) {
+                                     int expectedInstances) {
 
         // Determine state counts
         Map<String, Integer> stateCounts = new HashMap<>();
@@ -138,21 +138,21 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         } else {
             for (InstanceInfo instance : instances) {
                 String state = instance.getState()
-                    .toString();
+                                       .toString();
                 incrementStateCount(stateCounts, state);
             }
         }
 
         // Compose state strings
         String states = stateCounts.entrySet()
-            .stream()
-            .map(this::formatStateString)
-            .collect(Collectors.joining(","));
+                                   .stream()
+                                   .map(this::formatStateString)
+                                   .collect(Collectors.joining(","));
 
         // Print message
         String message = format(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, appName, runningInstances, expectedInstances, states);
         execution.getStepLogger()
-            .debug(message);
+                 .debug(message);
     }
 
     private void incrementStateCount(Map<String, Integer> stateCounts, String state) {
@@ -162,7 +162,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
 
     private String formatStateString(Map.Entry<String, Integer> entry) {
         return format("{0} {1}", entry.getValue(), entry.getKey()
-            .toLowerCase());
+                                                        .toLowerCase());
     }
 
     private static List<InstanceInfo> getApplicationInstances(CloudControllerClient client, CloudApplication app) {
@@ -172,8 +172,8 @@ public class PollStartAppStatusExecution implements AsyncExecution {
 
     private static long getInstanceCount(List<InstanceInfo> instances, InstanceState state) {
         return instances.stream()
-            .filter(instance -> instance.getState()
-                .equals(state))
-            .count();
+                        .filter(instance -> instance.getState()
+                                                    .equals(state))
+                        .count();
     }
 }

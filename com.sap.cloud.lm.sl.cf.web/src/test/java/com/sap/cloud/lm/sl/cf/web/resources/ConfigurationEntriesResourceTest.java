@@ -178,9 +178,9 @@ public class ConfigurationEntriesResourceTest {
 
         public SearchRequestTestInput(List<String> requiredContent, String parsedRequiredContentLocation) throws Exception {
             this.requiredContent = requiredContent;
-            this.parsedRequiredContent = JsonUtil.convertJsonToMap(
-                SearchRequestTestInput.class.getResourceAsStream(parsedRequiredContentLocation), new TypeReference<Map<String, Object>>() {
-                });
+            this.parsedRequiredContent = JsonUtil.convertJsonToMap(SearchRequestTestInput.class.getResourceAsStream(parsedRequiredContentLocation),
+                                                                   new TypeReference<Map<String, Object>>() {
+                                                                   });
         }
 
         public Map<String, Object> getParsedRequiredContent() {
@@ -373,8 +373,11 @@ public class ConfigurationEntriesResourceTest {
         protected void test() throws Exception {
             TESTER.test(() -> {
 
-                return new RestResponse(resource.getConfigurationEntries(
-                    new ConfigurationFilterDto(PROVIDER_NID, PROVIDER_ID, PROVIDER_VERSION, TARGET_SPACE, input.getRequiredContent())));
+                return new RestResponse(resource.getConfigurationEntries(new ConfigurationFilterDto(PROVIDER_NID,
+                                                                                                    PROVIDER_ID,
+                                                                                                    PROVIDER_VERSION,
+                                                                                                    TARGET_SPACE,
+                                                                                                    input.getRequiredContent())));
 
             }, expectation);
         }
@@ -387,7 +390,7 @@ public class ConfigurationEntriesResourceTest {
             when(clientProvider.getControllerClient("")).thenReturn(client);
             when(client.getSpaces()).thenReturn(Collections.emptyList());
             when(dao.find(eq(PROVIDER_NID), eq(PROVIDER_ID), eq(PROVIDER_VERSION), eq(TARGET_SPACE), eq(input.getParsedRequiredContent()),
-                any(), any())).thenReturn(Collections.emptyList());
+                          any(), any())).thenReturn(Collections.emptyList());
         }
     }
 
@@ -419,7 +422,7 @@ public class ConfigurationEntriesResourceTest {
         protected void setUp() throws Exception {
             MockitoAnnotations.initMocks(this);
             Mockito.when(dao.find(input.getId()))
-                .thenReturn(new ConfigurationEntry(input.getId(), null, null, null, null, null, null, null));
+                   .thenReturn(new ConfigurationEntry(input.getId(), null, null, null, null, null, null, null));
             AuditLoggingProvider.setFacade(auditLoggingFacade);
         }
 
@@ -441,8 +444,8 @@ public class ConfigurationEntriesResourceTest {
         public boolean matches(Object entry) {
             try {
                 return xml.trim()
-                    .equals(XmlUtil.toXml(new ConfigurationEntryDto((ConfigurationEntry) entry), true)
-                        .trim());
+                          .equals(XmlUtil.toXml(new ConfigurationEntryDto((ConfigurationEntry) entry), true)
+                                         .trim());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

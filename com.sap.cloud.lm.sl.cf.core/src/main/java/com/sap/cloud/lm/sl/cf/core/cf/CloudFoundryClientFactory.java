@@ -28,7 +28,8 @@ public class CloudFoundryClientFactory extends ClientFactory {
     @Inject
     public CloudFoundryClientFactory(ApplicationConfiguration configuration, OAuthClientFactory oAuthClientFactory) {
         this.clientFactory = new CloudControllerRestClientFactory(configuration.getControllerClientConnectionPoolSize(),
-            configuration.getControllerClientThreadPoolSize(), configuration.shouldSkipSslValidation());
+                                                                  configuration.getControllerClientThreadPoolSize(),
+                                                                  configuration.shouldSkipSslValidation());
         this.configuration = configuration;
         this.oAuthClientFactory = oAuthClientFactory;
     }
@@ -37,7 +38,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
     protected CloudControllerClient createClient(CloudCredentials credentials) {
         OAuthClient oAuthClient = oAuthClientFactory.createOAuthClient();
         CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials, null,
-            oAuthClient);
+                                                                                oAuthClient);
         addTaggingInterceptor(controllerClient.getRestTemplate());
         return new ResilientCloudControllerClient(controllerClient);
     }
@@ -46,7 +47,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
     protected CloudControllerClient createClient(CloudCredentials credentials, String org, String space) {
         OAuthClient oAuthClient = oAuthClientFactory.createOAuthClient();
         CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials, org, space,
-            oAuthClient);
+                                                                                oAuthClient);
         addTaggingInterceptor(controllerClient.getRestTemplate(), org, space);
         return new ResilientCloudControllerClient(controllerClient);
     }
@@ -56,9 +57,10 @@ public class CloudFoundryClientFactory extends ClientFactory {
         CloudSpace target = computeTarget(credentials, spaceId);
         OAuthClient oAuthClient = oAuthClientFactory.createOAuthClient();
         CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials, target,
-            oAuthClient);
+                                                                                oAuthClient);
         addTaggingInterceptor(controllerClient.getRestTemplate(), target.getOrganization()
-            .getName(), target.getName());
+                                                                        .getName(),
+                              target.getName());
         return new ResilientCloudControllerClient(controllerClient);
     }
 
@@ -68,12 +70,12 @@ public class CloudFoundryClientFactory extends ClientFactory {
 
     private void addTaggingInterceptor(RestTemplate template, String org, String space) {
         if (template.getInterceptors()
-            .isEmpty()) {
+                    .isEmpty()) {
             template.setInterceptors(new ArrayList<>());
         }
         ClientHttpRequestInterceptor requestInterceptor = new TaggingRequestInterceptor(configuration.getVersion(), org, space);
         template.getInterceptors()
-            .add(requestInterceptor);
+                .add(requestInterceptor);
     }
 
     protected CloudSpace computeTarget(CloudCredentials credentials, String spaceId) {

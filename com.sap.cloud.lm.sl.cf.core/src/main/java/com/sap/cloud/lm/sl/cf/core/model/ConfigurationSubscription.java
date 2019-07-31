@@ -48,7 +48,7 @@ public class ConfigurationSubscription implements AuditableConfiguration {
     }
 
     public ConfigurationSubscription(long id, String mtaId, String spaceId, String appName, ConfigurationFilter filter, ModuleDto moduleDto,
-        ResourceDto resourceDto) {
+                                     ResourceDto resourceDto) {
         this.filter = filter;
         this.spaceId = spaceId;
         this.appName = appName;
@@ -91,7 +91,7 @@ public class ConfigurationSubscription implements AuditableConfiguration {
     }
 
     public static ConfigurationSubscription from(String mtaId, String spaceId, String appName, ConfigurationFilter filter, Module module,
-        Resource resource, int majorSchemaVersion) {
+                                                 Resource resource, int majorSchemaVersion) {
         switch (majorSchemaVersion) {
             case 2:
                 ResourceDto resourceDto = ResourceDto.from2(resource);
@@ -123,7 +123,7 @@ public class ConfigurationSubscription implements AuditableConfiguration {
         }
 
         public ModuleDto(String name, Map<String, Object> properties, List<ProvidedDependencyDto> providedDependencies,
-            List<RequiredDependencyDto> requiredDependencies) {
+                         List<RequiredDependencyDto> requiredDependencies) {
             this.name = name;
             this.properties = properties;
             this.providedDependencies = providedDependencies;
@@ -147,20 +147,22 @@ public class ConfigurationSubscription implements AuditableConfiguration {
         }
 
         public static ModuleDto from2(Module module) {
-            return new ModuleDto(module.getName(), module.getProperties(), fromProvidedDependencies2(module.getProvidedDependencies()),
-                fromRequiredDependencies2(module.getRequiredDependencies()));
+            return new ModuleDto(module.getName(),
+                                 module.getProperties(),
+                                 fromProvidedDependencies2(module.getProvidedDependencies()),
+                                 fromRequiredDependencies2(module.getRequiredDependencies()));
         }
 
         private static List<ProvidedDependencyDto> fromProvidedDependencies2(List<ProvidedDependency> providedDependencies) {
             return providedDependencies.stream()
-                .map(dependency -> ProvidedDependencyDto.from2(dependency))
-                .collect(Collectors.toList());
+                                       .map(dependency -> ProvidedDependencyDto.from2(dependency))
+                                       .collect(Collectors.toList());
         }
 
         private static List<RequiredDependencyDto> fromRequiredDependencies2(List<RequiredDependency> requiredDependencies) {
             return requiredDependencies.stream()
-                .map(dependency -> RequiredDependencyDto.from2(dependency))
-                .collect(Collectors.toList());
+                                       .map(dependency -> RequiredDependencyDto.from2(dependency))
+                                       .collect(Collectors.toList());
         }
 
     }
@@ -233,8 +235,9 @@ public class ConfigurationSubscription implements AuditableConfiguration {
         }
 
         public static RequiredDependencyDto from2(RequiredDependency requiredDependency) {
-            return new RequiredDependencyDto(requiredDependency.getName(), requiredDependency.getList(),
-                requiredDependency.getProperties());
+            return new RequiredDependencyDto(requiredDependency.getName(),
+                                             requiredDependency.getList(),
+                                             requiredDependency.getProperties());
         }
 
     }
@@ -274,7 +277,7 @@ public class ConfigurationSubscription implements AuditableConfiguration {
 
     public boolean matches(List<ConfigurationEntry> entries) {
         return entries.stream()
-            .anyMatch(entry -> filter.matches(entry));
+                      .anyMatch(entry -> filter.matches(entry));
     }
 
     public boolean matches(ConfigurationEntry entry) {

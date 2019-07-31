@@ -130,8 +130,8 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
     }
 
     public CreateOrUpdateServiceBrokerStepTest(String inputLocation, String expectedOutputLocation, String expectedWarningMessage,
-        String expectedExceptionMessage, Class<? extends Throwable> expectedExceptionClass, CloudOperationException createException,
-        CloudOperationException updateException) {
+                                               String expectedExceptionMessage, Class<? extends Throwable> expectedExceptionClass,
+                                               CloudOperationException createException, CloudOperationException updateException) {
         this.expectedOutputLocation = expectedOutputLocation;
         this.expectedWarningMessage = expectedWarningMessage;
         this.expectedExceptionMessage = expectedExceptionMessage;
@@ -159,7 +159,7 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
         assertEquals(JsonUtil.toJson(expectedOutput, true), JsonUtil.toJson(actualOutput, true));
         if (expectedWarningMessage != null) {
             Mockito.verify(stepLogger)
-                .warn(expectedWarningMessage);
+                   .warn(expectedWarningMessage);
         }
 
         CloudServiceBroker actuallyCreatedOrUpdatedServiceBroker = StepsUtil.getCreatedOrUpdatedServiceBroker(context);
@@ -194,19 +194,19 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
 
     private void prepareClient() {
         Mockito.when(client.getServiceBrokers())
-            .thenReturn(input.existingServiceBrokers);
+               .thenReturn(input.existingServiceBrokers);
         if (updateException != null) {
             Mockito.doThrow(updateException)
-                .when(client)
-                .updateServiceBroker(Mockito.any());
+                   .when(client)
+                   .updateServiceBroker(Mockito.any());
         }
         if (createException != null) {
             Mockito.doThrow(createException)
-                .when(client)
-                .createServiceBroker(Mockito.any());
+                   .when(client)
+                   .createServiceBroker(Mockito.any());
         }
         Mockito.when(client.getApplication(input.application.name))
-            .thenReturn(input.application.toCloudApplication());
+               .thenReturn(input.application.toCloudApplication());
     }
 
     private StepOutput captureStepOutput() {
@@ -217,22 +217,22 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
         boolean expectCreateServiceBroker = (expectedOutput != null && expectedOutput.createdServiceBroker != null) ? true : false;
         if (expectCreateServiceBroker) {
             Mockito.verify(client, Mockito.times(1))
-                .createServiceBroker(createArgumentCaptor.capture());
+                   .createServiceBroker(createArgumentCaptor.capture());
             actualOutput.createdServiceBroker = createArgumentCaptor.getValue();
         } else {
             Mockito.verify(client, Mockito.never())
-                .createServiceBroker(Mockito.any());
+                   .createServiceBroker(Mockito.any());
         }
 
         ArgumentCaptor<CloudServiceBroker> updateArgumentCaptor = ArgumentCaptor.forClass(CloudServiceBroker.class);
         boolean expectUpdateServiceBroker = (expectedOutput != null && expectedOutput.updatedServiceBroker != null) ? true : false;
         if (expectUpdateServiceBroker) {
             Mockito.verify(client, Mockito.times(1))
-                .updateServiceBroker(updateArgumentCaptor.capture());
+                   .updateServiceBroker(updateArgumentCaptor.capture());
             actualOutput.updatedServiceBroker = updateArgumentCaptor.getValue();
         } else {
             Mockito.verify(client, Mockito.never())
-                .updateServiceBroker(Mockito.any());
+                   .updateServiceBroker(Mockito.any());
         }
 
         return actualOutput;
@@ -256,9 +256,10 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
 
         CloudApplicationExtended toCloudApplication() {
             return ImmutableCloudApplicationExtended.builder()
-                .name(name)
-                .env(MapUtil.asMap(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(attributes)))
-                .build();
+                                                    .name(name)
+                                                    .env(MapUtil.asMap(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES,
+                                                                       JsonUtil.toJson(attributes)))
+                                                    .build();
         }
 
     }

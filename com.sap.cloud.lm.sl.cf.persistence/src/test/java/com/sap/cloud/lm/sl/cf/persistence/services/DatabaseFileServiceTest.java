@@ -76,9 +76,9 @@ public class DatabaseFileServiceTest {
         FileEntry fileEntry = addTestFile(SPACE_1, NAMESPACE_1);
         FileEntry fileEntryMetadata = fileService.getFile(SPACE_1, fileEntry.getId());
         assertEquals(fileEntry.getModified()
-            .getTime(),
-            fileEntryMetadata.getModified()
-                .getTime());
+                              .getTime(),
+                     fileEntryMetadata.getModified()
+                                      .getTime());
     }
 
     @Test
@@ -103,7 +103,7 @@ public class DatabaseFileServiceTest {
         Path expectedFile = Paths.get("src/test/resources/", PIC_RESOURCE_NAME);
         FileEntry fileEntry = addTestFile(SPACE_1, NAMESPACE_1);
         String expectedFileDigest = DigestHelper.computeFileChecksum(expectedFile, DIGEST_METHOD)
-            .toLowerCase();
+                                                .toLowerCase();
         validateFileContent(fileEntry, expectedFileDigest);
     }
 
@@ -198,8 +198,8 @@ public class DatabaseFileServiceTest {
 
     protected InputStream getResource(String name) {
         return Thread.currentThread()
-            .getContextClassLoader()
-            .getResourceAsStream(name);
+                     .getContextClassLoader()
+                     .getResourceAsStream(name);
     }
 
     private void verifyFileEntry(FileEntry entry, String space, String namespace) {
@@ -212,7 +212,7 @@ public class DatabaseFileServiceTest {
 
         // verify the MD5 digest, compare with one taken with md5sum
         assertEquals(PIC_MD5_DIGEST.toLowerCase(), entry.getDigest()
-            .toLowerCase());
+                                                        .toLowerCase());
         assertEquals(DIGEST_METHOD, entry.getDigestAlgorithm());
     }
 
@@ -228,8 +228,8 @@ public class DatabaseFileServiceTest {
     private void tearDownConnection() throws Exception {
         // actually close the connection
         testDataSource.getDataSource()
-            .getConnection()
-            .close();
+                      .getConnection()
+                      .close();
     }
 
     private FileEntry addFileEntry(String spaceId) throws FileStorageException {
@@ -238,13 +238,12 @@ public class DatabaseFileServiceTest {
     }
 
     private void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {
-        fileService
-            .processFileContent(new DefaultFileDownloadProcessor(storedFile.getSpace(), storedFile.getId(), contentStream -> {
-                // make a digest out of the content and compare it to the original
-                final byte[] digest = calculateFileDigest(contentStream);
-                assertEquals(expectedFileChecksum, DatatypeConverter.printHexBinary(digest)
-                    .toLowerCase());
-            }));
+        fileService.processFileContent(new DefaultFileDownloadProcessor(storedFile.getSpace(), storedFile.getId(), contentStream -> {
+            // make a digest out of the content and compare it to the original
+            final byte[] digest = calculateFileDigest(contentStream);
+            assertEquals(expectedFileChecksum, DatatypeConverter.printHexBinary(digest)
+                                                                .toLowerCase());
+        }));
     }
 
     private byte[] calculateFileDigest(InputStream contentStream) throws NoSuchAlgorithmException, IOException {
@@ -261,8 +260,8 @@ public class DatabaseFileServiceTest {
         PreparedStatement statement = null;
         try {
             statement = testDataSource.getDataSource()
-                .getConnection()
-                .prepareStatement(MessageFormat.format(UPDATE_MODIFICATION_TIME, FileService.DEFAULT_TABLE_NAME));
+                                      .getConnection()
+                                      .prepareStatement(MessageFormat.format(UPDATE_MODIFICATION_TIME, FileService.DEFAULT_TABLE_NAME));
             statement.setTimestamp(1, new java.sql.Timestamp(modificationDate.getTime()));
             statement.setString(2, fileEntry.getId());
             statement.executeUpdate();
@@ -275,8 +274,8 @@ public class DatabaseFileServiceTest {
         PreparedStatement statement = null;
         try {
             statement = testDataSource.getDataSource()
-                .getConnection()
-                .prepareStatement(MessageFormat.format(SELECT_FILE_WITH_CONTENT, FileService.DEFAULT_TABLE_NAME));
+                                      .getConnection()
+                                      .prepareStatement(MessageFormat.format(SELECT_FILE_WITH_CONTENT, FileService.DEFAULT_TABLE_NAME));
             statement.setString(1, fileEntry.getId());
             ResultSet executeQuery = statement.executeQuery();
             assertTrue(executeQuery.next());

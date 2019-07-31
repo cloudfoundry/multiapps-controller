@@ -22,7 +22,8 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v2.Hel
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor,
-        ConfigurationEntryDao dao, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+                                                                              ConfigurationEntryDao dao, CloudTarget cloudTarget,
+                                                                              ApplicationConfiguration configuration) {
         ParametersChainBuilder v2ParameterChainBuilder = new ParametersChainBuilder(deploymentDescriptor, null);
         ConfigurationFilterParser v2FilterParser = new ConfigurationFilterParser(cloudTarget, v2ParameterChainBuilder);
         return new ConfigurationReferencesResolver(dao, v2FilterParser, cloudTarget, configuration);
@@ -30,7 +31,8 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v2.Hel
 
     @Override
     public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting,
-        DeployedMta deployedMta, String deployId, UserMessageLogger stepLogger) {
+                                                                        DeployedMta deployedMta, String deployId,
+                                                                        UserMessageLogger stepLogger) {
         return new ApplicationCloudModelBuilder(deploymentDescriptor, prettyPrinting, deployedMta, deployId, stepLogger);
     }
 

@@ -42,7 +42,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = DescriptorTestUtil.loadDeploymentDescriptor("build-cloud-model.yaml",
-        BuildCloudDeployModelStepTest.class);
+                                                                                                                  BuildCloudDeployModelStepTest.class);
 
     protected static class StepInput {
 
@@ -54,7 +54,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         public List<String> customDomains;
 
         public StepInput(String modulesToDeployLocation, String servicesToBindLocation, String servicesToCreateLocation,
-            String serviceKeysLocation, List<String> customDomains, String deployedMtaLocation) {
+                         String serviceKeysLocation, List<String> customDomains, String deployedMtaLocation) {
             this.servicesToBindLocation = servicesToBindLocation;
             this.servicesToCreateLocation = servicesToCreateLocation;
             this.deployedMtaLocation = deployedMtaLocation;
@@ -82,8 +82,9 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         }
 
         @Override
-        protected ModulesCloudModelBuilderContentCalculator getModulesContentCalculator(ExecutionWrapper execution,
-            Set<String> mtaArchiveModules, Set<String> deployedModuleNames, Set<String> allMtaModules) {
+        protected ModulesCloudModelBuilderContentCalculator
+                  getModulesContentCalculator(ExecutionWrapper execution, Set<String> mtaArchiveModules, Set<String> deployedModuleNames,
+                                              Set<String> allMtaModules) {
             return modulesCloudModelBuilderContentCalculator;
         }
 

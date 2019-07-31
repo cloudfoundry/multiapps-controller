@@ -56,7 +56,7 @@ public class OperationsApi {
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted", response = Void.class) })
     public Response executeOperationAction(@ApiParam(value = "", required = true) @PathParam("operationId") String operationId,
-        @NotNull @ApiParam(value = "", required = true) @QueryParam("actionId") String actionId) {
+                                           @NotNull @ApiParam(value = "", required = true) @QueryParam("actionId") String actionId) {
         return delegate.executeOperationAction(operationId, actionId, securityContext, spaceGuid);
     }
 
@@ -69,8 +69,9 @@ public class OperationsApi {
 
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Operation.class) })
-    public Response getMtaOperation(@ApiParam(value = "", required = true) @PathParam("operationId") String operationId,
-        @ApiParam(value = "Adds the specified property in the response body ") @QueryParam("embed") String embed) {
+    public Response
+           getMtaOperation(@ApiParam(value = "", required = true) @PathParam("operationId") String operationId,
+                           @ApiParam(value = "Adds the specified property in the response body ") @QueryParam("embed") String embed) {
         return delegate.getMtaOperation(operationId, embed, securityContext, spaceGuid);
     }
 
@@ -97,7 +98,7 @@ public class OperationsApi {
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
     public Response getMtaOperationLogContent(@ApiParam(value = "", required = true) @PathParam("operationId") String operationId,
-        @ApiParam(value = "", required = true) @PathParam("logId") String logId) {
+                                              @ApiParam(value = "", required = true) @PathParam("logId") String logId) {
         return delegate.getMtaOperationLogContent(operationId, logId, securityContext, spaceGuid);
     }
 
@@ -111,7 +112,7 @@ public class OperationsApi {
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Operation.class, responseContainer = "List") })
     public Response getMtaOperations(@ApiParam(value = "") @QueryParam("last") Integer last,
-        @ApiParam(value = "") @QueryParam("state") List<String> state) {
+                                     @ApiParam(value = "") @QueryParam("state") List<String> state) {
         return delegate.getMtaOperations(last, state, securityContext, spaceGuid);
     }
 

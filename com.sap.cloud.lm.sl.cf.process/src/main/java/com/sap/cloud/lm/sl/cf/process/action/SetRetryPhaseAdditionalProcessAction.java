@@ -4,10 +4,10 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.AdditionalProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.flowable.RetryProcessAction;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 
 @Component
@@ -23,11 +23,12 @@ public class SetRetryPhaseAdditionalProcessAction implements AdditionalProcessAc
     @Override
     public void executeAdditionalProcessAction(String processInstanceId) {
         flowableFacade.getActiveProcessExecutions(processInstanceId)
-            .stream()
-            .map(execution -> execution.getProcessInstanceId())
-            .forEach(executionProcessId -> flowableFacade.getProcessEngine()
-                .getRuntimeService()
-                .setVariable(executionProcessId, Constants.VAR_STEP_PHASE, StepPhase.RETRY.toString()));
+                      .stream()
+                      .map(execution -> execution.getProcessInstanceId())
+                      .forEach(executionProcessId -> flowableFacade.getProcessEngine()
+                                                                   .getRuntimeService()
+                                                                   .setVariable(executionProcessId, Constants.VAR_STEP_PHASE,
+                                                                                StepPhase.RETRY.toString()));
     }
 
     @Override

@@ -17,7 +17,7 @@ public class DeployedMtaModule {
     }
 
     public DeployedMtaModule(String moduleName, String appName, Date createdOn, Date updatedOn, List<String> services,
-        List<String> providedDependencyNames, List<String> uris) {
+                             List<String> providedDependencyNames, List<String> uris) {
         this.moduleName = moduleName;
         this.appName = appName;
         this.createdOn = createdOn;

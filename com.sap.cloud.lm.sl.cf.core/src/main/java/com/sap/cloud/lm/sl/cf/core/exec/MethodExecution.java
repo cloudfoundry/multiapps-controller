@@ -7,12 +7,12 @@ public class MethodExecution<T> {
 
     private ExecutionState state;
     private T response;
-    
+
     public MethodExecution(T response, ExecutionState state) {
         this.response = response;
         this.state = state;
     }
-    
+
     public ExecutionState getState() {
         return state;
     }
@@ -20,12 +20,13 @@ public class MethodExecution<T> {
     public T getResponse() {
         return response;
     }
-    
+
     public static MethodExecution<String> fromResponseEntity(ResponseEntity<String> response) {
-        if(response == null) {
+        if (response == null) {
             return null;
         }
-        ExecutionState state = response.getStatusCode().equals(HttpStatus.ACCEPTED) ? ExecutionState.EXECUTING : ExecutionState.FINISHED;
+        ExecutionState state = response.getStatusCode()
+                                       .equals(HttpStatus.ACCEPTED) ? ExecutionState.EXECUTING : ExecutionState.FINISHED;
         String responseEntity = response.getBody();
         return new MethodExecution<>(responseEntity, state);
     }

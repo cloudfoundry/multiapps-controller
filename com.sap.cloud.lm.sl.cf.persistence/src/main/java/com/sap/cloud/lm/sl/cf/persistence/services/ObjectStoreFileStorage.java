@@ -47,35 +47,35 @@ public class ObjectStoreFileStorage implements FileStorage {
     public void addFile(FileEntry fileEntry, File file) throws FileStorageException {
         String entryName = fileEntry.getId();
         long fileSize = fileEntry.getSize()
-            .longValue();
+                                 .longValue();
         Blob blob = blobStore.blobBuilder(entryName)
-            .payload(file)
-            .contentDisposition(fileEntry.getName())
-            .contentType(MediaType.OCTET_STREAM.toString())
-            .userMetadata(createFileEntryMetadata(fileEntry))
-            .build();
+                             .payload(file)
+                             .contentDisposition(fileEntry.getName())
+                             .contentType(MediaType.OCTET_STREAM.toString())
+                             .userMetadata(createFileEntryMetadata(fileEntry))
+                             .build();
         try {
             putBlobWithRetries(blob, 3);
             LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1_SUCCESSFULLY_2, fileEntry.getId(), fileSize));
         } catch (ContainerNotFoundException e) {
-            throw new FileStorageException(
-                MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(), fileEntry.getNamespace()));
+            throw new FileStorageException(MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(),
+                                                                fileEntry.getNamespace()));
         }
     }
 
     @Override
     public List<FileEntry> getFileEntriesWithoutContent(List<FileEntry> fileEntries) throws FileStorageException {
         Set<String> existingFiles = blobStore.list(container)
-            .stream()
-            .map(StorageMetadata::getName)
-            .collect(Collectors.toSet());
+                                             .stream()
+                                             .map(StorageMetadata::getName)
+                                             .collect(Collectors.toSet());
 
         return fileEntries.stream()
-            .filter(fileEntry -> {
-                String id = fileEntry.getId();
-                return !existingFiles.contains(id);
-            })
-            .collect(Collectors.toList());
+                          .filter(fileEntry -> {
+                              String id = fileEntry.getId();
+                              return !existingFiles.contains(id);
+                          })
+                          .collect(Collectors.toList());
     }
 
     @Override
@@ -104,8 +104,8 @@ public class ObjectStoreFileStorage implements FileStorage {
         try {
             Blob blob = getBlobWithRetries(fileEntry, 3);
             if (blob == null) {
-                throw new FileStorageException(
-                    MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(), fileEntry.getSpace()));
+                throw new FileStorageException(MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(),
+                                                                    fileEntry.getSpace()));
             }
             Payload payload = blob.getPayload();
             processContent(fileDownloadProcessor, payload);
@@ -113,7 +113,7 @@ public class ObjectStoreFileStorage implements FileStorage {
             throw new FileStorageException(e);
         }
     }
-    
+
     private void processContent(FileDownloadProcessor fileDownloadProcessor, Payload payload) throws FileStorageException {
         try (InputStream fileContentStream = payload.openStream()) {
             fileDownloadProcessor.processContent(fileContentStream);
@@ -155,13 +155,13 @@ public class ObjectStoreFileStorage implements FileStorage {
     protected long getRetryWaitTime() {
         return RETRY_BASE_WAIT_TIME_IN_MILLIS;
     }
-    
+
     private Map<String, String> createFileEntryMetadata(FileEntry fileEntry) {
         Map<String, String> metadata = new HashMap<>();
         metadata.put(FileService.FileServiceColumnNames.SPACE.toLowerCase(), fileEntry.getSpace());
         metadata.put(FileService.FileServiceColumnNames.FILE_NAME.toLowerCase(), fileEntry.getName());
         metadata.put(FileService.FileServiceColumnNames.MODIFIED.toLowerCase(), Long.toString(fileEntry.getModified()
-            .getTime()));
+                                                                                                       .getTime()));
         if (fileEntry.getNamespace() != null) {
             metadata.put(FileService.FileServiceColumnNames.NAMESPACE.toLowerCase(), fileEntry.getNamespace());
         }
@@ -178,11 +178,11 @@ public class ObjectStoreFileStorage implements FileStorage {
 
     private Set<String> getEntryNames(Predicate<? super StorageMetadata> filter) {
         return blobStore.list(container, new ListContainerOptions().withDetails())
-            .stream()
-            .filter(Objects::nonNull)
-            .filter(filter)
-            .map(StorageMetadata::getName)
-            .collect(Collectors.toSet());
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .filter(filter)
+                        .map(StorageMetadata::getName)
+                        .collect(Collectors.toSet());
     }
 
     private boolean filterByModificationTime(StorageMetadata blobMetadata, Date modificationTime) {

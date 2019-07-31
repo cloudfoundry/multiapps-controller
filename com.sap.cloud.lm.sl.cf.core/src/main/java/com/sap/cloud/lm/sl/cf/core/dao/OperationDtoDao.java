@@ -65,10 +65,11 @@ public class OperationDtoDao {
     }
 
     public int removeExpiredInFinalState(Date expirationTime) {
-        return new TransactionalExecutor<Integer>(createEntityManager())
-            .execute(manager -> manager.createNamedQuery("remove_expired_in_final_state")
-                .setParameter("expirationTime", expirationTime, TemporalType.TIMESTAMP)
-                .executeUpdate());
+        return new TransactionalExecutor<Integer>(createEntityManager()).execute(manager -> manager.createNamedQuery("remove_expired_in_final_state")
+                                                                                                   .setParameter("expirationTime",
+                                                                                                                 expirationTime,
+                                                                                                                 TemporalType.TIMESTAMP)
+                                                                                                   .executeUpdate());
     }
 
     public OperationDto find(String processId) {
@@ -90,7 +91,7 @@ public class OperationDtoDao {
     @SuppressWarnings("unchecked")
     public List<OperationDto> findAll() {
         return new Executor<List<OperationDto>>(createEntityManager()).execute(manager -> manager.createNamedQuery("find_all")
-            .getResultList());
+                                                                                                 .getResultList());
     }
 
     public void merge(OperationDto operation) {
@@ -112,7 +113,7 @@ public class OperationDtoDao {
         Predicate[] predicates = getPredicates(operationFilter, criteriaBuilder, root);
 
         query.select(root)
-            .where(predicates);
+             .where(predicates);
         if (operationFilter.getOrderAttribute() != null) {
             setOrdering(operationFilter, criteriaBuilder, query, root);
         }
@@ -141,11 +142,11 @@ public class OperationDtoDao {
         }
         if (operationFilter.isInNonFinalState()) {
             predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE)
-                .isNull());
+                               .isNull());
         }
         if (operationFilter.isInFinalState()) {
             predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE)
-                .isNotNull());
+                               .isNotNull());
         }
         if (operationFilter.isWithoutAcquiredLock()) {
             predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.ACQUIRED_LOCK), false));
@@ -155,7 +156,7 @@ public class OperationDtoDao {
         }
         if (operationFilter.getStates() != null) {
             predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE)
-                .in(toStrings(operationFilter.getStates())));
+                               .in(toStrings(operationFilter.getStates())));
         }
         if (operationFilter.getStartedBefore() != null) {
             predicates.add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.STARTED_AT), operationFilter.getStartedBefore()));
@@ -174,7 +175,7 @@ public class OperationDtoDao {
     }
 
     private void setOrdering(OperationFilter operationFilter, CriteriaBuilder criteriaBuilder, CriteriaQuery<OperationDto> query,
-        Root<OperationDto> root) {
+                             Root<OperationDto> root) {
         if (operationFilter.getOrderDirection() == OrderDirection.ASCENDING) {
             query.orderBy(criteriaBuilder.asc(root.get(operationFilter.getOrderAttribute())));
         } else {
@@ -184,8 +185,8 @@ public class OperationDtoDao {
 
     private List<String> toStrings(List<State> states) {
         return states.stream()
-            .map(State::toString)
-            .collect(Collectors.toList());
+                     .map(State::toString)
+                     .collect(Collectors.toList());
     }
 
 }

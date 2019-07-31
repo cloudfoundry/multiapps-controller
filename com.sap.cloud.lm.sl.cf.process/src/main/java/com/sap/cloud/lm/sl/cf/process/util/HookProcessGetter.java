@@ -43,12 +43,12 @@ public class HookProcessGetter {
 
     private void preserveErrorMessage(DelegateExecution context, String errorMessage) {
         progressMessageService.add(ImmutableProgressMessage.builder()
-            .processId(flowableFacade.getProcessInstanceId(context.getId()))
-            .taskId(context.getCurrentActivityId())
-            .type(ProgressMessageType.ERROR)
-            .text(errorMessage)
-            .timestamp(getCurrentTime())
-            .build());
+                                                           .processId(flowableFacade.getProcessInstanceId(context.getId()))
+                                                           .taskId(context.getCurrentActivityId())
+                                                           .type(ProgressMessageType.ERROR)
+                                                           .text(errorMessage)
+                                                           .timestamp(getCurrentTime())
+                                                           .build());
     }
 
     protected Date getCurrentTime() {

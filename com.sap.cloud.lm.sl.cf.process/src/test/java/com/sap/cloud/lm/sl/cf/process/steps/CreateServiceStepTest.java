@@ -93,10 +93,10 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
     private void prepareClient() {
         SimpleService service = stepInput.service;
         Mockito.when(client.getServiceInstance(service.name))
-            .thenReturn(createServiceInstance(service));
+               .thenReturn(createServiceInstance(service));
         Mockito.doNothing()
-            .when(client)
-            .createUserProvidedService(Matchers.any(CloudServiceExtended.class), Matchers.any(Map.class));
+               .when(client)
+               .createUserProvidedService(Matchers.any(CloudServiceExtended.class), Matchers.any(Map.class));
     }
 
     private void prepareFactory(String stepPhase) {
@@ -114,9 +114,9 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
         }
         ServiceWithAlternativesCreator serviceCreator = Mockito.mock(ServiceWithAlternativesCreator.class);
         Mockito.when(serviceCreatorFactory.createInstance(Matchers.any()))
-            .thenReturn(serviceCreator);
+               .thenReturn(serviceCreator);
         Mockito.when(serviceCreator.createService(Matchers.any(), Matchers.any(), Matchers.any()))
-            .thenReturn(methodExec);
+               .thenReturn(methodExec);
     }
 
     private void prepareResponses(String stepPhase) {
@@ -125,16 +125,16 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
 
     private CloudServiceInstance createServiceInstance(SimpleService service) {
         CloudMetadata serviceMetadata = ImmutableCloudMetadata.builder()
-            .guid(UUID.fromString(service.guid))
-            .build();
+                                                              .guid(UUID.fromString(service.guid))
+                                                              .build();
         return ImmutableCloudServiceInstance.builder()
-            .service(ImmutableCloudService.builder()
-                .name(service.name)
-                .plan(service.plan)
-                .label(service.label)
-                .metadata(serviceMetadata)
-                .build())
-            .build();
+                                            .service(ImmutableCloudService.builder()
+                                                                          .name(service.name)
+                                                                          .plan(service.plan)
+                                                                          .label(service.label)
+                                                                          .metadata(serviceMetadata)
+                                                                          .build())
+                                            .build();
     }
 
     private static class StepInput {

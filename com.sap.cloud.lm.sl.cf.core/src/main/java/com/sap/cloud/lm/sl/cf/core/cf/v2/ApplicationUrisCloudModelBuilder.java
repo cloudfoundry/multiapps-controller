@@ -22,7 +22,7 @@ public class ApplicationUrisCloudModelBuilder {
     private final CloudApplicationExtended.AttributeUpdateStrategy applicationAttributeUpdateStrategy;
 
     public ApplicationUrisCloudModelBuilder(DeploymentDescriptor descriptor,
-        CloudApplicationExtended.AttributeUpdateStrategy applicationAttributeUpdateStrategy) {
+                                            CloudApplicationExtended.AttributeUpdateStrategy applicationAttributeUpdateStrategy) {
         this.descriptor = descriptor;
         this.applicationAttributeUpdateStrategy = applicationAttributeUpdateStrategy;
     }
@@ -61,7 +61,7 @@ public class ApplicationUrisCloudModelBuilder {
         Map<String, Object> moduleParameters = module.getParameters();
         String defaultHost = (String) moduleParameters.getOrDefault(parametersType.host, null);
         String defaultRoutePath = (String) module.getParameters()
-            .get(SupportedParameters.ROUTE_PATH);
+                                                 .get(SupportedParameters.ROUTE_PATH);
         String defaultDomain = getDefaultDomain(parametersType, moduleParameters);
         return new IdleUriParametersParser(defaultHost, defaultDomain, defaultRoutePath).parse(propertiesList);
     }
@@ -71,16 +71,16 @@ public class ApplicationUrisCloudModelBuilder {
         Map<String, Object> moduleParameters = module.getParameters();
         String defaultHost = (String) moduleParameters.getOrDefault(parametersType.host, null);
         String routePath = (String) module.getParameters()
-            .get(SupportedParameters.ROUTE_PATH);
+                                          .get(SupportedParameters.ROUTE_PATH);
         String defaultDomain = getDefaultDomain(parametersType, moduleParameters);
         return new UriParametersParser(defaultHost, defaultDomain, routePath);
     }
 
     private String getDefaultDomain(RoutingParameterSet parametersType, Map<String, Object> moduleParameters) {
         if (descriptor.getParameters()
-            .containsKey(parametersType.domain)) {
+                      .containsKey(parametersType.domain)) {
             return (String) descriptor.getParameters()
-                .get(parametersType.domain);
+                                      .get(parametersType.domain);
         }
         return (String) moduleParameters.getOrDefault(parametersType.domain, null);
     }

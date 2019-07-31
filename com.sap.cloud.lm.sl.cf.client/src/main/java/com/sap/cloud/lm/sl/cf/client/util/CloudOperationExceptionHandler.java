@@ -1,13 +1,13 @@
 package com.sap.cloud.lm.sl.cf.client.util;
 
+import java.text.MessageFormat;
+import java.util.Set;
+
 import org.apache.commons.compress.utils.Sets;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-
-import java.text.MessageFormat;
-import java.util.Set;
 
 public class CloudOperationExceptionHandler implements ExceptionHandler {
 
@@ -32,7 +32,7 @@ public class CloudOperationExceptionHandler implements ExceptionHandler {
             throw cloudOperationException;
         }
         LOGGER.warn(MessageFormat.format("Retrying failed request with status: {0} and message: {1}",
-            cloudOperationException.getStatusCode(), cloudOperationException.getMessage()));
+                                         cloudOperationException.getStatusCode(), cloudOperationException.getMessage()));
     }
 
     private boolean shouldIgnoreException(CloudOperationException e, Set<HttpStatus> httpStatusesToIgnore) {
@@ -41,7 +41,7 @@ public class CloudOperationExceptionHandler implements ExceptionHandler {
         }
         for (HttpStatus status : httpStatusesToIgnore) {
             if (e.getStatusCode()
-                .equals(status)) {
+                 .equals(status)) {
                 return true;
             }
         }

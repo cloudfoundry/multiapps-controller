@@ -34,7 +34,7 @@ public class MtaConfigurationPurger {
     private ConfigurationSubscriptionDao subscriptionDao;
 
     public MtaConfigurationPurger(CloudControllerClient client, ConfigurationEntryDao entryDao,
-        ConfigurationSubscriptionDao subscriptionDao) {
+                                  ConfigurationSubscriptionDao subscriptionDao) {
         this.client = client;
         this.entryDao = entryDao;
         this.subscriptionDao = subscriptionDao;
@@ -62,14 +62,14 @@ public class MtaConfigurationPurger {
 
     private Set<String> getNames(List<CloudApplication> apps) {
         return apps.stream()
-            .map(CloudApplication::getName)
-            .collect(Collectors.toSet());
+                   .map(CloudApplication::getName)
+                   .collect(Collectors.toSet());
     }
 
     private void purgeSubscription(ConfigurationSubscription subscription) {
         LOGGER.debug(MessageFormat.format(Messages.DELETING_SUBSCRIPTION, subscription.getId()));
         AuditLoggingProvider.getFacade()
-            .logConfigDelete(subscription);
+                            .logConfigDelete(subscription);
         subscriptionDao.remove(subscription.getId());
     }
 
@@ -87,20 +87,20 @@ public class MtaConfigurationPurger {
 
     private boolean isStillRelevant(List<ConfigurationEntry> stillRelevantEntries, ConfigurationEntry entry) {
         return stillRelevantEntries.stream()
-            .anyMatch(currentEntry -> haveSameProviderIdAndVersion(currentEntry, entry));
+                                   .anyMatch(currentEntry -> haveSameProviderIdAndVersion(currentEntry, entry));
     }
 
     private boolean haveSameProviderIdAndVersion(ConfigurationEntry entry1, ConfigurationEntry entry2) {
         return entry1.getProviderId()
-            .equals(entry2.getProviderId())
+                     .equals(entry2.getProviderId())
             && entry1.getProviderVersion()
-                .equals(entry2.getProviderVersion());
+                     .equals(entry2.getProviderVersion());
     }
 
     private List<ConfigurationEntry> getStillRelevantConfigurationEntries(List<CloudApplication> apps) {
         return apps.stream()
-            .flatMap(app -> getStillRelevantConfigurationEntries(app).stream())
-            .collect(Collectors.toList());
+                   .flatMap(app -> getStillRelevantConfigurationEntries(app).stream())
+                   .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> getStillRelevantConfigurationEntries(CloudApplication app) {
@@ -109,20 +109,25 @@ public class MtaConfigurationPurger {
             return Collections.emptyList();
         }
         return metadata.getProvidedDependencyNames()
-            .stream()
-            .map(providedDependencyName -> toConfigurationEntry(metadata.getMtaMetadata(), providedDependencyName))
-            .collect(Collectors.toList());
+                       .stream()
+                       .map(providedDependencyName -> toConfigurationEntry(metadata.getMtaMetadata(), providedDependencyName))
+                       .collect(Collectors.toList());
     }
 
     private ConfigurationEntry toConfigurationEntry(DeployedMtaMetadata metadata, String providedDependencyName) {
-        return new ConfigurationEntry(null, computeProviderId(metadata, providedDependencyName), metadata.getVersion(), null, null, null,
-            null);
+        return new ConfigurationEntry(null,
+                                      computeProviderId(metadata, providedDependencyName),
+                                      metadata.getVersion(),
+                                      null,
+                                      null,
+                                      null,
+                                      null);
     }
 
     private void purgeConfigurationEntry(ConfigurationEntry entry) {
         LOGGER.debug(MessageFormat.format(Messages.DELETING_ENTRY, entry.getId()));
         AuditLoggingProvider.getFacade()
-            .logConfigDelete(entry);
+                            .logConfigDelete(entry);
         entryDao.remove(entry.getId());
     }
 

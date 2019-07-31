@@ -465,8 +465,9 @@ public class CloudModelBuilderTest {
     }
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
-        String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices, String[] mtaArchiveModules,
-        String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps) {
+                                 String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices,
+                                 String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, Expectation expectedServices,
+                                 Expectation expectedApps) {
         this.deploymentDescriptorLocation = deploymentDescriptorLocation;
         this.extensionDescriptorLocation = extensionDescriptorLocation;
         this.platformLocation = platformsLocation;
@@ -505,11 +506,15 @@ public class CloudModelBuilderTest {
     }
 
     protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        boolean prettyPrinting, DeployedMta deployedMta) {
-        deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor, new ResolverBuilder(), new ResolverBuilder())
-            .resolve();
-        return new ApplicationCloudModelBuilder(deploymentDescriptor, prettyPrinting, deployedMta, DEPLOY_ID,
-            Mockito.mock(UserMessageLogger.class));
+                                                                           boolean prettyPrinting, DeployedMta deployedMta) {
+        deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor,
+                                                               new ResolverBuilder(),
+                                                               new ResolverBuilder()).resolve();
+        return new ApplicationCloudModelBuilder(deploymentDescriptor,
+                                                prettyPrinting,
+                                                deployedMta,
+                                                DEPLOY_ID,
+                                                Mockito.mock(UserMessageLogger.class));
     }
 
     protected PlatformMerger getPlatformMerger(Platform platform, DescriptorHandler handler) {
@@ -538,8 +543,13 @@ public class CloudModelBuilderTest {
         appBuilder = getApplicationCloudModelBuilder(deploymentDescriptor, false, deployedMta);
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor);
 
-        modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, null, getUserMessageLogger(),
-            new ModuleToDeployHelper(), Arrays.asList(new UnresolvedModulesContentValidator(mtaModules, deployedApps)));
+        modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules,
+                                                                          deployedApps,
+                                                                          null,
+                                                                          getUserMessageLogger(),
+                                                                          new ModuleToDeployHelper(),
+                                                                          Arrays.asList(new UnresolvedModulesContentValidator(mtaModules,
+                                                                                                                              deployedApps)));
 
         moduleToDeployHelper = new ModuleToDeployHelper();
 
@@ -595,14 +605,14 @@ public class CloudModelBuilderTest {
 
     private String computeAppName(DeploymentDescriptor descriptor, Module module) {
         String appName = (String) module.getParameters()
-            .get(SupportedParameters.APP_NAME);
+                                        .get(SupportedParameters.APP_NAME);
         appName = appName != null ? appName : module.getName();
         return NameUtil.computeValidApplicationName(appName, descriptor.getId(), useNamespaces);
     }
 
     private String computeServiceName(DeploymentDescriptor descriptor, Resource resource) {
         String serviceName = (String) resource.getParameters()
-            .get(SupportedParameters.SERVICE_NAME);
+                                              .get(SupportedParameters.SERVICE_NAME);
         serviceName = serviceName != null ? serviceName : resource.getName();
         return NameUtil.computeValidServiceName(serviceName, descriptor.getId(), useNamespaces, useNamespacesForServices);
     }

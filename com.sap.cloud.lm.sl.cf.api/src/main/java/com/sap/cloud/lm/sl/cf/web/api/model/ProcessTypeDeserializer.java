@@ -17,7 +17,7 @@ public class ProcessTypeDeserializer extends StdDeserializer<ProcessType> {
     @Override
     public ProcessType deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         String processType = parser.getCodec()
-            .readValue(parser, String.class);
+                                   .readValue(parser, String.class);
         return ProcessType.fromString(processType);
     }
 

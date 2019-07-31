@@ -18,7 +18,7 @@ public class ModuleDependencyChecker {
     private CloudControllerClient client;
 
     public ModuleDependencyChecker(CloudControllerClient client, List<Module> allModulesInDescriptor, List<Module> allModulesToDeploy,
-        List<Module> completedModules) {
+                                   List<Module> completedModules) {
         this.client = client;
 
         modulesForDeployment = computeModulesForDeployment(allModulesToDeploy);
@@ -28,21 +28,21 @@ public class ModuleDependencyChecker {
 
     private Set<String> computeModulesForDeployment(List<Module> allModulesToDeploy) {
         return allModulesToDeploy.stream()
-            .map(Module::getName)
-            .collect(Collectors.toSet());
+                                 .map(Module::getName)
+                                 .collect(Collectors.toSet());
     }
 
     private Set<String> computeAlreadyDeployedModules(List<Module> completedModules) {
         return completedModules.stream()
-            .map(Module::getName)
-            .collect(Collectors.toSet());
+                               .map(Module::getName)
+                               .collect(Collectors.toSet());
     }
 
     private Set<String> computeModuleNotForDeployment(List<Module> allModules) {
         return allModules.stream()
-            .map(Module::getName)
-            .filter(module -> !modulesForDeployment.contains(module))
-            .collect(Collectors.toSet());
+                         .map(Module::getName)
+                         .filter(module -> !modulesForDeployment.contains(module))
+                         .collect(Collectors.toSet());
     }
 
     public boolean areAllDependenciesSatisfied(Module module) {
@@ -51,21 +51,22 @@ public class ModuleDependencyChecker {
         }
 
         return module.getDeployedAfter()
-            .isEmpty() || modulesAlreadyDeployed.containsAll(module.getDeployedAfter())
-            || areAllDependenciesAlreadyPresent(module.getDeployedAfter());
+                     .isEmpty()
+            || modulesAlreadyDeployed.containsAll(module.getDeployedAfter()) || areAllDependenciesAlreadyPresent(module.getDeployedAfter());
     }
 
     private boolean areAllDependenciesAlreadyPresent(List<String> deployedAfter) {
         List<CloudApplication> modulesNotFoundInSpace = deployedAfter.stream()
-            .filter(modulesNotForDeployment::contains)
-            .map(deployAfterDependency -> client.getApplication(deployAfterDependency, false))
-            .filter(Objects::isNull)
-            .collect(Collectors.toList());
+                                                                     .filter(modulesNotForDeployment::contains)
+                                                                     .map(deployAfterDependency -> client.getApplication(deployAfterDependency,
+                                                                                                                         false))
+                                                                     .filter(Objects::isNull)
+                                                                     .collect(Collectors.toList());
 
         List<String> modulesNotYetDeployed = deployedAfter.stream()
-            .filter(modulesForDeployment::contains)
-            .filter(module -> !modulesAlreadyDeployed.contains(module))
-            .collect(Collectors.toList());
+                                                          .filter(modulesForDeployment::contains)
+                                                          .filter(module -> !modulesAlreadyDeployed.contains(module))
+                                                          .collect(Collectors.toList());
 
         return modulesNotFoundInSpace.isEmpty() && modulesNotYetDeployed.isEmpty();
     }

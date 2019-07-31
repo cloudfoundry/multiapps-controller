@@ -16,7 +16,7 @@ public class PartialModuleReferenceResolver extends ModuleReferenceResolver {
     private List<String> dependenciesToIgnore;
 
     public PartialModuleReferenceResolver(DeploymentDescriptor descriptor, Module module, String prefix,
-        List<String> dependenciesToIgnore) {
+                                          List<String> dependenciesToIgnore) {
         super(descriptor, module, prefix, new ResolverBuilder(), new ResolverBuilder());
         this.dependenciesToIgnore = dependenciesToIgnore;
     }

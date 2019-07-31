@@ -83,7 +83,7 @@ public class ApplicationZipBuilder {
 
     private boolean isAlreadyUploaded(String zipEntryName, ApplicationArchiveContext applicationArchiveContext) {
         return applicationArchiveContext.getAlreadyUploadedFiles()
-            .contains(zipEntryName);
+                                        .contains(zipEntryName);
     }
 
     protected void copy(InputStream input, OutputStream output, ApplicationArchiveContext applicationArchiveContext) throws IOException {
@@ -111,7 +111,7 @@ public class ApplicationZipBuilder {
     protected void cleanUp(Path appPath, StepLogger logger) {
         // java 8 Files.exists() has poor performance
         if (appPath == null || !appPath.toFile()
-            .exists()) {
+                                       .exists()) {
             return;
         }
 

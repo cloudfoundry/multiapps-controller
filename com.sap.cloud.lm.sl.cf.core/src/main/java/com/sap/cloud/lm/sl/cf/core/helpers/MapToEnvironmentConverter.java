@@ -1,8 +1,8 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 public class MapToEnvironmentConverter {
 

@@ -14,7 +14,7 @@ public class PollStartServiceBrokerSubscriberStatusExecution extends PollStartAp
     @Override
     protected void onError(ExecutionWrapper execution, String message) {
         execution.getStepLogger()
-            .warn(message);
+                 .warn(message);
     }
 
     @Override

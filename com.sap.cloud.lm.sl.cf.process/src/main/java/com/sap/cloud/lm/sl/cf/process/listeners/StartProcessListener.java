@@ -81,11 +81,11 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private void addOperation(DelegateExecution context, String correlationId, ProcessType processType) {
         Operation operation = new Operation().processId(correlationId)
-            .processType(processType)
-            .startedAt(currentTimeSupplier.get())
-            .spaceId(StepsUtil.getSpaceId(context))
-            .user(StepsUtil.determineCurrentUser(context, getStepLogger()))
-            .acquiredLock(false);
+                                             .processType(processType)
+                                             .startedAt(currentTimeSupplier.get())
+                                             .spaceId(StepsUtil.getSpaceId(context))
+                                             .user(StepsUtil.determineCurrentUser(context, getStepLogger()))
+                                             .acquiredLock(false);
         operationDao.add(operation);
     }
 

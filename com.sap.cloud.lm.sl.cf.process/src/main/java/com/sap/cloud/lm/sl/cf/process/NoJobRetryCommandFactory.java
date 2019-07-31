@@ -38,8 +38,8 @@ public class NoJobRetryCommandFactory extends DefaultFailedJobCommandFactory {
         @Override
         public Object execute(CommandContext commandContext) {
             JobEntity job = CommandContextUtil.getJobServiceConfiguration(commandContext)
-                .getJobService()
-                .findJobById(jobId);
+                                              .getJobService()
+                                              .findJobById(jobId);
             job.setRetries(NO_RETRIES);
             job.setLockOwner(null);
             job.setLockExpirationTime(null);

@@ -53,7 +53,7 @@ public class AuthorizationChecker {
     public void ensureUserIsAuthorized(HttpServletRequest request, UserInfo userInfo, String organization, String space, String action) {
         try {
             if (!checkPermissions(userInfo, organization, space, request.getMethod()
-                .equals(HttpMethod.GET))) {
+                                                                        .equals(HttpMethod.GET))) {
                 String message = MessageFormat.format(Messages.UNAUTHORISED_OPERATION_ORG_SPACE, action, organization, space);
                 failWithForbiddenStatus(message);
             }
@@ -66,7 +66,7 @@ public class AuthorizationChecker {
     public void ensureUserIsAuthorized(HttpServletRequest request, UserInfo userInfo, String spaceGuid, String action) {
         try {
             if (!checkPermissions(userInfo, spaceGuid, request.getMethod()
-                .equals(HttpMethod.GET))) {
+                                                              .equals(HttpMethod.GET))) {
                 String message = MessageFormat.format(Messages.UNAUTHORISED_OPERATION_SPACE_ID, action, spaceGuid);
                 failWithForbiddenStatus(message);
             }
@@ -120,36 +120,36 @@ public class AuthorizationChecker {
 
     private boolean isUserInSpaceAuditors(CloudControllerClient client, UUID userGuid, UUID spaceGuid) {
         return client.getSpaceAuditors(spaceGuid)
-            .contains(userGuid);
+                     .contains(userGuid);
     }
 
     private boolean isUserInSpaceManagers(CloudControllerClient client, UUID userGuid, UUID spaceGuid) {
         return client.getSpaceManagers(spaceGuid)
-            .contains(userGuid);
+                     .contains(userGuid);
     }
 
     private boolean isUserInSpaceDevelopersUsingCache(CloudControllerClient client, UUID userGuid, UUID spaceGuid) {
         return spaceDevelopersCache.get(spaceGuid, (() -> client.getSpaceDevelopers(spaceGuid)))
-            .contains(userGuid);
+                                   .contains(userGuid);
     }
 
     private boolean isUserInSpaceDevelopersAfterCacheRefresh(CloudControllerClient client, UUID userGuid, UUID spaceGuid) {
         return spaceDevelopersCache.forceRefresh(spaceGuid, (() -> client.getSpaceDevelopers(spaceGuid)))
-            .contains(userGuid);
+                                   .contains(userGuid);
     }
 
     private boolean hasPermissions(CloudControllerClient client, UUID userGuid, String orgName, String spaceName, boolean readOnly) {
         if (client.getSpaceDevelopers(orgName, spaceName)
-            .contains(userGuid)) {
+                  .contains(userGuid)) {
             return true;
         }
         if (readOnly) {
             if (client.getSpaceAuditors(orgName, spaceName)
-                .contains(userGuid)) {
+                      .contains(userGuid)) {
                 return true;
             }
             return client.getSpaceManagers(orgName, spaceName)
-                .contains(userGuid);
+                         .contains(userGuid);
         }
         return false;
     }
@@ -160,14 +160,14 @@ public class AuthorizationChecker {
 
     private boolean isDummyToken(UserInfo userInfo) {
         return userInfo.getToken()
-            .getValue()
-            .equals(TokenFactory.DUMMY_TOKEN);
+                       .getValue()
+                       .equals(TokenFactory.DUMMY_TOKEN);
     }
 
     private boolean hasAdminScope(UserInfo userInfo) {
         return userInfo.getToken()
-            .getScope()
-            .contains(TokenFactory.SCOPE_CC_ADMIN);
+                       .getScope()
+                       .contains(TokenFactory.SCOPE_CC_ADMIN);
     }
 
     private void failWithUnauthorizedStatus(String message) {
@@ -181,7 +181,7 @@ public class AuthorizationChecker {
     private static void failWithStatus(Status status, String message) {
         LOGGER.warn(message);
         AuditLoggingProvider.getFacade()
-            .logSecurityIncident(message);
+                            .logSecurityIncident(message);
         throw new WebApplicationException(ResponseRenderer.renderResponseForStatus(status, message));
     }
 

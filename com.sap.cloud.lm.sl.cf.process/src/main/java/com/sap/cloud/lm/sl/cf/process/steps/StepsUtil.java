@@ -22,8 +22,8 @@ import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
-import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -78,14 +78,14 @@ public class StepsUtil {
     }
 
     static CloudControllerClient getControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
-        StepLogger stepLogger) {
+                                                     StepLogger stepLogger) {
         String userName = determineCurrentUser(context, stepLogger);
         String spaceId = getSpaceId(context);
         return clientProvider.getControllerClient(userName, spaceId);
     }
 
     static CloudControllerClient getControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
-        StepLogger stepLogger, String org, String space) {
+                                                     StepLogger stepLogger, String org, String space) {
         // Determine the current user
         String userName = determineCurrentUser(context, stepLogger);
         return clientProvider.getControllerClient(userName, org, space, context.getProcessInstanceId());
@@ -411,10 +411,10 @@ public class StepsUtil {
     public static List<String> getCreatedOrUpdatedServiceBrokerNames(VariableScope scope) {
         List<Module> allModulesToDeploy = getAllModulesToDeploy(scope);
         return allModulesToDeploy.stream()
-            .map(module -> getServiceBrokersToCreateForModule(scope, module.getName()))
-            .filter(Objects::nonNull)
-            .map(CloudServiceBroker::getName)
-            .collect(Collectors.toList());
+                                 .map(module -> getServiceBrokersToCreateForModule(scope, module.getName()))
+                                 .filter(Objects::nonNull)
+                                 .map(CloudServiceBroker::getName)
+                                 .collect(Collectors.toList());
     }
 
     public static List<ConfigurationEntry> getDeletedEntries(VariableScope scope) {
@@ -425,7 +425,7 @@ public class StepsUtil {
 
     static List<ConfigurationEntry> getDeletedEntriesFromProcess(FlowableFacade flowableFacade, String processInstanceId) {
         HistoricVariableInstance deletedEntries = flowableFacade.getHistoricVariableInstance(processInstanceId,
-            Constants.VAR_DELETED_ENTRIES);
+                                                                                             Constants.VAR_DELETED_ENTRIES);
         if (deletedEntries == null) {
             return Collections.emptyList();
         }
@@ -434,8 +434,8 @@ public class StepsUtil {
     }
 
     static List<ConfigurationEntry> getDeletedEntriesFromAllProcesses(VariableScope scope, FlowableFacade flowableFacade) {
-        List<ConfigurationEntry> configurationEntries = new ArrayList<>(
-            StepsUtil.getDeletedEntriesFromProcess(flowableFacade, StepsUtil.getCorrelationId(scope)));
+        List<ConfigurationEntry> configurationEntries = new ArrayList<>(StepsUtil.getDeletedEntriesFromProcess(flowableFacade,
+                                                                                                               StepsUtil.getCorrelationId(scope)));
         List<String> subProcessIds = flowableFacade.getHistoricSubProcessIds(StepsUtil.getCorrelationId(scope));
         for (String subProcessId : subProcessIds) {
             configurationEntries.addAll(getDeletedEntriesFromProcess(flowableFacade, subProcessId));
@@ -455,7 +455,7 @@ public class StepsUtil {
 
     static List<ConfigurationEntry> getPublishedEntriesFromProcess(FlowableFacade flowableFacade, String processInstanceId) {
         HistoricVariableInstance publishedEntries = flowableFacade.getHistoricVariableInstance(processInstanceId,
-            Constants.VAR_PUBLISHED_ENTRIES);
+                                                                                               Constants.VAR_PUBLISHED_ENTRIES);
         if (publishedEntries == null) {
             return Collections.emptyList();
         }
@@ -489,12 +489,12 @@ public class StepsUtil {
         String exportedVariableName = variablePrefix + moduleName;
 
         RuntimeService runtimeService = Context.getProcessEngineConfiguration()
-            .getRuntimeService();
+                                               .getRuntimeService();
 
         String superExecutionId = context.getParentId();
         Execution superExecutionResult = runtimeService.createExecutionQuery()
-            .executionId(superExecutionId)
-            .singleResult();
+                                                       .executionId(superExecutionId)
+                                                       .singleResult();
         superExecutionId = superExecutionResult.getSuperExecutionId();
 
         byte[] binaryJson = variableValue == null ? null : JsonUtil.toJsonBinary(variableValue);
@@ -525,23 +525,23 @@ public class StepsUtil {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
         DeploymentDescriptor deploymentDescriptor = getCompleteDeploymentDescriptor(scope);
         return handlerFactory.getDescriptorHandler()
-            .findModule(deploymentDescriptor, module);
+                             .findModule(deploymentDescriptor, module);
     }
 
     @SuppressWarnings("unchecked")
     public static List<ExtensionDescriptor> getExtensionDescriptorChain(VariableScope scope) {
         List<byte[]> binaryYamlList = (List<byte[]>) scope.getVariable(Constants.VAR_MTA_EXTENSION_DESCRIPTOR_CHAIN);
         List<String> yamlList = binaryYamlList.stream()
-            .map(binaryYaml -> new String(binaryYaml, StandardCharsets.UTF_8))
-            .collect(Collectors.toList());
+                                              .map(binaryYaml -> new String(binaryYaml, StandardCharsets.UTF_8))
+                                              .collect(Collectors.toList());
         return parseExtensionDescriptors(yamlList);
     }
 
     private static List<ExtensionDescriptor> parseExtensionDescriptors(List<String> yamlList) {
         DescriptorParserFacade descriptorParserFacade = new DescriptorParserFacade();
         return yamlList.stream()
-            .map(descriptorParserFacade::parseExtensionDescriptor)
-            .collect(Collectors.toList());
+                       .map(descriptorParserFacade::parseExtensionDescriptor)
+                       .collect(Collectors.toList());
     }
 
     public static void setDeploymentDescriptor(VariableScope scope, DeploymentDescriptor deploymentDescriptor) {
@@ -562,8 +562,8 @@ public class StepsUtil {
 
     private static List<byte[]> toBinaryYamlList(List<?> objects) {
         return objects.stream()
-            .map(StepsUtil::toBinaryYaml)
-            .collect(Collectors.toList());
+                      .map(StepsUtil::toBinaryYaml)
+                      .collect(Collectors.toList());
     }
 
     private static byte[] toBinaryYaml(Object object) {
@@ -629,14 +629,14 @@ public class StepsUtil {
         @SuppressWarnings("unchecked")
         Set<String> actionsAsStrings = (Set<String>) scope.getVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE);
         return actionsAsStrings.stream()
-            .map(ApplicationStateAction::valueOf)
-            .collect(Collectors.toSet());
+                               .map(ApplicationStateAction::valueOf)
+                               .collect(Collectors.toSet());
     }
 
     static void setAppStateActionsToExecute(VariableScope scope, Set<ApplicationStateAction> actions) {
         Set<String> actionsAsStrings = actions.stream()
-            .map(ApplicationStateAction::toString)
-            .collect(Collectors.toSet());
+                                              .map(ApplicationStateAction::toString)
+                                              .collect(Collectors.toSet());
         scope.setVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE, actionsAsStrings);
     }
 
@@ -653,7 +653,7 @@ public class StepsUtil {
     }
 
     static void saveAppLogs(DelegateExecution context, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
-        CloudApplication app, Logger logger, ProcessLoggerProvider processLoggerProvider) {
+                            CloudApplication app, Logger logger, ProcessLoggerProvider processLoggerProvider) {
         List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName());
         if (recentLogs != null) {
             recentLogs.forEach(log -> appLog(context, app.getName(), log.toString(), logger, processLoggerProvider));
@@ -661,7 +661,7 @@ public class StepsUtil {
     }
 
     static void appLog(DelegateExecution context, String appName, String message, Logger logger,
-        ProcessLoggerProvider processLoggerProvider) {
+                       ProcessLoggerProvider processLoggerProvider) {
         getLogger(context, appName, processLoggerProvider).debug(getLoggerPrefix(logger) + "[" + appName + "] " + message);
     }
 
@@ -673,7 +673,8 @@ public class StepsUtil {
     public static void setStartingInfo(VariableScope scope, StartingInfo startingInfo) {
         setAsJsonBinary(scope, Constants.VAR_STARTING_INFO, startingInfo);
         String className = startingInfo != null ? startingInfo.getClass()
-            .getName() : StartingInfo.class.getName();
+                                                              .getName()
+            : StartingInfo.class.getName();
         scope.setVariable(Constants.VAR_STARTING_INFO_CLASSNAME, className);
     }
 
@@ -771,11 +772,11 @@ public class StepsUtil {
     }
 
     static List<String> getDomainsFromApps(VariableScope scope, DeploymentDescriptor descriptor,
-        ApplicationCloudModelBuilder applicationCloudModelBuilder, List<? extends Module> modules,
-        ModuleToDeployHelper moduleToDeployHelper) {
+                                           ApplicationCloudModelBuilder applicationCloudModelBuilder, List<? extends Module> modules,
+                                           ModuleToDeployHelper moduleToDeployHelper) {
 
         String defaultDomain = (String) descriptor.getParameters()
-            .get(SupportedParameters.DEFAULT_DOMAIN);
+                                                  .get(SupportedParameters.DEFAULT_DOMAIN);
 
         Set<String> domains = new TreeSet<>();
         for (Module module : modules) {
@@ -783,8 +784,8 @@ public class StepsUtil {
                 continue;
             }
             ParametersChainBuilder parametersChainBuilder = new ParametersChainBuilder(StepsUtil.getCompleteDeploymentDescriptor(scope));
-            List<String> appDomains = applicationCloudModelBuilder
-                .getApplicationDomains(parametersChainBuilder.buildModuleChain(module.getName()), module);
+            List<String> appDomains = applicationCloudModelBuilder.getApplicationDomains(parametersChainBuilder.buildModuleChain(module.getName()),
+                                                                                         module);
             if (appDomains != null) {
                 domains.addAll(appDomains);
             }
@@ -886,15 +887,15 @@ public class StepsUtil {
 
     public static CloudApplication getBoundApplication(List<CloudApplication> applications, UUID appGuid) {
         return applications.stream()
-            .filter(app -> hasGuid(app, appGuid))
-            .findFirst()
-            .orElse(null);
+                           .filter(app -> hasGuid(app, appGuid))
+                           .findFirst()
+                           .orElse(null);
     }
 
     private static boolean hasGuid(CloudApplication app, UUID appGuid) {
         return app.getMetadata()
-            .getGuid()
-            .equals(appGuid);
+                  .getGuid()
+                  .equals(appGuid);
     }
 
     public static boolean shouldDeleteServices(VariableScope scope) {
@@ -911,8 +912,8 @@ public class StepsUtil {
 
     public static void setServiceActionsToExecute(List<ServiceAction> actions, VariableScope scope) {
         List<String> actionsStrings = actions.stream()
-            .map(ServiceAction::toString)
-            .collect(Collectors.toList());
+                                             .map(ServiceAction::toString)
+                                             .collect(Collectors.toList());
         scope.setVariable(Constants.VAR_SERVICE_ACTIONS_TO_EXCECUTE, actionsStrings);
     }
 
@@ -920,8 +921,8 @@ public class StepsUtil {
     public static List<ServiceAction> getServiceActionsToExecute(VariableScope execution) {
         List<String> actionStrings = (List<String>) execution.getVariable(Constants.VAR_SERVICE_ACTIONS_TO_EXCECUTE);
         return actionStrings.stream()
-            .map(ServiceAction::valueOf)
-            .collect(Collectors.toList());
+                            .map(ServiceAction::valueOf)
+                            .collect(Collectors.toList());
     }
 
     public static void isServiceUpdated(boolean isUpdated, VariableScope scope) {
@@ -1096,8 +1097,8 @@ public class StepsUtil {
             return defaultValue;
         }
         return jsonStrings.stream()
-            .map(jsonString -> JsonUtil.fromJson(jsonString, type))
-            .collect(Collectors.toList());
+                          .map(jsonString -> JsonUtil.fromJson(jsonString, type))
+                          .collect(Collectors.toList());
     }
 
     public static <T> List<T> getFromJsonBinaries(VariableScope scope, String name, Class<T> classOfT) {
@@ -1118,8 +1119,8 @@ public class StepsUtil {
             return defaultValue;
         }
         return jsonBinaries.stream()
-            .map(jsonBinary -> JsonUtil.fromJsonBinary(jsonBinary, type))
-            .collect(Collectors.toList());
+                           .map(jsonBinary -> JsonUtil.fromJsonBinary(jsonBinary, type))
+                           .collect(Collectors.toList());
     }
 
     public static void setEnum(VariableScope scope, String name, Object value) {
@@ -1154,8 +1155,8 @@ public class StepsUtil {
             return;
         }
         List<String> jsonStrings = values.stream()
-            .map(JsonUtil::toJson)
-            .collect(Collectors.toList());
+                                         .map(JsonUtil::toJson)
+                                         .collect(Collectors.toList());
         scope.setVariable(name, jsonStrings);
     }
 
@@ -1165,8 +1166,8 @@ public class StepsUtil {
             return;
         }
         List<byte[]> jsonBinaries = values.stream()
-            .map(JsonUtil::toJsonBinary)
-            .collect(Collectors.toList());
+                                          .map(JsonUtil::toJsonBinary)
+                                          .collect(Collectors.toList());
         scope.setVariable(name, jsonBinaries);
     }
 

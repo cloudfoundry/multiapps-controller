@@ -44,8 +44,8 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
             return null;
         }
         blobStoreContext = ContextBuilder.newBuilder("aws-s3")
-            .credentials(serviceInfo.getAccessKeyId(), serviceInfo.getSecretAccessKey())
-            .buildView(BlobStoreContext.class);
+                                         .credentials(serviceInfo.getAccessKeyId(), serviceInfo.getSecretAccessKey())
+                                         .buildView(BlobStoreContext.class);
         return blobStoreContext;
     }
 

@@ -51,29 +51,29 @@ public class ProgressMessageServiceTest {
 
     private void initializeData() {
         progressMessage1 = ImmutableProgressMessage.builder()
-            .processId(PROCESS_INSTANCE_ID_1)
-            .taskId(TASK_ID_1)
-            .type(ProgressMessageType.ERROR)
-            .text(MESSAGE_TEXT_1)
-            .build();
+                                                   .processId(PROCESS_INSTANCE_ID_1)
+                                                   .taskId(TASK_ID_1)
+                                                   .type(ProgressMessageType.ERROR)
+                                                   .text(MESSAGE_TEXT_1)
+                                                   .build();
         progressMessage2 = ImmutableProgressMessage.builder()
-            .processId(PROCESS_INSTANCE_ID_1)
-            .taskId(TASK_ID_2)
-            .type(ProgressMessageType.INFO)
-            .text(MESSAGE_TEXT_2)
-            .build();
+                                                   .processId(PROCESS_INSTANCE_ID_1)
+                                                   .taskId(TASK_ID_2)
+                                                   .type(ProgressMessageType.INFO)
+                                                   .text(MESSAGE_TEXT_2)
+                                                   .build();
         progressMessage3 = ImmutableProgressMessage.builder()
-            .processId(PROCESS_INSTANCE_ID_2)
-            .taskId(TASK_ID_1)
-            .type(ProgressMessageType.INFO)
-            .text(MESSAGE_TEXT_1)
-            .build();
+                                                   .processId(PROCESS_INSTANCE_ID_2)
+                                                   .taskId(TASK_ID_1)
+                                                   .type(ProgressMessageType.INFO)
+                                                   .text(MESSAGE_TEXT_1)
+                                                   .build();
         progressMessage4 = ImmutableProgressMessage.builder()
-            .processId(PROCESS_INSTANCE_ID_2)
-            .taskId(TASK_ID_2)
-            .type(ProgressMessageType.INFO)
-            .text(MESSAGE_TEXT_2)
-            .build();
+                                                   .processId(PROCESS_INSTANCE_ID_2)
+                                                   .taskId(TASK_ID_2)
+                                                   .type(ProgressMessageType.INFO)
+                                                   .text(MESSAGE_TEXT_2)
+                                                   .build();
 
         List<ProgressMessage> messages = Arrays.asList(progressMessage1, progressMessage2, progressMessage3, progressMessage4);
         for (ProgressMessage message : messages) {
@@ -87,7 +87,7 @@ public class ProgressMessageServiceTest {
         service.removeByProcessId(PROCESS_INSTANCE_ID_2);
         service.removeByProcessId("test-processId");
         JdbcUtil.closeQuietly(testDataSource.getDataSource()
-            .getConnection());
+                                            .getConnection());
     }
 
     @Test
@@ -95,12 +95,12 @@ public class ProgressMessageServiceTest {
         final String PROCESS_ID = "test-update-processId";
         final String TASK_ID = "test-update-taskId";
         ProgressMessage progressMessage = ImmutableProgressMessage.builder()
-            .processId(PROCESS_ID)
-            .taskId(TASK_ID)
-            .type(ProgressMessageType.INFO)
-            .text("test-update-info-message")
-            .timestamp(new Timestamp(System.currentTimeMillis()))
-            .build();
+                                                                  .processId(PROCESS_ID)
+                                                                  .taskId(TASK_ID)
+                                                                  .type(ProgressMessageType.INFO)
+                                                                  .text("test-update-info-message")
+                                                                  .timestamp(new Timestamp(System.currentTimeMillis()))
+                                                                  .build();
         boolean insertSuccess = service.add(progressMessage);
         assertTrue(insertSuccess);
 
@@ -114,11 +114,11 @@ public class ProgressMessageServiceTest {
         assertEquals(1, messagesByProcessId.size());
         ProgressMessage messageToUpdate = messagesByProcessId.get(0);
         ProgressMessage updatedProgressMessage = ImmutableProgressMessage.builder()
-            .processId(PROCESS_ID)
-            .taskId(TASK_ID)
-            .type(ProgressMessageType.INFO)
-            .text("test-update-new-info-message")
-            .build();
+                                                                         .processId(PROCESS_ID)
+                                                                         .taskId(TASK_ID)
+                                                                         .type(ProgressMessageType.INFO)
+                                                                         .text("test-update-new-info-message")
+                                                                         .build();
         boolean updateSuccess = service.update(messageToUpdate.getId(), updatedProgressMessage);
         assertTrue(updateSuccess);
 

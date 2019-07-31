@@ -58,8 +58,14 @@ public class MtaDescriptorPropertiesResolverTest {
         MockitoAnnotations.initMocks(this);
         when(spaceIdSupplier.apply(anyString(), anyString())).thenReturn("");
 
-        resolver = new MtaDescriptorPropertiesResolver(new HandlerFactory(2), dao, new CloudTarget("", ""), "", configuration, false, false,
-            false);
+        resolver = new MtaDescriptorPropertiesResolver(new HandlerFactory(2),
+                                                       dao,
+                                                       new CloudTarget("", ""),
+                                                       "",
+                                                       configuration,
+                                                       false,
+                                                       false,
+                                                       false);
     }
 
     @ParameterizedTest(name = "{index}: \"{1}.\"")

@@ -22,8 +22,9 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
     private List<ModulesContentValidator> modulesContentValidators;
 
     public ModulesCloudModelBuilderContentCalculator(Set<String> mtaModulesInArchive, Set<String> deployedModules,
-        List<String> modulesSpecifiedForDeployment, UserMessageLogger userMessageLogger,
-        ModuleToDeployHelper moduleToDeployHelper, List<ModulesContentValidator> modulesContentValidators) {
+                                                     List<String> modulesSpecifiedForDeployment, UserMessageLogger userMessageLogger,
+                                                     ModuleToDeployHelper moduleToDeployHelper,
+                                                     List<ModulesContentValidator> modulesContentValidators) {
         this.mtaModulesInArchive = mtaModulesInArchive;
         this.deployedModules = deployedModules;
         this.modulesSpecifiedForDeployment = modulesSpecifiedForDeployment;
@@ -36,9 +37,10 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
     public List<Module> calculateContentForBuilding(List<? extends Module> modulesForDeployment) {
         initializeModulesDependecyTypes(modulesForDeployment);
         List<Module> calculatedModules = modulesForDeployment.stream()
-            .filter(module -> shouldDeployModule(module, mtaModulesInArchive, deployedModules))
-            .filter(this::isModuleSpecifiedForDeployment)
-            .collect(Collectors.toList());
+                                                             .filter(module -> shouldDeployModule(module, mtaModulesInArchive,
+                                                                                                  deployedModules))
+                                                             .filter(this::isModuleSpecifiedForDeployment)
+                                                             .collect(Collectors.toList());
         validateCalculatedModules(calculatedModules);
         return calculatedModules;
     }
@@ -58,7 +60,8 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
 
     protected String getDependencyType(Module module) {
         return (String) module.getParameters()
-            .getOrDefault(SupportedParameters.DEPENDENCY_TYPE, com.sap.cloud.lm.sl.cf.core.Constants.DEPENDENCY_TYPE_SOFT);
+                              .getOrDefault(SupportedParameters.DEPENDENCY_TYPE,
+                                            com.sap.cloud.lm.sl.cf.core.Constants.DEPENDENCY_TYPE_SOFT);
     }
 
     private boolean isModuleSpecifiedForDeployment(Module module) {
@@ -87,7 +90,7 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
 
     private boolean isDockerModule(Module module) {
         return module.getParameters()
-            .containsKey(SupportedParameters.DOCKER);
+                     .containsKey(SupportedParameters.DOCKER);
     }
 
     private boolean isModulePresentInArchive(Module module, Set<String> modulesInArchive) {

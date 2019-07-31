@@ -36,7 +36,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
-import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.DummyConfigurationFilterParser;
@@ -51,6 +50,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.RequiredDepen
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.helpers.VisitableObject;
@@ -137,7 +137,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     }
 
     private void addApplicationToProperList(List<CloudApplication> updatedSubscribers,
-        List<CloudApplication> updatedServiceBrokerSubscribers, CloudApplication updatedApplication) {
+                                            List<CloudApplication> updatedServiceBrokerSubscribers, CloudApplication updatedApplication) {
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(updatedApplication);
 
         if (appAttributes.get(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
@@ -154,10 +154,10 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         // (see the findApplicationResource method of
         // org.cloudfoundry.client.lib.rest.CloudControllerClientImpl).
         if (application.getSpace() == null || application.getSpace()
-            .getOrganization() == null) {
+                                                         .getOrganization() == null) {
             CloudSpace space = createDummySpace(cloudTarget);
             return ImmutableCloudApplication.copyOf(application)
-                .withSpace(space);
+                                            .withSpace(space);
         }
         return application;
     }
@@ -165,28 +165,28 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     private CloudSpace createDummySpace(CloudTarget cloudTarget) {
         CloudOrganization org = createDummyOrg(cloudTarget.getOrg());
         return ImmutableCloudSpace.builder()
-            .name(cloudTarget.getSpace())
-            .organization(org)
-            .build();
+                                  .name(cloudTarget.getSpace())
+                                  .organization(org)
+                                  .build();
     }
 
     private CloudOrganization createDummyOrg(String orgName) {
         return ImmutableCloudOrganization.builder()
-            .name(orgName)
-            .build();
+                                         .name(orgName)
+                                         .build();
     }
 
     private List<CloudApplication> removeDuplicates(List<CloudApplication> applications) {
         Map<UUID, CloudApplication> applicationsMap = new LinkedHashMap<>();
         for (CloudApplication application : applications) {
             applicationsMap.put(application.getMetadata()
-                .getGuid(), application);
+                                           .getGuid(),
+                                application);
         }
         return new ArrayList<>(applicationsMap.values());
     }
 
-    private CloudApplication updateSubscriber(ExecutionWrapper execution, CloudTarget cloudTarget,
-        ConfigurationSubscription subscription) {
+    private CloudApplication updateSubscriber(ExecutionWrapper execution, CloudTarget cloudTarget, ConfigurationSubscription subscription) {
         String appName = subscription.getAppName();
         String mtaId = subscription.getMtaId();
         String subscriptionName = getRequiredDependency(subscription).getName();
@@ -199,27 +199,31 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     }
 
     private CloudApplication attemptToUpdateSubscriber(DelegateExecution context, CloudControllerClient client,
-        ConfigurationSubscription subscription) {
+                                                       ConfigurationSubscription subscription) {
         HandlerFactory handlerFactory = new HandlerFactory(MAJOR_SCHEMA_VERSION);
 
         DeploymentDescriptor dummyDescriptor = buildDummyDescriptor(subscription, handlerFactory);
         getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.DEPLOYMENT_DESCRIPTOR, toJson(dummyDescriptor, true));
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(entriesDao,
-            new DummyConfigurationFilterParser(subscription.getFilter()),
-            new CloudTarget(StepsUtil.getOrg(context), StepsUtil.getSpace(context)), configuration);
+                                                                                                     new DummyConfigurationFilterParser(subscription.getFilter()),
+                                                                                                     new CloudTarget(StepsUtil.getOrg(context),
+                                                                                                                     StepsUtil.getSpace(context)),
+                                                                                                     configuration);
         resolver.resolve(dummyDescriptor);
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(dummyDescriptor));
-        dummyDescriptor = handlerFactory
-            .getDescriptorReferenceResolver(dummyDescriptor, new ResolverBuilder(), new ResolverBuilder(), new ResolverBuilder())
-            .resolve();
+        dummyDescriptor = handlerFactory.getDescriptorReferenceResolver(dummyDescriptor, new ResolverBuilder(), new ResolverBuilder(),
+                                                                        new ResolverBuilder())
+                                        .resolve();
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(dummyDescriptor));
 
         ApplicationCloudModelBuilder applicationCloudModelBuilder = handlerFactory.getApplicationCloudModelBuilder(dummyDescriptor,
-            shouldUsePrettyPrinting(), null, "", getStepLogger());
+                                                                                                                   shouldUsePrettyPrinting(),
+                                                                                                                   null, "",
+                                                                                                                   getStepLogger());
 
         Module module = dummyDescriptor.getModules()
-            .get(0);
+                                       .get(0);
 
         CloudApplicationExtended application = applicationCloudModelBuilder.build(module, moduleToDeployHelper);
         CloudApplication existingApplication = client.getApplication(subscription.getAppName());
@@ -228,14 +232,14 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         Map<String, String> currentEnvironment = new LinkedHashMap<>(existingApplication.getEnv());
 
         boolean neededToBeUpdated = updateCurrentEnvironment(currentEnvironment, updatedEnvironment,
-            getPropertiesToTransfer(subscription, resolver));
+                                                             getPropertiesToTransfer(subscription, resolver));
 
         if (!neededToBeUpdated) {
             return null;
         }
 
         getStepLogger().info(Messages.UPDATING_SUBSCRIBER, subscription.getAppName(), subscription.getMtaId(),
-            getRequiredDependency(subscription).getName());
+                             getRequiredDependency(subscription).getName());
         client.updateApplicationEnv(existingApplication.getName(), currentEnvironment);
         return existingApplication;
     }
@@ -246,7 +250,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         if (listName == null) {
             result.addAll(getPropertiesWithReferencesToConfigurationResource(subscription));
             result.addAll(getRequiredDependency(subscription).getProperties()
-                .keySet());
+                                                             .keySet());
         } else {
             result.add(listName);
         }
@@ -256,12 +260,12 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     private List<String> getPropertiesWithReferencesToConfigurationResource(ConfigurationSubscription subscription) {
         ReferenceDetector detector = new ReferenceDetector(getRequiredDependency(subscription).getName());
         new VisitableObject(subscription.getModuleDto()
-            .getProperties()).accept(detector);
+                                        .getProperties()).accept(detector);
         return getFirstComponents(detector.getRelevantProperties());
     }
 
     private boolean updateCurrentEnvironment(Map<String, String> currentEnvironment, Map<String, String> updatedEnvironment,
-        List<String> propertiesToTransfer) {
+                                             List<String> propertiesToTransfer) {
         boolean neededToBeUpdated = false;
         for (String propertyToTransfer : propertiesToTransfer) {
             String currentProperty = currentEnvironment.get(propertyToTransfer);
@@ -276,8 +280,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
     private List<String> getFirstComponents(List<String> properties) {
         return properties.stream()
-            .map(this::getFirstComponent)
-            .collect(Collectors.toList());
+                         .map(this::getFirstComponent)
+                         .collect(Collectors.toList());
     }
 
     private String getFirstComponent(String propertyName) {
@@ -290,8 +294,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
     private RequiredDependencyDto getRequiredDependency(ConfigurationSubscription subscription) {
         return subscription.getModuleDto()
-            .getRequiredDependencies()
-            .get(0);
+                           .getRequiredDependencies()
+                           .get(0);
     }
 
     private CloudControllerClient getClient(ExecutionWrapper execution, CloudTarget cloudTarget) {
@@ -319,7 +323,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         dummyDescriptorMap.put(DeploymentDescriptorParser.RESOURCES, Arrays.asList(resourceMap));
 
         return handlerFactory.getDescriptorParser()
-            .parseDeploymentDescriptor(dummyDescriptorMap);
+                             .parseDeploymentDescriptor(dummyDescriptorMap);
     }
 
     protected boolean shouldUsePrettyPrinting() {

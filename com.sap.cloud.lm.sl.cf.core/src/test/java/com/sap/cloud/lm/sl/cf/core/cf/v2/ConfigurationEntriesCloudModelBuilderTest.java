@@ -57,7 +57,7 @@ public class ConfigurationEntriesCloudModelBuilderTest {
     private DeploymentDescriptor deploymentDescriptor;
 
     public ConfigurationEntriesCloudModelBuilderTest(String deploymentDescriptorLocation, int majorSchemaVersion, String orgName,
-        String spaceName, Expectation expectation) {
+                                                     String spaceName, Expectation expectation) {
         this.deploymentDescriptorLocation = deploymentDescriptorLocation;
         this.majorSchemaVersion = majorSchemaVersion;
         this.orgName = orgName;

@@ -98,8 +98,8 @@ public abstract class SyncFlowableStep implements JavaDelegate {
      * Handle exception thrown during {@link #executeStep(ExecutionWrapper) executeStep}
      * </p>
      * <p>
-     * Can be overridden if standard behavior does not fulfill custom step requirements.
-     * For example, exception can be parsed to other exception or not thrown at all.
+     * Can be overridden if standard behavior does not fulfill custom step requirements. For example, exception can be parsed to other
+     * exception or not thrown at all.
      * </p>
      * <p>
      * 
@@ -163,8 +163,10 @@ public abstract class SyncFlowableStep implements JavaDelegate {
 
     protected ProcessStepHelper getStepHelper() {
         if (stepHelper == null) {
-            stepHelper = new ProcessStepHelper(getProgressMessageService(), getStepLogger(), getProcessLogsPersister(),
-                processEngineConfiguration);
+            stepHelper = new ProcessStepHelper(getProgressMessageService(),
+                                               getStepLogger(),
+                                               getProcessLogsPersister(),
+                                               processEngineConfiguration);
         }
         return stepHelper;
     }

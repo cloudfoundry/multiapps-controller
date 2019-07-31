@@ -52,10 +52,10 @@ public class SqlProgressMessageQueryProvider {
                 statement.setString(1, message.getProcessId());
                 statement.setString(2, message.getTaskId());
                 statement.setString(3, message.getType()
-                    .name());
+                                              .name());
                 statement.setString(4, getProgressMessageText(message.getText()));
                 statement.setTimestamp(5, new Timestamp(message.getTimestamp()
-                    .getTime()));
+                                                               .getTime()));
                 int rowsInserted = statement.executeUpdate();
                 return rowsInserted > 0;
             } finally {
@@ -71,7 +71,7 @@ public class SqlProgressMessageQueryProvider {
                 statement = connection.prepareStatement(getQuery(UPDATE_MESSAGE_BY_ID, tableName));
                 statement.setString(1, getProgressMessageText(newMessage.getText()));
                 statement.setTimestamp(2, new Timestamp(newMessage.getTimestamp()
-                    .getTime()));
+                                                                  .getTime()));
                 statement.setLong(3, existingId);
                 int rowsUpdated = statement.executeUpdate();
                 return rowsUpdated == 1;
@@ -116,7 +116,7 @@ public class SqlProgressMessageQueryProvider {
     }
 
     public SqlQuery<Integer> getRemoveByProcessInstanceIdAndTaskIdAndTypeQuery(final String processId, String taskId,
-        ProgressMessageType progressMessageType) {
+                                                                               ProgressMessageType progressMessageType) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {
@@ -153,13 +153,13 @@ public class SqlProgressMessageQueryProvider {
 
     private ProgressMessage getMessage(ResultSet resultSet) throws SQLException {
         return ImmutableProgressMessage.builder()
-            .id(resultSet.getLong(COLUMN_NAME_ID))
-            .processId(resultSet.getString(COLUMN_NAME_PROCESS_ID))
-            .taskId(resultSet.getString(COLUMN_NAME_TASK_ID))
-            .text(resultSet.getString(COLUMN_NAME_TEXT))
-            .type(ProgressMessageType.valueOf(resultSet.getString(COLUMN_NAME_TYPE)))
-            .timestamp(getTimestamp(resultSet))
-            .build();
+                                       .id(resultSet.getLong(COLUMN_NAME_ID))
+                                       .processId(resultSet.getString(COLUMN_NAME_PROCESS_ID))
+                                       .taskId(resultSet.getString(COLUMN_NAME_TASK_ID))
+                                       .text(resultSet.getString(COLUMN_NAME_TEXT))
+                                       .type(ProgressMessageType.valueOf(resultSet.getString(COLUMN_NAME_TYPE)))
+                                       .timestamp(getTimestamp(resultSet))
+                                       .build();
     }
 
     private Date getTimestamp(ResultSet resultSet) throws SQLException {

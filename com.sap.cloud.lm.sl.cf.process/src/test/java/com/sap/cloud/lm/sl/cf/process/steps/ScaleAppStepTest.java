@@ -73,7 +73,7 @@ public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
         if (application.instances != 0) {
             if (existingApplication == null || application.instances != existingApplication.instances) {
                 Mockito.verify(client)
-                    .updateApplicationInstances(application.name, application.instances);
+                       .updateApplicationInstances(application.name, application.instances);
             }
         }
     }
@@ -89,10 +89,10 @@ public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
 
         CloudApplicationExtended toCloudApplication() {
             return ImmutableCloudApplicationExtended.builder()
-                .name(name)
-                .moduleName(name)
-                .instances(instances)
-                .build();
+                                                    .name(name)
+                                                    .moduleName(name)
+                                                    .instances(instances)
+                                                    .build();
         }
     }
 

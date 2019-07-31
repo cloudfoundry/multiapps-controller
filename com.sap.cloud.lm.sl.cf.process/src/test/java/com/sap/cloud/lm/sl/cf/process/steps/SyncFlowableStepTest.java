@@ -103,7 +103,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         prepareExecution();
         prepareProcessEngineConfiguration();
         StepsUtil.setModuleToDeploy(context, Module.createV3()
-            .setName("testModule"));
+                                                   .setName("testModule"));
     }
 
     private void prepareProcessEngineConfiguration() {

@@ -41,7 +41,7 @@ public class FlowableConfiguration {
     @Value("classpath*:/com/sap/cloud/lm/sl/cf/process/*.bpmn")
     private Resource[] flowableResources;
     protected Supplier<String> randomIdGenerator = () -> UUID.randomUUID()
-        .toString();
+                                                             .toString();
 
     @Inject
     @Bean
@@ -58,7 +58,7 @@ public class FlowableConfiguration {
     @Bean
     @DependsOn("coreChangelog")
     public SpringProcessEngineConfiguration processEngineConfiguration(DataSource dataSource, PlatformTransactionManager transactionManager,
-        AsyncExecutor jobExecutor) {
+                                                                       AsyncExecutor jobExecutor) {
         SpringProcessEngineConfiguration processEngineConfiguration = new SpringProcessEngineConfiguration();
         processEngineConfiguration.setDatabaseSchemaUpdate(DATABASE_SCHEMA_UPDATE);
         processEngineConfiguration.setDataSource(dataSource);

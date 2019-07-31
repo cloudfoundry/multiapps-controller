@@ -63,14 +63,14 @@ public class DockerInfoParserTest {
         assertEquals(expectedDockerInfo.getImage(), actualDockerInfo.getImage());
 
         assertEquals(expectedDockerInfo.getDockerCredentials()
-            .getUsername(),
-            actualDockerInfo.getDockerCredentials()
-                .getUsername());
+                                       .getUsername(),
+                     actualDockerInfo.getDockerCredentials()
+                                     .getUsername());
 
         assertEquals(expectedDockerInfo.getDockerCredentials()
-            .getPassword(),
-            actualDockerInfo.getDockerCredentials()
-                .getPassword());
+                                       .getPassword(),
+                     actualDockerInfo.getDockerCredentials()
+                                     .getPassword());
     }
 
     @Test

@@ -15,7 +15,7 @@ public class DockerInfoParser implements ParametersParser<DockerInfo> {
     @Override
     public DockerInfo parse(List<Map<String, Object>> parametersList) {
         Map<String, String> dockerParams = getDockerParams(parametersList);
-      
+
         return getDockerInfo(dockerParams);
     }
 
@@ -28,7 +28,7 @@ public class DockerInfoParser implements ParametersParser<DockerInfo> {
         if (docker == null) {
             return null;
         }
-        
+
         String image = docker.get("image");
         if (image == null) {
             return null;
@@ -40,7 +40,7 @@ public class DockerInfoParser implements ParametersParser<DockerInfo> {
         if (username == null || password == null) {
             return dockerInfo;
         }
-        
+
         DockerCredentials dockerCredentials = new DockerCredentials(username, password);
         dockerInfo.setDockerCredentials(dockerCredentials);
 

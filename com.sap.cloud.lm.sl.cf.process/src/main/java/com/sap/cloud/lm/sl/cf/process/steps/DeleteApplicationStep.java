@@ -31,7 +31,7 @@ public class DeleteApplicationStep extends UndeployAppStep {
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
         return MessageFormat.format(Messages.ERROR_DELETING_APP, StepsUtil.getApp(context)
-            .getName());
+                                                                          .getName());
     }
 
     private void deleteApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy) {
@@ -53,7 +53,7 @@ public class DeleteApplicationStep extends UndeployAppStep {
     private void cancelTask(CloudControllerClient client, CloudTask task, CloudApplication appToUndeploy) {
         getStepLogger().info(Messages.CANCELING_TASK_ON_APP, task.getName(), appToUndeploy.getName());
         client.cancelTask(task.getMetadata()
-            .getGuid());
+                              .getGuid());
         getStepLogger().debug(Messages.CANCELED_TASK_ON_APP, task.getName(), appToUndeploy.getName());
     }
 

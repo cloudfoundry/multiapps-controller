@@ -72,12 +72,12 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
 
     private CloudApplicationExtended createFakeCloudApplicationExtended() {
         return ImmutableCloudApplicationExtended.builder()
-            .name("application1")
-            .instances(1)
-            .memory(0)
-            .diskQuota(512)
-            .dockerInfo(DOCKER_INFO)
-            .build();
+                                                .name("application1")
+                                                .instances(1)
+                                                .memory(0)
+                                                .diskQuota(512)
+                                                .dockerInfo(DOCKER_INFO)
+                                                .build();
     }
 
     private void validateClient() {
@@ -85,10 +85,10 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
         Integer memory = (application.getMemory() != 0) ? application.getMemory() : null;
 
         Mockito.verify(client)
-            .createApplication(eq(application.getName()), argThat(GenericArgumentMatcher.forObject(application.getStaging())),
-                eq(diskQuota), eq(memory), eq(application.getUris()), eq(Collections.emptyList()), eq(DOCKER_INFO));
+               .createApplication(eq(application.getName()), argThat(GenericArgumentMatcher.forObject(application.getStaging())),
+                                  eq(diskQuota), eq(memory), eq(application.getUris()), eq(Collections.emptyList()), eq(DOCKER_INFO));
         Mockito.verify(client)
-            .updateApplicationEnv(eq(application.getName()), eq(application.getEnv()));
+               .updateApplicationEnv(eq(application.getName()), eq(application.getEnv()));
     }
 
     @Override

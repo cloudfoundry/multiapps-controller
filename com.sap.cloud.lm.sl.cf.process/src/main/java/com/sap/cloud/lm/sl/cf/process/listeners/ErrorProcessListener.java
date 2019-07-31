@@ -23,7 +23,7 @@ public class ErrorProcessListener extends AbstractFlowableEventListener {
 
     @Inject
     private ProgressMessageService progressMessageService;
-    
+
     @Inject
     private FlowableFacade flowableFacade;
 
@@ -39,7 +39,7 @@ public class ErrorProcessListener extends AbstractFlowableEventListener {
 
     private void releaseClient(FlowableEngineEvent event) {
         HistoryService historyService = Context.getProcessEngineConfiguration()
-                .getHistoryService();
+                                               .getHistoryService();
         ClientReleaser clientReleaser = new ClientReleaser(clientProvider);
         clientReleaser.releaseClientFor(historyService, event.getProcessInstanceId());
     }

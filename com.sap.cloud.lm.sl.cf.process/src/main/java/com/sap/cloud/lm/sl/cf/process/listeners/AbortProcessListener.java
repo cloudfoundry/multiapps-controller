@@ -76,12 +76,12 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
         new SafeExecutor().executeSafely(() -> setOperationInAbortedState(correlationId));
 
         HistoryService historyService = Context.getProcessEngineConfiguration()
-            .getHistoryService();
+                                               .getHistoryService();
 
         new SafeExecutor().executeSafely(() -> deleteDeploymentFiles(historyService, processInstanceId));
 
-        new SafeExecutor().executeSafely(() -> new ClientReleaser(clientProvider)
-            .releaseClientFor(historyService, engineEvent.getProcessInstanceId()));
+        new SafeExecutor().executeSafely(() -> new ClientReleaser(clientProvider).releaseClientFor(historyService,
+                                                                                                   engineEvent.getProcessInstanceId()));
 
         new SafeExecutor().executeSafely(() -> {
             if (configuration.shouldGatherUsageStatistics()) {
@@ -93,7 +93,8 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
 
     private String getCorrelationId(FlowableEngineEvent event) {
         HistoricVariableInstance correlationId = getHistoricVarInstanceValue(Context.getProcessEngineConfiguration()
-            .getHistoryService(), event.getProcessInstanceId(), Constants.VAR_CORRELATION_ID);
+                                                                                    .getHistoryService(),
+                                                                             event.getProcessInstanceId(), Constants.VAR_CORRELATION_ID);
         if (correlationId != null) {
             return (String) correlationId.getValue();
         }
@@ -106,7 +107,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
     protected void setOperationInAbortedState(String processInstanceId) {
         Operation operation = operationDao.findRequired(processInstanceId);
         LOGGER.info(MessageFormat.format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(),
-            operation.getMtaId(), operation.getSpaceId()));
+                                         operation.getMtaId(), operation.getSpaceId()));
         operation.setState(State.ABORTED);
         operation.setEndedAt(ZonedDateTime.now());
         operation.setAcquiredLock(false);
@@ -120,12 +121,12 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
             return;
         }
         HistoricVariableInstance extensionDescriptorFileIds = getHistoricVarInstanceValue(historyService, processInstanceId,
-            Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
+                                                                                          Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
         HistoricVariableInstance appArchiveFileIds = getHistoricVarInstanceValue(historyService, processInstanceId,
-            Constants.PARAM_APP_ARCHIVE_ID);
+                                                                                 Constants.PARAM_APP_ARCHIVE_ID);
 
         String spaceId = (String) getHistoricVarInstanceValue(historyService, processInstanceId,
-            com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID).getValue();
+                                                              com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID).getValue();
 
         FileSweeper fileSweeper = new FileSweeper(spaceId, fileService);
         fileSweeper.sweep(extensionDescriptorFileIds);
@@ -144,11 +145,11 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
     }
 
     protected HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId,
-        String parameter) {
+                                                                   String parameter) {
         return historyService.createHistoricVariableInstanceQuery()
-            .processInstanceId(processInstanceId)
-            .variableName(parameter)
-            .singleResult();
+                             .processInstanceId(processInstanceId)
+                             .variableName(parameter)
+                             .singleResult();
     }
 
     private boolean isEventValid(FlowableEvent event) {

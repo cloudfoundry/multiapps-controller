@@ -19,7 +19,7 @@ public class ApplicationArchiveReader {
         try {
             iterateApplicationArchive(applicationArchiveContext);
             return applicationArchiveContext.getApplicationDigestCalculator()
-                .getDigest();
+                                            .getDigest();
         } catch (IOException e) {
             throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, applicationArchiveContext.getModuleFileName());
         }
@@ -65,7 +65,7 @@ public class ApplicationArchiveReader {
         ZipInputStream zipInputStream = applicationArchiveContext.getZipInputStream();
         for (ZipEntry zipEntry; (zipEntry = zipInputStream.getNextEntry()) != null;) {
             if (zipEntry.getName()
-                .startsWith(name)) {
+                        .startsWith(name)) {
                 validateEntry(zipEntry);
                 return zipEntry;
             }

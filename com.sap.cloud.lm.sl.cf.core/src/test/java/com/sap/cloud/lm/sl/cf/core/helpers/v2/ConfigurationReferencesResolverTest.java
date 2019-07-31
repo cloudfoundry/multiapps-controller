@@ -54,8 +54,8 @@ public class ConfigurationReferencesResolverTest {
     public ConfigurationReferencesResolverTest(String descriptorLocation, String configurationEntriesLocation, Expectation expectation)
         throws Exception {
         this.daoConfigurations = JsonUtil.fromJson(getResourceAsString(configurationEntriesLocation, getClass()),
-            new TypeReference<List<DaoMockConfiguration>>() {
-            });
+                                                   new TypeReference<List<DaoMockConfiguration>>() {
+                                                   });
         this.descriptorLocation = descriptorLocation;
         this.expectation = expectation;
     }
@@ -113,7 +113,7 @@ public class ConfigurationReferencesResolverTest {
         for (DaoMockConfiguration configuration : daoConfigurations) {
             ConfigurationFilter filter = configuration.filter;
             when(dao.find(filter.getProviderNid(), filter.getProviderId(), filter.getProviderVersion(), filter.getTargetSpace(),
-                filter.getRequiredContent(), null, null)).thenReturn(configuration.configurationEntries);
+                          filter.getRequiredContent(), null, null)).thenReturn(configuration.configurationEntries);
         }
     }
 
@@ -131,12 +131,14 @@ public class ConfigurationReferencesResolverTest {
 
     protected ConfigurationReferencesResolver getConfigurationResolver(DeploymentDescriptor deploymentDescriptor) {
         String currentOrg = (String) platform.getParameters()
-            .get("org");
+                                             .get("org");
         String currentSpace = (String) platform.getParameters()
-            .get("space");
+                                               .get("space");
         return new ConfigurationReferencesResolver(dao,
-            new ConfigurationFilterParser(new CloudTarget(currentOrg, currentSpace), getPropertiesChainBuilder(descriptor)), null,
-            configuration);
+                                                   new ConfigurationFilterParser(new CloudTarget(currentOrg, currentSpace),
+                                                                                 getPropertiesChainBuilder(descriptor)),
+                                                   null,
+                                                   configuration);
     }
 
     protected ParametersChainBuilder getPropertiesChainBuilder(DeploymentDescriptor descriptor) {

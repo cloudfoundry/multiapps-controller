@@ -29,8 +29,11 @@ public class ApplicationAttributes {
         Object attribute = attributes.getOrDefault(attributeName, defaultValue);
         if (!hasCorrectType(attribute, attributeClass)) {
             Class<?> actualAttributeClass = attribute.getClass();
-            throw new ParsingException(Messages.ATTRIBUTE_0_OF_APP_1_IS_OF_TYPE_2_INSTEAD_OF_3, attributeName, appName,
-                actualAttributeClass.getSimpleName(), attributeClass.getSimpleName());
+            throw new ParsingException(Messages.ATTRIBUTE_0_OF_APP_1_IS_OF_TYPE_2_INSTEAD_OF_3,
+                                       attributeName,
+                                       appName,
+                                       actualAttributeClass.getSimpleName(),
+                                       attributeClass.getSimpleName());
         }
         return (T) attribute;
     }

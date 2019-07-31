@@ -36,7 +36,7 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
         assertEquals(0, context.getVariable(Constants.VAR_TASKS_INDEX));
         assertEquals(Constants.VAR_TASKS_INDEX, context.getVariable(Constants.VAR_INDEX_VARIABLE_NAME));
         assertEquals(3, StepsUtil.getTasksToExecute(context)
-            .size());
+                                 .size());
     }
 
     @Test
@@ -54,9 +54,9 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
 
     private CloudApplicationExtended createDummyApplicationWithTasks(int numberOfTasks) {
         return ImmutableCloudApplicationExtended.builder()
-            .name("dummy")
-            .tasks(createDummyTasks(numberOfTasks))
-            .build();
+                                                .name("dummy")
+                                                .tasks(createDummyTasks(numberOfTasks))
+                                                .build();
     }
 
     private List<CloudTask> createDummyTasks(int count) {
@@ -69,8 +69,8 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
 
     private CloudTask createDummyTask() {
         return ImmutableCloudTask.builder()
-            .name("dummy")
-            .build();
+                                 .name("dummy")
+                                 .build();
     }
 
 }

@@ -19,7 +19,7 @@ public class InfoApiServiceImpl implements InfoApiService {
         Info deployServiceInfo = new Info();
         deployServiceInfo.setApiVersion(1);
         return Response.ok()
-            .entity(deployServiceInfo)
-            .build();
+                       .entity(deployServiceInfo)
+                       .build();
     }
 }

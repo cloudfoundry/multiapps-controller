@@ -17,7 +17,7 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
             return executeStepExecution(execution);
         }
         execution.getContext()
-            .setVariable(Constants.ASYNC_STEP_EXECUTION_INDEX, DEFAULT_STEP_EXECUTION_INDEX);
+                 .setVariable(Constants.ASYNC_STEP_EXECUTION_INDEX, DEFAULT_STEP_EXECUTION_INDEX);
         return executeAsyncStep(execution);
     }
 
@@ -32,7 +32,7 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
         }
         return StepPhase.RETRY;
     }
-    
+
     protected void onPollingError(DelegateExecution context, Exception e) throws Exception {
         processException(e, getStepErrorMessage(context));
     }
@@ -47,7 +47,7 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
     }
 
     private StepPhase handleStepExecutionStatus(ExecutionWrapper execution, AsyncExecutionState stepExecutionState,
-        List<AsyncExecution> stepExecutions) {
+                                                List<AsyncExecution> stepExecutions) {
         if (stepExecutionState == AsyncExecutionState.FINISHED) {
             StepsUtil.incrementVariable(execution.getContext(), Constants.ASYNC_STEP_EXECUTION_INDEX);
         }

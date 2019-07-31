@@ -28,7 +28,7 @@ public class StepLogger implements UserMessageLogger {
     protected Logger simpleStepLogger;
 
     public StepLogger(DelegateExecution context, ProgressMessageService progressMessageService, ProcessLoggerProvider processLoggerProvider,
-        Logger simpleStepLogger) {
+                      Logger simpleStepLogger) {
         this.context = context;
         this.progressMessageService = progressMessageService;
         this.processLoggerProvider = processLoggerProvider;
@@ -154,11 +154,11 @@ public class StepLogger implements UserMessageLogger {
             String taskId = StepsUtil.getTaskId(context);
 
             progressMessageService.add(ImmutableProgressMessage.builder()
-                .processId(StepsUtil.getCorrelationId(context))
-                .taskId(taskId)
-                .type(type)
-                .text(message)
-                .build());
+                                                               .processId(StepsUtil.getCorrelationId(context))
+                                                               .taskId(taskId)
+                                                               .type(type)
+                                                               .text(message)
+                                                               .build());
         } catch (SLException e) {
             getProcessLogger().error(e);
         }
@@ -185,7 +185,7 @@ public class StepLogger implements UserMessageLogger {
     public static class Factory {
 
         public StepLogger create(DelegateExecution context, ProgressMessageService progressMessageService,
-            ProcessLoggerProvider processLoggerProvider, Logger logger) {
+                                 ProcessLoggerProvider processLoggerProvider, Logger logger) {
             return new StepLogger(context, progressMessageService, processLoggerProvider, logger);
         }
 

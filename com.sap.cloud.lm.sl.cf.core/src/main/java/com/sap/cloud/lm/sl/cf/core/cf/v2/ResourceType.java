@@ -8,10 +8,8 @@ import java.util.Set;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 
 public enum ResourceType {
-    MANAGED_SERVICE("managed-service", SupportedParameters.SERVICE, SupportedParameters.SERVICE_PLAN),
-    USER_PROVIDED_SERVICE("user-provided-service"),
-    EXISTING_SERVICE("existing-service"),
-    EXISTING_SERVICE_KEY("existing-service-key");
+    MANAGED_SERVICE("managed-service", SupportedParameters.SERVICE, SupportedParameters.SERVICE_PLAN), USER_PROVIDED_SERVICE(
+        "user-provided-service"), EXISTING_SERVICE("existing-service"), EXISTING_SERVICE_KEY("existing-service-key");
 
     private String name;
     private final Set<String> requiredParameters = new HashSet<>();
@@ -41,5 +39,5 @@ public enum ResourceType {
     public Set<String> getRequiredParameters() {
         return requiredParameters;
     }
-    
+
 }

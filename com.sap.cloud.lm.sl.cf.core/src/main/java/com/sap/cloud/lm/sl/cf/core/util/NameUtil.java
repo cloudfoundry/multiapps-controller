@@ -55,20 +55,20 @@ public class NameUtil {
     }
 
     public static String computeValidServiceName(String serviceName, String namespace, boolean useNamespaces,
-        boolean useNamespacesForServices) {
+                                                 boolean useNamespacesForServices) {
         String prefix = useNamespaces && useNamespacesForServices ? getNamespacePrefix(namespace) : "";
         return prefix + getNameWithProperLength(serviceName, NameRequirements.SERVICE_NAME_MAX_LENGTH - prefix.length());
     }
 
     public static String computeValidContainerName(String organization, String space, String serviceName) {
         String properOrganization = organization.toUpperCase(Locale.US)
-            .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
+                                                .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
         String properSpace = space.toUpperCase(Locale.US)
-            .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
+                                  .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
         String properServiceName = serviceName.toUpperCase(Locale.US)
-            .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
+                                              .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
         return getNameWithProperLength(String.format("%s_%s_%s", properOrganization, properSpace, properServiceName),
-            NameRequirements.CONTAINER_NAME_MAX_LENGTH).toUpperCase(Locale.US);
+                                       NameRequirements.CONTAINER_NAME_MAX_LENGTH).toUpperCase(Locale.US);
     }
 
     public static String computeValidXsAppName(String serviceName) {
@@ -79,7 +79,7 @@ public class NameUtil {
             serviceName = "_";
         }
         return getNameWithProperLength(serviceName.replaceAll(NameRequirements.XS_APP_NAME_ILLEGAL_CHARACTERS, "_"),
-            NameRequirements.XS_APP_NAME_MAX_LENGTH);
+                                       NameRequirements.XS_APP_NAME_MAX_LENGTH);
     }
 
     public static String getNameWithProperLength(String name, int maxLength) {
@@ -118,12 +118,12 @@ public class NameUtil {
 
     public static String getApplicationName(Module module) {
         return (String) module.getParameters()
-            .get(SupportedParameters.APP_NAME);
+                              .get(SupportedParameters.APP_NAME);
     }
 
     public static String getServiceName(Resource resource) {
         return (String) resource.getParameters()
-            .get(SupportedParameters.SERVICE_NAME);
+                                .get(SupportedParameters.SERVICE_NAME);
     }
 
 }

@@ -14,35 +14,35 @@ public class UndeployMetadata {
 
     static {
         PARAMS.add(ParameterMetadata.builder()
-            .id(Constants.PARAM_DELETE_SERVICES)
-            .type(ParameterType.BOOLEAN)
-            .defaultValue(false)
-            .build());
+                                    .id(Constants.PARAM_DELETE_SERVICES)
+                                    .type(ParameterType.BOOLEAN)
+                                    .defaultValue(false)
+                                    .build());
         PARAMS.add(ParameterMetadata.builder()
-            .id(Constants.PARAM_DELETE_SERVICE_BROKERS)
-            .type(ParameterType.BOOLEAN)
-            .defaultValue(false)
-            .build());
+                                    .id(Constants.PARAM_DELETE_SERVICE_BROKERS)
+                                    .type(ParameterType.BOOLEAN)
+                                    .defaultValue(false)
+                                    .build());
         PARAMS.add(ParameterMetadata.builder()
-            .id(Constants.PARAM_MTA_ID)
-            .required(true)
-            .type(ParameterType.STRING)
-            .build());
+                                    .id(Constants.PARAM_MTA_ID)
+                                    .required(true)
+                                    .type(ParameterType.STRING)
+                                    .build());
         PARAMS.add(ParameterMetadata.builder()
-            .id(Constants.PARAM_NO_RESTART_SUBSCRIBED_APPS)
-            .defaultValue(false)
-            .type(ParameterType.BOOLEAN)
-            .build());
+                                    .id(Constants.PARAM_NO_RESTART_SUBSCRIBED_APPS)
+                                    .defaultValue(false)
+                                    .type(ParameterType.BOOLEAN)
+                                    .build());
         PARAMS.add(ParameterMetadata.builder()
-            .id(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS)
-            .defaultValue(false)
-            .type(ParameterType.BOOLEAN)
-            .build());
+                                    .id(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS)
+                                    .defaultValue(false)
+                                    .type(ParameterType.BOOLEAN)
+                                    .build());
         PARAMS.add(ParameterMetadata.builder()
-            .id(Constants.PARAM_ABORT_ON_ERROR)
-            .type(ParameterType.BOOLEAN)
-            .defaultValue(false)
-            .build());
+                                    .id(Constants.PARAM_ABORT_ON_ERROR)
+                                    .type(ParameterType.BOOLEAN)
+                                    .defaultValue(false)
+                                    .build());
     }
 
     private UndeployMetadata() {
@@ -50,9 +50,9 @@ public class UndeployMetadata {
 
     public static OperationMetadata getMetadata() {
         return OperationMetadata.builder()
-            .parameters(PARAMS)
-            .diagramId(Constants.UNDEPLOY_SERVICE_ID)
-            .versions(Constants.SERVICE_VERSION_1_0)
-            .build();
+                                .parameters(PARAMS)
+                                .diagramId(Constants.UNDEPLOY_SERVICE_ID)
+                                .versions(Constants.SERVICE_VERSION_1_0)
+                                .build();
     }
 }

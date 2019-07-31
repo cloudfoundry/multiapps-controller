@@ -27,9 +27,9 @@ public class ResumeProcessAction extends ProcessAction {
     public void executeActualProcessAction(String userId, String superProcessInstanceId) {
         List<String> activeProcessIds = getActiveExecutionIds(superProcessInstanceId);
         List<String> processesAtReceiveTask = activeProcessIds.stream()
-            .filter(processId -> !flowableFacade.findExecutionsAtReceiveTask(processId)
-                .isEmpty())
-            .collect(Collectors.toList());
+                                                              .filter(processId -> !flowableFacade.findExecutionsAtReceiveTask(processId)
+                                                                                                  .isEmpty())
+                                                              .collect(Collectors.toList());
 
         updateUser(userId, superProcessInstanceId);
         for (String processAtReceiveTask : processesAtReceiveTask) {

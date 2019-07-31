@@ -39,8 +39,8 @@ public class UAAClientConfiguration {
                 endpoint = infoMap.get("authorizationEndpoint");
             }
             if (endpoint == null) {
-                throw new IllegalStateException(
-                    MessageFormat.format("Response from {0} does not contain a valid token endpoint", CONTROLLER_INFO_ENDPOINT));
+                throw new IllegalStateException(MessageFormat.format("Response from {0} does not contain a valid token endpoint",
+                                                                     CONTROLLER_INFO_ENDPOINT));
             }
             return new URL(endpoint.toString());
         } catch (Exception e) {

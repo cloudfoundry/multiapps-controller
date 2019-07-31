@@ -134,9 +134,10 @@ public class ConfigurationSubscriptionDaoTest {
 
         @Before
         public void insertDatabaseEntries() throws Exception {
-            List<ConfigurationSubscription> subscriptions = JsonUtil.convertJsonToList(
-                TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION, getClass()), new TypeReference<List<ConfigurationSubscription>>() {
-                });
+            List<ConfigurationSubscription> subscriptions = JsonUtil.convertJsonToList(TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION,
+                                                                                                                    getClass()),
+                                                                                       new TypeReference<List<ConfigurationSubscription>>() {
+                                                                                       });
 
             for (ConfigurationSubscription subscription : subscriptions) {
                 dao.add(subscription);
@@ -314,8 +315,14 @@ public class ConfigurationSubscriptionDaoTest {
             try {
                 ResourceDto resourceDto = new ResourceDto("", Collections.emptyMap());
                 ModuleDto moduleDto = new ModuleDto("", Collections.emptyMap(), Collections.emptyList(), Collections.emptyList());
-                getDao().update(1, new ConfigurationSubscription(0, "", "", "", new ConfigurationFilter(null, null, null, null, null),
-                    moduleDto, resourceDto));
+                getDao().update(1,
+                                new ConfigurationSubscription(0,
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              new ConfigurationFilter(null, null, null, null, null),
+                                                              moduleDto,
+                                                              resourceDto));
                 fail();
             } catch (SLException e) {
                 assertEquals(MessageFormat.format(Messages.CONFIGURATION_SUBSCRIPTION_NOT_FOUND, 1), e.getMessage());
@@ -336,8 +343,8 @@ public class ConfigurationSubscriptionDaoTest {
 
     private static List<ConfigurationSubscription> removeIds(List<ConfigurationSubscription> subscriptions) {
         return subscriptions.stream()
-            .map(ConfigurationSubscriptionDaoTest::removeId)
-            .collect(Collectors.toList());
+                            .map(ConfigurationSubscriptionDaoTest::removeId)
+                            .collect(Collectors.toList());
     }
 
     private static ConfigurationSubscription removeId(ConfigurationSubscription subscription) {

@@ -147,23 +147,23 @@ public class FileMetadata implements AuditableConfiguration {
         sb.append("class FileMetadata {\n");
 
         sb.append("    id: ")
-            .append(toIndentedString(id))
-            .append("\n");
+          .append(toIndentedString(id))
+          .append("\n");
         sb.append("    name: ")
-            .append(toIndentedString(name))
-            .append("\n");
+          .append(toIndentedString(name))
+          .append("\n");
         sb.append("    size: ")
-            .append(toIndentedString(size))
-            .append("\n");
+          .append(toIndentedString(size))
+          .append("\n");
         sb.append("    digest: ")
-            .append(toIndentedString(digest))
-            .append("\n");
+          .append(toIndentedString(digest))
+          .append("\n");
         sb.append("    digestAlgorithm: ")
-            .append(toIndentedString(digestAlgorithm))
-            .append("\n");
+          .append(toIndentedString(digestAlgorithm))
+          .append("\n");
         sb.append("    space: ")
-            .append(toIndentedString(space))
-            .append("\n");
+          .append(toIndentedString(space))
+          .append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -176,7 +176,7 @@ public class FileMetadata implements AuditableConfiguration {
             return "null";
         }
         return o.toString()
-            .replace("\n", "\n    ");
+                .replace("\n", "\n    ");
     }
 
     @Override

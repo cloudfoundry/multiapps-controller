@@ -25,7 +25,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml",
-        MergeDescriptorsStepTest.class);
+                                                                                                                  MergeDescriptorsStepTest.class);
 
     private class MergeDescriptorsStepMock extends MergeDescriptorsStep {
 

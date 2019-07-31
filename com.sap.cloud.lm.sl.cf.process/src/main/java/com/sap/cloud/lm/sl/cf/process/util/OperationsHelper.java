@@ -79,7 +79,7 @@ public class OperationsHelper {
 
     public State computeState(Operation ongoingOperation) {
         LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
-            ongoingOperation.getProcessId()));
+                                          ongoingOperation.getProcessId()));
         return flowableFacade.getProcessInstanceState(ongoingOperation.getProcessId());
     }
 
@@ -88,8 +88,8 @@ public class OperationsHelper {
             return operations;
         }
         return operations.stream()
-            .filter(operation -> statusList.contains(operation.getState()))
-            .collect(Collectors.toList());
+                         .filter(operation -> statusList.contains(operation.getState()))
+                         .collect(Collectors.toList());
     }
 
 }

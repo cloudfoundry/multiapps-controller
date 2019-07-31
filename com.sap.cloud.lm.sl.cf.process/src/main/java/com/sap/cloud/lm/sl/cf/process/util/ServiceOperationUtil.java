@@ -17,10 +17,12 @@ public class ServiceOperationUtil {
     public static Map<String, Object> getServiceKeyCredentials(CloudControllerClient client, String serviceName, String serviceKeyName) {
         List<CloudServiceKey> existingServiceKeys = client.getServiceKeys(serviceName);
         CloudServiceKey foundServiceKey = existingServiceKeys.stream()
-            .filter(existingServiceKey -> existingServiceKey.getName()
-                .equals(serviceKeyName))
-            .findFirst()
-            .orElseThrow(() -> new SLException(Messages.ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT, serviceKeyName, serviceName));
+                                                             .filter(existingServiceKey -> existingServiceKey.getName()
+                                                                                                             .equals(serviceKeyName))
+                                                             .findFirst()
+                                                             .orElseThrow(() -> new SLException(Messages.ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT,
+                                                                                                serviceKeyName,
+                                                                                                serviceName));
         return foundServiceKey.getCredentials();
     }
 }

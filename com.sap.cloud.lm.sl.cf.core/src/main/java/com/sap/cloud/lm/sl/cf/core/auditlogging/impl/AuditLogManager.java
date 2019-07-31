@@ -24,9 +24,9 @@ class AuditLogManager {
             stmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
             stmt.setString(3, category);
             stmt.setString(4, event.getLevel()
-                .toString());
+                                   .toString());
             stmt.setString(5, event.getMessage()
-                .toString());
+                                   .toString());
         }
     };
 
@@ -62,8 +62,11 @@ class AuditLogManager {
 
     private Logger setUpLogger(DataSource dataSource, UserInfoProvider userInfoProvider, String name) {
         Logger logger = Logger.getLogger(name);
-        DBAppender auditLogAppender = new DBAppender(dataSource, AUDIT_LOG_INSERT_STATEMENT, EVENT_ADAPTER, exceptionHandler,
-            userInfoProvider);
+        DBAppender auditLogAppender = new DBAppender(dataSource,
+                                                     AUDIT_LOG_INSERT_STATEMENT,
+                                                     EVENT_ADAPTER,
+                                                     exceptionHandler,
+                                                     userInfoProvider);
         auditLogAppender.setName(name);
         logger.addAppender(auditLogAppender);
         return logger;

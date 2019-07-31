@@ -42,7 +42,7 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
     private void prepareContext() throws Exception {
         StepsUtil.setDeployedMta(context,
-            JsonUtil.fromJson(TestUtil.getResourceAsString("deployed-mta-01.json", getClass()), DeployedMta.class));
+                                 JsonUtil.fromJson(TestUtil.getResourceAsString("deployed-mta-01.json", getClass()), DeployedMta.class));
 
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
@@ -58,7 +58,7 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
         assertStepFinishedSuccessfully();
 
         tester.test(() -> StepsUtil.getDeploymentDescriptor(context),
-            new Expectation(Expectation.Type.JSON, "node-hello-blue-mtad.yaml.json"));
+                    new Expectation(Expectation.Type.JSON, "node-hello-blue-mtad.yaml.json"));
     }
 
     @Test
@@ -70,26 +70,24 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
         assertStepFinishedSuccessfully();
 
         tester.test(() -> StepsUtil.getDeploymentDescriptor(context),
-            new Expectation(Expectation.Type.JSON, "node-hello-blue-mtad.yaml.json"));
+                    new Expectation(Expectation.Type.JSON, "node-hello-blue-mtad.yaml.json"));
     }
 
     @Test
     public void testWithTwoColorsDeployed() throws Exception {
-        when(applicationColorDetector.detectSingularDeployedApplicationColor(any()))
-            .thenThrow(new ConflictException(Messages.CONFLICTING_APP_COLORS));
+        when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(new ConflictException(Messages.CONFLICTING_APP_COLORS));
         when(applicationColorDetector.detectLiveApplicationColor(any(), any())).thenReturn(ApplicationColor.GREEN);
         step.execute(context);
 
         assertStepFinishedSuccessfully();
 
         tester.test(() -> StepsUtil.getDeploymentDescriptor(context),
-            new Expectation(Expectation.Type.JSON, "node-hello-blue-mtad.yaml.json"));
+                    new Expectation(Expectation.Type.JSON, "node-hello-blue-mtad.yaml.json"));
     }
 
     @Test
     public void testExceptionIsThrow() {
-        when(applicationColorDetector.detectSingularDeployedApplicationColor(any()))
-            .thenThrow(new SLException(com.sap.cloud.lm.sl.cf.process.message.Messages.ERROR_RENAMING_MODULES));
+        when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(new SLException(com.sap.cloud.lm.sl.cf.process.message.Messages.ERROR_RENAMING_MODULES));
         when(applicationColorDetector.detectLiveApplicationColor(any(), any())).thenReturn(ApplicationColor.GREEN);
         expectedException.expect(SLException.class);
         expectedException.expectMessage(com.sap.cloud.lm.sl.cf.process.message.Messages.ERROR_RENAMING_MODULES);

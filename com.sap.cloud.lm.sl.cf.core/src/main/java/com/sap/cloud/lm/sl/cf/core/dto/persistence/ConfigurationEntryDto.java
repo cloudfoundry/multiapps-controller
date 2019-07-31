@@ -102,7 +102,7 @@ public class ConfigurationEntryDto {
     }
 
     public ConfigurationEntryDto(long id, String providerNid, String providerId, String providerVersion, String targetOrg,
-        String targetSpace, String content, String visibility, String spaceId) {
+                                 String targetSpace, String content, String visibility, String spaceId) {
         this.id = id;
         this.providerNid = providerNid;
         this.providerId = providerId;
@@ -121,10 +121,10 @@ public class ConfigurationEntryDto {
         this.providerVersion = getNotNull(entry.getProviderVersion());
         this.targetSpace = entry.getTargetSpace() == null ? null
             : entry.getTargetSpace()
-                .getSpace();
+                   .getSpace();
         this.targetOrg = entry.getTargetSpace() == null ? null
             : entry.getTargetSpace()
-                .getOrg();
+                   .getOrg();
         this.content = entry.getContent();
         this.visibility = entry.getVisibility() == null ? null : JsonUtil.toJson(entry.getVisibility());
         this.spaceId = entry.getSpaceId();
@@ -163,8 +163,14 @@ public class ConfigurationEntryDto {
     }
 
     public ConfigurationEntry toConfigurationEntry() {
-        return new ConfigurationEntry(id, getOriginal(providerNid), providerId, getParsedVersion(getOriginal(providerVersion)),
-            new CloudTarget(targetOrg, targetSpace), content, getParsedVisibility(visibility), spaceId);
+        return new ConfigurationEntry(id,
+                                      getOriginal(providerNid),
+                                      providerId,
+                                      getParsedVersion(getOriginal(providerVersion)),
+                                      new CloudTarget(targetOrg, targetSpace),
+                                      content,
+                                      getParsedVisibility(visibility),
+                                      spaceId);
     }
 
     private Version getParsedVersion(String versionString) {

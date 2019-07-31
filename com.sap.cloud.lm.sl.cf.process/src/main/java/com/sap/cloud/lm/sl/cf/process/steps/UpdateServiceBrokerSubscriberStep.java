@@ -30,7 +30,7 @@ public class UpdateServiceBrokerSubscriberStep extends CreateOrUpdateServiceBrok
                 getStepLogger().warn(MessageFormat.format(Messages.SERVICE_BROKER_DOES_NOT_EXIST, serviceBroker.getName()));
             } else {
                 serviceBroker = ImmutableCloudServiceBroker.copyOf(serviceBroker)
-                    .withMetadata(existingServiceBroker.getMetadata());
+                                                           .withMetadata(existingServiceBroker.getMetadata());
                 updateServiceBroker(execution.getContext(), serviceBroker, client);
             }
             return StepPhase.DONE;

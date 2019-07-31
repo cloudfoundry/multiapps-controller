@@ -56,7 +56,7 @@ public class PrepareModulesDeploymentStepTest extends SyncFlowableStepTest<Prepa
     public void setUp() throws Exception {
         prepareContext();
         Mockito.when(configuration.getStepPollingIntervalInSeconds())
-            .thenReturn(ApplicationConfiguration.DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS);
+               .thenReturn(ApplicationConfiguration.DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS);
         when(processTypeParser.getProcessType(context)).thenReturn(processType);
     }
 
@@ -80,7 +80,7 @@ public class PrepareModulesDeploymentStepTest extends SyncFlowableStepTest<Prepa
         StepsUtil.setAllModulesToDeploy(context, getDummyModules());
         return context;
     }
-    
+
     private List<Module> getDummyModules() {
         List<Module> modules = new ArrayList<>();
         for (int i = 0; i < count; i++) {

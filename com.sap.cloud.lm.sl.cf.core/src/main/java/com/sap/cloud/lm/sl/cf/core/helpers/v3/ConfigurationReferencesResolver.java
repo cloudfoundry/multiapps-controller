@@ -26,7 +26,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     private List<Resource> inactiveConfigResources = new ArrayList<>();
 
     public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser, CloudTarget cloudTarget,
-        ApplicationConfiguration configuration) {
+                                           ApplicationConfiguration configuration) {
         super(dao, filterParser, cloudTarget, configuration);
     }
 
@@ -56,7 +56,8 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
 
     @Override
     protected List<RequiredDependency> expandRequiredDependencyIfNecessary(DeploymentDescriptor descriptor,
-        PropertiesContainer dependencyOwner, RequiredDependency dependency) {
+                                                                           PropertiesContainer dependencyOwner,
+                                                                           RequiredDependency dependency) {
         ResolvedConfigurationReference resolvedReference = resolvedReferences.get(dependency.getName());
 
         if (!refersToResolvedResource(dependency)) {
@@ -77,14 +78,14 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
         }
 
         if (resolvedReference.getResolvedResources()
-            .isEmpty()) {
+                             .isEmpty()) {
             setEmptyListProperty(dependencyOwner, dependency);
         }
 
         List<RequiredDependency> expandedDependencies = resolvedReference.getResolvedResources()
-            .stream()
-            .map(resource -> createRequiredDependency(resource, dependency))
-            .collect(Collectors.toList());
+                                                                         .stream()
+                                                                         .map(resource -> createRequiredDependency(resource, dependency))
+                                                                         .collect(Collectors.toList());
         expandedDependenciesMap.put(dependency, expandedDependencies);
         return expandedDependencies;
     }
@@ -96,28 +97,28 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
 
     private boolean refersToInactiveResource(RequiredDependency dependency) {
         return inactiveConfigResources.stream()
-            .anyMatch(resource -> resource.getName()
-                .equals(dependency.getName()));
+                                      .anyMatch(resource -> resource.getName()
+                                                                    .equals(dependency.getName()));
     }
 
     protected List<RequiredDependency> getUpdatedRequiredDependencies(DeploymentDescriptor descriptor, Resource resource) {
         return resource.getRequiredDependencies()
-            .stream()
-            .map(dependency -> expandRequiredDependencyIfNecessary(descriptor, resource, dependency))
-            .flatMap(List::stream)
-            .collect(Collectors.toList());
+                       .stream()
+                       .map(dependency -> expandRequiredDependencyIfNecessary(descriptor, resource, dependency))
+                       .flatMap(List::stream)
+                       .collect(Collectors.toList());
     }
 
     @Override
     protected RequiredDependency createRequiredDependency(Resource resource, RequiredDependency dependency) {
         return RequiredDependency.createV3()
-            .setName(resource.getName())
-            .setGroup(dependency.getGroup())
-            .setList(dependency.getList())
-            .setParameters(dependency.getParameters())
-            .setProperties(dependency.getProperties())
-            .setParametersMetadata(dependency.getParametersMetadata())
-            .setPropertiesMetadata(dependency.getPropertiesMetadata());
+                                 .setName(resource.getName())
+                                 .setGroup(dependency.getGroup())
+                                 .setList(dependency.getList())
+                                 .setParameters(dependency.getParameters())
+                                 .setProperties(dependency.getProperties())
+                                 .setParametersMetadata(dependency.getParametersMetadata())
+                                 .setPropertiesMetadata(dependency.getPropertiesMetadata());
     }
 
     @Override
@@ -130,14 +131,16 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
         if (!sourceResource.isActive()) {
             inactiveConfigResources.add(sourceResource);
             // bind empty collection of resources to this config resource in order to replace it with nothing so it is not processed
-            ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter, sourceResource,
-                Collections.emptyList());
+            ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter,
+                                                                                                  sourceResource,
+                                                                                                  Collections.emptyList());
             resolvedReferences.put(sourceResource.getName(), resolvedReference);
             return;
         }
         List<Resource> resolvedResources = configurationResolver.resolve(sourceResource, configurationFilter, cloudTarget);
-        ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter, sourceResource,
-            resolvedResources);
+        ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter,
+                                                                                              sourceResource,
+                                                                                              resolvedResources);
         resolvedReferences.put(sourceResource.getName(), resolvedReference);
     }
 

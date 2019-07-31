@@ -40,19 +40,25 @@ public class ServiceWithAlternativesCreator {
             return serviceCreator.createService(client, service, spaceId);
         }
         userMessageLogger.debug("Service \"{0}\" has defined service offering alternatives \"{1}\" for default service offering \"{2}\"",
-            service.getName(), service.getAlternativeLabels(), service.getLabel());
+                                service.getName(), service.getAlternativeLabels(), service.getLabel());
         List<String> possibleServiceOfferings = computePossibleServiceOfferings(service);
         List<CloudServiceOffering> serviceOfferings = client.getServiceOfferings();
         Map<String, List<CloudServicePlan>> existingServiceOfferings = serviceOfferings.stream()
-            .collect(Collectors.toMap(CloudServiceOffering::getName, CloudServiceOffering::getCloudServicePlans,
-                (v1, v2) -> retrievePlanListFromServicePlan(service, v1, v2)));
+                                                                                       .collect(Collectors.toMap(CloudServiceOffering::getName,
+                                                                                                                 CloudServiceOffering::getCloudServicePlans,
+                                                                                                                 (v1,
+                                                                                                                  v2) -> retrievePlanListFromServicePlan(service,
+                                                                                                                                                         v1,
+                                                                                                                                                         v2)));
 
         List<String> validServiceOfferings = computeValidServiceOfferings(possibleServiceOfferings, service.getPlan(),
-            existingServiceOfferings);
+                                                                          existingServiceOfferings);
 
         if (CollectionUtils.isEmpty(validServiceOfferings)) {
-            throw new SLException(Messages.CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN, service.getName(), possibleServiceOfferings,
-                service.getPlan());
+            throw new SLException(Messages.CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN,
+                                  service.getName(),
+                                  possibleServiceOfferings,
+                                  service.getPlan());
         }
 
         return attemptToFindServiceOfferingAndCreateService(client, service, spaceId, validServiceOfferings);
@@ -65,14 +71,14 @@ public class ServiceWithAlternativesCreator {
         }
 
         return Stream.of(listOfPlans)
-            .filter(plans -> containsPlan(plans, servicePlanName))
-            .findFirst()
-            .orElse(listOfPlans[0]);
+                     .filter(plans -> containsPlan(plans, servicePlanName))
+                     .findFirst()
+                     .orElse(listOfPlans[0]);
     }
 
     private boolean containsPlan(List<CloudServicePlan> plans, String servicePlanName) {
         return plans.stream()
-            .anyMatch(p -> servicePlanName.equalsIgnoreCase(p.getName()));
+                    .anyMatch(p -> servicePlanName.equalsIgnoreCase(p.getName()));
     }
 
     private List<String> computePossibleServiceOfferings(CloudServiceExtended service) {
@@ -82,7 +88,7 @@ public class ServiceWithAlternativesCreator {
     }
 
     private List<String> computeValidServiceOfferings(List<String> possibleServiceOfferings, String desiredServicePlan,
-        Map<String, List<CloudServicePlan>> existingServiceOfferings) {
+                                                      Map<String, List<CloudServicePlan>> existingServiceOfferings) {
         List<String> validServiceOfferings = new ArrayList<>();
         for (String possibleServiceOffering : possibleServiceOfferings) {
             if (!existingServiceOfferings.containsKey(possibleServiceOffering)) {
@@ -90,12 +96,12 @@ public class ServiceWithAlternativesCreator {
                 continue;
             }
             Optional<CloudServicePlan> existingCloudServicePlan = existingServiceOfferings.get(possibleServiceOffering)
-                .stream()
-                .filter(servicePlan -> desiredServicePlan.equals(servicePlan.getName()))
-                .findFirst();
+                                                                                          .stream()
+                                                                                          .filter(servicePlan -> desiredServicePlan.equals(servicePlan.getName()))
+                                                                                          .findFirst();
             if (!existingCloudServicePlan.isPresent()) {
                 userMessageLogger.warnWithoutProgressMessage("Service offering \"{0}\" does not provide service plan \"{1}\"",
-                    possibleServiceOffering, desiredServicePlan);
+                                                             possibleServiceOffering, desiredServicePlan);
                 continue;
             }
             validServiceOfferings.add(possibleServiceOffering);
@@ -104,18 +110,18 @@ public class ServiceWithAlternativesCreator {
     }
 
     private MethodExecution<String> attemptToFindServiceOfferingAndCreateService(CloudControllerClient client, CloudServiceExtended service,
-        String spaceId, List<String> validServiceOfferings) {
+                                                                                 String spaceId, List<String> validServiceOfferings) {
         for (String validServiceOffering : validServiceOfferings) {
             try {
                 CloudServiceExtended serviceWithCorrectLabel = ImmutableCloudServiceExtended.copyOf(service)
-                    .withLabel(validServiceOffering);
+                                                                                            .withLabel(validServiceOffering);
                 return serviceCreator.createService(client, serviceWithCorrectLabel, spaceId);
             } catch (CloudOperationException e) {
                 if (!shouldIgnoreException(e)) {
                     throw e;
                 }
                 userMessageLogger.warn("Service \"{0}\" creation with service offering \"{1}\" failed with \"{2}\"", service.getName(),
-                    validServiceOffering, e.getMessage());
+                                       validServiceOffering, e.getMessage());
             }
         }
         throw new SLException(Messages.CANT_CREATE_SERVICE, service.getName(), validServiceOfferings);
@@ -123,7 +129,7 @@ public class ServiceWithAlternativesCreator {
 
     private boolean shouldIgnoreException(CloudOperationException e) {
         return e.getStatusCode()
-            .equals(HttpStatus.FORBIDDEN);
+                .equals(HttpStatus.FORBIDDEN);
     }
 
     @Component

@@ -23,12 +23,12 @@ public class ConfigurationSubscriptionDao {
 
     public ConfigurationSubscription update(long id, ConfigurationSubscription subscription) {
         return dao.update(id, new ConfigurationSubscriptionDto(subscription))
-            .toConfigurationSubscription();
+                  .toConfigurationSubscription();
     }
 
     public ConfigurationSubscription remove(long id) {
         return dao.remove(id)
-            .toConfigurationSubscription();
+                  .toConfigurationSubscription();
     }
 
     public List<ConfigurationSubscription> removeAll(List<ConfigurationSubscription> configurationSubscriptions) {
@@ -40,7 +40,7 @@ public class ConfigurationSubscriptionDao {
 
     public ConfigurationSubscription add(ConfigurationSubscription subscription) {
         return dao.add(new ConfigurationSubscriptionDto(subscription))
-            .toConfigurationSubscription();
+                  .toConfigurationSubscription();
     }
 
     public List<ConfigurationSubscription> findAll(String mtaId, String appName, String spaceId, String resourceName) {
@@ -49,8 +49,8 @@ public class ConfigurationSubscriptionDao {
 
     public List<ConfigurationSubscription> findAll(List<ConfigurationEntry> entries) {
         return findAll().stream()
-            .filter(subscription -> subscription.matches(entries))
-            .collect(Collectors.toList());
+                        .filter(subscription -> subscription.matches(entries))
+                        .collect(Collectors.toList());
     }
 
     public List<ConfigurationSubscription> findAll(String spaceGuid) {
@@ -59,12 +59,12 @@ public class ConfigurationSubscriptionDao {
 
     private static List<ConfigurationSubscription> toConfigurationSubscriptions(List<ConfigurationSubscriptionDto> dtos) {
         return dtos.stream()
-            .map(ConfigurationSubscriptionDto::toConfigurationSubscription)
-            .collect(Collectors.toList());
+                   .map(ConfigurationSubscriptionDto::toConfigurationSubscription)
+                   .collect(Collectors.toList());
     }
 
     public ConfigurationSubscription find(long id) {
         return dao.find(id)
-            .toConfigurationSubscription();
+                  .toConfigurationSubscription();
     }
 }

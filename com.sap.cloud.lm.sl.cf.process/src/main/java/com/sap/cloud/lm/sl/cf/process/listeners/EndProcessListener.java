@@ -66,7 +66,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     protected void setOperationInFinishedState(String processInstanceId) {
         Operation operation = operationDao.findRequired(processInstanceId);
         LOGGER.info(MessageFormat.format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(),
-            operation.getMtaId(), operation.getSpaceId()));
+                                         operation.getMtaId(), operation.getSpaceId()));
         operation.setState(State.FINISHED);
         operation.setEndedAt(ZonedDateTime.now());
         operation.setAcquiredLock(false);

@@ -11,9 +11,13 @@ public class UndeployProcessAttributes extends AbstractCommonProcessAttributes {
     }
 
     public UndeployProcessAttributes(Integer subscriptionsToDelete, Integer deletedEntries, Integer appsToUndeploy,
-        Integer servicesToDelelte, Integer updatedSubscripers, Integer updatedServiceBrokerSubscribers) {
-        super(subscriptionsToDelete, deletedEntries, appsToUndeploy, servicesToDelelte, updatedSubscripers,
-            updatedServiceBrokerSubscribers);
+                                     Integer servicesToDelelte, Integer updatedSubscripers, Integer updatedServiceBrokerSubscribers) {
+        super(subscriptionsToDelete,
+              deletedEntries,
+              appsToUndeploy,
+              servicesToDelelte,
+              updatedSubscripers,
+              updatedServiceBrokerSubscribers);
     }
 
 }

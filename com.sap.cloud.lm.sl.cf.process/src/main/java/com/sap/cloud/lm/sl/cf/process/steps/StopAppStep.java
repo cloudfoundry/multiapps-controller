@@ -33,7 +33,7 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
         CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
 
         if (existingApp != null && !existingApp.getState()
-            .equals(State.STOPPED)) {
+                                               .equals(State.STOPPED)) {
             getStepLogger().info(Messages.STOPPING_APP, app.getName());
 
             // Get a cloud foundry client
@@ -53,14 +53,14 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
         return MessageFormat.format(Messages.ERROR_STOPPING_APP, StepsUtil.getApp(context)
-            .getName());
+                                                                          .getName());
     }
 
     @Override
     protected HookPhase getHookPhaseBeforeStep(DelegateExecution context) {
         ProcessType processType = processTypeParser.getProcessType(context);
         if (ProcessType.BLUE_GREEN_DEPLOY.getName()
-            .equals(processType.getName())) {
+                                         .equals(processType.getName())) {
             return HookPhase.APPLICATION_BEFORE_STOP_IDLE;
         }
 
@@ -71,7 +71,7 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
     protected HookPhase getHookPhaseAfterStep(DelegateExecution context) {
         ProcessType processType = processTypeParser.getProcessType(context);
         if (ProcessType.BLUE_GREEN_DEPLOY.getName()
-            .equals(processType.getName())) {
+                                         .equals(processType.getName())) {
             return HookPhase.APPLICATION_AFTER_STOP_IDLE;
         }
 

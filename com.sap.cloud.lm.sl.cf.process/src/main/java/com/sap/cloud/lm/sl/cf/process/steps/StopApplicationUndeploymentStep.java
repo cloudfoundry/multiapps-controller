@@ -28,7 +28,7 @@ public class StopApplicationUndeploymentStep extends UndeployAppStep {
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
         return MessageFormat.format(Messages.ERROR_STOPPING_APP, StepsUtil.getApp(context)
-            .getName());
+                                                                          .getName());
     }
 
     @Override

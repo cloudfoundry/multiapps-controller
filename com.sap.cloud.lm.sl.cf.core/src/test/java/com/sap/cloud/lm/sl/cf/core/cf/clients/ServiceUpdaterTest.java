@@ -25,13 +25,13 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
     private static final String EXISTING_SERVICE_PLAN = "v3.4-large";
     private static final String EXISTING_SERVICE_LABEL = "mongodb";
     private static final CloudService EXISTING_SERVICE = ImmutableCloudService.builder()
-        .metadata(ImmutableCloudMetadata.builder()
-            .guid(UUID.fromString(EXISTING_SERVICE_GUID))
-            .build())
-        .name(EXISTING_SERVICE_NAME)
-        .plan(EXISTING_SERVICE_PLAN)
-        .label(EXISTING_SERVICE_LABEL)
-        .build();
+                                                                              .metadata(ImmutableCloudMetadata.builder()
+                                                                                                              .guid(UUID.fromString(EXISTING_SERVICE_GUID))
+                                                                                                              .build())
+                                                                              .name(EXISTING_SERVICE_NAME)
+                                                                              .plan(EXISTING_SERVICE_PLAN)
+                                                                              .label(EXISTING_SERVICE_LABEL)
+                                                                              .build();
 
     private ServiceUpdater serviceUpdater;
 
@@ -44,7 +44,7 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
     public void testUpdateServicePlan1() throws MalformedURLException {
         CloudControllerClient client = getMockedClient();
         Mockito.when(client.getService(EXISTING_SERVICE_NAME))
-            .thenReturn(EXISTING_SERVICE);
+               .thenReturn(EXISTING_SERVICE);
 
         serviceUpdater.updateServicePlan(client, EXISTING_SERVICE_NAME, "v3.0-small");
 
@@ -55,7 +55,7 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
     private void validatePlanUpdate(String servicePlanGuid) throws MalformedURLException {
         String updateServicePlanUrl = getUpdateServicePlanUrl();
         Mockito.verify(getMockedRestTemplate())
-            .exchange(Matchers.eq(updateServicePlanUrl), Matchers.any(HttpMethod.class), Matchers.any(), Matchers.any(Class.class));
+               .exchange(Matchers.eq(updateServicePlanUrl), Matchers.any(HttpMethod.class), Matchers.any(), Matchers.any(Class.class));
     }
 
     private String getUpdateServicePlanUrl() {
@@ -67,16 +67,15 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
         // Given:
         CloudControllerClient client = getMockedClient();
         Mockito.when(client.getService(EXISTING_SERVICE_NAME))
-            .thenReturn(EXISTING_SERVICE);
+               .thenReturn(EXISTING_SERVICE);
 
         try {
             // When:
             serviceUpdater.updateServicePlan(client, EXISTING_SERVICE_NAME, "v3.0-large");
         } catch (CloudOperationException e) {
             // Then:
-            assertEquals(
-                "404 Not Found: Could not create service instance \"foo\". Service plan \"v3.0-large\" from service offering \"mongodb\" was not found.",
-                e.getMessage());
+            assertEquals("404 Not Found: Could not create service instance \"foo\". Service plan \"v3.0-large\" from service offering \"mongodb\" was not found.",
+                         e.getMessage());
         }
     }
 
@@ -85,8 +84,9 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
         // Given:
         CloudControllerClient client = getMockedClient();
         Mockito.when(client.getService(EXISTING_SERVICE_NAME))
-            .thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
-                "Service \"foo\" was not found!"));
+               .thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND,
+                                                      HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                                      "Service \"foo\" was not found!"));
 
         try {
             // When:

@@ -72,8 +72,8 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
         CloudDomain domain = mock(CloudDomain.class);
         when(domain.getName()).thenReturn(DEFAULT_DOMAIN);
         when(domain.getMetadata()).thenReturn(ImmutableCloudMetadata.builder()
-            .guid(DEFAULT_DOMAIN_GUID)
-            .build());
+                                                                    .guid(DEFAULT_DOMAIN_GUID)
+                                                                    .build());
         return domain;
     }
 

@@ -69,10 +69,10 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
 
     @BeforeClass
     public static void loadConfigurationEntries() throws Exception {
-        exisitingConfigurationEntries = JsonUtil.fromJson(
-            TestUtil.getResourceAsString("configuration-entries.json", PublishConfigurationEntriesStepTest.class),
-            new TypeReference<List<ConfigurationEntry>>() {
-            });
+        exisitingConfigurationEntries = JsonUtil.fromJson(TestUtil.getResourceAsString("configuration-entries.json",
+                                                                                       PublishConfigurationEntriesStepTest.class),
+                                                          new TypeReference<List<ConfigurationEntry>>() {
+                                                          });
     }
 
     @Before
@@ -84,23 +84,22 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
 
     public void prepareDao() throws Exception {
         for (ConfigurationEntry entry : exisitingConfigurationEntries) {
-            Mockito
-                .when(configurationEntryDaoMock.find(Mockito.matches(entry.getProviderNid()), Mockito.matches(entry.getProviderId()),
-                    Mockito.matches(entry.getProviderVersion()
-                        .toString()),
-                    Mockito.eq(entry.getTargetSpace()), Mockito.any(), Mockito.eq(null)))
-                .thenReturn(Arrays.asList(entry));
+            Mockito.when(configurationEntryDaoMock.find(Mockito.matches(entry.getProviderNid()), Mockito.matches(entry.getProviderId()),
+                                                        Mockito.matches(entry.getProviderVersion()
+                                                                             .toString()),
+                                                        Mockito.eq(entry.getTargetSpace()), Mockito.any(), Mockito.eq(null)))
+                   .thenReturn(Arrays.asList(entry));
         }
     }
 
     private void prepareContext() {
         StepsUtil.setConfigurationEntriesToPublish(context, input.entriesToPublish);
         CloudApplicationExtended appToProcess = ImmutableCloudApplicationExtended.builder()
-            .metadata(CloudMetadata.defaultMetadata())
-            .name("test-app-name")
-            .build();
+                                                                                 .metadata(CloudMetadata.defaultMetadata())
+                                                                                 .name("test-app-name")
+                                                                                 .build();
         Mockito.when(context.getVariable(Constants.VAR_APP_TO_PROCESS))
-            .thenReturn(JsonUtil.toJson(appToProcess));
+               .thenReturn(JsonUtil.toJson(appToProcess));
     }
 
     @Test
@@ -115,9 +114,9 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     private void validateConfigurationEntryDao() throws Exception {
         if (CollectionUtils.isEmpty(input.entriesToPublish)) {
             Mockito.verify(configurationEntryDaoMock, Mockito.never())
-                .add(Mockito.any());
+                   .add(Mockito.any());
             Mockito.verify(configurationEntryDaoMock, Mockito.never())
-                .update(Mockito.anyLong(), Mockito.any());
+                   .update(Mockito.anyLong(), Mockito.any());
         }
         List<ConfigurationEntry> createdEntries = getCreatedEntries();
         List<ConfigurationEntry> updatedEntries = getUpdatedEntries();
@@ -135,14 +134,14 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     private List<ConfigurationEntry> getCreatedEntries() {
         ArgumentCaptor<ConfigurationEntry> configurationEntryCaptor = ArgumentCaptor.forClass(ConfigurationEntry.class);
         Mockito.verify(configurationEntryDaoMock, Mockito.times(input.expectedCreatedEntries.size()))
-            .add(configurationEntryCaptor.capture());
+               .add(configurationEntryCaptor.capture());
         return configurationEntryCaptor.getAllValues();
     }
 
     private List<ConfigurationEntry> getUpdatedEntries() {
         ArgumentCaptor<ConfigurationEntry> configurationEntryCaptor = ArgumentCaptor.forClass(ConfigurationEntry.class);
         Mockito.verify(configurationEntryDaoMock, Mockito.times(input.expectedUpdatedEntries.size()))
-            .update(Mockito.anyLong(), configurationEntryCaptor.capture());
+               .update(Mockito.anyLong(), configurationEntryCaptor.capture());
         return configurationEntryCaptor.getAllValues();
     }
 

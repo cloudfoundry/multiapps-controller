@@ -66,10 +66,10 @@ public class ApplicationEnvironmentCloudModelBuilder {
 
     protected void addProvidedDependenciesMetadata(Map<String, Object> env, Module module) {
         List<String> mtaModuleProvidedDependencies = module.getProvidedDependencies()
-            .stream()
-            .filter(ProvidedDependency::isPublic)
-            .map(ProvidedDependency::getName)
-            .collect(Collectors.toList());
+                                                           .stream()
+                                                           .filter(ProvidedDependency::isPublic)
+                                                           .map(ProvidedDependency::getName)
+                                                           .collect(Collectors.toList());
         env.put(Constants.ENV_MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES, mtaModuleProvidedDependencies);
     }
 
@@ -80,7 +80,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
     protected void addAttributes(Map<String, Object> env, Map<String, Object> properties) {
         Map<String, Object> attributes = new TreeMap<>(properties);
         attributes.keySet()
-            .retainAll(SupportedParameters.APP_ATTRIBUTES);
+                  .retainAll(SupportedParameters.APP_ATTRIBUTES);
         if (!attributes.isEmpty()) {
             env.put(Constants.ENV_DEPLOY_ATTRIBUTES, attributes);
         }
@@ -96,7 +96,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
 
     protected void addToGroup(Map<String, List<Object>> groups, String group, String name, Map<String, Object> properties) {
         groups.computeIfAbsent(group, key -> new ArrayList<>())
-            .add(createExtendedProperties(name, properties));
+              .add(createExtendedProperties(name, properties));
     }
 
     protected static Map<String, Object> createExtendedProperties(String name, Map<String, Object> properties) {
@@ -122,7 +122,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
     }
 
     protected void addToGroupsOrEnvironment(Map<String, Object> env, Map<String, List<Object>> groups, List<String> destinationGroups,
-        String subgroupName, Map<String, Object> properties) {
+                                            String subgroupName, Map<String, Object> properties) {
         if (!destinationGroups.isEmpty()) {
             addToGroups(groups, destinationGroups, subgroupName, properties);
         } else {
@@ -131,7 +131,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
     }
 
     protected void addToGroups(Map<String, List<Object>> groups, List<String> destinationGroups, String subgroupName,
-        Map<String, Object> properties) {
+                               Map<String, Object> properties) {
         for (String group : destinationGroups) {
             addToGroup(groups, group, subgroupName, properties);
         }

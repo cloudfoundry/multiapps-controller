@@ -6,10 +6,10 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -64,7 +64,7 @@ public class ApplicationCloudModelBuilder {
     protected ParametersChainBuilder parametersChainBuilder;
 
     public ApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
-        String deployId, UserMessageLogger stepLogger) {
+                                        String deployId, UserMessageLogger stepLogger) {
         HandlerFactory handlerFactory = createHandlerFactory();
         this.handler = handlerFactory.getDescriptorHandler();
         this.deploymentDescriptor = deploymentDescriptor;
@@ -96,24 +96,26 @@ public class ApplicationCloudModelBuilder {
         List<String> uris = getApplicationUris(module);
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, parametersList);
         return ImmutableCloudApplicationExtended.builder()
-            .name(NameUtil.getApplicationName(module))
-            .moduleName(module.getName())
-            .staging(parseParameters(parametersList, new StagingParametersParser()))
-            .diskQuota(parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0")))
-            .memory(parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.MEMORY, "0")))
-            .instances((Integer) getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0))
-            .uris(uris)
-            .idleUris(idleUris)
-            .services(getAllApplicationServices(module))
-            .serviceKeysToInject(getServicesKeysToInject(module))
-            .env(applicationEnvCloudModelBuilder.build(module, getApplicationServices(module)))
-            .bindingParameters(getBindingParameters(module))
-            .tasks(getTasks(parametersList))
-            .domains(getApplicationDomains(parametersList, module))
-            .restartParameters(parseParameters(parametersList, new RestartParametersParser()))
-            .dockerInfo(parseParameters(parametersList, new DockerInfoParser()))
-            .attributesUpdateStrategy(getApplicationAttributesUpdateStrategy(parametersList))
-            .build();
+                                                .name(NameUtil.getApplicationName(module))
+                                                .moduleName(module.getName())
+                                                .staging(parseParameters(parametersList, new StagingParametersParser()))
+                                                .diskQuota(parseParameters(parametersList,
+                                                                           new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0")))
+                                                .memory(parseParameters(parametersList,
+                                                                        new MemoryParametersParser(SupportedParameters.MEMORY, "0")))
+                                                .instances((Integer) getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0))
+                                                .uris(uris)
+                                                .idleUris(idleUris)
+                                                .services(getAllApplicationServices(module))
+                                                .serviceKeysToInject(getServicesKeysToInject(module))
+                                                .env(applicationEnvCloudModelBuilder.build(module, getApplicationServices(module)))
+                                                .bindingParameters(getBindingParameters(module))
+                                                .tasks(getTasks(parametersList))
+                                                .domains(getApplicationDomains(parametersList, module))
+                                                .restartParameters(parseParameters(parametersList, new RestartParametersParser()))
+                                                .dockerInfo(parseParameters(parametersList, new DockerInfoParser()))
+                                                .attributesUpdateStrategy(getApplicationAttributesUpdateStrategy(parametersList))
+                                                .build();
     }
 
     private AttributeUpdateStrategy getApplicationAttributesUpdateStrategy(List<Map<String, Object>> parametersList) {
@@ -184,7 +186,7 @@ public class ApplicationCloudModelBuilder {
     @SuppressWarnings("unchecked")
     protected Map<String, Object> getBindingParameters(RequiredDependency dependency, String moduleName) {
         Object bindingParameters = dependency.getParameters()
-            .get(SupportedParameters.SERVICE_BINDING_CONFIG);
+                                             .get(SupportedParameters.SERVICE_BINDING_CONFIG);
         if (bindingParameters == null) {
             return null;
         }
@@ -197,9 +199,9 @@ public class ApplicationCloudModelBuilder {
     protected String getInvalidServiceBindingConfigTypeErrorMessage(String moduleName, String dependencyName, Object bindingParameters) {
         String prefix = ValidatorUtil.getPrefixedName(moduleName, dependencyName);
         return MessageFormat.format(com.sap.cloud.lm.sl.mta.message.Messages.INVALID_TYPE_FOR_KEY,
-            ValidatorUtil.getPrefixedName(prefix, SupportedParameters.SERVICE_BINDING_CONFIG), Map.class.getSimpleName(),
-            bindingParameters.getClass()
-                .getSimpleName());
+                                    ValidatorUtil.getPrefixedName(prefix, SupportedParameters.SERVICE_BINDING_CONFIG),
+                                    Map.class.getSimpleName(), bindingParameters.getClass()
+                                                                                .getSimpleName());
     }
 
     protected List<String> getApplicationServices(Module module, Predicate<ResourceAndResourceType> filterRule) {
@@ -224,10 +226,10 @@ public class ApplicationCloudModelBuilder {
 
     protected List<ServiceKeyToInject> getServicesKeysToInject(Module module) {
         return module.getRequiredDependencies()
-            .stream()
-            .map(this::getServiceKeyToInject)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+                     .stream()
+                     .map(this::getServiceKeyToInject)
+                     .filter(Objects::nonNull)
+                     .collect(Collectors.toList());
     }
 
     protected ServiceKeyToInject getServiceKeyToInject(RequiredDependency dependency) {
@@ -243,13 +245,13 @@ public class ApplicationCloudModelBuilder {
         String serviceName = PropertiesUtil.getRequiredParameter(resourceParameters, SupportedParameters.SERVICE_NAME);
         String serviceKeyName = (String) resourceParameters.getOrDefault(SupportedParameters.SERVICE_KEY_NAME, resource.getName());
         String envVarName = (String) dependency.getParameters()
-            .getOrDefault(SupportedParameters.ENV_VAR_NAME, serviceKeyName);
+                                               .getOrDefault(SupportedParameters.ENV_VAR_NAME, serviceKeyName);
         return new ServiceKeyToInject(envVarName, serviceName, serviceKeyName);
     }
 
     public List<String> getApplicationDomains(List<Map<String, Object>> parametersList, Module module) {
         List<String> applicationDomains = getApplicationUrisCloudModelBuilder(parametersList).getApplicationDomains(module,
-            parametersChainBuilder.buildModuleChain(module.getName()));
+                                                                                                                    parametersChainBuilder.buildModuleChain(module.getName()));
         return applicationDomains;
     }
 

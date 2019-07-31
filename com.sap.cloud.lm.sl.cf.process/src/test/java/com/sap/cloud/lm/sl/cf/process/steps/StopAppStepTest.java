@@ -62,7 +62,7 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
         determineActionForApplication();
 
         Mockito.when(processTypeParser.getProcessType(Mockito.any()))
-            .thenReturn(ProcessType.DEPLOY);
+               .thenReturn(ProcessType.DEPLOY);
     }
 
     @Test
@@ -96,10 +96,10 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
         String appName = application.name;
         if (shouldBeStopped) {
             Mockito.verify(client)
-                .stopApplication(appName);
+                   .stopApplication(appName);
         } else {
             Mockito.verify(client, Mockito.times(0))
-                .stopApplication(appName);
+                   .stopApplication(appName);
         }
     }
 
@@ -114,9 +114,9 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
         @Override
         CloudApplicationExtended toCloudApplication() {
             return ImmutableCloudApplicationExtended.builder()
-                .name(name)
-                .state(state)
-                .build();
+                                                    .name(name)
+                                                    .state(state)
+                                                    .build();
         }
     }
 

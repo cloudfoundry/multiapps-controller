@@ -31,7 +31,7 @@ public class ApplicationRoutesGetter extends CustomControllerClient {
     private List<CloudRoute> attemptToGetRoutes(CloudControllerClient client, String appName) {
         CloudApplication app = client.getApplication(appName);
         String appRoutesUrl = getAppRoutesUrl(app.getMetadata()
-            .getGuid());
+                                                 .getGuid());
         return doGetRoutes(client, appRoutesUrl);
     }
 
@@ -42,15 +42,15 @@ public class ApplicationRoutesGetter extends CustomControllerClient {
     private List<CloudRoute> doGetRoutes(CloudControllerClient client, String appRoutesUrl) {
         RestTemplate restTemplate = getRestTemplate(client);
         String cloudControllerUrl = client.getCloudControllerUrl()
-            .toString();
+                                          .toString();
         List<Map<String, Object>> resources = getAllResources(restTemplate, cloudControllerUrl, appRoutesUrl);
         return toCloudRoutes(resources);
     }
 
     private List<CloudRoute> toCloudRoutes(List<Map<String, Object>> resources) {
         return resources.stream()
-            .map(resource -> resourceMapper.mapResource(resource, CloudRoute.class))
-            .collect(Collectors.toList());
+                        .map(resource -> resourceMapper.mapResource(resource, CloudRoute.class))
+                        .collect(Collectors.toList());
     }
 
 }

@@ -37,35 +37,39 @@ public class HelperFactory implements HelperFactoryConstructor {
     }
 
     @Override
-    public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        boolean prettyPrinting, DeployedMta deployedMta, String deployId, UserMessageLogger stepLogger) {
+    public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting,
+                                                                        DeployedMta deployedMta, String deployId,
+                                                                        UserMessageLogger stepLogger) {
         return new ApplicationCloudModelBuilder(deploymentDescriptor, prettyPrinting, deployedMta, deployId, stepLogger);
     }
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor,
-        ConfigurationEntryDao dao, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+                                                                              ConfigurationEntryDao dao, CloudTarget cloudTarget,
+                                                                              ApplicationConfiguration configuration) {
         ParametersChainBuilder chainBuilder = new ParametersChainBuilder(deploymentDescriptor, null);
-        com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser filterParser = new com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser(
-            cloudTarget, chainBuilder);
+        com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser filterParser = new com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser(cloudTarget,
+                                                                                                                                                             chainBuilder);
         return new ConfigurationReferencesResolver(dao, filterParser, cloudTarget, configuration);
     }
 
     @Override
-    public ConfigurationReferencesResolver getConfigurationReferencesResolver(ConfigurationEntryDao dao,
-        ConfigurationFilterParser filterParser, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+    public ConfigurationReferencesResolver
+           getConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser, CloudTarget cloudTarget,
+                                              ApplicationConfiguration configuration) {
         return new ConfigurationReferencesResolver(dao, cast(filterParser), cloudTarget, configuration);
     }
 
     @Override
     public DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
-        List<ParameterValidator> parameterValidators) {
+                                                                          List<ParameterValidator> parameterValidators) {
         return new DescriptorParametersValidator(descriptor, parameterValidators);
     }
 
     @Override
     public DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
-        List<ParameterValidator> parameterValidators, boolean doNotCorrect) {
+                                                                          List<ParameterValidator> parameterValidators,
+                                                                          boolean doNotCorrect) {
         return new DescriptorParametersValidator(descriptor, parameterValidators, doNotCorrect);
     }
 

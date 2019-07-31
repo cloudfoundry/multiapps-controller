@@ -41,18 +41,18 @@ public class ProcessLoggerProvider {
         if (correlationId == null || activityId == null) {
             return new NullProcessLogger(spaceId, context.getProcessInstanceId(), activityId);
         }
-        return loggersCache.computeIfAbsent(name,
-            (String loggerName) -> createProcessLogger(spaceId, correlationId, activityId, loggerName, logName, layout));
+        return loggersCache.computeIfAbsent(name, (String loggerName) -> createProcessLogger(spaceId, correlationId, activityId, loggerName,
+                                                                                             logName, layout));
     }
 
     private String getLoggerName(DelegateExecution context, String logName) {
         return new StringBuilder(PARENT_LOGGER).append('.')
-            .append(getCorrelationId(context))
-            .append('.')
-            .append(logName)
-            .append('.')
-            .append(getTaskId(context))
-            .toString();
+                                               .append(getCorrelationId(context))
+                                               .append('.')
+                                               .append(logName)
+                                               .append('.')
+                                               .append(getTaskId(context))
+                                               .toString();
     }
 
     private String getCorrelationId(DelegateExecution context) {
@@ -65,7 +65,7 @@ public class ProcessLoggerProvider {
     }
 
     private ProcessLogger createProcessLogger(String spaceId, String correlationId, String activityId, String loggerName, String logName,
-        PatternLayout layout) {
+                                              PatternLayout layout) {
         Logger logger = Logger.getLogger(loggerName);
         File logFile = getLocalFile(loggerName);
         logger.removeAllAppenders();
@@ -75,7 +75,7 @@ public class ProcessLoggerProvider {
 
     private File getLocalFile(String loggerName) {
         String fileName = new StringBuilder(loggerName).append(LOG_FILE_EXTENSION)
-            .toString();
+                                                       .toString();
         return new File(DEFAULT_LOG_DIR, fileName);
     }
 
@@ -98,9 +98,9 @@ public class ProcessLoggerProvider {
 
     public List<ProcessLogger> getExistingLoggers(String processId, String activityId) {
         return loggersCache.values()
-            .stream()
-            .filter(logger -> hasLoggerSpecificProcessIdAndActivityId(processId, activityId, logger))
-            .collect(Collectors.toList());
+                           .stream()
+                           .filter(logger -> hasLoggerSpecificProcessIdAndActivityId(processId, activityId, logger))
+                           .collect(Collectors.toList());
     }
 
     private boolean hasLoggerSpecificProcessIdAndActivityId(String processId, String activityId, ProcessLogger logger) {

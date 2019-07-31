@@ -16,7 +16,7 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
         CloudApplication app = StepsUtil.getApp(execution.getContext());
 
         execution.getStepLogger()
-            .debug(Messages.CHECKING_UPLOAD_APP_STATUS, app.getName());
+                 .debug(Messages.CHECKING_UPLOAD_APP_STATUS, app.getName());
 
         CloudControllerClient client = execution.getControllerClient();
 
@@ -26,14 +26,14 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
             case FAILED:
             case EXPIRED:
                 execution.getStepLogger()
-                    .debug(Messages.ERROR_UPLOADING_APP_WITH_DETAILS, app.getName(), upload.getStatus(), upload.getErrorDetails()
-                        .getDescription());
+                         .debug(Messages.ERROR_UPLOADING_APP_WITH_DETAILS, app.getName(), upload.getStatus(), upload.getErrorDetails()
+                                                                                                                    .getDescription());
                 execution.getStepLogger()
-                    .error(Messages.ERROR_UPLOADING_APP, app.getName());
+                         .error(Messages.ERROR_UPLOADING_APP, app.getName());
                 return AsyncExecutionState.ERROR;
             case READY:
                 execution.getStepLogger()
-                    .debug(Messages.APP_UPLOADED, app.getName());
+                         .debug(Messages.APP_UPLOADED, app.getName());
                 return AsyncExecutionState.FINISHED;
             case PROCESSING_UPLOAD:
             case COPYING:
@@ -47,7 +47,7 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
     @Override
     public String getPollingErrorMessage(ExecutionWrapper execution) {
         return format(Messages.ERROR_CHECKING_UPLOAD_APP_STATUS, StepsUtil.getApp(execution.getContext())
-            .getName());
+                                                                          .getName());
     }
 
 }

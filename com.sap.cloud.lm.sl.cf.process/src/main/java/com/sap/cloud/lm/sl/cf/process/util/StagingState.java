@@ -9,7 +9,7 @@ public class StagingState {
     private String error;
 
     private StagingLogs stagingLogs;
-    
+
     public StagingState(PackageState state, String error) {
         this(state, error, null);
     }
@@ -43,11 +43,11 @@ public class StagingState {
     public void setError(String error) {
         this.error = error;
     }
-    
+
     public static class StagingLogs {
         private String logs;
         private int offset;
-        
+
         public StagingLogs(String logs, int offset) {
             this.logs = logs;
             this.offset = offset;
@@ -68,7 +68,7 @@ public class StagingState {
         public void setOffset(int offset) {
             this.offset = offset;
         }
-        
+
     }
 
 }

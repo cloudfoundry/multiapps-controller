@@ -82,11 +82,11 @@ public class DataTerminationService {
 
     private void deleteUserOperationsOrphanData(String deleteEventSpaceId) {
         OperationFilter operationFilter = new OperationFilter.Builder().spaceId(deleteEventSpaceId)
-            .build();
+                                                                       .build();
         List<Operation> operationsToBeDeleted = operationDao.find(operationFilter);
         List<String> result = operationsToBeDeleted.stream()
-            .map(Operation::getProcessId)
-            .collect(Collectors.toList());
+                                                   .map(Operation::getProcessId)
+                                                   .collect(Collectors.toList());
         auditLogDeletion(operationsToBeDeleted);
         operationDao.removeAll(result);
     }
@@ -112,16 +112,20 @@ public class DataTerminationService {
     private void auditLogDeletion(List<? extends AuditableConfiguration> configurationEntities) {
         for (AuditableConfiguration configuration : configurationEntities) {
             AuditLoggingProvider.getFacade()
-                .logConfigDelete(configuration);
+                                .logConfigDelete(configuration);
         }
     }
 
     protected CloudControllerClientImpl getCFClient() {
         CloudCredentials cloudCredentials = new CloudCredentials(configuration.getGlobalAuditorUser(),
-            configuration.getGlobalAuditorPassword(), SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET, AUTH_ORIGIN);
+                                                                 configuration.getGlobalAuditorPassword(),
+                                                                 SecurityUtil.CLIENT_ID,
+                                                                 SecurityUtil.CLIENT_SECRET,
+                                                                 AUTH_ORIGIN);
 
-        CloudControllerClientImpl cfClient = new CloudControllerClientImpl(configuration.getControllerUrl(), cloudCredentials,
-            configuration.shouldSkipSslValidation());
+        CloudControllerClientImpl cfClient = new CloudControllerClientImpl(configuration.getControllerUrl(),
+                                                                           cloudCredentials,
+                                                                           configuration.shouldSkipSslValidation());
         cfClient.login();
         return cfClient;
     }

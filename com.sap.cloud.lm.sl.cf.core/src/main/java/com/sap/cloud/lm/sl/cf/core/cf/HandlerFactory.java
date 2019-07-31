@@ -56,25 +56,28 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor,
-        ConfigurationEntryDao dao, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+                                                                              ConfigurationEntryDao dao, CloudTarget cloudTarget,
+                                                                              ApplicationConfiguration configuration) {
         return getHelperDelegate().getConfigurationReferencesResolver(deploymentDescriptor, dao, cloudTarget, configuration);
     }
 
     @Override
-    public ConfigurationReferencesResolver getConfigurationReferencesResolver(ConfigurationEntryDao dao,
-        ConfigurationFilterParser filterParser, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+    public ConfigurationReferencesResolver
+           getConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser, CloudTarget cloudTarget,
+                                              ApplicationConfiguration configuration) {
         return getHelperDelegate().getConfigurationReferencesResolver(dao, filterParser, cloudTarget, configuration);
     }
 
     @Override
     public DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
-        List<ParameterValidator> parameterValidators) {
+                                                                          List<ParameterValidator> parameterValidators) {
         return getHelperDelegate().getDescriptorParametersValidator(descriptor, parameterValidators);
     }
 
     @Override
     public DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
-        List<ParameterValidator> parameterValidators, boolean doNotCorrect) {
+                                                                          List<ParameterValidator> parameterValidators,
+                                                                          boolean doNotCorrect) {
         return getHelperDelegate().getDescriptorParametersValidator(descriptor, parameterValidators);
     }
 
@@ -89,11 +92,10 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
     }
 
     @Override
-    public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        boolean prettyPrinting, DeployedMta deployedMta, String deployId,
-        UserMessageLogger stepLogger) {
-        return getHelperDelegate().getApplicationCloudModelBuilder(deploymentDescriptor, prettyPrinting, deployedMta,
-            deployId, stepLogger);
+    public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting,
+                                                                        DeployedMta deployedMta, String deployId,
+                                                                        UserMessageLogger stepLogger) {
+        return getHelperDelegate().getApplicationCloudModelBuilder(deploymentDescriptor, prettyPrinting, deployedMta, deployId, stepLogger);
     }
 
     @Override

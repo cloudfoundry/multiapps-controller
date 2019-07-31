@@ -16,7 +16,7 @@ public enum ServiceOperationType {
     public static ServiceOperationType fromString(String value) {
         for (ServiceOperationType type : ServiceOperationType.values()) {
             if (type.toString()
-                .equals(value)) {
+                    .equals(value)) {
                 return type;
             }
         }

@@ -113,16 +113,15 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
     }
 
     private void prepareDao() {
-        Mockito
-            .when(dao.find(Mockito.eq(ConfigurationEntriesUtil.PROVIDER_NID), Mockito.eq(null), Mockito.eq(input.mtaVersion), Mockito.any(),
-                Mockito.eq(null), Mockito.eq(input.mtaId)))
-            .thenAnswer((invocation) -> {
-                CloudTarget target = (CloudTarget) invocation.getArguments()[3];
-                return input.existingEntries.stream()
-                    .filter(entry -> entry.getTargetSpace()
-                        .equals(target))
-                    .collect(Collectors.toList());
-            });
+        Mockito.when(dao.find(Mockito.eq(ConfigurationEntriesUtil.PROVIDER_NID), Mockito.eq(null), Mockito.eq(input.mtaVersion),
+                              Mockito.any(), Mockito.eq(null), Mockito.eq(input.mtaId)))
+               .thenAnswer((invocation) -> {
+                   CloudTarget target = (CloudTarget) invocation.getArguments()[3];
+                   return input.existingEntries.stream()
+                                               .filter(entry -> entry.getTargetSpace()
+                                                                     .equals(target))
+                                               .collect(Collectors.toList());
+               });
     }
 
     @Test

@@ -1,16 +1,17 @@
 package com.sap.cloud.lm.sl.cf.process.flowable;
 
-import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
-import com.sap.cloud.lm.sl.cf.process.util.HistoricVariablesUtil;
-import org.flowable.engine.HistoryService;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+
+import org.flowable.engine.HistoryService;
+
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
+import com.sap.cloud.lm.sl.cf.process.util.HistoricVariablesUtil;
 
 public abstract class ProcessAction {
 
@@ -42,9 +43,9 @@ public abstract class ProcessAction {
 
     private List<AdditionalProcessAction> filterAdditionalActionsForThisAction() {
         return additionalProcessActions.stream()
-            .filter(additionalAction -> additionalAction.getApplicableActionId()
-                .equals(getActionId()))
-            .collect(Collectors.toList());
+                                       .filter(additionalAction -> additionalAction.getApplicableActionId()
+                                                                                   .equals(getActionId()))
+                                       .collect(Collectors.toList());
     }
 
     protected abstract void executeActualProcessAction(String userId, String superProcessInstanceId);
@@ -53,14 +54,14 @@ public abstract class ProcessAction {
 
     protected void updateUser(String userId, String executionId) {
         HistoryService historyService = flowableFacade.getProcessEngine()
-            .getHistoryService();
+                                                      .getHistoryService();
         ClientReleaser clientReleaser = new ClientReleaser(clientProvider);
         String oldUserId = HistoricVariablesUtil.getCurrentUser(historyService, executionId);
         if (!oldUserId.equals(userId)) {
             clientReleaser.releaseClientFor(historyService, executionId);
             flowableFacade.getProcessEngine()
-                .getRuntimeService()
-                .setVariable(executionId, Constants.VAR_USER, userId);
+                          .getRuntimeService()
+                          .setVariable(executionId, Constants.VAR_USER, userId);
         }
     }
 }

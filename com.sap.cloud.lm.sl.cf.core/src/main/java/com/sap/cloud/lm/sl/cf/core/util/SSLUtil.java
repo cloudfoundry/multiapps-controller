@@ -53,7 +53,7 @@ public class SSLUtil {
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 
             X509Certificate caCertificate = (X509Certificate) CertificateFactory.getInstance("X.509")
-                .generateCertificate(is);
+                                                                                .generateCertificate(is);
 
             KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
             keyStore.load(null);

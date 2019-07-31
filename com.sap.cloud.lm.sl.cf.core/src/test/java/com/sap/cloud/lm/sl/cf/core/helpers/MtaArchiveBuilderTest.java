@@ -111,45 +111,46 @@ public class MtaArchiveBuilderTest {
 
         // test working scenario
         assertEquals(Paths.get("src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/mta-dir/mta-assembly/mta-dir.mtar")
-            .toAbsolutePath(), mtaArchiveFile.toAbsolutePath());
+                          .toAbsolutePath(),
+                     mtaArchiveFile.toAbsolutePath());
         assertEquals(6, mtaArchiveBuilder.getManifestEntries()
-            .size());
+                                         .size());
         try (JarInputStream in = new JarInputStream(Files.newInputStream(mtaArchiveFile))) {
             Manifest manifest = in.getManifest();
             assertTrue(manifest.getEntries()
-                .containsKey(MtaArchiveBuilder.DEPLOYMENT_DESCRIPTOR_ARCHIVE_PATH));
+                               .containsKey(MtaArchiveBuilder.DEPLOYMENT_DESCRIPTOR_ARCHIVE_PATH));
             assertEquals("node-hello-world", manifest.getEntries()
-                .get("web/")
-                .getValue(MtaArchiveHelper.ATTR_MTA_MODULE));
+                                                     .get("web/")
+                                                     .getValue(MtaArchiveHelper.ATTR_MTA_MODULE));
             assertEquals("node-hello-world-backend", manifest.getEntries()
-                .get("js/")
-                .getValue(MtaArchiveHelper.ATTR_MTA_MODULE));
+                                                             .get("js/")
+                                                             .getValue(MtaArchiveHelper.ATTR_MTA_MODULE));
             assertEquals("node-hello-world-db", manifest.getEntries()
-                .get("db/")
-                .getValue(MtaArchiveHelper.ATTR_MTA_MODULE));
+                                                        .get("db/")
+                                                        .getValue(MtaArchiveHelper.ATTR_MTA_MODULE));
             assertEquals("nodejs-uaa", manifest.getEntries()
-                .get("xs-security.json")
-                .getValue(MtaArchiveHelper.ATTR_MTA_RESOURCE));
+                                               .get("xs-security.json")
+                                               .getValue(MtaArchiveHelper.ATTR_MTA_RESOURCE));
             assertEquals("node-hello-world-backend/nodejs-hdi-container", manifest.getEntries()
-                .get("backend-hdi-params.json")
-                .getValue(MtaArchiveHelper.ATTR_MTA_REQUIRES_DEPENDENCY));
+                                                                                  .get("backend-hdi-params.json")
+                                                                                  .getValue(MtaArchiveHelper.ATTR_MTA_REQUIRES_DEPENDENCY));
         }
         List<Path> jarEntries = mtaArchiveBuilder.getJarEntries();
         List<String> fileNames = Arrays.asList("web", "js", "backend-hdi-params.json", "db", "xs-security.json", "mtad.yaml");
         assertEquals(fileNames.size(), jarEntries.size());
         for (String file : fileNames) {
             assertTrue(jarEntries.stream()
-                .anyMatch(jarEntry -> jarEntry.getFileName()
-                    .toString()
-                    .equals(file)));
+                                 .anyMatch(jarEntry -> jarEntry.getFileName()
+                                                               .toString()
+                                                               .equals(file)));
         }
 
         assertExistingJarFile(mtaArchiveFile, MtaArchiveBuilder.DEPLOYMENT_DESCRIPTOR_ARCHIVE_PATH,
-            new String(Files.readAllBytes(Paths.get("src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/mtad.yaml"))));
+                              new String(Files.readAllBytes(Paths.get("src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/mtad.yaml"))));
         assertExistingJarDirectory(mtaArchiveFile, "db/");
         assertExistingJarDirectory(mtaArchiveFile, "db/src/");
         assertExistingJarFile(mtaArchiveFile, "db/package.json",
-            new String(Files.readAllBytes(Paths.get("src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/package.json"))));
+                              new String(Files.readAllBytes(Paths.get("src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/package.json"))));
     }
 
     private void prepareException(String message) {
@@ -172,7 +173,7 @@ public class MtaArchiveBuilderTest {
 
     private static boolean isWindows() {
         return System.getProperty("os.name")
-            .startsWith("Windows");
+                     .startsWith("Windows");
     }
 
     private void assertExistingJarDirectory(Path mtaArchiveFile, String dirName) throws Exception {

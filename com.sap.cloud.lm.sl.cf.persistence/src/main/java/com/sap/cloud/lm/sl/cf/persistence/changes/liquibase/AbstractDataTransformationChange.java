@@ -25,7 +25,7 @@ public abstract class AbstractDataTransformationChange<OriginalDataType, Transfo
 
         try {
             preparedStatement = jdbcConnection.prepareStatement(getSelectStatement(), ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_READ_ONLY);
+                                                                ResultSet.CONCUR_READ_ONLY);
             ResultSet resultSet = preparedStatement.executeQuery();
             result = extractData(resultSet);
             resultSet.close();

@@ -34,7 +34,7 @@ public class AlterOperationTableTimestampStoringColumnsPostgresqlChange extends
             OriginalOperation operation = extractOperation(resultSet);
             result.add(operation);
             logger.debug(String.format("Retrieved operation with ID '%s' that started at '%s' and ended at '%s'.", operation.processId,
-                operation.startedAt, operation.endedAt));
+                                       operation.startedAt, operation.endedAt));
         }
         return result;
     }
@@ -50,8 +50,8 @@ public class AlterOperationTableTimestampStoringColumnsPostgresqlChange extends
     @Override
     public List<TransformedOperation> transformData(List<OriginalOperation> retrievedData) {
         return retrievedData.stream()
-            .map(this::transformOperation)
-            .collect(Collectors.toList());
+                            .map(this::transformOperation)
+                            .collect(Collectors.toList());
     }
 
     private TransformedOperation transformOperation(OriginalOperation originalOperation) {
@@ -68,7 +68,7 @@ public class AlterOperationTableTimestampStoringColumnsPostgresqlChange extends
         }
         ZonedDateTime parsedZonedDateTime = ZonedDateTime.parse(zonedDateTime, Operation.DATE_TIME_FORMATTER);
         return new Timestamp(parsedZonedDateTime.toInstant()
-            .toEpochMilli());
+                                                .toEpochMilli());
     }
 
     @Override
@@ -80,7 +80,7 @@ public class AlterOperationTableTimestampStoringColumnsPostgresqlChange extends
             preparedStatement.setString(3, operation.processId);
             preparedStatement.addBatch();
             logger.debug(String.format("Updated operation with ID '%s' with start time: '%s' and end time '%s'.", operation.processId,
-                operation.startedAt, operation.endedAt));
+                                       operation.startedAt, operation.endedAt));
         }
     }
 

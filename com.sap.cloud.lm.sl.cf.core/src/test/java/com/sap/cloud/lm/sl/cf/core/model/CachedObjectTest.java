@@ -16,11 +16,11 @@ public class CachedObjectTest {
     public void testGet() {
         LongSupplier currentTimeSupplier = Mockito.mock(LongSupplier.class);
         Mockito.when(currentTimeSupplier.getAsLong())
-            .thenReturn(0L, toMillis(5), toMillis(15), toMillis(25), toMillis(30));
+               .thenReturn(0L, toMillis(5), toMillis(15), toMillis(25), toMillis(30));
 
         Supplier<String> refreshFunction = Mockito.mock(Supplier.class);
         Mockito.when(refreshFunction.get())
-            .thenReturn("a", "b");
+               .thenReturn("a", "b");
 
         CachedObject<String> cachedName = new CachedObject<>(10, currentTimeSupplier);
 
@@ -36,11 +36,11 @@ public class CachedObjectTest {
     public void testForceRefresh() {
         LongSupplier currentTimeSupplier = Mockito.mock(LongSupplier.class);
         Mockito.when(currentTimeSupplier.getAsLong())
-            .thenReturn(0L, toMillis(5), toMillis(10), toMillis(15), toMillis(25));
+               .thenReturn(0L, toMillis(5), toMillis(10), toMillis(15), toMillis(25));
 
         Supplier<String> refreshFunction = Mockito.mock(Supplier.class);
         Mockito.when(refreshFunction.get())
-            .thenReturn("a", "b", "c");
+               .thenReturn("a", "b", "c");
 
         CachedObject<String> cachedName = new CachedObject<>(20, currentTimeSupplier);
 

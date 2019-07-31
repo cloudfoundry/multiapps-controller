@@ -33,7 +33,7 @@ public class OAuthClientExtended extends OAuthClient {
             TokenProperties tokenProperties = TokenProperties.fromToken(token);
             token = tokenService.getToken(tokenProperties.getUserName());
             LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.RETRIEVED_USER_TOKEN,
-                tokenProperties.getUserName(), token.getExpiresIn()));
+                                             tokenProperties.getUserName(), token.getExpiresIn()));
         }
 
         return token;

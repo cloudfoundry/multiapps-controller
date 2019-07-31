@@ -72,7 +72,7 @@ public class ApplicationConfigurationTest {
         String invalidUrl = "blabla";
         Map<String, String> vcapApplication = MapUtil.asMap("cf_api", invalidUrl);
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-            () -> getControllerUrlWithVcapApplication(vcapApplication));
+                                                  () -> getControllerUrlWithVcapApplication(vcapApplication));
         e.printStackTrace();
         assertEquals(MessageFormat.format(Messages.INVALID_CONTROLLER_URL, invalidUrl), e.getMessage());
     }
@@ -92,35 +92,35 @@ public class ApplicationConfigurationTest {
     @Test
     public void testGetSpaceIdWithEmptyString() throws Exception {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
-            .thenReturn("");
+               .thenReturn("");
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
     public void testGetSpaceIdWithInvalidJson() throws Exception {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
-            .thenReturn("invalid");
+               .thenReturn("invalid");
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
     public void testGetSpaceIdWithEmptyMap() throws Exception {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
-            .thenReturn("{}");
+               .thenReturn("{}");
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
     public void testGetSpaceIdWithMissingSpaceId() throws Exception {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
-            .thenReturn(VCAP_APPLICATION_JSON_WITHOUT_SPACE_ID);
+               .thenReturn(VCAP_APPLICATION_JSON_WITHOUT_SPACE_ID);
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
     public void testGetSpaceId() throws Exception {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
-            .thenReturn(VCAP_APPLICATION_JSON);
+               .thenReturn(VCAP_APPLICATION_JSON);
         String spaceId = configuration.getSpaceId();
         assertEquals("954229f5-4945-43eb-8acb-a8f07cc5a7f8", spaceId);
     }

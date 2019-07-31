@@ -74,14 +74,14 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
             public Void answer(InvocationOnMock invocation) throws Exception {
                 FileDownloadProcessor contentProcessor = (FileDownloadProcessor) invocation.getArguments()[0];
                 int fileId = Integer.parseInt(contentProcessor.getFileEntry()
-                    .getId());
+                                                              .getId());
 
                 contentProcessor.processContent(getClass().getResourceAsStream(input.archiveFileLocations.get(fileId)));
                 return null;
             }
 
         }).when(fileService)
-            .processFileContent(any());
+          .processFileContent(any());
     }
 
     @Test
@@ -107,14 +107,14 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
     private void testResources() throws Exception {
         for (String expecedResource : input.expectedResources) {
             assertTrue(StepsUtil.getMtaArchiveElements(context)
-                .getResourceFileName(expecedResource) != null);
+                                .getResourceFileName(expecedResource) != null);
         }
     }
 
     private void testDependencies() throws Exception {
         for (String expecedDependecy : input.expectedRequiredDependencies) {
             assertTrue(StepsUtil.getMtaArchiveElements(context)
-                .getRequiredDependencyFileName(expecedDependecy) != null);
+                                .getRequiredDependencyFileName(expecedDependecy) != null);
         }
     }
 
@@ -133,15 +133,17 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
         protected MtaArchiveHelper getHelper(Manifest manifest) {
             MtaArchiveHelper helper = Mockito.mock(MtaArchiveHelper.class);
             when(helper.getMtaArchiveModules()).thenReturn(input.expectedModules.stream()
-                .collect(Collectors.toMap(m -> m, Function.identity())));
+                                                                                .collect(Collectors.toMap(m -> m, Function.identity())));
             when(helper.getMtaArchiveResources()).thenReturn(input.expectedResources.stream()
-                .collect(Collectors.toMap(r -> r, Function.identity())));
+                                                                                    .collect(Collectors.toMap(r -> r,
+                                                                                                              Function.identity())));
             when(helper.getMtaRequiresDependencies()).thenReturn(input.expectedRequiredDependencies.stream()
-                .collect(Collectors.toMap(d -> d, Function.identity())));
+                                                                                                   .collect(Collectors.toMap(d -> d,
+                                                                                                                             Function.identity())));
 
             try {
                 doAnswer(a -> null).when(helper)
-                    .init();
+                                   .init();
             } catch (SLException e) {
                 // Ignore...
             }

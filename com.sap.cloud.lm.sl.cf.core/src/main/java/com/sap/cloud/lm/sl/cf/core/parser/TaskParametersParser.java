@@ -24,22 +24,22 @@ public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
     public List<CloudTask> parse(List<Map<String, Object>> parametersList) {
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> tasks = (List<Map<String, Object>>) PropertiesUtil.getPropertyValue(parametersList, parameterName,
-            Collections.emptyList());
+                                                                                                      Collections.emptyList());
 
         return tasks.stream()
-            .map(cloudTaskMapper::toCloudTask)
-            .collect(Collectors.toList());
+                    .map(cloudTaskMapper::toCloudTask)
+                    .collect(Collectors.toList());
     }
 
     public static class CloudTaskMapper {
 
         public CloudTask toCloudTask(Map<String, Object> rawTask) {
             return ImmutableCloudTask.builder()
-                .name(getProperty(rawTask, TasksValidator.TASK_NAME_KEY))
-                .command(getProperty(rawTask, TasksValidator.TASK_COMMAND_KEY))
-                .memory(parseMemory(rawTask))
-                .diskQuota(parseDiskQuota(rawTask))
-                .build();
+                                     .name(getProperty(rawTask, TasksValidator.TASK_NAME_KEY))
+                                     .command(getProperty(rawTask, TasksValidator.TASK_COMMAND_KEY))
+                                     .memory(parseMemory(rawTask))
+                                     .diskQuota(parseDiskQuota(rawTask))
+                                     .build();
         }
 
         private Integer parseMemory(Map<String, Object> rawTask) {

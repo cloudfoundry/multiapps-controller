@@ -18,7 +18,7 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 public class DomainValidatorTest {
 
     private final Tester tester = Tester.forClass(getClass());
-    
+
     private DomainValidator validator = new DomainValidator();
 
     private boolean isValid;
@@ -74,6 +74,6 @@ public class DomainValidatorTest {
     @Test
     public void testGetContainerType() {
         assertTrue(validator.getContainerType()
-            .isAssignableFrom(Module.class));
+                            .isAssignableFrom(Module.class));
     }
 }

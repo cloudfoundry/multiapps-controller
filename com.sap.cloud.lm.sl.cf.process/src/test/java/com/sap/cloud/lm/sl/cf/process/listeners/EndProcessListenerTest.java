@@ -90,7 +90,7 @@ public class EndProcessListenerTest {
         MockitoAnnotations.initMocks(this);
         prepareContext();
         Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(stepLogger);
+               .thenReturn(stepLogger);
     }
 
     private void prepareContext() {
@@ -105,7 +105,7 @@ public class EndProcessListenerTest {
         listener.deleteDeploymentFiles(context);
         for (String fileId : expectedFileIdsToSweep) {
             Mockito.verify(fileService)
-                .deleteFile(SPACE_ID, fileId);
+                   .deleteFile(SPACE_ID, fileId);
         }
     }
 

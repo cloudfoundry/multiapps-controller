@@ -48,7 +48,7 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
     }
 
     private void deleteServiceBrokerIfNecessary(DelegateExecution context, CloudApplication app,
-        List<String> createdOrUpdatedServiceBrokers, CloudControllerClient client) {
+                                                List<String> createdOrUpdatedServiceBrokers, CloudControllerClient client) {
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
         if (!appAttributes.get(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
             return;

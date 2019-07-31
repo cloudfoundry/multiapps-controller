@@ -47,8 +47,13 @@ public class ConfigurationEntryDtoDao {
                 return entry;
             });
         } catch (RollbackException e) {
-            throw new ConflictException(e, Messages.CONFIGURATION_ENTRY_ALREADY_EXISTS, entry.getProviderNid(), entry.getProviderId(),
-                entry.getProviderVersion(), entry.getTargetOrg(), entry.getTargetSpace());
+            throw new ConflictException(e,
+                                        Messages.CONFIGURATION_ENTRY_ALREADY_EXISTS,
+                                        entry.getProviderNid(),
+                                        entry.getProviderId(),
+                                        entry.getProviderVersion(),
+                                        entry.getTargetOrg(),
+                                        entry.getTargetSpace());
         }
     }
 
@@ -65,8 +70,13 @@ public class ConfigurationEntryDtoDao {
             });
         } catch (RollbackException e) {
             ConfigurationEntryDto entry = merge(find(id), entryDelta);
-            throw new ConflictException(e, Messages.CONFIGURATION_ENTRY_ALREADY_EXISTS, entry.getProviderNid(), entry.getProviderId(),
-                entry.getProviderVersion(), entry.getTargetOrg(), entry.getTargetSpace());
+            throw new ConflictException(e,
+                                        Messages.CONFIGURATION_ENTRY_ALREADY_EXISTS,
+                                        entry.getProviderNid(),
+                                        entry.getProviderId(),
+                                        entry.getProviderVersion(),
+                                        entry.getTargetOrg(),
+                                        entry.getTargetSpace());
         }
     }
 
@@ -92,27 +102,28 @@ public class ConfigurationEntryDtoDao {
 
     @SuppressWarnings("unchecked")
     public List<ConfigurationEntryDto> findAll() {
-        return new Executor<List<ConfigurationEntryDto>>(createEntityManager())
-            .execute(manager -> manager.createNamedQuery(NamedQueries.FIND_ALL_ENTRIES)
-                .getResultList());
+        return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute(manager -> manager.createNamedQuery(NamedQueries.FIND_ALL_ENTRIES)
+                                                                                                          .getResultList());
     }
 
     public List<ConfigurationEntryDto> find(String providerNid, String providerId, CloudTarget targetSpace,
-        Map<String, Object> requiredProperties, String mtaId) {
-        return new Executor<List<ConfigurationEntryDto>>(createEntityManager())
-            .execute(manager -> findInternal(providerNid, providerId, targetSpace, requiredProperties, mtaId, manager));
+                                            Map<String, Object> requiredProperties, String mtaId) {
+        return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute(manager -> findInternal(providerNid, providerId,
+                                                                                                                targetSpace,
+                                                                                                                requiredProperties, mtaId,
+                                                                                                                manager));
     }
 
     @SuppressWarnings("unchecked")
     public List<ConfigurationEntryDto> find(String spaceGuid) {
-        return new Executor<List<ConfigurationEntryDto>>(createEntityManager())
-            .execute(manager -> manager.createNamedQuery(NamedQueries.FIND_ALL_ENTRIES_BY_SPACE_ID)
-                .setParameter(ConfigurationEntryDto.FieldNames.SPACE_ID, spaceGuid)
-                .getResultList());
+        return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute(manager -> manager.createNamedQuery(NamedQueries.FIND_ALL_ENTRIES_BY_SPACE_ID)
+                                                                                                          .setParameter(ConfigurationEntryDto.FieldNames.SPACE_ID,
+                                                                                                                        spaceGuid)
+                                                                                                          .getResultList());
     }
 
     private List<ConfigurationEntryDto> findInternal(String providerNid, String providerId, CloudTarget targetSpace,
-        Map<String, Object> requiredProperties, String mtaId, EntityManager manager) {
+                                                     Map<String, Object> requiredProperties, String mtaId, EntityManager manager) {
 
         TypedQuery<ConfigurationEntryDto> query = createQuery(providerNid, providerId, targetSpace, mtaId, manager);
 
@@ -134,7 +145,7 @@ public class ConfigurationEntryDtoDao {
     }
 
     private TypedQuery<ConfigurationEntryDto> createQuery(String providerNid, String providerId, CloudTarget targetSpace, String mtaId,
-        EntityManager manager) {
+                                                          EntityManager manager) {
         CriteriaBuilder builder = manager.getCriteriaBuilder();
         CriteriaQuery<ConfigurationEntryDto> query = builder.createQuery(ConfigurationEntryDto.class);
         Root<ConfigurationEntryDto> root = query.from(ConfigurationEntryDto.class);
@@ -159,7 +170,7 @@ public class ConfigurationEntryDtoDao {
         }
 
         return manager.createQuery(query.select(root)
-            .where(predicates.toArray(new Predicate[0])));
+                                        .where(predicates.toArray(new Predicate[0])));
     }
 
     private ConfigurationEntryDto findInternal(long id, EntityManager manager) {
@@ -171,11 +182,12 @@ public class ConfigurationEntryDtoDao {
     }
 
     private List<ConfigurationEntryDto> filter(List<ConfigurationEntryDto> entries, Map<String, Object> requiredProperties,
-        CloudTarget requestedSpace) {
+                                               CloudTarget requestedSpace) {
         return entries.stream()
-            .filter(entry -> CONTENT_FILTER.test(entry.getContent(), requiredProperties))
-            .filter(entry -> TARGET_WILDCARD_FILTER.test(new CloudTarget(entry.getTargetOrg(), entry.getTargetSpace()), requestedSpace))
-            .collect(Collectors.toList());
+                      .filter(entry -> CONTENT_FILTER.test(entry.getContent(), requiredProperties))
+                      .filter(entry -> TARGET_WILDCARD_FILTER.test(new CloudTarget(entry.getTargetOrg(), entry.getTargetSpace()),
+                                                                   requestedSpace))
+                      .collect(Collectors.toList());
     }
 
     private ConfigurationEntryDto merge(ConfigurationEntryDto existingEntry, ConfigurationEntryDto entry) {
@@ -188,8 +200,15 @@ public class ConfigurationEntryDtoDao {
         String content = ObjectUtils.firstNonNull(entry.getContent(), existingEntry.getContent());
         String visibility = ObjectUtils.firstNonNull(entry.getVisibility(), existingEntry.getVisibility());
         String spaceId = ObjectUtils.firstNonNull(entry.getSpaceId(), existingEntry.getSpaceId());
-        return new ConfigurationEntryDto(id, providerNid, providerId, providerVersion, targetOrg, targetSpace, content, visibility,
-            spaceId);
+        return new ConfigurationEntryDto(id,
+                                         providerNid,
+                                         providerId,
+                                         providerVersion,
+                                         targetOrg,
+                                         targetSpace,
+                                         content,
+                                         visibility,
+                                         spaceId);
     }
 
     private String removeDefault(String value) {

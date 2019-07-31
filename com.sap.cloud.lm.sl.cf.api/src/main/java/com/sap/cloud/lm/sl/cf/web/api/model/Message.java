@@ -85,9 +85,15 @@ public class Message {
         StringBuilder sb = new StringBuilder();
         sb.append("class Message {\n");
 
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    text: ").append(toIndentedString(text)).append("\n");
-        sb.append("    type: ").append(toIndentedString(type)).append("\n");
+        sb.append("    id: ")
+          .append(toIndentedString(id))
+          .append("\n");
+        sb.append("    text: ")
+          .append(toIndentedString(text))
+          .append("\n");
+        sb.append("    type: ")
+          .append(toIndentedString(type))
+          .append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -99,6 +105,7 @@ public class Message {
         if (o == null) {
             return "null";
         }
-        return o.toString().replace("\n", "\n    ");
+        return o.toString()
+                .replace("\n", "\n    ");
     }
 }

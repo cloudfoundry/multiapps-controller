@@ -16,7 +16,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
@@ -61,7 +60,7 @@ public class ApplicationEnvironmentUpdaterTest {
         applicationEnvironmentUpdater.updateApplicationEnvironment(input.envPropertyKey, input.newKey, input.newValue);
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
         Mockito.verify(client)
-            .updateApplicationEnv(Mockito.eq(input.app.name), (Map<String, String>) captor.capture());
+               .updateApplicationEnv(Mockito.eq(input.app.name), (Map<String, String>) captor.capture());
         tester.test(() -> captor.getValue(), expectation);
     }
 
@@ -80,10 +79,10 @@ public class ApplicationEnvironmentUpdaterTest {
 
         CloudApplication toCloudApplication() {
             return ImmutableCloudApplication.builder()
-                .metadata(CloudMetadata.defaultMetadata())
-                .name(name)
-                .env(ENV_CONVERTER.asEnv(env))
-                .build();
+                                            .metadata(CloudMetadata.defaultMetadata())
+                                            .name(name)
+                                            .env(ENV_CONVERTER.asEnv(env))
+                                            .build();
         }
     }
 }

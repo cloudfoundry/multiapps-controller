@@ -24,11 +24,11 @@ public class FlowableEngineEventToDelegateExecutionAdapter implements DelegateEx
     @Override
     public Object getVariable(String variableName) {
         HistoricVariableInstance result = Context.getProcessEngineConfiguration()
-            .getHistoryService()
-            .createHistoricVariableInstanceQuery()
-            .processInstanceId(getProcessInstanceId())
-            .variableName(variableName)
-            .singleResult();
+                                                 .getHistoryService()
+                                                 .createHistoricVariableInstanceQuery()
+                                                 .processInstanceId(getProcessInstanceId())
+                                                 .variableName(variableName)
+                                                 .singleResult();
         if (result != null) {
             return result.getValue();
         }

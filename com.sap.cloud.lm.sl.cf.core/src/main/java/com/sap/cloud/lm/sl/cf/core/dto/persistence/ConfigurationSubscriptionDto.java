@@ -90,7 +90,7 @@ public class ConfigurationSubscriptionDto {
     }
 
     public ConfigurationSubscriptionDto(long id, String mtaId, String spaceId, String appName, String filter, String moduleContent,
-        String resourceName, String resourceProperties) {
+                                        String resourceName, String resourceProperties) {
         this.id = id;
         this.resourceProperties = resourceProperties;
         this.resourceName = resourceName;

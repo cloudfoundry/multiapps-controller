@@ -26,7 +26,7 @@ public class TaskHookParser {
         CloudTask task = new TaskParametersParser.CloudTaskMapper().toCloudTask(hook.getParameters());
         if (task.getName() == null) {
             return ImmutableCloudTask.copyOf(task)
-                .withName(hook.getName());
+                                     .withName(hook.getName());
         }
         return task;
     }

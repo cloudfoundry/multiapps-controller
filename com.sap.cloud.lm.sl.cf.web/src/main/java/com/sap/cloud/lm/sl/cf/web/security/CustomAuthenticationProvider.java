@@ -68,7 +68,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                 } else {
                     String message = "Null access token returned by cloud controller";
                     AuditLoggingProvider.getFacade()
-                        .logSecurityIncident(message);
+                                        .logSecurityIncident(message);
                     throw new AuthenticationServiceException(message);
                 }
             }
@@ -93,7 +93,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         } catch (CloudOperationException e) {
             String message = Messages.CANNOT_AUTHENTICATE_WITH_CLOUD_CONTROLLER;
             AuditLoggingProvider.getFacade()
-                .logSecurityIncident(message);
+                                .logSecurityIncident(message);
             throw new BadCredentialsException(message, e);
         }
     }

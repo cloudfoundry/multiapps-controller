@@ -6,8 +6,8 @@ import java.util.Set;
 public class ChangedApplicationActionCalcultor implements ActionCalculator {
 
     @Override
-    public Set<ApplicationStateAction> determineActionsToExecute(ApplicationStartupState currentState,
-        ApplicationStartupState desiredState, boolean isApplicationStagedCorrectly) {
+    public Set<ApplicationStateAction> determineActionsToExecute(ApplicationStartupState currentState, ApplicationStartupState desiredState,
+                                                                 boolean isApplicationStagedCorrectly) {
         Set<ApplicationStateAction> result = new HashSet<>();
         if (desiredState.equals(ApplicationStartupState.STARTED)) {
             result.add(ApplicationStateAction.START);

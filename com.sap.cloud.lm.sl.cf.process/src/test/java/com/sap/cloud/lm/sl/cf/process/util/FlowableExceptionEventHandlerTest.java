@@ -37,7 +37,7 @@ public class FlowableExceptionEventHandlerTest {
     private FlowableFacade flowableFacadeMock;
 
     private Date now = DateTime.now()
-        .toDate();
+                               .toDate();
 
     @BeforeEach
     public void setUp() {
@@ -55,7 +55,7 @@ public class FlowableExceptionEventHandlerTest {
     public void testWithEmptyExceptionMessage() {
         FlowableExceptionEvent mockedExceptionEvent = Mockito.mock(FlowableExceptionEvent.class);
         Mockito.when(mockedExceptionEvent.getCause())
-            .thenReturn(new Exception());
+               .thenReturn(new Exception());
 
         testSimpleWithEventAndExceptionEvent(new FlowableEngineEventImpl(FlowableEngineEventType.CUSTOM), mockedExceptionEvent);
 
@@ -65,23 +65,24 @@ public class FlowableExceptionEventHandlerTest {
     @Test
     public void testWithErrorMessageAlreadyPresented() {
         Mockito.when(flowableFacadeMock.getProcessInstanceId(Mockito.anyString()))
-            .thenReturn("foo");
+               .thenReturn("foo");
         Mockito.when(progressMessageServiceMock.findByProcessId("foo"))
-            .thenReturn(Arrays.asList(ImmutableProgressMessage.builder()
-                .processId("foo")
-                .taskId("")
-                .text("")
-                .type(ProgressMessageType.ERROR)
-                .build()));
+               .thenReturn(Arrays.asList(ImmutableProgressMessage.builder()
+                                                                 .processId("foo")
+                                                                 .taskId("")
+                                                                 .text("")
+                                                                 .type(ProgressMessageType.ERROR)
+                                                                 .build()));
         FlowableExceptionEvent mockedExceptionEvent = Mockito.mock(FlowableExceptionEvent.class);
         Mockito.when(mockedExceptionEvent.getCause())
-            .thenReturn(new Exception("test-message"));
-        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageServiceMock, flowableFacadeMock,
-            mockedExceptionEvent);
+               .thenReturn(new Exception("test-message"));
+        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageServiceMock,
+                                                                                      flowableFacadeMock,
+                                                                                      mockedExceptionEvent);
         handler.handle(new FlowableEngineEventImpl(FlowableEngineEventType.CUSTOM));
 
         Mockito.verify(progressMessageServiceMock, Mockito.never())
-            .add(Mockito.any());
+               .add(Mockito.any());
     }
 
     @Test
@@ -92,60 +93,61 @@ public class FlowableExceptionEventHandlerTest {
     @Test
     public void testWithNoErrorMessageAndTaskIdFromContext() {
         Mockito.when(flowableFacadeMock.getCurrentTaskId("bar"))
-            .thenReturn("barbar");
+               .thenReturn("barbar");
 
         testWithNoErrorMessageWithExecutionEntity(false);
     }
 
     private void testWithNoErrorMessageWithExecutionEntity(boolean shouldUseExecutionEntity) {
         Mockito.when(flowableFacadeMock.getProcessInstanceId(Mockito.anyString()))
-            .thenReturn("foo");
+               .thenReturn("foo");
 
         Mockito.when(progressMessageServiceMock.findByProcessId("foo"))
-            .thenReturn(Collections.emptyList());
+               .thenReturn(Collections.emptyList());
 
         FlowableExceptionEvent mockedExceptionEvent = Mockito.mock(FlowableExceptionEvent.class);
 
         Mockito.when(mockedExceptionEvent.getCause())
-            .thenReturn(new Exception("test-message"));
+               .thenReturn(new Exception("test-message"));
 
         ProcessEngineConfiguration mockProcessEngineConfiguration = Mockito.mock(ProcessEngineConfiguration.class);
         RuntimeService runtimeServiceMock = Mockito.mock(RuntimeService.class);
         ExecutionQuery executionQueryMock = Mockito.mock(ExecutionQuery.class);
         Mockito.when(executionQueryMock.executionId("bar"))
-            .thenReturn(executionQueryMock);
+               .thenReturn(executionQueryMock);
 
         Mockito.when(executionQueryMock.processInstanceId("foo"))
-            .thenReturn(executionQueryMock);
+               .thenReturn(executionQueryMock);
 
         getExecutionEntityMock(shouldUseExecutionEntity, executionQueryMock);
 
         Mockito.when(runtimeServiceMock.createExecutionQuery())
-            .thenReturn(executionQueryMock);
+               .thenReturn(executionQueryMock);
 
         Mockito.when(mockProcessEngineConfiguration.getRuntimeService())
-            .thenReturn(runtimeServiceMock);
+               .thenReturn(runtimeServiceMock);
 
-        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageServiceMock, flowableFacadeMock,
-            mockedExceptionEvent).withProcessEngineConfiguration(mockProcessEngineConfiguration);
+        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageServiceMock,
+                                                                                      flowableFacadeMock,
+                                                                                      mockedExceptionEvent).withProcessEngineConfiguration(mockProcessEngineConfiguration);
 
         handler.handle(new FlowableEngineEventImpl(FlowableEngineEventType.CUSTOM, "bar", "foo", "testing"));
 
         Mockito.verify(progressMessageServiceMock, Mockito.times(1))
-            .add(ImmutableProgressMessage.builder()
-                .processId("foo")
-                .taskId("barbar")
-                .type(ProgressMessageType.ERROR)
-                .text("Unexpected error: test-message")
-                .timestamp(now)
-                .build());
+               .add(ImmutableProgressMessage.builder()
+                                            .processId("foo")
+                                            .taskId("barbar")
+                                            .type(ProgressMessageType.ERROR)
+                                            .text("Unexpected error: test-message")
+                                            .timestamp(now)
+                                            .build());
     }
 
     private void getExecutionEntityMock(boolean shouldUseExecutionEntity, ExecutionQuery executionQueryMock) {
         ExecutionEntityImpl executionEntity = getExecutionEntity(shouldUseExecutionEntity);
 
         Mockito.when(executionQueryMock.list())
-            .thenReturn(getList(executionEntity));
+               .thenReturn(getList(executionEntity));
     }
 
     private List<Execution> getList(ExecutionEntityImpl executionEntity) {
@@ -173,7 +175,7 @@ public class FlowableExceptionEventHandlerTest {
         private ProcessEngineConfiguration processEngineConfiguration;
 
         public FlowableExceptionEventHandlerMock(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
-            FlowableExceptionEvent flowableExceptionEvent) {
+                                                 FlowableExceptionEvent flowableExceptionEvent) {
             super(progressMessageService, flowableFacade);
             this.flowableExceptionEvent = flowableExceptionEvent;
         }

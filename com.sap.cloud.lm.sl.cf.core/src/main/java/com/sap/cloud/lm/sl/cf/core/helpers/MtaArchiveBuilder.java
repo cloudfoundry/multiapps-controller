@@ -81,7 +81,8 @@ public class MtaArchiveBuilder {
 
         if (schemaVersion.getMajor() < 2) {
             throw new ContentException(Messages.THE_DEPLOYMENT_DESCRIPTOR_0_SPECIFIES_NOT_SUPPORTED_MTA_VERSION_1,
-                deploymentDescriptorFile.toAbsolutePath(), schemaVersion.getMajor());
+                                       deploymentDescriptorFile.toAbsolutePath(),
+                                       schemaVersion.getMajor());
         }
 
         return deploymentDescriptor;
@@ -90,7 +91,7 @@ public class MtaArchiveBuilder {
     public Path buildMtaArchive() {
         mtaAssemblyDir = mtaDir.resolve(MTA_ASSEMBLY_DIR);
         if (mtaAssemblyDir.toFile()
-            .exists()) {
+                          .exists()) {
             try {
                 FileUtils.deleteDirectory(mtaAssemblyDir);
                 Files.createDirectory(mtaAssemblyDir);
@@ -103,12 +104,13 @@ public class MtaArchiveBuilder {
 
         Manifest manifest = new Manifest();
         manifest.getMainAttributes()
-            .put(Attributes.Name.MANIFEST_VERSION, "1.0");
+                .put(Attributes.Name.MANIFEST_VERSION, "1.0");
         manifest.getEntries()
-            .putAll(manifestEntries);
+                .putAll(manifestEntries);
 
         Path mtaArchive = mtaAssemblyDir.resolve(mtaDir.getFileName()
-            .toString() + ".mtar");
+                                                       .toString()
+            + ".mtar");
         try (JarOutputStream jarOutputStream = new JarOutputStream(Files.newOutputStream(mtaArchive), manifest)) {
             for (Path source : jarEntries) {
                 addJarEntry(source, jarOutputStream);
@@ -149,7 +151,7 @@ public class MtaArchiveBuilder {
             Files.createDirectories(mtaAssemblyDir.resolve(META_INF_DIR));
             Path targetDeployDescriptorFile = mtaAssemblyDir.resolve(DEPLOYMENT_DESCRIPTOR_ARCHIVE_PATH);
             Files.copy(deploymentDescriptorFile, targetDeployDescriptorFile, StandardCopyOption.REPLACE_EXISTING,
-                StandardCopyOption.COPY_ATTRIBUTES);
+                       StandardCopyOption.COPY_ATTRIBUTES);
             jarEntries.add(targetDeployDescriptorFile);
         } catch (IOException e) {
             throw new SLException(e, Messages.FAILED_TO_COPY_FILE_0_TO_ASSEMBLY_DIRECTORY, deploymentDescriptorFile.toAbsolutePath());
@@ -160,7 +162,7 @@ public class MtaArchiveBuilder {
     private void prepareResourceEntries(DeploymentDescriptor deploymentDescriptor) {
         for (Resource resource : deploymentDescriptor.getResources()) {
             String resourceConfigPath = (String) resource.getParameters()
-                .get(SupportedParameters.SERVICE_CONFIG_PATH);
+                                                         .get(SupportedParameters.SERVICE_CONFIG_PATH);
             if (resourceConfigPath != null) {
                 prepareFile(resourceConfigPath);
 
@@ -175,8 +177,8 @@ public class MtaArchiveBuilder {
         prepareFile(path);
         Attributes attributes = new Attributes();
         List<String> moduleNames = modules.stream()
-            .map(Module::getName)
-            .collect(Collectors.toList());
+                                          .map(Module::getName)
+                                          .collect(Collectors.toList());
         attributes.putValue(MtaArchiveHelper.ATTR_MTA_MODULE, String.join(Constants.MODULE_SEPARATOR, moduleNames));
         manifestEntries.put(path, attributes);
     }
@@ -184,13 +186,14 @@ public class MtaArchiveBuilder {
     private void prepareModuleDependencies(Module module) {
         for (RequiredDependency requiredDependency : module.getRequiredDependencies()) {
             String requiredDependencyConfigPath = (String) requiredDependency.getParameters()
-                .get(SupportedParameters.SERVICE_BINDING_CONFIG_PATH);
+                                                                             .get(SupportedParameters.SERVICE_BINDING_CONFIG_PATH);
             if (requiredDependencyConfigPath != null) {
                 prepareFile(requiredDependencyConfigPath);
 
                 Attributes dependencyAttributes = new Attributes();
                 dependencyAttributes.putValue(MtaArchiveHelper.ATTR_MTA_REQUIRES_DEPENDENCY,
-                    ValidatorUtil.getPrefixedName(module.getName(), requiredDependency.getName(), Constants.MTA_ELEMENT_SEPARATOR));
+                                              ValidatorUtil.getPrefixedName(module.getName(), requiredDependency.getName(),
+                                                                            Constants.MTA_ELEMENT_SEPARATOR));
                 manifestEntries.put(requiredDependencyConfigPath, dependencyAttributes);
             }
         }
@@ -218,7 +221,7 @@ public class MtaArchiveBuilder {
 
     private void addJarEntry(Path source, JarOutputStream out) throws IOException {
         if (source.toFile()
-            .isDirectory()) {
+                  .isDirectory()) {
             JarEntry entry = createJarEntry(source);
             out.putNextEntry(entry);
             out.closeEntry();
@@ -246,15 +249,16 @@ public class MtaArchiveBuilder {
 
     private JarEntry createJarEntry(Path source) throws IOException {
         String entryName = FilenameUtils.separatorsToUnix(mtaAssemblyDir.relativize(source)
-            .toString());
+                                                                        .toString());
         if (source.toFile()
-            .isDirectory() && !entryName.endsWith(Constants.UNIX_PATH_SEPARATOR)) {
+                  .isDirectory()
+            && !entryName.endsWith(Constants.UNIX_PATH_SEPARATOR)) {
             entryName += Constants.UNIX_PATH_SEPARATOR;
         }
 
         JarEntry entry = new JarEntry(entryName);
         entry.setTime(Files.getLastModifiedTime(source)
-            .toMillis());
+                           .toMillis());
         return entry;
     }
 
@@ -269,13 +273,13 @@ public class MtaArchiveBuilder {
     private Path findDeploymenDescriptor(Path mtaDirectory) {
         try (Stream<Path> mtaDirContents = Files.list(mtaDirectory)) {
             Optional<Path> deploymentDescriptor = mtaDirContents.filter(path -> MTAD_YAML.equals(path.getFileName()
-                .toString()))
-                .findFirst();
+                                                                                                     .toString()))
+                                                                .findFirst();
             if (!deploymentDescriptor.isPresent()) {
                 throw new SLException(Messages.DIRECTORY_0_DOES_NOT_CONTAIN_MANDATORY_DEPLOYMENT_DESCRIPTOR_FILE_1,
-                    mtaDirectory.getFileName()
-                        .toString(),
-                    MTAD_YAML);
+                                      mtaDirectory.getFileName()
+                                                  .toString(),
+                                      MTAD_YAML);
             }
             return deploymentDescriptor.get();
         } catch (IOException e) {
@@ -293,7 +297,7 @@ public class MtaArchiveBuilder {
         String modulePath = module.getPath();
         if (modulePath != null) {
             map.computeIfAbsent(modulePath, k -> new ArrayList<>())
-                .add(module);
+               .add(module);
         }
     }
 }

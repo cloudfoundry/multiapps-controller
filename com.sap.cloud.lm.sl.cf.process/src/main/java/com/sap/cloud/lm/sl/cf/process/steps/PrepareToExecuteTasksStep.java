@@ -21,22 +21,22 @@ public class PrepareToExecuteTasksStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         List<CloudTask> tasksToExecute = StepsUtil.getTasksToExecute(execution.getContext());
         execution.getContext()
-            .setVariable(Constants.VAR_PLATFORM_SUPPORTS_TASKS, platformSupportsTasks(execution));
+                 .setVariable(Constants.VAR_PLATFORM_SUPPORTS_TASKS, platformSupportsTasks(execution));
 
         // Initialize the iteration over the tasks:
         execution.getContext()
-            .setVariable(Constants.VAR_TASKS_COUNT, tasksToExecute.size());
+                 .setVariable(Constants.VAR_TASKS_COUNT, tasksToExecute.size());
         execution.getContext()
-            .setVariable(Constants.VAR_TASKS_INDEX, 0);
+                 .setVariable(Constants.VAR_TASKS_INDEX, 0);
         execution.getContext()
-            .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_TASKS_INDEX);
+                 .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_TASKS_INDEX);
         return StepPhase.DONE;
     }
 
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
         return MessageFormat.format(Messages.ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP, StepsUtil.getApp(context)
-            .getName());
+                                                                                               .getName());
     }
 
     private boolean platformSupportsTasks(ExecutionWrapper execution) {

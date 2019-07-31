@@ -26,7 +26,7 @@ public class ParametersValidatorHelper {
         Map<String, Object> correctedParameters = new TreeMap<>();
         for (ParameterValidator validator : parameterValidators) {
             if (!validator.getContainerType()
-                .isAssignableFrom(containerClass)) {
+                          .isAssignableFrom(containerClass)) {
                 continue;
             }
 
@@ -37,19 +37,19 @@ public class ParametersValidatorHelper {
     }
 
     private void correctInvalidSingleParameters(String prefix, Object container, ParameterValidator validator,
-        Map<String, Object> parameters, Map<String, Object> correctedParameters) {
+                                                Map<String, Object> parameters, Map<String, Object> correctedParameters) {
         String parameterName = validator.getParameterName();
 
         Object initialParameterValue = parameters.get(parameterName);
         Object correctParameterValue = validateAndCorrect(container, ValidatorUtil.getPrefixedName(prefix, parameterName),
-            initialParameterValue, validator);
+                                                          initialParameterValue, validator);
         if (!Objects.equals(initialParameterValue, correctParameterValue)) {
             correctedParameters.put(parameterName, correctParameterValue);
         }
     }
 
     private void correctInvalidPluralParameters(String prefix, Object container, ParameterValidator validator,
-        Map<String, Object> parameters, Map<String, Object> correctedParameters) {
+                                                Map<String, Object> parameters, Map<String, Object> correctedParameters) {
         String parameterPluralName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(validator.getParameterName());
 
         if (parameterPluralName == null || !parameters.containsKey(parameterPluralName)) {
@@ -63,9 +63,11 @@ public class ParametersValidatorHelper {
         }
 
         List<Object> correctedParameterValues = initialParameterValues.stream()
-            .map(parameter -> validateAndCorrect(container, ValidatorUtil.getPrefixedName(prefix, validator.getParameterName()), parameter,
-                validator))
-            .collect(Collectors.toList());
+                                                                      .map(parameter -> validateAndCorrect(container,
+                                                                                                           ValidatorUtil.getPrefixedName(prefix,
+                                                                                                                                         validator.getParameterName()),
+                                                                                                           parameter, validator))
+                                                                      .collect(Collectors.toList());
         correctedParameters.put(parameterPluralName, correctedParameterValues);
     }
 

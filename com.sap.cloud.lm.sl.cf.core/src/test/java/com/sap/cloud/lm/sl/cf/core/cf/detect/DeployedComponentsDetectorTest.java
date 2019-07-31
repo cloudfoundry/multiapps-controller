@@ -41,8 +41,8 @@ public class DeployedComponentsDetectorTest {
 
     private List<CloudApplication> toCloudApplications(List<TestCloudApplication> simpleApplications) {
         return simpleApplications.stream()
-            .map(TestCloudApplication::toCloudApplication)
-            .collect(Collectors.toList());
+                                 .map(TestCloudApplication::toCloudApplication)
+                                 .collect(Collectors.toList());
     }
 
     public static Stream<Arguments> testDetectAllApplications() {
@@ -85,12 +85,12 @@ public class DeployedComponentsDetectorTest {
 
         private CloudApplication toCloudApplication() {
             return ImmutableCloudApplication.builder()
-                .metadata(ImmutableCloudMetadata.builder()
-                    .guid(NameUtil.getUUID(name))
-                    .build())
-                .name(name)
-                .env(ENV_CONVERTER.asEnv(env))
-                .build();
+                                            .metadata(ImmutableCloudMetadata.builder()
+                                                                            .guid(NameUtil.getUUID(name))
+                                                                            .build())
+                                            .name(name)
+                                            .env(ENV_CONVERTER.asEnv(env))
+                                            .build();
         }
 
     }

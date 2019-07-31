@@ -31,7 +31,7 @@ public class FileUtils {
     public static void copyFile(Path fromPath, Path toPath) throws IOException {
         Path destinationParent = toPath.getParent();
         if (!destinationParent.toFile()
-            .exists()) {
+                              .exists()) {
             Files.createDirectories(destinationParent);
         }
         Files.copy(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
@@ -42,15 +42,15 @@ public class FileUtils {
             throw new IllegalArgumentException(MessageFormat.format(PATH_SHOULD_BE_NORMALIZED, path));
         }
         if (Paths.get(path)
-            .isAbsolute()) {
+                 .isAbsolute()) {
             throw new IllegalArgumentException(MessageFormat.format(PATH_SHOULD_NOT_BE_ABSOLUTE, path));
         }
     }
 
     public static String getRelativePath(String parentPath, String filePath) {
         return Paths.get(parentPath)
-            .relativize(Paths.get(filePath))
-            .toString();
+                    .relativize(Paths.get(filePath))
+                    .toString();
     }
 
     public static boolean isDirectory(String fileName) {
@@ -89,7 +89,7 @@ public class FileUtils {
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
             Path targetPath = toPath.resolve(fromPath.relativize(dir));
             if (!targetPath.toFile()
-                .exists()) {
+                           .exists()) {
                 Files.createDirectory(targetPath);
             }
             return FileVisitResult.CONTINUE;
@@ -98,7 +98,7 @@ public class FileUtils {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             Files.copy(file, toPath.resolve(fromPath.relativize(file)), StandardCopyOption.REPLACE_EXISTING,
-                StandardCopyOption.COPY_ATTRIBUTES);
+                       StandardCopyOption.COPY_ATTRIBUTES);
             return FileVisitResult.CONTINUE;
         }
     }

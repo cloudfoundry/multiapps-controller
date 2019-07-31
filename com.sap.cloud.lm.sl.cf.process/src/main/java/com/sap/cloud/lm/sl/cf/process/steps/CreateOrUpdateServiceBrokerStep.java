@@ -62,15 +62,15 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
     }
 
     private CloudServiceBroker updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker,
-        CloudServiceBroker existingBroker, CloudControllerClient client) {
+                                                   CloudServiceBroker existingBroker, CloudControllerClient client) {
         serviceBroker = ImmutableCloudServiceBroker.copyOf(serviceBroker)
-            .withMetadata(existingBroker.getMetadata());
+                                                   .withMetadata(existingBroker.getMetadata());
         if (existingBroker.getSpaceGuid() != null && serviceBroker.getSpaceGuid() == null) {
             getStepLogger().warn(MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_SPACE_SCOPED_TO_GLOBAL,
-                serviceBroker.getName()));
+                                                      serviceBroker.getName()));
         } else if (existingBroker.getSpaceGuid() == null && serviceBroker.getSpaceGuid() != null) {
             getStepLogger().warn(MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_GLOBAL_TO_SPACE_SCOPED,
-                serviceBroker.getName()));
+                                                      serviceBroker.getName()));
         }
         updateServiceBroker(context, serviceBroker, client);
         return serviceBroker;
@@ -78,10 +78,11 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
 
     private CloudServiceBroker findServiceBroker(List<CloudServiceBroker> serviceBrokers, String name) {
         return serviceBrokers.stream()
-            .filter(broker -> broker.getName()
-                .equals(name))
-            .findFirst()
-            .orElseThrow(() -> new NotFoundException(MessageFormat.format(Messages.SERVICE_BROKER_0_DOES_NOT_EXIST, name)));
+                             .filter(broker -> broker.getName()
+                                                     .equals(name))
+                             .findFirst()
+                             .orElseThrow(() -> new NotFoundException(MessageFormat.format(Messages.SERVICE_BROKER_0_DOES_NOT_EXIST,
+                                                                                           name)));
     }
 
     private CloudServiceBroker getServiceBrokerToCreate(DelegateExecution context) {
@@ -121,12 +122,12 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
         }
 
         return ImmutableCloudServiceBroker.builder()
-            .name(serviceBrokerName)
-            .username(serviceBrokerUsername)
-            .password(serviceBrokerPassword)
-            .url(serviceBrokerUrl)
-            .spaceGuid(serviceBrokerSpaceGuid)
-            .build();
+                                          .name(serviceBrokerName)
+                                          .username(serviceBrokerUsername)
+                                          .password(serviceBrokerPassword)
+                                          .url(serviceBrokerUrl)
+                                          .spaceGuid(serviceBrokerSpaceGuid)
+                                          .build();
     }
 
     private String getServiceBrokerSpaceGuid(DelegateExecution context, String serviceBrokerName, ApplicationAttributes appAttributes) {
@@ -136,8 +137,8 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
 
     public static List<String> getServiceBrokerNames(List<? extends CloudServiceBroker> serviceBrokers) {
         return serviceBrokers.stream()
-            .map(CloudServiceBroker::getName)
-            .collect(Collectors.toList());
+                             .map(CloudServiceBroker::getName)
+                             .collect(Collectors.toList());
     }
 
     protected void updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker, CloudControllerClient client) {

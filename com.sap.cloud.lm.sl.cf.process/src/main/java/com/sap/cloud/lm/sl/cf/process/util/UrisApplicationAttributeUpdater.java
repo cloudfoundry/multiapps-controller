@@ -26,7 +26,7 @@ public class UrisApplicationAttributeUpdater extends ApplicationAttributeUpdater
     protected UpdateState updateApplicationAttribute(CloudControllerClient client, CloudApplication app) {
         stepLogger.debug("Updating uris of application \"{0}\" with uri: {1}", app.getName(), app.getUris());
         List<String> updatedUris = ElementUpdater.getUpdater(updateBehavior)
-            .updateList(existingApp.getUris(), app.getUris());
+                                                 .updateList(existingApp.getUris(), app.getUris());
         client.updateApplicationUris(app.getName(), updatedUris);
         return UpdateState.UPDATED;
     }

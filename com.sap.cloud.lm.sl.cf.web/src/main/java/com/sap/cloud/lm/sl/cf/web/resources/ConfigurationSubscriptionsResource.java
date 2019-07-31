@@ -51,8 +51,8 @@ public class ConfigurationSubscriptionsResource {
         List<ConfigurationSubscription> configurationSubscriptions = getConfigurationEntries(clientSpaces, client);
 
         return Response.ok()
-            .entity(wrap(configurationSubscriptions))
-            .build();
+                       .entity(wrap(configurationSubscriptions))
+                       .build();
     }
 
     private List<CloudSpace> getClientSpaces(String org, String space, CloudControllerClient client) {
@@ -64,10 +64,13 @@ public class ConfigurationSubscriptionsResource {
 
     private List<ConfigurationSubscription> getConfigurationEntries(List<CloudSpace> clientSpaces, CloudControllerClient client) {
         return clientSpaces.stream()
-            .map(clientSpace -> configurationSubscriptionsDao.findAll(null, null, computeSpaceId(client, clientSpace.getOrganization()
-                .getName(), clientSpace.getName()), null))
-            .flatMap(List::stream)
-            .collect(Collectors.toList());
+                           .map(clientSpace -> configurationSubscriptionsDao.findAll(null, null,
+                                                                                     computeSpaceId(client, clientSpace.getOrganization()
+                                                                                                                       .getName(),
+                                                                                                    clientSpace.getName()),
+                                                                                     null))
+                           .flatMap(List::stream)
+                           .collect(Collectors.toList());
     }
 
     private ConfigurationSubscriptions wrap(List<ConfigurationSubscription> configurationSubscriptions) {

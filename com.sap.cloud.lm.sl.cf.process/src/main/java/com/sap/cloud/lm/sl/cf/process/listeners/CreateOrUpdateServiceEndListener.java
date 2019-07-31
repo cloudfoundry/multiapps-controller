@@ -12,24 +12,27 @@ import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 
 @Component("createOrUpdateServiceEndListener")
 public class CreateOrUpdateServiceEndListener implements ExecutionListener {
-    
+
     private static final long serialVersionUID = 1L;
 
     @Override
     public void notify(DelegateExecution context) {
         boolean isServiceUpdated = StepsUtil.getIsServiceUpdated(context);
         String serviceName = StepsUtil.getServiceToProcessName(context);
-        if(serviceName == null) {
+        if (serviceName == null) {
             throw new IllegalStateException("Not able to determine service update status.");
         }
         String exportedVariableName = Constants.VAR_IS_SERVICE_UPDATED_VAR_PREFIX + serviceName;
-        
-        RuntimeService runtimeService = Context.getProcessEngineConfiguration().getRuntimeService();
-        
+
+        RuntimeService runtimeService = Context.getProcessEngineConfiguration()
+                                               .getRuntimeService();
+
         String superExecutionId = context.getParentId();
-        Execution superExecutionResult = runtimeService.createExecutionQuery().executionId(superExecutionId).singleResult();
+        Execution superExecutionResult = runtimeService.createExecutionQuery()
+                                                       .executionId(superExecutionId)
+                                                       .singleResult();
         superExecutionId = superExecutionResult.getSuperExecutionId();
-        
+
         runtimeService.setVariable(superExecutionId, exportedVariableName, isServiceUpdated);
     }
 }

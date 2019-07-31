@@ -14,9 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.shutdown.model.ApplicationShutdownDto;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 
 @Component
 @Produces(MediaType.APPLICATION_JSON)
@@ -31,35 +31,37 @@ public class ApplicationShutdownResource {
 
     @POST
     public ApplicationShutdownDto shutdownFlowableJobExecutor(@HeaderParam("x-cf-applicationid") String appId,
-        @HeaderParam("x-cf-instanceid") String appInstanceId, @HeaderParam("x-cf-instanceindex") String appInstanceIndex) {
+                                                              @HeaderParam("x-cf-instanceid") String appInstanceId,
+                                                              @HeaderParam("x-cf-instanceindex") String appInstanceIndex) {
 
         CompletableFuture.runAsync(() -> {
             LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWN_REQUEST, appId, appInstanceId, appInstanceIndex));
             flowableFacade.shutdownJobExecutor();
         })
-            .thenRun(() -> {
-                LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWNED, appId, appInstanceId, appInstanceIndex));
-            });
+                         .thenRun(() -> {
+                             LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWNED, appId, appInstanceId, appInstanceIndex));
+                         });
 
         return new ApplicationShutdownDto.Builder().isActive(flowableFacade.isJobExecutorActive())
-            .appId(appId)
-            .appInstanceId(appInstanceId)
-            .appInstanceIndex(appInstanceIndex)
-            .build();
+                                                   .appId(appId)
+                                                   .appInstanceId(appInstanceId)
+                                                   .appInstanceIndex(appInstanceIndex)
+                                                   .build();
     }
 
     @GET
     public ApplicationShutdownDto getFlowableJobExecutorShutdownStatus(@HeaderParam("x-cf-applicationid") String appId,
-        @HeaderParam("x-cf-instanceid") String appInstanceId, @HeaderParam("x-cf-instanceindex") String appInstanceIndex) {
+                                                                       @HeaderParam("x-cf-instanceid") String appInstanceId,
+                                                                       @HeaderParam("x-cf-instanceindex") String appInstanceIndex) {
 
         ApplicationShutdownDto appShutdownDto = new ApplicationShutdownDto.Builder().isActive(flowableFacade.isJobExecutorActive())
-            .appId(appId)
-            .appInstanceId(appInstanceId)
-            .appInstanceIndex(appInstanceIndex)
-            .build();
+                                                                                    .appId(appId)
+                                                                                    .appInstanceId(appInstanceId)
+                                                                                    .appInstanceIndex(appInstanceIndex)
+                                                                                    .build();
 
-        LOGGER.info(
-            MessageFormat.format(Messages.APP_SHUTDOWN_STATUS_MONITOR, appId, appInstanceId, appInstanceIndex, appShutdownDto.getStatus()));
+        LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWN_STATUS_MONITOR, appId, appInstanceId, appInstanceIndex,
+                                         appShutdownDto.getStatus()));
 
         return appShutdownDto;
     }

@@ -18,7 +18,7 @@ public class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
     @Override
     protected void performValidation(CloudApplication cloudApplication) {
         if (!cloudApplication.getUris()
-            .isEmpty()) {
+                             .isEmpty()) {
             verify(client).updateApplicationUris(cloudApplication.getName(), Collections.emptyList());
         }
     }
