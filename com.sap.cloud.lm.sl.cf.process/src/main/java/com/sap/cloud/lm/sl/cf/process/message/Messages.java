@@ -60,7 +60,6 @@ public class Messages {
     public static final String PARAMETERS_OF_TASK_HOOK_0_ARE_INCOMPLETE = "Parameters of hook {0} with type \"task\" are incomplete. Expected at least \"command\".";
     public static final String CANNOT_DETERMINE_MODULE_NAME = "Cannot determine module name";
     public static final String CANNOT_DETERMINE_CURRENT_APPLICATION = "Cannot determine current application";
-    public static final String ERROR_DELETING_REMAINING_FILE_PARTS = "Error deleting remaining file parts";
     public static final String INVALID_FILE_ENTRY_NAME = "Invalid file entry name!";
     // Audit log messages
 
@@ -139,12 +138,15 @@ public class Messages {
     public static final String ERROR_UPDATING_OPTIONAL_SERVICE = "Error updating optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_DELETING_OPTIONAL_SERVICE = "Error deleting optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_MONITORING_OPERATIONS_OVER_SERVICES = "Error monitoring operations over services";
+    public static final String ERROR_DELETING_REMAINING_FILE_PARTS = "Error deleting remaining file parts";
 
     public static final String ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES = "Error monitoring creation or update of services";
     public static final String ERROR_MONITORING_DELETION_OF_SERVICES = "Error monitoring deletion of services";
     public static final String SERVICES_ARE_ALREADY_DELETED = "Services \"{0}\" are already deleted";
     public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE = "Error determining actions to execute on service \"{0}\": {1}";
     public static final String ERROR_POLLING_OF_SERVICE = "Error polling last operation of service \"{0}\": {1}";
+    public static final String ERROR_MERGING_ARCHIVE = "Error merging archive. Retrying...";
+
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_PARAMETERS = "Cannot retrieve service parameters of service \"{0}\"";
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service \"{0}\"";
@@ -440,5 +442,6 @@ public class Messages {
     public static final String SUBSCRIPTIONS = "Subscriptions: {0}";
     public static final String SERVICES_IN_PROGRESS = "Services in progress: {0}";
     public static final String BUILD_FOR_PACKAGE_0_ALREADY_EXISTS = "Build for package: \"{0}\" already exists";
+    public static final String APP_NOT_FOUND = "App not found: \"{0}\"";
 
 }

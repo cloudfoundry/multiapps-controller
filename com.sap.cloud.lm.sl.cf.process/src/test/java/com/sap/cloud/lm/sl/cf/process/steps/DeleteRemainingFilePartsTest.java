@@ -1,9 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -45,7 +43,7 @@ public class DeleteRemainingFilePartsTest extends SyncFlowableStepTest<DeleteRem
 
     private List<FileEntry> createFakeFileEntries() {
         return Arrays.asList(createFileEntry("id1", "file.part.0", "local"), createFileEntry("id2", "file.part.1", "local"),
-            createFileEntry("id3", "file.part.2", "local"));
+                             createFileEntry("id3", "file.part.2", "local"));
     }
 
     private FileEntry createFileEntry(String id, String name, String space) {

@@ -48,8 +48,10 @@ public class ArchiveMerger {
             mergeFileParts(sortedParts, archiveMerger);
             persistMergedArchive(archiveMerger.getMergedFilePath(), context, configuration);
         } catch (FileStorageException e) {
+            stepLogger.info(Messages.ERROR_MERGING_ARCHIVE);
             throw new SLException(e, Messages.ERROR_PROCESSING_ARCHIVE_PARTS_CONTENT, e.getMessage());
         } catch (IOException e) {
+            stepLogger.info(Messages.ERROR_MERGING_ARCHIVE);
             throw new SLException(e, Messages.ERROR_MERGING_ARCHIVE_PARTS, e.getMessage());
         } finally {
             deleteMergedFile(archiveMerger);

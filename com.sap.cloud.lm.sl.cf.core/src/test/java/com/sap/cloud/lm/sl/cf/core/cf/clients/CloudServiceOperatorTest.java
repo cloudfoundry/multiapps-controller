@@ -2,11 +2,13 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -20,6 +22,7 @@ public abstract class CloudServiceOperatorTest {
 
     private static final String CONTROLLER_URL = "https://api.cf.sap.hana.ondemand.com";
     private static final String SERVICE_OFFERINGS_RESPONSE_PATH = "service-offerings.json";
+    private static final String SERVICE_FILE_NAME = "service.json";
 
     @Mock
     private RestTemplate restTemplate;
@@ -28,7 +31,11 @@ public abstract class CloudServiceOperatorTest {
     @Mock
     private CloudControllerClient client;
 
-    @Before
+    protected static String getControllerUrl() {
+        return CONTROLLER_URL;
+    }
+
+    @BeforeEach
     public void prepareClients() throws IOException {
         MockitoAnnotations.initMocks(this);
         prepareRestTemplateFactory();
@@ -48,6 +55,9 @@ public abstract class CloudServiceOperatorTest {
         List<CloudServiceOffering> serviceOfferings = loadServiceOfferingsFromFile(SERVICE_OFFERINGS_RESPONSE_PATH);
         Mockito.when(client.getServiceOfferings())
                .thenReturn(serviceOfferings);
+        CloudService cloudService = loadServiceFromFile(SERVICE_FILE_NAME);
+        Mockito.when(client.getServices())
+               .thenReturn(Arrays.asList(cloudService));
     }
 
     private List<CloudServiceOffering> loadServiceOfferingsFromFile(String filePath) throws IOException {
@@ -56,8 +66,10 @@ public abstract class CloudServiceOperatorTest {
         });
     }
 
-    protected static String getControllerUrl() {
-        return CONTROLLER_URL;
+    private CloudService loadServiceFromFile(String filePath) {
+        String cloudServiceJson = TestUtil.getResourceAsString(filePath, getClass());
+        return JsonUtil.fromJson(cloudServiceJson, new TypeReference<CloudService>() {
+        });
     }
 
     protected RestTemplate getMockedRestTemplate() {

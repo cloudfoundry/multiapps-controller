@@ -1,0 +1,9 @@
+{
+  "id": "id",
+  "name": "archive",
+  "namespace": "namespace1",
+  "space": "some_space",
+  "size": 20000,
+  "digest": "digest",
+  "digestAlgorithm": "MD5"
+}

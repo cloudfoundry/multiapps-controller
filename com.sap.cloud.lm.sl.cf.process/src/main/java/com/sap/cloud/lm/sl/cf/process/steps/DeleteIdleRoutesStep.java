@@ -29,16 +29,9 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
 
         getStepLogger().debug(Messages.DELETING_IDLE_URIS);
         CloudControllerClient client = execution.getControllerClient();
-
         CloudApplication app = StepsUtil.getApp(execution.getContext());
 
-        List<String> idleUris = ListUtils.subtract(existingApp.getUris(), app.getUris());
-        getStepLogger().debug(Messages.IDLE_URIS_FOR_APPLICATION, idleUris);
-
-        for (String idleUri : idleUris) {
-            deleteRoute(idleUri, client);
-            getStepLogger().debug(Messages.ROUTE_DELETED, idleUri);
-        }
+        deleteIdleRoutes(existingApp, client, app);
 
         getStepLogger().debug(Messages.IDLE_URIS_DELETED);
         return StepPhase.DONE;
@@ -49,16 +42,34 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
         return Messages.ERROR_DELETING_IDLE_ROUTES;
     }
 
+    private void deleteIdleRoutes(CloudApplication existingApp, CloudControllerClient client, CloudApplication app) {
+        List<String> idleUris = ListUtils.subtract(existingApp.getUris(), app.getUris());
+        getStepLogger().debug(Messages.IDLE_URIS_FOR_APPLICATION, idleUris);
+
+        for (String idleUri : idleUris) {
+            deleteRoute(idleUri, client);
+            getStepLogger().debug(Messages.ROUTE_DELETED, idleUri);
+        }
+    }
+
     private void deleteRoute(String uri, CloudControllerClient client) {
         try {
             new ClientHelper(client).deleteRoute(uri);
         } catch (CloudOperationException e) {
-            if (!e.getStatusCode()
-                  .equals(HttpStatus.CONFLICT)) {
-                throw e;
-            }
-            getStepLogger().info(Messages.ROUTE_NOT_DELETED, uri);
+            handleCloudOperationException(e, uri);
         }
+    }
+
+    private void handleCloudOperationException(CloudOperationException e, String uri) {
+        if (e.getStatusCode() == HttpStatus.CONFLICT) {
+            getStepLogger().info(Messages.ROUTE_NOT_DELETED, uri);
+            return;
+        }
+        if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+            getStepLogger().info(com.sap.cloud.lm.sl.cf.core.message.Messages.ROUTE_NOT_FOUND, uri);
+            return;
+        }
+        throw e;
     }
 
 }

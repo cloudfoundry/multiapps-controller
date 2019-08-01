@@ -49,15 +49,32 @@ public class CreateServiceStep extends ServiceStep {
 
     private MethodExecution<String> createCloudService(DelegateExecution context, CloudControllerClient client,
                                                        CloudServiceExtended service) {
-        if (service.isUserProvided()) {
-            client.createUserProvidedService(service, service.getCredentials());
+
+        if (serviceExists(service, client)) {
+            getStepLogger().info(com.sap.cloud.lm.sl.cf.core.message.Messages.SERVICE_ALREADY_EXISTS, service.getName());
             return new MethodExecution<>(null, ExecutionState.FINISHED);
+        }
+        if (service.isUserProvided()) {
+            return createUserProvidedService(client, service);
         }
         return createManagedService(context, client, service);
     }
 
+    private MethodExecution<String> createUserProvidedService(CloudControllerClient client, CloudServiceExtended service) {
+        client.createUserProvidedService(service, service.getCredentials());
+        return new MethodExecution<>(null, ExecutionState.FINISHED);
+    }
+
+    private boolean serviceExists(CloudServiceExtended cloudServiceExtended, CloudControllerClient client) {
+        return client.getService(cloudServiceExtended.getName(), false) != null;
+    }
+
     private MethodExecution<String> createManagedService(DelegateExecution context, CloudControllerClient client,
                                                          CloudServiceExtended service) {
+        if (serviceExists(service, client)) {
+            getStepLogger().info(com.sap.cloud.lm.sl.cf.core.message.Messages.SERVICE_ALREADY_EXISTS, service.getName());
+            return new MethodExecution<>(null, ExecutionState.FINISHED);
+        }
         return serviceCreatorFactory.createInstance(getStepLogger())
                                     .createService(client, service, StepsUtil.getSpaceId(context));
     }
