@@ -44,7 +44,7 @@ public class ApplicationStager {
         try {
             return client.getBuild(buildGuid);
         } catch (CloudOperationException e) {
-            if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 checkIfApplicationExists(context);
             }
             throw e;

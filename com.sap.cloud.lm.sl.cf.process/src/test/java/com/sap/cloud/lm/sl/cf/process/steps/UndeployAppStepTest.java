@@ -33,6 +33,12 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     protected StepInput stepInput;
     protected StepOutput stepOutput;
 
+    public UndeployAppStepTest(String stepInputLocation, String stepOutputLocation) throws Exception {
+        String resourceAsString = TestUtil.getResourceAsString(stepInputLocation, UndeployAppStepTest.class);
+        stepInput = JsonUtil.fromJson(resourceAsString, StepInput.class);
+        stepOutput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepOutputLocation, UndeployAppStepTest.class), StepOutput.class);
+    }
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -56,15 +62,9 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
           // (4) There are not found routes matching app uri:
           {
               "undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json",
-          },          
+          },
 // @formatter:on
         });
-    }
-
-    public UndeployAppStepTest(String stepInputLocation, String stepOutputLocation) throws Exception {
-        String resourceAsString = TestUtil.getResourceAsString(stepInputLocation, UndeployAppStepTest.class);
-        stepInput = JsonUtil.fromJson(resourceAsString, StepInput.class);
-        stepOutput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepOutputLocation, UndeployAppStepTest.class), StepOutput.class);
     }
 
     @Before
@@ -114,6 +114,15 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
                    String appName = (String) invocation.getArguments()[0];
                    return stepInput.tasksPerApplication.get(appName);
 
+               });
+        Mockito.when(client.getApplication(anyString(), any(Boolean.class)))
+               .thenAnswer((invocation) -> {
+                   String appName = (String) invocation.getArguments()[0];
+                   return stepInput.appsToDelete.stream()
+                                                .filter(app -> app.getName()
+                                                                  .equals(appName))
+                                                .findFirst()
+                                                .orElse(null);
                });
     }
 

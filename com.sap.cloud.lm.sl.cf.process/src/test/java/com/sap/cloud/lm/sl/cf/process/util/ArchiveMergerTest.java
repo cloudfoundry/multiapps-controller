@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,12 +16,14 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.slf4j.Logger;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileUploadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -30,10 +31,10 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 public class ArchiveMergerTest {
 
     private static final String DEFAULT_SPACE_ID = "id";
-    private static final String DEFAULT_NAMESPACE = "namespace1";
     private static final String DEFAULT_SERVICE_ID = "service_id";
     private static final String ARCHIVE_FINAL_NAME = "archive";
     private static final String ID = "id";
+    private static final String DEFAULT_NAMESPACE = "namespace";
 
     private ArchiveMerger archiveMerger;
 
@@ -75,6 +76,14 @@ public class ArchiveMergerTest {
                .thenReturn(createFileEntry(ID, ARCHIVE_FINAL_NAME, DEFAULT_NAMESPACE));
     }
 
+    private FileEntry createFileEntry(String id, String name, String namespace) {
+        FileEntry fileEntry = new FileEntry();
+        fileEntry.setId(id);
+        fileEntry.setName(name);
+        fileEntry.setNamespace(namespace);
+        return fileEntry;
+    }
+
     @Test
     public void testCreateArchiveFromPartsFileStorageException() throws FileStorageException {
         Mockito.when(fileService.addFile(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
@@ -106,14 +115,16 @@ public class ArchiveMergerTest {
     @Test
     public void testSortFileEntriesWithInvalidNames() {
         List<FileEntry> invalidFileEntries = createFileEntriesFromFile("file-entries-with-invalid-names.json");
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> archiveMerger.sort(invalidFileEntries));
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
+                                                                     () -> archiveMerger.sort(invalidFileEntries));
         Assertions.assertEquals(Messages.INVALID_FILE_ENTRY_NAME, exception.getMessage());
     }
 
     @Test
     public void testSortFileEntriesWithNamesWhichContainPartButDoNotContainIndexes() {
         List<FileEntry> invalidFileEntries = createFileEntriesFromFile("file-entries-with-invalid-names-no-indexes.json");
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> archiveMerger.sort(invalidFileEntries));
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
+                                                                     () -> archiveMerger.sort(invalidFileEntries));
         Assertions.assertEquals(Messages.INVALID_FILE_ENTRY_NAME, exception.getMessage());
     }
 
@@ -128,11 +139,9 @@ public class ArchiveMergerTest {
         return Arrays.asList(fileEntries);
     }
 
-    private FileEntry createFileEntry(String id, String name, String namespace) {
-        FileEntry fileEntry = new FileEntry();
-        fileEntry.setId(id);
-        fileEntry.setName(name);
-        fileEntry.setNamespace(namespace);
-        return fileEntry;
+    private FileEntry loadUploadedFileEntryFromFile(String fileName) {
+        String uploadedFileEntryJson = TestUtil.getResourceAsString(fileName, getClass());
+        return JsonUtil.fromJson(uploadedFileEntryJson, new TypeReference<FileEntry>() {
+        });
     }
 }

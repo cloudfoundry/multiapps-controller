@@ -23,10 +23,9 @@ import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PrepareToUndeployStep extends SyncFlowableStep {
 
+    protected Function<OperationDao, ProcessConflictPreventer> conflictPreventerSupplier = ProcessConflictPreventer::new;
     @Inject
     private OperationDao operationDao;
-
-    protected Function<OperationDao, ProcessConflictPreventer> conflictPreventerSupplier = dao -> new ProcessConflictPreventer(operationDao);
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

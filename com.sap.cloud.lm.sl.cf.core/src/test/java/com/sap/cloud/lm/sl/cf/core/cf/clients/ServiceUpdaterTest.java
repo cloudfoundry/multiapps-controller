@@ -10,8 +10,8 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.http.HttpMethod;
@@ -35,7 +35,7 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
 
     private ServiceUpdater serviceUpdater;
 
-    @Before
+    @BeforeEach
     public void createServiceUpdater() {
         serviceUpdater = new ServiceUpdater(getMockedRestTemplateFactory());
     }

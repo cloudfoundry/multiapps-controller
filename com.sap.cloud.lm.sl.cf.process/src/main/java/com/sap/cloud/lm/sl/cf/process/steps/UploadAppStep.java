@@ -32,6 +32,7 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -67,7 +68,6 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
         if (fileName == null) {
             getStepLogger().debug(Messages.NO_CONTENT_TO_UPLOAD);
-
             return StepPhase.DONE;
         }
 
@@ -92,17 +92,18 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         StringBuilder digestStringBuilder = new StringBuilder();
         FileDownloadProcessor fileDownloadProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
                                                                                        appArchiveId,
-                                                                                       appArchiveStream -> {
-                                                                                           long maxSize = configuration.getMaxResourceFileSize();
-                                                                                           ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(appArchiveStream,
-                                                                                                                                                                                 fileName,
-                                                                                                                                                                                 maxSize);
-                                                                                           digestStringBuilder.append(applicationArchiveReader.calculateApplicationDigest(applicationArchiveContext));
-                                                                                       });
-
+                                                                                       createDigestCalculatorFileContentProcessor(digestStringBuilder,
+                                                                                                                                  fileName));
         fileService.processFileContent(fileDownloadProcessor);
-
         return digestStringBuilder.toString();
+    }
+
+    private FileContentProcessor createDigestCalculatorFileContentProcessor(StringBuilder digestStringBuilder, String fileName) {
+        return appArchiveStream -> {
+            long maxSize = configuration.getMaxResourceFileSize();
+            ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(appArchiveStream, fileName, maxSize);
+            digestStringBuilder.append(applicationArchiveReader.calculateApplicationDigest(applicationArchiveContext));
+        };
     }
 
     protected ApplicationArchiveContext createApplicationArchiveContext(InputStream appArchiveStream, String fileName, long maxSize) {
@@ -200,6 +201,25 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         }
     }
 
+    @Override
+    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
+        return Arrays.asList(new PollUploadAppStatusExecution());
+    }
+
+    @Override
+    public Integer getTimeout(DelegateExecution context) {
+        CloudApplication app = StepsUtil.getApp(context);
+        int uploadTimeout = extractUploadTimeoutFromAppAttributes(app, DEFAULT_APP_UPLOAD_TIMEOUT);
+        getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadTimeout);
+        return uploadTimeout;
+    }
+
+    private int extractUploadTimeoutFromAppAttributes(CloudApplication app, int defaultAppUploadTimeout) {
+        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
+        Number uploadTimeout = appAttributes.get(SupportedParameters.UPLOAD_TIMEOUT, Number.class, defaultAppUploadTimeout);
+        return uploadTimeout.intValue();
+    }
+
     class MonitorUploadStatusCallback implements UploadStatusCallbackExtended {
 
         private final CloudApplication app;
@@ -249,25 +269,6 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             cleanUp(file.toPath());
         }
 
-    }
-
-    @Override
-    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
-        return Arrays.asList(new PollUploadAppStatusExecution());
-    }
-
-    @Override
-    public Integer getTimeout(DelegateExecution context) {
-        CloudApplication app = StepsUtil.getApp(context);
-        int uploadTimeout = extractUploadTimeoutFromAppAttributes(app, DEFAULT_APP_UPLOAD_TIMEOUT);
-        getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadTimeout);
-        return uploadTimeout;
-    }
-
-    private int extractUploadTimeoutFromAppAttributes(CloudApplication app, int defaultAppUploadTimeout) {
-        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
-        Number uploadTimeout = appAttributes.get(SupportedParameters.UPLOAD_TIMEOUT, Number.class, defaultAppUploadTimeout);
-        return uploadTimeout.intValue();
     }
 
 }
