@@ -12,6 +12,7 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceKey;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
+import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Resource;
@@ -46,8 +47,7 @@ public class ServiceKeysCloudModelBuilder {
         if (parameters == null) {
             parameters = Collections.emptyMap();
         }
-        String serviceName = (String) resource.getParameters()
-                                              .getOrDefault(SupportedParameters.SERVICE_NAME, resource.getName());
+        String serviceName = NameUtil.getServiceName(resource);
 
         return ImmutableCloudServiceKey.builder()
                                        .name(serviceKeyName)
