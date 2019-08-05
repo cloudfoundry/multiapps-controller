@@ -1,10 +1,13 @@
 package com.sap.cloud.lm.sl.cf.core.parser;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.DockerCredentials;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
+import org.cloudfoundry.client.lib.domain.ImmutableDockerCredentials;
+import org.cloudfoundry.client.lib.domain.ImmutableDockerInfo;
 
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
@@ -21,7 +24,7 @@ public class DockerInfoParser implements ParametersParser<DockerInfo> {
 
     @SuppressWarnings("unchecked")
     private Map<String, String> getDockerParams(List<Map<String, Object>> parametersList) {
-        return (Map<String, String>) PropertiesUtil.getPropertyValue(parametersList, DOCKER, null);
+        return (Map<String, String>) PropertiesUtil.getPropertyValue(parametersList, DOCKER, Collections.emptyMap());
     }
 
     private DockerInfo getDockerInfo(Map<String, String> docker) {
@@ -33,18 +36,22 @@ public class DockerInfoParser implements ParametersParser<DockerInfo> {
         if (image == null) {
             return null;
         }
-        DockerInfo dockerInfo = new DockerInfo(image);
+        return ImmutableDockerInfo.builder()
+            .image(image)
+            .credentials(getDockerCredentials(docker))
+            .build();
+    }
 
+    private DockerCredentials getDockerCredentials(Map<String, String> docker) {
         String username = docker.get("username");
         String password = docker.get("password");
         if (username == null || password == null) {
-            return dockerInfo;
+            return null;
         }
-
-        DockerCredentials dockerCredentials = new DockerCredentials(username, password);
-        dockerInfo.setDockerCredentials(dockerCredentials);
-
-        return dockerInfo;
+        return ImmutableDockerCredentials.builder()
+            .username(username)
+            .password(password)
+            .build();
     }
 
 }

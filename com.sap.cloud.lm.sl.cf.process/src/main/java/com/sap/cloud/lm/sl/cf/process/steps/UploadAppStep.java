@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -105,7 +106,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     private UploadToken asyncUploadFiles(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app,
                                          String appArchiveId, String fileName)
         throws FileStorageException {
-        UploadToken uploadToken = new UploadToken();
+        AtomicReference<UploadToken> uploadTokenReference = new AtomicReference<>();
         DelegateExecution context = execution.getContext();
 
         fileService.processFileContent(StepsUtil.getSpaceId(context), appArchiveId, appArchiveStream -> {
@@ -114,7 +115,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             try {
                 ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(appArchiveStream, fileName, maxSize);
                 filePath = extractFromMtar(applicationArchiveContext);
-                upload(execution, client, app, filePath, uploadToken);
+                UploadToken uploadToken = upload(execution, client, app, filePath);
+                uploadTokenReference.set(uploadToken);
             } catch (IOException e) {
                 cleanUp(filePath);
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, fileName);
@@ -123,22 +125,17 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                 throw e;
             }
         });
-
-        return uploadToken;
+        return uploadTokenReference.get();
     }
 
     protected Path extractFromMtar(ApplicationArchiveContext applicationArchiveContext) {
         return applicationZipBuilder.extractApplicationInNewArchive(applicationArchiveContext, getStepLogger());
     }
 
-    private void upload(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, Path filePath,
-                        UploadToken uploadToken)
+    private UploadToken upload(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, Path filePath)
         throws IOException {
-        UploadToken currentUploadToken = client.asyncUploadApplication(app.getName(), filePath.toFile(),
-                                                                       getMonitorUploadStatusCallback(app, filePath.toFile(),
-                                                                                                      execution.getContext()));
-        uploadToken.setPackageGuid(currentUploadToken.getPackageGuid());
-        uploadToken.setToken(currentUploadToken.getToken());
+        return client.asyncUploadApplication(app.getName(), filePath.toFile(),
+                                             getMonitorUploadStatusCallback(app, filePath.toFile(), execution.getContext()));
     }
 
     private void detectApplicationFileDigestChanges(ExecutionWrapper execution, String appName, CloudControllerClient client,

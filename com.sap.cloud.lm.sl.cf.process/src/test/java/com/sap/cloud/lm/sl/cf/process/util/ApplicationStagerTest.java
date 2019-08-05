@@ -17,6 +17,7 @@ import org.cloudfoundry.client.lib.domain.CloudBuild;
 import org.cloudfoundry.client.lib.domain.CloudBuild.DropletInfo;
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
+import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.PackageState;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -35,23 +36,14 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class ApplicationStagerTest {
 
     private static final UUID BUILD_GUID = UUID.fromString("8e4da443-f255-499c-8b47-b3729b5b7432");
-
     private static final UUID DROPLET_GUID = UUID.fromString("9e4da443-f255-499c-8b47-b3729b5b7439");
-
     private static final UUID APP_GUID = UUID.fromString("1e4da443-f255-499c-8b47-b3729b5b7431");
-
     private static final UUID PACKAGE_GUID = UUID.fromString("2e4da443-f255-499c-8b47-b3729b5b7432");
-
     private static final String APP_NAME = "anatz";
 
-    private static final String TOKEN = "token";
-
     private ApplicationStager applicationStager;
-
     private CloudControllerClient client;
-
     private ExecutionWrapper execution;
-
     private DelegateExecution context;
     private StepLogger stepLogger;
 
@@ -232,7 +224,9 @@ public class ApplicationStagerTest {
         CloudApplication app = Mockito.mock(CloudApplication.class);
         Mockito.when(app.getName())
                .thenReturn(APP_NAME);
-        UploadToken uploadToken = new UploadToken(TOKEN, PACKAGE_GUID);
+        UploadToken uploadToken = ImmutableUploadToken.builder()
+                                                      .packageGuid(PACKAGE_GUID)
+                                                      .build();
         Mockito.when(context.getVariable(Constants.VAR_UPLOAD_TOKEN))
                .thenReturn(JsonUtil.toJson(uploadToken));
         CloudBuild build = Mockito.mock(CloudBuild.class);
@@ -301,7 +295,10 @@ public class ApplicationStagerTest {
     }
 
     private void mockUploadToken() {
-        String uploadTokenJson = JsonUtil.toJson(new UploadToken("/" + PACKAGE_GUID, PACKAGE_GUID));
+
+        String uploadTokenJson = JsonUtil.toJson(ImmutableUploadToken.builder()
+                                                                     .packageGuid(PACKAGE_GUID)
+                                                                     .build());
         Mockito.when(context.getVariable(Constants.VAR_UPLOAD_TOKEN))
                .thenReturn(uploadTokenJson);
     }

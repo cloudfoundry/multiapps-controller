@@ -51,7 +51,7 @@ public class ServiceKeysCloudModelBuilder {
 
         return ImmutableCloudServiceKey.builder()
                                        .name(serviceKeyName)
-                                       .parameters(parameters)
+                                       .credentials(parameters)
                                        .service(ImmutableCloudServiceExtended.builder()
                                                                              .name(serviceName)
                                                                              .build())
