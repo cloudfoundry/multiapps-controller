@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.ErrorDetails;
+import org.cloudfoundry.client.lib.domain.ImmutableErrorDetails;
+import org.cloudfoundry.client.lib.domain.ImmutableUpload;
+import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.Status;
 import org.cloudfoundry.client.lib.domain.Upload;
 import org.cloudfoundry.client.lib.domain.UploadToken;
@@ -29,8 +31,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<UploadAppStep> {
 
     private static final CloudOperationException CLOUD_OPERATION_EXCEPTION = new CloudOperationException(HttpStatus.BAD_REQUEST);
-    private static final String UPLOAD_TOKEN = "tokenString";
-    private static final String PACKAGE_GUID = "20886182-1802-11e9-ab14-d663bd873d93";
+    private static final UUID PACKAGE_GUID = UUID.fromString("20886182-1802-11e9-ab14-d663bd873d93");
     private static final String APP_NAME = "test-app-1";
 
     private final Status uploadState;
@@ -102,16 +103,25 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
 
     private void prepareClient() {
         if (expectedCfException != null) {
-            when(client.getUploadStatus(UPLOAD_TOKEN)).thenThrow(CLOUD_OPERATION_EXCEPTION);
+            when(client.getUploadStatus(PACKAGE_GUID)).thenThrow(CLOUD_OPERATION_EXCEPTION);
         } else {
-            when(client.getUploadStatus(UPLOAD_TOKEN)).thenReturn(new Upload(uploadState, new ErrorDetails()));
+            Upload upload = ImmutableUpload.builder()
+                .status(uploadState)
+                .errorDetails(ImmutableErrorDetails.builder()
+                    .description("Something happened!")
+                    .build())
+                .build();
+            when(client.getUploadStatus(PACKAGE_GUID)).thenReturn(upload);
         }
     }
 
     private void prepareContext() {
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(application.toCloudApplication()), context);
         context.setVariable(Constants.VAR_MODULES_INDEX, 0);
-        context.setVariable(Constants.VAR_UPLOAD_TOKEN, JsonUtil.toJson(new UploadToken(UPLOAD_TOKEN, UUID.fromString(PACKAGE_GUID))));
+        UploadToken uploadToken = ImmutableUploadToken.builder()
+            .packageGuid(PACKAGE_GUID)
+            .build();
+        context.setVariable(Constants.VAR_UPLOAD_TOKEN, JsonUtil.toJson(uploadToken));
     }
 
     @Override

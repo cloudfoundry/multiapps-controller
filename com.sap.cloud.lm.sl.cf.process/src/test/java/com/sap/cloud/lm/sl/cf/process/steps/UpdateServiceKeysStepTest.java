@@ -94,7 +94,7 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
             return ImmutableCloudServiceKey.builder()
                                            .name(serviceKeyName)
                                            .service(service)
-                                           .parameters(MapUtil.asMap("name", "new-value"))
+                                           .credentials(MapUtil.asMap("name", "new-value"))
                                            .build();
         }
         return ImmutableCloudServiceKey.builder()

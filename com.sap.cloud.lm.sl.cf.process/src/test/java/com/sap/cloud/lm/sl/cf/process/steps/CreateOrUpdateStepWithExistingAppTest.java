@@ -18,7 +18,7 @@ import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBinding;
-import org.cloudfoundry.client.lib.domain.Staging;
+import org.cloudfoundry.client.lib.domain.ImmutableStaging;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Rule;
@@ -255,7 +255,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
 
     private List<CloudServiceExtended> mapToCloudServices() {
         return input.application.services.stream()
-                                         .map(serviceName -> mapToCloudService(serviceName))
+                                         .map(this::mapToCloudService)
                                          .collect(Collectors.toList());
     }
 
@@ -342,14 +342,15 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
                                                                                                                                                 .build())
                                                     .name(name)
                                                     .moduleName("test")
-                                                    .staging(new Staging.StagingBuilder().command(command)
-                                                                                         .buildpacks(Arrays.asList(buildpackUrl))
-                                                                                         .healthCheckTimeout(0)
-                                                                                         .detectedBuildpack("none")
-                                                                                         .healthCheckType(healthCheckType)
-                                                                                         .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
-                                                                                         .sshEnabled(sshEnabled)
-                                                                                         .build())
+                                                    .staging(ImmutableStaging.builder()
+                                                                             .command(command)
+                                                                             .buildpacks(Arrays.asList(buildpackUrl))
+                                                                             .healthCheckTimeout(0)
+                                                                             .detectedBuildpack("none")
+                                                                             .healthCheckType(healthCheckType)
+                                                                             .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
+                                                                             .isSshEnabled(sshEnabled)
+                                                                             .build())
                                                     .memory(memory)
                                                     .instances(instances)
                                                     .uris(uris)

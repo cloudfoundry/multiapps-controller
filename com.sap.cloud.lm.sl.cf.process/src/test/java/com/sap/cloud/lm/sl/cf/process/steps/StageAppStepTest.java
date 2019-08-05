@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.domain.CloudBuild;
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -41,8 +42,9 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
     }
 
     private void mockUploadToken(UUID packageGuid) {
-        UploadToken uploadToken = new UploadToken();
-        uploadToken.setPackageGuid(packageGuid);
+        UploadToken uploadToken = ImmutableUploadToken.builder()
+                                                      .packageGuid(packageGuid)
+                                                      .build();
         Mockito.when(context.getVariable(Constants.VAR_UPLOAD_TOKEN))
                .thenReturn(JsonUtil.toJson(uploadToken));
     }
