@@ -9,18 +9,16 @@ import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 
 public class ProvidedDependencyParameterValidator extends ParametersValidator<ProvidedDependency> {
 
-    protected Module module;
     protected ProvidedDependency providedDependency;
 
-    public ProvidedDependencyParameterValidator(String prefix, Module module, ProvidedDependency providedDependency,
-                                                ParametersValidatorHelper helper) {
+    public ProvidedDependencyParameterValidator(String prefix, ProvidedDependency providedDependency, ParametersValidatorHelper helper) {
         super(prefix, providedDependency.getName(), helper, Module.class);
         this.providedDependency = providedDependency;
     }
 
     @Override
     public ProvidedDependency validate() {
-        Map<String, Object> parameters = validateParameters(module, providedDependency.getParameters());
+        Map<String, Object> parameters = validateParameters(providedDependency.getParameters());
         providedDependency.setParameters(parameters);
         return providedDependency;
     }

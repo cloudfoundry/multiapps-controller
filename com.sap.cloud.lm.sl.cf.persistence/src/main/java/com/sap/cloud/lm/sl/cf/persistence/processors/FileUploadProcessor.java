@@ -9,7 +9,7 @@ import java.io.OutputStream;
  * @author i072928
  *
  */
-public interface FileUploadProcessor<I extends OutputStream, O extends OutputStream> {
+public interface FileUploadProcessor {
 
     /**
      * Gets size of the internal buffer which will be used when uploading the file.
@@ -19,22 +19,14 @@ public interface FileUploadProcessor<I extends OutputStream, O extends OutputStr
     public int getProcessingBufferSize();
 
     /**
-     * Creates wrapper around the original output stream.
-     *
-     * @param outputStream original output stream
-     * @return output stream wrapper
-     */
-    public O createOutputStreamWrapper(I outputStream) throws IOException;
-
-    /**
      * Writes chunk of data in the given output stream.
      *
-     * @param outputStreamWrapper output stream wrapper
+     * @param outputStream output stream wrapper
      * @param data chunk of file data
      * @param readToIndex last index of the data that is of interest
      * @return processed data
      * @throws Exception
      */
-    public void writeFileChunk(O outputStreamWrapper, byte[] data, int readToIndex) throws IOException;
+    public void writeFileChunk(OutputStream outputStream, byte[] data, int readToIndex) throws IOException;
 
 }

@@ -80,7 +80,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
         ApplicationCloudModelBuilder applicationCloudModelBuilder = getApplicationCloudModelBuilder(execution.getContext());
 
-        StepsUtil.setAppsToDeploy(execution.getContext(), getAppNames(applicationCloudModelBuilder, modulesCalculatedForDeployment));
+        StepsUtil.setAppsToDeploy(execution.getContext(), getAppNames(modulesCalculatedForDeployment));
 
         StepsUtil.setDeploymentMode(execution.getContext(), applicationCloudModelBuilder.getDeploymentMode());
         StepsUtil.setServiceKeysCredentialsToInject(execution.getContext(), new HashMap<>());
@@ -124,8 +124,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         return Messages.ERROR_BUILDING_CLOUD_MODEL;
     }
 
-    private List<String> getAppNames(ApplicationCloudModelBuilder applicationCloudModelBuilder,
-                                     List<Module> modulesCalculatedForDeployment) {
+    private List<String> getAppNames(List<Module> modulesCalculatedForDeployment) {
         return modulesCalculatedForDeployment.stream()
                                              .filter(module -> moduleToDeployHelper.isApplication(module))
                                              .map(module -> NameUtil.getApplicationName(module))

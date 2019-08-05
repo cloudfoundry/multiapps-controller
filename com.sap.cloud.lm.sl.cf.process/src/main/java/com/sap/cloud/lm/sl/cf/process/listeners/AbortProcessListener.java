@@ -126,7 +126,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
                                                                                  Constants.PARAM_APP_ARCHIVE_ID);
 
         String spaceId = (String) getHistoricVarInstanceValue(historyService, processInstanceId,
-                                                              com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID).getValue();
+            com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID).getValue();
 
         FileSweeper fileSweeper = new FileSweeper(spaceId, fileService);
         fileSweeper.sweep(extensionDescriptorFileIds);

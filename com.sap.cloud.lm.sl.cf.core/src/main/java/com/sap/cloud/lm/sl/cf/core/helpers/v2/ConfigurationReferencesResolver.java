@@ -80,7 +80,7 @@ public class ConfigurationReferencesResolver extends Visitor {
 
     protected void updateReferencesToResolvedResources(DeploymentDescriptor descriptor) {
         for (Module module : descriptor.getModules()) {
-            module.setRequiredDependencies(getUpdatedRequiredDependencies(descriptor, module));
+            module.setRequiredDependencies(getUpdatedRequiredDependencies(module));
 
             Map<String, Object> properties = module.getProperties();
             for (Map.Entry<RequiredDependency, List<RequiredDependency>> entry : expandedDependenciesMap.entrySet()) {
@@ -100,10 +100,10 @@ public class ConfigurationReferencesResolver extends Visitor {
                            .collect(Collectors.toList());
     }
 
-    protected List<RequiredDependency> getUpdatedRequiredDependencies(DeploymentDescriptor descriptor, Module module) {
-        return module.getRequiredDependencies()
+    protected List<RequiredDependency> getUpdatedRequiredDependencies(Module module) {
+         return module.getRequiredDependencies()
                      .stream()
-                     .map(dependency -> expandRequiredDependencyIfNecessary(descriptor, module, dependency))
+                     .map(dependency -> expandRequiredDependencyIfNecessary(module, dependency))
                      .flatMap(List::stream)
                      .collect(Collectors.toList());
     }
@@ -117,8 +117,7 @@ public class ConfigurationReferencesResolver extends Visitor {
                                  .setProperties(dependency.getProperties());
     }
 
-    protected List<RequiredDependency> expandRequiredDependencyIfNecessary(DeploymentDescriptor descriptor,
-                                                                           PropertiesContainer dependencyOwner,
+    protected List<RequiredDependency> expandRequiredDependencyIfNecessary(PropertiesContainer dependencyOwner,
                                                                            RequiredDependency dependency) {
         ResolvedConfigurationReference resolvedReference = resolvedReferences.get(dependency.getName());
 

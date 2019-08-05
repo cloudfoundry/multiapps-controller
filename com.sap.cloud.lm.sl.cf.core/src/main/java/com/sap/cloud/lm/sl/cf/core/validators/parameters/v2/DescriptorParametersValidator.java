@@ -32,7 +32,7 @@ public class DescriptorParametersValidator extends ParametersValidator<Deploymen
     }
 
     protected void validate(DeploymentDescriptor descriptor) {
-        Map<String, Object> parameters = validateParameters(descriptor, descriptor.getParameters());
+        Map<String, Object> parameters = validateParameters(descriptor.getParameters());
         List<Module> modules = validateModules(descriptor.getModules());
         List<Resource> resources = validateResources(descriptor.getResources());
         descriptor.setParameters(parameters);

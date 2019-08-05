@@ -76,8 +76,8 @@ public class MtaArchiveBuilder {
         deploymentDescriptorFile = findDeploymenDescriptor(mtaDirectory);
         String deploymentDescriptorString = readDeploymentDescriptor(deploymentDescriptorFile);
 
-        DeploymentDescriptor deploymentDescriptor = new DescriptorParserFacade().parseDeploymentDescriptor(deploymentDescriptorString);
-        Version schemaVersion = new SchemaVersionDetector().detect(deploymentDescriptor, Collections.emptyList());
+        DeploymentDescriptor parsedDeploymentDescriptor = new DescriptorParserFacade().parseDeploymentDescriptor(deploymentDescriptorString);
+        Version schemaVersion = new SchemaVersionDetector().detect(parsedDeploymentDescriptor, Collections.emptyList());
 
         if (schemaVersion.getMajor() < 2) {
             throw new ContentException(Messages.THE_DEPLOYMENT_DESCRIPTOR_0_SPECIFIES_NOT_SUPPORTED_MTA_VERSION_1,
@@ -85,7 +85,7 @@ public class MtaArchiveBuilder {
                                        schemaVersion.getMajor());
         }
 
-        return deploymentDescriptor;
+        return parsedDeploymentDescriptor;
     }
 
     public Path buildMtaArchive() {
@@ -272,16 +272,16 @@ public class MtaArchiveBuilder {
 
     private Path findDeploymenDescriptor(Path mtaDirectory) {
         try (Stream<Path> mtaDirContents = Files.list(mtaDirectory)) {
-            Optional<Path> deploymentDescriptor = mtaDirContents.filter(path -> MTAD_YAML.equals(path.getFileName()
+            Optional<Path> foundDeploymentDescriptor = mtaDirContents.filter(path -> MTAD_YAML.equals(path.getFileName()
                                                                                                      .toString()))
                                                                 .findFirst();
-            if (!deploymentDescriptor.isPresent()) {
+            if (!foundDeploymentDescriptor.isPresent()) {
                 throw new SLException(Messages.DIRECTORY_0_DOES_NOT_CONTAIN_MANDATORY_DEPLOYMENT_DESCRIPTOR_FILE_1,
                                       mtaDirectory.getFileName()
                                                   .toString(),
                                       MTAD_YAML);
             }
-            return deploymentDescriptor.get();
+            return foundDeploymentDescriptor.get();
         } catch (IOException e) {
             throw new SLException(e, Messages.FAILED_TO_LIST_MULTI_TARGET_APP_DIRECTORY_0, mtaDirectory);
         }

@@ -24,8 +24,8 @@ public abstract class ParametersValidator<T> {
 
     public abstract T validate();
 
-    protected Map<String, Object> validateParameters(Object container, Map<String, Object> parameters) {
-        return helper.validate(prefix, container, containerClass, parameters);
+    protected Map<String, Object> validateParameters(Map<String, Object> parameters) {
+        return helper.validate(prefix, containerClass, parameters);
     }
 
 }

@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.core.liquibase;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
@@ -33,7 +32,7 @@ public class DropConfigurationRegistryUniqueConstraintPostgresqlChange extends A
         ResultSet result = null;
 
         try {
-            String searchQuery = getSearchQuery(jdbcConnection);
+            String searchQuery = getSearchQuery();
             preparedStatement = jdbcConnection.prepareStatement(searchQuery);
             result = preparedStatement.executeQuery();
             result.next();
@@ -46,7 +45,7 @@ public class DropConfigurationRegistryUniqueConstraintPostgresqlChange extends A
         }
     }
 
-    protected String getSearchQuery(JdbcConnection jdbcConnection) throws SQLException {
+    private String getSearchQuery() {
         return POSTGRESQL_SEARCH_QUERY;
     }
 

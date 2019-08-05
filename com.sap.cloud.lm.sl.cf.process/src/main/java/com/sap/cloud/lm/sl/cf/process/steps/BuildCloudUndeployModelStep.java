@@ -162,7 +162,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         return deployedMta.getModules()
                           .stream()
                           .filter(deployedModule -> shouldBeCheckedforUndeployment(deployedModule, mtaModules, deploymentDescriptorModules))
-                          .filter(deployedModule -> shouldUndeployModule(deployedModule, mtaModules, appsToDeploy))
+                          .filter(deployedModule -> shouldUndeployModule(deployedModule, appsToDeploy))
                           .collect(Collectors.toList());
     }
 
@@ -171,7 +171,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         return mtaModules.contains(deployedModule.getModuleName()) || !deploymentDescriptorModules.contains(deployedModule.getModuleName());
     }
 
-    private boolean shouldUndeployModule(DeployedMtaModule deployedModule, Set<String> mtaModules, List<String> appsToDeploy) {
+    private boolean shouldUndeployModule(DeployedMtaModule deployedModule, List<String> appsToDeploy) {
         // The deployed module may be in the list of MTA modules, but the actual application that was created from it may have a
         // different name:
         return !appsToDeploy.contains(deployedModule.getAppName());

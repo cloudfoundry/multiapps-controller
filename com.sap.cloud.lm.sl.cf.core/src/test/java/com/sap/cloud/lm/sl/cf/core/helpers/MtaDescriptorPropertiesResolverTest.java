@@ -16,6 +16,8 @@ import org.mockito.MockitoAnnotations;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
+import com.sap.cloud.lm.sl.cf.core.model.ImmutableMtaDescriptorPropertiesResolverContext;
+import com.sap.cloud.lm.sl.cf.core.model.MtaDescriptorPropertiesResolverContext;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
@@ -58,14 +60,20 @@ public class MtaDescriptorPropertiesResolverTest {
         MockitoAnnotations.initMocks(this);
         when(spaceIdSupplier.apply(anyString(), anyString())).thenReturn("");
 
-        resolver = new MtaDescriptorPropertiesResolver(new HandlerFactory(2),
-                                                       dao,
-                                                       new CloudTarget("", ""),
-                                                       "",
-                                                       configuration,
-                                                       false,
-                                                       false,
-                                                       false);
+        resolver = new MtaDescriptorPropertiesResolver(buildMtaDescriptorPropertiesResolverContext());
+    }
+
+    private MtaDescriptorPropertiesResolverContext buildMtaDescriptorPropertiesResolverContext() {
+        return ImmutableMtaDescriptorPropertiesResolverContext.builder()
+                                                              .handlerFactory(new HandlerFactory(2))
+                                                              .configurationEntryDao(dao)
+                                                              .cloudTarget(new CloudTarget("", ""))
+                                                              .currentSpaceId("")
+                                                              .applicationConfiguration(configuration)
+                                                              .hasUseNamespaces(false)
+                                                              .hasUserNamespacesForServices(false)
+                                                              .shouldReserveTemporaryRoute(false)
+                                                              .build();
     }
 
     @ParameterizedTest(name = "{index}: \"{1}.\"")

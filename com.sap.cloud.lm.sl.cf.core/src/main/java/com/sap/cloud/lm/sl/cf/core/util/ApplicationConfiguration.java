@@ -520,14 +520,14 @@ public class ApplicationConfiguration {
     }
 
     private URL getControllerUrlFromEnvironment() {
-        Map<String, Object> vcapApplication = getVcapApplication();
-        String controllerUrl = getControllerUrl(vcapApplication);
+        Map<String, Object> vcapApplicationMap = getVcapApplication();
+        String controllerUrlString = getControllerUrl(vcapApplicationMap);
         try {
-            URL parsedControllerUrl = MiscUtil.getURL(controllerUrl);
+            URL parsedControllerUrl = MiscUtil.getURL(controllerUrlString);
             LOGGER.info(format(Messages.CONTROLLER_URL, parsedControllerUrl));
             return parsedControllerUrl;
         } catch (MalformedURLException | IllegalArgumentException e) {
-            throw new IllegalArgumentException(format(Messages.INVALID_CONTROLLER_URL, controllerUrl), e);
+            throw new IllegalArgumentException(format(Messages.INVALID_CONTROLLER_URL, controllerUrlString), e);
         }
     }
 
@@ -560,9 +560,9 @@ public class ApplicationConfiguration {
         if (platformJson == null) {
             throw new IllegalStateException(Messages.PLATFORMS_NOT_SPECIFIED);
         }
-        Platform platform = new ConfigurationParser().parsePlatformJson(platformJson);
-        LOGGER.debug(format(Messages.PLATFORM, JsonUtil.toJson(platform, true)));
-        return platform;
+        Platform parsedPlatform = new ConfigurationParser().parsePlatformJson(platformJson);
+        LOGGER.debug(format(Messages.PLATFORM, JsonUtil.toJson(parsedPlatform, true)));
+        return parsedPlatform;
     }
 
     private Long getMaxManifestSizeFromEnviroment() {
@@ -596,30 +596,30 @@ public class ApplicationConfiguration {
     }
 
     private String getSpaceIdFromEnvironment() {
-        Map<String, Object> vcapApplication = getVcapApplication();
-        Object spaceId = vcapApplication.get("space_id");
-        if (spaceId != null) {
-            LOGGER.info(format(Messages.SPACE_ID, spaceId));
-            return spaceId.toString();
+        Map<String, Object> vcapApplicationMap = getVcapApplication();
+        Object spaceIdValue = vcapApplicationMap.get("space_id");
+        if (spaceIdValue != null) {
+            LOGGER.info(format(Messages.SPACE_ID, spaceIdValue));
+            return spaceIdValue.toString();
         }
         LOGGER.warn(format(Messages.SPACE_ID_NOT_SPECIFIED_USING_DEFAULT_0, DEFAULT_SPACE_ID));
         return DEFAULT_SPACE_ID;
     }
 
     private String getOrgNameFromEnvironment() {
-        Map<String, Object> vcapApplication = getVcapApplication();
-        Object orgName = vcapApplication.get("organization_name");
-        if (orgName != null) {
-            LOGGER.info(format(Messages.ORG_NAME, orgName));
-            return orgName.toString();
+        Map<String, Object> vcapApplicationMap = getVcapApplication();
+        Object orgNameValue = vcapApplicationMap.get("organization_name");
+        if (orgNameValue != null) {
+            LOGGER.info(format(Messages.ORG_NAME, orgNameValue));
+            return orgNameValue.toString();
         }
         LOGGER.debug(Messages.ORG_NAME_NOT_SPECIFIED);
         return null;
     }
 
     private String getDeployServiceUrlFromEnvironment() {
-        Map<String, Object> vcapApplication = getVcapApplication();
-        List<String> uris = getApplicationUris(vcapApplication);
+        Map<String, Object> vcapApplicationMap = getVcapApplication();
+        List<String> uris = getApplicationUris(vcapApplicationMap);
         if (!CollectionUtils.isEmpty(uris)) {
             return uris.get(0);
         }
@@ -635,11 +635,11 @@ public class ApplicationConfiguration {
     }
 
     private Map<String, Object> getVcapApplicationFromEnvironment() {
-        String vcapApplication = environment.getString(CFG_VCAP_APPLICATION);
+        String vcapApplicationFromEnvironment = environment.getString(CFG_VCAP_APPLICATION);
         try {
-            return JsonUtil.convertJsonToMap(vcapApplication);
+            return JsonUtil.convertJsonToMap(vcapApplicationFromEnvironment);
         } catch (ParsingException e) {
-            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION, vcapApplication), e);
+            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION, vcapApplicationFromEnvironment), e);
             return Collections.emptyMap();
         }
     }
@@ -731,13 +731,13 @@ public class ApplicationConfiguration {
     }
 
     private HealthCheckConfiguration getHealthCheckConfigurationFromEnvironment() {
-        HealthCheckConfiguration healthCheckConfiguration = new HealthCheckConfiguration.Builder().spaceId(getHealthCheckSpaceIdFromEnvironment())
-                                                                                                  .mtaId(getHealthCheckMtaIdFromEnvironment())
-                                                                                                  .userName(getHealthCheckUserFromEnvironment())
-                                                                                                  .timeRangeInSeconds(getHealthCheckTimeRangeFromEnvironment())
-                                                                                                  .build();
-        LOGGER.info(format(Messages.HEALTH_CHECK_CONFIGURATION, JsonUtil.toJson(healthCheckConfiguration, true)));
-        return healthCheckConfiguration;
+         HealthCheckConfiguration healthCheckConfigurationFromEnvironment = new HealthCheckConfiguration.Builder().spaceId(getHealthCheckSpaceIdFromEnvironment())
+                                                                                                                 .mtaId(getHealthCheckMtaIdFromEnvironment())
+                                                                                                                 .userName(getHealthCheckUserFromEnvironment())
+                                                                                                                 .timeRangeInSeconds(getHealthCheckTimeRangeFromEnvironment())
+                                                                                                                 .build();
+        LOGGER.info(format(Messages.HEALTH_CHECK_CONFIGURATION, JsonUtil.toJson(healthCheckConfigurationFromEnvironment, true)));
+        return healthCheckConfigurationFromEnvironment;
     }
 
     private String getHealthCheckSpaceIdFromEnvironment() {
@@ -763,16 +763,16 @@ public class ApplicationConfiguration {
     }
 
     private String getApplicationIdFromEnvironment() {
-        Map<String, Object> vcapApplication = getVcapApplication();
-        String applicationGuid = (String) vcapApplication.get("application_id");
+        Map<String, Object> vcapApplicationMap = getVcapApplication();
+        String applicationGuid = (String) vcapApplicationMap.get("application_id");
         LOGGER.info(format(Messages.APPLICATION_ID, applicationGuid));
         return applicationGuid;
     }
 
     private Integer getApplicationInstanceIndexFromEnvironment() {
-        Integer applicationInstanceIndex = environment.getInteger("CF_INSTANCE_INDEX");
-        LOGGER.info(format(Messages.APPLICATION_INSTANCE_INDEX, applicationInstanceIndex));
-        return applicationInstanceIndex;
+        Integer applicationInstanceIndexFromEnvironment = environment.getInteger("CF_INSTANCE_INDEX");
+        LOGGER.info(format(Messages.APPLICATION_INSTANCE_INDEX, applicationInstanceIndexFromEnvironment));
+        return applicationInstanceIndexFromEnvironment;
     }
 
     private Integer getAuditLogClientCoreThreadsFromEnvironment() {

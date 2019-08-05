@@ -9,19 +9,16 @@ import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
 
 public class RequiredDependencyParametersValidator extends ParametersValidator<RequiredDependency> {
 
-    protected Module module;
     protected RequiredDependency requiredDependency;
 
-    public RequiredDependencyParametersValidator(String prefix, Module module, RequiredDependency requiredDependency,
-                                                 ParametersValidatorHelper helper) {
+    public RequiredDependencyParametersValidator(String prefix, RequiredDependency requiredDependency, ParametersValidatorHelper helper) {
         super(prefix, requiredDependency.getName(), helper, Module.class);
-        this.module = module;
         this.requiredDependency = requiredDependency;
     }
 
     @Override
     public RequiredDependency validate() {
-        Map<String, Object> parameters = validateParameters(module, requiredDependency.getParameters());
+        Map<String, Object> parameters = validateParameters(requiredDependency.getParameters());
         requiredDependency.setParameters(parameters);
         return requiredDependency;
     }

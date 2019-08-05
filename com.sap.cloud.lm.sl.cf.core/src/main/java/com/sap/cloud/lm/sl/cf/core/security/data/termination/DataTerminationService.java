@@ -53,7 +53,7 @@ public class DataTerminationService {
     private FileService fileService;
 
     @Inject
-    private ApplicationConfiguration configuration;
+    private ApplicationConfiguration applicationConfiguration;
 
     public void deleteOrphanUserData() {
         assertGlobalAuditorCredentialsExist();
@@ -67,7 +67,7 @@ public class DataTerminationService {
     }
 
     private void assertGlobalAuditorCredentialsExist() {
-        if (configuration.getGlobalAuditorUser() == null || configuration.getGlobalAuditorPassword() == null) {
+        if (applicationConfiguration.getGlobalAuditorUser() == null || applicationConfiguration.getGlobalAuditorPassword() == null) {
             throw new IllegalStateException(Messages.MISSING_GLOBAL_AUDITOR_CREDENTIALS);
         }
     }
@@ -117,15 +117,15 @@ public class DataTerminationService {
     }
 
     protected CloudControllerClientImpl getCFClient() {
-        CloudCredentials cloudCredentials = new CloudCredentials(configuration.getGlobalAuditorUser(),
-                                                                 configuration.getGlobalAuditorPassword(),
+        CloudCredentials cloudCredentials = new CloudCredentials(applicationConfiguration.getGlobalAuditorUser(),
+                                                                 applicationConfiguration.getGlobalAuditorPassword(),
                                                                  SecurityUtil.CLIENT_ID,
                                                                  SecurityUtil.CLIENT_SECRET,
                                                                  AUTH_ORIGIN);
 
-        CloudControllerClientImpl cfClient = new CloudControllerClientImpl(configuration.getControllerUrl(),
+        CloudControllerClientImpl cfClient = new CloudControllerClientImpl(applicationConfiguration.getControllerUrl(),
                                                                            cloudCredentials,
-                                                                           configuration.shouldSkipSslValidation());
+                                                                           applicationConfiguration.shouldSkipSslValidation());
         cfClient.login();
         return cfClient;
     }

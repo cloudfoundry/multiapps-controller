@@ -5,13 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
-import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
+import com.sap.cloud.lm.sl.cf.core.model.MtaDescriptorPropertiesResolverContext;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ApplicationNameValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.DomainValidator;
@@ -33,27 +31,11 @@ public class MtaDescriptorPropertiesResolver {
     public static final String IDLE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.IDLE_DOMAIN + "}";
     public static final String IDLE_HOST_PLACEHOLDER = "${" + SupportedParameters.IDLE_HOST + "}";
 
-    private final HandlerFactory handlerFactory;
-    private final ConfigurationEntryDao dao;
-    private final CloudTarget cloudTarget;
-    private final String currentSpaceId;
+    private MtaDescriptorPropertiesResolverContext mtaDescriptorPropertiesResolverContext;
     private List<ConfigurationSubscription> subscriptions;
-    private final ApplicationConfiguration configuration;
-    private final boolean useNamespaces;
-    private final boolean useNamespacesForServices;
-    private final boolean reserveTemporaryRoute;
 
-    public MtaDescriptorPropertiesResolver(HandlerFactory handlerFactory, ConfigurationEntryDao dao, CloudTarget cloudTarget,
-                                           String currentSpaceId, ApplicationConfiguration configuration, boolean useNamespaces,
-                                           boolean useNamespacesForServices, boolean reserveTemporaryRoute) {
-        this.handlerFactory = handlerFactory;
-        this.dao = dao;
-        this.cloudTarget = cloudTarget;
-        this.currentSpaceId = currentSpaceId;
-        this.configuration = configuration;
-        this.useNamespaces = useNamespaces;
-        this.useNamespacesForServices = useNamespacesForServices;
-        this.reserveTemporaryRoute = reserveTemporaryRoute;
+    public MtaDescriptorPropertiesResolver(MtaDescriptorPropertiesResolverContext mtaDescriptorPropertiesResolverContext) {
+        this.mtaDescriptorPropertiesResolverContext = mtaDescriptorPropertiesResolverContext;
     }
 
     public List<ParameterValidator> getValidatorsList() {
@@ -64,11 +46,12 @@ public class MtaDescriptorPropertiesResolver {
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) {
         descriptor = correctEntityNames(descriptor);
         // Resolve placeholders in parameters:
+        HandlerFactory handlerFactory = mtaDescriptorPropertiesResolverContext.getHandlerFactory();
         descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(), new ResolverBuilder(),
                                                                      SupportedParameters.SINGULAR_PLURAL_MAPPING)
                                    .resolve();
 
-        if (reserveTemporaryRoute) {
+        if (mtaDescriptorPropertiesResolverContext.shouldReserveTemporaryRoute()) {
             // temporary placeholders should be set at this point, since they are need for provides/requires placeholder resolution
             editRoutesSetTemporaryPlaceholders(descriptor);
 
@@ -89,8 +72,11 @@ public class MtaDescriptorPropertiesResolver {
 
         DeploymentDescriptor descriptorWithUnresolvedReferences = DeploymentDescriptor.copyOf(descriptor);
 
-        ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(descriptor, dao, cloudTarget,
-                                                                                                     configuration);
+        ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(descriptor,
+                                                                                                     mtaDescriptorPropertiesResolverContext.getConfigurationEntryDao(),
+                                                                                                     mtaDescriptorPropertiesResolverContext.getCloudTarget(),
+                                                                                                     mtaDescriptorPropertiesResolverContext.getApplicationConfiguration());
+ 
         resolver.resolve(descriptor);
 
         subscriptions = createSubscriptions(descriptorWithUnresolvedReferences, resolver.getResolvedReferences());
@@ -111,20 +97,19 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     private DeploymentDescriptor correctEntityNames(DeploymentDescriptor descriptor) {
-        List<ParameterValidator> correctors = Arrays.asList(new ApplicationNameValidator(descriptor.getId(), useNamespaces),
+        List<ParameterValidator> correctors = Arrays.asList(new ApplicationNameValidator(descriptor.getId(),
+                                                                                         mtaDescriptorPropertiesResolverContext.hasUseNamespaces()),
                                                             new ServiceNameValidator(descriptor.getId(),
-                                                                                     useNamespaces,
-                                                                                     useNamespacesForServices));
-        return handlerFactory.getDescriptorParametersValidator(descriptor, correctors)
-                             .validate();
+                                                                                     mtaDescriptorPropertiesResolverContext.hasUseNamespaces(),
+                                                                                     mtaDescriptorPropertiesResolverContext.hasUserNamespacesForServices()));
+        return mtaDescriptorPropertiesResolverContext.getHandlerFactory()
+                                             .getDescriptorParametersValidator(descriptor, correctors)
+                                             .validate();
     }
 
     private void editRoutesSetTemporaryPlaceholders(DeploymentDescriptor descriptor) {
         for (Module module : descriptor.getModules()) {
             Map<String, Object> moduleParameters = module.getParameters();
-            if (moduleParameters.get(SupportedParameters.ROUTES) == null) {
-                continue;
-            }
 
             List<Map<String, Object>> routes = RoutesValidator.applyRoutesType(moduleParameters.get(SupportedParameters.ROUTES));
 
@@ -146,8 +131,10 @@ public class MtaDescriptorPropertiesResolver {
 
     private List<ConfigurationSubscription> createSubscriptions(DeploymentDescriptor descriptorWithUnresolvedReferences,
                                                                 Map<String, ResolvedConfigurationReference> resolvedResources) {
-        return handlerFactory.getConfigurationSubscriptionFactory()
-                             .create(descriptorWithUnresolvedReferences, resolvedResources, currentSpaceId);
+        return mtaDescriptorPropertiesResolverContext.getHandlerFactory()
+                                             .getConfigurationSubscriptionFactory()
+                                             .create(descriptorWithUnresolvedReferences, resolvedResources,
+                                                     mtaDescriptorPropertiesResolverContext.getCurrentSpaceId());
     }
 
     public List<ConfigurationSubscription> getSubscriptions() {

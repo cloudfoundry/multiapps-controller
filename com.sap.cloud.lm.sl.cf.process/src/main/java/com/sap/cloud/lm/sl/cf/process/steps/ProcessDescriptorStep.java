@@ -16,6 +16,8 @@ import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
+import com.sap.cloud.lm.sl.cf.core.model.ImmutableMtaDescriptorPropertiesResolverContext;
+import com.sap.cloud.lm.sl.cf.core.model.MtaDescriptorPropertiesResolverContext;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -72,6 +74,10 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
     }
 
     protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(DelegateExecution context) {
+        return new MtaDescriptorPropertiesResolver(buildMtaDescriptorPropertiesResolverContext(context));
+    }
+
+    private MtaDescriptorPropertiesResolverContext buildMtaDescriptorPropertiesResolverContext(DelegateExecution context) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
         CloudTarget cloudTarget = new CloudTarget(StepsUtil.getOrg(context), StepsUtil.getSpace(context));
         String currentSpaceId = StepsUtil.getSpaceId(context);
@@ -79,14 +85,16 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         boolean useNamespaces = StepsUtil.getUseNamespaces(context);
         boolean setIdleRoutes = StepsUtil.getUseIdleUris(context);
 
-        return new MtaDescriptorPropertiesResolver(handlerFactory,
-                                                   configurationEntryDao,
-                                                   cloudTarget,
-                                                   currentSpaceId,
-                                                   configuration,
-                                                   useNamespaces,
-                                                   useNamespacesForServices,
-                                                   setIdleRoutes);
+        return ImmutableMtaDescriptorPropertiesResolverContext.builder()
+                                                              .handlerFactory(handlerFactory)
+                                                              .cloudTarget(cloudTarget)
+                                                              .currentSpaceId(currentSpaceId)
+                                                              .hasUseNamespaces(useNamespaces)
+                                                              .hasUserNamespacesForServices(useNamespacesForServices)
+                                                              .shouldReserveTemporaryRoute(setIdleRoutes)
+                                                              .configurationEntryDao(configurationEntryDao)
+                                                              .applicationConfiguration(configuration)
+                                                              .build();
     }
 
     private Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor, List<String> moduleNamesForDeployment) {

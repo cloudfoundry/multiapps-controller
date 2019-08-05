@@ -85,7 +85,7 @@ public class ParametersValidatorHelperTest {
 
     @Test
     public void testValidate() {
-        Map<String, Object> afterCorrection = validatorHelper.validate("", container, container.getClass(), initialParameters);
+        Map<String, Object> afterCorrection = validatorHelper.validate("", container.getClass(), initialParameters);
         assertEquals(correctParameters, afterCorrection);
     }
 }

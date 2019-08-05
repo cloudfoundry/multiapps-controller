@@ -22,7 +22,7 @@ public class ParametersValidatorHelper {
         this.doNotCorrect = doNotCorrect;
     }
 
-    public Map<String, Object> validate(String prefix, Object container, Class<?> containerClass, Map<String, Object> parameters) {
+    public Map<String, Object> validate(String prefix, Class<?> containerClass, Map<String, Object> parameters) {
         Map<String, Object> correctedParameters = new TreeMap<>();
         for (ParameterValidator validator : parameterValidators) {
             if (!validator.getContainerType()
@@ -30,26 +30,26 @@ public class ParametersValidatorHelper {
                 continue;
             }
 
-            correctInvalidSingleParameters(prefix, container, validator, parameters, correctedParameters);
-            correctInvalidPluralParameters(prefix, container, validator, parameters, correctedParameters);
+            correctInvalidSingleParameters(prefix, validator, parameters, correctedParameters);
+            correctInvalidPluralParameters(prefix, validator, parameters, correctedParameters);
         }
         return MapUtil.merge(parameters, correctedParameters);
     }
 
-    private void correctInvalidSingleParameters(String prefix, Object container, ParameterValidator validator,
-                                                Map<String, Object> parameters, Map<String, Object> correctedParameters) {
+    private void correctInvalidSingleParameters(String prefix, ParameterValidator validator, Map<String, Object> parameters,
+                                                Map<String, Object> correctedParameters) {
         String parameterName = validator.getParameterName();
 
         Object initialParameterValue = parameters.get(parameterName);
-        Object correctParameterValue = validateAndCorrect(container, ValidatorUtil.getPrefixedName(prefix, parameterName),
-                                                          initialParameterValue, validator);
+        Object correctParameterValue = validateAndCorrect(ValidatorUtil.getPrefixedName(prefix, parameterName), initialParameterValue,
+                                                          validator);
         if (!Objects.equals(initialParameterValue, correctParameterValue)) {
             correctedParameters.put(parameterName, correctParameterValue);
         }
     }
 
-    private void correctInvalidPluralParameters(String prefix, Object container, ParameterValidator validator,
-                                                Map<String, Object> parameters, Map<String, Object> correctedParameters) {
+    private void correctInvalidPluralParameters(String prefix, ParameterValidator validator, Map<String, Object> parameters,
+                                                Map<String, Object> correctedParameters) {
         String parameterPluralName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(validator.getParameterName());
 
         if (parameterPluralName == null || !parameters.containsKey(parameterPluralName)) {
@@ -63,27 +63,30 @@ public class ParametersValidatorHelper {
         }
 
         List<Object> correctedParameterValues = initialParameterValues.stream()
-                                                                      .map(parameter -> validateAndCorrect(container,
-                                                                                                           ValidatorUtil.getPrefixedName(prefix,
+                                                                      .map(parameter -> validateAndCorrect(ValidatorUtil.getPrefixedName(prefix,
                                                                                                                                          validator.getParameterName()),
                                                                                                            parameter, validator))
                                                                       .collect(Collectors.toList());
         correctedParameters.put(parameterPluralName, correctedParameterValues);
     }
 
-    private Object validateAndCorrect(Object container, String parameterName, Object parameter, ParameterValidator validator) {
-        if (!validator.containsXsaPlaceholders(parameter) && !validator.isValid(container, parameter)) {
-            return attemptToCorrect(container, parameterName, parameter, validator);
+    private Object validateAndCorrect(String parameterName, Object parameter, ParameterValidator validator) {
+        if (shouldCorrectParameter(parameter, validator)) {
+            return attemptToCorrect(parameterName, parameter, validator);
         } else {
             return parameter;
         }
     }
 
-    private Object attemptToCorrect(Object container, String parameterName, Object parameter, ParameterValidator validator) {
+    private boolean shouldCorrectParameter(Object parameter, ParameterValidator validator) {
+        return parameter != null && !validator.containsXsaPlaceholders(parameter) && !validator.isValid(parameter);
+    }
+
+    private Object attemptToCorrect(String parameterName, Object parameter, ParameterValidator validator) {
         if (!validator.canCorrect() || doNotCorrect) {
             throw new ContentException(Messages.CANNOT_CORRECT_PARAMETER, parameterName);
         }
-        return validator.attemptToCorrect(container, parameter);
+        return validator.attemptToCorrect(parameter);
     }
 
 }

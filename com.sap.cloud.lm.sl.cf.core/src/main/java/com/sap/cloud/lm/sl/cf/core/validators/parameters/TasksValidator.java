@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public class TasksValidator implements ParameterValidator {
             // TODO: If we just return 'false' here, then the real cause of the issue would be lost. Refactor ParameterValidators so that
             // their validate methods throw an exception with a descriptive message, instead of just returning 'true' or 'false'.
             // LMCROSSITXSADEPLOY-237
-            LOGGER.error("Error validating tasks: " + e.getMessage());
+            LOGGER.error(MessageFormat.format("Error validating tasks: {0}", e.getMessage()));
             return false;
         }
         return true;

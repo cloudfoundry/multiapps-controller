@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.persistence.util;
 
-import java.io.OutputStream;
-
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileUploadProcessor;
@@ -24,7 +22,7 @@ public class DefaultConfiguration implements Configuration {
     }
 
     @Override
-    public FileUploadProcessor<? extends OutputStream, ? extends OutputStream> getFileUploadProcessor() {
+    public FileUploadProcessor getFileUploadProcessor() {
         return new DefaultFileUploadProcessor();
     }
 

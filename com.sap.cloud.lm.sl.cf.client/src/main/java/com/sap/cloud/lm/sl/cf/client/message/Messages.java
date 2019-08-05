@@ -83,4 +83,7 @@ public class Messages {
     public static final String INPUT_STREAM_SAVED_IN_TEMP_FILE = "Input stream saved to temporary file \"{0}\"";
     public static final String SAVING_INPUT_STREAM_TO_TMP_DIR = "Saving input stream to temporary directory \"{0}\"...";
     public static final String INPUT_STREAM_SAVED_TO_TMP_DIR = "Input stream saved to temporary directory \"{0}\"";
+
+    protected Messages() {
+    }
 }

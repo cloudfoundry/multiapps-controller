@@ -80,13 +80,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
                 // Create an authentication for the token and store it in the token store
                 auth2 = SecurityUtil.createAuthentication(SecurityUtil.CLIENT_ID, token.getScope(), SecurityUtil.getTokenUserInfo(token));
-                try {
-                    tokenStore.storeAccessToken(token, auth2);
-                } catch (DataIntegrityViolationException e) {
-                    LOGGER.debug(com.sap.cloud.lm.sl.cf.core.message.Messages.ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION, e);
-                    // Ignoring the exception as the token and authentication are already persisted
-                    // by another client.
-                }
+                storeAccessToken(token, auth2);
             }
 
             return auth2;
@@ -95,6 +89,16 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             AuditLoggingProvider.getFacade()
                                 .logSecurityIncident(message);
             throw new BadCredentialsException(message, e);
+        }
+    }
+
+    private void storeAccessToken(OAuth2AccessToken token, OAuth2Authentication auth2) {
+        try {
+            tokenStore.storeAccessToken(token, auth2);
+        } catch (DataIntegrityViolationException e) {
+            LOGGER.debug(com.sap.cloud.lm.sl.cf.core.message.Messages.ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION, e);
+            // Ignoring the exception as the token and authentication are already persisted
+            // by another client.
         }
     }
 

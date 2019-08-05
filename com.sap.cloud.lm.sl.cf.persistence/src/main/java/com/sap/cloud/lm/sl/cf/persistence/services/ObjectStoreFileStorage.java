@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.net.MediaType;
+import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
@@ -158,12 +159,12 @@ public class ObjectStoreFileStorage implements FileStorage {
 
     private Map<String, String> createFileEntryMetadata(FileEntry fileEntry) {
         Map<String, String> metadata = new HashMap<>();
-        metadata.put(FileService.FileServiceColumnNames.SPACE.toLowerCase(), fileEntry.getSpace());
-        metadata.put(FileService.FileServiceColumnNames.FILE_NAME.toLowerCase(), fileEntry.getName());
-        metadata.put(FileService.FileServiceColumnNames.MODIFIED.toLowerCase(), Long.toString(fileEntry.getModified()
-                                                                                                       .getTime()));
+        metadata.put(Constants.SPACE.toLowerCase(), fileEntry.getSpace());
+        metadata.put(Constants.FILE_NAME.toLowerCase(), fileEntry.getName());
+        metadata.put(Constants.MODIFIED.toLowerCase(), Long.toString(fileEntry.getModified()
+                                                                              .getTime()));
         if (fileEntry.getNamespace() != null) {
-            metadata.put(FileService.FileServiceColumnNames.NAMESPACE.toLowerCase(), fileEntry.getNamespace());
+            metadata.put(Constants.NAMESPACE.toLowerCase(), fileEntry.getNamespace());
         }
         return metadata;
     }
@@ -191,7 +192,7 @@ public class ObjectStoreFileStorage implements FileStorage {
         if (CollectionUtils.isEmpty(userMetadata)) {
             return true;
         }
-        String longString = userMetadata.get(FileService.FileServiceColumnNames.MODIFIED.toLowerCase());
+        String longString = userMetadata.get(Constants.MODIFIED.toLowerCase());
         try {
             long dateLong = Long.parseLong(longString);
             Date date = new Date(dateLong);
@@ -207,7 +208,7 @@ public class ObjectStoreFileStorage implements FileStorage {
         if (CollectionUtils.isEmpty(userMetadata)) {
             return false;
         }
-        String spaceParameter = userMetadata.get(FileService.FileServiceColumnNames.SPACE.toLowerCase());
+        String spaceParameter = userMetadata.get(Constants.SPACE.toLowerCase());
         return space.equals(spaceParameter);
     }
 
@@ -216,8 +217,8 @@ public class ObjectStoreFileStorage implements FileStorage {
         if (CollectionUtils.isEmpty(userMetadata)) {
             return false;
         }
-        String spaceParameter = userMetadata.get(FileService.FileServiceColumnNames.SPACE.toLowerCase());
-        String namespaceParameter = userMetadata.get(FileService.FileServiceColumnNames.NAMESPACE.toLowerCase());
+        String spaceParameter = userMetadata.get(Constants.SPACE.toLowerCase());
+        String namespaceParameter = userMetadata.get(Constants.NAMESPACE.toLowerCase());
         return space.equals(spaceParameter) && namespace.equals(namespaceParameter);
     }
 

@@ -45,9 +45,9 @@ public class GitRepoCloner {
     }
 
     public void cloneRepo(final String gitUri, final Path repoDir) throws GitAPIException, IOException {
-        if (Files.exists(repoDir)) {
-            LOGGER.debug("Deleting left-over repo dir" + repoDir.toAbsolutePath()
-                                                                .toString());
+        if (repoDir.toFile()
+                   .exists()) {
+            LOGGER.debug(MessageFormat.format("Deleting left-over repo dir {0}", repoDir.toAbsolutePath()));
             com.sap.cloud.lm.sl.cf.core.util.FileUtils.deleteDirectory(repoDir);
         }
 
@@ -79,7 +79,8 @@ public class GitRepoCloner {
             return;
         }
         LOGGER.debug("Skipping https ssl validation");
-        if (Files.exists(gitconfigFilePath)) {
+        if (gitconfigFilePath.toFile()
+                             .exists()) {
             Files.delete(gitconfigFilePath);
         }
         File userConcigFile = gitconfigFilePath.toFile();

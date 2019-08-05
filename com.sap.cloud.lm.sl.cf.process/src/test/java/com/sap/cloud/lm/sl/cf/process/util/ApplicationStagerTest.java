@@ -242,7 +242,7 @@ public class ApplicationStagerTest {
         mockMetadata(cloudMetadata, client.createBuild(PACKAGE_GUID));
         mockBuildCreation(client.createBuild(PACKAGE_GUID));
         StepPhase stepPhase = applicationStager.stageApp(context, app, stepLogger);
-        assertEquals(stepPhase, StepPhase.POLL);
+        assertEquals(StepPhase.POLL, stepPhase);
         Mockito.verify(context)
                .setVariable(Constants.VAR_BUILD_GUID, BUILD_GUID);
         Mockito.verify(stepLogger)

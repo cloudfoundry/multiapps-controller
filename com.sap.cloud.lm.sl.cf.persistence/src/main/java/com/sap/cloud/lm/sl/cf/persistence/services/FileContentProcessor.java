@@ -12,8 +12,6 @@ import java.security.NoSuchAlgorithmException;
  */
 public interface FileContentProcessor {
 
-    int DEFAULT_BUFFER_SIZE = 4 * 1024;
-
     /**
      * Processes the content of an uploaded file.
      *

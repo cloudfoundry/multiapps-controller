@@ -37,4 +37,9 @@ public class Constants {
     public static final String SERVICE_INSTANCE_RESPONSE_RESOURCES = "resources";
     public static final String SERVICE_INSTANCE_RESPONSE_ENTITY = "entity";
     public static final String V2_QUERY_SEPARATOR = "&q=";
+
+    public static final String PARAMETER_CONTAINING_XSA_PLACEHOLDER_PATTERN = ".*?\\{xsa-placeholder-.*\\}.*?";
+
+    protected Constants() {
+    }
 }

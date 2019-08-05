@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.persistence.util;
 
-import java.io.OutputStream;
-
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileUploadProcessor;
@@ -14,7 +12,7 @@ public interface Configuration {
      * 
      * @return FileUploadProcessor instance
      */
-    FileUploadProcessor<? extends OutputStream, ? extends OutputStream> getFileUploadProcessor();
+    FileUploadProcessor getFileUploadProcessor();
 
     /**
      * Gets file download processor based on the file entry and FileContentProcessor.

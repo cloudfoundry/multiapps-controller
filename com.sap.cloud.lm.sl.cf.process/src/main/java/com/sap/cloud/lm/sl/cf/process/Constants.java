@@ -169,4 +169,6 @@ public class Constants {
     public static final String TOOL_TYPE = "tool_type";
     public static final String FEEDBACK_MAIL = "feedback_form";
 
+    protected Constants() {
+    }
 }

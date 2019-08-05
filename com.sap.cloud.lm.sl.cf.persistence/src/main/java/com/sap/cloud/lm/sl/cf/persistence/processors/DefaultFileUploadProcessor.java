@@ -1,25 +1,20 @@
 package com.sap.cloud.lm.sl.cf.persistence.processors;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
-import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.Constants;
 
-public class DefaultFileUploadProcessor implements FileUploadProcessor<FileOutputStream, FileOutputStream> {
+public class DefaultFileUploadProcessor implements FileUploadProcessor {
 
     @Override
     public int getProcessingBufferSize() {
-        return FileContentProcessor.DEFAULT_BUFFER_SIZE;
+        return Constants.DEFAULT_BUFFER_SIZE;
     }
 
     @Override
-    public FileOutputStream createOutputStreamWrapper(FileOutputStream outputStream) throws IOException {
-        return outputStream;
-    }
-
-    @Override
-    public void writeFileChunk(FileOutputStream outputStreamWrapper, byte[] data, int readToIndex) throws IOException {
-        outputStreamWrapper.write(data, 0, readToIndex);
+    public void writeFileChunk(OutputStream outputStream, byte[] data, int readToIndex) throws IOException {
+        outputStream.write(data, 0, readToIndex);
     }
 
 }

@@ -21,13 +21,11 @@ public class ClientReleaser {
     public void releaseClientFor(HistoryService historyService, String processInstanceId) {
         String user = HistoricVariablesUtil.getCurrentUser(historyService, processInstanceId);
         String spaceName = (String) HistoricVariablesUtil.getHistoricVarInstanceValue(historyService, processInstanceId,
-                                                                                      Constants.VAR_SPACE)
-                                                         .getValue();
-        String orgName = (String) HistoricVariablesUtil.getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_ORG)
-                                                       .getValue();
+            Constants.VAR_SPACE).getValue();
+        String orgName = (String) HistoricVariablesUtil.getHistoricVarInstanceValue(historyService, processInstanceId,
+            Constants.VAR_ORG).getValue();
         String spaceId = (String) HistoricVariablesUtil.getHistoricVarInstanceValue(historyService, processInstanceId,
-                                                                                    com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID)
-                                                       .getValue();
+            com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID).getValue();
 
         try {
             clientProvider.releaseClient(user, orgName, spaceName);

@@ -160,7 +160,7 @@ public class UploadAppStepTest {
             StepsUtil.setApp(context, app);
             context.setVariable(Constants.VAR_MODULES_INDEX, 0);
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
-            context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
+            context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
             mtaArchiveElements.addModuleFileName(APP_NAME, APP_FILE);
             StepsUtil.setMtaArchiveElements(context, mtaArchiveElements);
             StepsUtil.setVcapAppPropertiesChanged(context, false);
@@ -292,7 +292,7 @@ public class UploadAppStepTest {
             StepsUtil.setApp(context, app);
             context.setVariable(Constants.VAR_MODULES_INDEX, 0);
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
-            context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
+            context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
             MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
             mtaArchiveElements.addModuleFileName(APP_NAME, APP_NAME);
             StepsUtil.setMtaArchiveElements(context, mtaArchiveElements);

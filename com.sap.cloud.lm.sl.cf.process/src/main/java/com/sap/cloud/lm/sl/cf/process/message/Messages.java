@@ -444,4 +444,6 @@ public class Messages {
     public static final String BUILD_FOR_PACKAGE_0_ALREADY_EXISTS = "Build for package: \"{0}\" already exists";
     public static final String APP_NOT_FOUND = "App not found: \"{0}\"";
 
+    protected Messages() {
+    }
 }

@@ -44,7 +44,7 @@ public class AbortFailedProcessCommandFactory extends NoJobRetryCommandFactory {
         @Override
         public Object execute(CommandContext commandContext) {
             Object result = delegate.execute(commandContext);
-            String processInstanceId = getProcessId(commandContext);
+            String processInstanceId = getProcessId();
             HistoricVariableInstance corelationId = getHistoryService(commandContext).createHistoricVariableInstanceQuery()
                                                                                      .processInstanceId(processInstanceId)
                                                                                      .variableName(Constants.VAR_CORRELATION_ID)
@@ -61,7 +61,7 @@ public class AbortFailedProcessCommandFactory extends NoJobRetryCommandFactory {
             return result;
         }
 
-        private String getProcessId(CommandContext commandContext) {
+        private String getProcessId() {
             JobEntity job = CommandContextUtil.getJobServiceConfiguration()
                                               .getJobEntityManager()
                                               .findById(jobId);

@@ -1,14 +1,8 @@
 package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 
-public interface ParameterValidator {
-    String PARAMETER_CONTAINING_XSA_PLACEHOLDER_PATTERN = ".*?\\{xsa-placeholder-.*\\}.*?";
+import com.sap.cloud.lm.sl.cf.core.Constants;
 
-    default boolean isValid(Object container, Object parameter) {
-        if (parameter != null) {
-            return isValid(parameter);
-        }
-        return true;
-    }
+public interface ParameterValidator {
 
     default boolean isValid(Object parameter) {
         return true;
@@ -18,17 +12,13 @@ public interface ParameterValidator {
         return false;
     }
 
-    default Object attemptToCorrect(Object container, Object parameter) {
-        return attemptToCorrect(parameter);
-    }
-
     default Object attemptToCorrect(Object parameter) {
         throw new UnsupportedOperationException();
     }
 
     default boolean containsXsaPlaceholders(Object parameter) {
         if (parameter instanceof String) {
-            return ((String) parameter).matches(PARAMETER_CONTAINING_XSA_PLACEHOLDER_PATTERN);
+            return ((String) parameter).matches(Constants.PARAMETER_CONTAINING_XSA_PLACEHOLDER_PATTERN);
         }
 
         return false;
