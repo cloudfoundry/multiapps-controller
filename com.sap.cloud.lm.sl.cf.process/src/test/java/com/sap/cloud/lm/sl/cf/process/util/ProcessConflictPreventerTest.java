@@ -1,14 +1,15 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
@@ -24,7 +25,7 @@ public class ProcessConflictPreventerTest {
     private OperationDao daoMock;
     private ProcessConflictPreventer processConflictPreventerMock;
 
-    @Before
+    @BeforeEach
     public void setUp() throws SLException {
         daoMock = getOperationDaoMock();
         processConflictPreventerMock = new ProcessConflictPreventerMock(daoMock);
@@ -51,8 +52,8 @@ public class ProcessConflictPreventerTest {
     }
 
     @Test
-    public void testAcquireLockWithNoConflictingOperations() throws SLException {
-        processConflictPreventerMock.acquireLock(testMtaId, testSpaceId, testProcessId);
+    public void testAcquireLockWithNoConflictingOperations() {
+        assertDoesNotThrow(() -> processConflictPreventerMock.acquireLock(testMtaId, testSpaceId, testProcessId));
     }
 
     private OperationDao getOperationDaoMock() throws SLException {

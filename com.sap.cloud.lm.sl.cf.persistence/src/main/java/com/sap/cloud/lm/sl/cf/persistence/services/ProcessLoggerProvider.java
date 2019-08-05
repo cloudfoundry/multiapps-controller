@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.flowable.engine.delegate.DelegateExecution;
 
-import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
+import com.sap.cloud.lm.sl.cf.persistence.Constants;
 
 public class ProcessLoggerProvider {
 

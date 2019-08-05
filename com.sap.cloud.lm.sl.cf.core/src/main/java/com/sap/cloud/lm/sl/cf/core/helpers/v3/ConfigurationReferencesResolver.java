@@ -40,7 +40,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
         super.updateReferencesToResolvedResources(descriptor);
         for (Resource resource : descriptor.getResources()) {
             // TODO consider subscription support for resources
-            resource.setRequiredDependencies(getUpdatedRequiredDependencies(descriptor, resource));
+            resource.setRequiredDependencies(getUpdatedRequiredDependencies(resource));
 
             Map<String, Object> properties = resource.getProperties();
             Set<RequiredDependency> dependencies = expandedDependenciesMap.keySet();
@@ -55,8 +55,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     }
 
     @Override
-    protected List<RequiredDependency> expandRequiredDependencyIfNecessary(DeploymentDescriptor descriptor,
-                                                                           PropertiesContainer dependencyOwner,
+    protected List<RequiredDependency> expandRequiredDependencyIfNecessary(PropertiesContainer dependencyOwner,
                                                                            RequiredDependency dependency) {
         ResolvedConfigurationReference resolvedReference = resolvedReferences.get(dependency.getName());
 
@@ -101,10 +100,10 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
                                                                     .equals(dependency.getName()));
     }
 
-    protected List<RequiredDependency> getUpdatedRequiredDependencies(DeploymentDescriptor descriptor, Resource resource) {
+    protected List<RequiredDependency> getUpdatedRequiredDependencies(Resource resource) {
         return resource.getRequiredDependencies()
                        .stream()
-                       .map(dependency -> expandRequiredDependencyIfNecessary(descriptor, resource, dependency))
+            		   .map(dependency -> expandRequiredDependencyIfNecessary(resource, dependency))
                        .flatMap(List::stream)
                        .collect(Collectors.toList());
     }

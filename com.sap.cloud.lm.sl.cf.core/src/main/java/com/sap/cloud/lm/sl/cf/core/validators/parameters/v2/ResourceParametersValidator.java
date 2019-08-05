@@ -17,7 +17,7 @@ public class ResourceParametersValidator extends ParametersValidator<Resource> {
 
     @Override
     public Resource validate() {
-        Map<String, Object> parameters = validateParameters(resource, resource.getParameters());
+        Map<String, Object> parameters = validateParameters(resource.getParameters());
         resource.setParameters(parameters);
         return resource;
     }

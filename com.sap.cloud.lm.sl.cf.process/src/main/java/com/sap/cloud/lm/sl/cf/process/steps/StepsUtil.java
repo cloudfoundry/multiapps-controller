@@ -73,6 +73,9 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class StepsUtil {
 
+    protected StepsUtil() {
+    }
+
     public static org.apache.log4j.Logger getLogger(DelegateExecution context, String name, ProcessLoggerProvider processLoggerProvider) {
         return processLoggerProvider.getLogger(context, name);
     }
@@ -167,11 +170,11 @@ public class StepsUtil {
     }
 
     public static String getSpaceId(VariableScope scope) {
-        return getString(scope, com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID);
+        return getString(scope, com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID);
     }
 
     public static void setSpaceId(VariableScope scope, String spaceId) {
-        scope.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, spaceId);
+        scope.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, spaceId);
     }
 
     public static String getSpace(VariableScope scope) {
@@ -750,7 +753,7 @@ public class StepsUtil {
     }
 
     public static String getServiceId(VariableScope scope) {
-        return getString(scope, com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID);
+        return getString(scope, com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID);
     }
 
     public static void incrementVariable(VariableScope scope, String name) {

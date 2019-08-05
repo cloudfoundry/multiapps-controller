@@ -45,9 +45,9 @@ public class AnalyticsCollector {
     public AnalyticsData collectAnalyticsData(DelegateExecution context) {
         String processId = context.getProcessInstanceId();
         ProcessType processType = processTypeParser.getProcessType(context);
-        long startTime = getStartTime(context, processId);
+        long startTime = getStartTime(processId);
         long endTime = getEndTime();
-        long processDuration = getProcessDurationInSeconds(context, processId);
+        long processDuration = getProcessDurationInSeconds(processId);
         String mtaId = (String) context.getVariable(Constants.PARAM_MTA_ID);
         String org = StepsUtil.getOrg(context);
         String space = StepsUtil.getSpace(context);
@@ -79,7 +79,7 @@ public class AnalyticsCollector {
         return null;
     }
 
-    public long getStartTime(DelegateExecution context, String processId) {
+    public long getStartTime(String processId) {
         HistoryService historyService = processEngineConfiguration.getHistoryService();
         HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery()
                                                                 .processInstanceId(processId)
@@ -93,8 +93,8 @@ public class AnalyticsCollector {
         return date.getTime();
     }
 
-    public long getProcessDurationInSeconds(DelegateExecution context, String processId) {
-        long startTime = getStartTime(context, processId);
+    public long getProcessDurationInSeconds(String processId) {
+        long startTime = getStartTime(processId);
         long endTime = getEndTime();
         return TimeUnit.MILLISECONDS.toSeconds(endTime - startTime);
     }

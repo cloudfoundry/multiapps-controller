@@ -29,7 +29,7 @@ public class RoutesValidator implements ParameterValidator {
     public boolean isValid(Object routes) {
         List<Map<String, Object>> routesList = applyRoutesType(routes);
 
-        if (routesList == null) {
+        if (routesList.isEmpty()) {
             return false;
         }
 
@@ -52,7 +52,7 @@ public class RoutesValidator implements ParameterValidator {
     public Object attemptToCorrect(Object routes) {
         List<Map<String, Object>> routesList = applyRoutesType(routes);
 
-        if (routesList == null) {
+        if (routesList.isEmpty()) {
             throw new SLException(Messages.COULD_NOT_PARSE_ROUTE);
         }
 
@@ -87,20 +87,21 @@ public class RoutesValidator implements ParameterValidator {
     @SuppressWarnings("unchecked")
     public static List<Map<String, Object>> applyRoutesType(Object routes) {
         if (routes instanceof List) {
-            List<Map<String, Object>> routesList = (List<Map<String, Object>>) routes;
+            List<Object> routesList = (List<Object>) routes;
             if (CollectionUtils.isEmpty(routesList)) {
                 return new ArrayList<>();
             }
 
             if (routesList.stream()
                           .anyMatch(route -> !(route instanceof Map))) {
-                return null;
+                return new ArrayList<>();
             }
-
-            return routesList;
+            return routesList.stream()
+                             .map(route -> (Map<String, Object>) route)
+                             .collect(Collectors.toList());
         }
 
-        return null;
+        return new ArrayList<>();
 
     }
 

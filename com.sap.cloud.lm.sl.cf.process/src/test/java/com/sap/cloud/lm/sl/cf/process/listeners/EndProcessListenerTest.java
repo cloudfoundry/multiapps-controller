@@ -94,7 +94,7 @@ public class EndProcessListenerTest {
     }
 
     private void prepareContext() {
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, archiveIds);
         context.setVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, extensionDescriptorIds);
         context.setVariable(Constants.PARAM_KEEP_FILES, keepFiles);

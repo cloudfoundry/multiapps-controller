@@ -1,10 +1,16 @@
 package com.sap.cloud.lm.sl.cf.core.auditlogging.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.sql.DataSource;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
@@ -18,26 +24,37 @@ public class AuditLogManagerTest {
 
     private static final String AUDIT_LOG_CHANGELOG_LOCATION = "com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog.xml";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         testDataSource = TestDataSourceProvider.getDataSource(AUDIT_LOG_CHANGELOG_LOCATION);
         auditLogManager = new AuditLogManager(testDataSource, createTestUserInfoProvider());
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         testDataSource.getConnection()
                       .close();
     }
 
     @Test
-    public void test() throws Exception {
-        auditLogManager.getSecurityLogger()
-                       .info("That's a security message");
-        Exception e = auditLogManager.getException();
-        if (e != null) {
-            throw e;
-        }
+    public void testAuditLogManager() {
+        List<Logger> loggers = loadAuditLoggers();
+
+        logMessage(loggers);
+
+        assertNull(auditLogManager.getException());
+    }
+
+    private List<Logger> loadAuditLoggers() {
+        List<Logger> loggers = new ArrayList<>();
+        loggers.add(auditLogManager.getSecurityLogger());
+        loggers.add(auditLogManager.getActionLogger());
+        loggers.add(auditLogManager.getConfigLogger());
+        return loggers;
+    }
+
+    private void logMessage(List<Logger> loggers) {
+        loggers.forEach(logger -> logger.info("Test Message"));
     }
 
     private static UserInfoProvider createTestUserInfoProvider() {

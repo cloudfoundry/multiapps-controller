@@ -54,14 +54,14 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
 
             notifyInternal(context);
         } catch (Exception e) {
-            logException(context, e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED);
+            logException(e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED);
             throw new SLException(e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED);
         } finally {
             finalizeLogs(context);
         }
     }
 
-    protected void logException(DelegateExecution context, Exception e, String message) {
+    protected void logException(Exception e, String message) {
         LOGGER.error(message, e);
         getProcessLogger().error(message, e);
     }
@@ -75,7 +75,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     }
 
     private String getCorrelationId(DelegateExecution context) {
-        return (String) context.getVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.CORRELATION_ID);
+        return (String) context.getVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.CORRELATION_ID);
     }
 
     private String getTaskId(DelegateExecution context) {

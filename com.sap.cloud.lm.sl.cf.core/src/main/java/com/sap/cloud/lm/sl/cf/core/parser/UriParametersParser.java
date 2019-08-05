@@ -123,10 +123,6 @@ public class UriParametersParser implements ParametersParser<List<String>> {
                                                                                                                SupportedParameters.ROUTES,
                                                                                                                null));
 
-        if (routesMaps == null) {
-            return Collections.emptyList();
-        }
-
         return routesMaps.stream()
                          .map(routesMap -> (String) routesMap.get(SupportedParameters.ROUTE))
                          .filter(Objects::nonNull)

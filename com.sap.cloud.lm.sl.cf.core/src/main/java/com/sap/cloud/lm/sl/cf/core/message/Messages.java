@@ -180,4 +180,6 @@ public final class Messages {
     public static final String DELETING_SUBSCRIPTION = "Deleting configuration subscription: {0}";
     public static final String DELETING_ENTRY = "Deleting configuration entry: {0}";
 
+    private Messages() {
+    }
 }

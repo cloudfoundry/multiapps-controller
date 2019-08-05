@@ -53,17 +53,17 @@ public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, Init
     }
 
     private DataSource getCloudDataSource(String serviceName) {
-        DataSource dataSource = null;
+        DataSource cloudDataSource = null;
         try {
             if (serviceName != null && !serviceName.isEmpty()) {
                 int maxPoolSize = configuration.getDbConnectionThreads();
                 DataSourceConfig config = new DataSourceConfig(new PoolConfig(maxPoolSize, 30000), null);
-                dataSource = getSpringCloud().getServiceConnector(serviceName, DataSource.class, config);
+                cloudDataSource = getSpringCloud().getServiceConnector(serviceName, DataSource.class, config);
             }
         } catch (CloudException e) {
             // Do nothing
         }
-        return dataSource;
+        return cloudDataSource;
     }
 
     protected Cloud getSpringCloud() {

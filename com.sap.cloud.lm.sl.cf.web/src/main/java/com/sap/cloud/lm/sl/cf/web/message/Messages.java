@@ -46,4 +46,6 @@ public final class Messages {
     public static final String FILE_SYSTEM_SERVICE_NAME_IS_NOT_SPECIFIED = "Failed to detect file service storage path, because the service name is not specified in the configuration files!";
     public static final String FAILED_TO_DETECT_FILE_SERVICE_STORAGE_PATH = "Failed to detect file service storage path for service \"{0}\"!";
 
+    private Messages() {
+    }
 }

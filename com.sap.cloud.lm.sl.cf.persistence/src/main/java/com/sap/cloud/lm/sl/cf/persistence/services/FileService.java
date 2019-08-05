@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -53,9 +52,7 @@ public class FileService {
         this.fileStorage = fileStorage;
     }
 
-    public FileEntry addFile(String space, String name,
-                             FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileInfoProcessor, InputStream is)
-        throws FileStorageException {
+    public FileEntry addFile(String space, String name, FileUploadProcessor fileInfoProcessor, InputStream is) throws FileStorageException {
         return addFile(space, null, name, fileInfoProcessor, is);
     }
 
@@ -65,13 +62,12 @@ public class FileService {
      * @param space
      * @param namespace namespace where the file will be uploaded
      * @param name name of the uploaded file
-     * @param fileInfoProcessor file processor
+     * @param fileUploadProcessor file processor
      * @param is input stream to read the content from
      * @return an object representing the file upload
      * @throws FileStorageException
      */
-    public FileEntry addFile(String space, String namespace, String name,
-                             FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileInfoProcessor, InputStream is)
+    public FileEntry addFile(String space, String namespace, String name, FileUploadProcessor fileUploadProcessor, InputStream is)
         throws FileStorageException {
         // Stream the file to a temp location and get the size and MD5 digest
         // as an alternative we can pass the original stream to the database,
@@ -81,8 +77,8 @@ public class FileService {
         FileInfo fileInfo = null;
         FileEntry fileEntry = null;
         try (InputStream inputStream = is) {
-            fileInfo = FileUploader.uploadFile(inputStream, fileInfoProcessor);
-            fileEntry = addFile(space, namespace, name, fileInfoProcessor, fileInfo);
+            fileInfo = FileUploader.uploadFile(inputStream, fileUploadProcessor);
+            fileEntry = addFile(space, namespace, name, fileInfo);
         } catch (IOException e) {
             logger.debug(e.getMessage(), e);
         } finally {
@@ -93,13 +89,11 @@ public class FileService {
         return fileEntry;
     }
 
-    public FileEntry addFile(String space, String namespace, String name,
-                             FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileInfoProcessor, File existingFile)
-        throws FileStorageException {
+     public FileEntry addFile(String space, String namespace, String name, File existingFile) throws FileStorageException {
         try {
             FileInfo fileInfo = createFileInfo(existingFile);
 
-            return addFile(space, namespace, name, fileInfoProcessor, fileInfo);
+            return addFile(space, namespace, name, fileInfo);
         } catch (NoSuchAlgorithmException e) {
             throw new SLException(Messages.ERROR_CALCULATING_FILE_DIGEST, existingFile.getName(), e);
         } catch (FileNotFoundException e) {
@@ -231,9 +225,7 @@ public class FileService {
                             FileUploader.DIGEST_METHOD);
     }
 
-    private FileEntry addFile(String space, String namespace, String name,
-                              FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileInfoProcessor, FileInfo fileInfo)
-        throws FileStorageException {
+    private FileEntry addFile(String space, String namespace, String name, FileInfo fileInfo) throws FileStorageException {
 
         FileEntry fileEntry = createFileEntry(space, namespace, name, fileInfo);
         storeFile(fileEntry, fileInfo);
@@ -259,21 +251,6 @@ public class FileService {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteFileEntriesQuery(fileEntries));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
-        }
-    }
-
-    public static class FileServiceColumnNames {
-        public static final String CONTENT = "CONTENT";
-        public static final String MODIFIED = "MODIFIED";
-        public static final String DIGEST_ALGORITHM = "DIGEST_ALGORITHM";
-        public static final String FILE_SIZE = "FILE_SIZE";
-        public static final String NAMESPACE = "NAMESPACE";
-        public static final String SPACE = "SPACE";
-        public static final String FILE_NAME = "FILE_NAME";
-        public static final String DIGEST = "DIGEST";
-        public static final String FILE_ID = "FILE_ID";
-
-        protected FileServiceColumnNames() {
         }
     }
 

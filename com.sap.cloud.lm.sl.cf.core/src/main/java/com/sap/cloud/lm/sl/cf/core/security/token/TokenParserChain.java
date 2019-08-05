@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.security.token;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -18,7 +19,7 @@ public class TokenParserChain {
 
     @Inject
     public TokenParserChain(List<TokenParser> tokenParsers) {
-        LOGGER.debug("Parser chain: " + tokenParsers.toString());
+        LOGGER.debug(MessageFormat.format("Parser chain: {0}", tokenParsers));
         this.tokenParsers = tokenParsers;
     }
 

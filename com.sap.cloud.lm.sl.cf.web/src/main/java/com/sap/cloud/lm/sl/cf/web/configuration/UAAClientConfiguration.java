@@ -51,7 +51,7 @@ public class UAAClientConfiguration {
     protected Map<String, Object> getControllerInfo(URL targetURL) {
         String infoURL = targetURL.toString() + CONTROLLER_INFO_ENDPOINT;
         ResponseEntity<String> infoResponse = new RestTemplate().getForEntity(infoURL, String.class);
-        if (infoResponse == null || infoResponse.getBody() == null) {
+        if (infoResponse.getBody() == null) {
             throw new IllegalStateException(MessageFormat.format("Invalid response returned from {0}", CONTROLLER_INFO_ENDPOINT));
         }
         return JsonUtil.convertJsonToMap(infoResponse.getBody());

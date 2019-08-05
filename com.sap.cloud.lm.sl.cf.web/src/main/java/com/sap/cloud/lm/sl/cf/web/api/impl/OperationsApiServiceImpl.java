@@ -30,7 +30,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
-import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
+import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
@@ -305,7 +305,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         } else {
             throw new WebApplicationException(Status.UNAUTHORIZED);
         }
-        LOGGER.debug("Authenticated user is: " + user);
+        LOGGER.debug(MessageFormat.format("Authenticated user is: {0}", user));
         return user;
     }
 

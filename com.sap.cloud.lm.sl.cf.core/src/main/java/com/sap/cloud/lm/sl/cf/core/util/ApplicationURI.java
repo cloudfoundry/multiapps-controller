@@ -81,6 +81,8 @@ public class ApplicationURI {
             case SupportedParameters.ROUTE_PATH:
                 setPath(part);
                 break;
+            default:
+                // In default case just exit the method without setting anything
         }
     }
 

@@ -30,7 +30,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
-import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
+import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 

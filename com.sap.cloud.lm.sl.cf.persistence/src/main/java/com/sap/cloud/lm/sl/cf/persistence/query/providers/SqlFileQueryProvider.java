@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 
+import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.dialects.DataSourceDialect;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
@@ -329,7 +330,7 @@ public abstract class SqlFileQueryProvider {
     }
 
     protected String getContentColumnName() {
-        return FileServiceColumnNames.CONTENT;
+        return Constants.CONTENT;
     }
 
     protected void setOrNull(PreparedStatement statement, int position, String value) throws SQLException {
@@ -365,14 +366,14 @@ public abstract class SqlFileQueryProvider {
 
     private FileEntry getFileEntry(ResultSet resultSet) throws SQLException {
         FileEntry fileEntry = new FileEntry();
-        fileEntry.setId(resultSet.getString(FileServiceColumnNames.FILE_ID));
-        fileEntry.setDigest(resultSet.getString(FileServiceColumnNames.DIGEST));
-        fileEntry.setSpace(resultSet.getString(FileServiceColumnNames.SPACE));
-        fileEntry.setName(resultSet.getString(FileServiceColumnNames.FILE_NAME));
-        fileEntry.setNamespace(resultSet.getString(FileServiceColumnNames.NAMESPACE));
-        fileEntry.setSize(getDataSourceDialect().getBigInteger(resultSet, FileServiceColumnNames.FILE_SIZE));
-        fileEntry.setDigestAlgorithm(resultSet.getString(FileServiceColumnNames.DIGEST_ALGORITHM));
-        Timestamp modifiedAsTimestamp = resultSet.getTimestamp(FileServiceColumnNames.MODIFIED);
+        fileEntry.setId(resultSet.getString(Constants.FILE_ID));
+        fileEntry.setDigest(resultSet.getString(Constants.DIGEST));
+        fileEntry.setSpace(resultSet.getString(Constants.SPACE));
+        fileEntry.setName(resultSet.getString(Constants.FILE_NAME));
+        fileEntry.setNamespace(resultSet.getString(Constants.NAMESPACE));
+        fileEntry.setSize(getDataSourceDialect().getBigInteger(resultSet, Constants.FILE_SIZE));
+        fileEntry.setDigestAlgorithm(resultSet.getString(Constants.DIGEST_ALGORITHM));
+        Timestamp modifiedAsTimestamp = resultSet.getTimestamp(Constants.MODIFIED);
         fileEntry.setModified(new Date(modifiedAsTimestamp.getTime()));
         return fileEntry;
     }
@@ -382,21 +383,6 @@ public abstract class SqlFileQueryProvider {
             statement.setString(1, entry.getId());
             statement.setString(2, entry.getSpace());
             statement.addBatch();
-        }
-    }
-
-    public static class FileServiceColumnNames {
-        public static final String CONTENT = "CONTENT";
-        public static final String MODIFIED = "MODIFIED";
-        public static final String DIGEST_ALGORITHM = "DIGEST_ALGORITHM";
-        public static final String FILE_SIZE = "FILE_SIZE";
-        public static final String NAMESPACE = "NAMESPACE";
-        public static final String SPACE = "SPACE";
-        public static final String FILE_NAME = "FILE_NAME";
-        public static final String DIGEST = "DIGEST";
-        public static final String FILE_ID = "FILE_ID";
-
-        protected FileServiceColumnNames() {
         }
     }
 

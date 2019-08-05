@@ -4,6 +4,8 @@ import static java.text.MessageFormat.format;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -34,11 +36,20 @@ public class TokensCleaner implements Cleaner {
     public void execute(Date expirationTime) {
         Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientId(SecurityUtil.CLIENT_ID);
         LOGGER.debug(CleanUpJob.LOG_MARKER, Messages.REMOVING_EXPIRED_TOKENS_FROM_TOKEN_STORE);
-        long removedTokens = tokens.stream()
-                                   .filter(OAuth2AccessToken::isExpired)
-                                   .peek(tokenStore::removeAccessToken)
-                                   .count();
+        int removedTokens = removeTokens(tokens);
         LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.REMOVED_TOKENS_0, removedTokens));
+    }
+
+    private int removeTokens(Collection<OAuth2AccessToken> tokens) {
+        List<OAuth2AccessToken> expiredTokens = getExpiredTokens(tokens);
+        expiredTokens.forEach(tokenStore::removeAccessToken);
+        return expiredTokens.size();
+    }
+
+    private List<OAuth2AccessToken> getExpiredTokens(Collection<OAuth2AccessToken> tokens) {
+        return tokens.stream()
+                     .filter(OAuth2AccessToken::isExpired)
+                     .collect(Collectors.toList());
     }
 
 }

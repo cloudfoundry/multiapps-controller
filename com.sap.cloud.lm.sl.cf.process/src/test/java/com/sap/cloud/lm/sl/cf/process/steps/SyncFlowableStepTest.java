@@ -93,7 +93,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         this.stepLogger = Mockito.spy(new StepLogger(context, progressMessageService, processLoggerProvider, LOGGER));
         when(stepLoggerFactory.create(any(), any(), any(), any())).thenReturn(stepLogger);
         context.setVariable(Constants.VAR_SPACE, SPACE_NAME);
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_GUID);
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_GUID);
         context.setVariable(Constants.VAR_USER, USER_NAME);
         context.setVariable(Constants.VAR_ORG, ORG_NAME);
         when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
