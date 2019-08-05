@@ -5,13 +5,16 @@
     "tasks": [
       {
         "command": "echo 1",
-        "memory": 256,
-        "diskQuota": 1024,
+        "limits": {
+          "memory": 256,
+          "disk": 1024
+        },
         "name": "task-1"
       },
       {
         "command": "echo 2",
-        "name": "task-2"
+        "name": "task-2",
+        "limits": {}
       }
     ],
     "serviceKeysToInject": [],

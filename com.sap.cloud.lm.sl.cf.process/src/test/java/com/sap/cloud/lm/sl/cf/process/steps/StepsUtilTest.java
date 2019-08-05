@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.Assertions;
@@ -142,14 +143,13 @@ public class StepsUtilTest {
 
     @Test
     public void testSetAndGetUploadToken() {
-        UploadToken expectedUploadToken = new UploadToken();
-        expectedUploadToken.setPackageGuid(UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93"));
-        expectedUploadToken.setToken("token");
+        UploadToken expectedUploadToken = ImmutableUploadToken.builder()
+            .packageGuid(UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93"))
+            .build();
 
         StepsUtil.setUploadToken(expectedUploadToken, context);
         UploadToken actualUploadToken = StepsUtil.getUploadToken(context);
 
-        assertEquals(expectedUploadToken.getToken(), actualUploadToken.getToken());
         assertEquals(expectedUploadToken.getPackageGuid(), actualUploadToken.getPackageGuid());
     }
 

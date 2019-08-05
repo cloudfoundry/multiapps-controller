@@ -106,7 +106,7 @@ public class MtaApiServiceImplTest {
                .thenReturn(auth);
         Mockito.when(clientProvider.getControllerClient(Mockito.anyString(), Mockito.anyString()))
                .thenReturn(client);
-        Mockito.when(client.getApplications(Mockito.anyBoolean()))
+        Mockito.when(client.getApplications())
                .thenReturn(apps);
     }
 

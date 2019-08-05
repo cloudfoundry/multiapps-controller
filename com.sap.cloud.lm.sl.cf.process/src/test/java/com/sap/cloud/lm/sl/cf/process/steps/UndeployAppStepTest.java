@@ -68,8 +68,8 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
         stepOutput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepOutputLocation, UndeployAppStepTest.class), StepOutput.class);
         prepareContext();
         prepareClient();
-        Mockito.when(client.areTasksSupported())
-               .thenReturn(!stepInput.tasksPerApplication.isEmpty());
+        Mockito.when(client.getTasks(Mockito.anyString()))
+               .thenReturn(Collections.emptyList());
     }
 
     protected abstract void performAfterUndeploymentValidation();

@@ -10,11 +10,13 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.domain.ImmutableInstanceInfo;
+import org.cloudfoundry.client.lib.domain.ImmutableInstancesInfo;
+import org.cloudfoundry.client.lib.domain.InstanceInfo;
 import org.cloudfoundry.client.lib.domain.InstanceState;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -33,13 +35,11 @@ import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class PollStartAppStatusExecutionTest {
 
     private static final String USER_NAME = "testUsername";
-    private static final String APP_NAME = "testApplication";
-    private static final String INSTANCE_STATE = "state";
+    private static final String APP_NAME = "testApplcaition";
     private static final long PROCESS_START_TIME = new GregorianCalendar(2019, Calendar.JANUARY, 1).toInstant()
                                                                                                    .toEpochMilli();
 
@@ -111,14 +111,19 @@ public class PollStartAppStatusExecutionTest {
     }
 
     private InstancesInfo buildInstancesInfo(List<InstanceState> instancesStates) {
-        List<Map<String, Object>> instancesMap = instancesStates.stream()
-                                                                .map(this::addStatesInMap)
-                                                                .collect(Collectors.toList());
-        return new InstancesInfo(instancesMap);
+        List<InstanceInfo> instances = instancesStates.stream()
+                                                      .map(this::buildInstanceInfo)
+                                                      .collect(Collectors.toList());
+        return ImmutableInstancesInfo.builder()
+                                     .instances(instances)
+                                     .build();
     }
 
-    private Map<String, Object> addStatesInMap(InstanceState state) {
-        return MapUtil.asMap(INSTANCE_STATE, state.toString());
+    private InstanceInfo buildInstanceInfo(InstanceState state) {
+        return ImmutableInstanceInfo.builder()
+                                    .index(0)
+                                    .state(state)
+                                    .build();
     }
 
     private void prepareClient(CloudApplicationExtended application, InstancesInfo instancesInfo) {
