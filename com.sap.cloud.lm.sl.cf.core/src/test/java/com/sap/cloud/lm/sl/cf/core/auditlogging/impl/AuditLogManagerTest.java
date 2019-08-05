@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.auditlogging.impl;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -46,11 +46,7 @@ public class AuditLogManagerTest {
     }
 
     private List<Logger> loadAuditLoggers() {
-        List<Logger> loggers = new ArrayList<>();
-        loggers.add(auditLogManager.getSecurityLogger());
-        loggers.add(auditLogManager.getActionLogger());
-        loggers.add(auditLogManager.getConfigLogger());
-        return loggers;
+        return Arrays.asList(auditLogManager.getSecurityLogger(), auditLogManager.getActionLogger(), auditLogManager.getConfigLogger());
     }
 
     private void logMessage(List<Logger> loggers) {

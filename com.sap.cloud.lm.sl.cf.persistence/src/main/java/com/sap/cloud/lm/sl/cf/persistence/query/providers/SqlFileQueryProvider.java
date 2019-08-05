@@ -330,7 +330,7 @@ public abstract class SqlFileQueryProvider {
     }
 
     protected String getContentColumnName() {
-        return Constants.CONTENT;
+        return Constants.FILE_ENTRY_CONTENT;
     }
 
     protected void setOrNull(PreparedStatement statement, int position, String value) throws SQLException {
@@ -366,14 +366,14 @@ public abstract class SqlFileQueryProvider {
 
     private FileEntry getFileEntry(ResultSet resultSet) throws SQLException {
         FileEntry fileEntry = new FileEntry();
-        fileEntry.setId(resultSet.getString(Constants.FILE_ID));
-        fileEntry.setDigest(resultSet.getString(Constants.DIGEST));
-        fileEntry.setSpace(resultSet.getString(Constants.SPACE));
-        fileEntry.setName(resultSet.getString(Constants.FILE_NAME));
-        fileEntry.setNamespace(resultSet.getString(Constants.NAMESPACE));
-        fileEntry.setSize(getDataSourceDialect().getBigInteger(resultSet, Constants.FILE_SIZE));
-        fileEntry.setDigestAlgorithm(resultSet.getString(Constants.DIGEST_ALGORITHM));
-        Timestamp modifiedAsTimestamp = resultSet.getTimestamp(Constants.MODIFIED);
+        fileEntry.setId(resultSet.getString(Constants.FILE_ENTRY_ID));
+        fileEntry.setDigest(resultSet.getString(Constants.FILE_ENTRY_DIGEST));
+        fileEntry.setSpace(resultSet.getString(Constants.FILE_ENTRY_SPACE));
+        fileEntry.setName(resultSet.getString(Constants.FILE_ENTRY_NAME));
+        fileEntry.setNamespace(resultSet.getString(Constants.FILE_ENTRY_NAMESPACE));
+        fileEntry.setSize(getDataSourceDialect().getBigInteger(resultSet, Constants.FILE_ENTRY_SIZE));
+        fileEntry.setDigestAlgorithm(resultSet.getString(Constants.FILE_ENTRY_DIGEST_ALGORITHM));
+        Timestamp modifiedAsTimestamp = resultSet.getTimestamp(Constants.FILE_ENTRY_MODIFIED);
         fileEntry.setModified(new Date(modifiedAsTimestamp.getTime()));
         return fileEntry;
     }

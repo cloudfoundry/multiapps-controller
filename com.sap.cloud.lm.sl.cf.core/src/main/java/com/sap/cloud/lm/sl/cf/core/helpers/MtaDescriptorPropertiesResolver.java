@@ -31,11 +31,11 @@ public class MtaDescriptorPropertiesResolver {
     public static final String IDLE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.IDLE_DOMAIN + "}";
     public static final String IDLE_HOST_PLACEHOLDER = "${" + SupportedParameters.IDLE_HOST + "}";
 
-    private MtaDescriptorPropertiesResolverContext mtaDescriptorPropertiesResolverContext;
+    private MtaDescriptorPropertiesResolverContext context;
     private List<ConfigurationSubscription> subscriptions;
 
-    public MtaDescriptorPropertiesResolver(MtaDescriptorPropertiesResolverContext mtaDescriptorPropertiesResolverContext) {
-        this.mtaDescriptorPropertiesResolverContext = mtaDescriptorPropertiesResolverContext;
+    public MtaDescriptorPropertiesResolver(MtaDescriptorPropertiesResolverContext context) {
+        this.context = context;
     }
 
     public List<ParameterValidator> getValidatorsList() {
@@ -46,12 +46,12 @@ public class MtaDescriptorPropertiesResolver {
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) {
         descriptor = correctEntityNames(descriptor);
         // Resolve placeholders in parameters:
-        HandlerFactory handlerFactory = mtaDescriptorPropertiesResolverContext.getHandlerFactory();
+        HandlerFactory handlerFactory = context.getHandlerFactory();
         descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(), new ResolverBuilder(),
                                                                      SupportedParameters.SINGULAR_PLURAL_MAPPING)
                                    .resolve();
 
-        if (mtaDescriptorPropertiesResolverContext.shouldReserveTemporaryRoute()) {
+        if (context.shouldReserveTemporaryRoute()) {
             // temporary placeholders should be set at this point, since they are need for provides/requires placeholder resolution
             editRoutesSetTemporaryPlaceholders(descriptor);
 
@@ -73,9 +73,9 @@ public class MtaDescriptorPropertiesResolver {
         DeploymentDescriptor descriptorWithUnresolvedReferences = DeploymentDescriptor.copyOf(descriptor);
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(descriptor,
-                                                                                                     mtaDescriptorPropertiesResolverContext.getConfigurationEntryDao(),
-                                                                                                     mtaDescriptorPropertiesResolverContext.getCloudTarget(),
-                                                                                                     mtaDescriptorPropertiesResolverContext.getApplicationConfiguration());
+                                                                                                     context.getConfigurationEntryDao(),
+                                                                                                     context.getCloudTarget(),
+                                                                                                     context.getApplicationConfiguration());
  
         resolver.resolve(descriptor);
 
@@ -98,11 +98,11 @@ public class MtaDescriptorPropertiesResolver {
 
     private DeploymentDescriptor correctEntityNames(DeploymentDescriptor descriptor) {
         List<ParameterValidator> correctors = Arrays.asList(new ApplicationNameValidator(descriptor.getId(),
-                                                                                         mtaDescriptorPropertiesResolverContext.hasUseNamespaces()),
+                                                                                         context.hasUseNamespaces()),
                                                             new ServiceNameValidator(descriptor.getId(),
-                                                                                     mtaDescriptorPropertiesResolverContext.hasUseNamespaces(),
-                                                                                     mtaDescriptorPropertiesResolverContext.hasUserNamespacesForServices()));
-        return mtaDescriptorPropertiesResolverContext.getHandlerFactory()
+                                                                                     context.hasUseNamespaces(),
+                                                                                     context.hasUserNamespacesForServices()));
+        return context.getHandlerFactory()
                                              .getDescriptorParametersValidator(descriptor, correctors)
                                              .validate();
     }
@@ -131,10 +131,10 @@ public class MtaDescriptorPropertiesResolver {
 
     private List<ConfigurationSubscription> createSubscriptions(DeploymentDescriptor descriptorWithUnresolvedReferences,
                                                                 Map<String, ResolvedConfigurationReference> resolvedResources) {
-        return mtaDescriptorPropertiesResolverContext.getHandlerFactory()
+        return context.getHandlerFactory()
                                              .getConfigurationSubscriptionFactory()
                                              .create(descriptorWithUnresolvedReferences, resolvedResources,
-                                                     mtaDescriptorPropertiesResolverContext.getCurrentSpaceId());
+                                                     context.getCurrentSpaceId());
     }
 
     public List<ConfigurationSubscription> getSubscriptions() {

@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +29,7 @@ public class RoutesValidator implements ParameterValidator {
     public boolean isValid(Object routes) {
         List<Map<String, Object>> routesList = applyRoutesType(routes);
 
-        if (routesList.isEmpty()) {
+        if (CollectionUtils.isEmpty(routesList)) {
             return false;
         }
 
@@ -52,7 +52,7 @@ public class RoutesValidator implements ParameterValidator {
     public Object attemptToCorrect(Object routes) {
         List<Map<String, Object>> routesList = applyRoutesType(routes);
 
-        if (routesList.isEmpty()) {
+        if (CollectionUtils.isEmpty(routesList)) {
             throw new SLException(Messages.COULD_NOT_PARSE_ROUTE);
         }
 
@@ -89,19 +89,19 @@ public class RoutesValidator implements ParameterValidator {
         if (routes instanceof List) {
             List<Object> routesList = (List<Object>) routes;
             if (CollectionUtils.isEmpty(routesList)) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
 
             if (routesList.stream()
                           .anyMatch(route -> !(route instanceof Map))) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
             return routesList.stream()
                              .map(route -> (Map<String, Object>) route)
                              .collect(Collectors.toList());
         }
 
-        return new ArrayList<>();
+        return Collections.emptyList();
 
     }
 

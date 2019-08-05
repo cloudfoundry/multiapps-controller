@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertFalse;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
@@ -121,8 +120,8 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, stepInput.extDescriptorId);
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_START_TIMEOUT, stepInput.startTimeout);
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_VERSION_RULE, stepInput.versionRule);
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, "space-id");
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID, "service-id");
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, "space-id");
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID, "service-id");
     }
 
     private void prepareExpectedException() {
@@ -148,8 +147,7 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
                .thenReturn(createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024l + 1));
         Mockito.when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID))
                .thenReturn(null);
-        Mockito.when(fileService.addFile(Mockito.eq("space-id"), Mockito.eq("service-id"), Mockito.any(), Mockito.any(),
-                                         Mockito.<File> any()))
+        Mockito.when(fileService.addFile(Mockito.eq("space-id"), Mockito.eq("service-id"), Mockito.anyString(), Mockito.any()))
                .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024l));
     }
 

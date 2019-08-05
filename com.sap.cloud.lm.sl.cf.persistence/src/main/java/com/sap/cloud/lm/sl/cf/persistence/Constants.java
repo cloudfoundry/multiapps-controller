@@ -10,15 +10,15 @@ public class Constants {
 
     public static final int DEFAULT_BUFFER_SIZE = 4 * 1024;
 
-    public static final String CONTENT = "CONTENT";
-    public static final String MODIFIED = "MODIFIED";
-    public static final String DIGEST_ALGORITHM = "DIGEST_ALGORITHM";
-    public static final String FILE_SIZE = "FILE_SIZE";
-    public static final String NAMESPACE = "NAMESPACE";
-    public static final String SPACE = "SPACE";
-    public static final String FILE_NAME = "FILE_NAME";
-    public static final String DIGEST = "DIGEST";
-    public static final String FILE_ID = "FILE_ID";
+    public static final String FILE_ENTRY_CONTENT = "CONTENT";
+    public static final String FILE_ENTRY_MODIFIED = "MODIFIED";
+    public static final String FILE_ENTRY_DIGEST_ALGORITHM = "DIGEST_ALGORITHM";
+    public static final String FILE_ENTRY_SIZE = "FILE_SIZE";
+    public static final String FILE_ENTRY_NAMESPACE = "NAMESPACE";
+    public static final String FILE_ENTRY_SPACE = "SPACE";
+    public static final String FILE_ENTRY_NAME = "FILE_NAME";
+    public static final String FILE_ENTRY_DIGEST = "DIGEST";
+    public static final String FILE_ENTRY_ID = "FILE_ID";
 
     protected Constants() {
     }

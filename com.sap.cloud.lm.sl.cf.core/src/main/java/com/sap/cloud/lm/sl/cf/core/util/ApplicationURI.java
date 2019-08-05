@@ -82,7 +82,7 @@ public class ApplicationURI {
                 setPath(part);
                 break;
             default:
-                // In default case just exit the method without setting anything
+                return;
         }
     }
 

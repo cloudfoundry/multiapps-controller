@@ -11,13 +11,11 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 
 import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
@@ -39,14 +37,14 @@ public class ArchiveMerger {
         this.logger = logger;
     }
 
-    public void createArchiveFromParts(List<FileEntry> archivePartEntries, ApplicationConfiguration configuration) {
+    public void createArchiveFromParts(List<FileEntry> archivePartEntries) {
         List<FileEntry> sortedParts = sort(archivePartEntries);
         String archiveName = getArchiveName(sortedParts.get(0));
         FilePartsMerger archiveMerger = null;
         try {
             archiveMerger = getArchiveMerger(archiveName);
             mergeFileParts(sortedParts, archiveMerger);
-            persistMergedArchive(archiveMerger.getMergedFilePath(), context, configuration);
+            persistMergedArchive(archiveMerger.getMergedFilePath(), context);
         } catch (FileStorageException e) {
             stepLogger.info(Messages.ERROR_MERGING_ARCHIVE);
             throw new SLException(e, Messages.ERROR_PROCESSING_ARCHIVE_PARTS_CONTENT, e.getMessage());
@@ -100,13 +98,11 @@ public class ArchiveMerger {
         return new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), fileEntry.getId(), archivePartProcessor);
     }
 
-    private void persistMergedArchive(Path archivePath, DelegateExecution context, ApplicationConfiguration configuration)
-        throws FileStorageException {
-        Configuration fileConfiguration = configuration.getFileConfiguration();
+    private void persistMergedArchive(Path archivePath, DelegateExecution context) throws FileStorageException {
         String name = archivePath.getFileName()
                                  .toString();
         FileEntry uploadedArchive = fileService.addFile(StepsUtil.getSpaceId(context), StepsUtil.getServiceId(context), name,
-                                                        fileConfiguration.getFileUploadProcessor(), archivePath.toFile());
+                                                        archivePath.toFile());
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedArchive.getId());
     }
 

@@ -103,7 +103,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     protected List<RequiredDependency> getUpdatedRequiredDependencies(Resource resource) {
         return resource.getRequiredDependencies()
                        .stream()
-            		   .map(dependency -> expandRequiredDependencyIfNecessary(resource, dependency))
+                       .map(dependency -> expandRequiredDependencyIfNecessary(resource, dependency))
                        .flatMap(List::stream)
                        .collect(Collectors.toList());
     }

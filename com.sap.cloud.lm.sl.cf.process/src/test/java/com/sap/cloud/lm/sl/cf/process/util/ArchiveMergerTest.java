@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.processors.FileUploadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -60,18 +59,18 @@ public class ArchiveMergerTest {
     @Test
     public void testCreateArchiveFromPartsSuccessfulMerge() throws FileStorageException {
         mockContextValid();
-        archiveMerger.createArchiveFromParts(createFileEntriesFromFile("file-entries-1.json"), configuration);
+        archiveMerger.createArchiveFromParts(createFileEntriesFromFile("file-entries-1.json"));
         Mockito.verify(context, Mockito.times(1))
                .setVariable(Constants.PARAM_APP_ARCHIVE_ID, ID);
     }
 
     private void mockContextValid() throws FileStorageException {
-        Mockito.when(context.getVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID))
+        Mockito.when(context.getVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID))
                .thenReturn(DEFAULT_SPACE_ID);
-        Mockito.when(context.getVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID))
+        Mockito.when(context.getVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID))
                .thenReturn(DEFAULT_SERVICE_ID);
         Mockito.when(fileService.addFile(Mockito.eq(DEFAULT_SPACE_ID), Mockito.eq(DEFAULT_SERVICE_ID), Mockito.eq(ARCHIVE_FINAL_NAME),
-                                         Mockito.any(FileUploadProcessor.class), Mockito.any(File.class)))
+                                         Mockito.any(File.class)))
                .thenReturn(createFileEntry(ID, ARCHIVE_FINAL_NAME, DEFAULT_NAMESPACE));
     }
 
@@ -85,22 +84,18 @@ public class ArchiveMergerTest {
 
     @Test
     public void testCreateArchiveFromPartsFileStorageException() throws FileStorageException {
-        Mockito.when(fileService.addFile(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-                                         Mockito.any(FileUploadProcessor.class), Mockito.any(File.class)))
+        Mockito.when(fileService.addFile(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any()))
                .thenThrow(FileStorageException.class);
         Assertions.assertThrows(SLException.class,
-                                () -> archiveMerger.createArchiveFromParts(createFileEntriesFromFile("file-entries-1.json"),
-                                                                           configuration));
+                                () -> archiveMerger.createArchiveFromParts(createFileEntriesFromFile("file-entries-1.json")));
     }
 
     @Test
     public void testCreateArchiveFromPartsFileIOException() throws FileStorageException {
-        Mockito.when(fileService.addFile(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-                                         Mockito.any(FileUploadProcessor.class), Mockito.any(File.class)))
+        Mockito.when(fileService.addFile(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(File.class)))
                .thenThrow(IOException.class);
         Assertions.assertThrows(SLException.class,
-                                () -> archiveMerger.createArchiveFromParts(createFileEntriesFromFile("file-entries-1.json"),
-                                                                           configuration));
+                                () -> archiveMerger.createArchiveFromParts(createFileEntriesFromFile("file-entries-1.json")));
     }
 
     @Test
