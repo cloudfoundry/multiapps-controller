@@ -61,6 +61,12 @@ public class MtasApiServiceImpl implements MtasApiService {
         return Response.ok()
                        .entity(mtas)
                        .build();
+
+    }
+
+    private DeployedComponents detectDeployedComponents(String spaceGuid) {
+        List<CloudApplication> applications = getCloudFoundryClient(spaceGuid).getApplications();
+        return new DeployedComponentsDetector().detectAllDeployedComponents(applications);
     }
 
     private CloudControllerClient getCloudFoundryClient(String spaceGuid) {

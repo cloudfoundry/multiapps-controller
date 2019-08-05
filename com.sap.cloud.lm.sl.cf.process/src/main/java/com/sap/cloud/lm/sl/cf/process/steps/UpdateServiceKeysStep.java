@@ -112,7 +112,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
     }
 
     private boolean areServiceKeysEqual(CloudServiceKey key1, CloudServiceKey key2) {
-        return Objects.equals(key1.getParameters(), key2.getParameters()) && Objects.equals(key1.getName(), key2.getName());
+        return Objects.equals(key1.getCredentials(), key2.getCredentials()) && Objects.equals(key1.getName(), key2.getName());
     }
 
     private void deleteServiceKeys(CloudControllerClient client, List<CloudServiceKey> serviceKeys) {
@@ -128,7 +128,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
                                                                                           .getName());
         client.createServiceKey(key.getService()
                                    .getName(),
-                                key.getName(), key.getParameters());
+                                key.getName(), key.getCredentials());
         getStepLogger().debug(Messages.CREATED_SERVICE_KEY, key.getName());
     }
 

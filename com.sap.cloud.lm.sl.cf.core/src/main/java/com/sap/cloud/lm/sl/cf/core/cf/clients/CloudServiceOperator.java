@@ -35,7 +35,7 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
     protected CloudServicePlan findPlanForService(CloudControllerClient client, CloudService service, String newPlan) {
         List<CloudServiceOffering> offerings = getServiceOfferings(client, service);
         for (CloudServiceOffering offering : offerings) {
-            for (CloudServicePlan plan : offering.getCloudServicePlans()) {
+            for (CloudServicePlan plan : offering.getServicePlans()) {
                 if (plan.getName()
                         .equals(newPlan)) {
                     return plan;

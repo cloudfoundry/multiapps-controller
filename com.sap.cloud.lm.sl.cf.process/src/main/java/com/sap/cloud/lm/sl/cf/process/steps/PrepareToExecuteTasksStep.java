@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.text.MessageFormat;
 import java.util.List;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -21,10 +20,6 @@ public class PrepareToExecuteTasksStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         List<CloudTask> tasksToExecute = StepsUtil.getTasksToExecute(execution.getContext());
         execution.getContext()
-                 .setVariable(Constants.VAR_PLATFORM_SUPPORTS_TASKS, platformSupportsTasks(execution));
-
-        // Initialize the iteration over the tasks:
-        execution.getContext()
                  .setVariable(Constants.VAR_TASKS_COUNT, tasksToExecute.size());
         execution.getContext()
                  .setVariable(Constants.VAR_TASKS_INDEX, 0);
@@ -37,11 +32,6 @@ public class PrepareToExecuteTasksStep extends SyncFlowableStep {
     protected String getStepErrorMessage(DelegateExecution context) {
         return MessageFormat.format(Messages.ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP, StepsUtil.getApp(context)
                                                                                                .getName());
-    }
-
-    private boolean platformSupportsTasks(ExecutionWrapper execution) {
-        CloudControllerClient client = execution.getControllerClient();
-        return client.areTasksSupported();
     }
 
 }
