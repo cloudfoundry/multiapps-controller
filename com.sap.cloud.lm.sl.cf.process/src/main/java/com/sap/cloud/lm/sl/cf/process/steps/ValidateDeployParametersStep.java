@@ -107,8 +107,10 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
         StepsUtil.setAsJsonBinaries(context, Constants.VAR_FILE_ENTRIES, archivePartEntries);
         getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
-        new ExecutionRetrier().executeWithRetry(() -> new ArchiveMerger(fileService, getStepLogger(), context, logger)
-            .createArchiveFromParts(archivePartEntries, configuration));
+        new ExecutionRetrier().executeWithRetry(() -> new ArchiveMerger(fileService,
+                                                                        getStepLogger(),
+                                                                        context,
+                                                                        logger).createArchiveFromParts(archivePartEntries));
     }
 
     private FileEntry findFile(DelegateExecution context, String fileId) {

@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -272,16 +271,14 @@ public class MtaArchiveBuilder {
 
     private Path findDeploymenDescriptor(Path mtaDirectory) {
         try (Stream<Path> mtaDirContents = Files.list(mtaDirectory)) {
-            Optional<Path> foundDeploymentDescriptor = mtaDirContents.filter(path -> MTAD_YAML.equals(path.getFileName()
-                                                                                                     .toString()))
-                                                                .findFirst();
-            if (!foundDeploymentDescriptor.isPresent()) {
-                throw new SLException(Messages.DIRECTORY_0_DOES_NOT_CONTAIN_MANDATORY_DEPLOYMENT_DESCRIPTOR_FILE_1,
-                                      mtaDirectory.getFileName()
-                                                  .toString(),
-                                      MTAD_YAML);
-            }
-            return foundDeploymentDescriptor.get();
+            return mtaDirContents.filter(path -> MTAD_YAML.equals(path.getFileName()
+                                                                      .toString()))
+                                 .findFirst()
+                                 .orElseThrow(() -> new SLException(Messages.DIRECTORY_0_DOES_NOT_CONTAIN_MANDATORY_DEPLOYMENT_DESCRIPTOR_FILE_1,
+                                                                    mtaDirectory.getFileName()
+                                                                                .toString(),
+                                                                    MTAD_YAML));
+
         } catch (IOException e) {
             throw new SLException(e, Messages.FAILED_TO_LIST_MULTI_TARGET_APP_DIRECTORY_0, mtaDirectory);
         }

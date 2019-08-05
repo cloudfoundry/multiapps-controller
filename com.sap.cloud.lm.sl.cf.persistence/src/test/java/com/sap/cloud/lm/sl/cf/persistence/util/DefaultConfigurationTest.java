@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.persistence.util;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
@@ -14,9 +15,13 @@ public class DefaultConfigurationTest {
 
     private DefaultConfiguration classUnderTest = null;
 
+    @BeforeEach
+    public void setUp() {
+        classUnderTest = new DefaultConfiguration();
+    }
+
     @Test
     public void testNoAdditionalProcessingIsDone() {
-        classUnderTest = new DefaultConfiguration();
         assertTrue(classUnderTest.getFileDownloadProcessor(mock(FileEntry.class),
                                                            mock(FileContentProcessor.class)) instanceof DefaultFileDownloadProcessor);
         assertTrue(classUnderTest.getFileUploadProcessor() instanceof DefaultFileUploadProcessor);

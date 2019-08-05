@@ -159,12 +159,12 @@ public class ObjectStoreFileStorage implements FileStorage {
 
     private Map<String, String> createFileEntryMetadata(FileEntry fileEntry) {
         Map<String, String> metadata = new HashMap<>();
-        metadata.put(Constants.SPACE.toLowerCase(), fileEntry.getSpace());
-        metadata.put(Constants.FILE_NAME.toLowerCase(), fileEntry.getName());
-        metadata.put(Constants.MODIFIED.toLowerCase(), Long.toString(fileEntry.getModified()
+        metadata.put(Constants.FILE_ENTRY_SPACE.toLowerCase(), fileEntry.getSpace());
+        metadata.put(Constants.FILE_ENTRY_NAME.toLowerCase(), fileEntry.getName());
+        metadata.put(Constants.FILE_ENTRY_MODIFIED.toLowerCase(), Long.toString(fileEntry.getModified()
                                                                               .getTime()));
         if (fileEntry.getNamespace() != null) {
-            metadata.put(Constants.NAMESPACE.toLowerCase(), fileEntry.getNamespace());
+            metadata.put(Constants.FILE_ENTRY_NAMESPACE.toLowerCase(), fileEntry.getNamespace());
         }
         return metadata;
     }
@@ -192,7 +192,7 @@ public class ObjectStoreFileStorage implements FileStorage {
         if (CollectionUtils.isEmpty(userMetadata)) {
             return true;
         }
-        String longString = userMetadata.get(Constants.MODIFIED.toLowerCase());
+        String longString = userMetadata.get(Constants.FILE_ENTRY_MODIFIED.toLowerCase());
         try {
             long dateLong = Long.parseLong(longString);
             Date date = new Date(dateLong);
@@ -208,7 +208,7 @@ public class ObjectStoreFileStorage implements FileStorage {
         if (CollectionUtils.isEmpty(userMetadata)) {
             return false;
         }
-        String spaceParameter = userMetadata.get(Constants.SPACE.toLowerCase());
+        String spaceParameter = userMetadata.get(Constants.FILE_ENTRY_SPACE.toLowerCase());
         return space.equals(spaceParameter);
     }
 
@@ -217,8 +217,8 @@ public class ObjectStoreFileStorage implements FileStorage {
         if (CollectionUtils.isEmpty(userMetadata)) {
             return false;
         }
-        String spaceParameter = userMetadata.get(Constants.SPACE.toLowerCase());
-        String namespaceParameter = userMetadata.get(Constants.NAMESPACE.toLowerCase());
+        String spaceParameter = userMetadata.get(Constants.FILE_ENTRY_SPACE.toLowerCase());
+        String namespaceParameter = userMetadata.get(Constants.FILE_ENTRY_NAMESPACE.toLowerCase());
         return space.equals(spaceParameter) && namespace.equals(namespaceParameter);
     }
 
