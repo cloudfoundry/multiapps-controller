@@ -81,7 +81,11 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     public OAuth2AccessToken readAccessToken(String tokenString) {
         // Check if an access token for the received token string already exists in the token store
         OAuth2AccessToken token = tokenStore.readAccessToken(tokenString);
-        if (token == null) {
+        if (token != null) {
+            LOGGER.debug("Stored token value: " + token.getValue());
+            LOGGER.debug("Stored token type: " + token.getTokenType());
+            LOGGER.debug("Stored token expires in: " + token.getExpiresIn());
+        } else {
             token = tokenParserChain.parse(tokenString);
         }
         return token;
