@@ -26,6 +26,9 @@ public class TokenParserChain {
         for (TokenParser tokenParser : tokenParsers) {
             OAuth2AccessToken parsedToken = tokenParser.parse(tokenString);
             if (parsedToken != null) {
+                LOGGER.debug("Parsed token value: " + parsedToken.getValue());
+                LOGGER.debug("Parsed token type: " + parsedToken.getTokenType());
+                LOGGER.debug("Parsed token expires in: " + parsedToken.getExpiresIn());
                 return parsedToken;
             }
         }
