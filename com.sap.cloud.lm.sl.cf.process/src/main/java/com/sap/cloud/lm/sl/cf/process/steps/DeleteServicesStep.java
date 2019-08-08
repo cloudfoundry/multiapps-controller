@@ -96,7 +96,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
     @Override
     protected String getStepErrorMessageAdditionalDescription(DelegateExecution context) {
         String offering = StepsUtil.getServiceOffering(context);
-        return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, null, offering);
+        return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, offering);
     }
 
     private List<CloudServiceExtended> getServicesData(List<String> serviceNames, ExecutionWrapper execution) {
@@ -195,7 +195,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
                                                                     String serviceName, String label) {
         if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
             getStepLogger().warn(MessageFormat.format(Messages.COULD_NOT_DELETE_SERVICE, serviceName), e,
-                                 ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, serviceName, label));
+                                 ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, label));
             return null;
         }
         if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {

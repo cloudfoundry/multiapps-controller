@@ -25,7 +25,7 @@ public class ExceptionMessageTailMapper {
         for (Entry<String, String> entry : serviceBrokersComponents.entrySet()) {
             if (entry.getKey()
                      .equals(offering)) {
-                return MessageFormat.format(Messages.CREATE_SUPPORT_TICKET_TO_COMPONENT, supportChannel, entry.getValue());
+                return MessageFormat.format(Messages.CREATE_SUPPORT_TICKET_TO_SERVICE_BROKER_COMPONENT, supportChannel, entry.getValue());
             }
         }
 
@@ -33,25 +33,23 @@ public class ExceptionMessageTailMapper {
     }
 
     @SuppressWarnings("unchecked")
-    public static String map(ApplicationConfiguration configuration, CloudComponents cloudComponent, String serviceName, String offering) {
+    public static String map(ApplicationConfiguration configuration, CloudComponents cloudComponent, String offering) {
 
         if (!configuration.isInternalEnvironment()) {
-            return mapExternalMessages(cloudComponent, serviceName);
+            return StringUtils.EMPTY;
         }
 
         Map<String, Object> cloudComponents = configuration.getCloudComponents();
         String supportChannel = configuration.getInternalSupportChannel();
 
         if (cloudComponent == CloudComponents.DEPLOY_SERVICE) {
-            return messageResolver(Messages.CREATE_SUPPORT_TICKET_TO_DS_COMPONENT,
-                                   MessageFormat.format(Messages.CREATE_SUPPORT_TICKET_TO_COMPONENT, supportChannel,
-                                                        cloudComponents.get(CloudComponents.DEPLOY_SERVICE.name)));
+            return MessageFormat.format(Messages.CREATE_SUPPORT_TICKET_TO_DS_COMPONENT, supportChannel,
+                                        cloudComponents.get(CloudComponents.DEPLOY_SERVICE.name));
         }
 
         if (cloudComponent == CloudComponents.CLOUD_CONTROLLER) {
-            return messageResolver(Messages.CREATE_SUPPORT_TICKET_TO_CC_COMPONENT,
-                                   MessageFormat.format(Messages.CREATE_SUPPORT_TICKET_TO_COMPONENT, supportChannel,
-                                                        cloudComponents.get(CloudComponents.CLOUD_CONTROLLER.name)));
+            return MessageFormat.format(Messages.CREATE_SUPPORT_TICKET_TO_CC_COMPONENT, supportChannel,
+                                        cloudComponents.get(CloudComponents.CLOUD_CONTROLLER.name));
         }
 
         if (cloudComponent == CloudComponents.SERVICE_BROKERS) {
@@ -60,23 +58,6 @@ public class ExceptionMessageTailMapper {
         }
 
         return StringUtils.EMPTY;
-    }
-
-    private static String mapExternalMessages(CloudComponents cloudComponent, String serviceName) {
-        if (cloudComponent == CloudComponents.SERVICE_BROKERS) {
-            return MessageFormat.format(Messages.CREATE_SUPPORT_TICKET_TO_SERVICE_BROKER_GENERIC_MESSAGE, serviceName);
-        }
-
-        if (cloudComponent == CloudComponents.CLOUD_CONTROLLER) {
-            return Messages.CREATE_SUPPORT_TICKET_TO_CC_COMPONENT;
-        }
-
-        return Messages.CREATE_SUPPORT_TICKET_TO_DS_COMPONENT;
-    }
-
-    private static String messageResolver(String... arguments) {
-        String pattern = "{0}: {1}";
-        return MessageFormat.format(pattern, arguments[0], arguments[1]);
     }
 
 }
