@@ -48,7 +48,7 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
     @Override
     protected String getStepErrorMessageAdditionalDescription(DelegateExecution context) {
         String offering = StepsUtil.getServiceOffering(context);
-        return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, null, offering);
+        return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, offering);
     }
 
     protected List<String> getCreatedOrUpdatedServiceBrokerNames(DelegateExecution context) {

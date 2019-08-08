@@ -39,7 +39,7 @@ public class UpdateServiceBrokerSubscriberStep extends CreateOrUpdateServiceBrok
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().warn(MessageFormat.format(Messages.FAILED_SERVICE_BROKER_UPDATE, serviceBroker.getName()), e,
-                                 ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, null, serviceBroker.getName()));
+                                 ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, serviceBroker.getName()));
             return StepPhase.DONE;
         }
     }

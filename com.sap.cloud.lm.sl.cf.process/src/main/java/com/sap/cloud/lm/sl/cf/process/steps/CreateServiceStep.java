@@ -89,8 +89,7 @@ public class CreateServiceStep extends ServiceStep {
             throw new CloudControllerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
         }
         getStepLogger().warn(MessageFormat.format(Messages.COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE, service.getName()), e,
-                             ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, service.getName(),
-                                                            service.getLabel()));
+                             ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, service.getLabel()));
     }
 
     @Override
@@ -106,7 +105,7 @@ public class CreateServiceStep extends ServiceStep {
     @Override
     protected String getStepErrorMessageAdditionalDescription(DelegateExecution context) {
         String offering = StepsUtil.getServiceOffering(context);
-        return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, null, offering);
+        return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, offering);
     }
 
 }

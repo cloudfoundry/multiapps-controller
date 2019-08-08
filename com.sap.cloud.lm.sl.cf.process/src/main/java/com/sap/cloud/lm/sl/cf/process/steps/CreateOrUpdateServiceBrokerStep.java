@@ -66,7 +66,7 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
     @Override
     protected String getStepErrorMessageAdditionalDescription(DelegateExecution context) {
         String offering = StepsUtil.getServiceOffering(context);
-        return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, null, offering);
+        return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, offering);
     }
 
     private CloudServiceBroker updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker,

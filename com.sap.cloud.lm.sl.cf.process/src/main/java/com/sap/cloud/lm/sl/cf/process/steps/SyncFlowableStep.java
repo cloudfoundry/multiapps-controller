@@ -129,9 +129,9 @@ public abstract class SyncFlowableStep implements JavaDelegate {
             return getStepErrorMessageAdditionalDescription(context);
         }
         if (e instanceof CloudOperationException || e instanceof CloudControllerException) {
-            return ExceptionMessageTailMapper.map(configuration, CloudComponents.CLOUD_CONTROLLER, null, null);
+            return ExceptionMessageTailMapper.map(configuration, CloudComponents.CLOUD_CONTROLLER, null);
         }
-        return ExceptionMessageTailMapper.map(configuration, CloudComponents.DEPLOY_SERVICE, null, null);
+        return ExceptionMessageTailMapper.map(configuration, CloudComponents.DEPLOY_SERVICE, null);
     }
 
     private static Exception handleControllerException(Exception e) {
