@@ -127,16 +127,14 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     private List<String> getAppNames(List<Module> modulesCalculatedForDeployment) {
         return modulesCalculatedForDeployment.stream()
                                              .filter(module -> moduleToDeployHelper.isApplication(module))
-                                             .map(module -> NameUtil.getApplicationName(module))
+                                             .map(NameUtil::getApplicationName)
                                              .collect(Collectors.toList());
     }
 
     private List<Resource> calculateResourcesForDeployment(ExecutionWrapper execution, DeploymentDescriptor deploymentDescriptor) {
         CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = getResourcesCloudModelBuilderContentCalculator(execution.getContext());
 
-        List<Resource> resourcesCalculatedForDeployment = calculateResourcesForDeployment(deploymentDescriptor,
-                                                                                          resourcesCloudModelBuilderContentCalculator);
-        return resourcesCalculatedForDeployment;
+        return calculateResourcesForDeployment(deploymentDescriptor, resourcesCloudModelBuilderContentCalculator);
     }
 
     private List<Resource> calculateResourcesUsedForBindings(DeploymentDescriptor deploymentDescriptor,

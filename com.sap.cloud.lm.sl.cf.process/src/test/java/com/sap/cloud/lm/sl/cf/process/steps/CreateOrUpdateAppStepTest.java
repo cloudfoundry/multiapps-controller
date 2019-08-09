@@ -135,7 +135,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
     private List<CloudServiceExtended> mapToCloudServiceExtended() {
         return application.getServices()
                           .stream()
-                          .map(serviceName -> extracted(serviceName))
+                          .map(this::extracted)
                           .collect(Collectors.toList());
     }
 
@@ -159,18 +159,18 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
             }
         }
 
-        for (String appName : stepInput.bindingErrors.keySet()) {
-            String serviceName = stepInput.bindingErrors.get(appName);
+        for (Map.Entry<String, String> entry : stepInput.bindingErrors.entrySet()) {
+            String serviceName = entry.getValue();
             Mockito.doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR,
                                                         HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                                                         expectedExceptionMessage + "Something happened!"))
                    .when(client)
-                   .bindService(Mockito.eq(appName), Mockito.eq(serviceName), Mockito.any(), Mockito.any());
+                   .bindService(eq(entry.getKey()), eq(serviceName), Mockito.any(), Mockito.any());
         }
 
-        for (String serviceName : stepInput.existingServiceKeys.keySet()) {
-            List<CloudServiceKey> serviceKeys = stepInput.existingServiceKeys.get(serviceName);
-            Mockito.when(client.getServiceKeys(eq(serviceName)))
+        for (Map.Entry<String, List<CloudServiceKey>> entry : stepInput.existingServiceKeys.entrySet()) {
+            List<CloudServiceKey> serviceKeys = entry.getValue();
+            Mockito.when(client.getServiceKeys(eq(entry.getKey())))
                    .thenReturn(ListUtil.upcast(serviceKeys));
         }
     }

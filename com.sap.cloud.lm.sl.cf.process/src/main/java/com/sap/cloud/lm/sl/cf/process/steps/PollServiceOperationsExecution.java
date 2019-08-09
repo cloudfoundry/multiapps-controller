@@ -100,8 +100,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
             return null;
         } catch (CloudOperationException e) {
             String errorMessage = format(Messages.ERROR_POLLING_OF_SERVICE, service.getName(), e.getStatusText());
-            CloudControllerException exception = new CloudControllerException(e.getStatusCode(), errorMessage, e.getDescription());
-            throw exception;
+            throw new CloudControllerException(e.getStatusCode(), errorMessage, e.getDescription());
         }
     }
 

@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.model;
 
 import static java.text.MessageFormat.format;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -92,14 +92,12 @@ public class ConfigurationSubscription implements AuditableConfiguration {
 
     public static ConfigurationSubscription from(String mtaId, String spaceId, String appName, ConfigurationFilter filter, Module module,
                                                  Resource resource, int majorSchemaVersion) {
-        switch (majorSchemaVersion) {
-            case 2:
-                ResourceDto resourceDto = ResourceDto.from2(resource);
-                ModuleDto moduleDto = ModuleDto.from2(module);
-                return new ConfigurationSubscription(00, mtaId, spaceId, appName, filter, moduleDto, resourceDto);
-            default:
-                throw new UnsupportedOperationException(format(Messages.UNSUPPORTED_VERSION, majorSchemaVersion));
+        if (majorSchemaVersion == 2) {
+            ResourceDto resourceDto = ResourceDto.from2(resource);
+            ModuleDto moduleDto = ModuleDto.from2(module);
+            return new ConfigurationSubscription(0, mtaId, spaceId, appName, filter, moduleDto, resourceDto);
         }
+        throw new UnsupportedOperationException(format(Messages.UNSUPPORTED_VERSION, majorSchemaVersion));
     }
 
     @XmlRootElement(name = "module")
@@ -155,13 +153,13 @@ public class ConfigurationSubscription implements AuditableConfiguration {
 
         private static List<ProvidedDependencyDto> fromProvidedDependencies2(List<ProvidedDependency> providedDependencies) {
             return providedDependencies.stream()
-                                       .map(dependency -> ProvidedDependencyDto.from2(dependency))
+                                       .map(ProvidedDependencyDto::from2)
                                        .collect(Collectors.toList());
         }
 
         private static List<RequiredDependencyDto> fromRequiredDependencies2(List<RequiredDependency> requiredDependencies) {
             return requiredDependencies.stream()
-                                       .map(dependency -> RequiredDependencyDto.from2(dependency))
+                                       .map(RequiredDependencyDto::from2)
                                        .collect(Collectors.toList());
         }
 
@@ -296,11 +294,9 @@ public class ConfigurationSubscription implements AuditableConfiguration {
 
     @Override
     public List<ConfigurationIdentifier> getConfigurationIdentifiers() {
-        List<ConfigurationIdentifier> configurationIdentifiers = new ArrayList<>();
-        configurationIdentifiers.add(new ConfigurationIdentifier("mta id", mtaId));
-        configurationIdentifiers.add(new ConfigurationIdentifier("application name", appName));
-        configurationIdentifiers.add(new ConfigurationIdentifier("space id", spaceId));
-        return configurationIdentifiers;
+        return Arrays.asList(new ConfigurationIdentifier("mta id", mtaId),
+            new ConfigurationIdentifier("application name", appName),
+            new ConfigurationIdentifier("space id", spaceId));
     }
 
 }

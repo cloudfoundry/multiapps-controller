@@ -12,11 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.collections4.SetUtils;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -65,7 +64,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
     @Autowired
     protected ApplicationConfiguration configuration;
 
-    protected Supplier<Boolean> shouldPrettyPrint = () -> true;
+    protected BooleanSupplier shouldPrettyPrint = () -> true;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws FileStorageException {
@@ -121,6 +120,30 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             app = ImmutableCloudApplicationExtended.copyOf(app)
                                                    .withEnv(appEnv);
             updateContextWithServiceKeysCredentials(execution.getContext(), app, appServiceKeysCredentials);
+        }
+
+        private Map<String, String> buildServiceKeysCredentials(CloudControllerClient client, CloudApplicationExtended app,
+            Map<String, String> appEnv) {
+            Map<String, String> appServiceKeysCredentials = new HashMap<>();
+            for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
+                String serviceKeyCredentials = JsonUtil.toJson(ServiceOperationUtil.getServiceKeyCredentials(client,
+                    serviceKeyToInject.getServiceName(),
+                    serviceKeyToInject.getServiceKeyName()),
+                    shouldPrettyPrint.getAsBoolean());
+                appEnv.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
+                appServiceKeysCredentials.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
+            }
+            return appServiceKeysCredentials;
+        }
+
+        private void updateContextWithServiceKeysCredentials(DelegateExecution context, CloudApplicationExtended app,
+            Map<String, String> appServiceKeysCredentials) {
+            Map<String, Map<String, String>> serviceKeysCredentialsToInject = StepsUtil.getServiceKeysCredentialsToInject(context);
+            serviceKeysCredentialsToInject.put(app.getName(), appServiceKeysCredentials);
+
+            // Update current process context
+            StepsUtil.setApp(context, app);
+            StepsUtil.setServiceKeysCredentialsToInject(context, serviceKeysCredentialsToInject);
         }
 
         public abstract void printStepStartMessage();
@@ -181,6 +204,13 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         @Override
         public void printStepEndMessage() {
             getStepLogger().debug(Messages.APP_CREATED, app.getName());
+        }
+
+        private void bindService(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
+            Map<String, Object> bindingParameters) {
+
+            getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters);
+            client.bindService(appName, serviceName, bindingParameters, getApplicationServicesUpdateCallback(execution.getContext()));
         }
 
     }
@@ -246,127 +276,104 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.APP_UPDATED, app.getName());
         }
 
-    }
-
-    private UpdateState updateApplicationEnvironment(CloudApplicationExtended app, CloudApplication existingApp,
-                                                     CloudControllerClient client,
-                                                     CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
-        return new EnvironmentApplicationAttributeUpdater(existingApp,
-                                                          getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingEnv()),
-                                                          getStepLogger()).updateApplication(client, app);
-    }
-
-    private void reportApplicationUpdateStatus(CloudApplicationExtended app, boolean appPropertiesChanged) {
-        if (!appPropertiesChanged) {
-            getStepLogger().info(Messages.APPLICATION_UNCHANGED, app.getName());
-            return;
-        }
-        getStepLogger().debug(Messages.APP_UPDATED, app.getName());
-    }
-
-    private List<ApplicationAttributeUpdater> getApplicationAttributeUpdaters(CloudApplication existingApplication,
-                                                                              AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
-        return Arrays.asList(new StagingApplicationAttributeUpdater(existingApplication, getStepLogger()),
-                             new MemoryApplicationAttributeUpdater(existingApplication, getStepLogger()),
-                             new DiskQuotaApplicationAttributeUpdater(existingApplication, getStepLogger()),
-                             new UrisApplicationAttributeUpdater(existingApplication,
-                                                                 getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingRoutes()),
-                                                                 getStepLogger()));
-    }
-
-    private UpdateBehavior getUpdateStrategy(boolean shouldKeepAttributes) {
-        return shouldKeepAttributes ? UpdateBehavior.MERGE : UpdateBehavior.REPLACE;
-    }
-
-    private void updateAppDigest(Map<String, String> newAppEnv, Map<String, String> existingAppEnv) {
-        Object existingFileDigest = getExistingAppFileDigest(existingAppEnv);
-        if (existingFileDigest == null) {
-            return;
-        }
-        String newAppDeployAttributes = newAppEnv.get(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES);
-        TreeMap<String, Object> newAppDeployAttributesMap = new TreeMap<>(JsonUtil.convertJsonToMap(newAppDeployAttributes));
-        newAppDeployAttributesMap.put(com.sap.cloud.lm.sl.cf.core.Constants.ATTR_APP_CONTENT_DIGEST, existingFileDigest);
-        newAppEnv.put(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES,
-                      JsonUtil.toJson(newAppDeployAttributesMap, shouldPrettyPrint.get()));
-    }
-
-    private Object getExistingAppFileDigest(Map<String, String> envAsMap) {
-        return new ApplicationFileDigestDetector(envAsMap).detectCurrentAppFileDigest();
-    }
-
-    private Set<String> calculateServicesForUpdate(CloudApplicationExtended application, List<String> existingServices) {
-        AttributeUpdateStrategy applicationAttributesUpdateBehavior = application.getAttributesUpdateStrategy();
-        if (!applicationAttributesUpdateBehavior.shouldKeepExistingServiceBindings()) {
-            return new HashSet<>(application.getServices());
+        private UpdateState updateApplicationEnvironment(CloudApplicationExtended app, CloudApplication existingApp,
+                                                         CloudControllerClient client, CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
+            return new EnvironmentApplicationAttributeUpdater(existingApp,
+                getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingEnv()),
+                getStepLogger()).updateApplication(client, app);
         }
 
-        return SetUtils.union(new HashSet<>(application.getServices()), new HashSet<>(existingServices));
-    }
-
-    private boolean unbindServicesIfNeeded(CloudApplicationExtended application, CloudApplication existingApplication,
-                                           CloudControllerClient client, List<String> services) {
-        AttributeUpdateStrategy applicationAttributesUpdateBehavior = application.getAttributesUpdateStrategy();
-        if (!applicationAttributesUpdateBehavior.shouldKeepExistingServiceBindings()) {
-            return unbindNotRequiredServices(existingApplication, services, client);
+        private void reportApplicationUpdateStatus(CloudApplicationExtended app, boolean appPropertiesChanged) {
+            if (!appPropertiesChanged) {
+                getStepLogger().info(Messages.APPLICATION_UNCHANGED, app.getName());
+                return;
+            }
+            getStepLogger().debug(Messages.APP_UPDATED, app.getName());
         }
-        return false;
-    }
 
-    private boolean unbindNotRequiredServices(CloudApplication app, List<String> requiredServices, CloudControllerClient client) {
-        List<String> servicesToUnbind = app.getServices()
-                                           .stream()
-                                           .filter(serviceName -> !requiredServices.contains(serviceName))
-                                           .collect(Collectors.toList());
-        servicesToUnbind.forEach(serviceName -> unbindService(app.getName(), serviceName, client));
-        return !servicesToUnbind.isEmpty();
-    }
-
-    private void unbindService(String appName, String serviceName, CloudControllerClient client) {
-        getStepLogger().debug(Messages.UNBINDING_APP_FROM_SERVICE, appName, serviceName);
-        client.unbindService(appName, serviceName);
-    }
-
-    private boolean updateServices(DelegateExecution context, String applicationName, Map<String, Map<String, Object>> bindingParameters,
-                                   CloudControllerClient client, Set<String> services) {
-        Map<String, Map<String, Object>> serviceNamesWithBindingParameters = services.stream()
-                                                                                     .collect(Collectors.toMap(String::toString,
-                                                                                                               serviceName -> getBindingParametersForService(serviceName,
-                                                                                                                                                             bindingParameters)));
-
-        List<String> updatedServices = client.updateApplicationServices(applicationName, serviceNamesWithBindingParameters,
-                                                                        getApplicationServicesUpdateCallback(context));
-
-        reportNonUpdatedServices(services, applicationName, updatedServices);
-        return !updatedServices.isEmpty();
-    }
-
-    private void reportNonUpdatedServices(Set<String> services, String applicationName, List<String> updatedServices) {
-        List<String> nonUpdatesServices = ListUtils.removeAll(services, updatedServices);
-        nonUpdatesServices.forEach(service -> getStepLogger().warn(Messages.WILL_NOT_REBIND_APP_TO_SERVICE, service, applicationName));
-    }
-
-    private Map<String, String> buildServiceKeysCredentials(CloudControllerClient client, CloudApplicationExtended app,
-                                                            Map<String, String> appEnv) {
-        Map<String, String> appServiceKeysCredentials = new HashMap<>();
-        for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
-            String serviceKeyCredentials = JsonUtil.toJson(ServiceOperationUtil.getServiceKeyCredentials(client,
-                                                                                                         serviceKeyToInject.getServiceName(),
-                                                                                                         serviceKeyToInject.getServiceKeyName()),
-                                                           shouldPrettyPrint.get());
-            appEnv.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
-            appServiceKeysCredentials.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
+        private List<ApplicationAttributeUpdater> getApplicationAttributeUpdaters(CloudApplication existingApplication,
+                                                                                  AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
+            return Arrays.asList(new StagingApplicationAttributeUpdater(existingApplication, getStepLogger()),
+                new MemoryApplicationAttributeUpdater(existingApplication, getStepLogger()),
+                new DiskQuotaApplicationAttributeUpdater(existingApplication, getStepLogger()),
+                new UrisApplicationAttributeUpdater(existingApplication,
+                    getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingRoutes()),
+                    getStepLogger()));
         }
-        return appServiceKeysCredentials;
-    }
 
-    private void updateContextWithServiceKeysCredentials(DelegateExecution context, CloudApplicationExtended app,
-                                                         Map<String, String> appServiceKeysCredentials) {
-        Map<String, Map<String, String>> serviceKeysCredentialsToInject = StepsUtil.getServiceKeysCredentialsToInject(context);
-        serviceKeysCredentialsToInject.put(app.getName(), appServiceKeysCredentials);
+        private UpdateBehavior getUpdateStrategy(boolean shouldKeepAttributes) {
+            return shouldKeepAttributes ? UpdateBehavior.MERGE : UpdateBehavior.REPLACE;
+        }
 
-        // Update current process context
-        StepsUtil.setApp(context, app);
-        StepsUtil.setServiceKeysCredentialsToInject(context, serviceKeysCredentialsToInject);
+        private void updateAppDigest(Map<String, String> newAppEnv, Map<String, String> existingAppEnv) {
+            Object existingFileDigest = getExistingAppFileDigest(existingAppEnv);
+            if (existingFileDigest == null) {
+                return;
+            }
+            String newAppDeployAttributes = newAppEnv.get(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES);
+            TreeMap<String, Object> newAppDeployAttributesMap = new TreeMap<>(JsonUtil.convertJsonToMap(newAppDeployAttributes));
+            newAppDeployAttributesMap.put(com.sap.cloud.lm.sl.cf.core.Constants.ATTR_APP_CONTENT_DIGEST, existingFileDigest);
+            newAppEnv.put(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES,
+                          JsonUtil.toJson(newAppDeployAttributesMap, shouldPrettyPrint.getAsBoolean()));
+        }
+
+        private Object getExistingAppFileDigest(Map<String, String> envAsMap) {
+            return new ApplicationFileDigestDetector(envAsMap).detectCurrentAppFileDigest();
+        }
+
+        private Set<String> calculateServicesForUpdate(CloudApplicationExtended application, List<String> existingServices) {
+            AttributeUpdateStrategy applicationAttributesUpdateBehavior = application.getAttributesUpdateStrategy();
+            Set<String> servicesForUpdate = new HashSet<>(application.getServices());
+            if (!applicationAttributesUpdateBehavior.shouldKeepExistingServiceBindings()) {
+                return servicesForUpdate;
+            }
+            servicesForUpdate.addAll(existingServices);
+            return servicesForUpdate;
+        }
+
+        private boolean unbindServicesIfNeeded(CloudApplicationExtended application, CloudApplication existingApplication,
+            CloudControllerClient client, List<String> services) {
+            AttributeUpdateStrategy applicationAttributesUpdateBehavior = application.getAttributesUpdateStrategy();
+            if (!applicationAttributesUpdateBehavior.shouldKeepExistingServiceBindings()) {
+                return unbindNotRequiredServices(existingApplication, services, client);
+            }
+            return false;
+        }
+
+        private boolean unbindNotRequiredServices(CloudApplication app, List<String> requiredServices, CloudControllerClient client) {
+            List<String> servicesToUnbind = app.getServices()
+                                               .stream()
+                                               .filter(serviceName -> !requiredServices.contains(serviceName))
+                                               .collect(Collectors.toList());
+            servicesToUnbind.forEach(serviceName -> unbindService(app.getName(), serviceName, client));
+            return !servicesToUnbind.isEmpty();
+        }
+
+        private void unbindService(String appName, String serviceName, CloudControllerClient client) {
+            getStepLogger().debug(Messages.UNBINDING_APP_FROM_SERVICE, appName, serviceName);
+            client.unbindService(appName, serviceName);
+        }
+
+        private boolean updateServices(DelegateExecution context, String applicationName, Map<String, Map<String, Object>> bindingParameters,
+            CloudControllerClient client, Set<String> services) {
+            Map<String, Map<String, Object>> serviceNamesWithBindingParameters = services.stream()
+                                                                                         .collect(Collectors.toMap(String::toString,
+                                                                                                                   serviceName -> getBindingParametersForService(
+                                                                                                                       serviceName,
+                                                                                                                       bindingParameters)));
+
+            List<String> updatedServices = client.updateApplicationServices(applicationName, serviceNamesWithBindingParameters,
+                getApplicationServicesUpdateCallback(context));
+
+            reportNonUpdatedServices(services, applicationName, updatedServices);
+            return !updatedServices.isEmpty();
+        }
+
+        private void reportNonUpdatedServices(Set<String> services, String applicationName, List<String> updatedServices) {
+            List<String> nonUpdatesServices = ListUtils.removeAll(services, updatedServices);
+            nonUpdatesServices.forEach(service -> getStepLogger().warn(Messages.WILL_NOT_REBIND_APP_TO_SERVICE, service, applicationName));
+        }
+
     }
 
     private Map<String, Map<String, Object>> getBindingParameters(DelegateExecution context, CloudApplicationExtended app)
@@ -433,13 +440,6 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                    descriptorProvidedBindingParameters.get(serviceName)));
         }
         return bindingParameters;
-    }
-
-    private void bindService(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
-                             Map<String, Object> bindingParameters) {
-
-        getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters);
-        client.bindService(appName, serviceName, bindingParameters, getApplicationServicesUpdateCallback(execution.getContext()));
     }
 
     private static Map<String, Object> getBindingParametersForService(String serviceName,

@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.LongSupplier;
 
 import javax.inject.Inject;
 
@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
-    protected Supplier<Long> currentTimeSupplier = System::currentTimeMillis;
+    protected LongSupplier currentTimeSupplier = System::currentTimeMillis;
 
     @Inject
     private RecentLogsRetriever recentLogsRetriever;
@@ -39,7 +39,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
         StepsUtil.setStartedTask(execution.getContext(), startedTask);
         execution.getContext()
-                 .setVariable(Constants.VAR_START_TIME, currentTimeSupplier.get());
+                 .setVariable(Constants.VAR_START_TIME, currentTimeSupplier.getAsLong());
         return StepPhase.POLL;
     }
 
@@ -53,7 +53,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
         recentLogsRetriever.setFailSafe(true);
-        return Arrays.asList(new PollExecuteTaskStatusExecution(recentLogsRetriever, currentTimeSupplier));
+        return Arrays.asList(new PollExecuteTaskStatusExecution(recentLogsRetriever));
     }
 
     @Override

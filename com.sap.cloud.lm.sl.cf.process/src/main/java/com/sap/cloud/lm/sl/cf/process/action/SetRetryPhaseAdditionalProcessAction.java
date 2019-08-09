@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.action;
 
 import javax.inject.Inject;
 
+import org.flowable.engine.runtime.Execution;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -24,7 +25,7 @@ public class SetRetryPhaseAdditionalProcessAction implements AdditionalProcessAc
     public void executeAdditionalProcessAction(String processInstanceId) {
         flowableFacade.getActiveProcessExecutions(processInstanceId)
                       .stream()
-                      .map(execution -> execution.getProcessInstanceId())
+                      .map(Execution::getProcessInstanceId)
                       .forEach(executionProcessId -> flowableFacade.getProcessEngine()
                                                                    .getRuntimeService()
                                                                    .setVariable(executionProcessId, Constants.VAR_STEP_PHASE,

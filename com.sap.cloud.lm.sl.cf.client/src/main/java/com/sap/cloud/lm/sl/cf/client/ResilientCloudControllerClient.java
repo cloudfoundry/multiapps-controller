@@ -116,7 +116,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public List<CloudRoute> deleteOrphanedRoutes() {
-        return executeWithRetry(() -> cc.deleteOrphanedRoutes(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::deleteOrphanedRoutes, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -171,17 +171,17 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public CloudDomain getDefaultDomain() {
-        return executeWithRetry(() -> cc.getDefaultDomain());
+        return executeWithRetry(cc::getDefaultDomain);
     }
 
     @Override
     public List<CloudDomain> getDomains() {
-        return executeWithRetry(() -> cc.getDomains(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::getDomains, HttpStatus.NOT_FOUND);
     }
 
     @Override
     public List<CloudDomain> getDomainsForOrganization() {
-        return executeWithRetry(() -> cc.getDomainsForOrganization(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::getDomainsForOrganization, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -196,7 +196,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public List<CloudDomain> getPrivateDomains() {
-        return executeWithRetry(() -> cc.getPrivateDomains(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::getPrivateDomains, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -221,7 +221,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public List<CloudServiceBroker> getServiceBrokers() {
-        return executeWithRetry(() -> cc.getServiceBrokers(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::getServiceBrokers, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -241,7 +241,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public List<CloudDomain> getSharedDomains() {
-        return executeWithRetry(() -> cc.getSharedDomains(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::getSharedDomains, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -413,7 +413,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public List<CloudService> getServices() {
-        return executeWithRetry(() -> cc.getServices(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::getServices, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -513,12 +513,12 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void deleteAllApplications() {
-        executeWithRetry(() -> cc.deleteAllApplications());
+        executeWithRetry(cc::deleteAllApplications);
     }
 
     @Override
     public void deleteAllServices() {
-        executeWithRetry(() -> cc.deleteAllServices());
+        executeWithRetry(cc::deleteAllServices);
     }
 
     @Override
@@ -563,12 +563,12 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public URL getCloudControllerUrl() {
-        return executeWithRetry(() -> cc.getCloudControllerUrl());
+        return executeWithRetry(cc::getCloudControllerUrl);
     }
 
     @Override
     public CloudInfo getCloudInfo() {
-        return executeWithRetry(() -> cc.getCloudInfo());
+        return executeWithRetry(cc::getCloudInfo);
     }
 
     @Override
@@ -583,7 +583,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public List<CloudEvent> getEvents() {
-        return executeWithRetry(() -> cc.getEvents(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::getEvents, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -618,7 +618,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public List<CloudOrganization> getOrganizations() {
-        return executeWithRetry(() -> cc.getOrganizations(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::getOrganizations, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -633,12 +633,12 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public List<CloudQuota> getQuotas() {
-        return executeWithRetry(() -> cc.getQuotas(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::getQuotas, HttpStatus.NOT_FOUND);
     }
 
     @Override
     public List<CloudSecurityGroup> getRunningSecurityGroups() {
-        return executeWithRetry(() -> cc.getRunningSecurityGroups(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::getRunningSecurityGroups, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -653,7 +653,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public List<CloudSecurityGroup> getSecurityGroups() {
-        return executeWithRetry(() -> cc.getSecurityGroups(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::getSecurityGroups, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -663,7 +663,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public List<CloudServiceOffering> getServiceOfferings() {
-        return executeWithRetry(() -> cc.getServiceOfferings(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::getServiceOfferings, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -728,22 +728,22 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public List<CloudStack> getStacks() {
-        return executeWithRetry(() -> cc.getStacks(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::getStacks, HttpStatus.NOT_FOUND);
     }
 
     @Override
     public List<CloudSecurityGroup> getStagingSecurityGroups() {
-        return executeWithRetry(() -> cc.getStagingSecurityGroups(), HttpStatus.NOT_FOUND);
+        return executeWithRetry(cc::getStagingSecurityGroups, HttpStatus.NOT_FOUND);
     }
 
     @Override
     public OAuth2AccessToken login() {
-        return executeWithRetry(() -> cc.login());
+        return executeWithRetry(cc::login);
     }
 
     @Override
     public void logout() {
-        executeWithRetry(() -> cc.logout());
+        executeWithRetry(cc::logout);
     }
 
     @Override
@@ -799,7 +799,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void unregister() {
-        executeWithRetry(() -> cc.unregister());
+        executeWithRetry(cc::unregister);
     }
 
     @Override
@@ -873,7 +873,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public boolean areTasksSupported() {
-        return executeWithRetry(() -> cc.areTasksSupported());
+        return executeWithRetry(cc::areTasksSupported);
     }
 
     @Override
@@ -902,12 +902,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     private void executeWithRetry(Runnable runnable, HttpStatus... httpStatusesToIgnore) {
         retrier.executeWithRetry(runnable, httpStatusesToIgnore);
-    }
-
-    private List<String> toStrings(List<UUID> uuids) {
-        return uuids.stream()
-                    .map(UUID::toString)
-                    .collect(Collectors.toList());
     }
 
     @Override
