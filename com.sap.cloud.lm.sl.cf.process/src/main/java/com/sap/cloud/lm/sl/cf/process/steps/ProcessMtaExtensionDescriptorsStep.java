@@ -64,7 +64,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
         try {
             List<ExtensionDescriptor> extensionDescriptors = new ArrayList<>();
 
-            FileContentProcessor extensionDescriptorProcessor = (extensionDescriptorStream) -> {
+            FileContentProcessor extensionDescriptorProcessor = extensionDescriptorStream -> {
                 ExtensionDescriptor extensionDescriptor = descriptorParserFacade.parseExtensionDescriptor(extensionDescriptorStream);
                 extensionDescriptors.add(extensionDescriptor);
             };

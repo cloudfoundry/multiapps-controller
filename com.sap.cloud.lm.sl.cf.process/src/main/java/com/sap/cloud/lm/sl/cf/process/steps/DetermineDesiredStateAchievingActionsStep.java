@@ -95,10 +95,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
         if (restartParameters.getShouldRestartOnVcapServicesChange() && servicesPropertiesChanged) {
             return true;
         }
-        if (restartParameters.getShouldRestartOnUserProvidedChange() && userPropertiesChanged) {
-            return true;
-        }
-        return false;
+        return restartParameters.getShouldRestartOnUserProvidedChange() && userPropertiesChanged;
     }
 
 }

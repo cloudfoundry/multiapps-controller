@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.analytics.collectors;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
@@ -39,7 +40,7 @@ public class AnalyticsCollector {
     @Inject
     private ProcessEngineConfiguration processEngineConfiguration;
 
-    Supplier<Long> endTimeSupplier = System::currentTimeMillis;
+    LongSupplier endTimeSupplier = System::currentTimeMillis;
     Supplier<ZoneId> timeZoneSupplier = ZoneId::systemDefault;
 
     public AnalyticsData collectAnalyticsData(DelegateExecution context) {
@@ -89,7 +90,7 @@ public class AnalyticsCollector {
     }
 
     protected long getEndTime() {
-        Date date = new Date(endTimeSupplier.get());
+        Date date = new Date(endTimeSupplier.getAsLong());
         return date.getTime();
     }
 

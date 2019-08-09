@@ -250,9 +250,8 @@ public class ApplicationCloudModelBuilder {
     }
 
     public List<String> getApplicationDomains(List<Map<String, Object>> parametersList, Module module) {
-        List<String> applicationDomains = getApplicationUrisCloudModelBuilder(parametersList).getApplicationDomains(module,
-                                                                                                                    parametersChainBuilder.buildModuleChain(module.getName()));
-        return applicationDomains;
+        return getApplicationUrisCloudModelBuilder(parametersList).getApplicationDomains(module,
+            parametersChainBuilder.buildModuleChain(module.getName()));
     }
 
     protected Resource getResource(String dependencyName) {

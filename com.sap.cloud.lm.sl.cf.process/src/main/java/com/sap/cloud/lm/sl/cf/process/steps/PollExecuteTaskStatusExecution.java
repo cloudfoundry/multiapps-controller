@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
-import java.util.function.Supplier;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudTask;
@@ -17,13 +16,10 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PollExecuteTaskStatusExecution.class);
 
-    protected Supplier<Long> currentTimeSupplier;
-
     private RecentLogsRetriever recentLogsRetriever;
 
-    public PollExecuteTaskStatusExecution(RecentLogsRetriever recentLogsRetriever, Supplier<Long> currentTimeSupplier) {
+    public PollExecuteTaskStatusExecution(RecentLogsRetriever recentLogsRetriever) {
         this.recentLogsRetriever = recentLogsRetriever;
-        this.currentTimeSupplier = currentTimeSupplier;
     }
 
     @Override

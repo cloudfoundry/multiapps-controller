@@ -18,7 +18,6 @@ import java.util.zip.ZipOutputStream;
 import javax.inject.Inject;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -144,15 +143,13 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
     }
 
     protected void uploadZipToDB(DelegateExecution context, final Path mtarZip) throws FileStorageException, IOException {
-        InputStream mtarInputStream = null;
         getStepLogger().info(Messages.UPLOADING_MTAR);
         getStepLogger().debug("uploading file " + mtarZip.toAbsolutePath()
                                                          .toString()
             + " to DB");
-        try {
-            Configuration fileConfiguration = configuration.getFileConfiguration();
-            String spaceId = StepsUtil.getSpaceId(context);
-            mtarInputStream = Files.newInputStream(mtarZip);
+        Configuration fileConfiguration = configuration.getFileConfiguration();
+        String spaceId = StepsUtil.getSpaceId(context);
+        try (InputStream mtarInputStream = Files.newInputStream(mtarZip)) {
             String serviceId = StepsUtil.getServiceId(context);
             String mtarName = mtarZip.getFileName()
                                      .toString();
@@ -160,8 +157,6 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
                                                   mtarInputStream);
             String uploadedMtarId = entry.getId();
             StepsUtil.setArchiveFileId(context, uploadedMtarId);
-        } finally {
-            IOUtils.closeQuietly(mtarInputStream);
         }
         getStepLogger().debug(Messages.MTAR_UPLOADED);
     }

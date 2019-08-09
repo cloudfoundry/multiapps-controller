@@ -160,10 +160,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
         if (FlowableEngineEventType.PROCESS_CANCELLED.equals(processEngineEvent.getType())) {
             return true;
         }
-        if (FlowableEngineEventType.ENTITY_DELETED.equals(processEngineEvent.getType()) && hasCorrectEntityType(processEngineEvent)) {
-            return true;
-        }
-        return false;
+        return FlowableEngineEventType.ENTITY_DELETED.equals(processEngineEvent.getType()) && hasCorrectEntityType(processEngineEvent);
     }
 
     private boolean hasCorrectEntityType(FlowableProcessEngineEvent processEngineEvent) {
