@@ -6,9 +6,9 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 public class TokenProperties {
 
-    private static final String CLIENT_ID_KEY = "client_id";
-    private static final String USER_NAME_KEY = "user_name";
-    private static final String USER_ID_KEY = "user_id";
+    public static final String CLIENT_ID_KEY = "client_id";
+    public static final String USER_NAME_KEY = "user_name";
+    public static final String USER_ID_KEY = "user_id";
 
     private String clientId;
     private String userName;

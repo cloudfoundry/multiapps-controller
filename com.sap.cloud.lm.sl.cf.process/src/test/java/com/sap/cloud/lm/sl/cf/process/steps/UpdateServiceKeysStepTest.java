@@ -1,140 +1,151 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceKey;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
-import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
-import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
-import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
-import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 
-@RunWith(Parameterized.class)
 public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServiceKeysStep> {
 
-    private static final String POLLING = "polling";
-    private static final String STEP_EXECUTION = "stepExecution";
+    private static final String SERVICE_NAME = "test-service";
 
-    private final StepInput stepInput;
-
-    @Mock
-    private ServiceOperationGetter serviceOperationGetter;
     @Mock
     private ServiceOperationExecutor serviceOperationExecutor;
-    @Mock
-    private ServiceProgressReporter serviceProgressReporter;
-    @Mock
-    protected ServiceUpdater serviceUpdater;
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> testCreateUpdateServiceKeysStep() {
+        return Stream.of(
         // @formatter:off
-            {
-                "update-service-keys-step-input-1.json", null,
-            },
+                         // (1) There no exists service keys
+                         Arguments.of(Arrays.asList("key-1", "key-2", "key-3"), Collections.emptyList(), false, Collections.emptyList()),
+                         // (2) Service key "key-2" should be deleted and "key-3" updated
+                         Arguments.of(Arrays.asList("key-1", "key-3"), Arrays.asList("key-1", "key-2", "key-3"), true, Arrays.asList("key-3")),
+                         // (3) Service key "key-2" should be reported that cannot be deleted and "key-1" updated
+                         Arguments.of(Arrays.asList("key-1", "key-3"), Arrays.asList("key-1", "key-2", "key-3"), false, Arrays.asList("key-1"))
+                         
         // @formatter:on
-        });
+        );
     }
 
-    public UpdateServiceKeysStepTest(String stepInput, String expectedExceptionMessage) throws Exception {
-        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, UpdateServiceKeysStepTest.class), StepInput.class);
-    }
+    @ParameterizedTest
+    @MethodSource
+    public void testCreateUpdateServiceKeysStep(List<String> serviceKeysNames, List<String> existingServiceKeysNames,
+                                                boolean canDeleteServiceKeys, List<String> updatedServiceKeys) {
+        CloudServiceExtended service = buildService();
+        List<CloudServiceKey> serviceKeys = buildServiceKeys(serviceKeysNames, updatedServiceKeys, service);
+        List<CloudServiceKey> existingServiceKeys = buildServiceKeys(existingServiceKeysNames, Collections.emptyList(), service);
+        prepareContext(serviceKeys, canDeleteServiceKeys, service);
+        prepareServiceOperationExecutor(existingServiceKeys);
 
-    @Before
-    public void setUp() throws Exception {
-        prepareContext();
-        prepareClient();
-    }
-
-    private void prepareClient() {
-        Mockito.when(client.getServiceKeys(stepInput.service.name))
-               .thenReturn(stepInput.existingServiceKeys);
-    }
-
-    private void prepareServiceUpdater(String stepPhase) {
-        MethodExecution<String> methodExec;
-        switch (stepPhase) {
-            case POLLING:
-                methodExec = new MethodExecution<String>(null, ExecutionState.FINISHED);
-                break;
-            case STEP_EXECUTION:
-                methodExec = new MethodExecution<String>(null, ExecutionState.EXECUTING);
-                break;
-            default:
-                throw new UnsupportedOperationException("Unsupported test phase");
-        }
-        Mockito.when(serviceUpdater.updateServiceTags(Matchers.any(), Matchers.any(), Matchers.any()))
-               .thenReturn(methodExec);
-    }
-
-    @Test
-    public void testExecute() throws Exception {
-        prepareResponses(STEP_EXECUTION);
         step.execute(context);
-        assertStepPhase(STEP_EXECUTION);
 
-        if (getExecutionStatus().equals("DONE")) {
+        verifyCreateCalls(serviceKeysNames, existingServiceKeysNames);
+        verifyDeleteCalls(serviceKeysNames, existingServiceKeysNames, canDeleteServiceKeys);
+        verifyUpdateCalls(updatedServiceKeys, canDeleteServiceKeys);
+        assertStepFinishedSuccessfully();
+    }
+
+    private CloudServiceExtended buildService() {
+        return ImmutableCloudServiceExtended.builder()
+                                            .resourceName(SERVICE_NAME)
+                                            .name(SERVICE_NAME)
+                                            .build();
+    }
+
+    private List<CloudServiceKey> buildServiceKeys(List<String> serviceKeysNames, List<String> updatedServiceKeys,
+                                                   CloudServiceExtended service) {
+        return serviceKeysNames.stream()
+                               .map(serviceKeyName -> buildCloudServiceKey(service, updatedServiceKeys, serviceKeyName))
+                               .collect(Collectors.toList());
+    }
+
+    private void prepareContext(List<CloudServiceKey> serviceKeys, boolean canDeleteServiceKeys, CloudServiceExtended service) {
+        StepsUtil.setServiceKeysToCreate(context, MapUtil.asMap(SERVICE_NAME, serviceKeys));
+        context.setVariable(Constants.PARAM_DELETE_SERVICE_KEYS, canDeleteServiceKeys);
+        StepsUtil.setServiceToProcess(service, context);
+
+    }
+
+    private ImmutableCloudServiceKey buildCloudServiceKey(CloudServiceExtended service, List<String> updatedServiceKeys,
+                                                          String serviceKeyName) {
+        if (updatedServiceKeys.contains(serviceKeyName)) {
+            return ImmutableCloudServiceKey.builder()
+                                           .name(serviceKeyName)
+                                           .service(service)
+                                           .parameters(MapUtil.asMap("name", "new-value"))
+                                           .build();
+        }
+        return ImmutableCloudServiceKey.builder()
+                                       .name(serviceKeyName)
+                                       .service(service)
+                                       .build();
+    }
+
+    private void prepareServiceOperationExecutor(List<CloudServiceKey> existingServiceKeys) {
+        when(serviceOperationExecutor.executeServiceOperation(any(), Matchers.<Supplier<List<CloudServiceKey>>> any(),
+                                                              any())).thenReturn(existingServiceKeys);
+    }
+
+    private void verifyCreateCalls(List<String> serviceKeysNames, List<String> existingServiceKeysNames) {
+        verifyKeysOperations(serviceKeysNames, existingServiceKeysNames,
+                             serviceKeyName -> verify(client).createServiceKey(eq(SERVICE_NAME), eq(serviceKeyName), any()));
+    }
+
+    private void verifyKeysOperations(List<String> sourceKeys, List<String> resultKeys, Consumer<String> consumer) {
+        sourceKeys.stream()
+                  .filter(existingServiceKeyName -> !resultKeys.contains(existingServiceKeyName))
+                  .forEach(consumer);
+    }
+
+    private void verifyDeleteCalls(List<String> serviceKeysNames, List<String> existingServiceKeysNames, boolean canDeleteServiceKeys) {
+        if (canDeleteServiceKeys) {
+            verifyKeysOperations(existingServiceKeysNames, serviceKeysNames,
+                                 existingServiceKeyName -> verify(client).deleteServiceKey(eq(SERVICE_NAME), eq(existingServiceKeyName)));
             return;
         }
-        assertMethodCalls();
+        verifyKeysOperations(existingServiceKeysNames, serviceKeysNames,
+                             existingServiceKeyName -> verify(stepLogger).warn(eq(Messages.WILL_NOT_DELETE_SERVICE_KEY),
+                                                                               eq(existingServiceKeyName), eq(SERVICE_NAME)));
     }
 
-    private void assertMethodCalls() {
-        Mockito.verify(serviceUpdater, Mockito.times(1))
-               .updateServiceTags(Matchers.any(), Matchers.any(), Matchers.any());
+    private void verifyUpdateCalls(List<String> updatedServiceKeys, boolean canDeleteServiceKeys) {
+        if (canDeleteServiceKeys) {
+            updatedServiceKeys.forEach(this::verifyUpdateCall);
+            return;
+        }
+        updatedServiceKeys.forEach(this::verifyWarnCall);
+
     }
 
-    @SuppressWarnings("unchecked")
-    private void assertStepPhase(String stepPhase) {
-        Map<String, Object> stepPhaseResults = (Map<String, Object>) stepInput.stepPhaseResults.get(stepPhase);
-        String expectedStepPhase = (String) stepPhaseResults.get("expextedStepPhase");
-        assertEquals(expectedStepPhase, getExecutionStatus());
+    private void verifyUpdateCall(String updatedServiceKeyName) {
+        verify(client).deleteServiceKey(eq(SERVICE_NAME), eq(updatedServiceKeyName));
+        verify(client).createServiceKey(eq(SERVICE_NAME), eq(updatedServiceKeyName), any());
     }
 
-    private void prepareContext() {
-        Map<String, List<CloudServiceKey>> keysToCreate = new HashMap<>();
-        keysToCreate.put(stepInput.service.name, stepInput.serviceKeysToCreate);
-        StepsUtil.setServiceKeysToCreate(context, keysToCreate);
-        context.setVariable("serviceToProcess", JsonUtil.toJson(stepInput.service));
-        context.setVariable("deleteServiceKeys", true);
-    }
-
-    private void prepareResponses(String stepPhase) {
-        prepareServiceUpdater(stepPhase);
-    }
-
-    private static class StepInput {
-        SimpleService service;
-        List<CloudServiceKey> serviceKeysToCreate = Collections.emptyList();
-        List<CloudServiceKey> existingServiceKeys = Collections.emptyList();
-        Map<String, Object> stepPhaseResults;
-    }
-
-    private static class SimpleService {
-        String name;
-        String resourceName;
-        String label;
-        String plan;
-        String guid;
+    private void verifyWarnCall(String updatedServiceKeyName) {
+        verify(stepLogger).warn(eq(Messages.WILL_NOT_UPDATE_SERVICE_KEY), eq(updatedServiceKeyName), eq(SERVICE_NAME));
     }
 
     @Override

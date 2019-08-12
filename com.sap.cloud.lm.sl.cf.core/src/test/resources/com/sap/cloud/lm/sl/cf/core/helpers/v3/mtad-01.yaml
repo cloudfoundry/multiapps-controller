@@ -1,0 +1,29 @@
+_schema-version: "3"
+ID: mta-1
+version: 1.0.0
+
+modules:
+  - name: module-1
+    type: javascript.nodejs
+    requires:
+      - name: resource-2
+
+resources:
+  - name: resource-1
+    type: org.cloudfoundry.user-provided-service
+    properties:
+      foo: foo
+      bar: bar
+    requires:
+      - name: resource-2
+        
+  - name: resource-2
+    type: mta-provides-dependency
+    parameters:
+      mta-version: 2.0.0
+      mta-provides-dependency: provided-dependency-1
+      mta-id: mta-2
+    properties:
+      bar: qux
+      baz: baz
+

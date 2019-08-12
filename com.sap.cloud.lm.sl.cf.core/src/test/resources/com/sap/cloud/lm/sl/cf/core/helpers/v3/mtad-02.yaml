@@ -1,0 +1,28 @@
+_schema-version: "3"
+ID: mta-1
+version: 1.0.0
+
+modules:
+  - name: framework
+    type: javascript.nodejs
+    requires:
+      - name: service-1
+
+resources:
+  - name: service-1
+    type: org.cloudfoundry.user-provided-service
+    requires:
+      - name: plugins
+        list: plugins
+        properties:
+          plugin_name: ~{plugin_name}
+          url: ~{url}
+
+  - name: plugins
+    type: configuration
+    parameters:
+      filter:
+        type: com.acme.plugin
+    properties:
+      foo: bar
+      baz: qux
