@@ -1,0 +1,26 @@
+[
+  {
+    "filter": {
+        "providerId": "mta-2:provided-dependency-1",
+        "providerNid": "mta",
+        "targetSpace": {
+          "space": "initial",
+          "org": "initial"
+        },
+        "providerVersion": "2.0.0"
+    },
+    "configurationEntries": [
+      {
+        "id": 0,
+        "providerNid": "mta",
+        "providerId": "mta-2:provided-dependency-1",
+        "providerVersion": "2.0.0",
+        "targetSpace": {
+          "space": "initial",
+          "org": "initial"
+        },
+        "content":"{\"bar\": \"xyz\",\"foo\": \"best\"}"
+      }
+    ]
+  }
+]

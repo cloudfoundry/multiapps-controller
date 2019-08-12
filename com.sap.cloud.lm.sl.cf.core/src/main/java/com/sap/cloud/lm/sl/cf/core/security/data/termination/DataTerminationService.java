@@ -72,51 +72,17 @@ public class DataTerminationService {
         }
     }
 
-    private void deleteSpaceLeftovers(String spaceId) {
-        try {
-            fileService.deleteBySpace(spaceId);
-        } catch (FileStorageException e) {
-            throw new SLException(e, Messages.COULD_NOT_DELETE_SPACE_LEFTOVERS);
-        }
+    private List<String> getDeleteSpaceEvents() {
+        CFOptimizedEventGetter cfOptimizedEventGetter = getCfOptimizedEventGetter();
+        return cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE, getDateBeforeDays(NUMBER_OF_DAYS_OF_EVENTS));
     }
 
-    private void deleteUserOperationsOrphanData(String deleteEventSpaceId) {
-        OperationFilter operationFilter = new OperationFilter.Builder().spaceId(deleteEventSpaceId)
-                                                                       .build();
-        List<Operation> operationsToBeDeleted = operationDao.find(operationFilter);
-        List<String> result = operationsToBeDeleted.stream()
-                                                   .map(Operation::getProcessId)
-                                                   .collect(Collectors.toList());
-        auditLogDeletion(operationsToBeDeleted);
-        operationDao.removeAll(result);
+    protected CFOptimizedEventGetter getCfOptimizedEventGetter() {
+        CloudControllerClientImpl cfClient = getCFClient();
+        return new CFOptimizedEventGetter(cfClient);
     }
 
-    private void deleteConfigurationSubscriptionOrphanData(String spaceId) {
-        List<ConfigurationSubscription> configurationSubscriptions = subscriptionDao.findAll(null, null, spaceId, null);
-        if (configurationSubscriptions.isEmpty()) {
-            return;
-        }
-        auditLogDeletion(configurationSubscriptions);
-        subscriptionDao.removeAll(configurationSubscriptions);
-    }
-
-    private void deleteConfigurationEntryOrphanData(String spaceId) {
-        List<ConfigurationEntry> configurationEntities = entryDao.find(spaceId);
-        if (configurationEntities.isEmpty()) {
-            return;
-        }
-        auditLogDeletion(configurationEntities);
-        entryDao.removeAll(configurationEntities);
-    }
-
-    private void auditLogDeletion(List<? extends AuditableConfiguration> configurationEntities) {
-        for (AuditableConfiguration configurationEntity : configurationEntities) {
-            AuditLoggingProvider.getFacade()
-                                .logConfigDelete(configurationEntity);
-        }
-    }
-
-    protected CloudControllerClientImpl getCFClient() {
+    private CloudControllerClientImpl getCFClient() {
         CloudCredentials cloudCredentials = new CloudCredentials(configuration.getGlobalAuditorUser(),
                                                                  configuration.getGlobalAuditorPassword(),
                                                                  SecurityUtil.CLIENT_ID,
@@ -130,12 +96,6 @@ public class DataTerminationService {
         return cfClient;
     }
 
-    private List<String> getDeleteSpaceEvents() {
-        CloudControllerClientImpl cfClient = getCFClient();
-        CFOptimizedEventGetter cfOptimizedEventGetter = new CFOptimizedEventGetter(cfClient);
-        return cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE, getDateBeforeDays(NUMBER_OF_DAYS_OF_EVENTS));
-    }
-
     private String getDateBeforeDays(int numberOfDays) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         long currentDateInMillis = new Date().getTime();
@@ -145,4 +105,49 @@ public class DataTerminationService {
         LOGGER.info(MessageFormat.format(Messages.PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES, result));
         return result;
     }
+
+    private void deleteConfigurationSubscriptionOrphanData(String spaceId) {
+        List<ConfigurationSubscription> configurationSubscriptions = subscriptionDao.findAll(null, null, spaceId, null);
+        if (configurationSubscriptions.isEmpty()) {
+            return;
+        }
+        auditLogDeletion(configurationSubscriptions);
+        subscriptionDao.removeAll(configurationSubscriptions);
+    }
+
+    private void auditLogDeletion(List<? extends AuditableConfiguration> configurationEntities) {
+        for (AuditableConfiguration configurationEntity : configurationEntities) {
+            AuditLoggingProvider.getFacade()
+                                .logConfigDelete(configurationEntity);
+        }
+    }
+
+    private void deleteConfigurationEntryOrphanData(String spaceId) {
+        List<ConfigurationEntry> configurationEntities = entryDao.find(spaceId);
+        if (configurationEntities.isEmpty()) {
+            return;
+        }
+        auditLogDeletion(configurationEntities);
+        entryDao.removeAll(configurationEntities);
+    }
+
+    private void deleteUserOperationsOrphanData(String deleteEventSpaceId) {
+        OperationFilter operationFilter = new OperationFilter.Builder().spaceId(deleteEventSpaceId)
+                                                                       .build();
+        List<Operation> operationsToBeDeleted = operationDao.find(operationFilter);
+        List<String> result = operationsToBeDeleted.stream()
+                                                   .map(Operation::getProcessId)
+                                                   .collect(Collectors.toList());
+        auditLogDeletion(operationsToBeDeleted);
+        operationDao.removeAll(result);
+    }
+
+    private void deleteSpaceLeftovers(String spaceId) {
+        try {
+            fileService.deleteBySpace(spaceId);
+        } catch (FileStorageException e) {
+            throw new SLException(e, Messages.COULD_NOT_DELETE_SPACE_LEFTOVERS);
+        }
+    }
+
 }

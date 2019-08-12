@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.cf.apps;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ChangedApplicationActionCalcultor implements ActionCalculator {
+public class ChangedApplicationActionCalculator implements ActionCalculator {
 
     @Override
     public Set<ApplicationStateAction> determineActionsToExecute(ApplicationStartupState currentState, ApplicationStartupState desiredState,

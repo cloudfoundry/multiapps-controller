@@ -14,7 +14,6 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.client.util.TokenProperties;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
@@ -31,8 +30,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     private TokenParserChain tokenParserChain;
 
     @Inject
-    public CustomTokenServices(TokenStore tokenStore, TokenFactory tokenFactory, ApplicationConfiguration configuration,
-                               TokenParserChain tokenParserChain) {
+    public CustomTokenServices(TokenStore tokenStore, ApplicationConfiguration configuration, TokenParserChain tokenParserChain) {
         this.tokenStore = tokenStore;
         this.tokenParserChain = tokenParserChain;
         if (configuration.shouldSkipSslValidation()) {

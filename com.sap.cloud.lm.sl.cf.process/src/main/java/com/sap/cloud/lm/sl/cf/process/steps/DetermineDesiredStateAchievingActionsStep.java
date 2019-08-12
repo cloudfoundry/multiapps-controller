@@ -18,7 +18,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.apps.ActionCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupState;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupStateCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
-import com.sap.cloud.lm.sl.cf.core.cf.apps.ChangedApplicationActionCalcultor;
+import com.sap.cloud.lm.sl.cf.core.cf.apps.ChangedApplicationActionCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.UnchangedApplicationActionCalculator;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -74,7 +74,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
 
     private ActionCalculator getActionsCalculator(DelegateExecution context) {
         boolean shouldRestartApp = determineAppRestart(context);
-        return shouldRestartApp ? new ChangedApplicationActionCalcultor() : new UnchangedApplicationActionCalculator();
+        return shouldRestartApp ? new ChangedApplicationActionCalculator() : new UnchangedApplicationActionCalculator();
     }
 
     private boolean determineAppRestart(DelegateExecution context) {

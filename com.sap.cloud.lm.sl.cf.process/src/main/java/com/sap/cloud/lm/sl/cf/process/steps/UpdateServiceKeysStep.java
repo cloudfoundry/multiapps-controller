@@ -79,7 +79,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
 
     private List<CloudServiceKey> getServiceKeysToDelete(List<CloudServiceKey> serviceKeys, List<CloudServiceKey> existingServiceKeys) {
         return existingServiceKeys.stream()
-                                  .filter(key -> shouldDelete(key, serviceKeys))
+                                  .filter(existingkey -> shouldDelete(existingkey, serviceKeys))
                                   .collect(Collectors.toList());
     }
 

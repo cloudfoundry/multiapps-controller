@@ -73,7 +73,7 @@ public class ProcessLoggerProvider {
         return new ProcessLogger(logger, logFile, logName, spaceId, correlationId, activityId);
     }
 
-    private File getLocalFile(String loggerName) {
+    protected File getLocalFile(String loggerName) {
         String fileName = new StringBuilder(loggerName).append(LOG_FILE_EXTENSION)
                                                        .toString();
         return new File(DEFAULT_LOG_DIR, fileName);

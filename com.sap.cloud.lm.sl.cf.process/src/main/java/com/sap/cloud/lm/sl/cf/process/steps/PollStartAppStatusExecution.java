@@ -165,12 +165,12 @@ public class PollStartAppStatusExecution implements AsyncExecution {
                                                         .toLowerCase());
     }
 
-    private static List<InstanceInfo> getApplicationInstances(CloudControllerClient client, CloudApplication app) {
+    private List<InstanceInfo> getApplicationInstances(CloudControllerClient client, CloudApplication app) {
         InstancesInfo instancesInfo = client.getApplicationInstances(app);
         return (instancesInfo != null) ? instancesInfo.getInstances() : null;
     }
 
-    private static long getInstanceCount(List<InstanceInfo> instances, InstanceState state) {
+    private long getInstanceCount(List<InstanceInfo> instances, InstanceState state) {
         return instances.stream()
                         .filter(instance -> instance.getState()
                                                     .equals(state))
