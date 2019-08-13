@@ -5,6 +5,12 @@
 The MultiApps Controller (formerly known as *deploy service*) for [Cloud Foundry](https://www.cloudfoundry.org/) is based on the [Multi-Target Application (MTA)](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) model in which CF applications are modeled as modules, while CF services as resources. The MTA model enables the delivery of packaged applications, where any target specific configuration could be specified on deployment time without changing application code.
 CF MultiApps Controller provides the possibility to operate (deploy, update, undeploy) [MTA](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) modeled applications via a single command, while ensuring the consistency and completeness of the different application components.
 
+# Getting started with MultiApps
+
+You can find more information about what the MultiApps Controller offers in the way of functionality as well as information about creating MTA archives on the [MultiApps Controller Wiki](https://github.com/cloudfoundry-incubator/multiapps-controller/wiki). If you are planning to deploy on the SAP cloud you can find even more information in the official SAP Help Documentation under [Multitarget Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/c4f0d850b6ba46089a76d53ab805c9e6.html).
+
+The project has also provided schema support in the open [Schema Store](https://github.com/cloudfoundry-incubator/multiapps-controller/wiki/Deployment-Descriptor#editor-schema-support) which would provide auto-completion and synthax checking when writing MultiApps descriptors.
+
 # Components
 ## com.sap.cloud.lm.sl.cf.api
 Contains the swagger-generated definitions of the REST API models and endpoints. The complete swagger definitions can be found at: https://app.swaggerhub.com/apis/SAP53/mtarest/1.0.0
