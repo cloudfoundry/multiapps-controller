@@ -9,7 +9,7 @@ CF MultiApps Controller provides the possibility to operate (deploy, update, und
 
 You can find more information about what the MultiApps Controller offers in the way of functionality as well as information about creating MTA archives on the [MultiApps Controller Wiki](https://github.com/cloudfoundry-incubator/multiapps-controller/wiki). If you are planning to deploy on the SAP cloud you can find even more information in the official SAP Help Documentation under [Multitarget Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/c4f0d850b6ba46089a76d53ab805c9e6.html).
 
-The project has also provided [schema support](https://github.com/cloudfoundry-incubator/multiapps-controller/wiki/Deployment-Descriptor#editor-schema-support) in the open [Schema Store](http://schemastore.org/json/ which would provide auto-completion, tooltips, synthax checking and more when writing MultiApps descriptors.
+The project has also provided [schema support](https://github.com/cloudfoundry-incubator/multiapps-controller/wiki/Deployment-Descriptor#editor-schema-support) in the open [Schema Store](http://schemastore.org/json/) which would provide auto-completion, tooltips, synthax checking and more when writing MultiApps descriptors.
 
 # Components
 ## com.sap.cloud.lm.sl.cf.api
