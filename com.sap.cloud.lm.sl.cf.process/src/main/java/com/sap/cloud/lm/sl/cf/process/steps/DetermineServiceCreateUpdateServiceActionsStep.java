@@ -21,6 +21,8 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -47,6 +49,7 @@ import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 @Component("determineServiceCreateUpdateActionsStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowableStep {
 
     @Inject

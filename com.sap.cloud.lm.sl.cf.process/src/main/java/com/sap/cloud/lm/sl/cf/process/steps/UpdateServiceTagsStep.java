@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -14,6 +16,7 @@ import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("updateServiceTagsStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UpdateServiceTagsStep extends ServiceStep {
 
     @Override
