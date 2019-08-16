@@ -127,6 +127,7 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 75;
     public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 75;
     public static final Boolean DEFAULT_SAP_INTERNAL_DELIVERY = false;
+    public static final String CF_INSTANCE_INDEX = "CF_INSTANCE_INDEX";
     public static final String DEFAULT_CERTIFICATE_CN = "SAP SE";
 
     private final Environment environment;
@@ -795,7 +796,7 @@ public class ApplicationConfiguration {
     }
 
     private Integer getApplicationInstanceIndexFromEnvironment() {
-        Integer applicationInstanceIndexFromEnvironment = environment.getInteger("CF_INSTANCE_INDEX");
+        Integer applicationInstanceIndexFromEnvironment = environment.getInteger(CF_INSTANCE_INDEX);
         LOGGER.info(format(Messages.APPLICATION_INSTANCE_INDEX, applicationInstanceIndexFromEnvironment));
         return applicationInstanceIndexFromEnvironment;
     }

@@ -11,7 +11,9 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -111,6 +113,31 @@ public class StepsUtilTest {
         Phase actualPhase = Phase.valueOf((String) context.getVariable(Constants.VAR_PHASE));
 
         assertEquals(expectedPhase, actualPhase);
+    }
+
+    @Test
+    public void testShouldVerifyArchiveSignatureNotSet() {
+        Assertions.assertFalse(StepsUtil.shouldVerifyArchiveSignature(context));
+    }
+
+    @Test
+    public void testShouldVerifyArchiveSignatureSet() {
+        Mockito.when(context.getVariable(Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE))
+               .thenReturn(true);
+        Assertions.assertTrue(StepsUtil.shouldVerifyArchiveSignature(context));
+    }
+
+    @Test
+    public void testGetCertificateCNNotSet() {
+        Assertions.assertNull(StepsUtil.getCertificateCN(context));
+    }
+
+    @Test
+    public void testGetCertificateCnSet() {
+        String certificateCN = "SAP SE";
+        Mockito.when(context.getVariable(Constants.PARAM_CERTIFICATE_CN))
+               .thenReturn(certificateCN);
+        Assertions.assertEquals(certificateCN, StepsUtil.getCertificateCN(context));
     }
 
 }
