@@ -1,0 +1,21 @@
+{
+  "name": "CLOUD-FOUNDRY",
+  "module-types": [
+    {
+      "name": "custom"
+    },
+    {
+      "name": "javascript.nodejs"
+    }
+  ],
+  "resource-types": [
+    {
+      "name": "destination",
+      "parameters": {
+        "service": "destination",
+        "service-plan": "lite",
+        "type": "managed-service"
+      }
+    }
+  ]
+}

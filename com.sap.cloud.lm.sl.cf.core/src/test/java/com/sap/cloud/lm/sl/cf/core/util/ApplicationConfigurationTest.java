@@ -7,8 +7,10 @@ import static org.mockito.Mockito.when;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,28 +20,24 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
+import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.mta.model.Platform;
 
 public class ApplicationConfigurationTest {
 
-    // TODO - tests about masking of sensitive entries while logging
-    // TODO - tests about parsing values of different types
-
-    private static final String VCAP_APPLICATION_JSON_WITHOUT_SPACE_ID = "{\"instance_id\":\"d827d1f2-d4c1-462a-ab9d-5bf828706d63\","
-        + "\"application_name\":\"deploy-service\"," + "\"started_at_timestamp\":\"1437740774167\","
-        + "\"state_timestamp\":\"1437651427557\"," + "\"application_uris\":[\"sofd60245639a:12993\"],"
-        + "\"uris\":[\"sofd60245639a:12993\"]}";
-    private static final String VCAP_APPLICATION_JSON = "{\"instance_id\":\"d827d1f2-d4c1-462a-ab9d-5bf828706d63\","
-        + "\"application_name\":\"deploy-service\"," + "\"space_id\":\"954229f5-4945-43eb-8acb-a8f07cc5a7f8\","
-        + "\"started_at_timestamp\":\"1437740774167\"," + "\"state_timestamp\":\"1437651427557\","
-        + "\"application_uris\":[\"sofd60245639a:12993\"]," + "\"uris\":[\"sofd60245639a:12993\"]}";
+    private static final String VCAP_APPLICATION_JSON_WITHOUT_SPACE_ID_FILE = "vcap-application-without-space.json";
+    private static final String VCAP_APPLICATION_WITHOUT_URLS = "vcap-application-without-urls.json";
+    private static final String VCAP_APPLICATION_JSON_FILE = "vcap-application.json";
+    private static final String PLATFORM_JSON_FILE = "platform.json";
 
     @Mock
     private Environment environment;
     @Mock
-    private AuditLoggingFacade auditLoggingFascade;
+    private AuditLoggingFacade auditLoggingFacade;
     @InjectMocks
     private ApplicationConfiguration configuration;
 
@@ -78,7 +76,7 @@ public class ApplicationConfigurationTest {
         assertEquals(MessageFormat.format(Messages.INVALID_CONTROLLER_URL, invalidUrl), e.getMessage());
     }
 
-    public URL getControllerUrlWithVcapApplication(Map<String, String> vcapApplication) throws Exception {
+    public URL getControllerUrlWithVcapApplication(Map<String, String> vcapApplication) {
         String vcapApplicationJson = JsonUtil.toJson(vcapApplication);
         when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION)).thenReturn(vcapApplicationJson);
         ApplicationConfiguration testedConfiguration = new ApplicationConfiguration(environment);
@@ -86,44 +84,218 @@ public class ApplicationConfigurationTest {
     }
 
     @Test
-    public void testGetSpaceIdWithNull() throws Exception {
+    public void testGetSpaceIdWithNull() {
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
-    public void testGetSpaceIdWithEmptyString() throws Exception {
+    public void testGetSpaceIdWithEmptyString() {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
                .thenReturn("");
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
-    public void testGetSpaceIdWithInvalidJson() throws Exception {
+    public void testGetSpaceIdWithInvalidJson() {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
                .thenReturn("invalid");
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
-    public void testGetSpaceIdWithEmptyMap() throws Exception {
+    public void testGetSpaceIdWithEmptyMap() {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
                .thenReturn("{}");
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
-    public void testGetSpaceIdWithMissingSpaceId() throws Exception {
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
-               .thenReturn(VCAP_APPLICATION_JSON_WITHOUT_SPACE_ID);
+    public void testGetSpaceIdWithMissingSpaceId() {
+        injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_JSON_WITHOUT_SPACE_ID_FILE,
+                                                   ApplicationConfiguration.CFG_VCAP_APPLICATION);
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
-    public void testGetSpaceId() throws Exception {
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
-               .thenReturn(VCAP_APPLICATION_JSON);
+    public void testGetSpaceId() {
+        Map<String, Object> vcapApplication = injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_JSON_FILE,
+                                                                                         ApplicationConfiguration.CFG_VCAP_APPLICATION);
         String spaceId = configuration.getSpaceId();
-        assertEquals("954229f5-4945-43eb-8acb-a8f07cc5a7f8", spaceId);
+        assertEquals(vcapApplication.get("space_id"), spaceId);
+    }
+
+    @Test
+    public void testGetPlatformValidPlatform() {
+        Map<String, Object> platformMap = injectVcapApplicationJsonFileInEnvironment(PLATFORM_JSON_FILE,
+                                                                                     ApplicationConfiguration.CFG_PLATFORM);
+        Platform platform = configuration.getPlatform();
+        Assertions.assertEquals(platformMap.get("name"), platform.getName());
+        Assertions.assertFalse(platform.getResourceTypes()
+                                       .isEmpty());
+        Assertions.assertFalse(platform.getModuleTypes()
+                                       .isEmpty());
+        Assertions.assertTrue(platform.getParameters()
+                                      .isEmpty());
+    }
+
+    @Test
+    public void testGetPlatformNoPlatformInEnvironment() {
+        IllegalStateException illegalStateException = assertThrows(IllegalStateException.class, () -> configuration.getPlatform());
+        Assertions.assertEquals(Messages.PLATFORMS_NOT_SPECIFIED, illegalStateException.getMessage());
+    }
+
+    @Test
+    public void testGetMaxUploadSize() {
+        Mockito.when(environment.getLong(ApplicationConfiguration.CFG_MAX_UPLOAD_SIZE, ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE))
+               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE, configuration.getMaxUploadSize());
+    }
+
+    @Test
+    public void testGetMaxMtaDescriptorSize() {
+        Mockito.when(environment.getLong(ApplicationConfiguration.CFG_MAX_MTA_DESCRIPTOR_SIZE,
+                                         ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE))
+               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE, configuration.getMaxMtaDescriptorSize());
+    }
+
+    @Test
+    public void testGetMaxManifestFileSize() {
+        Mockito.when(environment.getLong(ApplicationConfiguration.CFG_MAX_MANIFEST_SIZE,
+                                         ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE))
+               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE, configuration.getMaxManifestSize());
+    }
+
+    @Test
+    public void testGetMaxResourceFileSize() {
+        Mockito.when(environment.getLong(ApplicationConfiguration.CFG_MAX_RESOURCE_FILE_SIZE,
+                                         ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE))
+               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE, configuration.getMaxResourceFileSize());
+    }
+
+    @Test
+    public void testGetCronExpressionForOldData() {
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_CRON_EXPRESSION_FOR_OLD_DATA))
+               .thenReturn(ApplicationConfiguration.DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA, configuration.getCronExpressionForOldData());
+    }
+
+    @Test
+    public void testGetMaxTtlForOldDataFromEnvironment() {
+        Mockito.when(environment.getLong(ApplicationConfiguration.CFG_MAX_TTL_FOR_OLD_DATA,
+                                         ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA))
+               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_MAX_TTL_FOR_OLD_DATA, configuration.getMaxTtlForOldData());
+    }
+
+    @Test
+    public void testShouldUseXSAuditLogging() {
+        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_USE_XS_AUDIT_LOGGING,
+                                            ApplicationConfiguration.DEFAULT_USE_XS_AUDIT_LOGGING))
+               .thenReturn(ApplicationConfiguration.DEFAULT_USE_XS_AUDIT_LOGGING);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_USE_XS_AUDIT_LOGGING, configuration.shouldUseXSAuditLogging());
+    }
+
+    @Test
+    public void testGetOrgNameWithValidOrgName() {
+        Map<String, Object> vcapApplication = injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_JSON_FILE,
+                                                                                         ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        Assertions.assertEquals(vcapApplication.get("organization_name"), configuration.getOrgName());
+    }
+
+    @Test
+    public void testGetOrgNameNameNotSet() {
+        injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_JSON_WITHOUT_SPACE_ID_FILE,
+                                                   ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        Assertions.assertNull(configuration.getOrgName());
+    }
+
+    @Test
+    public void testGetDeployServiceUrlUrlIsSet() {
+        Map<String, Object> vcapApplication = injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_JSON_FILE,
+                                                                                         ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        List<String> urls = (List<String>) vcapApplication.get("uris");
+        Assertions.assertEquals(urls.get(0), configuration.getDeployServiceUrl());
+    }
+
+    @Test
+    public void testGetDeployServiceUrlUrlIsNotSet() {
+        injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_WITHOUT_URLS, ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        Assertions.assertNull(configuration.getDeployServiceUrl());
+    }
+
+    @Test
+    public void testAreDummyTokensEnabled() {
+        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_DUMMY_TOKENS_ENABLED,
+                                            ApplicationConfiguration.DEFAULT_DUMMY_TOKENS_ENABLED))
+               .thenReturn(ApplicationConfiguration.DEFAULT_DUMMY_TOKENS_ENABLED);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_DUMMY_TOKENS_ENABLED, configuration.areDummyTokensEnabled());
+    }
+
+    @Test
+    public void testIsBasicAuthEnabled() {
+        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_BASIC_AUTH_ENABLED,
+                                            ApplicationConfiguration.DEFAULT_BASIC_AUTH_ENABLED))
+               .thenReturn(ApplicationConfiguration.DEFAULT_BASIC_AUTH_ENABLED);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_BASIC_AUTH_ENABLED, configuration.isBasicAuthEnabled());
+    }
+
+    @Test
+    public void testGetGlobalAuditorUser() {
+        String globalAuditorUser = "globalAuditorUserName";
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_GLOBAL_AUDITOR_USER))
+               .thenReturn(globalAuditorUser);
+        Assertions.assertEquals(globalAuditorUser, configuration.getGlobalAuditorUser());
+    }
+
+    @Test
+    public void testGetGlobalAuditorPasswordFromEnvironment() {
+        String globalAuditorPassword = "globalAuditorUserPassword";
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_GLOBAL_AUDITOR_PASSWORD))
+               .thenReturn(globalAuditorPassword);
+        Assertions.assertEquals(globalAuditorPassword, configuration.getGlobalAuditorPassword());
+    }
+
+    @Test
+    public void testGetDbConnectionThreadsFromEnvironment() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_DB_CONNECTION_THREADS,
+                                                    ApplicationConfiguration.DEFAULT_DB_CONNECTION_THREADS))
+               .thenReturn(ApplicationConfiguration.DEFAULT_DB_CONNECTION_THREADS);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_DB_CONNECTION_THREADS, configuration.getDbConnectionThreads());
+    }
+
+    @Test
+    public void testGetStepPollingIntervalInSeconds() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_STEP_POLLING_INTERVAL_IN_SECONDS,
+                                                    ApplicationConfiguration.DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS))
+               .thenReturn(ApplicationConfiguration.DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS,
+                                configuration.getStepPollingIntervalInSeconds());
+    }
+
+    @Test
+    public void testShouldSkipSslValidation() {
+        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_SKIP_SSL_VALIDATION,
+                                            ApplicationConfiguration.DEFAULT_SKIP_SSL_VALIDATION))
+               .thenReturn(ApplicationConfiguration.DEFAULT_SKIP_SSL_VALIDATION);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_SKIP_SSL_VALIDATION, configuration.shouldSkipSslValidation());
+    }
+
+    @Test
+    public void testGetVersionFromEnvironment() {
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_VERSION, ApplicationConfiguration.DEFAULT_VERSION))
+               .thenReturn(ApplicationConfiguration.DEFAULT_VERSION);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_VERSION, configuration.getVersion());
+    }
+
+    @Test
+    public void testGetChangeLogLockPollRate() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CHANGE_LOG_LOCK_POLL_RATE,
+                                                    ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_POLL_RATE))
+               .thenReturn(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_POLL_RATE);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_POLL_RATE, configuration.getChangeLogLockPollRate());
     }
 
     @Test
@@ -134,4 +306,205 @@ public class ApplicationConfigurationTest {
         assertEquals(Duration.ofSeconds(10), configuration.getControllerClientConnectTimeout());
     }
 
+    public void testGetChangeLogLockDuration() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CHANGE_LOG_LOCK_DURATION,
+                                                    ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_DURATION))
+               .thenReturn(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_DURATION);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_DURATION, configuration.getChangeLogLockDuration());
+    }
+
+    @Test
+    public void testGetChangeLogLockAttempts() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CHANGE_LOG_LOCK_ATTEMPTS,
+                                                    ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS))
+               .thenReturn(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS, configuration.getChangeLogLockAttempts());
+    }
+
+    @Test
+    public void testGetGlobalConfigSpace() {
+        String globalConfigSpace = "globalConfigSpace";
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_GLOBAL_CONFIG_SPACE))
+               .thenReturn(globalConfigSpace);
+        Assertions.assertEquals(globalConfigSpace, configuration.getGlobalConfigSpace());
+    }
+
+    @Test
+    public void testShouldGatherUsageStatistics() {
+        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_GATHER_USAGE_STATISTICS,
+                                            ApplicationConfiguration.DEFAULT_GATHER_USAGE_STATISTICS))
+               .thenReturn(ApplicationConfiguration.DEFAULT_GATHER_USAGE_STATISTICS);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_GATHER_USAGE_STATISTICS, configuration.shouldGatherUsageStatistics());
+    }
+
+    @Test
+    public void testGetHealthCheckConfigurationFromEnvironment() {
+        String healthCheckSpaceId = "healthCheckSpaceId";
+        String healthCheckMtaId = "healthCheckMtaId";
+        String healthCheckUserName = "healthCheckUserId";
+        int healthCheckTimeRange = 10;
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_HEALTH_CHECK_SPACE_ID))
+               .thenReturn(healthCheckSpaceId);
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_HEALTH_CHECK_MTA_ID))
+               .thenReturn(healthCheckMtaId);
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_HEALTH_CHECK_USER))
+               .thenReturn(healthCheckUserName);
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_HEALTH_CHECK_TIME_RANGE,
+                                                    ApplicationConfiguration.DEFAULT_HEALTH_CHECK_TIME_RANGE))
+               .thenReturn(healthCheckTimeRange);
+        HealthCheckConfiguration healthCheckConfiguration = configuration.getHealthCheckConfiguration();
+        Assertions.assertEquals(healthCheckSpaceId, healthCheckConfiguration.getSpaceId());
+        Assertions.assertEquals(healthCheckMtaId, healthCheckConfiguration.getMtaId());
+        Assertions.assertEquals(healthCheckUserName, healthCheckConfiguration.getUserName());
+        Assertions.assertEquals(healthCheckTimeRange, healthCheckConfiguration.getTimeRangeInSeconds());
+    }
+
+    @Test
+    public void testGetMailApiUrl() {
+        String mailApiUrl = "https://mail.com";
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_MAIL_API_URL))
+               .thenReturn(mailApiUrl);
+        Assertions.assertEquals(mailApiUrl, configuration.getMailApiUrl());
+    }
+
+    @Test
+    public void testGetApplicationId() {
+        Map<String, Object> vcapApplication = injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_JSON_FILE,
+                                                                                         ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        Assertions.assertEquals(vcapApplication.get("application_id"), configuration.getApplicationId());
+    }
+
+    @Test
+    public void testGetApplicationInstanceIndex() {
+        Integer instanceIndex = 1;
+        Mockito.when(environment.getInteger(ApplicationConfiguration.CF_INSTANCE_INDEX))
+               .thenReturn(instanceIndex);
+        Assertions.assertEquals(instanceIndex, configuration.getApplicationInstanceIndex());
+    }
+
+    @Test
+    public void testGetAuditLogClientCoreThreads() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_AUDIT_LOG_CLIENT_CORE_THREADS,
+                                                    ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_CORE_THREADS))
+               .thenReturn(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_CORE_THREADS);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_CORE_THREADS,
+                                configuration.getAuditLogClientCoreThreads());
+    }
+
+    @Test
+    public void testGetAuditLogClientMaxThreads() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_AUDIT_LOG_CLIENT_MAX_THREADS,
+                                                    ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS))
+               .thenReturn(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS, configuration.getAuditLogClientMaxThreads());
+    }
+
+    @Test
+    public void testGetAuditLogClientQueueCapacity() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY,
+                                                    ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY))
+               .thenReturn(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY,
+                                configuration.getAuditLogClientQueueCapacity());
+    }
+
+    @Test
+    public void testGetAuditLogClientKeepAlive() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE,
+                                                    ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE))
+               .thenReturn(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE, configuration.getAuditLogClientKeepAlive());
+    }
+
+    @Test
+    public void testGetFlowableJobExecutorCoreThreads() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS,
+                                                    ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_CORE_THREADS))
+               .thenReturn(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_CORE_THREADS);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_CORE_THREADS,
+                                configuration.getFlowableJobExecutorCoreThreads());
+    }
+
+    @Test
+    public void testGetFlowableJobExecutorMaxThreads() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS,
+                                                    ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_MAX_THREADS))
+               .thenReturn(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_MAX_THREADS);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_MAX_THREADS,
+                                configuration.getFlowableJobExecutorMaxThreads());
+    }
+
+    @Test
+    public void testGetFlowableJobExecutorQueueCapacity() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
+                                                    ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY))
+               .thenReturn(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
+                                configuration.getFlowableJobExecutorQueueCapacity());
+    }
+
+    @Test
+    public void testGetFssCacheUpdateTimeoutMinutes() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES,
+                                                    ApplicationConfiguration.DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES))
+               .thenReturn(ApplicationConfiguration.DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES,
+                                configuration.getFssCacheUpdateTimeoutMinutes());
+    }
+
+    @Test
+    public void testGetSpaceDeveloperCacheExpirationInSeconds() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS,
+                                                    ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS))
+               .thenReturn(ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS,
+                                configuration.getSpaceDeveloperCacheExpirationInSeconds());
+    }
+
+    @Test
+    public void testGetControllerClientConnectionPoolSize() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
+                                                    ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE))
+               .thenReturn(ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
+                                configuration.getControllerClientConnectionPoolSize());
+    }
+
+    @Test
+    public void testGetControllerClientThreadPoolSize() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE,
+                                                    ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE))
+               .thenReturn(ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE,
+                                configuration.getControllerClientThreadPoolSize());
+    }
+
+    @Test
+    public void testGetCertificateCN() {
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_CERTIFICATE_CN, ApplicationConfiguration.DEFAULT_CERTIFICATE_CN))
+               .thenReturn(ApplicationConfiguration.DEFAULT_CERTIFICATE_CN);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CERTIFICATE_CN, configuration.getCertificateCN());
+    }
+
+    @Test
+    public void testGetFilteredEnv() {
+        Map<String, String> filteredEnv = configuration.getFilteredEnv();
+        Assertions.assertEquals(0, filteredEnv.size());
+    }
+
+    @Test
+    public void testLoad() {
+        Map<String, Object> vcapApplication = injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_JSON_FILE,
+                                                                                         ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        configuration.load();
+        Assertions.assertEquals(vcapApplication.get("cf_api"), configuration.getControllerUrl()
+                                                                            .toString());
+    }
+
+    private Map<String, Object> injectVcapApplicationJsonFileInEnvironment(String vcapApplicationJsonFile, String cfgVcapApplication) {
+        String vcapApplicationJson = TestUtil.getResourceAsString(vcapApplicationJsonFile, getClass());
+        Mockito.when(environment.getString(cfgVcapApplication))
+               .thenReturn(vcapApplicationJson);
+        return JsonUtil.convertJsonToMap(vcapApplicationJson);
+    }
 }
