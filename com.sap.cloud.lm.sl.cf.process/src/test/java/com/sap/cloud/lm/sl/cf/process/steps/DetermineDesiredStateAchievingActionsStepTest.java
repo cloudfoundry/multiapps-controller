@@ -193,7 +193,6 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
         }
         step.execute(context);
         assertStepFinishedSuccessfully();
-
         assertEquals(expectedAppStateActions, StepsUtil.getAppStateActionsToExecute(context));
     }
 

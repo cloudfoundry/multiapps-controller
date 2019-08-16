@@ -124,6 +124,16 @@ public class DeployMetadata {
                                     .type(ParameterType.STRING)
                                     .defaultValue(null)
                                     .build());
+        PARAMS.add(ParameterMetadata.builder()
+                                    .id(Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE)
+                                    .type(ParameterType.BOOLEAN)
+                                    .defaultValue(false)
+                                    .build());
+        PARAMS.add(ParameterMetadata.builder()
+                                    .id(Constants.PARAM_CERTIFICATE_CN)
+                                    .type(ParameterType.STRING)
+                                    .defaultValue(null)
+                                    .build());
     }
 
     private DeployMetadata() {

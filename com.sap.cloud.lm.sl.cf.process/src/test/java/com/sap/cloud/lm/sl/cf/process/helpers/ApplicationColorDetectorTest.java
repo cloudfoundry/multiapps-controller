@@ -49,7 +49,6 @@ public class ApplicationColorDetectorTest {
     private static final String FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID = "123123123";
     private static final String FAKE_PROCESS_ID = "abc";
 
-    // This method is used to initialize method parameters -> @MethodSource
     // @formatter:off
     private static Stream<Arguments> detectLiveApplicationColorMtaColorAndPhase() {
         return Stream.of(
