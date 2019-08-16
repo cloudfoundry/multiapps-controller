@@ -53,7 +53,7 @@ public class ArchiveMergerTest {
 
     @BeforeEach
     public void setUp() {
-        archiveMerger = new ArchiveMerger(fileService, stepLogger, context, logger);
+        archiveMerger = new ArchiveMerger(fileService, stepLogger, context);
     }
 
     @Test

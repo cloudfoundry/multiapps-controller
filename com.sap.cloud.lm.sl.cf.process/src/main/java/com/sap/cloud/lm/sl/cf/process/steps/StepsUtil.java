@@ -73,6 +73,8 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class StepsUtil {
 
+    public static final String DEPLOY_ID_PREFIX = "deploy-";
+
     protected StepsUtil() {
     }
 
@@ -761,8 +763,6 @@ public class StepsUtil {
         scope.setVariable(name, value + 1);
     }
 
-    public static final String DEPLOY_ID_PREFIX = "deploy-";
-
     static ApplicationCloudModelBuilder getApplicationCloudModelBuilder(VariableScope scope, UserMessageLogger stepLogger) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
 
@@ -903,6 +903,14 @@ public class StepsUtil {
 
     public static boolean shouldDeleteServices(VariableScope scope) {
         return getBoolean(scope, Constants.PARAM_DELETE_SERVICES, false);
+    }
+
+    public static boolean shouldVerifyArchiveSignature(VariableScope scope) {
+        return getBoolean(scope, Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE, false);
+    }
+
+    public static String getCertificateCN(VariableScope scope) {
+        return getString(scope, Constants.PARAM_CERTIFICATE_CN, null);
     }
 
     public static CloudServiceExtended getServiceToProcess(VariableScope scope) {

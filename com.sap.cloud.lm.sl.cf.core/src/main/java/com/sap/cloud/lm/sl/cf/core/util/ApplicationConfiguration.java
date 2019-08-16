@@ -88,16 +88,17 @@ public class ApplicationConfiguration {
     static final String SAP_INTERNAL_DELIVERY = "SAP_INTERNAL_DELIVERY";
     static final String SUPPORT_COMPONENTS = "SUPPORT_COMPONENTS";
     static final String INTERNAL_SUPPORT_CHANNEL = "INTERNAL_SUPPORT_CHANNEL";
+    static final String CFG_CERTIFICATE_CN = "CERTIFICATE_CN";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
     // Default values:
     public static final List<Platform> DEFAULT_PLATFORMS = Collections.emptyList();
     public static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
-    public static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4 GB(s)
-    public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB(s)
-    public static final long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024l; // 1MB
-    public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024l; // 1GB
+    public static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024L; // 4 GB(s)
+    public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024L; // 1 MB(s)
+    public static final long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024L; // 1MB
+    public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024L; // 1GB
     public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
     public static final String DEFAULT_SPACE_ID = "";
     public static final Boolean DEFAULT_DUMMY_TOKENS_ENABLED = false;
@@ -126,6 +127,7 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 75;
     public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 75;
     public static final Boolean DEFAULT_SAP_INTERNAL_DELIVERY = false;
+    public static final String DEFAULT_CERTIFICATE_CN = "SAP SE";
 
     private final Environment environment;
 
@@ -172,6 +174,7 @@ public class ApplicationConfiguration {
     private Duration controllerClientConnectTimeout;
     private Integer controllerClientConnectionPoolSize;
     private Integer controllerClientThreadPoolSize;
+    private String certificateCN;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -534,6 +537,13 @@ public class ApplicationConfiguration {
         return controllerClientThreadPoolSize;
     }
 
+    public String getCertificateCN() {
+        if (certificateCN == null) {
+            certificateCN = getCertificateCNFromEnvironment();
+        }
+        return certificateCN;
+    }
+
     private URL getControllerUrlFromEnvironment() {
         Map<String, Object> vcapApplicationMap = getVcapApplication();
         String controllerUrlString = getControllerUrl(vcapApplicationMap);
@@ -891,6 +901,12 @@ public class ApplicationConfiguration {
 
     public String getInternalSupportChannel() {
         return environment.getString(INTERNAL_SUPPORT_CHANNEL);
+    }
+
+    private String getCertificateCNFromEnvironment() {
+        String value = environment.getString(CFG_CERTIFICATE_CN, DEFAULT_CERTIFICATE_CN);
+        LOGGER.info(format(Messages.CERTIFICATE_CN, value));
+        return value;
     }
 
 }

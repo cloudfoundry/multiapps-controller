@@ -126,6 +126,16 @@ public class BlueGreenDeployMetadata {
                                     .id(Constants.PARAM_RESOURCES_FOR_DEPLOYMENT)
                                     .type(ParameterType.STRING)
                                     .build());
+        PARAMS.add(ParameterMetadata.builder()
+                                    .id(Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE)
+                                    .type(ParameterType.BOOLEAN)
+                                    .defaultValue(false)
+                                    .build());
+        PARAMS.add(ParameterMetadata.builder()
+                                    .id(Constants.PARAM_CERTIFICATE_CN)
+                                    .type(ParameterType.STRING)
+                                    .defaultValue(null)
+                                    .build());
 
         // Special blue green deploy parameters:
         PARAMS.add(ParameterMetadata.builder()
