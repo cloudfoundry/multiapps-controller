@@ -3,7 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.flowable;
 import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -161,7 +162,7 @@ public class FlowableFacade {
         List<Execution> allProcessExecutions = getAllProcessExecutions(processId);
         return allProcessExecutions.stream()
                                    .map(this::getDeadLetterJobsForExecution)
-                                   .flatMap(Collection::stream)
+                                   .flatMap(List::stream)
                                    .collect(Collectors.toList());
     }
 
@@ -199,19 +200,15 @@ public class FlowableFacade {
     public List<String> getActiveHistoricSubProcessIds(String correlationId) {
         return getHistoricSubProcessIds(correlationId).stream()
                                                       .filter(this::isActive)
-                                                      .collect(Collectors.toList());
+                                                      .collect(Collectors.toCollection(LinkedList::new));
     }
 
     private boolean isActive(String processId) {
-        return getHistoricActivityInstance(processId, "endEvent") == null;
-    }
-
-    private HistoricActivityInstance getHistoricActivityInstance(String processId, String activityType) {
         return processEngine.getHistoryService()
                             .createHistoricActivityInstanceQuery()
-                            .activityType(activityType)
+                            .activityType("endEvent")
                             .processInstanceId(processId)
-                            .singleResult();
+                            .singleResult() == null;
     }
 
     public String getActivityType(String processInstanceId, String executionId, String activityId) {
@@ -269,12 +266,12 @@ public class FlowableFacade {
                      .moveDeadLetterJobToExecutableJob(deadLetterJob.getId(), DEFAULT_JOB_RETRIES);
     }
 
-    public void trigger(String userId, String executionId) {
+    public void trigger(String userId, String executionId, Map<String, Object> variables) {
         try {
             processEngine.getIdentityService()
                          .setAuthenticatedUserId(userId);
             processEngine.getRuntimeService()
-                         .trigger(executionId);
+                         .trigger(executionId, variables);
         } finally {
             processEngine.getIdentityService()
                          .setAuthenticatedUserId(null);
@@ -387,8 +384,7 @@ public class FlowableFacade {
     }
 
     public String findHistoricProcessInstanceIdByProcessDefinitionKey(String processInstanceId, String processDefinitionKey) {
-        return findHistoricProcessInstanceIdsAndProcessDefinitionKey(getHistoricSubProcessIds(processInstanceId).stream()
-                                                                                                                .collect(Collectors.toSet()),
+        return findHistoricProcessInstanceIdsAndProcessDefinitionKey(new HashSet<>(getHistoricSubProcessIds(processInstanceId)),
                                                                      processDefinitionKey);
     }
 

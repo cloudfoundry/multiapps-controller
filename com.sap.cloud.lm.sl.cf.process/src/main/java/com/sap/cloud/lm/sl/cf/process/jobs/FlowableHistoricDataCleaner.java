@@ -62,15 +62,10 @@ public class FlowableHistoricDataCleaner implements Cleaner {
     }
 
     private long deleteExpiredProcessesPage(Date expirationTime) {
-        long deletedProcessesCount = 0;
         List<HistoricProcessInstance> processesToDelete = getExpiredProcessesPage(expirationTime);
-        for (HistoricProcessInstance process : processesToDelete) {
-            boolean wasDeleted = deleteProcessSafely(process);
-            if (wasDeleted) {
-                deletedProcessesCount++;
-            }
-        }
-        return deletedProcessesCount;
+        return processesToDelete.stream()
+            .filter(this::deleteProcessSafely)
+            .count();
     }
 
     private List<HistoricProcessInstance> getExpiredProcessesPage(Date expirationTime) {
