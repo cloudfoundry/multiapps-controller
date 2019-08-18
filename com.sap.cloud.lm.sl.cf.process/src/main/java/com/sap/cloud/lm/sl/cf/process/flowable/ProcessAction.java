@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.flowable;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,9 +27,8 @@ public abstract class ProcessAction {
 
     protected List<String> getActiveExecutionIds(String superProcessInstanceId) {
         List<String> activeHistoricSubProcessIds = flowableFacade.getActiveHistoricSubProcessIds(superProcessInstanceId);
-        LinkedList<String> subProcessIds = new LinkedList<>(activeHistoricSubProcessIds);
-        subProcessIds.addFirst(superProcessInstanceId);
-        return subProcessIds;
+        activeHistoricSubProcessIds.add(0, superProcessInstanceId);
+        return activeHistoricSubProcessIds;
     }
 
     public void execute(String userId, String superProcessInstanceId) {
@@ -52,12 +50,12 @@ public abstract class ProcessAction {
 
     public abstract String getActionId();
 
-    protected void updateUser(String userId, String executionId) {
+    protected void updateUserIfNecessary(String userId, String executionId) {
         HistoryService historyService = flowableFacade.getProcessEngine()
                                                       .getHistoryService();
-        ClientReleaser clientReleaser = new ClientReleaser(clientProvider);
         String oldUserId = HistoricVariablesUtil.getCurrentUser(historyService, executionId);
-        if (!oldUserId.equals(userId)) {
+        if (!userId.equals(oldUserId)) {
+            ClientReleaser clientReleaser = new ClientReleaser(clientProvider);
             clientReleaser.releaseClientFor(historyService, executionId);
             flowableFacade.getProcessEngine()
                           .getRuntimeService()

@@ -1,9 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import org.flowable.engine.HistoryService;
 import org.flowable.variable.api.history.HistoricVariableInstance;
-
-import com.sap.cloud.lm.sl.cf.process.Constants;
 
 public class HistoricVariablesUtil {
 
@@ -11,11 +10,14 @@ public class HistoricVariablesUtil {
     }
 
     public static String getCurrentUser(HistoryService historyService, String processInstanceId) {
-        String user = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_USER).getValue();
+        HistoricVariableInstance user = getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_USER);
         if (user == null) {
-            user = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.PARAM_INITIATOR).getValue();
+            user = getHistoricVarInstanceValue(historyService, processInstanceId, Constants.PARAM_INITIATOR);
+            if (user == null) {
+                return null;
+            }
         }
-        return user;
+        return (String) user.getValue();
     }
 
     public static HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId,

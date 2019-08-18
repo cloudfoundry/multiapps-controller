@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 import org.flowable.engine.runtime.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +33,7 @@ public class ResumeProcessAction extends ProcessAction {
                                                                                                   .isEmpty())
                                                               .collect(Collectors.toList());
 
-        updateUser(userId, superProcessInstanceId);
+        updateUserIfNecessary(userId, superProcessInstanceId);
         for (String processAtReceiveTask : processesAtReceiveTask) {
             triggerProcessInstance(userId, processAtReceiveTask);
         }
@@ -39,13 +41,13 @@ public class ResumeProcessAction extends ProcessAction {
 
     private void triggerProcessInstance(String userId, String processId) {
         List<Execution> executionsAtReceiveTask = flowableFacade.findExecutionsAtReceiveTask(processId);
-        if (!executionsAtReceiveTask.isEmpty()) {
-            for (Execution execution : executionsAtReceiveTask) {
-                flowableFacade.trigger(userId, execution.getId());
-            }
+        if (executionsAtReceiveTask.isEmpty()) {
+            LOGGER.warn(MessageFormat.format("Process with id {0} is in undetermined process state", processId));
             return;
         }
-        LOGGER.warn(MessageFormat.format("Process with id {0} is in undetermined process state", processId));
+        for (Execution execution : executionsAtReceiveTask) {
+            flowableFacade.trigger(userId, execution.getId(), MapUtil.asMap(Constants.VAR_USER, userId));
+        }
     }
 
     @Override
