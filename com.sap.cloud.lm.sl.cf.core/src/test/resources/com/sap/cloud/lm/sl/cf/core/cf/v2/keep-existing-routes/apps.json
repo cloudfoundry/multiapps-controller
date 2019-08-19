@@ -21,7 +21,9 @@
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [
       "foo.sofd60245639a"
     ],

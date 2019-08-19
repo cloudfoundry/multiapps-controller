@@ -22,7 +22,8 @@
     "instances": 0,
     "runningInstances": 0,
     "staging": {
-      "sshEnabled": false
+      "sshEnabled": false,
+      "buildpacks": []
     },
     "uris": [
       "foo.sofd60245639a"

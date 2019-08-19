@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
+import java.util.List;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
@@ -19,14 +21,14 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
     }
 
     private boolean hasStagingChanged(Staging staging, Staging existingStaging) {
-        String buildpackUrl = staging.getBuildpackUrl();
+        List<String> buildpacks = staging.getBuildpacks();
         String command = staging.getCommand();
         String stack = staging.getStack();
         Integer healthCheckTimeout = staging.getHealthCheckTimeout();
         String healthCheckType = staging.getHealthCheckType();
         String healthCheckHttpEndpoint = staging.getHealthCheckHttpEndpoint();
         Boolean sshEnabled = staging.isSshEnabled();
-        return (buildpackUrl != null && !buildpackUrl.equals(existingStaging.getBuildpackUrl()))
+        return (buildpacks != null && !buildpacks.equals(existingStaging.getBuildpacks()))
             || (command != null && !command.equals(existingStaging.getCommand()))
             || (stack != null && !stack.equals(existingStaging.getStack()))
             || (healthCheckTimeout != null && !healthCheckTimeout.equals(existingStaging.getHealthCheckTimeout()))

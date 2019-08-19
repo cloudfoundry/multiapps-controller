@@ -27,7 +27,9 @@
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [
       "foo.cfapps.neo.ondemand.com/test"
     ],

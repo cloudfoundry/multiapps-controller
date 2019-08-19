@@ -32,7 +32,9 @@
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [
       "module-1.sofd60245639a"
     ],
@@ -70,7 +72,9 @@
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [
       "module-2.sofd60245639a"
     ],
@@ -108,7 +112,9 @@
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [
       "module-3.sofd60245639a"
     ],
@@ -146,7 +152,9 @@
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [
       "module-4.sofd60245639a"
     ],

@@ -21,7 +21,9 @@
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [
       "java-hello-world.sofd60245639a"
     ],
@@ -62,7 +64,9 @@
     "diskQuota": 0,
     "instances": 1,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [
       "java-hello-world-backend.sofd60245639a"
     ],
@@ -104,7 +108,9 @@
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [],
     "services": [
       "java-hdi-container"

@@ -21,7 +21,9 @@
     "diskQuota": 0,
     "instances": 1,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [
       "di-core.sofd60245639a"
     ],
@@ -70,7 +72,7 @@
     "instances": 1,
     "runningInstances": 0,
     "staging": {
-      "buildpackUrl": "http://di-core.sofd60245639a/system/builderbp.git/"
+      "buildpacks": ["http://di-core.sofd60245639a/system/builderbp.git/"]
     },
     "uris": [
       "di-builder.sofd60245639a"
@@ -115,7 +117,9 @@
     "diskQuota": 0,
     "instances": 1,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [
       "di-runner.sofd60245639a"
     ],

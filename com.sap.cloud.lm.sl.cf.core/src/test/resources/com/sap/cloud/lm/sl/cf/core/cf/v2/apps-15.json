@@ -1,11 +1,11 @@
 [
   {
-    "moduleName": "framework",
+    "moduleName": "foo",
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
     "domains": [
-      "sofd60245639a"
+      "cfapps.neo.ondemand.com"
     ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
@@ -22,21 +22,21 @@
     "instances": 0,
     "runningInstances": 0,
     "staging": {
-      "buildpacks": []
+      "buildpacks": ["java_buildpack", "staticfile_buildpack"]
     },
     "uris": [
-      "framework.sofd60245639a"
+       "foo.cfapps.neo.ondemand.com" 
     ],
     "services": [],
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"framework\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"framework\"]",
+      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
       "MTA_SERVICES": "[]",
-      "plugins": "[{\"name\":\"plugins.0\",\"plugin_name\":\"plugin-0\",\"url\":\"https://localhost:52001\"},{\"name\":\"plugins.1\",\"plugin_name\":\"plugin-1\"}]"
+      "TARGET_RUNTIME": "tomee"
     },
-    "name": "framework",
+    "name": "foo",
     "bindingParameters" : {},
     "routes": []
   }

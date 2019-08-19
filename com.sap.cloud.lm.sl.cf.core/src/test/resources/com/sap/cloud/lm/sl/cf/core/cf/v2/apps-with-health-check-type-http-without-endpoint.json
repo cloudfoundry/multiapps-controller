@@ -23,7 +23,8 @@
     "runningInstances": 0,
     "staging": {
       "healthCheckType": "http",
-      "healthCheckHttpEndpoint": "/"
+      "healthCheckHttpEndpoint": "/",
+      "buildpacks": []
     },
     "uris": [
       "foo.sofd60245639a"
