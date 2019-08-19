@@ -116,28 +116,10 @@ public class StepsUtilTest {
     }
 
     @Test
-    public void testShouldVerifyArchiveSignatureNotSet() {
-        Assertions.assertFalse(StepsUtil.shouldVerifyArchiveSignature(context));
-    }
-
-    @Test
     public void testShouldVerifyArchiveSignatureSet() {
         Mockito.when(context.getVariable(Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE))
                .thenReturn(true);
         Assertions.assertTrue(StepsUtil.shouldVerifyArchiveSignature(context));
-    }
-
-    @Test
-    public void testGetCertificateCNNotSet() {
-        Assertions.assertNull(StepsUtil.getCertificateCN(context));
-    }
-
-    @Test
-    public void testGetCertificateCnSet() {
-        String certificateCN = "SAP SE";
-        Mockito.when(context.getVariable(Constants.PARAM_CERTIFICATE_CN))
-               .thenReturn(certificateCN);
-        Assertions.assertEquals(certificateCN, StepsUtil.getCertificateCN(context));
     }
 
 }

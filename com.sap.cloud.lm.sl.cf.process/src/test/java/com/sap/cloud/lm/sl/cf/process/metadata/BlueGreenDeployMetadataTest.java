@@ -49,7 +49,6 @@ public class BlueGreenDeployMetadataTest extends MetadataBaseTest {
                 Constants.PARAM_MODULES_FOR_DEPLOYMENT,
                 Constants.PARAM_RESOURCES_FOR_DEPLOYMENT,
                 Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE,
-                Constants.PARAM_CERTIFICATE_CN,
                 Constants.PARAM_NO_CONFIRM,
             // @formatter:on
         };

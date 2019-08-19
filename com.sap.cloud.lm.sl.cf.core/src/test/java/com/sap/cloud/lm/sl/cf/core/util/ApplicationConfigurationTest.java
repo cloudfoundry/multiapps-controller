@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.google.common.collect.Maps;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
@@ -30,9 +32,11 @@ import com.sap.cloud.lm.sl.mta.model.Platform;
 public class ApplicationConfigurationTest {
 
     private static final String VCAP_APPLICATION_JSON_WITHOUT_SPACE_ID_FILE = "vcap-application-without-space.json";
+    private static final String VCAP_APPLICATION_WITHOUT_SPACE = "vcap-application-without-space.json";
     private static final String VCAP_APPLICATION_WITHOUT_URLS = "vcap-application-without-urls.json";
-    private static final String VCAP_APPLICATION_JSON_FILE = "vcap-application.json";
-    private static final String PLATFORM_JSON_FILE = "platform.json";
+    private static final String VCAP_APPLICATION = "vcap-application.json";
+    private static final String PLATFORM = "platform.json";
+    private static final String CLOUD_COMPONENTS = "cloud-components.json";
 
     @Mock
     private Environment environment;
@@ -48,7 +52,7 @@ public class ApplicationConfigurationTest {
 
     @Test
     public void testLoadDefaultsWithAnEmptyEnvironment() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> configuration.load());
+        Exception e = assertThrows(IllegalArgumentException.class, () -> configuration.load());
         assertEquals(Messages.CONTROLLER_URL_NOT_SPECIFIED, e.getMessage());
     }
 
@@ -70,8 +74,7 @@ public class ApplicationConfigurationTest {
     public void testGetControllerUrlWithInvalidValue() {
         String invalidUrl = "blabla";
         Map<String, String> vcapApplication = MapUtil.asMap("cf_api", invalidUrl);
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                                                  () -> getControllerUrlWithVcapApplication(vcapApplication));
+        Exception e = assertThrows(IllegalArgumentException.class, () -> getControllerUrlWithVcapApplication(vcapApplication));
         e.printStackTrace();
         assertEquals(MessageFormat.format(Messages.INVALID_CONTROLLER_URL, invalidUrl), e.getMessage());
     }
@@ -111,23 +114,20 @@ public class ApplicationConfigurationTest {
 
     @Test
     public void testGetSpaceIdWithMissingSpaceId() {
-        injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_JSON_WITHOUT_SPACE_ID_FILE,
-                                                   ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        injectFileInEnvironment(VCAP_APPLICATION_WITHOUT_SPACE, ApplicationConfiguration.CFG_VCAP_APPLICATION);
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
     public void testGetSpaceId() {
-        Map<String, Object> vcapApplication = injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_JSON_FILE,
-                                                                                         ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        Map<String, Object> vcapApplication = injectFileInEnvironment(VCAP_APPLICATION, ApplicationConfiguration.CFG_VCAP_APPLICATION);
         String spaceId = configuration.getSpaceId();
         assertEquals(vcapApplication.get("space_id"), spaceId);
     }
 
     @Test
     public void testGetPlatformValidPlatform() {
-        Map<String, Object> platformMap = injectVcapApplicationJsonFileInEnvironment(PLATFORM_JSON_FILE,
-                                                                                     ApplicationConfiguration.CFG_PLATFORM);
+        Map<String, Object> platformMap = injectFileInEnvironment(PLATFORM, ApplicationConfiguration.CFG_PLATFORM);
         Platform platform = configuration.getPlatform();
         Assertions.assertEquals(platformMap.get("name"), platform.getName());
         Assertions.assertFalse(platform.getResourceTypes()
@@ -140,8 +140,8 @@ public class ApplicationConfigurationTest {
 
     @Test
     public void testGetPlatformNoPlatformInEnvironment() {
-        IllegalStateException illegalStateException = assertThrows(IllegalStateException.class, () -> configuration.getPlatform());
-        Assertions.assertEquals(Messages.PLATFORMS_NOT_SPECIFIED, illegalStateException.getMessage());
+        Exception exception = assertThrows(IllegalStateException.class, () -> configuration.getPlatform());
+        Assertions.assertEquals(Messages.PLATFORMS_NOT_SPECIFIED, exception.getMessage());
     }
 
     @Test
@@ -200,29 +200,26 @@ public class ApplicationConfigurationTest {
 
     @Test
     public void testGetOrgNameWithValidOrgName() {
-        Map<String, Object> vcapApplication = injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_JSON_FILE,
-                                                                                         ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        Map<String, Object> vcapApplication = injectFileInEnvironment(VCAP_APPLICATION, ApplicationConfiguration.CFG_VCAP_APPLICATION);
         Assertions.assertEquals(vcapApplication.get("organization_name"), configuration.getOrgName());
     }
 
     @Test
     public void testGetOrgNameNameNotSet() {
-        injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_JSON_WITHOUT_SPACE_ID_FILE,
-                                                   ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        injectFileInEnvironment(VCAP_APPLICATION_WITHOUT_SPACE, ApplicationConfiguration.CFG_VCAP_APPLICATION);
         Assertions.assertNull(configuration.getOrgName());
     }
 
     @Test
     public void testGetDeployServiceUrlUrlIsSet() {
-        Map<String, Object> vcapApplication = injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_JSON_FILE,
-                                                                                         ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        Map<String, Object> vcapApplication = injectFileInEnvironment(VCAP_APPLICATION, ApplicationConfiguration.CFG_VCAP_APPLICATION);
         List<String> urls = (List<String>) vcapApplication.get("uris");
         Assertions.assertEquals(urls.get(0), configuration.getDeployServiceUrl());
     }
 
     @Test
     public void testGetDeployServiceUrlUrlIsNotSet() {
-        injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_WITHOUT_URLS, ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        injectFileInEnvironment(VCAP_APPLICATION_WITHOUT_URLS, ApplicationConfiguration.CFG_VCAP_APPLICATION);
         Assertions.assertNull(configuration.getDeployServiceUrl());
     }
 
@@ -369,15 +366,14 @@ public class ApplicationConfigurationTest {
 
     @Test
     public void testGetApplicationId() {
-        Map<String, Object> vcapApplication = injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_JSON_FILE,
-                                                                                         ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        Map<String, Object> vcapApplication = injectFileInEnvironment(VCAP_APPLICATION, ApplicationConfiguration.CFG_VCAP_APPLICATION);
         Assertions.assertEquals(vcapApplication.get("application_id"), configuration.getApplicationId());
     }
 
     @Test
     public void testGetApplicationInstanceIndex() {
         Integer instanceIndex = 1;
-        Mockito.when(environment.getInteger(ApplicationConfiguration.CF_INSTANCE_INDEX))
+        Mockito.when(environment.getInteger(ApplicationConfiguration.CFG_CF_INSTANCE_INDEX))
                .thenReturn(instanceIndex);
         Assertions.assertEquals(instanceIndex, configuration.getApplicationInstanceIndex());
     }
@@ -480,30 +476,66 @@ public class ApplicationConfigurationTest {
     }
 
     @Test
+    public void testIsInternalEnvironment() {
+        Mockito.when(environment.getBoolean(ApplicationConfiguration.SAP_INTERNAL_DELIVERY,
+                                            ApplicationConfiguration.DEFAULT_SAP_INTERNAL_DELIVERY))
+               .thenReturn(true);
+        Assertions.assertTrue(configuration.isInternalEnvironment());
+    }
+
+    @Test
+    public void testGetCloudComponentsInvalidJson() {
+        Mockito.when(environment.getString(ApplicationConfiguration.SUPPORT_COMPONENTS))
+               .thenReturn("Invalid json");
+        Map<String, Object> cloudComponents = configuration.getCloudComponents();
+        Assertions.assertEquals(0, cloudComponents.size());
+    }
+
+    @Test
+    public void testGetCloudComponentsValidJson() {
+        Map<String, Object> cloudComponentsMap = injectFileInEnvironment(CLOUD_COMPONENTS, ApplicationConfiguration.SUPPORT_COMPONENTS);
+        Map<String, Object> cloudComponents = configuration.getCloudComponents();
+        Assertions.assertTrue(Maps.difference(cloudComponentsMap, cloudComponents)
+                                  .areEqual());
+    }
+
+    @Test
+    public void testGetInternalSupportChannel() {
+        String internalSupportChannel = "internal-support-channel";
+        Mockito.when(environment.getString(ApplicationConfiguration.INTERNAL_SUPPORT_CHANNEL))
+               .thenReturn(internalSupportChannel);
+        Assertions.assertEquals(internalSupportChannel, configuration.getInternalSupportChannel());
+    }
+
+    @Test
     public void testGetCertificateCN() {
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_CERTIFICATE_CN, ApplicationConfiguration.DEFAULT_CERTIFICATE_CN))
-               .thenReturn(ApplicationConfiguration.DEFAULT_CERTIFICATE_CN);
-        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_CERTIFICATE_CN, configuration.getCertificateCN());
+        String certificateCN = "cert-cn";
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_CERTIFICATE_CN))
+               .thenReturn(certificateCN);
+        Assertions.assertEquals(certificateCN, configuration.getCertificateCN());
     }
 
     @Test
     public void testGetFilteredEnv() {
-        Map<String, String> filteredEnv = configuration.getFilteredEnv();
-        Assertions.assertEquals(0, filteredEnv.size());
+        Map<String, String> filteredEnvironment = new HashMap<>();
+        filteredEnvironment.put(ApplicationConfiguration.CFG_MAX_MTA_DESCRIPTOR_SIZE, "1024");
+        Mockito.when(environment.getAllVariables())
+               .thenReturn(filteredEnvironment);
+        Map<String, String> filteredEnv = configuration.getNotSensitiveVariables();
+        Assertions.assertTrue(filteredEnv.containsKey(ApplicationConfiguration.CFG_MAX_MTA_DESCRIPTOR_SIZE));
     }
 
     @Test
     public void testLoad() {
-        Map<String, Object> vcapApplication = injectVcapApplicationJsonFileInEnvironment(VCAP_APPLICATION_JSON_FILE,
-                                                                                         ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        Map<String, Object> vcapApplication = injectFileInEnvironment(VCAP_APPLICATION, ApplicationConfiguration.CFG_VCAP_APPLICATION);
         configuration.load();
         Assertions.assertEquals(vcapApplication.get("cf_api"), configuration.getControllerUrl()
                                                                             .toString());
     }
 
-    private Map<String, Object> injectVcapApplicationJsonFileInEnvironment(String vcapApplicationJsonFile, String cfgVcapApplication) {
-        String vcapApplicationJson = TestUtil.getResourceAsString(vcapApplicationJsonFile, getClass());
-        Mockito.when(environment.getString(cfgVcapApplication))
+    private Map<String, Object> injectFileInEnvironment(String filename, String envVariable) {
+        String vcapApplicationJson = TestUtil.getResourceAsString(filename, getClass());
+        Mockito.when(environment.getString(envVariable))
                .thenReturn(vcapApplicationJson);
         return JsonUtil.convertJsonToMap(vcapApplicationJson);
     }

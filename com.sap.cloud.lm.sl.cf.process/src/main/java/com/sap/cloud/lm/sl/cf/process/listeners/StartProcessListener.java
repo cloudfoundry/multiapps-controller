@@ -55,7 +55,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     }
 
     private void logProcessEnvironment() {
-        Map<String, String> environment = configuration.getFilteredEnv();
+        Map<String, String> environment = configuration.getNotSensitiveVariables();
         getStepLogger().debug(Messages.PROCESS_ENVIRONMENT, JsonUtil.toJson(environment, true));
     }
 

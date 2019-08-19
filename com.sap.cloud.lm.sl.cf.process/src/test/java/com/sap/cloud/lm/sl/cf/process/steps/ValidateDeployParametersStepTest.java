@@ -1,10 +1,9 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 
 import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,7 +26,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.util.DefaultConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.cf.process.util.certficate_checker.MtaCertificateChecker;
+import com.sap.cloud.lm.sl.cf.process.util.JarSignatureOperations;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
@@ -46,64 +45,47 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
     private FilePartsMerger merger;
 
     @Mock
-    private MtaCertificateChecker mtaCertificateChecker;
+    private JarSignatureOperations jarSignatureOperations;
 
     // @formatter:off
     private static Stream<Arguments> testExecution() {
         return Stream.of(
                 // startTimeout parameter is negative
-                Arguments.of(new StepInput(null, null, -1, null, false, null),
+                Arguments.of(new StepInput(null, null, -1, null, false),
                         MessageFormat.format(Messages.ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE, "-1", "startTimeout"), false, ""),
 
                 // No file associated with the specified file id
-                Arguments.of(new StepInput(EXISTING_FILE_ID, NOT_EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, null, false, null),
+                Arguments.of(new StepInput(EXISTING_FILE_ID, NOT_EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, null, false),
                         MessageFormat.format(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1, "notExistingFileId",
                                      "space-id"), false, ""),
 
                 // Invalid version rule
-                Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, "asd", false, null),
+                Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, "asd", false),
                         MessageFormat.format(Messages.ERROR_PARAMETER_1_IS_NOT_VALID_VALID_VALUES_ARE_2, "asd", "versionRule", ""), false, "[SAME_HIGHER, HIGHER, ALL]"),
 
                 // Valid parameters
-                Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, VersionRule.HIGHER.toString(), false, null),
+                Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, VersionRule.HIGHER.toString(), false),
                         null, false, ""),
 
                 // Max descriptor size exceeded
-                Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_BIGGER_FILE_ID, 1, VersionRule.HIGHER.toString(), false, null),
+                Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_BIGGER_FILE_ID, 1, VersionRule.HIGHER.toString(), false),
                         MessageFormat.format(com.sap.cloud.lm.sl.mta.message.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
                                      "1048577", "extDescriptorFile", "1048576"), false, ""),
 
                 // Process chunked file
                 Arguments.of(new StepInput(MERGED_ARCHIVE_NAME + ".part.0," + MERGED_ARCHIVE_NAME + ".part.1," + MERGED_ARCHIVE_NAME
-                          + ".part.2", null, 1, VersionRule.HIGHER.toString(), false, null), null, true, ""),
+                          + ".part.2", null, 1, VersionRule.HIGHER.toString(), false), null, true, ""),
 
                 // Verify archive signature with default certificate CN
-                Arguments.of(new StepInput(EXISTING_FILE_ID, null, 1, VersionRule.HIGHER.toString(), true, null),
+                Arguments.of(new StepInput(EXISTING_FILE_ID, null, 1, VersionRule.HIGHER.toString(), true),
                         null, false, ""),
 
                 // Verify archive signature with custom certificate CN
-                Arguments.of(new StepInput(EXISTING_FILE_ID, null, 1, VersionRule.HIGHER.toString(), true, "Symantec"),
+                Arguments.of(new StepInput(EXISTING_FILE_ID, null, 1, VersionRule.HIGHER.toString(), true),
                         null, false, "")
                 );
     }
     // @formatter:on
-
-    private static FileEntry createFileEntry(String id, String name, long size) {
-        FileEntry fe = new FileEntry();
-        fe.setId(id);
-        fe.setName(name);
-        fe.setSize(BigInteger.valueOf(size));
-        return fe;
-    }
-
-    private void prepareConfiguration() {
-        Mockito.when(configuration.getMaxMtaDescriptorSize())
-               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
-        Mockito.when(configuration.getFileConfiguration())
-               .thenReturn(new DefaultConfiguration(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE));
-        Mockito.when(configuration.getCertificateCN())
-               .thenReturn(ApplicationConfiguration.DEFAULT_CERTIFICATE_CN);
-    }
 
     @MethodSource
     @ParameterizedTest
@@ -112,7 +94,8 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
         initializeComponents(stepInput, isArchiveChunked);
         if (expectedExceptionMessage != null) {
             SLException exception = Assertions.assertThrows(SLException.class, () -> step.execute(context));
-            Assertions.assertEquals(EXCEPTION_START_MESSAGE + expectedExceptionMessage + versionOutput, exception.getMessage().trim());
+            Assertions.assertEquals(EXCEPTION_START_MESSAGE + expectedExceptionMessage + versionOutput, exception.getMessage()
+                                                                                                                 .trim());
             return;
         }
         step.execute(context);
@@ -123,30 +106,9 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
         this.stepInput = stepInput;
         this.isArchiveChunked = isArchiveChunked;
         prepareContext();
-        prepareExpectedException();
         prepareFileService();
         prepareArchiveMerger();
         prepareConfiguration();
-    }
-
-    private void validate() throws MalformedURLException {
-        assertStepFinishedSuccessfully();
-        if (isArchiveChunked) {
-            Path mergedArchiveAbsolutePath = Paths.get(MERGED_ARCHIVE_NAME)
-                                                  .toAbsolutePath();
-            Assertions.assertFalse(Files.exists(mergedArchiveAbsolutePath));
-        }
-        if (stepInput.shouldVerifyArchive) {
-            List<X509Certificate> certificates = mtaCertificateChecker.readProvidedCertificates(Constants.SYMANTEC_CERTIFICATE_FILE);
-            Mockito.verify(mtaCertificateChecker)
-                   .checkCertificates(new URL("file:" + context.getVariable(Constants.VAR_ARCHIVE_FILE_NAME)), certificates,
-                                      getCertificateCN());
-        }
-    }
-
-    private String getCertificateCN() {
-        String certificateCN = (String) context.getVariable(Constants.PARAM_CERTIFICATE_CN);
-        return certificateCN == null ? ApplicationConfiguration.DEFAULT_CERTIFICATE_CN : certificateCN;
     }
 
     private void prepareContext() {
@@ -157,11 +119,6 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, "space-id");
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID, "service-id");
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE, stepInput.shouldVerifyArchive);
-        context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_CERTIFICATE_CN, stepInput.certificateCN);
-    }
-
-    private void prepareExpectedException() {
-
     }
 
     private void prepareFileService() throws FileStorageException {
@@ -184,10 +141,41 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
                .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024L));
     }
 
+    private static FileEntry createFileEntry(String id, String name, long size) {
+        FileEntry fe = new FileEntry();
+        fe.setId(id);
+        fe.setName(name);
+        fe.setSize(BigInteger.valueOf(size));
+        return fe;
+    }
+
     private void prepareArchiveMerger() {
         merger = Mockito.mock(FilePartsMerger.class);
         Mockito.when(merger.getMergedFilePath())
                .thenReturn(Paths.get(MERGED_ARCHIVE_TEST_MTAR));
+    }
+
+    private void prepareConfiguration() {
+        Mockito.when(configuration.getMaxMtaDescriptorSize())
+               .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
+        Mockito.when(configuration.getFileConfiguration())
+               .thenReturn(new DefaultConfiguration(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE));
+    }
+
+    private void validate() {
+        assertStepFinishedSuccessfully();
+        if (isArchiveChunked) {
+            Path mergedArchiveAbsolutePath = Paths.get(MERGED_ARCHIVE_NAME)
+                                                  .toAbsolutePath();
+            Assertions.assertFalse(Files.exists(mergedArchiveAbsolutePath));
+        }
+        if (stepInput.shouldVerifyArchive) {
+            List<X509Certificate> certificates = jarSignatureOperations.readCertificates(Constants.SYMANTEC_CERTIFICATE_FILE);
+            Mockito.verify(jarSignatureOperations)
+                   .checkCertificates(any(), eq(certificates), any());
+        }
+        Mockito.verify(context, Mockito.atLeastOnce())
+               .setVariable(Constants.PARAM_APP_ARCHIVE_ID, stepInput.appArchiveId);
     }
 
     @Override
@@ -202,16 +190,13 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
         private int startTimeout;
         private String versionRule;
         private boolean shouldVerifyArchive;
-        private String certificateCN;
 
-        public StepInput(String appArchiveId, String extDescriptorId, int startTimeout, String versionRule, boolean shouldVerifyArchive,
-                         String certificateCN) {
+        public StepInput(String appArchiveId, String extDescriptorId, int startTimeout, String versionRule, boolean shouldVerifyArchive) {
             this.appArchiveId = appArchiveId;
             this.extDescriptorId = extDescriptorId;
             this.startTimeout = startTimeout;
             this.versionRule = versionRule;
             this.shouldVerifyArchive = shouldVerifyArchive;
-            this.certificateCN = certificateCN;
         }
     }
 

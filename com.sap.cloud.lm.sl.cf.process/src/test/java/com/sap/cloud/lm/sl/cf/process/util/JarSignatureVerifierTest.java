@@ -1,0 +1,110 @@
+package com.sap.cloud.lm.sl.cf.process.util;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.List;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+
+import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.common.SLException;
+
+public class JarSignatureVerifierTest {
+
+    private static final String NON_SYMANTEC_SIGNATURE_MTAR = "non-symantec-signature.mtar";
+    private static final String VALID_SIGNATURE_MTAR = "valid-signature.mtar";
+    private static final String UNSIGNED_MTAR = "unsigned.mtar";
+    private static final String EXPIRED_MTAR = "expired-certificate.mtar";
+    private static final String ALTERED_MTAR = "altered.mtar";
+    private static final String CONTAINS_UNSIGNED_FILES = "contains-unsigned-files.mtar";
+
+    private JarSignatureVerifier verifier = new JarSignatureVerifier();
+
+    @Test
+    public void verifyMtarWithNonSymantecCertificate() {
+        URL resource = getClass().getResource(NON_SYMANTEC_SIGNATURE_MTAR);
+        Exception exception = Assertions.assertThrows(SLException.class, verifierVerify(resource, null));
+        Assertions.assertEquals(MessageFormat.format(Messages.COULD_NOT_VERIFY_ARCHIVE_SIGNATURE,
+                                                     MessageFormat.format(Messages.THE_ARCHIVE_IS_NOT_SIGNED_BY_TRUSTED_CERTIFICATE_AUTHORITY,
+                                                                          "[Symantec Class 3 SHA256 Code Signing CA]")),
+                                exception.getMessage());
+    }
+
+    @Test
+    public void verifyMtarWithUnsignedFiles() {
+        URL resource = getClass().getResource(CONTAINS_UNSIGNED_FILES);
+        Exception exception = Assertions.assertThrows(SLException.class, verifierVerify(resource, null));
+        Assertions.assertEquals(MessageFormat.format(Messages.COULD_NOT_VERIFY_ARCHIVE_SIGNATURE,
+                                                     MessageFormat.format(Messages.THE_ARCHIVE_CONTAINS_UNSIGNED_FILES, "unsigned")),
+                                exception.getMessage());
+    }
+
+    @Test
+    public void verifyMtarWhichIsNotSigned() {
+        URL resource = getClass().getResource(UNSIGNED_MTAR);
+        Exception exception = Assertions.assertThrows(SLException.class, verifierVerify(resource, null));
+        Assertions.assertEquals(MessageFormat.format(Messages.COULD_NOT_VERIFY_ARCHIVE_SIGNATURE, Messages.THE_ARCHIVE_IS_NOT_SIGNED),
+                                exception.getMessage());
+    }
+
+    @Test
+    public void testWhenFileIsNotFound() throws IOException {
+        URL resource = new URL("file:invalid");
+        Assertions.assertThrows(SLException.class, verifierVerify(resource, null));
+    }
+
+    @Test
+    public void testWithValidSignatureMtarWithoutCustomCertificateCN() throws Throwable {
+        URL resource = getClass().getResource(VALID_SIGNATURE_MTAR);
+        verifierVerify(resource, null).execute();
+    }
+
+    @Test
+    public void testWithValidSignatureMtarWithCustomCertificateCN() {
+        String notValidCertificateCn = "Not valid";
+        URL resource = getClass().getResource(VALID_SIGNATURE_MTAR);
+        SLException exception = Assertions.assertThrows(SLException.class, () -> verifierVerify(resource, notValidCertificateCn).execute());
+        Assertions.assertEquals(MessageFormat.format(Messages.COULD_NOT_VERIFY_ARCHIVE_SIGNATURE,
+                                                     MessageFormat.format(Messages.WILL_LOOK_FOR_CERTIFICATE_CN, notValidCertificateCn)),
+                                exception.getMessage());
+    }
+
+    @Test
+    public void testWithExpiredCertificate() {
+        URL resource = getClass().getResource(EXPIRED_MTAR);
+        Exception exception = Assertions.assertThrows(SLException.class, verifierVerify(resource, null));
+        Assertions.assertTrue(exception.getMessage()
+                                       .contains(MessageFormat.format(Messages.COULD_NOT_VERIFY_ARCHIVE_SIGNATURE, "NotAfter:")));
+    }
+
+    @Test
+    public void testWithAlteredMtar() {
+        URL resource = getClass().getResource(ALTERED_MTAR);
+        Exception exception = Assertions.assertThrows(SLException.class, () -> verifierVerify(resource, null).execute());
+        Assertions.assertEquals(MessageFormat.format(Messages.COULD_NOT_VERIFY_ARCHIVE_SIGNATURE,
+                                                     "SHA-256 digest error for META-INF/mtad.yaml"),
+                                exception.getMessage());
+    }
+
+    private Executable verifierVerify(URL resource, String certificateCN) {
+        return () -> verifier.verify(resource, readTargetCertificatesFromFile(), certificateCN);
+    }
+
+    private List<X509Certificate> readTargetCertificatesFromFile() throws CertificateException, IOException {
+        InputStream symantecInputStream = getClass().getResourceAsStream(Constants.SYMANTEC_CERTIFICATE_FILE);
+        CertificateFactory certificateFactory = CertificateFactory.getInstance(Constants.CERTIFICATE_TYPE_X_509);
+        Collection<? extends Certificate> certificates = certificateFactory.generateCertificates(symantecInputStream);
+        symantecInputStream.close();
+        return (List<X509Certificate>) certificates;
+    }
+}

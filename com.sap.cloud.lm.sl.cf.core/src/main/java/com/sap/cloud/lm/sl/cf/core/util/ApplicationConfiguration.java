@@ -88,6 +88,7 @@ public class ApplicationConfiguration {
     static final String SAP_INTERNAL_DELIVERY = "SAP_INTERNAL_DELIVERY";
     static final String SUPPORT_COMPONENTS = "SUPPORT_COMPONENTS";
     static final String INTERNAL_SUPPORT_CHANNEL = "INTERNAL_SUPPORT_CHANNEL";
+    static final String CFG_CF_INSTANCE_INDEX = "CF_INSTANCE_INDEX";
     static final String CFG_CERTIFICATE_CN = "CERTIFICATE_CN";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
@@ -99,6 +100,7 @@ public class ApplicationConfiguration {
     public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024L; // 1 MB(s)
     public static final long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024L; // 1MB
     public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024L; // 1GB
+
     public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
     public static final String DEFAULT_SPACE_ID = "";
     public static final Boolean DEFAULT_DUMMY_TOKENS_ENABLED = false;
@@ -127,9 +129,6 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 75;
     public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 75;
     public static final Boolean DEFAULT_SAP_INTERNAL_DELIVERY = false;
-    public static final String CF_INSTANCE_INDEX = "CF_INSTANCE_INDEX";
-    public static final String DEFAULT_CERTIFICATE_CN = "SAP SE";
-
     private final Environment environment;
 
     // Cached configuration settings:
@@ -224,7 +223,7 @@ public class ApplicationConfiguration {
         return AuditLoggingProvider.getFacade();
     }
 
-    public Map<String, String> getFilteredEnv() {
+    public Map<String, String> getNotSensitiveVariables() {
         Set<String> notSensitiveConfigVariables = getNotSensitiveConfigVariables();
         Map<String, String> env = environment.getAllVariables();
         return env.entrySet()
@@ -796,7 +795,7 @@ public class ApplicationConfiguration {
     }
 
     private Integer getApplicationInstanceIndexFromEnvironment() {
-        Integer applicationInstanceIndexFromEnvironment = environment.getInteger(CF_INSTANCE_INDEX);
+        Integer applicationInstanceIndexFromEnvironment = environment.getInteger(CFG_CF_INSTANCE_INDEX);
         LOGGER.info(format(Messages.APPLICATION_INSTANCE_INDEX, applicationInstanceIndexFromEnvironment));
         return applicationInstanceIndexFromEnvironment;
     }
@@ -905,7 +904,7 @@ public class ApplicationConfiguration {
     }
 
     private String getCertificateCNFromEnvironment() {
-        String value = environment.getString(CFG_CERTIFICATE_CN, DEFAULT_CERTIFICATE_CN);
+        String value = environment.getString(CFG_CERTIFICATE_CN);
         LOGGER.info(format(Messages.CERTIFICATE_CN, value));
         return value;
     }
