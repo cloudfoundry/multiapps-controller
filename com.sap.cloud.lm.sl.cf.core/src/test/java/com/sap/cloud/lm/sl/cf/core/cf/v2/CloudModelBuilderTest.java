@@ -460,6 +460,16 @@ public class CloudModelBuilderTest {
                 new Expectation("[]"), //services
                 new Expectation(Expectation.Type.JSON, "apps-14.json"),  //applications
             },
+            // (39) Test multiple buildpacks functionality
+            {
+                "mtad-15.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
+                false, false,
+                new String[] { "foo", }, // mtaArchiveModules
+                new String[] { "foo", }, // mtaModules
+                new String[] {}, // deployedApps
+                new Expectation("[]"), //services
+                new Expectation(Expectation.Type.JSON, "apps-15.json"),  //applications
+            },
 // @formatter:on
         });
     }

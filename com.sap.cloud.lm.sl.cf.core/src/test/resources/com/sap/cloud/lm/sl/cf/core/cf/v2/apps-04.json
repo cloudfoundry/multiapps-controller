@@ -4,7 +4,9 @@
     "idleUris": [],
     "liveUris": [],
     "tasks": [],
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "instances": 0,
     "memory": 0,
     "diskQuota": 0,
@@ -32,7 +34,9 @@
     "idleUris": [],
     "liveUris": [],
     "tasks": [],
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "instances": 0,
     "memory": 0,
     "diskQuota": 0,

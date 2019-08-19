@@ -343,7 +343,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
                                                     .name(name)
                                                     .moduleName("test")
                                                     .staging(new Staging.StagingBuilder().command(command)
-                                                                                         .buildpackUrl(buildpackUrl)
+                                                                                         .buildpacks(Arrays.asList(buildpackUrl))
                                                                                          .healthCheckTimeout(0)
                                                                                          .detectedBuildpack("none")
                                                                                          .healthCheckType(healthCheckType)

@@ -21,7 +21,9 @@
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [
       "www.bestprice.sap.com"
     ],
@@ -65,7 +67,7 @@
     "instances": 0,
     "runningInstances": 0,
     "staging": {
-      "buildpackUrl": "nodejs-test"
+      "buildpacks": ["nodejs-test"]
     },
     "uris": [
       "api.bestprice.sap.com"
@@ -111,7 +113,9 @@
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [
       "pricing-db.cfapps.neo.ondemand.com"
     ],

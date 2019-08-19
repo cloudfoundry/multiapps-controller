@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.parser;
 
+import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPluralOrSingular;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
     @Override
     public Staging parse(List<Map<String, Object>> parametersList) {
         String command = (String) getPropertyValue(parametersList, SupportedParameters.COMMAND, null);
-        String buildpack = (String) getPropertyValue(parametersList, SupportedParameters.BUILDPACK, null);
+        List<String> buildpacks = getPluralOrSingular(parametersList, SupportedParameters.BUILDPACKS, SupportedParameters.BUILDPACK);
         String stack = (String) getPropertyValue(parametersList, SupportedParameters.STACK, null);
         Integer healthCheckTimeout = (Integer) getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_TIMEOUT, null);
         String healthCheckType = (String) getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_TYPE, null);
@@ -27,7 +28,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         Boolean isSshEnabled = (Boolean) getPropertyValue(parametersList, SupportedParameters.ENABLE_SSH, null);
         DockerInfo dockerInfo = new DockerInfoParser().parse(parametersList);
         return new Staging.StagingBuilder().command(command)
-                                           .buildpackUrl(buildpack)
+                                           .buildpacks(buildpacks)
                                            .stack(stack)
                                            .healthCheckTimeout(healthCheckTimeout)
                                            .healthCheckType(healthCheckType)

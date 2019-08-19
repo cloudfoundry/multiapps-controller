@@ -23,7 +23,7 @@
     "instances": 0,
     "runningInstances": 0,
     "staging": {
-      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
+      "buildpacks": ["git://github.example.com/xs2-java/java-buildpack.git"]
     },
     "uris": [
        "abc.cfapps.domain.com", 

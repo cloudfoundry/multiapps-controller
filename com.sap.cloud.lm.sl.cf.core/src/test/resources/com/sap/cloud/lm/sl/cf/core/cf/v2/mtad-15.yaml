@@ -1,0 +1,11 @@
+_schema-version: "2.0.0"
+ID: com.sap.sample.mta
+version: 1.0.0
+
+modules:
+  - name: foo
+    type: java.tomee
+    parameters:
+      buildpacks:
+      - java_buildpack
+      - staticfile_buildpack

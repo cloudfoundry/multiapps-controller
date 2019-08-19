@@ -21,7 +21,9 @@
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [
       "i027947-shine.cfapps.neo.ondemand.com"
     ],
@@ -62,7 +64,9 @@
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
-    "staging": {},
+    "staging": {
+      "buildpacks": []
+    },
     "uris": [
       "i027947-shine-xsjs.cfapps.neo.ondemand.com"
     ],
@@ -105,7 +109,7 @@
     "instances": 0,
     "runningInstances": 0,
     "staging": {
-      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
+      "buildpacks": ["git://github.example.com/xs2-java/java-buildpack.git"]
     },
     "uris": [
       "i027947-shine-odata.cfapps.neo.ondemand.com"
