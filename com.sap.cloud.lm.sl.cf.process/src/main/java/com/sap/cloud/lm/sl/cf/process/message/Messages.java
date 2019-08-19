@@ -61,10 +61,13 @@ public class Messages {
     public static final String CANNOT_DETERMINE_MODULE_NAME = "Cannot determine module name";
     public static final String CANNOT_DETERMINE_CURRENT_APPLICATION = "Cannot determine current application";
     public static final String INVALID_FILE_ENTRY_NAME = "Invalid file entry name!";
-    public static final String CERTIFICATE_VERIFICATION_HAS_FAILED = "Certificate verification has failed";
-    public static final String ARCHIVE_CONTAINS_UNSIGNED_FILES = "The archive contains unsigned class files.";
-    public static final String ARCHIVE_IS_NOT_SIGNED_BY_TRUSTED_SIGNER = "The archive is not signed by a trusted signer";
-    public static final String ENTRY_IS_TRYING_TO_LEAVE_TARGET_DIR = "Entry is trying to leave the target dir: \"{0}\"";
+    public static final String COULD_NOT_VERIFY_ARCHIVE_SIGNATURE = "Could not verify archive signature: {0}";
+    public static final String THE_ARCHIVE_CONTAINS_UNSIGNED_FILES = "The archive contains unsigned files: \"{0}\"";
+    public static final String THE_ARCHIVE_IS_NOT_SIGNED_BY_TRUSTED_CERTIFICATE_AUTHORITY = "The archive is not signed by the trusted certificate authority. Trusted authorities: \"{0}\"";
+    public static final String WILL_LOOK_FOR_CERTIFICATE_CN = "Will look for certificate CN \"{0}\"";
+    public static final String THE_ARCHIVE_IS_NOT_SIGNED = "The archive is not signed";
+    public static final String MERGED_FILE_NOT_DELETED = "Merged file not deleted";
+    public static final String FAILED_TO_RETRIEVE_FILE_WITH_ID_0 = "Failed to retrieve file with id \"{0}\"";
 
     // Audit log messages
 
@@ -453,8 +456,6 @@ public class Messages {
     public static final String BUILD_FOR_PACKAGE_0_ALREADY_EXISTS = "Build for package: \"{0}\" already exists";
     public static final String APP_NOT_FOUND = "App not found: \"{0}\"";
     public static final String VERIFYING_ARCHIVE_0 = "Verifying archive: \"{0}\"";
-    public static final String NO_CUSTOM_CERTIFICATE_CN_NAME_USING_DEFAULT_0 = "No custom certificate CN name using: \"{0}\"";
-    public static final String CUSTOM_CERTIFICATE_CN_NAME_0 = "Custom certificate name: \"{0}\"";
     public static final String ARCHIVE_IS_VERIFIED = "Archive signature is verified";
 
     protected Messages() {

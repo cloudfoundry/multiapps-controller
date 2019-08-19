@@ -48,7 +48,6 @@ public class DeployMetadataTest extends MetadataBaseTest {
                 Constants.PARAM_MODULES_FOR_DEPLOYMENT,
                 Constants.PARAM_RESOURCES_FOR_DEPLOYMENT,
                 Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE,
-                Constants.PARAM_CERTIFICATE_CN,
             // @formatter:on
         };
     }

@@ -129,11 +129,6 @@ public class DeployMetadata {
                                     .type(ParameterType.BOOLEAN)
                                     .defaultValue(false)
                                     .build());
-        PARAMS.add(ParameterMetadata.builder()
-                                    .id(Constants.PARAM_CERTIFICATE_CN)
-                                    .type(ParameterType.STRING)
-                                    .defaultValue(null)
-                                    .build());
     }
 
     private DeployMetadata() {

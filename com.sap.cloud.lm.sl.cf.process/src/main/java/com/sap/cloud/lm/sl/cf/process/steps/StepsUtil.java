@@ -906,11 +906,7 @@ public class StepsUtil {
     }
 
     public static boolean shouldVerifyArchiveSignature(VariableScope scope) {
-        return getBoolean(scope, Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE, false);
-    }
-
-    public static String getCertificateCN(VariableScope scope) {
-        return getString(scope, Constants.PARAM_CERTIFICATE_CN, null);
+        return getBoolean(scope, Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE);
     }
 
     public static CloudServiceExtended getServiceToProcess(VariableScope scope) {

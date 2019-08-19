@@ -14,7 +14,6 @@ import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcesso
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -33,14 +32,13 @@ public class ArchiveMerger {
         this.context = context;
     }
 
-    public String createArchiveFromParts(List<FileEntry> archivePartEntries) {
+    public Path createArchiveFromParts(List<FileEntry> archivePartEntries) {
         List<FileEntry> sortedParts = sort(archivePartEntries);
         String archiveName = getArchiveName(sortedParts.get(0));
         FilePartsMerger archiveMerger = null;
         try {
             archiveMerger = getArchiveMerger(archiveName);
             mergeFileParts(sortedParts, archiveMerger);
-            persistMergedArchive(archiveMerger.getMergedFilePath(), context);
         } catch (FileStorageException e) {
             stepLogger.info(Messages.ERROR_MERGING_ARCHIVE);
             throw new SLException(e, Messages.ERROR_PROCESSING_ARCHIVE_PARTS_CONTENT, e.getMessage());
@@ -50,9 +48,7 @@ public class ArchiveMerger {
         } finally {
             closeArchiveMerger(archiveMerger);
         }
-        return archiveMerger.getMergedFilePath()
-                            .toAbsolutePath()
-                            .toString();
+        return archiveMerger.getMergedFilePath();
     }
 
     List<FileEntry> sort(List<FileEntry> archivePartEntries) {
@@ -98,14 +94,6 @@ public class ArchiveMerger {
 
     private DefaultFileDownloadProcessor createFileDownloadProcessor(FileContentProcessor archivePartProcessor, FileEntry fileEntry) {
         return new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), fileEntry.getId(), archivePartProcessor);
-    }
-
-    private void persistMergedArchive(Path archivePath, DelegateExecution context) throws FileStorageException {
-        String name = archivePath.getFileName()
-                                 .toString();
-        FileEntry uploadedArchive = fileService.addFile(StepsUtil.getSpaceId(context), StepsUtil.getServiceId(context), name,
-                                                        archivePath.toFile());
-        context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedArchive.getId());
     }
 
     private void closeArchiveMerger(FilePartsMerger filePartsMerger) {

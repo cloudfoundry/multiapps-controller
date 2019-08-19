@@ -1,0 +1,11 @@
+[
+  {
+    "id": "id1",
+    "name": "archive",
+    "namespace": "namespace1",
+    "space": "some-custom-space",
+    "size": 10000,
+    "digest": "fake-digest",
+    "digestAlgorithm": "MD-5"
+  }
+]

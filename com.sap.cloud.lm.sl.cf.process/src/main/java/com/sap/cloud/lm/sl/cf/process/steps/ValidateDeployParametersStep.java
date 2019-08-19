@@ -5,11 +5,12 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -25,7 +26,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ArchiveMerger;
-import com.sap.cloud.lm.sl.cf.process.util.certficate_checker.MtaCertificateChecker;
+import com.sap.cloud.lm.sl.cf.process.util.JarSignatureOperations;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
@@ -34,10 +35,12 @@ import com.sap.cloud.lm.sl.mta.model.VersionRule;
 public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     @Inject
-    private MtaCertificateChecker mtaCertificateChecker;
+    private JarSignatureOperations jarSignatureOperations;
 
     @Inject
     private ApplicationConfiguration configuration;
+
+    private ResilientOperationExecutor resilientOperationExecutor = new ResilientOperationExecutor();
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -58,14 +61,16 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private void validateParameters(DelegateExecution context) {
+        Path archiveFilePath = null;
         try {
             validateStartTimeout(context);
-            validateAppArchiveId(context);
+            archiveFilePath = mergeArchiveParts(context);
             validateExtDescriptorFileId(context);
             validateVersionRule(context);
-            verifyArchive(context);
+            verifyArchiveSignature(context, archiveFilePath);
+            persistMergedArchive(context, archiveFilePath);
         } finally {
-            deleteArchiveFile(context);
+            deleteArchiveFile(archiveFilePath);
         }
     }
 
@@ -74,34 +79,29 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         if (parameter == null) {
             return;
         }
-        int startTimeout = (Integer) parameter;
+        int startTimeout = (int) parameter;
         if (startTimeout < 0) {
             throw new SLException(Messages.ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE, startTimeout, Constants.PARAM_START_TIMEOUT);
         }
     }
 
-    private void validateAppArchiveId(DelegateExecution context) {
+    private Path mergeArchiveParts(DelegateExecution context) {
         String appArchiveId = StepsUtil.getRequiredString(context, Constants.PARAM_APP_ARCHIVE_ID);
         String[] appArchivePartsId = appArchiveId.split(",");
         List<FileEntry> archivePartEntries = getArchivePartEntries(context, appArchivePartsId);
         StepsUtil.setAsJsonBinaries(context, Constants.VAR_FILE_ENTRIES, archivePartEntries);
         getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
-        new ResilientOperationExecutor().execute(createArchiveFromParts(context, archivePartEntries));
+        return resilientOperationExecutor.execute(createArchiveFromParts(context, archivePartEntries));
     }
 
     private List<FileEntry> getArchivePartEntries(DelegateExecution context, String[] appArchivePartsId) {
-        List<FileEntry> archivePartEntries = new ArrayList<>();
-        for (String appArchivePartId : appArchivePartsId) {
-            archivePartEntries.add(findFile(context, appArchivePartId));
-        }
-        return archivePartEntries;
+        return Arrays.stream(appArchivePartsId)
+                     .map(appArchivePartId -> findFile(context, appArchivePartId))
+                     .collect(Collectors.toList());
     }
 
-    private Runnable createArchiveFromParts(DelegateExecution context, List<FileEntry> archivePartEntries) {
-        return () -> {
-            String archiveFileName = new ArchiveMerger(fileService, getStepLogger(), context).createArchiveFromParts(archivePartEntries);
-            context.setVariable(Constants.VAR_ARCHIVE_FILE_NAME, archiveFileName);
-        };
+    private Supplier<Path> createArchiveFromParts(DelegateExecution context, List<FileEntry> archivePartEntries) {
+        return () -> new ArchiveMerger(fileService, getStepLogger(), context).createArchiveFromParts(archivePartEntries);
     }
 
     private FileEntry findFile(DelegateExecution context, String fileId) {
@@ -113,17 +113,17 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
             }
             return fileEntry;
         } catch (FileStorageException e) {
-            throw new SLException(e, "Failed to retrieve file with id \"{0}\"", fileId);
+            throw new SLException(e, Messages.FAILED_TO_RETRIEVE_FILE_WITH_ID_0, fileId);
         }
     }
 
     private void validateExtDescriptorFileId(DelegateExecution context) {
-        String extensionDescriptorFileID = (String) context.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
-        if (extensionDescriptorFileID == null) {
+        String extensionDescriptorFileId = (String) context.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
+        if (extensionDescriptorFileId == null) {
             return;
         }
 
-        String[] extDescriptorFileIds = extensionDescriptorFileID.split(",");
+        String[] extDescriptorFileIds = extensionDescriptorFileId.split(",");
         for (String extDescriptorFileId : extDescriptorFileIds) {
             FileEntry file = findFile(context, extDescriptorFileId);
             validateDescriptorSize(file);
@@ -155,50 +155,62 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         }
     }
 
-    private void verifyArchive(DelegateExecution context) {
+    private void verifyArchiveSignature(DelegateExecution context, Path archiveFilePath) {
         if (!StepsUtil.shouldVerifyArchiveSignature(context)) {
             return;
         }
-        String archiveFileName = (String) context.getVariable(Constants.VAR_ARCHIVE_FILE_NAME);
-        getStepLogger().debug(Messages.VERIFYING_ARCHIVE_0, archiveFileName);
-        verifyArchive(context, archiveFileName);
+        getStepLogger().debug(Messages.VERIFYING_ARCHIVE_0, archiveFilePath);
+        verifyArchiveSignature(archiveFilePath);
         getStepLogger().info(Messages.ARCHIVE_IS_VERIFIED);
     }
 
-    private void verifyArchive(DelegateExecution context, String archiveFileName) {
-        String certificateCN = StepsUtil.getCertificateCN(context);
-        List<X509Certificate> certificates = mtaCertificateChecker.readProvidedCertificates(Constants.SYMANTEC_CERTIFICATE_FILE);
-        if (certificateCN != null) {
-            getStepLogger().debug(Messages.CUSTOM_CERTIFICATE_CN_NAME_0, certificateCN);
-            mtaCertificateChecker.checkCertificates(getArchiveFileNameURL(archiveFileName), certificates, certificateCN);
-            return;
-        }
-        certificateCN = configuration.getCertificateCN();
-        getStepLogger().debug(Messages.NO_CUSTOM_CERTIFICATE_CN_NAME_USING_DEFAULT_0, certificateCN);
-        mtaCertificateChecker.checkCertificates(getArchiveFileNameURL(archiveFileName), certificates, certificateCN);
+    private void verifyArchiveSignature(Path archiveFilePath) {
+        String certificateCN = configuration.getCertificateCN();
+        getStepLogger().debug(Messages.WILL_LOOK_FOR_CERTIFICATE_CN, certificateCN);
+        List<X509Certificate> certificates = jarSignatureOperations.readCertificates(Constants.SYMANTEC_CERTIFICATE_FILE);
+        jarSignatureOperations.checkCertificates(getArchiveFilePathURL(archiveFilePath), certificates, certificateCN);
     }
 
-    private URL getArchiveFileNameURL(String archiveFileName) {
+    private URL getArchiveFilePathURL(Path archiveFilePath) {
         try {
-            return new URL("file:" + archiveFileName);
+            return archiveFilePath.toUri()
+                                  .toURL();
         } catch (MalformedURLException e) {
-            throw new SLException(e);
+            throw new SLException(e, e.getMessage());
         }
     }
 
-    private void deleteArchiveFile(DelegateExecution context) {
-        String archiveFileName = (String) context.getVariable(Constants.VAR_ARCHIVE_FILE_NAME);
-        if (archiveFileName == null) {
+    private void persistMergedArchive(DelegateExecution context, Path archiveFilePath) {
+        resilientOperationExecutor.execute(() -> persistMergedArchive(archiveFilePath, context));
+    }
+
+    private void persistMergedArchive(Path archivePath, DelegateExecution context) {
+        FileEntry uploadedArchive = persistArchive(archivePath, context);
+        context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedArchive.getId());
+    }
+
+    private FileEntry persistArchive(Path archivePath, DelegateExecution context) {
+        try {
+            return fileService.addFile(StepsUtil.getSpaceId(context), StepsUtil.getServiceId(context), archivePath.getFileName()
+                                                                                                                  .toString(),
+                                       archivePath.toFile());
+        } catch (FileStorageException e) {
+            throw new SLException(e, e.getMessage());
+        }
+    }
+
+    private void deleteArchiveFile(Path archiveFilePath) {
+        if (archiveFilePath == null) {
             return;
         }
-        tryDeleteArchiveFile(archiveFileName);
+        tryDeleteArchiveFile(archiveFilePath);
     }
 
-    private void tryDeleteArchiveFile(String archiveFileName) {
+    private void tryDeleteArchiveFile(Path archiveFilePath) {
         try {
-            Files.deleteIfExists(Paths.get(archiveFileName));
+            Files.deleteIfExists(archiveFilePath);
         } catch (IOException e) {
-            logger.warn("Merged file not deleted");
+            logger.warn(Messages.MERGED_FILE_NOT_DELETED);
         }
     }
 }
