@@ -19,7 +19,7 @@ public class Message {
         return this;
     }
 
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("id")
     public Long getId() {
         return id;
@@ -36,7 +36,7 @@ public class Message {
         return this;
     }
 
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("text")
     public String getText() {
         return text;
@@ -53,7 +53,7 @@ public class Message {
         return this;
     }
 
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("type")
     public MessageType getType() {
         return type;

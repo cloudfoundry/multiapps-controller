@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -87,10 +87,8 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
-        List<AsyncExecution> stepExecutions = new LinkedList<>();
-        stepExecutions.add(new PollStartAppStatusExecution(recentLogsRetriever));
-        stepExecutions.add(new PollExecuteAppStatusExecution(recentLogsRetriever));
-        return stepExecutions;
+        return Arrays.asList(new PollStartAppStatusExecution(recentLogsRetriever),
+                             new PollExecuteAppStatusExecution(recentLogsRetriever));
     }
 
     @Override

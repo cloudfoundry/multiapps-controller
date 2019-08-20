@@ -21,7 +21,7 @@ public class RestTemplateFactory {
         return restTemplate;
     }
 
-    private class HttpRequestFactory implements ClientHttpRequestFactory {
+    private static class HttpRequestFactory implements ClientHttpRequestFactory {
 
         private ClientHttpRequestFactory requestFactory;
         private CloudControllerClient client;

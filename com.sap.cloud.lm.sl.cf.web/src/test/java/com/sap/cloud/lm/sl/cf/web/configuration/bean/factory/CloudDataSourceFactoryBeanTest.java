@@ -65,8 +65,8 @@ public class CloudDataSourceFactoryBeanTest {
 
         when(configurationMock.getDbConnectionThreads()).thenReturn(DB_CONNECTIONS);
 
-        ArgumentMatcher<DataSourceConfig> dataSourceConfigMatcher = new LambdaArgumentMatcher<DataSourceConfig>((Object input) -> DB_CONNECTIONS == ((DataSourceConfig) input).getPoolConfig()
-                                                                                                                                                                              .getMaxTotal());
+        ArgumentMatcher<DataSourceConfig> dataSourceConfigMatcher = new LambdaArgumentMatcher<>((Object input) -> DB_CONNECTIONS == ((DataSourceConfig) input).getPoolConfig()
+                                                                                                                                                              .getMaxTotal());
         when(springCloudMock.getServiceConnector(eq(SERVICE_NAME), eq(DataSource.class),
                                                  argThat(dataSourceConfigMatcher))).thenReturn(createdDataSource);
 

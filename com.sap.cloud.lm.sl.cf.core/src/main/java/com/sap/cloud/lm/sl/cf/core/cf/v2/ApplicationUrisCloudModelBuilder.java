@@ -82,7 +82,7 @@ public class ApplicationUrisCloudModelBuilder {
             return (String) descriptor.getParameters()
                                       .get(parametersType.domain);
         }
-        return (String) moduleParameters.getOrDefault(parametersType.domain, null);
+        return (String) moduleParameters.get(parametersType.domain);
     }
 
 }

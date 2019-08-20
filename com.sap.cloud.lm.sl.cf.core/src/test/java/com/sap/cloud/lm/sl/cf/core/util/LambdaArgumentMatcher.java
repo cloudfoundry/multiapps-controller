@@ -1,19 +1,19 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.mockito.ArgumentMatcher;
 
 public class LambdaArgumentMatcher<T> extends ArgumentMatcher<T> {
 
-    private Function<Object, Boolean> matcher;
+    private Predicate<Object> matcher;
 
-    public LambdaArgumentMatcher(Function<Object, Boolean> matcher) {
+    public LambdaArgumentMatcher(Predicate<Object> matcher) {
         this.matcher = matcher;
     }
 
     @Override
     public boolean matches(Object argument) {
-        return matcher.apply(argument);
+        return matcher.test(argument);
     }
 }
