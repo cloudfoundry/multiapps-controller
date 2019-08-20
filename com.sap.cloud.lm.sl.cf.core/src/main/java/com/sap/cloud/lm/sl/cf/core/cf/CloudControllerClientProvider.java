@@ -62,11 +62,11 @@ public class CloudControllerClientProvider {
     }
 
     public void releaseClient(String userName, String org, String space) {
-        releaseClientFromCache(userName, org, space);
+        clients.remove(getKey(userName, org, space));
     }
 
     public void releaseClient(String userName, String spaceGuid) {
-        releaseClientFromCache(userName, spaceGuid);
+        clients.remove(getKey(userName, spaceGuid));
     }
 
     private OAuth2AccessToken getValidToken(String userName) {
@@ -83,20 +83,11 @@ public class CloudControllerClientProvider {
         return token;
     }
 
-    /**
-     * Returns a client for the specified access token, organization, and space by either getting it from the clients cache or creating a
-     * new one.
-     * 
-     * @param userName the user name associated with the client
-     * @param org the organization associated with the client
-     * @param space the space associated with the client
-     * @return a CF client for the specified access token, organization, and space
-     */
-    public CloudControllerClient getClientFromCache(String userName, String org, String space) {
+    private CloudControllerClient getClientFromCache(String userName, String org, String space) {
         return getClientFromCache(userName, org, space, null);
     }
 
-    public CloudControllerClient getClientFromCache(String userName, String org, String space, String processId) {
+    private CloudControllerClient getClientFromCache(String userName, String org, String space, String processId) {
         // Get a client from the cache or create a new one if needed
         String key = getKey(userName, org, space);
         CloudControllerClient client = clients.get(key);
@@ -109,42 +100,17 @@ public class CloudControllerClientProvider {
         return client;
     }
 
-    public CloudControllerClient getClientFromCache(String userName, String spaceId) {
+    private CloudControllerClient getClientFromCache(String userName, String spaceId) {
         // Get a client from the cache or create a new one if needed
         String key = getKey(userName, spaceId);
         return clients.computeIfAbsent(key, k -> clientFactory.createClient(getValidToken(userName), spaceId));
     }
 
-    /**
-     * Releases the client for the specified user name, organization, and space by removing it from the clients cache.
-     * 
-     * @param userName the user name associated with the client
-     * @param org the organization associated with the client
-     * @param space the space associated with the client
-     */
-    public void releaseClientFromCache(String userName, String org, String space) {
-        clients.remove(getKey(userName, org, space));
-    }
-
-    public void releaseClientFromCache(String userName, String spaceGuid) {
-        clients.remove(getKey(userName, spaceGuid));
-    }
-
     private String getKey(String userName, String org, String space) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(userName)
-          .append('|')
-          .append(org)
-          .append('|')
-          .append(space);
-        return sb.toString();
+        return userName + '|' + org + '|' + space;
     }
 
     private String getKey(String userName, String spaceId) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(userName)
-          .append('|')
-          .append(spaceId);
-        return sb.toString();
+        return userName + '|' + spaceId;
     }
 }

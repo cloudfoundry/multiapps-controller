@@ -98,8 +98,8 @@ public class ApplicationStager {
 
     private boolean containsNullMetadata(List<CloudBuild> buildsForApplication) {
         return buildsForApplication.stream()
-                                   .anyMatch(build -> Objects.isNull(build.getMetadata()) || Objects.isNull(build.getMetadata()
-                                                                                                                 .getCreatedAt()));
+                                   .anyMatch(build -> build.getMetadata() == null || build.getMetadata()
+                                                                                          .getCreatedAt() == null);
     }
 
     private CloudBuild getLastBuild(List<CloudBuild> cloudBuilds) {

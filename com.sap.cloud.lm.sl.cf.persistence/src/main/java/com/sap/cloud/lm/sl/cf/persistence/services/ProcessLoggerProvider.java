@@ -46,13 +46,7 @@ public class ProcessLoggerProvider {
     }
 
     private String getLoggerName(DelegateExecution context, String logName) {
-        return new StringBuilder(PARENT_LOGGER).append('.')
-                                               .append(getCorrelationId(context))
-                                               .append('.')
-                                               .append(logName)
-                                               .append('.')
-                                               .append(getTaskId(context))
-                                               .toString();
+        return PARENT_LOGGER + '.' + getCorrelationId(context) + '.' + logName + '.' + getTaskId(context);
     }
 
     private String getCorrelationId(DelegateExecution context) {
@@ -74,8 +68,7 @@ public class ProcessLoggerProvider {
     }
 
     protected File getLocalFile(String loggerName) {
-        String fileName = new StringBuilder(loggerName).append(LOG_FILE_EXTENSION)
-                                                       .toString();
+        String fileName = loggerName + LOG_FILE_EXTENSION;
         return new File(DEFAULT_LOG_DIR, fileName);
     }
 

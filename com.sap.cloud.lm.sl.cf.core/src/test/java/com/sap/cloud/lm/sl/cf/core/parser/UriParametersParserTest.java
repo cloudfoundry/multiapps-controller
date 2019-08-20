@@ -1,19 +1,20 @@
 package com.sap.cloud.lm.sl.cf.core.parser;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.common.util.Tester;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 public class UriParametersParserTest {
 
@@ -71,16 +72,12 @@ public class UriParametersParserTest {
         tester.test(() -> new UriParametersParser(DEFAULT_HOST, DEFAULT_DOMAIN, null).parse(Arrays.asList(parameterMap)), expectation);
     }
 
-    private List<Map<String, Object>> constructRoutesParameter(List<String> routes) {
+    private List<Map<String, String>> constructRoutesParameter(List<String> routes) {
         if (routes == null) {
             return null;
         }
-        List<Map<String, Object>> routesParameter = new ArrayList<>();
-        for (String route : routes) {
-            Map<String, Object> routeMap = new HashMap<>();
-            routeMap.put(SupportedParameters.ROUTE, route);
-            routesParameter.add(routeMap);
-        }
-        return routesParameter;
+        return routes.stream()
+                     .map(route -> MapUtil.asMap(SupportedParameters.ROUTE, route))
+                     .collect(Collectors.toList());
     }
 }
