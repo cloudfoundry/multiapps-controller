@@ -21,7 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
+import com.sap.cloud.lm.sl.cf.client.util.ResilientCloudOperationExecutor;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
@@ -40,28 +40,15 @@ public class RecentLogsRetrieverTest {
     private RestTemplateFactory restTemplateFactory;
     @Mock
     private RestTemplate restTemplate;
-
-    private ExecutionRetrier fastRetrier = new ExecutionRetrier().withRetryCount(1)
-                                                                 .withWaitTimeBetweenRetriesInMillis(1);
-
     private RecentLogsRetriever recentLogsRetriever;
 
-    private class RecentLogsRetrieverMock extends RecentLogsRetriever {
-
-        public RecentLogsRetrieverMock(RestTemplateFactory restTemplateFactory) {
-            super(restTemplateFactory);
-        }
-
-        @Override
-        protected ExecutionRetrier getRetrier() {
-            return fastRetrier;
-        }
-    }
+    private ResilientCloudOperationExecutor fastRetrier = new ResilientCloudOperationExecutor().withRetryCount(1)
+                                                                                               .withWaitTimeBetweenRetriesInMillis(0);
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        this.recentLogsRetriever = new RecentLogsRetrieverMock(restTemplateFactory);
+        this.recentLogsRetriever = createRecentLogsRetriever();
         CloudInfo cloudInfo = Mockito.mock(CloudInfo.class);
         Mockito.when(cloudInfo.getLoggingEndpoint())
                .thenReturn(LOGGING_ENDPOINT_URL);
@@ -73,6 +60,10 @@ public class RecentLogsRetrieverTest {
                .thenReturn(new URL(CONTROLLER_URL));
         Mockito.when(restTemplateFactory.getRestTemplate(client))
                .thenReturn(restTemplate);
+    }
+
+    private RecentLogsRetriever createRecentLogsRetriever() {
+        return new RecentLogsRetriever(restTemplateFactory).withErrorHandlerFactory(() -> new CustomControllerClientErrorHandler().withExecutorFactory(() -> fastRetrier));
     }
 
     @Test
@@ -87,11 +78,10 @@ public class RecentLogsRetrieverTest {
 
     @Test
     public void testGetRecentLogsWithErrorFailSafe() {
-        fastRetrier = fastRetrier.failSafe();
         Mockito.when(restTemplate.exchange(LOGGING_ENDPOINT_URL + RecentLogsRetriever.RECENT_LOGS_ENDPOINT, HttpMethod.GET, null,
                                            Resource.class, APP_UUID))
                .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Something fails"));
-        assertEquals(null, recentLogsRetriever.getRecentLogs(client, APP_NAME));
+        assertEquals(null, recentLogsRetriever.getRecentLogsSafely(client, APP_NAME));
     }
 
     private CloudApplication createDummpyApp() {

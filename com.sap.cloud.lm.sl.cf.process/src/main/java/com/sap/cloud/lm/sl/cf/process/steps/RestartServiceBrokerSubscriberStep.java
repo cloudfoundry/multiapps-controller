@@ -28,7 +28,6 @@ public class RestartServiceBrokerSubscriberStep extends RestartAppStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
-        recentLogsRetriever.setFailSafe(true);
         return Arrays.asList(new PollStartServiceBrokerSubscriberStatusExecution(recentLogsRetriever));
     }
 
