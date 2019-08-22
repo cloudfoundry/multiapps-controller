@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -39,7 +39,8 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
-        return Arrays.asList(new PollStageAppStatusExecution(recentLogsRetriever, new ApplicationStager(execution.getControllerClient())));
+        return Collections.singletonList(new PollStageAppStatusExecution(recentLogsRetriever,
+                                                                         new ApplicationStager(execution.getControllerClient())));
     }
 
     @Override

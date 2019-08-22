@@ -31,7 +31,6 @@ import com.sap.cloud.lm.sl.mta.model.Platform;
 
 public class ApplicationConfigurationTest {
 
-    private static final String VCAP_APPLICATION_JSON_WITHOUT_SPACE_ID_FILE = "vcap-application-without-space.json";
     private static final String VCAP_APPLICATION_WITHOUT_SPACE = "vcap-application-without-space.json";
     private static final String VCAP_APPLICATION_WITHOUT_URLS = "vcap-application-without-urls.json";
     private static final String VCAP_APPLICATION = "vcap-application.json";
