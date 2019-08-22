@@ -4,20 +4,20 @@ import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudApplication.State;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
@@ -25,12 +25,8 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class RestartAppStep extends TimeoutAsyncFlowableStep {
 
-    @Autowired
+    @Inject
     protected RecentLogsRetriever recentLogsRetriever;
-    @Autowired
-    protected RecentLogsRetriever recentLogsRetrieverFailSafe;
-    @Autowired
-    protected ApplicationConfiguration configuration;
 
     @Override
     public StepPhase executeAsyncStep(ExecutionWrapper execution) {
@@ -92,9 +88,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
         List<AsyncExecution> stepExecutions = new LinkedList<>();
-
-        recentLogsRetrieverFailSafe.setFailSafe(true);
-        stepExecutions.add(new PollStartAppStatusExecution(recentLogsRetrieverFailSafe));
+        stepExecutions.add(new PollStartAppStatusExecution(recentLogsRetriever));
         stepExecutions.add(new PollExecuteAppStatusExecution(recentLogsRetriever));
         return stepExecutions;
     }

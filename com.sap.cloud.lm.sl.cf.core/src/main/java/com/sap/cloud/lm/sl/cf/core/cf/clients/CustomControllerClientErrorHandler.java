@@ -10,32 +10,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 
-import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
+import com.sap.cloud.lm.sl.cf.client.util.ResilientCloudOperationExecutor;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class CustomControllerClientErrorHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomControllerClientErrorHandler.class);
+    private Supplier<ResilientCloudOperationExecutor> executorFactory = ResilientCloudOperationExecutor::new;
 
-    private ExecutionRetrier retrier;
-
-    public CustomControllerClientErrorHandler() {
-        this(new ExecutionRetrier());
-    }
-
-    public CustomControllerClientErrorHandler(ExecutionRetrier retrier) {
-        this.retrier = retrier;
-    }
-
-    public <T> T handleErrorsOrReturnResult(Supplier<T> supplier, HttpStatus... httpStatusesToIgnore) {
-        return retrier.executeWithRetry(() -> {
-            try {
-                return supplier.get();
-            } catch (HttpStatusCodeException e) {
-                throw asCloudOperationException(e);
-            }
-        }, httpStatusesToIgnore);
+    CustomControllerClientErrorHandler withExecutorFactory(Supplier<ResilientCloudOperationExecutor> executorFactory) {
+        this.executorFactory = executorFactory;
+        return this;
     }
 
     public void handleErrors(Runnable runnable) {
@@ -43,6 +29,21 @@ public class CustomControllerClientErrorHandler {
             runnable.run();
             return null;
         });
+    }
+
+    public <T> T handleErrorsOrReturnResult(Supplier<T> supplier, HttpStatus... statusesToIgnore) {
+        return createExecutor(statusesToIgnore).execute(() -> {
+            try {
+                return supplier.get();
+            } catch (HttpStatusCodeException e) {
+                throw asCloudOperationException(e);
+            }
+        });
+    }
+
+    protected ResilientCloudOperationExecutor createExecutor(HttpStatus... statusesToIgnore) {
+        return executorFactory.get()
+                              .withStatusesToIgnore(statusesToIgnore);
     }
 
     private CloudOperationException asCloudOperationException(HttpStatusCodeException exception) {

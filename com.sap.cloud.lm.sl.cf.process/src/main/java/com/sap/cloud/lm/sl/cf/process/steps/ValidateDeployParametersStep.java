@@ -12,7 +12,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
+import com.sap.cloud.lm.sl.cf.client.util.ResilientOperationExecutor;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
@@ -107,10 +107,10 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
         StepsUtil.setAsJsonBinaries(context, Constants.VAR_FILE_ENTRIES, archivePartEntries);
         getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
-        new ExecutionRetrier().executeWithRetry(() -> new ArchiveMerger(fileService,
-                                                                        getStepLogger(),
-                                                                        context,
-                                                                        logger).createArchiveFromParts(archivePartEntries));
+        new ResilientOperationExecutor().execute(() -> new ArchiveMerger(fileService,
+                                                                         getStepLogger(),
+                                                                         context,
+                                                                         logger).createArchiveFromParts(archivePartEntries));
     }
 
     private FileEntry findFile(DelegateExecution context, String fileId) {

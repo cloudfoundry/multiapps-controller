@@ -16,14 +16,14 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 
-import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
+import com.sap.cloud.lm.sl.cf.client.util.ResilientCloudOperationExecutor;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Enclosed.class)
 public class CustomControllerClientErrorHandlerTest {
 
-    private static final ExecutionRetrier NULL_RETRIER = new ExecutionRetrier().withRetryCount(0)
-                                                                               .withWaitTimeBetweenRetriesInMillis(0);
+    private static final ResilientCloudOperationExecutor NULL_RETRIER = new ResilientCloudOperationExecutor().withRetryCount(0)
+                                                                                                             .withWaitTimeBetweenRetriesInMillis(0);
 
     public static class StandardTest {
 
@@ -78,9 +78,10 @@ public class CustomControllerClientErrorHandlerTest {
         @Test
         public void testHandleErrorsWithRightExceptionType() {
             try {
-                new CustomControllerClientErrorHandler(NULL_RETRIER).handleErrors(() -> {
-                    throw exceptionToThrow;
-                });
+                new CustomControllerClientErrorHandler().withExecutorFactory(() -> NULL_RETRIER)
+                                                        .handleErrors(() -> {
+                                                            throw exceptionToThrow;
+                                                        });
             } catch (CloudOperationException result) {
                 assertEquals(expected.getStatusCode(), result.getStatusCode());
                 assertEquals(expected.getStatusText(), result.getStatusText());

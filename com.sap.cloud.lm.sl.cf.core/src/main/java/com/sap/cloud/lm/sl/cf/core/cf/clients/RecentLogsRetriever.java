@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -26,7 +27,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.sap.cloud.lm.sl.cf.client.events.EventFactory;
 import com.sap.cloud.lm.sl.cf.client.events.LogFactory.LogMessage;
 import com.sap.cloud.lm.sl.cf.client.events.LogFactory.LogMessage.MessageType;
-import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -34,29 +34,30 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class RecentLogsRetriever extends CustomControllerClient {
 
     public static final String RECENT_LOGS_ENDPOINT = "/apps/{guid}/recentlogs";
-    private boolean failSafe;
+
+    private Supplier<CustomControllerClientErrorHandler> errorHandlerFactory = CustomControllerClientErrorHandler::new;
 
     @Inject
     public RecentLogsRetriever(RestTemplateFactory restTemplateFactory) {
         super(restTemplateFactory);
     }
 
+    RecentLogsRetriever withErrorHandlerFactory(Supplier<CustomControllerClientErrorHandler> errorHandlerFactory) {
+        this.errorHandlerFactory = errorHandlerFactory;
+        return this;
+    }
+
+    public List<ApplicationLog> getRecentLogsSafely(CloudControllerClient client, String appName) {
+        try {
+            return getRecentLogs(client, appName);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
     public List<ApplicationLog> getRecentLogs(CloudControllerClient client, String appName) {
-        return new CustomControllerClientErrorHandler(getRetrier()).handleErrorsOrReturnResult(() -> attemptToGetRecentLogs(client,
-                                                                                                                            appName));
-    }
-
-    protected ExecutionRetrier getRetrier() {
-        ExecutionRetrier retrier = new ExecutionRetrier();
-        return failSafe ? retrier.failSafe() : retrier;
-    }
-
-    public void setFailSafe(boolean failSafe) {
-        this.failSafe = failSafe;
-    }
-
-    public boolean isFailSafe() {
-        return this.failSafe;
+        return errorHandlerFactory.get()
+                                  .handleErrorsOrReturnResult(() -> attemptToGetRecentLogs(client, appName));
     }
 
     private List<ApplicationLog> attemptToGetRecentLogs(CloudControllerClient client, String appName) {

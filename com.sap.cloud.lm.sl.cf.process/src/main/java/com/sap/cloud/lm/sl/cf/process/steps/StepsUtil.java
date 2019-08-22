@@ -657,7 +657,7 @@ public class StepsUtil {
 
     static void saveAppLogs(DelegateExecution context, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
                             CloudApplication app, Logger logger, ProcessLoggerProvider processLoggerProvider) {
-        List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName());
+        List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogsSafely(client, app.getName());
         if (recentLogs != null) {
             recentLogs.forEach(log -> appLog(context, app.getName(), log.toString(), logger, processLoggerProvider));
         }
