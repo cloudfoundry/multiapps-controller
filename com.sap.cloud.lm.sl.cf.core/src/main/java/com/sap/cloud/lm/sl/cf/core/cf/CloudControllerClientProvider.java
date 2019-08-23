@@ -29,6 +29,16 @@ public class CloudControllerClientProvider {
     private Map<String, CloudControllerClient> clients = Collections.synchronizedMap(new ReferenceMap<>(ReferenceStrength.HARD,
                                                                                                         ReferenceStrength.SOFT));
 
+    /**
+     * Returns a client for the specified user name, organization, space and process id by either getting it from the clients cache
+     * or creating a new one.
+     *
+     * @param userName the user name associated with the client
+     * @param org the organization associated with the client
+     * @param space the space associated with the client
+     * @param processId the processId for the client
+     * @return a CF client for the specified access token, organization, and space
+     */
     public CloudControllerClient getControllerClient(String userName, String org, String space, String processId) {
         try {
             return getClientFromCache(userName, org, space, processId);
@@ -37,6 +47,15 @@ public class CloudControllerClientProvider {
         }
     }
 
+    /**
+     * Returns a client for the specified user name, space id and process id by either getting it from the clients cache or
+     * creating a new one.
+     *
+     * @param userName the user name associated with the client
+     * @param spaceGuid the space guid associated with the client
+     * @param processId the processId associated with the client
+     * @return a CF client for the specified access token, organization, and space
+     */
     public CloudControllerClient getControllerClient(String userName, String spaceGuid, String processId) {
         try {
             return getClientFromCache(userName, spaceGuid, processId);
@@ -45,6 +64,13 @@ public class CloudControllerClientProvider {
         }
     }
 
+    /**
+     * Returns a client for the specified user name and space id by either getting it from the clients cache or creating a new one.
+     *
+     * @param userName the user name associated with the client
+     * @param spaceGuid the space guid associated with the client
+     * @return a CF client for the specified access token, organization, and space
+     */
     public CloudControllerClient getControllerClient(String userName, String spaceGuid) {
         try {
             return getClientFromCache(userName, spaceGuid);
@@ -53,6 +79,12 @@ public class CloudControllerClientProvider {
         }
     }
 
+    /**
+     * Returns a client for the specified user nameby either getting it from the clients cache or creating a new one.
+     *
+     * @param userName the user name associated with the client
+     * @return a CF client for the specified access token, organization, and space
+     */
     public CloudControllerClient getControllerClient(String userName) {
         try {
             return clientFactory.createClient(getValidToken(userName));
@@ -61,10 +93,23 @@ public class CloudControllerClientProvider {
         }
     }
 
+    /**
+     * Releases the client for the specified user name, organization and space by removing it from the clients cache.
+     *
+     * @param userName the user name associated with the client
+     * @param org the organization associated with the client
+     * @param space the space associated with the client
+     */
     public void releaseClient(String userName, String org, String space) {
         clients.remove(getKey(userName, org, space));
     }
 
+    /**
+     * Releases the client for the specified user name and space id by removing it from the clients cache.
+     *
+     * @param userName the user name associated with the client
+     * @param spaceGuid the space id associated with the client
+     */
     public void releaseClient(String userName, String spaceGuid) {
         clients.remove(getKey(userName, spaceGuid));
     }
