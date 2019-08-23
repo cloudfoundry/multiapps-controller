@@ -56,7 +56,6 @@
         <liquibase.version>3.4.1</liquibase.version>
         <liquibase-slf4j.version>1.2.1</liquibase-slf4j.version>
         <cloudfoundry.client.version>1.15.0</cloudfoundry.client.version>
-        <protobuf-java.version>3.1.0</protobuf-java.version>
         <semver4j.version>2.2.0</semver4j.version>
         <jgit.version>4.0.1.201506240215-r</jgit.version>
         <swagger.version>1.5.16</swagger.version>
@@ -475,11 +474,6 @@
                 <artifactId>gson</artifactId>
                 <version>${gson.version}</version>
                 <scope>runtime</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.google.protobuf</groupId>
-                <artifactId>protobuf-java</artifactId>
-                <version>${protobuf-java.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.yaml</groupId>

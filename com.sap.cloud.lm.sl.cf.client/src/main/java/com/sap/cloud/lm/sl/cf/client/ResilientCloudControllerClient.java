@@ -197,6 +197,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public List<ApplicationLog> getRecentLogs(UUID applicationGuid) {
+        return executeWithRetry(() -> delegate.getRecentLogs(applicationGuid), HttpStatus.NOT_FOUND);
+    }
+
+    @Override
     public List<CloudRoute> getRoutes(String domainName) {
         return executeWithRetry(() -> delegate.getRoutes(domainName), HttpStatus.NOT_FOUND);
     }

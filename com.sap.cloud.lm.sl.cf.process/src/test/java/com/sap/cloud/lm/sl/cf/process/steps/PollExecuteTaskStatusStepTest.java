@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -108,6 +109,7 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
         step.currentTimeSupplier = () -> currentTime;
         prepareContext();
         prepareClientExtensions();
+        when(recentLogsRetriever.getRecentLogsSafely(any(), any(), any())).thenReturn(Collections.emptyList());
     }
 
     private void prepareContext() {

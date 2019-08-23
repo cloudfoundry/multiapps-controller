@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import com.sap.cloud.lm.sl.cf.core.util.LogsOffset;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType;
@@ -99,8 +100,8 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         boolean checkDeployId = appAttributes.get(SupportedParameters.CHECK_DEPLOY_ID, Boolean.class, false);
         String deployId = checkDeployId ? (StepsUtil.DEPLOY_ID_PREFIX + StepsUtil.getCorrelationId(context)) : null;
 
-        List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName());
-        if (recentLogs != null) {
+        List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName(), null);
+        if (!recentLogs.isEmpty()) {
             Optional<AppExecutionDetailedStatus> statusx = recentLogs.stream()
                                                                      .map(log -> getAppExecutionStatus(log, startTime, sm, fm, deployId))
                                                                      .filter(Objects::nonNull)
