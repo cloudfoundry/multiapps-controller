@@ -16,13 +16,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveBuilder;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -36,7 +36,7 @@ import com.sap.cloud.lm.sl.cf.process.util.GitRepoCloner;
 import com.sap.cloud.lm.sl.common.ContentException;
 
 // Should be executed before ValidateDeployParametersStep as the archive ID is determined during this step execution
-@Component("processGitSourceStep")
+@Named("processGitSourceStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessGitSourceStep extends SyncFlowableStep {
 

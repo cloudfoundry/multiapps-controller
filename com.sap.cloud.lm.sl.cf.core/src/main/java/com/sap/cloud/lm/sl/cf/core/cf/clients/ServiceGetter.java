@@ -3,12 +3,12 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
-@Component
+@Named
 public class ServiceGetter {
 
     private AbstractServiceGetter serviceInstanceGetter;

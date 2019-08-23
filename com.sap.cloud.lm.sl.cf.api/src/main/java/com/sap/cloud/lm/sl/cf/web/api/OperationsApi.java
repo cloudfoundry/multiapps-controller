@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.web.api;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -16,7 +17,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.web.api.model.Log;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -33,7 +33,7 @@ import io.swagger.annotations.Authorization;
 @Produces({ "application/json" })
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaJAXRSCXFCDIServerCodegen", date = "2017-10-23T14:07:53.974+03:00")
 
-@Component
+@Named
 @Scope(value = "request")
 public class OperationsApi {
 

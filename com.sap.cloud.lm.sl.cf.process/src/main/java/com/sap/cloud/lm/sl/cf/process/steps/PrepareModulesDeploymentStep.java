@@ -3,11 +3,11 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -15,7 +15,7 @@ import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
-@Component("prepareModulesDeploymentStep")
+@Named("prepareModulesDeploymentStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PrepareModulesDeploymentStep extends SyncFlowableStep {
 

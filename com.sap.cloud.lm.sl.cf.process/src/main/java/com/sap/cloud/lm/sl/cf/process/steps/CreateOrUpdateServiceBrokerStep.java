@@ -4,6 +4,8 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Named;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
@@ -13,7 +15,6 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBroker;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
@@ -26,7 +27,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 
-@Component("createOrUpdateServiceBrokerStep")
+@Named("createOrUpdateServiceBrokerStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
 

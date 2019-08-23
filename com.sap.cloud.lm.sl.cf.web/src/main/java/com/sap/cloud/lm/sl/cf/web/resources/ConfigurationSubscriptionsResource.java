@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -19,7 +20,6 @@ import javax.ws.rs.core.Response;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
@@ -29,7 +29,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscriptions;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 
-@Component
+@Named
 @Produces(MediaType.APPLICATION_XML)
 @Path("/configuration-subscriptions")
 public class ConfigurationSubscriptionsResource {

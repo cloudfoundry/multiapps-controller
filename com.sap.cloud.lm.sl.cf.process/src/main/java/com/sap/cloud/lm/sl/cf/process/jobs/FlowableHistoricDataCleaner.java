@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.history.HistoricProcessInstance;
@@ -13,11 +14,10 @@ import org.flowable.engine.history.HistoricProcessInstanceQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-@Component
+@Named
 @Order(20)
 public class FlowableHistoricDataCleaner implements Cleaner {
 

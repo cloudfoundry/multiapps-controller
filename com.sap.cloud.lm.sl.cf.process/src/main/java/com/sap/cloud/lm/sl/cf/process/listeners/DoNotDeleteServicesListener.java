@@ -1,13 +1,14 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
+import javax.inject.Named;
+
 import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-@Component("doNotDeleteServicesListener")
+@Named("doNotDeleteServicesListener")
 public class DoNotDeleteServicesListener extends AbstractProcessExecutionListener {
 
     private static final long serialVersionUID = 1L;

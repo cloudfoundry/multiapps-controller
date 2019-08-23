@@ -1,14 +1,14 @@
 package com.sap.cloud.lm.sl.cf.process.analytics.collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.analytics.model.GeneralProcess;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.GeneralScenarioDetails;
 
-@Component("generalScenarioDetailsCollector")
+@Named("generalScenarioDetailsCollector")
 public class GeneralScenarioDetailsCollector {
     private static final String LM_PROCESS = "XSA Deploy Service";
     private static final String MODEL_VERSION = "00001";

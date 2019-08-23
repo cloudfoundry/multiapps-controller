@@ -12,12 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.inject.Named;
+
 import org.cloudfoundry.client.lib.util.JsonUtil;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.stereotype.Component;
 
-@Component
+@Named
 public class TokenFactory {
     public static final String DUMMY_TOKEN = "DUMMY";
     public static final UUID DUMMY_UUID = new UUID(0, 0);

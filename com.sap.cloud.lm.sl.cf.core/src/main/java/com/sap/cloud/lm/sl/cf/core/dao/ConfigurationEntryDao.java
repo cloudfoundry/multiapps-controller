@@ -6,8 +6,7 @@ import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationEntryDto;
 import com.sap.cloud.lm.sl.cf.core.filters.VersionFilter;
@@ -15,7 +14,7 @@ import com.sap.cloud.lm.sl.cf.core.filters.VisibilityFilter;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 
-@Component
+@Named
 public class ConfigurationEntryDao {
 
     @Inject

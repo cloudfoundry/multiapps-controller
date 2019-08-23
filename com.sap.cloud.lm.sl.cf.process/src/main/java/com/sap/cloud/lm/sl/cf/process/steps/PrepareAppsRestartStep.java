@@ -5,17 +5,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
-@Component("prepareAppsRestartStep")
+@Named("prepareAppsRestartStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PrepareAppsRestartStep extends PrepareModulesDeploymentStep {
 

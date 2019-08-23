@@ -3,17 +3,18 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.text.MessageFormat;
 import java.util.List;
 
+import javax.inject.Named;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-@Component("deleteApplicationStep")
+@Named("deleteApplicationStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DeleteApplicationStep extends UndeployAppStep {
 

@@ -2,9 +2,10 @@ package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.text.MessageFormat;
 
+import javax.inject.Named;
+
 import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
@@ -190,7 +191,7 @@ public class StepLogger implements UserMessageLogger {
         return context;
     }
 
-    @Component
+    @Named
     public static class Factory {
 
         public StepLogger create(DelegateExecution context, ProgressMessageService progressMessageService,

@@ -3,16 +3,17 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 import java.io.IOException;
 import java.net.URI;
 
+import javax.inject.Named;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.util.RestUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-@Component
+@Named
 public class RestTemplateFactory {
 
     public RestTemplate getRestTemplate(CloudControllerClient client) {

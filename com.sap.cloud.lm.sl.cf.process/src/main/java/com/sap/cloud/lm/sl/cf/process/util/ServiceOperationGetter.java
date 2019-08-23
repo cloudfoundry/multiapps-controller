@@ -6,11 +6,11 @@ import java.util.Objects;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.collections4.MapUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 
-@Component
+@Named
 public class ServiceOperationGetter {
 
     private ServiceGetter serviceGetter;

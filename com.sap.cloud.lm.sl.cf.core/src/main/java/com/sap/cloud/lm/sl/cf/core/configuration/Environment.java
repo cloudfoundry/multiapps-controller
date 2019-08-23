@@ -3,10 +3,11 @@ package com.sap.cloud.lm.sl.cf.core.configuration;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
-@Component
+import org.apache.commons.lang3.StringUtils;
+
+@Named
 public class Environment {
 
     private final EnvironmentVariablesAccessor environmentVariablesAccessor;

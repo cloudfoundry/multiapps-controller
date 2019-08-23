@@ -1,10 +1,11 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import javax.inject.Named;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
-@Component("collectBlueGreenSystemParametersStep")
+@Named("collectBlueGreenSystemParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CollectBlueGreenSystemParametersStep extends CollectSystemParametersStep {
 

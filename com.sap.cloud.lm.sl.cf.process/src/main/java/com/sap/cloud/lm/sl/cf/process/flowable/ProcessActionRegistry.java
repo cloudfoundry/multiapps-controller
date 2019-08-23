@@ -3,10 +3,9 @@ package com.sap.cloud.lm.sl.cf.process.flowable;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
-import org.springframework.stereotype.Component;
-
-@Component
+@Named
 public class ProcessActionRegistry {
 
     private List<ProcessAction> processActions;

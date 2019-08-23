@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.text.MessageFormat;
 import java.util.List;
 
+import javax.inject.Named;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
@@ -11,7 +13,6 @@ import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -20,7 +21,7 @@ import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper;
 import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-@Component("deleteServiceBrokersStep")
+@Named("deleteServiceBrokersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DeleteServiceBrokersStep extends SyncFlowableStep {
 

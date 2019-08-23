@@ -3,25 +3,26 @@ package com.sap.cloud.lm.sl.cf.core.cf;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.apache.commons.collections4.map.AbstractReferenceMap.ReferenceStrength;
 import org.apache.commons.collections4.map.ReferenceMap;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.service.TokenService;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
-@Component
+@Named
 public class CloudControllerClientProvider {
 
-    @Autowired
+    @Inject
     private ClientFactory clientFactory;
 
-    @Autowired
+    @Inject
     private TokenService tokenService;
 
     // Cached clients. These are stored in memory-sensitive cache, i.e. no OutOfMemory error would

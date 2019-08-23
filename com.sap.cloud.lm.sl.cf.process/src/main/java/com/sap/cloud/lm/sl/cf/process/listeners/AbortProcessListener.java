@@ -5,6 +5,7 @@ import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.util.RestUtil;
 import org.flowable.common.engine.api.delegate.event.AbstractFlowableEventListener;
@@ -20,7 +21,6 @@ import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
@@ -39,7 +39,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.util.Runnable;
 
-@Component("abortProcessListener")
+@Named("abortProcessListener")
 public class AbortProcessListener extends AbstractFlowableEventListener implements Serializable {
 
     private static final long serialVersionUID = 2L;

@@ -4,9 +4,9 @@ import java.math.BigInteger;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
@@ -17,7 +17,7 @@ import com.sap.cloud.lm.sl.cf.process.analytics.model.DeployProcessAttributes;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 
-@Component("deployProcessAttributesCollector")
+@Named("deployProcessAttributesCollector")
 public class DeployProcessAttributesCollector extends AbstractCommonProcessAttributesCollector<DeployProcessAttributes> {
 
     private static final Integer DEFAULT_NON_EXISTING_MTA_SIZE = 0;

@@ -1,14 +1,15 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import javax.inject.Named;
+
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-@Component("incrementIndexStep")
+@Named("incrementIndexStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class IncrementIndexStep extends SyncFlowableStep {
 

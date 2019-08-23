@@ -2,17 +2,18 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 
+import javax.inject.Named;
+
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-@Component("deleteRemainingFileParts")
+@Named("deleteRemainingFileParts")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DeleteRemainingFileParts extends SyncFlowableStep {
 

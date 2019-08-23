@@ -1,10 +1,10 @@
 package com.sap.cloud.lm.sl.cf.process.analytics.collectors;
 
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import com.sap.cloud.lm.sl.cf.process.analytics.model.UndeployProcessAttributes;
 
-@Component("undeployProcessAttributesCollector")
+@Named("undeployProcessAttributesCollector")
 public class UndeployProcessAttributesCollector extends AbstractCommonProcessAttributesCollector<UndeployProcessAttributes> {
 
     @Override

@@ -5,10 +5,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.xml.bind.Marshaller;
 
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.cf.process.analytics.model.GeneralProcess;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.util.XmlUtil;
 
-@Component("collectedDataSender")
+@Named("collectedDataSender")
 public class CollectedDataSender {
 
     private static final String XS2 = "XS2";

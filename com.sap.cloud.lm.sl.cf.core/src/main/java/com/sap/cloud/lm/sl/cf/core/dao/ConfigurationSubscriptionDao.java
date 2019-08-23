@@ -4,14 +4,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationSubscriptionDto;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 
-@Component
+@Named
 public class ConfigurationSubscriptionDao {
 
     @Inject

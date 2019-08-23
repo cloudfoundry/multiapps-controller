@@ -10,7 +10,7 @@ import org.cloudfoundry.client.lib.util.RestUtil;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import javax.inject.Inject;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
-@Component("endProcessListener")
+@Named("endProcessListener")
 public class EndProcessListener extends AbstractProcessExecutionListener {
 
     private static final long serialVersionUID = 1L;

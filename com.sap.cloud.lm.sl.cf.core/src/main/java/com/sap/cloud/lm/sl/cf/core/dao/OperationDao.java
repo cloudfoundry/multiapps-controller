@@ -5,15 +5,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto;
 import com.sap.cloud.lm.sl.cf.core.helpers.OperationFactory;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
-@Component
+@Named
 public class OperationDao {
 
     @Inject

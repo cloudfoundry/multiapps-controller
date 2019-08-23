@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.RollbackException;
@@ -14,7 +15,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationSubscriptionDto;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationSubscriptionDto.FieldNames;
@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.NamedQueries;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 
-@Component
+@Named
 public class ConfigurationSubscriptionDtoDao {
 
     private EntityManagerFactory entityManagerFactory;

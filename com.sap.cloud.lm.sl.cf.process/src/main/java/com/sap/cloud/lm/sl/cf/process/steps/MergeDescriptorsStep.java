@@ -3,11 +3,11 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorMerger;
@@ -17,7 +17,7 @@ import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Platform;
 
-@Component("mergeDescriptorsStep")
+@Named("mergeDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class MergeDescriptorsStep extends SyncFlowableStep {
 

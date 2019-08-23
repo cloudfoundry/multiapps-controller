@@ -3,11 +3,12 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Named;
+
 import org.apache.commons.collections4.ListUtils;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -15,7 +16,7 @@ import com.sap.cloud.lm.sl.cf.process.util.ModuleDependencyChecker;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
-@Component("computeNextModulesStep")
+@Named("computeNextModulesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ComputeNextModulesStep extends SyncFlowableStep {
 

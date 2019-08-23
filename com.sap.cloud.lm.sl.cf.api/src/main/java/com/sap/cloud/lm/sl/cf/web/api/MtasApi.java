@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.api;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -12,7 +13,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.web.api.model.Mta;
 
@@ -28,7 +28,7 @@ import io.swagger.annotations.Authorization;
 @Produces({ "application/json" })
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaJAXRSCXFCDIServerCodegen", date = "2017-10-19T13:17:38.801+03:00")
 
-@Component
+@Named
 @Scope(value = "request")
 public class MtasApi {
 

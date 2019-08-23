@@ -1,9 +1,10 @@
 package com.sap.cloud.lm.sl.cf.web.configuration.bean;
 
-import org.springframework.security.web.firewall.DefaultHttpFirewall;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
-@Component("customHttpFirewall")
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
+
+@Named("customHttpFirewall")
 public class CustomHttpFirewall extends DefaultHttpFirewall {
 
     public CustomHttpFirewall() {

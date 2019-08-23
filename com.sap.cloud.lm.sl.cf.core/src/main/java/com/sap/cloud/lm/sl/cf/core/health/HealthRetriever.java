@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
-
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
@@ -16,7 +15,7 @@ import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
-@Component
+@Named
 public class HealthRetriever {
 
     private OperationDao operationDao;

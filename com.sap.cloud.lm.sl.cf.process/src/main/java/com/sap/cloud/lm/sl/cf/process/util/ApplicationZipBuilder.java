@@ -9,17 +9,17 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.io.FilenameUtils;
 import org.cloudfoundry.client.lib.io.UtcAdjustedZipEntry;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 
-@Component
+@Named
 public class ApplicationZipBuilder {
     private static final int BUFFER_SIZE = 4 * 1024; // 4KB
     private ApplicationArchiveReader applicationArchiveReader;

@@ -16,6 +16,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -29,7 +30,6 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudSpace;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
@@ -63,7 +63,7 @@ import com.sap.cloud.lm.sl.mta.resolvers.ReferencePattern;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
-@Component("updateSubscribersStep")
+@Named("updateSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UpdateSubscribersStep extends SyncFlowableStep {
 

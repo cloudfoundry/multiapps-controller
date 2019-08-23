@@ -8,14 +8,14 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.cf.services.TypedServiceOperationState;
 import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
 
-@Component
+@Named
 public class ServiceProgressReporter {
 
     public void reportOverallProgress(ExecutionWrapper execution, List<ServiceOperation> lastServicesOperationS,

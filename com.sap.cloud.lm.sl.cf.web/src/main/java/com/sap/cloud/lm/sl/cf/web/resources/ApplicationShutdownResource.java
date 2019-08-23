@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -12,13 +13,12 @@ import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.shutdown.model.ApplicationShutdownDto;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 
-@Component
+@Named
 @Produces(MediaType.APPLICATION_JSON)
 public class ApplicationShutdownResource {
 

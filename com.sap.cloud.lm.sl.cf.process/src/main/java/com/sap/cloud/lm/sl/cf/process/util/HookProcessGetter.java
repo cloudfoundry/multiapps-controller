@@ -5,9 +5,9 @@ import java.text.MessageFormat;
 import java.util.Date;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
@@ -17,7 +17,7 @@ import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 
-@Component("hookProcessGetter")
+@Named("hookProcessGetter")
 public class HookProcessGetter {
 
     private ProgressMessageService progressMessageService;

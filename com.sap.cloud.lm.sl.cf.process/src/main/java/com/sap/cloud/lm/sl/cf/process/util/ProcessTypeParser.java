@@ -1,14 +1,15 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
+import javax.inject.Named;
+
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 
-@Component
+@Named
 public class ProcessTypeParser {
 
     public ProcessType getProcessType(DelegateExecution context) {

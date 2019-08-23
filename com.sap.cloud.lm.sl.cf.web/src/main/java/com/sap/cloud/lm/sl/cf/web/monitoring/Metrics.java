@@ -3,15 +3,15 @@ package com.sap.cloud.lm.sl.cf.web.monitoring;
 import java.nio.file.Paths;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileSystemFileStorage;
 
-@Component
+@Named
 public class Metrics implements MetricsMBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Metrics.class);

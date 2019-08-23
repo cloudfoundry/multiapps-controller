@@ -4,17 +4,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.flowable.engine.runtime.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.common.SLException;
 
-@Component
+@Named
 public class RetryProcessAdditionalAction implements AdditionalProcessAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RetryProcessAdditionalAction.class);

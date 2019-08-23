@@ -7,13 +7,13 @@ import java.util.Calendar;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
 import com.sap.cloud.lm.sl.cf.core.helpers.SystemParameters;
@@ -28,7 +28,7 @@ import com.sap.cloud.lm.sl.mta.model.DeploymentType;
 import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
-@Component("collectSystemParametersStep") // rename to collect system parameters and allocate ports?
+@Named("collectSystemParametersStep") // rename to collect system parameters and allocate ports?
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CollectSystemParametersStep extends SyncFlowableStep {
 

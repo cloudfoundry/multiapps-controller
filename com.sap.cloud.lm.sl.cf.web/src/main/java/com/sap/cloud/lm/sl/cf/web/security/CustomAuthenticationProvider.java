@@ -1,9 +1,10 @@
 package com.sap.cloud.lm.sl.cf.web.security;
 
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -29,21 +30,21 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomAuthenticationProvider.class);
 
-    @Autowired
+    @Inject
     @Qualifier("tokenStore")
     TokenStore tokenStore;
 
-    @Autowired
+    @Inject
     @Qualifier("tokenProviderFactory")
     TokenProviderFactory cloudFoundryTokenProviderFactory;
 
-    @Autowired
+    @Inject
     ApplicationConfiguration configuration;
 
-    @Autowired
+    @Inject
     TokenFactory tokenFactory;
 
-    @Autowired
+    @Inject
     TokenParserChain tokenParserChain;
 
     @Override

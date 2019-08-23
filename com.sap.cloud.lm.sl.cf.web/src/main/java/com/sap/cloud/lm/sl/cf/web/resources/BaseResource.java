@@ -1,17 +1,17 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.Path;
 
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.web.api.FilesApi;
 import com.sap.cloud.lm.sl.cf.web.api.MtasApi;
 import com.sap.cloud.lm.sl.cf.web.api.OperationsApi;
 
 @Path("/spaces/{space_guid}")
-@Component
+@Named
 @Scope(value = "request")
 public class BaseResource {
 

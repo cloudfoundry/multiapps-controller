@@ -1,16 +1,17 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
+import javax.inject.Named;
+
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.ExecutionListener;
 import org.flowable.engine.impl.context.Context;
 import org.flowable.engine.runtime.Execution;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 
-@Component("createOrUpdateServiceEndListener")
+@Named("createOrUpdateServiceEndListener")
 public class CreateOrUpdateServiceEndListener implements ExecutionListener {
 
     private static final long serialVersionUID = 1L;

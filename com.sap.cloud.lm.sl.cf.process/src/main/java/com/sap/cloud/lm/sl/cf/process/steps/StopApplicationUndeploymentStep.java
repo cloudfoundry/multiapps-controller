@@ -2,17 +2,18 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
 
+import javax.inject.Named;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-@Component("stopApplicationUndeploymentStep")
+@Named("stopApplicationUndeploymentStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StopApplicationUndeploymentStep extends UndeployAppStep {
 

@@ -3,10 +3,11 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.inject.Named;
+
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -17,7 +18,7 @@ import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.SupportedVersions;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
-@Component("detectMtaSchemaVersionStep")
+@Named("detectMtaSchemaVersionStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetectMtaSchemaVersionStep extends SyncFlowableStep {
 
