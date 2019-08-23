@@ -5,6 +5,7 @@ import static java.text.MessageFormat.format;
 import java.lang.annotation.Target;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -81,6 +82,7 @@ public class ApplicationConfiguration {
     static final String CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY = "FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY";
     static final String CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = "FSS_CACHE_UPDATE_TIMEOUT_MINUTES";
     static final String CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = "SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS";
+    static final String CFG_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = "CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS";
     static final String CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = "CONTROLLER_CLIENT_CONNECTION_POOL_SIZE";
     static final String CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE = "CONTROLLER_CLIENT_THREAD_POOL_SIZE";
     static final String SAP_INTERNAL_DELIVERY = "SAP_INTERNAL_DELIVERY";
@@ -120,6 +122,7 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY = 16;
     public static final Integer DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = 30;
     public static final Integer DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = 20;
+    public static final int DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = 5;
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 75;
     public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 75;
     public static final Boolean DEFAULT_SAP_INTERNAL_DELIVERY = false;
@@ -166,6 +169,7 @@ public class ApplicationConfiguration {
     private Integer fssCacheUpdateTimeoutMinutes;
     private Integer spaceDeveloperCacheTimeInSeconds;
     private Platform platform;
+    private Duration controllerClientConnectTimeout;
     private Integer controllerClientConnectionPoolSize;
     private Integer controllerClientThreadPoolSize;
 
@@ -509,6 +513,13 @@ public class ApplicationConfiguration {
         return spaceDeveloperCacheTimeInSeconds;
     }
 
+    public Duration getControllerClientConnectTimeout() {
+        if (controllerClientConnectTimeout == null) {
+            controllerClientConnectTimeout = getControllerClientConnectTimeoutFromEnvironment();
+        }
+        return controllerClientConnectTimeout;
+    }
+
     public Integer getControllerClientConnectionPoolSize() {
         if (controllerClientConnectionPoolSize == null) {
             controllerClientConnectionPoolSize = getControllerClientConnectionPoolSizeFromEnvironment();
@@ -735,7 +746,7 @@ public class ApplicationConfiguration {
     }
 
     private HealthCheckConfiguration getHealthCheckConfigurationFromEnvironment() {
-         HealthCheckConfiguration healthCheckConfigurationFromEnvironment = new HealthCheckConfiguration.Builder().spaceId(getHealthCheckSpaceIdFromEnvironment())
+        HealthCheckConfiguration healthCheckConfigurationFromEnvironment = new HealthCheckConfiguration.Builder().spaceId(getHealthCheckSpaceIdFromEnvironment())
                                                                                                                  .mtaId(getHealthCheckMtaIdFromEnvironment())
                                                                                                                  .userName(getHealthCheckUserFromEnvironment())
                                                                                                                  .timeRangeInSeconds(getHealthCheckTimeRangeFromEnvironment())
@@ -842,6 +853,13 @@ public class ApplicationConfiguration {
                                                        DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
         LOGGER.info(format(Messages.SPACE_DEVELOPERS_CACHE_TIME_IN_SECONDS, value));
         return value;
+    }
+
+    private Duration getControllerClientConnectTimeoutFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS,
+                                                       DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS);
+        LOGGER.info(format(Messages.CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS, value));
+        return Duration.ofSeconds(value);
     }
 
     private Integer getControllerClientConnectionPoolSizeFromEnvironment() {

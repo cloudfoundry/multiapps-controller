@@ -12,6 +12,7 @@ import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.oauth2.OAuthClient;
 import org.cloudfoundry.client.lib.rest.CloudControllerRestClient;
 import org.cloudfoundry.client.lib.rest.CloudControllerRestClientFactory;
+import org.cloudfoundry.client.lib.rest.ImmutableCloudControllerRestClientFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,9 +28,12 @@ public class CloudFoundryClientFactory extends ClientFactory {
 
     @Inject
     public CloudFoundryClientFactory(ApplicationConfiguration configuration, OAuthClientFactory oAuthClientFactory) {
-        this.clientFactory = new CloudControllerRestClientFactory(configuration.getControllerClientConnectionPoolSize(),
-                                                                  configuration.getControllerClientThreadPoolSize(),
-                                                                  configuration.shouldSkipSslValidation());
+        this.clientFactory = ImmutableCloudControllerRestClientFactory.builder()
+                                                                      .clientConnectTimeout(configuration.getControllerClientConnectTimeout())
+                                                                      .clientConnectionPoolSize(configuration.getControllerClientConnectionPoolSize())
+                                                                      .clientThreadPoolSize(configuration.getControllerClientThreadPoolSize())
+                                                                      .shouldTrustSelfSignedCertificates(configuration.shouldSkipSslValidation())
+                                                                      .build();
         this.configuration = configuration;
         this.oAuthClientFactory = oAuthClientFactory;
     }

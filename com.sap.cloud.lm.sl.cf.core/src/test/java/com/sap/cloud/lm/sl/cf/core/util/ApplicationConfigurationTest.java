@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.net.URL;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -123,6 +124,14 @@ public class ApplicationConfigurationTest {
                .thenReturn(VCAP_APPLICATION_JSON);
         String spaceId = configuration.getSpaceId();
         assertEquals("954229f5-4945-43eb-8acb-a8f07cc5a7f8", spaceId);
+    }
+
+    @Test
+    public void testGetControllerClientConnectTimeout() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS,
+                                                    ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS))
+               .thenReturn(10);
+        assertEquals(Duration.ofSeconds(10), configuration.getControllerClientConnectTimeout());
     }
 
 }
