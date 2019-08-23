@@ -20,7 +20,6 @@ import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.UploadStatusCallback;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
-import org.cloudfoundry.client.lib.domain.ApplicationStats;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudBuild;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
@@ -163,11 +162,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<CloudApplication> getApplications(boolean fetchAdditionalInfo) {
-        return executeWithRetry(() -> delegate.getApplications(fetchAdditionalInfo), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
     public CloudDomain getDefaultDomain() {
         return executeWithRetry(delegate::getDefaultDomain);
     }
@@ -200,6 +194,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public List<ApplicationLog> getRecentLogs(String applicationName) {
         return executeWithRetry(() -> delegate.getRecentLogs(applicationName), HttpStatus.NOT_FOUND);
+    }
+
+    @Override
+    public List<ApplicationLog> getRecentLogs(UUID applicationGuid) {
+        return executeWithRetry(() -> delegate.getRecentLogs(applicationGuid), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -265,6 +264,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public CloudSpace getSpace(String spaceName, boolean required) {
         return executeWithRetry(() -> delegate.getSpace(spaceName, required));
+    }
+
+    @Override
+    public List<UUID> getSpaceAuditors() {
+        return executeWithRetry(() -> delegate.getSpaceAuditors());
     }
 
     @Override
@@ -395,8 +399,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public Upload getUploadStatus(String uploadToken) {
-        return executeWithRetry(() -> delegate.getUploadStatus(uploadToken));
+    public Upload getUploadStatus(UUID packageGuid) {
+        return executeWithRetry(() -> delegate.getUploadStatus(packageGuid));
     }
 
     @Override
@@ -540,23 +544,18 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public Map<String, Object> getApplicationEnvironment(String applicationName) {
+    public Map<String, String> getApplicationEnvironment(String applicationName) {
         return executeWithRetry(() -> delegate.getApplicationEnvironment(applicationName));
     }
 
     @Override
-    public Map<String, Object> getApplicationEnvironment(UUID appGuid) {
+    public Map<String, String> getApplicationEnvironment(UUID appGuid) {
         return executeWithRetry(() -> delegate.getApplicationEnvironment(appGuid));
     }
 
     @Override
     public List<CloudEvent> getApplicationEvents(String applicationName) {
         return executeWithRetry(() -> delegate.getApplicationEvents(applicationName), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public ApplicationStats getApplicationStats(String applicationName) {
-        return executeWithRetry(() -> delegate.getApplicationStats(applicationName));
     }
 
     @Override
@@ -675,6 +674,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public List<UUID> getSpaceDevelopers() {
+        return executeWithRetry(() -> delegate.getSpaceDevelopers());
+    }
+
+    @Override
     public List<UUID> getSpaceAuditors(String organizationName, String spaceName) {
         return executeWithRetry(() -> delegate.getSpaceAuditors(organizationName, spaceName), HttpStatus.NOT_FOUND);
     }
@@ -687,6 +691,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public List<UUID> getSpaceDevelopers(UUID spaceGuid) {
         return executeWithRetry(() -> delegate.getSpaceDevelopers(spaceGuid), HttpStatus.NOT_FOUND);
+    }
+
+    @Override
+    public List<UUID> getSpaceManagers() {
+        return executeWithRetry(() -> delegate.getSpaceManagers());
     }
 
     @Override
@@ -867,11 +876,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
                 throw new IllegalStateException(e.getMessage(), e);
             }
         });
-    }
-
-    @Override
-    public boolean areTasksSupported() {
-        return executeWithRetry(delegate::areTasksSupported);
     }
 
     @Override
