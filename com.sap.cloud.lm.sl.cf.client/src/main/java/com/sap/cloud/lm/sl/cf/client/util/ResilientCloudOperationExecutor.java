@@ -42,15 +42,17 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
     protected void handle(RuntimeException e) {
         if (e instanceof CloudOperationException) {
             handle((CloudOperationException) e);
+        } else {
+            super.handle(e);
         }
-        super.handle(e);
     }
 
     protected void handle(CloudOperationException e) {
         if (!shouldRetry(e)) {
             throw e;
         }
-        LOGGER.warn(MessageFormat.format("Retrying operation that failed with status {0} and message: {1}", e.getStatusCode(), e.getMessage()));
+        LOGGER.warn(MessageFormat.format("Retrying operation that failed with status {0} and message: {1}", e.getStatusCode(),
+                                         e.getMessage()));
     }
 
     private boolean shouldRetry(CloudOperationException e) {
