@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.web.api;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -12,7 +11,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
-import org.springframework.context.annotation.Scope;
+import org.glassfish.jersey.process.internal.RequestScoped;
 
 import com.sap.cloud.lm.sl.cf.web.api.model.Mta;
 
@@ -23,13 +22,11 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 
+@RequestScoped
 @Api(description = "the mtas API")
 @Consumes({ "application/json" })
 @Produces({ "application/json" })
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaJAXRSCXFCDIServerCodegen", date = "2017-10-19T13:17:38.801+03:00")
-
-@Named
-@Scope(value = "request")
 public class MtasApi {
 
     @PathParam("space_guid")
@@ -58,7 +55,6 @@ public class MtasApi {
     }
 
     @GET
-
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @ApiOperation(value = "", notes = "Retrieves all Multi-Target Applications in a space ", response = Mta.class, responseContainer = "List", authorizations = {

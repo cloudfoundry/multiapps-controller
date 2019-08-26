@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.web.api;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -16,7 +15,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
-import org.springframework.context.annotation.Scope;
+import org.glassfish.jersey.process.internal.RequestScoped;
 
 import com.sap.cloud.lm.sl.cf.web.api.model.Log;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -28,13 +27,11 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 
+@RequestScoped
 @Api(description = "the operations API")
 @Consumes({ "application/json" })
 @Produces({ "application/json" })
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaJAXRSCXFCDIServerCodegen", date = "2017-10-23T14:07:53.974+03:00")
-
-@Named
-@Scope(value = "request")
 public class OperationsApi {
 
     @PathParam("space_guid")
@@ -103,7 +100,6 @@ public class OperationsApi {
     }
 
     @GET
-
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @ApiOperation(value = "", notes = "Retrieves Multi-Target Application operations ", response = Operation.class, responseContainer = "List", authorizations = {
@@ -130,7 +126,6 @@ public class OperationsApi {
     }
 
     @POST
-
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @ApiOperation(value = "", notes = "Starts execution of a Multi-Target Application operation ", response = Void.class, authorizations = {

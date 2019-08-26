@@ -11,7 +11,6 @@ import javax.ws.rs.core.SecurityContext;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.glassfish.jersey.process.internal.RequestScoped;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedComponentsDetector;
@@ -29,7 +28,6 @@ import com.sap.cloud.lm.sl.cf.web.security.AuthorizationChecker;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 
-@RequestScoped
 @Named
 public class MtasApiServiceImpl implements MtasApiService {
 
