@@ -103,7 +103,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
     }
 
     private ApplicationMtaMetadata getApplicationMtaMetadata(CloudApplication app) {
-        if(app.getMetadata() == null) {
+        if(app.getV3Metadata() == null) {
             return ApplicationMtaMetadataParser.parseAppMetadata(app);
         } else {
             return applicationMetadataMapper.extractMetadata(app);

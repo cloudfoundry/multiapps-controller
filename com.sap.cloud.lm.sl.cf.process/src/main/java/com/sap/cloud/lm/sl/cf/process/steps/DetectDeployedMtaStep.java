@@ -4,7 +4,10 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 
+import com.sap.cloud.lm.sl.common.SLException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudControllerException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +41,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         StepsUtil.setDeployedApps(execution.getContext(), deployedApps);
         String mtaId = (String) execution.getContext()
                                          .getVariable(Constants.PARAM_MTA_ID);
-
+        try{
             Optional<DeployedMta> optionalDeployedMta = deployedComponentsDetector.getDeployedMta(mtaId, client);
             if (optionalDeployedMta.isPresent()) {
                 DeployedMta deployedMta = optionalDeployedMta.get();

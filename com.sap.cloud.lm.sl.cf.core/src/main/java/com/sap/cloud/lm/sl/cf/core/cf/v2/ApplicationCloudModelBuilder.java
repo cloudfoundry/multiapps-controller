@@ -99,7 +99,7 @@ public class ApplicationCloudModelBuilder {
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, parametersList);
         List<ResourceAndResourceType> resourcesAndResourceTypes = module.getRequiredDependencies()
                                                       .stream()
-                                                      .map(dependency -> getApplicationService(dependency.getName()))
+                                                      .map(dependency -> getResourceWithType(dependency.getName()))
                                                       .collect(Collectors.toList());
         return ImmutableCloudApplicationExtended.builder()
             .name(NameUtil.getApplicationName(module))

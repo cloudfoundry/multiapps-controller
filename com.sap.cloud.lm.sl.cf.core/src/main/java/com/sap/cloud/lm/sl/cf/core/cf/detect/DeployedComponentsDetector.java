@@ -27,9 +27,6 @@ public class DeployedComponentsDetector {
      */
 
     @Autowired
-    private AppMetadataCollector appCollector;
-
-    @Autowired
     private List<MtaMetadataCollector<? extends MetadataEntity>> collectors;
 
     @Autowired
@@ -40,7 +37,8 @@ public class DeployedComponentsDetector {
                                                                                 .haveValue(mtaId)
                                                                                 .build();
         Optional<List<DeployedMta>> optionalDeployedMtas = fetchDeployedMtas(selectionCriteria, client);
-        return getFirstElement(optionalDeployedMtas);
+        final Optional<DeployedMta> deployedMta = getFirstElement(optionalDeployedMtas);
+        return deployedMta.isPresent() ? deployedMta : getDeployedMtaByEnv(mtaId, client);
     }
 
     public Optional<List<DeployedMta>> getAllDeployedMta(CloudControllerClient client) {
@@ -113,5 +111,18 @@ public class DeployedComponentsDetector {
         }
 
         return Optional.ofNullable(elements.get(0));
+    }
+
+    private Optional<DeployedMta> getDeployedMtaByEnv(String mtaId, CloudControllerClient client) {
+        DeployedComponentsDetectorEnv envDeployedComponentsDetector = new DeployedComponentsDetectorEnv(client);
+        final List<DeployedMta> deployedMtas = envDeployedComponentsDetector.detectAllDeployedComponents();
+        if (deployedMtas == null) {
+            return Optional.empty();
+        }
+        return deployedMtas.stream()
+                .filter(mta -> mta.getMetadata()
+                        .getId()
+                        .equalsIgnoreCase(mtaId))
+                .findFirst();
     }
 }

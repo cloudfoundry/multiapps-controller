@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -77,7 +78,7 @@ public class CreateServiceStep extends ServiceStep {
     }
 
     private MethodExecution<String> createManagedService(DelegateExecution context, CloudControllerClient client,
-        CloudServiceExtended service) throws FileStorageException {
+        CloudServiceExtended service) {
         MethodExecution<String> createService = serviceCreatorFactory.createInstance(getStepLogger())
             .createService(client, service, StepsUtil.getSpaceId(context));
         updateServiceMetadata(service, client);

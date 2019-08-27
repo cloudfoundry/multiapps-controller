@@ -23,7 +23,7 @@ public class ApplicationMetadataFieldExtractor extends MetadataFieldExtractor {
     }
 
     public ApplicationMtaMetadata extractMetadata(CloudApplication app) {
-        if (app.getMetadata() == null) {
+        if (app.getV3Metadata() == null) {
             return null;
         }
 

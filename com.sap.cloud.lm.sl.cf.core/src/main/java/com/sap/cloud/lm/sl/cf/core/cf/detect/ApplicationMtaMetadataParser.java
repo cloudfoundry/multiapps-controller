@@ -55,11 +55,12 @@ public class ApplicationMtaMetadataParser {
             throw new ParsingException(Messages.MTA_METADATA_FOR_APP_0_IS_INCOMPLETE, app.getName());
         }
         List<DeployedMtaResource> services = serviceNames.stream()
-                                                         .map(n -> DeployedMtaResource.builder()
-                                                                                      .withServiceName(n)
+                                                         .map(name -> DeployedMtaResource.builder()
+                                                                                      .withServiceName(name)
                                                                                       .build())
                                                          .collect(Collectors.toList());
         DeployedMtaModule module = DeployedMtaModule.builder()
+                                                    .withAppName(app.getName())
                                                     .withModuleName(moduleName)
                                                     .withProvidedDependencyNames(providedDependencyNames)
                                                     .withServices(services)

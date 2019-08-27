@@ -78,12 +78,12 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         flowHandler.printStepStartMessage();
 
-            flowHandler.handleApplicationAttributes();
-            flowHandler.injectServiceKeysCredentialsInAppEnv();
-            flowHandler.handleApplicationServices();
-            flowHandler.handleApplicationEnv();
-            flowHandler.handleApplicationMetadata();
-            flowHandler.printStepEndMessage();
+        flowHandler.handleApplicationAttributes();
+        flowHandler.injectServiceKeysCredentialsInAppEnv();
+        flowHandler.handleApplicationServices();
+        flowHandler.handleApplicationEnv();
+        flowHandler.handleApplicationMetadata();
+        flowHandler.printStepEndMessage();
 
         return StepPhase.DONE;
     }
@@ -294,17 +294,17 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
         @Override
         public void handleApplicationMetadata() {
-            client.updateApplicationMetadata(existingApp.getMetadata().getGuid(), app.getV3Metadata());
+            if(app.getV3Metadata() != null) {
+                boolean shouldUpdateMetadata = true;
+                if(existingApp.getV3Metadata() != null) {
+                    shouldUpdateMetadata = !existingApp.getV3Metadata().equals(app.getV3Metadata());
+                }
+                if(shouldUpdateMetadata) {
+                    client.updateApplicationMetadata(existingApp.getMetadata().getGuid(), app.getV3Metadata());
+                }
+            }
             getStepLogger().info("updated app metadata name: " + app.getName() + " metadata: " + JsonUtil.toJson(app.getV3Metadata(), true));
         }
-
-    }
-
-    private UpdateState updateApplicationEnvironment(CloudApplicationExtended app, CloudApplication existingApp,
-        CloudControllerClient client, CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
-        return new EnvironmentApplicationAttributeUpdater(existingApp,
-            getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingEnv()), getStepLogger()).updateApplication(client, app);
-    }
 
         private void reportApplicationUpdateStatus(CloudApplicationExtended app, boolean appPropertiesChanged) {
             if (!appPropertiesChanged) {

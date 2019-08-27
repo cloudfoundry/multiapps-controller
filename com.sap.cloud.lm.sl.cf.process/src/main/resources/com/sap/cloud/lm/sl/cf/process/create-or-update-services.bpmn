@@ -2,13 +2,13 @@
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
   <process id="createOrUpdateServicesSubProcess" name="Create or update services" isExecutable="true">
     <extensionElements>
-  	  <flowable:eventListener events="JOB_EXECUTION_FAILURE" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="JOB_EXECUTION_FAILURE" delegateExpression="${errorProcessListener}"></flowable:eventListener>
     </extensionElements>
     <startEvent id="startevent3" name="Start"></startEvent>
     <serviceTask id="DetermineServiceCreateUpdateActionsTask" name="Determine update actions" flowable:async="true" flowable:delegateExpression="${determineServiceCreateUpdateActionsStep}">
       <documentation>Creates List&lt;ServiceAction&gt; in DB (writes to the same variable because it will not be shared across processes)</documentation>
     </serviceTask>
-    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway" default="SkipCoUFlow"></exclusiveGateway>
     <serviceTask id="CreateServiceTask" name="Create" flowable:async="true" flowable:delegateExpression="${createServiceStep}"></serviceTask>
     <callActivity id="DeleteServiceCallActivity" name="Delete" flowable:async="true" calledElement="deleteServicesSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
     <serviceTask id="UpdateServicePlanTask" name="Update service plan" flowable:async="true" flowable:delegateExpression="${updateServicePlanStep}"></serviceTask>
@@ -21,82 +21,40 @@
         <flowable:executionListener event="end" delegateExpression="${createOrUpdateServiceEndListener}"></flowable:executionListener>
       </extensionElements>
     </endEvent>
-    <sequenceFlow id="flow57" sourceRef="UpdateServiceKeysTask" targetRef="endevent2"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway7" name="Exclusive Gateway" default="ContinueUK"></exclusiveGateway>
     <exclusiveGateway id="exclusivegateway8" name="Exclusive Gateway" default="flow66"></exclusiveGateway>
-    <sequenceFlow id="CreateServiceFlow" name="Create" sourceRef="exclusivegateway2" targetRef="CreateServiceTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("CREATE")}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="flow61" sourceRef="UpdateServiceCredentialsTask" targetRef="exclusivegateway11"></sequenceFlow>
-    <sequenceFlow id="UpdateTagsFlow" name="Update" sourceRef="exclusivegateway7" targetRef="UpdateServiceTagsTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("UPDATE_TAGS")}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="flow63" sourceRef="UpdateServiceTagsTask" targetRef="exclusivegateway12"></sequenceFlow>
-    <sequenceFlow id="UpdateKeysFlow" name="Update" sourceRef="exclusivegateway8" targetRef="UpdateServiceKeysTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("UPDATE_KEYS")}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="ContinueUK" name="Skip" sourceRef="exclusivegateway7" targetRef="exclusivegateway8"></sequenceFlow>
     <sequenceFlow id="flow66" name="Skip" sourceRef="exclusivegateway8" targetRef="endevent2"></sequenceFlow>
-    <sequenceFlow id="flow68" sourceRef="CreateServiceTask" targetRef="exclusivegateway13"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway10" name="Exclusive Gateway" default="WaitForUpdateServicePlan"></exclusiveGateway>
-    <sequenceFlow id="WaitForUpdateServicePlan" name="Wait" sourceRef="exclusivegateway10" targetRef="timerintermediatecatchevent1"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent1" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
-    <sequenceFlow id="flow70" sourceRef="timerintermediatecatchevent1" targetRef="UpdateServicePlanTask"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway11" name="Exclusive Gateway" default="WaitForUpdateServiceCredentials"></exclusiveGateway>
-    <sequenceFlow id="WaitForUpdateServiceCredentials" name="Wait" sourceRef="exclusivegateway11" targetRef="timerintermediatecatchevent2"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent2" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
-    <sequenceFlow id="flow73" sourceRef="timerintermediatecatchevent2" targetRef="UpdateServiceCredentialsTask"></sequenceFlow>
-    <sequenceFlow id="ContinueUC" sourceRef="exclusivegateway11" targetRef="exclusivegateway7">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
-    </sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent3" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
     <exclusiveGateway id="exclusivegateway12" name="Exclusive Gateway" default="WaitForUpdateServiceTags"></exclusiveGateway>
-    <sequenceFlow id="WaitForUpdateServiceTags" name="Wait" sourceRef="exclusivegateway12" targetRef="timerintermediatecatchevent3"></sequenceFlow>
-    <sequenceFlow id="flow76" sourceRef="timerintermediatecatchevent3" targetRef="UpdateServiceTagsTask"></sequenceFlow>
-    <sequenceFlow id="flow77" sourceRef="exclusivegateway12" targetRef="exclusivegateway8">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
-    </sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent4" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
-    <exclusiveGateway id="exclusivegateway13" name="Exclusive Gateway" default="WaitForCreate"></exclusiveGateway>
-    <sequenceFlow id="WaitForCreate" name="Wait" sourceRef="exclusivegateway13" targetRef="timerintermediatecatchevent4"></sequenceFlow>
-    <sequenceFlow id="flow79" sourceRef="timerintermediatecatchevent4" targetRef="CreateServiceTask"></sequenceFlow>
-    <sequenceFlow id="ContinueFlowCreate" sourceRef="exclusivegateway13" targetRef="exclusivegateway8">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="RecreateFlow" name="Recreate" sourceRef="exclusivegateway2" targetRef="DeleteServiceCallActivity">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("RECREATE")}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="flow82" sourceRef="DeleteServiceCallActivity" targetRef="CreateServiceTask"></sequenceFlow>
-    <sequenceFlow id="SkipCoUFlow" name="Skip" sourceRef="exclusivegateway2" targetRef="exclusivegateway15"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway14" name="Exclusive Gateway" default="flow88"></exclusiveGateway>
     <exclusiveGateway id="exclusivegateway15" name="Exclusive Gateway" default="flow84"></exclusiveGateway>
     <sequenceFlow id="flow84" sourceRef="exclusivegateway15" targetRef="exclusivegateway14"></sequenceFlow>
     <sequenceFlow id="UpdateSP" sourceRef="exclusivegateway15" targetRef="UpdateServicePlanTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("UPDATE_PLAN")}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="ContinueUSP" sourceRef="exclusivegateway10" targetRef="exclusivegateway14">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="updateCredsFlow" sourceRef="exclusivegateway14" targetRef="UpdateServiceCredentialsTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("UPDATE_CREDENTIALS")}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="flow88" sourceRef="exclusivegateway14" targetRef="exclusivegateway7"></sequenceFlow>
     <serviceTask id="CheckForOperationsInProgressTask" name="Check for operations in Progress" flowable:async="true" flowable:delegateExpression="${checkForOperationsInProgressStep}"></serviceTask>
     <exclusiveGateway id="exclusivegateway16" name="Exclusive Gateway" default="DetermineActionsFlow"></exclusiveGateway>
     <intermediateCatchEvent id="timerintermediatecatchevent5" name="TimerCatchEvent">
@@ -112,6 +70,66 @@
     </sequenceFlow>
     <sequenceFlow id="flow85" sourceRef="CheckForOperationsInProgressTask" targetRef="exclusivegateway16"></sequenceFlow>
     <sequenceFlow id="flow86" sourceRef="timerintermediatecatchevent5" targetRef="CheckForOperationsInProgressTask"></sequenceFlow>
+    <serviceTask id="UpdateServiceMetadataTask" name="Update Metadata" flowable:async="true" flowable:delegateExpression="${updateServiceMetadataStep}"></serviceTask>
+    <intermediateCatchEvent id="timerintermediatecatchevent4" name="TimerCatchEvent">
+      <timerEventDefinition>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <exclusiveGateway id="exclusivegateway13" name="Exclusive Gateway" default="sid-877D64DE-55B4-4C9B-908F-D3FAB3E8AFC3"></exclusiveGateway>
+    <exclusiveGateway id="sid-A3E72403-AA02-4CD7-9471-67B4D1CF0D0F" name="Exclusive Gateway" default="sid-7272CED4-8304-4F9A-8CD6-92C330FCFC89"></exclusiveGateway>
+    <sequenceFlow id="flow88" sourceRef="exclusivegateway14" targetRef="exclusivegateway7"></sequenceFlow>
+    <sequenceFlow id="updateCredsFlow" sourceRef="exclusivegateway14" targetRef="UpdateServiceCredentialsTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("UPDATE_CREDENTIALS")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow57" sourceRef="UpdateServiceKeysTask" targetRef="endevent2"></sequenceFlow>
+    <sequenceFlow id="flow63" sourceRef="UpdateServiceTagsTask" targetRef="exclusivegateway12"></sequenceFlow>
+    <sequenceFlow id="sid-299D762D-3009-4878-A378-5807DA771EFF" sourceRef="UpdateServiceMetadataTask" targetRef="exclusivegateway13"></sequenceFlow>
+    <sequenceFlow id="ContinueUM" sourceRef="exclusivegateway13" targetRef="exclusivegateway8">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow70" sourceRef="timerintermediatecatchevent1" targetRef="UpdateServicePlanTask"></sequenceFlow>
+    <sequenceFlow id="flow73" sourceRef="timerintermediatecatchevent2" targetRef="UpdateServiceCredentialsTask"></sequenceFlow>
+    <sequenceFlow id="flow76" sourceRef="timerintermediatecatchevent3" targetRef="UpdateServiceTagsTask"></sequenceFlow>
+    <sequenceFlow id="flow79" sourceRef="timerintermediatecatchevent4" targetRef="UpdateServiceMetadataTask"></sequenceFlow>
+    <sequenceFlow id="sid-7272CED4-8304-4F9A-8CD6-92C330FCFC89" sourceRef="sid-A3E72403-AA02-4CD7-9471-67B4D1CF0D0F" targetRef="exclusivegateway8"></sequenceFlow>
+    <sequenceFlow id="WaitForUpdateServicePlan" name="Wait" sourceRef="exclusivegateway10" targetRef="timerintermediatecatchevent1"></sequenceFlow>
+    <sequenceFlow id="WaitForUpdateServiceCredentials" name="Wait" sourceRef="exclusivegateway11" targetRef="timerintermediatecatchevent2"></sequenceFlow>
+    <sequenceFlow id="WaitForUpdateServiceTags" name="Wait" sourceRef="exclusivegateway12" targetRef="timerintermediatecatchevent3"></sequenceFlow>
+    <sequenceFlow id="sid-877D64DE-55B4-4C9B-908F-D3FAB3E8AFC3" sourceRef="exclusivegateway13" targetRef="timerintermediatecatchevent4"></sequenceFlow>
+    <sequenceFlow id="flow79" sourceRef="timerintermediatecatchevent4" targetRef="CreateServiceTask"></sequenceFlow>
+    <sequenceFlow id="UpdateTagsFlow" name="Update" sourceRef="exclusivegateway7" targetRef="UpdateServiceTagsTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("UPDATE_TAGS")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="UpdateMetadataFlow" name="Update" sourceRef="sid-A3E72403-AA02-4CD7-9471-67B4D1CF0D0F" targetRef="UpdateServiceMetadataTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("UPDATE_METADATA")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="CreateServiceFlow" name="Create" sourceRef="exclusivegateway2" targetRef="CreateServiceTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("CREATE")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="RecreateFlow" name="Recreate" sourceRef="exclusivegateway2" targetRef="DeleteServiceCallActivity">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("RECREATE")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="SkipCoUFlow" name="Skip" sourceRef="exclusivegateway2" targetRef="exclusivegateway15"></sequenceFlow>
+    <sequenceFlow id="WaitForCreate" name="Wait" sourceRef="sid-3DFD26A8-3FF5-486B-826D-2019B6755509" targetRef="timerintermediatecatchevent4"></sequenceFlow>
+    <sequenceFlow id="UpdateKeysFlow" name="Update" sourceRef="exclusivegateway8" targetRef="UpdateServiceKeysTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("UPDATE_KEYS")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="ContinueUK" name="Skip" sourceRef="exclusivegateway7" targetRef="sid-A3E72403-AA02-4CD7-9471-67B4D1CF0D0F"></sequenceFlow>
+    <sequenceFlow id="ContinueUT" sourceRef="exclusivegateway12" targetRef="sid-A3E72403-AA02-4CD7-9471-67B4D1CF0D0F">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="ContinueUSP" sourceRef="exclusivegateway10" targetRef="exclusivegateway14">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="ContinueUC" sourceRef="exclusivegateway11" targetRef="exclusivegateway7">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="sid-3DFD26A8-3FF5-486B-826D-2019B6755509" default="WaitForCreate"></exclusiveGateway>
+    <sequenceFlow id="flow68" sourceRef="CreateServiceTask" targetRef="sid-3DFD26A8-3FF5-486B-826D-2019B6755509"></sequenceFlow>
+    <sequenceFlow id="ContinueCU" sourceRef="sid-3DFD26A8-3FF5-486B-826D-2019B6755509" targetRef="exclusivegateway8">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
+    </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_createOrUpdateServicesSubProcess">
     <bpmndi:BPMNPlane bpmnElement="createOrUpdateServicesSubProcess" id="BPMNPlane_createOrUpdateServicesSubProcess">
@@ -119,67 +137,64 @@
         <omgdc:Bounds height="30.0" width="30.0" x="15.0" y="120.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="DetermineServiceCreateUpdateActionsTask" id="BPMNShape_DetermineServiceCreateUpdateActionsTask">
-        <omgdc:Bounds height="81.0" width="141.0" x="90.0" y="298.5"></omgdc:Bounds>
+        <omgdc:Bounds height="81.0" width="141.0" x="0.0" y="305.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
-        <omgdc:Bounds height="40.0" width="40.0" x="286.0" y="319.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="196.0" y="325.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="CreateServiceTask" id="BPMNShape_CreateServiceTask">
-        <omgdc:Bounds height="55.0" width="105.0" x="558.0" y="312.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="468.0" y="318.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="DeleteServiceCallActivity" id="BPMNShape_DeleteServiceCallActivity">
-        <omgdc:Bounds height="55.0" width="105.0" x="399.0" y="312.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="309.0" y="318.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="UpdateServicePlanTask" id="BPMNShape_UpdateServicePlanTask">
-        <omgdc:Bounds height="55.0" width="105.0" x="768.0" y="477.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="678.0" y="483.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="UpdateServiceCredentialsTask" id="BPMNShape_UpdateServiceCredentialsTask">
-        <omgdc:Bounds height="55.0" width="105.0" x="996.0" y="476.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="906.0" y="482.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="UpdateServiceTagsTask" id="BPMNShape_UpdateServiceTagsTask">
-        <omgdc:Bounds height="55.0" width="105.0" x="1197.0" y="474.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="1107.0" y="480.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="UpdateServiceKeysTask" id="BPMNShape_UpdateServiceKeysTask">
-        <omgdc:Bounds height="55.0" width="105.0" x="1505.0" y="390.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="1786.5082032971968" y="385.46069040152594"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
-        <omgdc:Bounds height="28.0" width="28.0" x="1637.0" y="322.0"></omgdc:Bounds>
+        <omgdc:Bounds height="28.0" width="28.0" x="1903.2897363203515" y="332.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway7" id="BPMNShape_exclusivegateway7">
-        <omgdc:Bounds height="40.0" width="40.0" x="1229.0" y="320.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="1139.0" y="326.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway8" id="BPMNShape_exclusivegateway8">
-        <omgdc:Bounds height="40.0" width="40.0" x="1436.0" y="320.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="1717.5082032971968" y="326.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway10" id="BPMNShape_exclusivegateway10">
-        <omgdc:Bounds height="40.0" width="40.0" x="930.0" y="386.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="838.5" y="392.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent1" id="BPMNShape_timerintermediatecatchevent1">
-        <omgdc:Bounds height="31.0" width="31.0" x="933.0" y="487.0"></omgdc:Bounds>
+        <omgdc:Bounds height="31.0" width="31.0" x="843.0" y="493.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway11" id="BPMNShape_exclusivegateway11">
-        <omgdc:Bounds height="40.0" width="40.0" x="1147.0" y="386.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="1057.0" y="392.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent2" id="BPMNShape_timerintermediatecatchevent2">
-        <omgdc:Bounds height="31.0" width="31.0" x="1150.0" y="486.0"></omgdc:Bounds>
+        <omgdc:Bounds height="31.0" width="31.0" x="1060.0" y="492.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent3" id="BPMNShape_timerintermediatecatchevent3">
-        <omgdc:Bounds height="31.0" width="31.0" x="1363.0" y="484.0"></omgdc:Bounds>
+        <omgdc:Bounds height="31.0" width="31.0" x="1273.0" y="490.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway12" id="BPMNShape_exclusivegateway12">
-        <omgdc:Bounds height="40.0" width="40.0" x="1360.0" y="386.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="1270.0" y="392.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent4" id="BPMNShape_timerintermediatecatchevent4">
-        <omgdc:Bounds height="31.0" width="31.0" x="700.0" y="322.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="exclusivegateway13" id="BPMNShape_exclusivegateway13">
-        <omgdc:Bounds height="40.0" width="40.0" x="697.0" y="250.0"></omgdc:Bounds>
+        <omgdc:Bounds height="31.0" width="31.0" x="1524.7266702740421" y="490.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway14" id="BPMNShape_exclusivegateway14">
-        <omgdc:Bounds height="40.0" width="40.0" x="1028.0" y="319.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="938.0" y="325.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway15" id="BPMNShape_exclusivegateway15">
-        <omgdc:Bounds height="40.0" width="40.0" x="800.0" y="319.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="710.0" y="325.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="CheckForOperationsInProgressTask" id="BPMNShape_CheckForOperationsInProgressTask">
         <omgdc:Bounds height="80.0" width="100.0" x="90.0" y="95.0"></omgdc:Bounds>
@@ -190,169 +205,203 @@
       <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent5" id="BPMNShape_timerintermediatecatchevent5">
         <omgdc:Bounds height="31.0" width="31.0" x="390.0" y="119.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="UpdateServiceMetadataTask" id="BPMNShape_UpdateServiceMetadataTask">
+        <omgdc:Bounds height="55.0" width="105.0" x="1366.9963250732792" y="478.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway13" id="BPMNShape_exclusivegateway13">
+        <omgdc:Bounds height="40.0" width="40.0" x="1520.2266702740421" y="403.0886599575054"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-A3E72403-AA02-4CD7-9471-67B4D1CF0D0F" id="BPMNShape_sid-A3E72403-AA02-4CD7-9471-67B4D1CF0D0F">
+        <omgdc:Bounds height="40.0" width="40.0" x="1399.4963250732792" y="326.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-3DFD26A8-3FF5-486B-826D-2019B6755509" id="BPMNShape_sid-3DFD26A8-3FF5-486B-826D-2019B6755509">
+        <omgdc:Bounds height="40.0" width="40.0" x="605.5" y="210.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="waitToFinish" id="BPMNEdge_waitToFinish">
-        <omgdi:waypoint x="274.44370849933597" y="135.5"></omgdi:waypoint>
-        <omgdi:waypoint x="390.0" y="135.5"></omgdi:waypoint>
+        <omgdi:waypoint x="274.94337649397227" y="135.0"></omgdi:waypoint>
+        <omgdi:waypoint x="390.0" y="135.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="UpdateKeysFlow" id="BPMNEdge_UpdateKeysFlow">
-        <omgdi:waypoint x="1455.746835443038" y="359.6974683544303"></omgdi:waypoint>
-        <omgdi:waypoint x="1455.0" y="418.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1504.9999999999777" y="417.75585365853664"></omgdi:waypoint>
+        <omgdi:waypoint x="1737.5082032971968" y="366.4351254140984"></omgdi:waypoint>
+        <omgdi:waypoint x="1737.5082032971968" y="413.46069040152594"></omgdi:waypoint>
+        <omgdi:waypoint x="1786.5082032971686" y="413.2190647857624"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow68" id="BPMNEdge_flow68">
-        <omgdi:waypoint x="609.9064748201439" y="312.0"></omgdi:waypoint>
-        <omgdi:waypoint x="609.0" y="270.0"></omgdi:waypoint>
-        <omgdi:waypoint x="683.0" y="270.0"></omgdi:waypoint>
-        <omgdi:waypoint x="697.0" y="270.0"></omgdi:waypoint>
+        <omgdi:waypoint x="520.5" y="318.5"></omgdi:waypoint>
+        <omgdi:waypoint x="520.5" y="230.30712693435063"></omgdi:waypoint>
+        <omgdi:waypoint x="605.9633694183358" y="230.46336941833584"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="WaitForCreate" id="BPMNEdge_WaitForCreate">
-        <omgdi:waypoint x="716.5652173913044" y="289.51630434782606"></omgdi:waypoint>
-        <omgdi:waypoint x="715.8432502283965" y="322.0037518428021"></omgdi:waypoint>
+        <omgdi:waypoint x="640.5614006935167" y="234.88817177965544"></omgdi:waypoint>
+        <omgdi:waypoint x="1525.3725177563972" y="501.52658428744274"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">
-        <omgdi:waypoint x="872.9499999999999" y="503.4137931034483"></omgdi:waypoint>
-        <omgdi:waypoint x="893.0" y="503.0"></omgdi:waypoint>
-        <omgdi:waypoint x="892.0" y="404.0"></omgdi:waypoint>
-        <omgdi:waypoint x="930.6356073211314" y="405.3333333333333"></omgdi:waypoint>
+        <omgdi:waypoint x="782.9499999999999" y="511.0"></omgdi:waypoint>
+        <omgdi:waypoint x="803.0" y="511.0"></omgdi:waypoint>
+        <omgdi:waypoint x="802.0" y="412.5"></omgdi:waypoint>
+        <omgdi:waypoint x="838.5" y="412.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ContinueUT" id="BPMNEdge_ContinueUT">
+        <omgdi:waypoint x="1290.0" y="392.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1290.0" y="346.84040068730343"></omgdi:waypoint>
+        <omgdi:waypoint x="1399.8367257605826" y="346.84040068730343"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="UpdateMetadataFlow" id="BPMNEdge_UpdateMetadataFlow">
+        <omgdi:waypoint x="1419.9363881647619" y="366.0037673392181"></omgdi:waypoint>
+        <omgdi:waypoint x="1419.5826458279962" y="478.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="UpdateTagsFlow" id="BPMNEdge_UpdateTagsFlow">
-        <omgdi:waypoint x="1249.0" y="359.93770036991367"></omgdi:waypoint>
-        <omgdi:waypoint x="1249.0" y="421.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1249.329192546584" y="474.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1159.0" y="366.4377003699137"></omgdi:waypoint>
+        <omgdi:waypoint x="1159.0" y="427.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1159.329192546584" y="480.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ContinueCU" id="BPMNEdge_ContinueCU">
+        <omgdi:waypoint x="645.4445840992913" y="230.00510043099015"></omgdi:waypoint>
+        <omgdi:waypoint x="1737.5082032971968" y="230.80712693435063"></omgdi:waypoint>
+        <omgdi:waypoint x="1737.5082032971968" y="326.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-299D762D-3009-4878-A378-5807DA771EFF" id="BPMNEdge_sid-299D762D-3009-4878-A378-5807DA771EFF">
+        <omgdi:waypoint x="1471.9463250732515" y="506.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1493.1806044713205" y="506.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1493.1806044713205" y="423.0886599575054"></omgdi:waypoint>
+        <omgdi:waypoint x="1520.2266702740421" y="423.0886599575054"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="WaitForUpdateServicePlan" id="BPMNEdge_WaitForUpdateServicePlan">
-        <omgdi:waypoint x="949.6938775510204" y="425.64464285714286"></omgdi:waypoint>
-        <omgdi:waypoint x="948.7401270037484" y="487.00183533593344"></omgdi:waypoint>
+        <omgdi:waypoint x="858.5" y="432.4396739130436"></omgdi:waypoint>
+        <omgdi:waypoint x="858.5" y="493.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
-        <omgdi:waypoint x="230.95" y="339.0"></omgdi:waypoint>
-        <omgdi:waypoint x="286.0" y="339.0"></omgdi:waypoint>
+        <omgdi:waypoint x="140.95000000000002" y="345.5"></omgdi:waypoint>
+        <omgdi:waypoint x="196.0" y="345.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow86" id="BPMNEdge_flow86">
-        <omgdi:waypoint x="406.0" y="119.5"></omgdi:waypoint>
+        <omgdi:waypoint x="405.5660250456091" y="119.50013978911082"></omgdi:waypoint>
         <omgdi:waypoint x="406.0" y="18.0"></omgdi:waypoint>
         <omgdi:waypoint x="140.0" y="18.0"></omgdi:waypoint>
         <omgdi:waypoint x="140.0" y="95.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow66" id="BPMNEdge_flow66">
-        <omgdi:waypoint x="1475.5489949748744" y="339.59798994974875"></omgdi:waypoint>
-        <omgdi:waypoint x="1637.0028831548937" y="336.28609505390966"></omgdi:waypoint>
+        <omgdi:waypoint x="1757.4526579808328" y="346.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1903.2897363203515" y="346.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow88" id="BPMNEdge_flow88">
-        <omgdi:waypoint x="1067.8463508164268" y="339.0987623762376"></omgdi:waypoint>
-        <omgdi:waypoint x="1229.0544285007422" y="339.9009900990099"></omgdi:waypoint>
+        <omgdi:waypoint x="977.8463508164268" y="345.5987623762376"></omgdi:waypoint>
+        <omgdi:waypoint x="1139.0544285007352" y="346.4009900990099"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow82" id="BPMNEdge_flow82">
-        <omgdi:waypoint x="503.95000000000005" y="339.5"></omgdi:waypoint>
-        <omgdi:waypoint x="557.9999999998979" y="339.5"></omgdi:waypoint>
+        <omgdi:waypoint x="413.95000000000005" y="346.0"></omgdi:waypoint>
+        <omgdi:waypoint x="467.9999999998979" y="346.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow61" id="BPMNEdge_flow61">
-        <omgdi:waypoint x="1100.9499999999996" y="501.55555555555554"></omgdi:waypoint>
-        <omgdi:waypoint x="1116.0" y="501.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1116.0" y="405.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1147.3550863723608" y="405.61538461538464"></omgdi:waypoint>
+        <omgdi:waypoint x="1010.9499999999986" y="508.05555555555554"></omgdi:waypoint>
+        <omgdi:waypoint x="1026.0" y="507.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1026.0" y="411.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1057.3550863723608" y="412.11538461538464"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow84" id="BPMNEdge_flow84">
-        <omgdi:waypoint x="839.9456269180183" y="339.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1028.0" y="339.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow63" id="BPMNEdge_flow63">
-        <omgdi:waypoint x="1301.9499999999948" y="501.14285714285717"></omgdi:waypoint>
-        <omgdi:waypoint x="1323.0" y="501.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1323.0" y="406.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1360.0" y="406.0"></omgdi:waypoint>
+        <omgdi:waypoint x="749.9456269176088" y="345.5"></omgdi:waypoint>
+        <omgdi:waypoint x="938.0" y="345.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow85" id="BPMNEdge_flow85">
-        <omgdi:waypoint x="189.94999999999771" y="135.21623376623376"></omgdi:waypoint>
-        <omgdi:waypoint x="235.41304347826087" y="135.41304347826087"></omgdi:waypoint>
+        <omgdi:waypoint x="189.9499999999468" y="135.0"></omgdi:waypoint>
+        <omgdi:waypoint x="235.0" y="135.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow63" id="BPMNEdge_flow63">
+        <omgdi:waypoint x="1211.95" y="507.64285714285717"></omgdi:waypoint>
+        <omgdi:waypoint x="1233.0" y="507.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1233.0" y="412.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1270.0" y="412.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
-        <omgdi:waypoint x="44.949995093277906" y="135.0"></omgdi:waypoint>
-        <omgdi:waypoint x="89.99999999998712" y="135.0"></omgdi:waypoint>
+        <omgdi:waypoint x="44.9499984899576" y="135.0"></omgdi:waypoint>
+        <omgdi:waypoint x="90.0" y="135.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow57" id="BPMNEdge_flow57">
-        <omgdi:waypoint x="1609.9499999999905" y="417.77176165803104"></omgdi:waypoint>
-        <omgdi:waypoint x="1654.0" y="418.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1651.510030911275" y="349.9393570575412"></omgdi:waypoint>
+        <omgdi:waypoint x="1891.4582032971969" y="412.96069040152594"></omgdi:waypoint>
+        <omgdi:waypoint x="1917.2897363203515" y="412.96069040152594"></omgdi:waypoint>
+        <omgdi:waypoint x="1917.2897363203515" y="360.4499451686961"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow79" id="BPMNEdge_flow79">
-        <omgdi:waypoint x="700.002752522767" y="337.7942336163986"></omgdi:waypoint>
-        <omgdi:waypoint x="662.9499999999964" y="338.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1524.911719669029" y="503.5970259924873"></omgdi:waypoint>
+        <omgdi:waypoint x="572.95" y="354.2296562840165"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="WaitForUpdateServiceTags" id="BPMNEdge_WaitForUpdateServiceTags">
-        <omgdi:waypoint x="1379.6842105263158" y="425.63500000000005"></omgdi:waypoint>
-        <omgdi:waypoint x="1378.7478297008524" y="484.00195493381943"></omgdi:waypoint>
+        <omgdi:waypoint x="1289.6842105263158" y="432.135"></omgdi:waypoint>
+        <omgdi:waypoint x="1288.7478297008524" y="490.50195493381943"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="UpdateSP" id="BPMNEdge_UpdateSP">
-        <omgdi:waypoint x="820.0600903614458" y="358.883940397351"></omgdi:waypoint>
-        <omgdi:waypoint x="820.416918429003" y="477.0"></omgdi:waypoint>
+        <omgdi:waypoint x="730.0600903614458" y="365.38394039735107"></omgdi:waypoint>
+        <omgdi:waypoint x="730.416918429003" y="483.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-7272CED4-8304-4F9A-8CD6-92C330FCFC89" id="BPMNEdge_sid-7272CED4-8304-4F9A-8CD6-92C330FCFC89">
+        <omgdi:waypoint x="1438.9433465611821" y="347.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1718.0082032971968" y="347.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="RecreateFlow" id="BPMNEdge_RecreateFlow">
-        <omgdi:waypoint x="325.87489733059545" y="339.06832191780813"></omgdi:waypoint>
-        <omgdi:waypoint x="398.99999999999807" y="339.319587628866"></omgdi:waypoint>
+        <omgdi:waypoint x="235.87489733058695" y="345.56832191780825"></omgdi:waypoint>
+        <omgdi:waypoint x="308.99999999999807" y="345.819587628866"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="CreateServiceFlow" id="BPMNEdge_CreateServiceFlow">
-        <omgdi:waypoint x="305.7435897435897" y="358.6942307692307"></omgdi:waypoint>
-        <omgdi:waypoint x="305.0" y="416.0"></omgdi:waypoint>
-        <omgdi:waypoint x="610.0" y="416.0"></omgdi:waypoint>
-        <omgdi:waypoint x="610.3202614379085" y="366.95"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="WaitForUpdateServiceCredentials" id="BPMNEdge_WaitForUpdateServiceCredentials">
-        <omgdi:waypoint x="1166.6907216494844" y="425.64149484536085"></omgdi:waypoint>
-        <omgdi:waypoint x="1165.742640817905" y="486.0018739588602"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="ContinueUSP" id="BPMNEdge_ContinueUSP">
-        <omgdi:waypoint x="949.4444444444445" y="386.5424200278164"></omgdi:waypoint>
-        <omgdi:waypoint x="948.0" y="336.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1028.5446168768185" y="338.41747572815535"></omgdi:waypoint>
+        <omgdi:waypoint x="215.74358974358972" y="365.1942307692308"></omgdi:waypoint>
+        <omgdi:waypoint x="215.0" y="422.5"></omgdi:waypoint>
+        <omgdi:waypoint x="520.0" y="422.5"></omgdi:waypoint>
+        <omgdi:waypoint x="520.3202614379085" y="373.45"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="updateCredsFlow" id="BPMNEdge_updateCredsFlow">
-        <omgdi:waypoint x="1048.0604545454546" y="358.8835402786191"></omgdi:waypoint>
-        <omgdi:waypoint x="1048.4164133738602" y="476.0"></omgdi:waypoint>
+        <omgdi:waypoint x="958.0604545454545" y="365.383540278619"></omgdi:waypoint>
+        <omgdi:waypoint x="958.4164133738602" y="482.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="WaitForUpdateServiceCredentials" id="BPMNEdge_WaitForUpdateServiceCredentials">
+        <omgdi:waypoint x="1076.6907216494844" y="432.1414948453608"></omgdi:waypoint>
+        <omgdi:waypoint x="1075.742640817905" y="492.5018739588602"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ContinueUSP" id="BPMNEdge_ContinueUSP">
+        <omgdi:waypoint x="858.5" y="392.5"></omgdi:waypoint>
+        <omgdi:waypoint x="858.5" y="345.5"></omgdi:waypoint>
+        <omgdi:waypoint x="938.0" y="345.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="SkipCoUFlow" id="BPMNEdge_SkipCoUFlow">
-        <omgdi:waypoint x="305.84251968503935" y="358.79291338582686"></omgdi:waypoint>
-        <omgdi:waypoint x="305.0" y="465.0"></omgdi:waypoint>
-        <omgdi:waypoint x="756.0" y="465.0"></omgdi:waypoint>
-        <omgdi:waypoint x="756.0" y="336.0"></omgdi:waypoint>
-        <omgdi:waypoint x="800.8636363636363" y="338.1044776119403"></omgdi:waypoint>
+        <omgdi:waypoint x="215.84251968503935" y="365.2929133858268"></omgdi:waypoint>
+        <omgdi:waypoint x="215.0" y="471.5"></omgdi:waypoint>
+        <omgdi:waypoint x="666.0" y="471.5"></omgdi:waypoint>
+        <omgdi:waypoint x="666.0" y="345.5"></omgdi:waypoint>
+        <omgdi:waypoint x="710.0" y="345.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow70" id="BPMNEdge_flow70">
-        <omgdi:waypoint x="933.0018510982009" y="502.7413775310031"></omgdi:waypoint>
-        <omgdi:waypoint x="872.9499999999971" y="503.6796875"></omgdi:waypoint>
+        <omgdi:waypoint x="843.0018510982009" y="509.2413775310031"></omgdi:waypoint>
+        <omgdi:waypoint x="782.9499999999999" y="510.1796875"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="ContinueFlowCreate" id="BPMNEdge_ContinueFlowCreate">
-        <omgdi:waypoint x="736.9486503856041" y="270.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1456.0" y="270.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1456.0" y="320.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-877D64DE-55B4-4C9B-908F-D3FAB3E8AFC3" id="BPMNEdge_sid-877D64DE-55B4-4C9B-908F-D3FAB3E8AFC3">
+        <omgdi:waypoint x="1540.6106912167459" y="442.6426394802833"></omgdi:waypoint>
+        <omgdi:waypoint x="1540.3204056780805" y="490.5002803784355"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ContinueUM" id="BPMNEdge_ContinueUM">
+        <omgdi:waypoint x="1540.7266702740421" y="403.5886599575054"></omgdi:waypoint>
+        <omgdi:waypoint x="1540.7266702740421" y="346.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1717.5082032971968" y="346.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="ContinueUK" id="BPMNEdge_ContinueUK">
-        <omgdi:waypoint x="1268.9451834862384" y="340.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1436.0" y="340.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1178.9080556034146" y="346.53814585156107"></omgdi:waypoint>
+        <omgdi:waypoint x="1399.9579368157974" y="346.96161174251813"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow76" id="BPMNEdge_flow76">
-        <omgdi:waypoint x="1363.0018224600474" y="499.73950676449084"></omgdi:waypoint>
-        <omgdi:waypoint x="1301.9499999999985" y="500.6860465116279"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow77" id="BPMNEdge_flow77">
-        <omgdi:waypoint x="1380.0" y="386.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1380.0" y="340.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1436.0" y="340.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1273.0018224600474" y="506.23950676449084"></omgdi:waypoint>
+        <omgdi:waypoint x="1211.9499999999955" y="507.1860465116279"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="DetermineActionsFlow" id="BPMNEdge_DetermineActionsFlow">
-        <omgdi:waypoint x="255.49999999999997" y="154.43905889145498"></omgdi:waypoint>
-        <omgdi:waypoint x="255.5" y="222.0"></omgdi:waypoint>
-        <omgdi:waypoint x="160.5" y="222.0"></omgdi:waypoint>
-        <omgdi:waypoint x="160.5" y="298.5"></omgdi:waypoint>
+        <omgdi:waypoint x="255.0" y="154.93854764638348"></omgdi:waypoint>
+        <omgdi:waypoint x="255.0" y="222.0"></omgdi:waypoint>
+        <omgdi:waypoint x="70.5" y="222.0"></omgdi:waypoint>
+        <omgdi:waypoint x="70.5" y="305.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow73" id="BPMNEdge_flow73">
-        <omgdi:waypoint x="1150.0022161814306" y="501.76406495331"></omgdi:waypoint>
-        <omgdi:waypoint x="1100.9499999999985" y="502.6025641025641"></omgdi:waypoint>
+        <omgdi:waypoint x="1060.0022161814306" y="508.26406495331"></omgdi:waypoint>
+        <omgdi:waypoint x="1010.9499999999985" y="509.1025641025641"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="ContinueUC" id="BPMNEdge_ContinueUC">
-        <omgdi:waypoint x="1166.1666666666667" y="386.8205841446453"></omgdi:waypoint>
-        <omgdi:waypoint x="1164.0" y="337.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1229.6458569807037" y="339.3181818181818"></omgdi:waypoint>
+        <omgdi:waypoint x="1077.0" y="392.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1077.0" y="346.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1139.0" y="346.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

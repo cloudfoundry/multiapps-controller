@@ -189,23 +189,22 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
     }
 
     private String detectOwningMtaId(String appName, Collection<CloudApplication> deployedApps,
-        CloudControllerClient cloudControllerClient) {
-        // TODO use the embeded metadata in CloudApplication which currently does not exist
-        //It should be included when we start using the pure cf java client for V3 api (and when the metadata is included in it)
+                                     CloudControllerClient cloudControllerClient) {
         Optional<CloudApplication> selectedApp = deployedApps.stream().filter(a -> a.getName().equalsIgnoreCase(appName)).findFirst();
         if(!selectedApp.isPresent()) {
             return null;
         }
         CloudApplication app = selectedApp.get();
+        Metadata metadata = app.getV3Metadata();
+        if(metadata != null) {
+            return applicationMetadataMapper.getMtaId(metadata);
+        }
+
         ApplicationMtaMetadata parsedAppMetadata = ApplicationMtaMetadataParser.parseAppMetadata(app);
         if(parsedAppMetadata != null) {
             return parsedAppMetadata.getMtaMetadata().getId();
         }
-        Metadata metadata = app.getV3Metadata();
-        if(metadata == null) {
-            return null;
-        }
-        return applicationMetadataMapper.getMtaId(metadata);
+        return null;
     }
 
     private Map<String, CloudApplication> createExistingApplicationsMap(List<CloudApplication> existingApps) {

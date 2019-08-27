@@ -226,6 +226,8 @@ public class Messages {
     public static final String DELETING_SERVICE = "Deleting service \"{0}\"...";
     public static final String SERVICE_DELETED = "Service \"{0}\" deleted";
     public static final String UPDATING_SERVICE = "Updating service \"{0}\"...";
+    public static final String UPDATING_SERVICE_METADATA = "Updating service metadata for service \"{0}\"...";
+    public static final String SERVICE_METADATA_UPDATED = "Service metadata for service \"{0}\" updated";
     public static final String PROCESSING_SERVICE = "Processing service \"{0}\"...";
     public static final String SERVICE_UPDATED = "Service \"{0}\" updated";
     public static final String UPDATING_SERVICE_TAGS = "Updating service tags for service \"{0}\"...";

@@ -167,7 +167,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         return deployedMta.getModules()
                           .stream()
                           .filter(deployedModule -> shouldBeCheckedforUndeployment(deployedModule, mtaModules, deploymentDescriptorModules))
-                          .filter(deployedModule -> shouldUndeployModule(deployedModule, mtaModules, appsToDeploy))
+                          .filter(deployedModule -> shouldUndeployModule(deployedModule, appsToDeploy))
                           .collect(Collectors.toList());
     }
 
