@@ -54,6 +54,7 @@ public class CtsDeployMetadataTest extends MetadataBaseTest {
                 Constants.PARAM_APPLICATION_TYPE,
                 Constants.PARAM_TRANSFER_TYPE,
                 Constants.PARAM_GIT_REPOSITORY_LIST,
+                Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE,
             // @formatter:on
         };
     }
