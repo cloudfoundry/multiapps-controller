@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import org.apache.commons.io.IOUtils;
 
 public class FilePartsMerger implements Closeable {
+
     private Path mergedFilePath;
     private OutputStream fileOutputStream;
 
