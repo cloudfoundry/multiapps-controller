@@ -25,7 +25,7 @@ public class ClientHelper {
 
     public void deleteRoute(String uri) {
         ApplicationURI route = new ApplicationURI(uri);
-        client.deleteRoute(route.getHost(), route.getDomain());
+        client.deleteRoute(route.getHost(), route.getDomain(), route.getPath());
     }
 
     public String computeSpaceId(String orgName, String spaceName) {

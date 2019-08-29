@@ -34,7 +34,7 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
         return Stream.of(
         // @formatter:off
             // (1) One old URI is replaced with a new one in redeploy:
-            Arguments.of("existing-app-1.json", "app-to-deploy-1.json", Collections.singletonList("module-1.domain.com"), null, null, StepPhase.DONE),
+            Arguments.of("existing-app-1.json", "app-to-deploy-1.json", Arrays.asList("module-1.domain.com", "module-1.domain.com/with/path"), null, null, StepPhase.DONE),
             // (2) There are no differences between old and new URIs:
             Arguments.of("existing-app-2.json", "app-to-deploy-2.json", Collections.emptyList(), null, null, StepPhase.DONE),
             // (3) The new URIs are a subset of the old:
@@ -42,9 +42,9 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
             // (4) There is no previous version of app:
             Arguments.of(null, "app-to-deploy-3.json", Collections.emptyList(), null, null, StepPhase.DONE),
             // (5) Not Found Exception is thrown
-            Arguments.of("existing-app-1.json", "app-to-deploy-1.json", Collections.singletonList("module-1.domain.com"), new CloudOperationException(HttpStatus.NOT_FOUND), new CloudOperationException(HttpStatus.NOT_FOUND), StepPhase.DONE),
+            Arguments.of("existing-app-1.json", "app-to-deploy-1.json", Arrays.asList("module-1.domain.com", "module-1.domain.com/with/path"), new CloudOperationException(HttpStatus.NOT_FOUND), new CloudOperationException(HttpStatus.NOT_FOUND), StepPhase.DONE),
             // (6) Conflict Exception is thrown
-            Arguments.of("existing-app-1.json", "app-to-deploy-1.json", Collections.singletonList("module-1.domain.com"), new CloudOperationException(HttpStatus.CONFLICT), new CloudOperationException(HttpStatus.CONFLICT), StepPhase.DONE)
+            Arguments.of("existing-app-1.json", "app-to-deploy-1.json", Arrays.asList("module-1.domain.com", "module-1.domain.com/with/path"), new CloudOperationException(HttpStatus.CONFLICT), new CloudOperationException(HttpStatus.CONFLICT), StepPhase.DONE)
         // @formatter:on
         );
     }
@@ -75,7 +75,7 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
         if (exceptionThrownByClient != null) {
             Mockito.doThrow(exceptionThrownByClient)
                    .when(client)
-                   .deleteRoute(anyString(), anyString());
+                   .deleteRoute(anyString(), anyString(), anyString());
         }
     }
 
@@ -95,13 +95,13 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
 
     private void verifyClient(List<String> urisToDelete) {
         if (CollectionUtils.isEmpty(urisToDelete)) {
-            verify(client, never()).deleteRoute(anyString(), anyString());
+            verify(client, never()).deleteRoute(anyString(), anyString(), anyString());
             return;
         }
 
         for (String uri : urisToDelete) {
             ApplicationURI parsedUri = new ApplicationURI(uri);
-            verify(client, times(1)).deleteRoute(parsedUri.getHost(), parsedUri.getDomain());
+            verify(client, times(1)).deleteRoute(parsedUri.getHost(), parsedUri.getDomain(), parsedUri.getPath());
         }
     }
 

@@ -43,8 +43,8 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
         return Messages.ERROR_DELETING_IDLE_ROUTES;
     }
 
-    private void deleteIdleRoutes(CloudApplication existingApp, CloudControllerClient client, CloudApplication app) {
-        List<String> idleUris = ListUtils.subtract(existingApp.getUris(), app.getUris());
+    private void deleteIdleRoutes(CloudApplication idleApp, CloudControllerClient client, CloudApplication newLiveApp) {
+        List<String> idleUris = ListUtils.subtract(idleApp.getUris(), newLiveApp.getUris());
         getStepLogger().debug(Messages.IDLE_URIS_FOR_APPLICATION, idleUris);
 
         for (String idleUri : idleUris) {

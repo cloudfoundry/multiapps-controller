@@ -140,5 +140,6 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     protected static class Route {
         protected String host;
         protected String domain;
+        protected String path;
     }
 }

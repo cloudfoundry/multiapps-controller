@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.cloudfoundry.client.lib.domain.CloudRoute;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 
@@ -36,6 +37,23 @@ public class ApplicationURI {
 
         if (pathIndex < uri.length()) {
             setPath(uri.substring(pathIndex));
+        }
+    }
+
+    public ApplicationURI(CloudRoute route) {
+        if (route == null) {
+            return;
+        }
+        
+        if (route.getHost() != null) {
+            setHost(route.getHost());
+        }
+
+        setDomain(route.getDomain()
+                       .getName());
+
+        if (route.getPath() != null) {
+            setPath(route.getPath());
         }
     }
 
@@ -128,4 +146,40 @@ public class ApplicationURI {
         this.path = path;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((domain == null) ? 0 : domain.hashCode());
+        result = prime * result + ((host == null) ? 0 : host.hashCode());
+        result = prime * result + ((path == null) ? 0 : path.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ApplicationURI other = (ApplicationURI) obj;
+        if (domain == null) {
+            if (other.domain != null)
+                return false;
+        } else if (!domain.equals(other.domain))
+            return false;
+        if (host == null) {
+            if (other.host != null)
+                return false;
+        } else if (!host.equals(other.host))
+            return false;
+        if (path == null) {
+            if (other.path != null)
+                return false;
+        } else if (!path.equals(other.path))
+            return false;
+        return true;
+    }
 }

@@ -57,7 +57,6 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep {
     }
 
     private void deleteApplicationRoutes(CloudControllerClient client, List<CloudRoute> routes, String uri) {
-        getStepLogger().info(Messages.DELETING_ROUTE, uri);
         try {
             CloudRoute route = UriUtil.findRoute(routes, uri);
             if (route.getAppsUsingRoute() > 1) {
@@ -67,6 +66,7 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep {
             getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.ROUTE_NOT_FOUND, uri);
             return;
         }
+        getStepLogger().info(Messages.DELETING_ROUTE, uri);
         new ClientHelper(client).deleteRoute(uri);
         getStepLogger().debug(Messages.ROUTE_DELETED, uri);
     }

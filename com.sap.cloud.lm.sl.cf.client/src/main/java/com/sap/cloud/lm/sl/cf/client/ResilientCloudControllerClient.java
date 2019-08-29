@@ -71,8 +71,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void addRoute(String host, String domainName) {
-        executeWithRetry(() -> delegate.addRoute(host, domainName));
+    public void addRoute(String host, String domainName, String path) {
+        executeWithRetry(() -> delegate.addRoute(host, domainName, path));
     }
 
     @Override
@@ -118,8 +118,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void deleteRoute(String host, String domainName) {
-        executeWithRetry(() -> delegate.deleteRoute(host, domainName));
+    public void deleteRoute(String host, String domainName, String path) {
+        executeWithRetry(() -> delegate.deleteRoute(host, domainName, path));
     }
 
     @Override
@@ -495,8 +495,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createServiceKey(String serviceName, String serviceKeyName, Map<String, Object> parameters) {
-        executeWithRetry(() -> delegate.createServiceKey(serviceName, serviceKeyName, parameters));
+    public CloudServiceKey createServiceKey(String serviceName, String serviceKeyName, Map<String, Object> parameters) {
+        return executeWithRetry(() -> delegate.createServiceKey(serviceName, serviceKeyName, parameters));
     }
 
     @Override
