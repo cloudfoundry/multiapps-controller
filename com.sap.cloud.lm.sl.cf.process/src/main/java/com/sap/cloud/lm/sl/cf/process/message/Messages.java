@@ -37,7 +37,6 @@ public class Messages {
     public static final String ERROR_VALIDATING_APPLICATIONS = "Could not validate applications";
     public static final String COULD_NOT_CONFIGURE_GIT_TO_SKIP_SSL = "Could not configure Git to skip SSL";
     public static final String ERROR_MERGING_ARCHIVE_PARTS = "Error merging archive parts: {0}";
-    public static final String ERROR_PROCESSING_ARCHIVE_PARTS_CONTENT = "Error processing archive parts content";
     public static final String BUILDING_ARCHIVE_FROM_PARTS = "Building archive from parts...";
     public static final String ERROR_DELETING_ARCHIVE_PARTS_CONTENT = "Error deleting archive parts content";
     public static final String UNSUPPORTED_PROCESS_TYPE = "Process type \"{0}\" is not supported";
@@ -60,7 +59,7 @@ public class Messages {
     public static final String PARAMETERS_OF_TASK_HOOK_0_ARE_INCOMPLETE = "Parameters of hook {0} with type \"task\" are incomplete. Expected at least \"command\".";
     public static final String CANNOT_DETERMINE_MODULE_NAME = "Cannot determine module name";
     public static final String CANNOT_DETERMINE_CURRENT_APPLICATION = "Cannot determine current application";
-    public static final String INVALID_FILE_ENTRY_NAME = "Invalid file entry name!";
+    public static final String INVALID_FILE_ENTRY_NAME = "Invalid file entry name: \"{0}\"";
     public static final String COULD_NOT_VERIFY_ARCHIVE_SIGNATURE = "Could not verify archive signature: {0}";
     public static final String THE_ARCHIVE_CONTAINS_UNSIGNED_FILES = "The archive contains unsigned files: \"{0}\"";
     public static final String THE_ARCHIVE_IS_NOT_SIGNED_BY_TRUSTED_CERTIFICATE_AUTHORITY = "The archive is not signed by the trusted certificate authority. Trusted authorities: \"{0}\"";

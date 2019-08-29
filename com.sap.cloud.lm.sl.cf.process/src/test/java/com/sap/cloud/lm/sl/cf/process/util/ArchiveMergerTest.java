@@ -22,7 +22,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -93,17 +92,13 @@ public class ArchiveMergerTest {
     @Test
     public void testSortFileEntriesWithInvalidNames() {
         List<FileEntry> invalidFileEntries = createFileEntriesFromFile(FILE_ENTRIES_WITH_INVALID_NAMES);
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
-                                                                     () -> archiveMerger.sort(invalidFileEntries));
-        Assertions.assertEquals(Messages.INVALID_FILE_ENTRY_NAME, exception.getMessage());
+        Assertions.assertThrows(SLException.class, () -> archiveMerger.sort(invalidFileEntries));
     }
 
     @Test
     public void testSortFileEntriesWithNamesWhichContainPartButDoNotContainIndexes() {
         List<FileEntry> invalidFileEntries = createFileEntriesFromFile(FILE_ENTRIES_WITHOUT_INDEXES);
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
-                                                                     () -> archiveMerger.sort(invalidFileEntries));
-        Assertions.assertEquals(Messages.INVALID_FILE_ENTRY_NAME, exception.getMessage());
+        Assertions.assertThrows(SLException.class, () -> archiveMerger.sort(invalidFileEntries));
     }
 
     @Test

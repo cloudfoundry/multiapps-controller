@@ -32,17 +32,14 @@ public class ArchiveMerger {
         this.context = context;
     }
 
-    public Path createArchiveFromParts(List<FileEntry> archivePartEntries) {
-        List<FileEntry> sortedParts = sort(archivePartEntries);
-        String archiveName = getArchiveName(sortedParts.get(0));
+    public Path createArchiveFromParts(List<FileEntry> archiveParts) {
+        List<FileEntry> sortedArchiveParts = sort(archiveParts);
+        String archiveName = getArchiveName(sortedArchiveParts.get(0));
         FilePartsMerger archiveMerger = null;
         try {
             archiveMerger = getArchiveMerger(archiveName);
-            mergeFileParts(sortedParts, archiveMerger);
-        } catch (FileStorageException e) {
-            stepLogger.info(Messages.ERROR_MERGING_ARCHIVE);
-            throw new SLException(e, Messages.ERROR_PROCESSING_ARCHIVE_PARTS_CONTENT, e.getMessage());
-        } catch (IOException e) {
+            mergeFileParts(sortedArchiveParts, archiveMerger);
+        } catch (FileStorageException | IOException e) {
             stepLogger.info(Messages.ERROR_MERGING_ARCHIVE);
             throw new SLException(e, Messages.ERROR_MERGING_ARCHIVE_PARTS, e.getMessage());
         } finally {
@@ -51,49 +48,44 @@ public class ArchiveMerger {
         return archiveMerger.getMergedFilePath();
     }
 
-    List<FileEntry> sort(List<FileEntry> archivePartEntries) {
-        return archivePartEntries.stream()
-                                 .sorted(Comparator.comparingInt(this::getEntryIndex))
-                                 .collect(Collectors.toList());
+    List<FileEntry> sort(List<FileEntry> archiveParts) {
+        return archiveParts.stream()
+                           .sorted(Comparator.comparingInt(this::getArchivePartIndex))
+                           .collect(Collectors.toList());
     }
 
-    private int getEntryIndex(FileEntry fileEntry) {
-        return getEntryIndex(fileEntry.getName()
-                                      .substring(fileEntry.getName()
-                                                          .lastIndexOf(PART_POSTFIX)
-                                          + PART_POSTFIX.length()));
-    }
-
-    private int getEntryIndex(String entryIndex) {
+    private int getArchivePartIndex(FileEntry archivePart) {
         try {
-            return Integer.parseInt(entryIndex);
+            String archivePartName = archivePart.getName();
+            String archivePartPostfix = archivePartName.substring(archivePartName.lastIndexOf(PART_POSTFIX) + PART_POSTFIX.length());
+            return Integer.parseInt(archivePartPostfix);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(Messages.INVALID_FILE_ENTRY_NAME);
+            throw new SLException(e, Messages.INVALID_FILE_ENTRY_NAME, archivePart.getName());
         }
     }
 
-    private String getArchiveName(FileEntry fileEntry) {
-        String fileEntryName = fileEntry.getName();
-        if (!fileEntryName.contains(PART_POSTFIX)) {
-            return fileEntryName;
+    private String getArchiveName(FileEntry archivePart) {
+        String archivePartName = archivePart.getName();
+        if (!archivePartName.contains(PART_POSTFIX)) {
+            return archivePartName;
         }
-        return fileEntryName.substring(0, fileEntryName.indexOf(PART_POSTFIX));
+        return archivePartName.substring(0, archivePartName.indexOf(PART_POSTFIX));
     }
 
     private FilePartsMerger getArchiveMerger(String archiveName) throws IOException {
         return new FilePartsMerger(archiveName);
     }
 
-    private void mergeFileParts(List<FileEntry> sortedParts, FilePartsMerger archiveMerger) throws FileStorageException {
+    private void mergeFileParts(List<FileEntry> sortedArchiveParts, FilePartsMerger archiveMerger) throws FileStorageException {
         FileContentProcessor archivePartProcessor = archiveMerger::merge;
-        for (FileEntry fileEntry : sortedParts) {
-            stepLogger.debug(Messages.MERGING_ARCHIVE_PART, fileEntry.getId(), fileEntry.getName());
-            fileService.processFileContent(createFileDownloadProcessor(archivePartProcessor, fileEntry));
+        for (FileEntry archivePart : sortedArchiveParts) {
+            stepLogger.debug(Messages.MERGING_ARCHIVE_PART, archivePart.getId(), archivePart.getName());
+            fileService.processFileContent(createFileDownloadProcessor(archivePartProcessor, archivePart));
         }
     }
 
-    private DefaultFileDownloadProcessor createFileDownloadProcessor(FileContentProcessor archivePartProcessor, FileEntry fileEntry) {
-        return new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), fileEntry.getId(), archivePartProcessor);
+    private DefaultFileDownloadProcessor createFileDownloadProcessor(FileContentProcessor archivePartProcessor, FileEntry archivePart) {
+        return new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), archivePart.getId(), archivePartProcessor);
     }
 
     private void closeArchiveMerger(FilePartsMerger filePartsMerger) {
