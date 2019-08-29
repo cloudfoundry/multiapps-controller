@@ -328,6 +328,7 @@ public class Messages {
     public static final String COMPUTING_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Computing modules for next parallel iteration...";
     public static final String COMPUTED_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Computed modules for next parallel iteration: {0}";
     public static final String CHECKING_APP_STATUS = "Checking status of application \"{0}\"...";
+    public static final String APP_STAGING_STATUS = "Staging status of application \"{0}\": {1}";
     public static final String APP_CREATED = "Application \"{0}\" created";
     public static final String APP_UPDATED = "Application \"{0}\" updated";
     public static final String CHECKING_UPLOAD_APP_STATUS = "Checking upload status of application \"{0}\"...";

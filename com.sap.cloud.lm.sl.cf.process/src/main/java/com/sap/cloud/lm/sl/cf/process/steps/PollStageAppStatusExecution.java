@@ -42,6 +42,8 @@ public class PollStageAppStatusExecution implements AsyncExecution {
                  .debug(Messages.CHECKING_APP_STATUS, app.getName());
 
         StagingState state = applicationStager.getStagingState(execution.getContext());
+        execution.getStepLogger()
+                 .debug(Messages.APP_STAGING_STATUS, app.getName(), state.getState());
 
         ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
                                                                .getProcessLoggerProvider();
