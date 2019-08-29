@@ -38,11 +38,8 @@ public class UriUtil {
     }
 
     public static boolean routeMatchesUri(CloudRoute route, String uri) {
-        ApplicationURI appUri = new ApplicationURI(uri);
-        return route.getHost()
-                    .equals(appUri.getHost())
-            && route.getDomain()
-                    .getName()
-                    .equals(appUri.getDomain());
+        ApplicationURI appUriFromRoute = new ApplicationURI(route);
+        ApplicationURI appUriFromString = new ApplicationURI(uri);
+        return appUriFromRoute.equals(appUriFromString);
     }
 }
