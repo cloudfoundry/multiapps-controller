@@ -29,7 +29,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEnvironmentUpdater;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
@@ -48,8 +47,6 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     static final int DEFAULT_APP_UPLOAD_TIMEOUT = (int) TimeUnit.HOURS.toSeconds(1);
 
-    @Inject
-    protected ApplicationConfiguration configuration;
     @Inject
     protected ApplicationArchiveReader applicationArchiveReader;
     @Inject

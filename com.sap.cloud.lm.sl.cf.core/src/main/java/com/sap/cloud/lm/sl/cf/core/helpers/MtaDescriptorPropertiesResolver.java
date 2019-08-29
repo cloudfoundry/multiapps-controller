@@ -76,7 +76,7 @@ public class MtaDescriptorPropertiesResolver {
                                                                                                      context.getConfigurationEntryDao(),
                                                                                                      context.getCloudTarget(),
                                                                                                      context.getApplicationConfiguration());
- 
+
         resolver.resolve(descriptor);
 
         subscriptions = createSubscriptions(descriptorWithUnresolvedReferences, resolver.getResolvedReferences());
@@ -97,14 +97,13 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     private DeploymentDescriptor correctEntityNames(DeploymentDescriptor descriptor) {
-        List<ParameterValidator> correctors = Arrays.asList(new ApplicationNameValidator(descriptor.getId(),
-                                                                                         context.hasUseNamespaces()),
+        List<ParameterValidator> correctors = Arrays.asList(new ApplicationNameValidator(descriptor.getId(), context.hasUseNamespaces()),
                                                             new ServiceNameValidator(descriptor.getId(),
                                                                                      context.hasUseNamespaces(),
                                                                                      context.hasUserNamespacesForServices()));
         return context.getHandlerFactory()
-                                             .getDescriptorParametersValidator(descriptor, correctors)
-                                             .validate();
+                      .getDescriptorParametersValidator(descriptor, correctors)
+                      .validate();
     }
 
     private void editRoutesSetTemporaryPlaceholders(DeploymentDescriptor descriptor) {
@@ -132,9 +131,8 @@ public class MtaDescriptorPropertiesResolver {
     private List<ConfigurationSubscription> createSubscriptions(DeploymentDescriptor descriptorWithUnresolvedReferences,
                                                                 Map<String, ResolvedConfigurationReference> resolvedResources) {
         return context.getHandlerFactory()
-                                             .getConfigurationSubscriptionFactory()
-                                             .create(descriptorWithUnresolvedReferences, resolvedResources,
-                                                     context.getCurrentSpaceId());
+                      .getConfigurationSubscriptionFactory()
+                      .create(descriptorWithUnresolvedReferences, resolvedResources, context.getCurrentSpaceId());
     }
 
     public List<ConfigurationSubscription> getSubscriptions() {

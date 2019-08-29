@@ -20,7 +20,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.client.util.ResilientOperationExecutor;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -36,9 +35,6 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     @Inject
     private JarSignatureOperations jarSignatureOperations;
-
-    @Inject
-    private ApplicationConfiguration configuration;
 
     private ResilientOperationExecutor resilientOperationExecutor = new ResilientOperationExecutor();
 

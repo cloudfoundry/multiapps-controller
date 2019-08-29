@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.flowable.engine.delegate.DelegateExecution;
@@ -11,7 +10,6 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorMerger;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
@@ -24,9 +22,6 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
     protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, Platform platform) {
         return new MtaDescriptorMerger(factory, platform, getStepLogger());
     }
-
-    @Inject
-    private ApplicationConfiguration configuration;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

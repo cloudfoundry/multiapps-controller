@@ -15,7 +15,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.io.FilenameUtils;
@@ -25,7 +24,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveBuilder;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
@@ -47,9 +45,6 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
     public static final String META_INF_PATH = "META-INF";
     private static final String MANIFEST_PATH = "MANIFEST.MF";
     private static final String MTAD_PATH = "mtad.yaml";
-
-    @Inject
-    private ApplicationConfiguration configuration;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws IOException, GitAPIException, FileStorageException {

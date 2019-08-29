@@ -35,7 +35,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
@@ -54,9 +53,6 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
     @Inject
     private ServiceGetter serviceInstanceGetter;
-
-    @Inject
-    private ApplicationConfiguration configuration;
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
