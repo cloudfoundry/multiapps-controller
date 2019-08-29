@@ -274,7 +274,7 @@ public class Messages {
     public static final String CREATING_SERVICE_BROKER = "Creating service broker \"{0}\"...";
     public static final String UPDATING_SERVICE_BROKER = "Updating service broker \"{0}\"...";
     public static final String DELETING_SERVICE_BROKER = "Deleting service broker \"{0}\" for application \"{1}\"...";
-    public static final String APPLICATION_UNCHANGED = "Application \"{0}\" is not modified and will not be updated";
+    public static final String APPLICATION_ATTRIBUTES_UNCHANGED = "Application \"{0}\" attributes are not modified and will not be updated";
     public static final String WILL_NOT_REBIND_APP_TO_SERVICE = "Service \"{0}\" will not be rebound to application \"{1}\" because the binding parameters are not modified";
     public static final String SERVICE_BROKER_DOES_NOT_EXIST = "Service broker with name \"{0}\" does not exist";
     public static final String EXECUTING_HOOK_0 = "Executing hook \"{0}\"";

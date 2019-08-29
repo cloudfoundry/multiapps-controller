@@ -281,7 +281,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         private void reportApplicationUpdateStatus(CloudApplicationExtended app, boolean appPropertiesChanged) {
             if (!appPropertiesChanged) {
-                getStepLogger().info(Messages.APPLICATION_UNCHANGED, app.getName());
+                getStepLogger().info(Messages.APPLICATION_ATTRIBUTES_UNCHANGED, app.getName());
                 return;
             }
             getStepLogger().debug(Messages.APP_UPDATED, app.getName());
