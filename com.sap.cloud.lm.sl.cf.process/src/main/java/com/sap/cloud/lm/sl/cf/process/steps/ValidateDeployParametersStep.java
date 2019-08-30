@@ -57,17 +57,10 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private void validateParameters(DelegateExecution context) {
-        Path archiveFilePath = null;
-        try {
-            validateStartTimeout(context);
-            archiveFilePath = mergeArchiveParts(context);
-            validateExtDescriptorFileId(context);
-            validateVersionRule(context);
-            verifyArchiveSignature(context, archiveFilePath);
-            persistMergedArchive(context, archiveFilePath);
-        } finally {
-            deleteArchiveFile(archiveFilePath);
-        }
+        validateStartTimeout(context);
+        validateExtensionDescriptorFileIds(context);
+        validateVersionRule(context);
+        validateArchive(context);
     }
 
     private void validateStartTimeout(DelegateExecution context) {
@@ -81,23 +74,17 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         }
     }
 
-    private Path mergeArchiveParts(DelegateExecution context) {
-        String appArchiveId = StepsUtil.getRequiredString(context, Constants.PARAM_APP_ARCHIVE_ID);
-        String[] appArchivePartsId = appArchiveId.split(",");
-        List<FileEntry> archivePartEntries = getArchivePartEntries(context, appArchivePartsId);
-        StepsUtil.setAsJsonBinaries(context, Constants.VAR_FILE_ENTRIES, archivePartEntries);
-        getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
-        return resilientOperationExecutor.execute(createArchiveFromParts(context, archivePartEntries));
-    }
+    private void validateExtensionDescriptorFileIds(DelegateExecution context) {
+        String extensionDescriptorFileId = (String) context.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
+        if (extensionDescriptorFileId == null) {
+            return;
+        }
 
-    private List<FileEntry> getArchivePartEntries(DelegateExecution context, String[] appArchivePartsId) {
-        return Arrays.stream(appArchivePartsId)
-                     .map(appArchivePartId -> findFile(context, appArchivePartId))
-                     .collect(Collectors.toList());
-    }
-
-    private Supplier<Path> createArchiveFromParts(DelegateExecution context, List<FileEntry> archivePartEntries) {
-        return () -> new ArchiveMerger(fileService, getStepLogger(), context).createArchiveFromParts(archivePartEntries);
+        String[] extensionDescriptorFileIds = extensionDescriptorFileId.split(",");
+        for (String fileId : extensionDescriptorFileIds) {
+            FileEntry file = findFile(context, fileId);
+            validateDescriptorSize(file);
+        }
     }
 
     private FileEntry findFile(DelegateExecution context, String fileId) {
@@ -110,19 +97,6 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
             return fileEntry;
         } catch (FileStorageException e) {
             throw new SLException(e, Messages.FAILED_TO_RETRIEVE_FILE_WITH_ID_0, fileId);
-        }
-    }
-
-    private void validateExtDescriptorFileId(DelegateExecution context) {
-        String extensionDescriptorFileId = (String) context.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
-        if (extensionDescriptorFileId == null) {
-            return;
-        }
-
-        String[] extDescriptorFileIds = extensionDescriptorFileId.split(",");
-        for (String extDescriptorFileId : extDescriptorFileIds) {
-            FileEntry file = findFile(context, extDescriptorFileId);
-            validateDescriptorSize(file);
         }
     }
 
@@ -149,6 +123,48 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
                                   Constants.PARAM_VERSION_RULE,
                                   Arrays.asList(VersionRule.values()));
         }
+    }
+
+    private void validateArchive(DelegateExecution context) {
+        String[] archivePartIds = getArchivePartIds(context);
+        if (!StepsUtil.shouldVerifyArchiveSignature(context) && archivePartIds.length == 1) {
+            // The archive doesn't need "validation", i.e. merging or signature verification.
+            // TODO The merging of chunks should be done prior to this step, since it's not really a validation, but we may need the result
+            // here, if the user wants us to verify the archive's signature.
+            return;
+        }
+        Path archive = null;
+        try {
+            archive = mergeArchiveParts(context, archivePartIds);
+            verifyArchiveSignature(context, archive);
+            if (archivePartIds.length != 1) {
+                persistMergedArchive(context, archive);
+            }
+        } finally {
+            deleteArchive(archive);
+        }
+    }
+
+    private String[] getArchivePartIds(DelegateExecution context) {
+        String archiveId = StepsUtil.getRequiredString(context, Constants.PARAM_APP_ARCHIVE_ID);
+        return archiveId.split(",");
+    }
+
+    private Path mergeArchiveParts(DelegateExecution context, String[] archivePartIds) {
+        List<FileEntry> archivePartEntries = getArchivePartEntries(context, archivePartIds);
+        StepsUtil.setAsJsonBinaries(context, Constants.VAR_FILE_ENTRIES, archivePartEntries);
+        getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
+        return resilientOperationExecutor.execute(createArchiveFromParts(context, archivePartEntries));
+    }
+
+    private List<FileEntry> getArchivePartEntries(DelegateExecution context, String[] appArchivePartsId) {
+        return Arrays.stream(appArchivePartsId)
+                     .map(appArchivePartId -> findFile(context, appArchivePartId))
+                     .collect(Collectors.toList());
+    }
+
+    private Supplier<Path> createArchiveFromParts(DelegateExecution context, List<FileEntry> archivePartEntries) {
+        return () -> new ArchiveMerger(fileService, getStepLogger(), context).createArchiveFromParts(archivePartEntries);
     }
 
     private void verifyArchiveSignature(DelegateExecution context, Path archiveFilePath) {
@@ -195,7 +211,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         }
     }
 
-    private void deleteArchiveFile(Path archiveFilePath) {
+    private void deleteArchive(Path archiveFilePath) {
         if (archiveFilePath == null) {
             return;
         }
