@@ -1,12 +1,10 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
@@ -36,18 +34,10 @@ public class ArchiveMerger {
     public Path createArchiveFromParts(List<FileEntry> archiveParts) {
         List<FileEntry> sortedArchiveParts = sort(archiveParts);
         String archiveName = getArchiveName(sortedArchiveParts.get(0));
-        FilePartsMerger filePartsMerger = null;
-        try {
-            filePartsMerger = new FilePartsMerger(archiveName);
-            mergeFileParts(sortedArchiveParts, filePartsMerger);
-        } catch (Exception e) {
-            stepLogger.info(Messages.ERROR_MERGING_ARCHIVE);
-            cleanUp(filePartsMerger);
-            throw new SLException(e, Messages.ERROR_MERGING_ARCHIVE_PARTS, e.getMessage());
-        } finally {
-            closeFilePartsMerger(filePartsMerger);
+        try (FilePartsMerger filePartsMerger = new FilePartsMerger(archiveName)) {
+            mergeArchiveParts(sortedArchiveParts, filePartsMerger);
+            return filePartsMerger.getMergedFilePath();
         }
-        return filePartsMerger.getMergedFilePath();
     }
 
     List<FileEntry> sort(List<FileEntry> archiveParts) {
@@ -74,6 +64,16 @@ public class ArchiveMerger {
         return archivePartName.substring(0, archivePartName.indexOf(PART_POSTFIX));
     }
 
+    private void mergeArchiveParts(List<FileEntry> sortedArchiveParts, FilePartsMerger filePartsMerger) {
+        try {
+            mergeFileParts(sortedArchiveParts, filePartsMerger);
+        } catch (Exception e) {
+            stepLogger.info(Messages.ERROR_MERGING_ARCHIVE);
+            filePartsMerger.cleanUp();
+            throw new SLException(e, Messages.ERROR_MERGING_ARCHIVE_PARTS, e.getMessage());
+        }
+    }
+
     private void mergeFileParts(List<FileEntry> sortedArchiveParts, FilePartsMerger filePartsMerger) throws FileStorageException {
         FileContentProcessor archivePartProcessor = filePartsMerger::merge;
         for (FileEntry archivePart : sortedArchiveParts) {
@@ -86,18 +86,4 @@ public class ArchiveMerger {
         return new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), archivePart.getId(), archivePartProcessor);
     }
 
-    private void cleanUp(FilePartsMerger filePartsMerger) {
-        File mergedArchive = toFile(filePartsMerger.getMergedFilePath());
-        FileUtils.deleteQuietly(mergedArchive);
-    }
-
-    private File toFile(Path path) {
-        return path != null ? path.toFile() : null;
-    }
-
-    private void closeFilePartsMerger(FilePartsMerger filePartsMerger) {
-        if (filePartsMerger != null) {
-            filePartsMerger.close();
-        }
-    }
 }
