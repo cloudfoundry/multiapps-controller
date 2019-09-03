@@ -6,11 +6,13 @@ import java.util.List;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
@@ -37,8 +39,24 @@ public class DeleteApplicationStep extends UndeployAppStep {
 
     private void deleteApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy) {
         getStepLogger().info(Messages.DELETING_APP, cloudApplicationToUndeploy.getName());
-        client.deleteApplication(cloudApplicationToUndeploy.getName());
-        getStepLogger().debug(Messages.APP_DELETED, cloudApplicationToUndeploy.getName());
+        deleteApplication(client, cloudApplicationToUndeploy.getName());
+    }
+
+    private void deleteApplication(CloudControllerClient client, String applicationName) {
+        try {
+            client.deleteApplication(applicationName);
+            getStepLogger().debug(Messages.APP_DELETED, applicationName);
+        } catch (CloudOperationException e) {
+            handleCloudOperationException(e, applicationName);
+        }
+    }
+
+    private void handleCloudOperationException(CloudOperationException e, String applicationName) {
+        if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+            getStepLogger().info(Messages.APP_NOT_FOUND, applicationName);
+            return;
+        }
+        throw e;
     }
 
     private void cancelRunningTasks(CloudControllerClient client, CloudApplication appToUndeploy) {

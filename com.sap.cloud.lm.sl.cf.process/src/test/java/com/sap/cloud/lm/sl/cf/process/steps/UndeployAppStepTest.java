@@ -3,19 +3,17 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.CloudTask;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -24,7 +22,6 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
-@RunWith(Parameterized.class)
 public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
 
     @Mock
@@ -33,55 +30,46 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     protected StepInput stepInput;
     protected StepOutput stepOutput;
 
-    public UndeployAppStepTest(String stepInputLocation, String stepOutputLocation) throws Exception {
-        String resourceAsString = TestUtil.getResourceAsString(stepInputLocation, UndeployAppStepTest.class);
-        stepInput = JsonUtil.fromJson(resourceAsString, StepInput.class);
-        stepOutput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepOutputLocation, UndeployAppStepTest.class), StepOutput.class);
-    }
+    // @formatter:off
+    private static Stream<Arguments> testExecution() {
+        return Stream.of(
+                // (0) There are applications to undeploy:
+                Arguments.of("undeploy-apps-step-input-00.json", "undeploy-apps-step-output-00.json"),
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-// @formatter:off
-          // (0) There are applications to undeploy:
-          {
-              "undeploy-apps-step-input-00.json", "undeploy-apps-step-output-00.json",
-          },
-          // (1) No applications to undeploy:
-          {
-              "undeploy-apps-step-input-02.json", "undeploy-apps-step-output-02.json",
-          },
-          // (2) There are two routes that should be deleted, but one of them is bound to another application:
-          {
-              "undeploy-apps-step-input-03.json", "undeploy-apps-step-output-03.json",
-          },
-          // (3) There are running one-off tasks to cancel:
-          {
-              "undeploy-apps-step-input-04.json", "undeploy-apps-step-output-04.json",
-          },
-          // (4) There are not found routes matching app uri:
-          {
-              "undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json",
-          },
-// @formatter:on
-        });
-    }
+                // (1) No applications to undeploy:
+                Arguments.of("undeploy-apps-step-input-02.json", "undeploy-apps-step-output-02.json"),
 
-    @Before
-    public void setUp() throws Exception {
-        prepareContext();
-        prepareClient();
-        Mockito.when(client.areTasksSupported())
-               .thenReturn(!stepInput.tasksPerApplication.isEmpty());
+                // (2) There are two routes that should be deleted, but one of them is bound to another application:
+                Arguments.of("undeploy-apps-step-input-03.json", "undeploy-apps-step-output-03.json"),
+                
+                // (3) There are running one-off tasks to cancel:
+                Arguments.of("undeploy-apps-step-input-04.json", "undeploy-apps-step-output-04.json"),
+                
+                // (4) There are not found routes matching app uri:
+                Arguments.of("undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json")
+        );
     }
+    // @formatter:on
 
-    @Test
-    public void testExecute() throws Exception {
+    @ParameterizedTest
+    @MethodSource
+    public void testExecution(String stepInputLocation, String stepOutputLocation) throws Exception {
+        initializeParameters(stepInputLocation, stepOutputLocation);
         for (CloudApplication cloudApplication : stepInput.appsToDelete) {
             undeployApp(cloudApplication);
         }
 
         performAfterUndeploymentValidation();
+    }
+
+    private void initializeParameters(String stepInputLocation, String stepOutputLocation) {
+        String resourceAsString = TestUtil.getResourceAsString(stepInputLocation, UndeployAppStepTest.class);
+        stepInput = JsonUtil.fromJson(resourceAsString, StepInput.class);
+        stepOutput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepOutputLocation, UndeployAppStepTest.class), StepOutput.class);
+        prepareContext();
+        prepareClient();
+        Mockito.when(client.areTasksSupported())
+               .thenReturn(!stepInput.tasksPerApplication.isEmpty());
     }
 
     protected abstract void performAfterUndeploymentValidation();

@@ -6,10 +6,6 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 
 public class StopApplicationUndeploymentStepTest extends UndeployAppStepTest {
 
-    public StopApplicationUndeploymentStepTest(String stepInputLocation, String stepOutputLocation) throws Exception {
-        super(stepInputLocation, stepOutputLocation);
-    }
-
     @Override
     protected void performValidation(CloudApplication cloudApplication) {
         verify(client).stopApplication(cloudApplication.getName());
