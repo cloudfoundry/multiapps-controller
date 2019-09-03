@@ -11,10 +11,6 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 
 public class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
 
-    public DeleteApplicationRoutesStepTest(String stepInputLocation, String stepOutputLocation) throws Exception {
-        super(stepInputLocation, stepOutputLocation);
-    }
-
     @Override
     protected void performValidation(CloudApplication cloudApplication) {
         if (!cloudApplication.getUris()
