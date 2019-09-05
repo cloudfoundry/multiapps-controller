@@ -19,15 +19,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Answers;
 import org.mockito.Mock;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
+import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -124,7 +127,9 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
     }
 
     @Mock
-    private ConfigurationSubscriptionDao dao;
+    private ConfigurationSubscriptionService configurationSubscriptionService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private ConfigurationSubscriptionQuery configurationSubscriptionQuery;
     @Mock
     protected ModuleToDeployHelper moduleToDeployHelper;
     @Mock
@@ -151,7 +156,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         loadParameters();
         prepareDeploymentDescriptor();
         prepareContext();
-        prepareDao();
+        prepareSubscriptionService();
     }
 
     private void prepareDeploymentDescriptor() {
@@ -214,11 +219,14 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         StepsUtil.setCompleteDeploymentDescriptor(context, deploymentDescriptor);
     }
 
-    private void prepareDao() {
+    private void prepareSubscriptionService() {
+        when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
         if (deployedMta != null) {
-            when(dao.findAll(deployedMta.getMetadata()
-                                        .getId(),
-                             null, SPACE_ID, null)).thenReturn(filter(existingSubscriptions));
+            ConfigurationSubscriptionQuery mock = new MockBuilder<>(configurationSubscriptionQuery).on(query -> query.mtaId(deployedMta.getMetadata()
+                                                                                                                                       .getId()))
+                                                                                                   .on(query -> query.spaceId(SPACE_ID))
+                                                                                                   .build();
+            when(mock.list()).thenReturn(filter(existingSubscriptions));
         }
     }
 

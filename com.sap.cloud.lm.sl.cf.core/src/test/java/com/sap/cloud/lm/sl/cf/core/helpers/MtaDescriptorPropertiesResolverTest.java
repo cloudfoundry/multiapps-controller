@@ -14,10 +14,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableMtaDescriptorPropertiesResolverContext;
 import com.sap.cloud.lm.sl.cf.core.model.MtaDescriptorPropertiesResolverContext;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
@@ -51,7 +51,7 @@ public class MtaDescriptorPropertiesResolverTest {
     @Mock
     private ApplicationConfiguration configuration;
     @Mock
-    private ConfigurationEntryDao dao;
+    private ConfigurationEntryService configurationEntryService;
     @Mock
     private CloudTarget cloudTarget;
 
@@ -66,7 +66,7 @@ public class MtaDescriptorPropertiesResolverTest {
     private MtaDescriptorPropertiesResolverContext buildMtaDescriptorPropertiesResolverContext() {
         return ImmutableMtaDescriptorPropertiesResolverContext.builder()
                                                               .handlerFactory(new HandlerFactory(2))
-                                                              .configurationEntryDao(dao)
+                                                              .configurationEntryService(configurationEntryService)
                                                               .cloudTarget(new CloudTarget("", ""))
                                                               .currentSpaceId("")
                                                               .applicationConfiguration(configuration)

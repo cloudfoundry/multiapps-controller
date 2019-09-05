@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.helpers;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -19,17 +18,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
-import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -82,7 +82,10 @@ public class ApplicationColorDetectorTest {
     private final Tester tester = Tester.forClass(getClass());
 
     @Mock
-    private OperationDao operationDao;
+    private OperationService operationService;
+
+    @Mock(answer = Answers.RETURNS_SELF)
+    private OperationQuery operationQuery;
 
     @Mock
     private FlowableFacade flowableFacade;
@@ -158,7 +161,7 @@ public class ApplicationColorDetectorTest {
     @ParameterizedTest
     @MethodSource
     public void detectLiveApplicationColor(String deployedMtaJsonLocation, Expectation expectations) {
-        mockOperationDao(createFakeOperation(State.RUNNING), createFakeOperation(State.FINISHED));
+        mockOperationService(createFakeOperation(State.RUNNING), createFakeOperation(State.FINISHED));
         tester.test(() -> detectLiveApplicationColor(readResource(deployedMtaJsonLocation, DeployedMta.class)), expectations);
     }
 
@@ -173,7 +176,7 @@ public class ApplicationColorDetectorTest {
                                                            State currentOperationState, State lastOperationState,
                                                            String lastDeployedColor) {
         Expectation expectation = new Expectation(expectedColor);
-        mockOperationDao(createFakeOperation(currentOperationState), createFakeOperation(lastOperationState));
+        mockOperationService(createFakeOperation(currentOperationState), createFakeOperation(lastOperationState));
         when(flowableFacade.findHistoricProcessInstanceIdByProcessDefinitionKey(FAKE_PROCESS_ID,
                                                                                 Constants.BLUE_GREEN_DEPLOY_SERVICE_ID)).thenReturn(FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID);
         mockHistoricVariableInstanceColor(lastDeployedColor);
@@ -184,7 +187,7 @@ public class ApplicationColorDetectorTest {
     @Test
     public void detectLiveApplicationColorPhaseNotFound() {
         Expectation expectation = new Expectation(GREEN);
-        mockOperationDao(createFakeOperation(State.RUNNING), createFakeOperation(State.ABORTED));
+        mockOperationService(createFakeOperation(State.RUNNING), createFakeOperation(State.ABORTED));
         mockHistoricVariableInstanceColor(GREEN);
         tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
     }
@@ -192,7 +195,7 @@ public class ApplicationColorDetectorTest {
     @Test
     public void detectLiveApplicationColorMtaColoNotFound() {
         Expectation expectation = new Expectation(GREEN);
-        mockOperationDao(createFakeOperation(State.RUNNING), createFakeOperation(State.ABORTED));
+        mockOperationService(createFakeOperation(State.RUNNING), createFakeOperation(State.ABORTED));
         mockHistoricVariableInstancePhase();
         tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
     }
@@ -200,7 +203,7 @@ public class ApplicationColorDetectorTest {
     @Test
     public void detectLiveApplicationColorNoOperations() {
         Expectation expectation = new Expectation(GREEN);
-        mockOperationDaoNoOtherOperations(createFakeOperation(State.RUNNING));
+        mockOperationServiceNoOtherOperations(createFakeOperation(State.RUNNING));
         tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
     }
 
@@ -230,9 +233,12 @@ public class ApplicationColorDetectorTest {
         return deployedMtaModule;
     }
 
-    private void mockOperationDaoNoOtherOperations(Operation currentOperation) {
-        when(operationDao.find(anyString())).thenReturn(currentOperation);
-        when(operationDao.find(any(OperationFilter.class))).thenReturn(Collections.emptyList());
+    private void mockOperationServiceNoOtherOperations(Operation currentOperation) {
+        when(operationService.createQuery()).thenReturn(operationQuery);
+        doReturn(currentOperation).when(operationQuery)
+                                  .singleResult();
+        doReturn(Collections.emptyList()).when(operationQuery)
+                                         .list();
     }
 
     private <T> T readResource(String deployMtaJsonLocation, Class<T> clazz) {
@@ -257,9 +263,12 @@ public class ApplicationColorDetectorTest {
                                                         Constants.VAR_MTA_COLOR)).thenReturn(historicVariableInstanceColor);
     }
 
-    private void mockOperationDao(Operation currentOperation, Operation lastOperation) {
-        when(operationDao.find(anyString())).thenReturn(currentOperation);
-        when(operationDao.find(any(OperationFilter.class))).thenReturn(Arrays.asList(lastOperation));
+    private void mockOperationService(Operation currentOperation, Operation lastOperation) {
+        when(operationService.createQuery()).thenReturn(operationQuery);
+        doReturn(currentOperation).when(operationQuery)
+                                  .singleResult();
+        doReturn(Arrays.asList(lastOperation)).when(operationQuery)
+                                              .list();
     }
 
     private Operation createFakeOperation(State state) {

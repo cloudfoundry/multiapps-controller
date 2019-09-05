@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,19 +30,22 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
+import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -105,9 +109,13 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
     }
 
     @Mock
-    private ConfigurationSubscriptionDao subscriptionsDao;
+    private ConfigurationSubscriptionService configurationSubscriptionService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private ConfigurationSubscriptionQuery configurationSubscriptionQuery;
     @Mock
-    private ConfigurationEntryDao entriesDao;
+    private ConfigurationEntryService configurationEntryService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private ConfigurationEntryQuery configurationEntryQuery;
 
     @Mock
     private CloudControllerClient clientForCurrentSpace;
@@ -137,7 +145,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         loadParameters();
         prepareContext();
         prepareClients();
-        prepareDaos();
+        prepareConfigurationServices();
     }
 
     private void loadParameters() throws Exception {
@@ -250,16 +258,26 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         }
     }
 
-    private void prepareDaos() {
-        when(subscriptionsDao.findAll(ArgumentMatchers.anyList())).thenReturn(getSubscriptions());
+    private void prepareConfigurationServices() {
+        when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
+        when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
+        doReturn(getSubscriptions()).when(configurationSubscriptionQuery)
+                                    .list();
 
         for (SubscriberToUpdate subscriber : input.subscribersToUpdate) {
             ConfigurationFilter filter = subscriber.subscription.getFilter();
             List<CloudTarget> targets = Arrays.asList(new CloudTarget(input.currentSpace.getOrganization()
                                                                                         .getName(),
                                                                       input.currentSpace.getName()));
-            when(entriesDao.find(filter.getProviderNid(), filter.getProviderId(), filter.getProviderVersion(), filter.getTargetSpace(),
-                                 filter.getRequiredContent(), null, targets)).thenReturn(getAllEntries(subscriber));
+            ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(filter.getProviderNid()))
+                                                                                               .on(query -> query.providerId(filter.getProviderId()))
+                                                                                               .on(query -> query.version(filter.getProviderVersion()))
+                                                                                               .on(query -> query.target(filter.getTargetSpace()))
+                                                                                               .on(query -> query.requiredProperties(filter.getRequiredContent()))
+                                                                                               .on(query -> query.visibilityTargets(targets))
+                                                                                               .build();
+            doReturn(getAllEntries(subscriber)).when(entryQueryMock)
+                                               .list();
         }
     }
 

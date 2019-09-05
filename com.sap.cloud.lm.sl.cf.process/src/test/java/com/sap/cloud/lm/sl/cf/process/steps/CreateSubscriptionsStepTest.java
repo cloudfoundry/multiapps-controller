@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -16,13 +17,16 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
+import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -55,7 +59,9 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
     }
 
     @Mock
-    private ConfigurationSubscriptionDao dao;
+    private ConfigurationSubscriptionService configurationSubscriptionService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private ConfigurationSubscriptionQuery configurationSubscriptionQuery;
 
     private final String inputLocation;
     private final String expectedExceptionMessage;
@@ -70,7 +76,7 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
     public void setUp() throws Exception {
         loadParameters();
         prepareContext();
-        prepareDao();
+        prepareSubscriptionService();
     }
 
     private void loadParameters() throws Exception {
@@ -87,15 +93,23 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
         StepsUtil.setSubscriptionsToCreate(context, subscriptions);
     }
 
-    private void prepareDao() throws Exception {
+    private void prepareSubscriptionService() throws Exception {
+        when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
+        doReturn(null).when(configurationSubscriptionQuery)
+                      .singleResult();
         for (int i = 0; i < input.subscriptionsToUpdate.size(); i++) {
             ConfigurationSubscription subscription = input.subscriptionsToUpdate.get(i);
             ResourceDto resourceDto = subscription.getResourceDto();
             if (resourceDto == null) {
                 continue;
             }
-            when(dao.findAll(subscription.getMtaId(), subscription.getAppName(), subscription.getSpaceId(),
-                             resourceDto.getName())).thenReturn(Arrays.asList(setId(subscription, DUMMY_ID)));
+            ConfigurationSubscriptionQuery queryMock = new MockBuilder<>(configurationSubscriptionQuery).on(query -> query.appName(subscription.getAppName()))
+                                                                                                        .on(query -> query.spaceId(subscription.getSpaceId()))
+                                                                                                        .on(query -> query.resourceName(resourceDto.getName()))
+                                                                                                        .on(query -> query.mtaId(subscription.getMtaId()))
+                                                                                                        .build();
+            doReturn(setId(subscription, DUMMY_ID)).when(queryMock)
+                                                   .singleResult();
         }
     }
 
@@ -127,12 +141,12 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
         StepOutput output = new StepOutput();
 
         argumentCaptor = ArgumentCaptor.forClass(ConfigurationSubscription.class);
-        Mockito.verify(dao, times(input.subscriptionsToUpdate.size()))
+        Mockito.verify(configurationSubscriptionService, times(input.subscriptionsToUpdate.size()))
                .update(eq(DUMMY_ID), argumentCaptor.capture());
         output.updatedSubscriptions = argumentCaptor.getAllValues();
 
         argumentCaptor = ArgumentCaptor.forClass(ConfigurationSubscription.class);
-        Mockito.verify(dao, times(input.subscriptionsToCreate.size()))
+        Mockito.verify(configurationSubscriptionService, times(input.subscriptionsToCreate.size()))
                .add(argumentCaptor.capture());
         output.createdSubscriptions = argumentCaptor.getAllValues();
 
