@@ -19,19 +19,24 @@ import org.flowable.idm.engine.delegate.event.impl.FlowableIdmEventImpl;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ProgressMessageQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
+import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 
 public class FlowableExceptionEventHandlerTest {
 
     @Mock
     private ProgressMessageService progressMessageServiceMock;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private ProgressMessageQuery progressMessageQuery;
 
     @Mock
     private FlowableFacade flowableFacadeMock;
@@ -66,13 +71,18 @@ public class FlowableExceptionEventHandlerTest {
     public void testWithErrorMessageAlreadyPresented() {
         Mockito.when(flowableFacadeMock.getProcessInstanceId(Mockito.any()))
                .thenReturn("foo");
-        Mockito.when(progressMessageServiceMock.findByProcessId("foo"))
-               .thenReturn(Arrays.asList(ImmutableProgressMessage.builder()
-                                                                 .processId("foo")
-                                                                 .taskId("")
-                                                                 .text("")
-                                                                 .type(ProgressMessageType.ERROR)
-                                                                 .build()));
+        Mockito.when(progressMessageServiceMock.createQuery())
+               .thenReturn(progressMessageQuery);
+        ProgressMessageQuery queryMock = new MockBuilder<>(progressMessageQuery).on(query -> query.processId("foo"))
+                                                                                .build();
+        Mockito.doReturn(Arrays.asList(ImmutableProgressMessage.builder()
+                                                               .processId("foo")
+                                                               .taskId("")
+                                                               .text("")
+                                                               .type(ProgressMessageType.ERROR)
+                                                               .build()))
+               .when(queryMock)
+               .list();
         FlowableExceptionEvent mockedExceptionEvent = Mockito.mock(FlowableExceptionEvent.class);
         Mockito.when(mockedExceptionEvent.getCause())
                .thenReturn(new Exception("test-message"));
@@ -101,9 +111,15 @@ public class FlowableExceptionEventHandlerTest {
     private void testWithNoErrorMessageWithExecutionEntity(boolean shouldUseExecutionEntity) {
         Mockito.when(flowableFacadeMock.getProcessInstanceId(Mockito.anyString()))
                .thenReturn("foo");
+        Mockito.when(progressMessageServiceMock.createQuery())
+               .thenReturn(progressMessageQuery);
 
-        Mockito.when(progressMessageServiceMock.findByProcessId("foo"))
-               .thenReturn(Collections.emptyList());
+        ProgressMessageQuery queryMock = new MockBuilder<>(progressMessageQuery).on(query -> query.processId("foo"))
+                                                                                .build();
+
+        Mockito.doReturn(Collections.emptyList())
+               .when(queryMock)
+               .list();
 
         FlowableExceptionEvent mockedExceptionEvent = Mockito.mock(FlowableExceptionEvent.class);
 

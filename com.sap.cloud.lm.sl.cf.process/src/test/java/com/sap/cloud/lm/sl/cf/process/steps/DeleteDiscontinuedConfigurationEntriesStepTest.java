@@ -1,12 +1,14 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.flowable.variable.api.history.HistoricVariableInstance;
@@ -15,13 +17,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
+import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -31,7 +36,9 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowableStepTest<DeleteDiscontinuedConfigurationEntriesStep> {
 
     @Mock
-    private ConfigurationEntryDao configurationEntryDao;
+    private ConfigurationEntryService configurationEntryService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private ConfigurationEntryQuery configurationEntryQuery;
 
     private StepInput stepInput;
 
@@ -70,8 +77,14 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
 
         CloudTarget target = new CloudTarget(stepInput.org, stepInput.space);
 
-        Mockito.when(configurationEntryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, target, null, stepInput.mtaId))
-               .thenReturn(stepInput.entriesForMta);
+        doReturn(configurationEntryQuery).when(configurationEntryService)
+                                         .createQuery();
+        ConfigurationEntryQuery queryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(ConfigurationEntriesUtil.PROVIDER_NID))
+                                                                                      .on(query -> query.target(target))
+                                                                                      .on(query -> query.mtaId(stepInput.mtaId))
+                                                                                      .build();
+        doReturn(stepInput.entriesForMta).when(queryMock)
+                                         .list();
     }
 
     private void prepareContext() {
@@ -100,6 +113,8 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
 
     @Test
     public void testExecute() throws Exception {
+        List<ConfigurationEntryQuery> queriesToExecuteDeleteOn = initEntryQueries();
+
         step.execute(context);
 
         assertStepFinishedSuccessfully();
@@ -107,9 +122,16 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
         assertEquals(toJson(getEntriesToDelete()),
                      toJson(StepsUtil.getDeletedEntriesFromProcess(flowableFacadeFacade, context.getProcessInstanceId())));
 
-        for (Long id : (stepInput.idsOfExpectedEntriesToDelete)) {
-            verify(configurationEntryDao).remove(id);
+        for (ConfigurationEntryQuery query : queriesToExecuteDeleteOn) {
+            verify(query).delete();
         }
+    }
+
+    private List<ConfigurationEntryQuery> initEntryQueries() {
+        return stepInput.idsOfExpectedEntriesToDelete.stream()
+                                                     .map(id -> new MockBuilder<>(configurationEntryQuery).on(query -> query.id(id))
+                                                                                                          .build())
+                                                     .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> getEntriesToDelete() {

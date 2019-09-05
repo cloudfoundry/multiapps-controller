@@ -1,6 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,14 +17,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
+import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -41,7 +47,10 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     private static List<ConfigurationEntry> exisitingConfigurationEntries;
 
     private StepInput input;
-    private ConfigurationEntryDao configurationEntryDaoMock = Mockito.mock(ConfigurationEntryDao.class);
+    @Mock
+    private ConfigurationEntryService configurationEntryService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private ConfigurationEntryQuery configurationEntryQuery;
 
     public PublishConfigurationEntriesStepTest(String input) throws Exception {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, PublishConfigurationEntriesStepTest.class), StepInput.class);
@@ -78,17 +87,21 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     @Before
     public void setUp() throws Exception {
         prepareContext();
-        prepareDao();
-        step.configurationEntryDao = configurationEntryDaoMock;
+        prepareConfigurationEntryService();
+        step.configurationEntryService = configurationEntryService;
     }
 
-    public void prepareDao() throws Exception {
+    public void prepareConfigurationEntryService() throws Exception {
+        when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
         for (ConfigurationEntry entry : exisitingConfigurationEntries) {
-            Mockito.when(configurationEntryDaoMock.find(Mockito.matches(entry.getProviderNid()), Mockito.matches(entry.getProviderId()),
-                                                        Mockito.matches(entry.getProviderVersion()
-                                                                             .toString()),
-                                                        Mockito.eq(entry.getTargetSpace()), Mockito.any(), Mockito.eq(null)))
-                   .thenReturn(Arrays.asList(entry));
+            ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(entry.getProviderNid()))
+                                                                                               .on(query -> query.providerId(entry.getProviderId()))
+                                                                                               .on(query -> query.version(entry.getProviderVersion()
+                                                                                                                               .toString()))
+                                                                                               .on(query -> query.target(Mockito.eq(entry.getTargetSpace())))
+                                                                                               .build();
+            doReturn(Arrays.asList(entry)).when(entryQueryMock)
+                                          .list();
         }
     }
 
@@ -108,14 +121,14 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
 
         assertStepFinishedSuccessfully();
 
-        validateConfigurationEntryDao();
+        validateConfigurationEntryService();
     }
 
-    private void validateConfigurationEntryDao() throws Exception {
+    private void validateConfigurationEntryService() throws Exception {
         if (CollectionUtils.isEmpty(input.entriesToPublish)) {
-            Mockito.verify(configurationEntryDaoMock, Mockito.never())
+            Mockito.verify(configurationEntryService, Mockito.never())
                    .add(Mockito.any());
-            Mockito.verify(configurationEntryDaoMock, Mockito.never())
+            Mockito.verify(configurationEntryService, Mockito.never())
                    .update(Mockito.anyLong(), Mockito.any());
         }
         List<ConfigurationEntry> createdEntries = getCreatedEntries();
@@ -133,14 +146,14 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
 
     private List<ConfigurationEntry> getCreatedEntries() {
         ArgumentCaptor<ConfigurationEntry> configurationEntryCaptor = ArgumentCaptor.forClass(ConfigurationEntry.class);
-        Mockito.verify(configurationEntryDaoMock, Mockito.times(input.expectedCreatedEntries.size()))
+        Mockito.verify(configurationEntryService, Mockito.times(input.expectedCreatedEntries.size()))
                .add(configurationEntryCaptor.capture());
         return configurationEntryCaptor.getAllValues();
     }
 
     private List<ConfigurationEntry> getUpdatedEntries() {
         ArgumentCaptor<ConfigurationEntry> configurationEntryCaptor = ArgumentCaptor.forClass(ConfigurationEntry.class);
-        Mockito.verify(configurationEntryDaoMock, Mockito.times(input.expectedUpdatedEntries.size()))
+        Mockito.verify(configurationEntryService, Mockito.times(input.expectedUpdatedEntries.size()))
                .update(Mockito.anyLong(), configurationEntryCaptor.capture());
         return configurationEntryCaptor.getAllValues();
     }

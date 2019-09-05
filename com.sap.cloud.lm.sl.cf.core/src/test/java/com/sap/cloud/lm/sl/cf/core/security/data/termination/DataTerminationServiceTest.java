@@ -2,10 +2,11 @@ package com.sap.cloud.lm.sl.cf.core.security.data.termination;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -22,21 +23,27 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.verification.VerificationMode;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedEventGetter;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
-import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -48,11 +55,17 @@ public class DataTerminationServiceTest {
     private static final String GLOBAL_AUDITOR_PASSWORD = "test";
 
     @Mock
-    private ConfigurationEntryDao entryDao;
+    private ConfigurationEntryService configurationEntryService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private ConfigurationEntryQuery configurationEntryQuery;
     @Mock
-    private ConfigurationSubscriptionDao subscriptionDao;
+    private ConfigurationSubscriptionService configurationSubscriptionService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private ConfigurationSubscriptionQuery configurationSubscriptionQuery;
     @Mock
-    private OperationDao operationDao;
+    private OperationService operationService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private OperationQuery operationQuery;
     @Mock
     private FileService fileService;
     @Mock
@@ -101,11 +114,11 @@ public class DataTerminationServiceTest {
         prepareGlobalAuditorCredentials();
         List<String> deletedSpaces = generateDeletedSpaces(countOfDeletedSpaces);
         prepareCfOptimizedEventsGetter(deletedSpaces);
-        prepareDaos(deletedSpaces, isExistSubscriptionData, isExistConfigurationEntryData);
+        prepareServices(deletedSpaces, isExistSubscriptionData, isExistConfigurationEntryData);
 
         dataTerminationService.deleteOrphanUserData();
 
-        verifyDeleteOrphanUserData(countOfDeletedSpaces, isExistSubscriptionData, isExistConfigurationEntryData);
+        verifyDeleteOrphanUserData(deletedSpaces, countOfDeletedSpaces, isExistSubscriptionData, isExistConfigurationEntryData);
     }
 
     private void prepareGlobalAuditorCredentials() {
@@ -123,10 +136,11 @@ public class DataTerminationServiceTest {
         when(cfOptmizedEventsGetter.findEvents(anyString(), anyString())).thenReturn(deletedSpaces);
     }
 
-    private void prepareDaos(List<String> deletedSpaces, boolean isExistSubscriptionData, boolean isExistConfigurationEntryData) {
+    private void prepareServices(List<String> deletedSpaces, boolean isExistSubscriptionData, boolean isExistConfigurationEntryData) {
         List<ConfigurationSubscription> subscriptions = generateSubscriptions(isExistSubscriptionData);
         List<ConfigurationEntry> configurationEntries = generatedConfigurationEntries(isExistConfigurationEntryData);
-        deletedSpaces.forEach(deletedSpace -> initializeDaoMocks(subscriptions, configurationEntries, deletedSpace));
+        deletedSpaces.forEach(deletedSpace -> initializeServiceMocks(subscriptions, configurationEntries, deletedSpace));
+        when(operationService.createQuery()).thenReturn(operationQuery);
     }
 
     private List<ConfigurationSubscription> generateSubscriptions(boolean isExistSubscriptionData) {
@@ -139,36 +153,58 @@ public class DataTerminationServiceTest {
             : Collections.emptyList();
     }
 
-    private void initializeDaoMocks(List<ConfigurationSubscription> subscriptions, List<ConfigurationEntry> configurationEntries,
-                                    String deletedSpace) {
-        when(subscriptionDao.findAll(null, null, deletedSpace, null)).thenReturn(subscriptions);
-        when(entryDao.find(deletedSpace)).thenReturn(configurationEntries);
+    private void initializeServiceMocks(List<ConfigurationSubscription> subscriptions, List<ConfigurationEntry> configurationEntries,
+                                        String deletedSpace) {
+        when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
+        when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
+
+        ConfigurationSubscriptionQuery configurationSubscriptionQueryMock = new MockBuilder<>(configurationSubscriptionQuery).on(query -> query.spaceId(deletedSpace))
+                                                                                                                             .build();
+        doReturn(subscriptions).when(configurationSubscriptionQueryMock)
+                               .list();
+
+        ConfigurationEntryQuery configurationEntryQueryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.spaceId(deletedSpace))
+                                                                                                        .build();
+        doReturn(configurationEntries).when(configurationEntryQueryMock)
+                                      .list();
     }
 
-    private void verifyDeleteOrphanUserData(int countOfDeletedSpaces, boolean isExistSubscriptionData,
+    private void verifyDeleteOrphanUserData(List<String> deletedSpaces, int countOfDeletedSpaces, boolean isExistSubscriptionData,
                                             boolean isExistConfigurationEntryData)
         throws FileStorageException {
         verify(fileService, atLeast(countOfDeletedSpaces)).deleteBySpace(anyString());
-        verifyExistSubscriptionData(countOfDeletedSpaces, isExistSubscriptionData);
-        verifyExistConfigurationEntryData(countOfDeletedSpaces, isExistConfigurationEntryData);
+        verifyExistSubscriptionData(deletedSpaces, isExistSubscriptionData);
+        verifyExistConfigurationEntryData(deletedSpaces, countOfDeletedSpaces, isExistConfigurationEntryData);
 
     }
 
-    private void verifyExistSubscriptionData(int countOfDeletedSpaces, boolean isExistSubscriptionData) {
+    private void verifyExistSubscriptionData(List<String> deletedSpaces, boolean isExistSubscriptionData) {
         if (isExistSubscriptionData) {
-            verify(subscriptionDao, atLeast(countOfDeletedSpaces)).removeAll(any());
+            verifySubscriptionsDeletedBySpace(deletedSpaces, times(1));
             return;
         }
-        verify(subscriptionDao, never()).removeAll(any());
-
+        verifySubscriptionsDeletedBySpace(deletedSpaces, never());
     }
 
-    private void verifyExistConfigurationEntryData(int countOfDeletedSpaces, boolean isExistConfigurationEntryData) {
+    private void verifySubscriptionsDeletedBySpace(List<String> deletedSpaces, VerificationMode verificationMode) {
+        for (String deletedSpace : deletedSpaces) {
+            verify(configurationSubscriptionQuery.spaceId(deletedSpace), verificationMode).delete();
+        }
+    }
+
+    private void verifyExistConfigurationEntryData(List<String> deletedSpaces, int countOfDeletedSpaces,
+                                                   boolean isExistConfigurationEntryData) {
         if (isExistConfigurationEntryData) {
-            verify(entryDao, atLeast(countOfDeletedSpaces)).removeAll(any());
+            verifyEntriesDeletedBySpace(deletedSpaces, times(1));
             return;
         }
-        verify(entryDao, never()).removeAll(any());
+        verifyEntriesDeletedBySpace(deletedSpaces, never());
+    }
+
+    private void verifyEntriesDeletedBySpace(List<String> deletedSpaces, VerificationMode verificationMode) {
+        for (String deletedSpace : deletedSpaces) {
+            verify(configurationEntryQuery.spaceId(deletedSpace), verificationMode).delete();
+        }
     }
 
     @Test
@@ -181,6 +217,9 @@ public class DataTerminationServiceTest {
     public void testFailToDeleteSpace() throws FileStorageException {
         prepareGlobalAuditorCredentials();
         prepareCfOptimizedEventsGetter(generateDeletedSpaces(1));
+        when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
+        when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
+        when(operationService.createQuery()).thenReturn(operationQuery);
         when(fileService.deleteBySpace(anyString())).thenThrow(new FileStorageException(""));
 
         Exception exception = assertThrows(SLException.class, () -> dataTerminationService.deleteOrphanUserData());

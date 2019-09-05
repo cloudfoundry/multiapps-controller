@@ -27,7 +27,7 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
     public void setUp() throws Exception {
         context.setVariable(Constants.PARAM_MTA_ID, MTA_ID);
 
-        step.conflictPreventerSupplier = (dao) -> mock(ProcessConflictPreventer.class);
+        step.conflictPreventerSupplier = service -> mock(ProcessConflictPreventer.class);
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
                .thenReturn(Collections.emptyList());
     }

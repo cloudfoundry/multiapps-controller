@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -9,31 +8,31 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Answers;
 import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationEntryDto;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationFilterDto;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestCase;
 import com.sap.cloud.lm.sl.common.util.TestInput;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -174,17 +173,9 @@ public class ConfigurationEntriesResourceTest {
     private static class SearchRequestTestInput extends TestInput {
 
         private List<String> requiredContent;
-        private Map<String, Object> parsedRequiredContent;
 
         public SearchRequestTestInput(List<String> requiredContent, String parsedRequiredContentLocation) throws Exception {
             this.requiredContent = requiredContent;
-            this.parsedRequiredContent = JsonUtil.convertJsonToMap(SearchRequestTestInput.class.getResourceAsStream(parsedRequiredContentLocation),
-                                                                   new TypeReference<Map<String, Object>>() {
-                                                                   });
-        }
-
-        public Map<String, Object> getParsedRequiredContent() {
-            return parsedRequiredContent;
         }
 
         public List<String> getRequiredContent() {
@@ -237,7 +228,9 @@ public class ConfigurationEntriesResourceTest {
     private static class GetRequestTest extends TestCase<GetRequestTestInput> {
 
         @Mock
-        private ConfigurationEntryDao dao;
+        private ConfigurationEntryService configurationEntryService;
+        @Mock(answer = Answers.RETURNS_SELF)
+        private ConfigurationEntryQuery configurationEntryQuery;
         @InjectMocks
         private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
 
@@ -257,7 +250,10 @@ public class ConfigurationEntriesResourceTest {
         @Override
         protected void setUp() throws Exception {
             MockitoAnnotations.initMocks(this);
-            when(dao.find(input.getId())).thenReturn(input.getEntry());
+            when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
+            Mockito.doReturn(input.getEntry())
+                   .when(configurationEntryQuery)
+                   .singleResult();
         }
 
     }
@@ -265,7 +261,7 @@ public class ConfigurationEntriesResourceTest {
     private static class PostRequestTest extends TestCase<PostRequestTestInput> {
 
         @Mock
-        private ConfigurationEntryDao dao;
+        private ConfigurationEntryService configurationEntryService;
         @Mock
         private AuditLoggingFacadeSLImpl auditLoggingFacade;
         @Mock
@@ -281,9 +277,6 @@ public class ConfigurationEntriesResourceTest {
         protected void test() throws Exception {
 
             TESTER.test(() -> {
-                ConfigurationEntryDto dto = getDto();
-                ConfigurationEntryMatcher entryMatcher = new ConfigurationEntryMatcher(dto);
-                when(dao.add(argThat(entryMatcher))).thenReturn(dto.toConfigurationEntry());
 
                 return new RestResponse(resource.createConfigurationEntry(input.getEntryXml()));
 
@@ -296,19 +289,12 @@ public class ConfigurationEntriesResourceTest {
             AuditLoggingProvider.setFacade(auditLoggingFacade);
         }
 
-        private ConfigurationEntryDto getDto() throws Exception {
-            return provideDefaultsForFields(XmlUtil.fromXml(input.getEntryXml(), ConfigurationEntryDto.class));
-        }
-
-        private ConfigurationEntryDto provideDefaultsForFields(ConfigurationEntryDto dto) {
-            return new ConfigurationEntryDto(dto.toConfigurationEntry());
-        }
     }
 
     private static class PutRequestTest extends TestCase<PutRequestTestInput> {
 
         @Mock
-        private ConfigurationEntryDao dao;
+        private ConfigurationEntryService configurationEntryService;
         @Mock
         private ApplicationConfiguration configuration;
         @InjectMocks
@@ -332,7 +318,7 @@ public class ConfigurationEntriesResourceTest {
             MockitoAnnotations.initMocks(this);
             ConfigurationEntryDto dto = getDto();
             ConfigurationEntryMatcher entryMatcher = new ConfigurationEntryMatcher(dto);
-            when(dao.update(eq(input.getId()), argThat(entryMatcher))).thenReturn(dto.toConfigurationEntry());
+            when(configurationEntryService.update(eq(input.getId()), argThat(entryMatcher))).thenReturn(dto.toConfigurationEntry());
         }
 
         private ConfigurationEntryDto getDto() throws Exception {
@@ -357,7 +343,9 @@ public class ConfigurationEntriesResourceTest {
         @Mock
         private CloudControllerClientProvider clientProvider;
         @Mock
-        private ConfigurationEntryDao dao;
+        private ConfigurationEntryService configurationEntryService;
+        @Mock(answer = Answers.RETURNS_SELF)
+        private ConfigurationEntryQuery configurationEntryQuery;
         @Mock
         private UserInfo userInfo;
         @Mock
@@ -389,15 +377,16 @@ public class ConfigurationEntriesResourceTest {
             when(userInfo.getName()).thenReturn("");
             when(clientProvider.getControllerClient("")).thenReturn(client);
             when(client.getSpaces()).thenReturn(Collections.emptyList());
-            when(dao.find(eq(PROVIDER_NID), eq(PROVIDER_ID), eq(PROVIDER_VERSION), eq(TARGET_SPACE), eq(input.getParsedRequiredContent()),
-                          any(), any())).thenReturn(Collections.emptyList());
+            when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
         }
     }
 
     private static class DeleteRequestTest extends TestCase<DeleteRequestTestInput> {
 
         @Mock
-        private ConfigurationEntryDao dao;
+        private ConfigurationEntryService configurationEntryService;
+        @Mock(answer = Answers.RETURNS_SELF)
+        private ConfigurationEntryQuery configurationEntryQuery;
         @Mock
         private AuditLoggingFacadeSLImpl auditLoggingFacade;
         @Mock
@@ -421,13 +410,18 @@ public class ConfigurationEntriesResourceTest {
         @Override
         protected void setUp() throws Exception {
             MockitoAnnotations.initMocks(this);
-            Mockito.when(dao.find(input.getId()))
-                   .thenReturn(new ConfigurationEntry(input.getId(), null, null, null, null, null, null, null));
+            when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
+            ConfigurationEntryQuery inputQuery = new MockBuilder<>(configurationEntryQuery).on(queryMock -> queryMock.id(input.getId()))
+                                                                                           .build();
+            Mockito.doReturn(new ConfigurationEntry(input.getId(), null, null, null, null, null, null, null))
+                   .when(inputQuery)
+                   .singleResult();
             AuditLoggingProvider.setFacade(auditLoggingFacade);
         }
 
         protected void tearDown() throws Exception {
-            verify(dao).remove(input.getId());
+            verify(configurationEntryService.createQuery()
+                                            .id(input.getId())).delete();
         }
 
     }

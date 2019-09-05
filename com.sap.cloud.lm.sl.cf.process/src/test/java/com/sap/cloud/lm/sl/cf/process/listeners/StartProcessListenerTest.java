@@ -15,13 +15,15 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
@@ -55,7 +57,9 @@ public class StartProcessListenerTest {
     public ExpectedException exception = ExpectedException.none();
 
     @Mock
-    private OperationDao dao;
+    private OperationService operationService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private OperationQuery operationQuery;
     @Mock
     private StepLogger.Factory stepLoggerFactory;
     @Mock
@@ -108,6 +112,11 @@ public class StartProcessListenerTest {
         Mockito.doNothing()
                .when(processLogsPersister)
                .persistLogs(processInstanceId, TASK_ID);
+        Mockito.when(operationService.createQuery())
+               .thenReturn(operationQuery);
+        Mockito.doReturn(null)
+               .when(operationQuery)
+               .singleResult();
     }
 
     @Test
@@ -146,7 +155,7 @@ public class StartProcessListenerTest {
                                              .startedAt(START_TIME)
                                              .user(user)
                                              .acquiredLock(false);
-        Mockito.verify(dao)
+        Mockito.verify(operationService)
                .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
         Mockito.verify(processLogsPersister, Mockito.atLeastOnce())
                .persistLogs(processInstanceId, TASK_ID);

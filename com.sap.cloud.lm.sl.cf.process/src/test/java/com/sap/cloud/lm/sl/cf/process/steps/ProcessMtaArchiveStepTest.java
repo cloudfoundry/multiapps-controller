@@ -64,7 +64,7 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
     private void prepareContext() {
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_APP_ARCHIVE_ID, FILE_ID);
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
-        step.conflictPreventerSupplier = (dao) -> mock(ProcessConflictPreventer.class);
+        step.conflictPreventerSupplier = service -> mock(ProcessConflictPreventer.class);
     }
 
     private void prepareFileService() throws Exception {

@@ -1,7 +1,11 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,17 +15,21 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.Query;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -48,17 +56,22 @@ public class MtaConfigurationPurgerTest {
     CloudControllerClient client;
 
     @Mock
-    ConfigurationEntryDao entryDao;
+    ConfigurationEntryService configurationEntryService;
+
+    @Mock(answer = Answers.RETURNS_SELF)
+    ConfigurationEntryQuery configurationEntryQuery;
 
     @Mock
-    ConfigurationSubscriptionDao subscriptionDao;
+    ConfigurationSubscriptionService configurationSubscriptionService;
+
+    @Mock(answer = Answers.RETURNS_SELF)
+    ConfigurationSubscriptionQuery configurationSubscriptionQuery;
 
     @Mock
     AuditLoggingFacadeSLImpl auditLoggingFacade;
 
-    private static List<CloudApplication> applications = new ArrayList<>();
-    private static List<ConfigurationEntry> configurationEntries = new ArrayList<>();
-    private static List<ConfigurationSubscription> configurationSubscriptions = new ArrayList<>();
+    private List<Query<?, ?>> queriesToVerifyDeleteCallOn = new ArrayList<>();
+    private List<Query<?, ?>> queriesToVerifyNoDeleteCallOn = new ArrayList<>();
 
     @Before
     public void setUp() throws IOException {
@@ -71,26 +84,32 @@ public class MtaConfigurationPurgerTest {
 
     @Test
     public void testPurge() {
-        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, entryDao, subscriptionDao);
+        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, configurationEntryService, configurationSubscriptionService);
         purger.purge("org", "space");
-        Mockito.verify(entryDao)
-               .remove(ENTRY_ID_TO_REMOVE);
-        Mockito.verify(subscriptionDao)
-               .remove(SUBSCRIPTION_ID_TO_REMOVE);
-
-        Mockito.verify(entryDao, Mockito.never())
-               .remove(ENTRY_ID_TO_KEEP_1);
-        Mockito.verify(entryDao, Mockito.never())
-               .remove(ENTRY_ID_TO_KEEP_2);
-        Mockito.verify(subscriptionDao, Mockito.never())
-               .remove(SUBSCRIPTION_ID_TO_KEEP);
+        verifyConfigurationEntriesDeleted();
+        verifyConfigurationEntriesNotDeleted();
         Mockito.verify(auditLoggingFacade)
                .logConfigDelete(ENTRY_TO_DELETE);
         Mockito.verify(auditLoggingFacade)
                .logConfigDelete(SUBSCRIPTION_TO_DELETE);
     }
 
+    private void verifyConfigurationEntriesDeleted() {
+        for (Query<?, ?> queryToExecuteDeleteOn : queriesToVerifyDeleteCallOn) {
+            Mockito.verify(queryToExecuteDeleteOn)
+                   .delete();
+        }
+    }
+
+    private void verifyConfigurationEntriesNotDeleted() {
+        for (Query<?, ?> queryNotToExecuteDeleteOn : queriesToVerifyNoDeleteCallOn) {
+            Mockito.verify(queryNotToExecuteDeleteOn, Mockito.never())
+                   .delete();
+        }
+    }
+
     private void initApplicationsMock() throws IOException {
+        List<CloudApplication> applications = new ArrayList<>();
         applications.add(createApplication(APPLICATION_NAME_TO_KEEP, getApplicationEnvFromFile(RESOURCE_LOCATION)));
         applications.add(createApplication("app-2", new HashMap<>()));
         Mockito.when(client.getApplications())
@@ -98,19 +117,24 @@ public class MtaConfigurationPurgerTest {
     }
 
     private void initConfigurationEntriesMock() {
-        configurationEntries.add(ENTRY_TO_DELETE);
-        configurationEntries.add(createEntry(ENTRY_ID_TO_KEEP_1, "anatz:dependency-1"));
-        configurationEntries.add(createEntry(ENTRY_ID_TO_KEEP_2, "anatz:dependency-2"));
-        Mockito.when(entryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, new CloudTarget(TARGET_ORG, TARGET_SPACE), null,
-                                   null))
-               .thenReturn(configurationEntries);
+        when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
+        doReturn(getConfigurationEntries()).when(configurationEntryQuery)
+                                           .list();
+    }
+
+    private List<ConfigurationEntry> getConfigurationEntries() {
+        return Arrays.asList(ENTRY_TO_DELETE, createEntry(ENTRY_ID_TO_KEEP_1, "anatz:dependency-1"),
+                             createEntry(ENTRY_ID_TO_KEEP_2, "anatz:dependency-2"));
     }
 
     private void initConfigurationSubscriptionsMock() {
-        configurationSubscriptions.add(SUBSCRIPTION_TO_DELETE);
-        configurationSubscriptions.add(createSubscription(SUBSCRIPTION_ID_TO_KEEP, APPLICATION_NAME_TO_KEEP));
-        Mockito.when(subscriptionDao.findAll(null, null, null, null))
-               .thenReturn(configurationSubscriptions);
+        when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
+        doReturn(getConfigurationSubscriptions()).when(configurationSubscriptionQuery)
+                                                 .list();
+    }
+
+    private List<ConfigurationSubscription> getConfigurationSubscriptions() {
+        return Arrays.asList(SUBSCRIPTION_TO_DELETE, createSubscription(SUBSCRIPTION_ID_TO_KEEP, APPLICATION_NAME_TO_KEEP));
     }
 
     private CloudApplication createApplication(String applicationName, Map<String, Object> env) {

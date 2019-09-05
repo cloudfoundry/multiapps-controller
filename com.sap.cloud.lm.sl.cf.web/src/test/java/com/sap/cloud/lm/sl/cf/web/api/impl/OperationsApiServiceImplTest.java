@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.persistence.NoResultException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -25,6 +26,7 @@ import org.flowable.engine.runtime.ProcessInstance;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -39,10 +41,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
+import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.flowable.AbortProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.flowable.ProcessAction;
@@ -55,14 +59,15 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
 
 public class OperationsApiServiceImplTest {
 
     @Mock
     private CloudControllerClientProvider clientProvider;
     @Mock
-    private OperationDao dao;
+    private OperationService operationService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private OperationQuery operationQuery;
     @Spy
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
     @Mock
@@ -95,6 +100,7 @@ public class OperationsApiServiceImplTest {
     private static final String ABORTED_PROCESS = "4";
 
     private List<Operation> operations;
+    private String processId;
 
     @Before
     public void initialize() {
@@ -106,7 +112,7 @@ public class OperationsApiServiceImplTest {
         operations.add(createOperation(ABORTED_PROCESS, State.ABORTED));
 
         AuditLoggingProvider.setFacade(Mockito.mock(AuditLoggingFacade.class));
-        setupDaoMock();
+        setupOperationServiceMock();
         setupOperationsHelperMock();
         mockProcessActionRegistry();
         mockFlowableFacade();
@@ -149,7 +155,7 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testGetMtaOperationMissing() throws Exception {
-        Assertions.assertThrows(NotFoundException.class,
+        Assertions.assertThrows(NoResultException.class,
                                 () -> testedClass.getMtaOperation("notPresent", null, mockSecurityContext(EXAMPLE_USER), SPACE_GUID));
     }
 
@@ -163,7 +169,7 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testExecuteOperationActionMissingProcess() throws Exception {
-        Assertions.assertThrows(NotFoundException.class,
+        Assertions.assertThrows(NoResultException.class,
                                 () -> testedClass.executeOperationAction("notavalidpprocess", AbortProcessAction.ACTION_ID_ABORT,
                                                                          mockSecurityContext(EXAMPLE_USER), SPACE_GUID));
     }
@@ -187,7 +193,7 @@ public class OperationsApiServiceImplTest {
     public void testStartMtaOperation() throws Exception {
         testedClass.startMtaOperation(createOperation(null, null), mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
         Mockito.verify(flowableFacade)
-               .startProcess(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap());
+               .startProcess(Mockito.any(), Mockito.any(), Mockito.anyMap());
     }
 
     @Test
@@ -230,8 +236,8 @@ public class OperationsApiServiceImplTest {
         String processId = FINISHED_PROCESS;
         String logName = "MAIN_LOG";
         Mockito.when(logsService.getLogContent(Mockito.eq(SPACE_GUID), Mockito.eq(processId), Mockito.eq(logName)))
-               .thenThrow(new NotFoundException("log file not found"));
-        Assertions.assertThrows(NotFoundException.class,
+               .thenThrow(new NoResultException("log file not found"));
+        Assertions.assertThrows(NoResultException.class,
                                 () -> testedClass.getMtaOperationLogContent(processId, logName, mockSecurityContext(EXAMPLE_USER),
                                                                             SPACE_GUID));
     }
@@ -270,7 +276,7 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testGetOperationActionsOperationNotFound() throws Exception {
-        Assertions.assertThrows(NotFoundException.class,
+        Assertions.assertThrows(NoResultException.class,
                                 () -> testedClass.getOperationActions("notarealprocess", mockSecurityContext(EXAMPLE_USER), SPACE_GUID));
     }
 
@@ -284,7 +290,7 @@ public class OperationsApiServiceImplTest {
 
     @SuppressWarnings("unchecked")
     private void mockFlowableFacade() {
-        Mockito.when(flowableFacade.startProcess(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap()))
+        Mockito.when(flowableFacade.startProcess(Mockito.any(), Mockito.any(), Mockito.anyMap()))
                .thenReturn(Mockito.mock(ProcessInstance.class));
     }
 
@@ -298,7 +304,7 @@ public class OperationsApiServiceImplTest {
         Mockito.when(securityContextMock.getAuthentication())
                .thenReturn(auth);
         CloudControllerClient mockedClient = mockClient();
-        Mockito.when(clientProvider.getControllerClient(Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(clientProvider.getControllerClient(Mockito.any(), Mockito.any()))
                .thenReturn(mockedClient);
     }
 
@@ -323,7 +329,7 @@ public class OperationsApiServiceImplTest {
     }
 
     private void mockProcessActionRegistry() {
-        Mockito.when(processActionRegistry.getAction(Mockito.anyString()))
+        Mockito.when(processActionRegistry.getAction(Mockito.any()))
                .thenReturn(processAction);
     }
 
@@ -340,40 +346,24 @@ public class OperationsApiServiceImplTest {
         return securityContextMock;
     }
 
-    private void setupDaoMock() {
-        Mockito.when(dao.find(Mockito.anyString()))
-               .then(new Answer<Operation>() {
-                   @Override
-                   public Operation answer(InvocationOnMock invocation) throws Throwable {
-                       String processId = (String) invocation.getArguments()[0];
-                       Optional<Operation> found = operations.stream()
-                                                             .filter(operation -> operation.getProcessId()
-                                                                                           .equals(processId))
-                                                             .findFirst();
-                       if (!found.isPresent()) {
-                           return null;
-                       } else {
-                           return found.get();
-                       }
-                   }
-               });
-
-        Mockito.when(dao.findRequired(Mockito.anyString()))
-               .thenAnswer(new Answer<Operation>() {
-                   @Override
-                   public Operation answer(InvocationOnMock invocation) throws Throwable {
-                       String processId = (String) invocation.getArguments()[0];
-                       Optional<Operation> found = operations.stream()
-                                                             .filter(operation -> operation.getProcessId()
-                                                                                           .equals(processId))
-                                                             .findFirst();
-                       if (!found.isPresent()) {
-                           throw new NotFoundException("not found");
-                       } else {
-                           return found.get();
-                       }
-                   }
-               });
+    private void setupOperationServiceMock() {
+        Mockito.when(operationService.createQuery())
+               .thenReturn(operationQuery);
+        OperationQuery operationQueryMock = new MockBuilder<>(operationQuery).on(query -> query.processId(Mockito.any()),
+                                                                                 invocation -> processId = (String) invocation.getArguments()[0])
+                                                                             .build();
+        Mockito.doAnswer(invocation -> {
+            Optional<Operation> foundOperation = operations.stream()
+                                                           .filter(operation -> operation.getProcessId()
+                                                                                         .equals(processId))
+                                                           .findFirst();
+            if (!foundOperation.isPresent()) {
+                throw new NoResultException("not found");
+            }
+            return foundOperation.get();
+        })
+               .when(operationQueryMock)
+               .singleResult();
     }
 
     @SuppressWarnings("unchecked")

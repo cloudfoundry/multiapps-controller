@@ -14,13 +14,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
+import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -30,7 +33,10 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
     extends SyncFlowableStepTest<DeleteDiscontinuedConfigurationEntriesForAppStep> {
 
     @Mock
-    private ConfigurationEntryDao dao;
+    private ConfigurationEntryService configurationEntryService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private ConfigurationEntryQuery configurationEntryQuery;
+    private CloudTarget target;
 
     private static class StepInput {
         String org;
@@ -94,7 +100,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
     public void setUp() throws Exception {
         loadParameters();
         prepareContext();
-        prepareDao();
+        prepareConfigurationEntryService();
     }
 
     private void loadParameters() throws IOException {
@@ -112,16 +118,20 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
         StepsUtil.setPublishedEntries(context, input.publishedEntries);
     }
 
-    private void prepareDao() {
-        Mockito.when(dao.find(Mockito.eq(ConfigurationEntriesUtil.PROVIDER_NID), Mockito.eq(null), Mockito.eq(input.mtaVersion),
-                              Mockito.any(), Mockito.eq(null), Mockito.eq(input.mtaId)))
-               .thenAnswer((invocation) -> {
-                   CloudTarget target = (CloudTarget) invocation.getArguments()[3];
-                   return input.existingEntries.stream()
-                                               .filter(entry -> entry.getTargetSpace()
-                                                                     .equals(target))
-                                               .collect(Collectors.toList());
-               });
+    private void prepareConfigurationEntryService() {
+        Mockito.when(configurationEntryService.createQuery())
+               .thenReturn(configurationEntryQuery);
+        ConfigurationEntryQuery queryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(ConfigurationEntriesUtil.PROVIDER_NID))
+                                                                                      .on(query -> query.version(input.mtaVersion))
+                                                                                      .on(query -> query.target(Mockito.any()),
+                                                                                          invocation -> target = (CloudTarget) invocation.getArguments()[0])
+                                                                                      .on(query -> query.mtaId(input.mtaId))
+                                                                                      .build();
+        Mockito.when(queryMock.list())
+               .thenAnswer(invocation -> input.existingEntries.stream()
+                                                              .filter(entry -> entry.getTargetSpace()
+                                                                                    .equals(target))
+                                                              .collect(Collectors.toList()));
     }
 
     @Test

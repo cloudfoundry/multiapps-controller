@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.helpers.v2;
 
 import static com.sap.cloud.lm.sl.common.util.TestUtil.getResourceAsString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -11,15 +12,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
@@ -33,7 +37,7 @@ public class ConfigurationReferencesResolverTest {
 
     private final Tester tester = Tester.forClass(getClass());
 
-    protected static class DaoMockConfiguration {
+    protected static class ServiceMockConfiguration {
 
         ConfigurationFilter filter;
         List<ConfigurationEntry> configurationEntries;
@@ -43,7 +47,9 @@ public class ConfigurationReferencesResolverTest {
     private static Platform platform;
 
     @Mock
-    protected ConfigurationEntryDao dao;
+    protected ConfigurationEntryService configurationEntryService;
+    @Mock(answer = Answers.RETURNS_SELF)
+    protected ConfigurationEntryQuery configurationEntryQuery;
     @Mock
     protected ApplicationConfiguration configuration;
 
@@ -90,6 +96,7 @@ public class ConfigurationReferencesResolverTest {
     @ParameterizedTest
     @MethodSource
     public void testResolve(String descriptorLocation, String configurationEntriesLocation, Expectation expectation) {
+        prepareService();
         prepareConfigurationEntries(configurationEntriesLocation);
         prepareDeploymentDescriptor(descriptorLocation);
         ConfigurationReferencesResolver referencesResolver = getConfigurationResolver(descriptor);
@@ -102,15 +109,30 @@ public class ConfigurationReferencesResolverTest {
         }, expectation);
     }
 
+    protected void prepareService() {
+        when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
+    }
+
     protected void prepareConfigurationEntries(String configurationEntriesLocation) {
-        List<DaoMockConfiguration> daoConfigurations = JsonUtil.fromJson(getResourceAsString(configurationEntriesLocation, getClass()),
-                                                                         new TypeReference<List<DaoMockConfiguration>>() {
-                                                                         });
-        for (DaoMockConfiguration configuration : daoConfigurations) {
+        List<ServiceMockConfiguration> serviceConfigurations = JsonUtil.fromJson(getResourceAsString(configurationEntriesLocation,
+                                                                                                     getClass()),
+                                                                                 new TypeReference<List<ServiceMockConfiguration>>() {
+                                                                                 });
+        for (ServiceMockConfiguration configuration : serviceConfigurations) {
             ConfigurationFilter filter = configuration.filter;
-            when(dao.find(filter.getProviderNid(), filter.getProviderId(), filter.getProviderVersion(), filter.getTargetSpace(),
-                          filter.getRequiredContent(), null, null)).thenReturn(configuration.configurationEntries);
+            ConfigurationEntryQuery configurationEntryQueryMock = getConfigurationEntryQueryMock(filter);
+            when(configurationEntryQueryMock.list()).thenReturn(configuration.configurationEntries);
         }
+    }
+
+    private ConfigurationEntryQuery getConfigurationEntryQueryMock(ConfigurationFilter filter) {
+        return new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(filter.getProviderNid()))
+                                                         .on(query -> query.providerId(filter.getProviderId()))
+                                                         .on(query -> query.version(filter.getProviderVersion()))
+                                                         .on(query -> query.target(filter.getTargetSpace()))
+                                                         .on(query -> query.requiredProperties(filter.getRequiredContent()))
+                                                         .on(query -> query.visibilityTargets(any()))
+                                                         .build();
     }
 
     protected void prepareDeploymentDescriptor(String descriptorLocation) {
@@ -122,8 +144,7 @@ public class ConfigurationReferencesResolverTest {
     }
 
     protected ConfigurationReferencesResolver getConfigurationResolver(DeploymentDescriptor deploymentDescriptor) {
-
-        return new ConfigurationReferencesResolver(dao,
+        return new ConfigurationReferencesResolver(configurationEntryService,
                                                    new ConfigurationFilterParser(getCloudTarget(), getPropertiesChainBuilder(descriptor)),
                                                    null,
                                                    configuration);
