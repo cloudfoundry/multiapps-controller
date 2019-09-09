@@ -86,7 +86,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
                                           List<CloudApplication> deployedApps) {
         List<CloudServiceExtended> servicesToCreate = StepsUtil.getServicesToCreate(context);
         Map<String, CloudService> existingServicesMap = createExistingServicesMap(client.getServices());
-        List<DeployedMtaResource> servicesInDeployedMta = deployedMta != null ? deployedMta.getServices() : Collections.emptyList();
+        List<DeployedMtaResource> servicesInDeployedMta = deployedMta != null ? deployedMta.getResources() : Collections.emptyList();
         for (CloudServiceExtended service : servicesToCreate) {
             if (existingServicesMap.containsKey(service.getName())) {
                 validateExistingServiceAssociation(service, client, deployedApps, servicesInDeployedMta);
@@ -148,7 +148,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
     }
 
     private boolean isServicePartOfMta(ApplicationMtaMetadata mtaMetadata, CloudServiceExtended service) {
-        return mtaMetadata.getDeployedMtaModule().getServices()
+        return mtaMetadata.getDeployedMtaModule().getResources()
                           .stream()
                           .filter(s -> s.getServiceName()
                                         .equals(service.getName()))

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.entity.MetadataEntity;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.metadata.criteria.MtaMetadataCriteria;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.metadata.criteria.MtaMetadataCriteriaBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.process.AppMetadataCollector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
@@ -33,7 +32,7 @@ public class DeployedComponentsDetector {
     private MtaMetadataEntityAggregator mtaMetadataEntityAggregator;
 
     public Optional<DeployedMta> getDeployedMta(String mtaId, CloudControllerClient client) {
-        MtaMetadataCriteria selectionCriteria = new MtaMetadataCriteriaBuilder().label(MtaMetadataCriteriaBuilder.LABEL_MTA_ID)
+        MtaMetadataCriteria selectionCriteria = MtaMetadataCriteriaBuilder.builder().label(MtaMetadataCriteriaBuilder.LABEL_MTA_ID)
                                                                                 .haveValue(mtaId)
                                                                                 .build();
         Optional<List<DeployedMta>> optionalDeployedMtas = fetchDeployedMtas(selectionCriteria, client);
@@ -42,7 +41,7 @@ public class DeployedComponentsDetector {
     }
 
     public Optional<List<DeployedMta>> getAllDeployedMta(CloudControllerClient client) {
-        MtaMetadataCriteria selectionCriteria = new MtaMetadataCriteriaBuilder().label(MtaMetadataCriteriaBuilder.LABEL_MTA_ID)
+        MtaMetadataCriteria selectionCriteria = MtaMetadataCriteriaBuilder.builder().label(MtaMetadataCriteriaBuilder.LABEL_MTA_ID)
                                                                                 .exists()
                                                                                 .build();
         return fetchDeployedMtas(selectionCriteria, client);
@@ -50,7 +49,7 @@ public class DeployedComponentsDetector {
 
     private Optional<List<DeployedMta>> fetchDeployedMtas(MtaMetadataCriteria criteria, CloudControllerClient client) {
         Map<String, List<MetadataEntity>> mtaEntities = collectors.stream()
-                                                                  .map(c -> c.collect(criteria, client))
+                                                                  .map(collector -> collector.collect(criteria, client))
                                                                   .flatMap(List::stream)
                                                                   .collect(Collectors.groupingBy(e -> e.getMtaMetadata()
                                                                                                           .getId()));
@@ -74,7 +73,7 @@ public class DeployedComponentsDetector {
 
     private List<DeployedMta> removeEmptyMtas(List<DeployedMta> mtas) {
         return mtas.stream()
-                   .filter(mta -> CollectionUtils.isNotEmpty(mta.getModules()) || CollectionUtils.isNotEmpty(mta.getServices()))
+                   .filter(mta -> CollectionUtils.isNotEmpty(mta.getModules()) || CollectionUtils.isNotEmpty(mta.getResources()))
                    .collect(Collectors.toList());
     }
 
@@ -93,8 +92,8 @@ public class DeployedComponentsDetector {
     }
 
     private DeployedMta mergeMtas(DeployedMta from, DeployedMta to) {
-        to.getServices()
-          .addAll(from.getServices());
+        to.getResources()
+          .addAll(from.getResources());
         to.getModules()
           .addAll(from.getModules());
         return to;

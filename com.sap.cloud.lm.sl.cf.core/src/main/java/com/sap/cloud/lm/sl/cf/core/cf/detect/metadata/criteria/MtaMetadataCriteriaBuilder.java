@@ -8,7 +8,11 @@ public class MtaMetadataCriteriaBuilder {
     public static final String LABEL_MTA_ID = "mta_id";
     
     private List<String> queries = new ArrayList<>();
-    
+
+    public static MtaMetadataCriteriaBuilder builder() {
+        return new MtaMetadataCriteriaBuilder();
+    }
+
     public LabelBuilder label(String label) {
         MtaMetadataCriteriaValidator.validateLabelKey(label);
         return new LabelBuilder(this, label);

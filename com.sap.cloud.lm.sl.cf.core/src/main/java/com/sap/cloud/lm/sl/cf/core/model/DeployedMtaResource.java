@@ -12,7 +12,7 @@ public class DeployedMtaResource {
     private Date createdOn;
     private Date updatedOn;
     private List<DeployedMtaModule> modules;
-    private Map<String, Object> appsCredentials;
+    private Map<String, Object> serviceInstanceParameters;
 
     public DeployedMtaResource() {
     }
@@ -23,7 +23,7 @@ public class DeployedMtaResource {
         this.createdOn = builder.createdOn;
         this.updatedOn = builder.updatedOn;
         this.modules = builder.modules;
-        this.appsCredentials = builder.appsCredentials;
+        this.serviceInstanceParameters = builder.serviceInstanceParameters;
     }
 
     public String getResourceName() {
@@ -66,12 +66,12 @@ public class DeployedMtaResource {
         this.modules = modules;
     }
 
-    public Map<String, Object> getAppsCredentials() {
-        return appsCredentials;
+    public Map<String, Object> getServiceInstanceParameters() {
+        return serviceInstanceParameters;
     }
 
-    public void setAppsCredentials(Map<String, Object> appsCredentials) {
-        this.appsCredentials = appsCredentials;
+    public void setServiceInstanceParameters(Map<String, Object> serviceInstanceParameters) {
+        this.serviceInstanceParameters = serviceInstanceParameters;
     }
 
     public static Builder builder() {
@@ -84,7 +84,7 @@ public class DeployedMtaResource {
         private Date createdOn;
         private Date updatedOn;
         private List<DeployedMtaModule> modules = new ArrayList();
-        private Map<String, Object> appsCredentials = new HashMap<>();
+        private Map<String, Object> serviceInstanceParameters = new HashMap<>();
 
         private Builder() {
         }
@@ -114,8 +114,8 @@ public class DeployedMtaResource {
             return this;
         }
 
-        public Builder withAppsCredentials(Map<String, Object> credentials) {
-            this.appsCredentials = credentials;
+        public Builder withServiceInstanceParameters(Map<String, Object> serviceInstanceParameters) {
+            this.serviceInstanceParameters = serviceInstanceParameters;
             return this;
         }
 

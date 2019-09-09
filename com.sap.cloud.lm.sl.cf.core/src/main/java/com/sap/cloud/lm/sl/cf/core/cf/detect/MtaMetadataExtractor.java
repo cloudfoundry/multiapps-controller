@@ -10,8 +10,8 @@ public interface MtaMetadataExtractor<T extends MetadataEntity> {
     public void extract(T entity, DeployedMta metadata);
     
     default void initMetadata(T entity, DeployedMta metadata) {
-        if(metadata.getServices() == null) {
-            metadata.setServices(new ArrayList<>());
+        if(metadata.getResources() == null) {
+            metadata.setResources(new ArrayList<>());
         }
         if(metadata.getModules() == null) {
             metadata.setModules(new ArrayList<>());

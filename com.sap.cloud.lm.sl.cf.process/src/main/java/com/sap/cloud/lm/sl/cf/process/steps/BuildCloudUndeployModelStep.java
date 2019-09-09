@@ -70,7 +70,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, secureSerializer.toJson(subscriptionsToDelete));
 
         Set<String> servicesForApplications = getServicesForApplications(execution.getContext());
-        List<String> servicesToDelete = computeServicesToDelete(modulesWithoutChange, deployedMta.getServices(), servicesForApplications);
+        List<String> servicesToDelete = computeServicesToDelete(modulesWithoutChange, deployedMta.getResources(), servicesForApplications);
         getStepLogger().debug(Messages.SERVICES_TO_DELETE, servicesToDelete);
 
         List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(modulesToUndeploy, deployedApps);
@@ -127,13 +127,13 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         String existingModuleName = existingModule.getModuleName();
         return modulesToUndeploy.stream()
                                 .map(DeployedMtaModule::getModuleName)
-                                .noneMatch(moduleName -> existingModuleName.equals(moduleName));
+                                .noneMatch(existingModuleName::equals);
     }
 
     private boolean shouldNotDeployModule(Set<String> mtaModules, DeployedMtaModule existingModule) {
         String existingModuleName = existingModule.getModuleName();
         return mtaModules.stream()
-                         .noneMatch(moduleName -> existingModuleName.equals(moduleName));
+                         .noneMatch(existingModuleName::equals);
     }
 
     private void setComponentsToUndeploy(DelegateExecution context, List<String> services, List<CloudApplication> apps,
@@ -146,19 +146,17 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     private List<String> computeServicesToDelete(List<DeployedMtaModule> modulesWithoutChange, List<DeployedMtaResource> existingServices,
         Set<String> servicesForApplications) {
         return existingServices.stream()
-                               .map(s -> s.getServiceName())
-                               .filter(service -> shouldDeleteService(modulesWithoutChange, service, servicesForApplications))
+                               .map(DeployedMtaResource::getServiceName)
+                               .filter(name -> shouldDeleteService(modulesWithoutChange, name, servicesForApplications))
                                .sorted()
                                .collect(Collectors.toList());
     }
 
     private boolean shouldDeleteService(List<DeployedMtaModule> modulesToKeep, String service, Set<String> servicesForApplications) {
         return modulesToKeep.stream()
-                            .map(DeployedMtaModule::getServices)
-                            .map(c -> c.stream()
-                                       .map(s -> s.getServiceName())
-                                       .collect(Collectors.toList()))
-                            .noneMatch(moduleToKeepService -> moduleToKeepService.contains(service))
+                            .flatMap(module -> module.getResources().stream())
+                            .map(DeployedMtaResource::getServiceName)
+                            .noneMatch(service::equalsIgnoreCase)
             && !servicesForApplications.contains(service);
     }
 
@@ -210,7 +208,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                             .anyMatch(subscription -> areEqual(subscription, existingSubscription));
     }
 
-    protected boolean areEqual(ConfigurationSubscription subscription1, ConfigurationSubscription subscription2) {
+    private boolean areEqual(ConfigurationSubscription subscription1, ConfigurationSubscription subscription2) {
         return Objects.equals(subscription1.getAppName(), subscription2.getAppName())
             && Objects.equals(subscription1.getSpaceId(), subscription2.getSpaceId()) && Objects.equals(subscription1.getResourceDto()
                                                                                                                      .getName(),

@@ -12,7 +12,7 @@ public class ServiceMtaMetadataExtractor implements MtaMetadataExtractor<Service
         initMetadata(metadataEntity, deployedMta);
         DeployedMtaResource deployedMtaResource = metadataEntity.getServiceMtaMetadata()
                                                                 .getDeployedMtaResource();
-        deployedMta.getServices()
+        deployedMta.getResources()
                    .add(deployedMtaResource);
     }
 }

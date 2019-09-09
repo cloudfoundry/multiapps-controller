@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.MetadataFieldExtractor;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.ServiceMetadataFieldExtractor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
@@ -29,7 +28,7 @@ public class ServiceMetadataBuilder {
         DeployedMtaResource deployedMtaResource = DeployedMtaResource.builder()
                                                                      .withServiceName(NameUtil.getServiceName(resource))
                                                                      .withResourceName(resource.getName())
-                                                                     .withAppsCredentials(serviceParameters)
+                                                                     .withServiceInstanceParameters(serviceParameters)
                                                                      .withModules(boundModules)
                                                                      .build();
 

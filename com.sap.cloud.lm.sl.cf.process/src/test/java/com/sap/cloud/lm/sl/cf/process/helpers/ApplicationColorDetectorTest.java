@@ -214,7 +214,7 @@ public class ApplicationColorDetectorTest {
         List<DeployedMtaResource> deployedServices = services.stream()
                                          .map(s -> DeployedMtaResource.builder().withServiceName(s).build())
                                          .collect(Collectors.toList());
-        deployedMta.setServices(deployedServices);
+        deployedMta.setResources(deployedServices);
         return deployedMta;
     }
 

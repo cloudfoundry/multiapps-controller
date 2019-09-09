@@ -2,11 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.model;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class DeployedMtaModule {
 
@@ -14,7 +10,7 @@ public class DeployedMtaModule {
     private String appName;
     private Date createdOn;
     private Date updatedOn;
-    private List<DeployedMtaResource> services;
+    private List<DeployedMtaResource> resources;
     private List<String> providedDependencyNames;
     private List<String> uris;
 
@@ -23,7 +19,7 @@ public class DeployedMtaModule {
         this.appName = builder.appName;
         this.createdOn = builder.createdOn;
         this.updatedOn = builder.updatedOn;
-        this.services = builder.services;
+        this.resources = builder.resources;
         this.providedDependencyNames = builder.providedDependencyNames;
         this.uris = builder.uris;
     }
@@ -47,8 +43,8 @@ public class DeployedMtaModule {
         return updatedOn;
     }
 
-    public List<DeployedMtaResource> getServices() {
-        return services;
+    public List<DeployedMtaResource> getResources() {
+        return resources;
     }
 
     public List<String> getProvidedDependencyNames() {
@@ -75,8 +71,8 @@ public class DeployedMtaModule {
         this.updatedOn = updatedOn;
     }
 
-    public void setServices(List<DeployedMtaResource> services) {
-        this.services = services;
+    public void setResources(List<DeployedMtaResource> resources) {
+        this.resources = resources;
     }
 
     public void setProvidedDependencyNames(List<String> providedDependencyNames) {
@@ -96,7 +92,7 @@ public class DeployedMtaModule {
         private String appName;
         private Date createdOn;
         private Date updatedOn;
-        private List<DeployedMtaResource> services = new ArrayList<>();
+        private List<DeployedMtaResource> resources = new ArrayList<>();
         private List<String> providedDependencyNames = new ArrayList<>();
         private List<String> uris = new ArrayList<>();
 
@@ -123,8 +119,8 @@ public class DeployedMtaModule {
             return this;
         }
 
-        public Builder withServices(List<DeployedMtaResource> services) {
-            this.services = services;
+        public Builder withServices(List<DeployedMtaResource> resources) {
+            this.resources = resources;
             return this;
         }
 

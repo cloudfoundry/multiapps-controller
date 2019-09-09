@@ -1,18 +1,13 @@
 package com.sap.cloud.lm.sl.cf.core.cf.detect;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaResource;
 import com.sap.cloud.lm.sl.cf.core.model.MtaMetadata;
-import com.sap.cloud.lm.sl.cf.web.api.model.Mta;
 import com.sap.cloud.lm.sl.mta.model.Version;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -43,12 +38,12 @@ public class DeployedComponentsDetectorEnv {
             ApplicationMtaMetadata appMetadata = ApplicationMtaMetadataParser.parseAppMetadata(app);
 
             if (appMetadata != null) {
-                final List<DeployedMtaResource> deployedMtaResources = appMetadata.getDeployedMtaModule().getServices();
+                final List<DeployedMtaResource> deployedMtaResources = appMetadata.getDeployedMtaModule().getResources();
                 final List<DeployedMtaModule> deployedMtaModules = Collections.singletonList(appMetadata.getDeployedMtaModule());
                 final DeployedMta deployedMta = DeployedMta.builder()
                         .withMetadata(appMetadata.getMtaMetadata())
                         .withModules(deployedMtaModules)
-                        .withServices(deployedMtaResources).build();
+                        .withResources(deployedMtaResources).build();
                 deployedMtas.add(deployedMta);
             }
         }
@@ -94,10 +89,10 @@ public class DeployedComponentsDetectorEnv {
         Version currentVersion = null;
         for (DeployedMta mta : mtas) {
             currentVersion = compareAndGetVersion(currentVersion, mta.getMetadata().getVersion());
-            services.addAll(mta.getServices());
+            services.addAll(mta.getResources());
             modules.addAll(mta.getModules());
         }
-        return DeployedMta.builder().withMetadata(new MtaMetadata(mtaId, currentVersion)).withModules(modules).withServices(services).build();
+        return DeployedMta.builder().withMetadata(new MtaMetadata(mtaId, currentVersion)).withModules(modules).withResources(services).build();
     }
 
     private Version compareAndGetVersion(Version currentVersion, Version version) {

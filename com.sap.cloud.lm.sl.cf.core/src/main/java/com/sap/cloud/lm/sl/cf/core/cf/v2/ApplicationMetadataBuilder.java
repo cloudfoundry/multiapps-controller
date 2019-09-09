@@ -66,7 +66,7 @@ public class ApplicationMetadataBuilder {
                                   .withServiceName(resource.getName())
                                   .withServiceName(NameUtil.getServiceName(resource))
                                   .withModules(deployedMtaModules)
-                                  .withAppsCredentials(credentials)
+                                  .withServiceInstanceParameters(credentials)
                                   .build();
     }
 }

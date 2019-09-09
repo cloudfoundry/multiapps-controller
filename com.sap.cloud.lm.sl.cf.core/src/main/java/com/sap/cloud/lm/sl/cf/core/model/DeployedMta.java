@@ -7,21 +7,21 @@ public class DeployedMta {
 
     private MtaMetadata metadata;
     private List<DeployedMtaModule> modules;
-    private List<DeployedMtaResource> services;
+    private List<DeployedMtaResource> resources;
 
     private DeployedMta(Builder builder) {
         this.metadata = builder.metadata;
         this.modules = builder.modules;
-        this.services = builder.services;
+        this.resources = builder.resources;
     }
 
     public DeployedMta() {
     }
 
-    public DeployedMta(MtaMetadata metadata, List<DeployedMtaModule> modules, List<DeployedMtaResource> services) {
+    public DeployedMta(MtaMetadata metadata, List<DeployedMtaModule> modules, List<DeployedMtaResource> resources) {
         this.metadata = metadata;
         this.modules = modules;
-        this.services = services;
+        this.resources = resources;
     }
 
     public MtaMetadata getMetadata() {
@@ -40,12 +40,12 @@ public class DeployedMta {
         this.modules = modules;
     }
 
-    public List<DeployedMtaResource> getServices() {
-        return services;
+    public List<DeployedMtaResource> getResources() {
+        return resources;
     }
 
-    public void setServices(List<DeployedMtaResource> services) {
-        this.services = services;
+    public void setResources(List<DeployedMtaResource> resources) {
+        this.resources = resources;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class DeployedMta {
     public static final class Builder {
         private MtaMetadata metadata;
         private List<DeployedMtaModule> modules = new ArrayList<>();
-        private List<DeployedMtaResource> services = new ArrayList<>();
+        private List<DeployedMtaResource> resources = new ArrayList<>();
 
         private Builder() {
         }
@@ -103,8 +103,8 @@ public class DeployedMta {
             return this;
         }
 
-        public Builder withServices(List<DeployedMtaResource> services) {
-            this.services = services;
+        public Builder withResources(List<DeployedMtaResource> resources) {
+            this.resources = resources;
             return this;
         }
 

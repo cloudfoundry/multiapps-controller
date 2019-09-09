@@ -145,7 +145,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
         List<DeployedMtaResource> deployedServices = servicesNames.stream()
                                                                  .map(s -> DeployedMtaResource.builder().withServiceName(s).build())
                                                                  .collect(Collectors.toList());
-        deployedMta.setServices(deployedServices);
+        deployedMta.setResources(deployedServices);
     }
 
     private void prepareContext() {

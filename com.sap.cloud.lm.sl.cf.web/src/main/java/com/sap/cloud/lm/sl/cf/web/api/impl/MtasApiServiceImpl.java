@@ -81,7 +81,7 @@ public class MtasApiServiceImpl implements MtasApiService {
         Mta result = new Mta();
         result.setMetadata(getMetadata(mta.getMetadata()));
         result.setModules(getModules(mta.getModules()));
-        result.setServices(mta.getServices()
+        result.setServices(mta.getResources()
                               .stream()
                               .map(s -> s.getServiceName())
                               .collect(Collectors.toSet()));
@@ -100,7 +100,7 @@ public class MtasApiServiceImpl implements MtasApiService {
         result.setModuleName(module.getModuleName());
         result.setProvidedDendencyNames(module.getProvidedDependencyNames());
         result.setUris(module.getUris());
-        result.setServices(module.getServices()
+        result.setServices(module.getResources()
                                  .stream()
                                  .map(s -> s.getServiceName())
                                  .collect(Collectors.toList()));

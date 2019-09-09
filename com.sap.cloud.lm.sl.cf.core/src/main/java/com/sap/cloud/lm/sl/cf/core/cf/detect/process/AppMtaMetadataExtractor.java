@@ -41,8 +41,8 @@ public class AppMtaMetadataExtractor implements MtaMetadataExtractor<Application
                                                             : new ArrayList<>();
 
         List<DeployedMtaResource> appServices = (appMetadata.getDeployedMtaModule()
-                                                            .getServices() != null) ? appMetadata.getDeployedMtaModule()
-                                                                                                 .getServices()
+                                                            .getResources() != null) ? appMetadata.getDeployedMtaModule()
+                                                                                                 .getResources()
                                                                 : new ArrayList<>();
 
         Date createdOn = app.getMetadata()
@@ -58,17 +58,17 @@ public class AppMtaMetadataExtractor implements MtaMetadataExtractor<Application
         module.setUris(app.getUris());
 
         appServices.stream()
-                   .forEach(resource -> module.getServices()
+                   .forEach(resource -> module.getResources()
                                               .add(resource));
 
         /*
          * Do not replace existing resources. They might be created by service metadata extraction. This is here only to move the user
          * provided service metadata to the service metadata because of v3 metadata api limitations regarding user provided services.
          */
-        module.getServices()
+        module.getResources()
               .stream()
-              .filter(resource -> !containsResource(deployedMta.getServices(), resource))
-              .forEach(resource -> deployedMta.getServices()
+              .filter(resource -> !containsResource(deployedMta.getResources(), resource))
+              .forEach(resource -> deployedMta.getResources()
                                               .add(resource));
     }
 

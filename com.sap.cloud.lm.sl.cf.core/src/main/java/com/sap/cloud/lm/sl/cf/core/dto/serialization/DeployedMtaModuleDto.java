@@ -35,7 +35,7 @@ public class DeployedMtaModuleDto {
     }
 
     private List<String> extractDeployedResourceServiceNames(DeployedMtaModule module) {
-        return module.getServices()
+        return module.getResources()
                               .stream()
                               .map(DeployedMtaResource::getServiceName)
                               .collect(Collectors.toList());

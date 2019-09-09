@@ -77,7 +77,7 @@ public class ServicesCloudModelBuilder {
                                                         boolean shouldIgnoreUpdateErrors) {
         Map<String, Object> parameters = resource.getParameters();
         SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(serviceName, ResourceType.MANAGED_SERVICE, parameters);
-        final Map<String, Object> serviceParameters = getServiceParameters(serviceName, parameters);
+        Map<String, Object> serviceParameters = getServiceParameters(serviceName, parameters);
         return ImmutableCloudServiceExtended.builder()
             .name(serviceName)
             .resourceName(resource.getName())

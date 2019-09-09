@@ -19,12 +19,6 @@ public class DeployedComponentsDto {
     @XmlElement(name = "mta")
     private List<DeployedMtaDto> mtas;
 
-    public static List<DeployedMta> toDeployedMtas(List<DeployedMtaDto> mtas) {
-        return mtas.stream()
-            .map(DeployedMtaDto::toDeployedMta)
-            .collect(Collectors.toList());
-    }
-
     protected DeployedComponentsDto() {
         // Required by JAXB
     }
@@ -33,12 +27,17 @@ public class DeployedComponentsDto {
         this.mtas = toDtos(mtas);
     }
 
+    public static List<DeployedMta> toDeployedMtas(List<DeployedMtaDto> mtas) {
+        return mtas.stream()
+                   .map(DeployedMtaDto::toDeployedMta)
+                   .collect(Collectors.toList());
+    }
+
     private static List<DeployedMtaDto> toDtos(List<DeployedMta> mtas) {
         return mtas.stream()
                    .map(DeployedMtaDto::new)
                    .collect(Collectors.toList());
     }
-
 
     public List<DeployedMtaDto> getMtas() {
         return mtas;
