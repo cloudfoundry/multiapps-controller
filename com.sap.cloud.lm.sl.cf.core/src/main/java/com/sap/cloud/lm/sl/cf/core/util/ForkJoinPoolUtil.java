@@ -5,6 +5,9 @@ import java.util.concurrent.ForkJoinPool;
 
 public class ForkJoinPoolUtil {
 
+    private ForkJoinPoolUtil() {
+    }
+
     public static <T> T execute(int threads, Callable<T> callable) {
         ForkJoinPool customThreadPool = new ForkJoinPool(threads);
         try {
