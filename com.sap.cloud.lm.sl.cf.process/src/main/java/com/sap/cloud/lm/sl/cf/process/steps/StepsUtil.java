@@ -20,7 +20,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ImmutableLogsOffset;
 import com.sap.cloud.lm.sl.cf.core.util.LogsOffset;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.StartingInfo;
-import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
@@ -695,14 +694,6 @@ public class StepsUtil {
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    static StreamingLogToken getStreamingLogsToken(VariableScope scope) {
-        return getFromJsonBinary(scope, Constants.VAR_STREAMING_LOGS_TOKEN, StreamingLogToken.class);
-    }
-
-    static void setStreamingLogsToken(VariableScope scope, StreamingLogToken streamingLogToken) {
-        setAsJsonBinary(scope, Constants.VAR_STREAMING_LOGS_TOKEN, streamingLogToken);
     }
 
     static void setMtaArchiveModules(VariableScope scope, Set<String> mtaArchiveModules) {
