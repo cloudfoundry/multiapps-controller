@@ -120,18 +120,19 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
         if (existingService == null) {
             getStepLogger().debug("Service should be created");
-            getStepLogger().debug("New service: " + secureSerializer.toJson(service));
             actions.add(ServiceAction.CREATE);
             StepsUtil.setServicesToCreate(execution.getContext(), Arrays.asList(service));
             return actions;
         }
+        getStepLogger().debug("Existing service: " + secureSerializer.toJson(existingService));
 
         Map<String, Object> serviceInstanceEntity = serviceInstanceGetter.getServiceInstanceEntity(client, service.getName(), spaceId);
-        // Check if the existing service should be updated or not
         if (shouldRecreate(service, existingService, serviceInstanceEntity, execution)) {
+            if (!StepsUtil.shouldDeleteServices(execution.getContext())) {
+                throw getServiceRecreationNeededException(service, existingService);
+            }
+
             getStepLogger().debug("Service should be recreated");
-            getStepLogger().debug("New service: " + secureSerializer.toJson(service));
-            getStepLogger().debug("Existing service: " + secureSerializer.toJson(existingService));
             StepsUtil.setServicesToDelete(execution.getContext(), Arrays.asList(service.getName()));
             actions.add(ServiceAction.RECREATE);
             return actions;
@@ -159,6 +160,24 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
 
         return actions;
+    }
+
+    private SLException getServiceRecreationNeededException(CloudServiceExtended service, CloudService existingService) {
+        return new SLException(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET,
+                               service.getResourceName(),
+                               buildServiceType(service),
+                               existingService.getName(),
+                               buildServiceType(existingService));
+    }
+
+    private String buildServiceType(CloudService service) {
+        if (service.isUserProvided()) {
+            return ResourceType.USER_PROVIDED_SERVICE.toString();
+        }
+        
+        String label = CommonUtil.isNullOrEmpty(service.getLabel()) ? "unknown label" : service.getLabel();
+        String plan = CommonUtil.isNullOrEmpty(service.getPlan()) ? "unknown plan" : service.getPlan();
+        return label + "/" + plan;
     }
 
     private CloudServiceExtended prepareServiceParameters(DelegateExecution context, CloudServiceExtended service)
@@ -227,17 +246,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         if (hasServiceFailedState(lastOperation, ServiceOperationType.CREATE)) {
             return true;
         }
-        boolean serviceNeedsRecreation = serviceHasDifferentTypeOrLabel(service, existingService)
+        return serviceHasDifferentTypeOrLabel(service, existingService)
             || hasServiceFailedState(lastOperation, ServiceOperationType.DELETE);
-        if (!StepsUtil.shouldDeleteServices(execution.getContext()) && serviceNeedsRecreation) {
-            getStepLogger().debug("Service should be recreated, but delete-services was not enabled.");
-            throw new SLException(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET,
-                                  service.getResourceName(),
-                                  buildServiceType(service),
-                                  existingService.getName(),
-                                  buildServiceType(existingService));
-        }
-        return serviceNeedsRecreation;
     }
 
     private boolean hasServiceFailedState(ServiceOperation lastOperation, ServiceOperationType serviceOperationType) {
@@ -252,15 +262,6 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
         boolean haveDifferentLabels = !Objects.equals(service.getLabel(), existingService.getLabel());
         return haveDifferentTypes || haveDifferentLabels;
-    }
-
-    private String buildServiceType(CloudService service) {
-        if (service.isUserProvided()) {
-            return ResourceType.USER_PROVIDED_SERVICE.toString();
-        }
-        String label = CommonUtil.isNullOrEmpty(service.getLabel()) ? "unknown label" : service.getLabel();
-        String plan = CommonUtil.isNullOrEmpty(service.getPlan()) ? "unknown plan" : service.getPlan();
-        return label + "/" + plan;
     }
 
     private boolean shouldUpdateTags(CloudServiceExtended service, List<String> existingServiceTags) {

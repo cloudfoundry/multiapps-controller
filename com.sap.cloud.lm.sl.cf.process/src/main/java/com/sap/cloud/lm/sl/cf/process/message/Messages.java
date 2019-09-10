@@ -150,7 +150,7 @@ public class Messages {
     public static final String ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES = "Error monitoring creation or update of services";
     public static final String ERROR_MONITORING_DELETION_OF_SERVICES = "Error monitoring deletion of services";
     public static final String SERVICES_ARE_ALREADY_DELETED = "Services \"{0}\" are already deleted";
-    public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE = "Error determining actions to execute on service \"{0}\": {1}";
+    public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE = "Error determining actions to execute on service \"{0}\"";
     public static final String ERROR_POLLING_OF_SERVICE = "Error polling last operation of service \"{0}\": {1}";
     public static final String ERROR_MERGING_ARCHIVE = "Error merging archive. Retrying...";
 
