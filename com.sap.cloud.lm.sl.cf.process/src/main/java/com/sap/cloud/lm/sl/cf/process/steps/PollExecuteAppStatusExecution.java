@@ -5,10 +5,8 @@ import static java.text.MessageFormat.format;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
-import com.sap.cloud.lm.sl.cf.core.util.LogsOffset;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType;
@@ -66,12 +64,12 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) {
-        CloudApplication app = getNextApp(execution.getContext());
         Set<ApplicationStateAction> actions = StepsUtil.getAppStateActionsToExecute(execution.getContext());
-
         if (!actions.contains(ApplicationStateAction.EXECUTE)) {
             return AsyncExecutionState.FINISHED;
         }
+
+        CloudApplication app = getNextApp(execution.getContext());
         CloudControllerClient client = execution.getControllerClient();
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
         AppExecutionDetailedStatus status = getAppExecutionStatus(execution.getContext(), client, appAttributes, app);
@@ -93,42 +91,39 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
 
     private AppExecutionDetailedStatus getAppExecutionStatus(DelegateExecution context, CloudControllerClient client,
                                                              ApplicationAttributes appAttributes, CloudApplication app) {
-        AppExecutionDetailedStatus status = new AppExecutionDetailedStatus(AppExecutionStatus.EXECUTING);
         long startTime = (long) context.getVariable(Constants.VAR_START_TIME);
         Marker sm = getMarker(appAttributes, SupportedParameters.SUCCESS_MARKER, DEFAULT_SUCCESS_MARKER);
         Marker fm = getMarker(appAttributes, SupportedParameters.FAILURE_MARKER, DEFAULT_FAILURE_MARKER);
-        boolean checkDeployId = appAttributes.get(SupportedParameters.CHECK_DEPLOY_ID, Boolean.class, false);
+        boolean checkDeployId = appAttributes.get(SupportedParameters.CHECK_DEPLOY_ID, Boolean.class, Boolean.FALSE);
         String deployId = checkDeployId ? (StepsUtil.DEPLOY_ID_PREFIX + StepsUtil.getCorrelationId(context)) : null;
 
         List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName(), null);
-        if (!recentLogs.isEmpty()) {
-            Optional<AppExecutionDetailedStatus> statusx = recentLogs.stream()
-                                                                     .map(log -> getAppExecutionStatus(log, startTime, sm, fm, deployId))
-                                                                     .filter(Objects::nonNull)
-                                                                     .reduce((a, b) -> b);
-            if (statusx.isPresent()) {
-                status = statusx.get();
-            }
-        }
-        return status;
+        return recentLogs.stream()
+                         .map(log -> getAppExecutionStatus(log, startTime, sm, fm, deployId))
+                         .filter(Objects::nonNull)
+                         .reduce(new AppExecutionDetailedStatus(AppExecutionStatus.EXECUTING), (a, b) -> b);
     }
 
     private AppExecutionDetailedStatus getAppExecutionStatus(ApplicationLog log, long startTime, Marker sm, Marker fm, String id) {
         long time = log.getTimestamp()
                        .getTime();
-        String sourceName = log.getSourceName();
-        sourceName = (sourceName.length() >= 3) ? sourceName.substring(0, 3) : sourceName;
+        String sourceName = log.getSourceName()
+                               .substring(0, 3);
         if (time < startTime || !sourceName.equalsIgnoreCase("APP"))
             return null;
+
         MessageType mt = log.getMessageType();
         String msg = log.getMessage()
                         .trim();
-        if (mt != null && mt.equals(sm.messageType) && msg.matches(sm.text) && ((id == null) || msg.contains(id))) {
-            return new AppExecutionDetailedStatus(AppExecutionStatus.SUCCEEDED);
-        } else if (mt != null && mt.equals(fm.messageType) && msg.matches(fm.text) && ((id == null) || msg.contains(id))) {
-            return new AppExecutionDetailedStatus(AppExecutionStatus.FAILED, msg);
-        } else
+        if (!(id == null || msg.contains(id)))
             return null;
+
+        if (mt.equals(sm.messageType) && msg.matches(sm.text)) {
+            return new AppExecutionDetailedStatus(AppExecutionStatus.SUCCEEDED);
+        } else if (mt.equals(fm.messageType) && msg.matches(fm.text)) {
+            return new AppExecutionDetailedStatus(AppExecutionStatus.FAILED, msg);
+        }
+        return null;
     }
 
     private AsyncExecutionState checkAppExecutionStatus(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app,
@@ -156,7 +151,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
 
     private void stopApplicationIfSpecified(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app,
                                             ApplicationAttributes appAttributes) {
-        boolean stopApp = appAttributes.get(SupportedParameters.STOP_APP, Boolean.class, false);
+        boolean stopApp = appAttributes.get(SupportedParameters.STOP_APP, Boolean.class, Boolean.FALSE);
         if (!stopApp) {
             return;
         }
