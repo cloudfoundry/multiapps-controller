@@ -1,31 +1,15 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
 import org.cloudfoundry.client.lib.domain.PackageState;
+import org.cloudfoundry.client.lib.domain.annotation.Nullable;
+import org.immutables.value.Value;
 
-public class StagingState {
+@Value.Immutable
+public interface StagingState {
 
-    private PackageState state;
-    private String error;
+    PackageState getState();
 
-    public StagingState(PackageState state, String error) {
-        this.state = state;
-        this.error = error;
-    }
-
-    public PackageState getState() {
-        return state;
-    }
-
-    public void setState(PackageState state) {
-        this.state = state;
-    }
-
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
+    @Nullable
+    String getError();
 
 }
