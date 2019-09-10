@@ -55,9 +55,6 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
         if (context.getVariable(Constants.VAR_START_TIME) == null) {
             context.setVariable(Constants.VAR_START_TIME, System.currentTimeMillis());
         }
-        if (context.getVariable(Constants.VAR_OFFSET) == null) {
-            context.setVariable(Constants.VAR_OFFSET, 0);
-        }
     }
 
     private boolean isStarted(CloudControllerClient client, String appName) {

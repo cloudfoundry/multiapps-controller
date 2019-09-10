@@ -5,6 +5,7 @@ import static java.text.MessageFormat.format;
 import java.text.MessageFormat;
 import java.util.UUID;
 
+import com.sap.cloud.lm.sl.cf.process.util.StagingState;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.PackageState;
@@ -13,12 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
-import com.sap.cloud.lm.sl.cf.process.util.StagingState;
-import com.sap.cloud.lm.sl.cf.process.util.StagingState.StagingLogs;
-import com.sap.cloud.lm.sl.cf.process.util.XMLValueFilter;
 
 public class PollStageAppStatusExecution implements AsyncExecution {
 
@@ -49,8 +46,6 @@ public class PollStageAppStatusExecution implements AsyncExecution {
 
         if (!state.getState()
                   .equals(PackageState.STAGED)) {
-            setStagingLogs(state, execution);
-
             return checkStagingState(execution, app, state);
         }
 
@@ -84,20 +79,4 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         // Application not staged yet, wait and try again unless it's a timeout.
         return AsyncExecutionState.RUNNING;
     }
-
-    private void setStagingLogs(StagingState state, ExecutionWrapper execution) {
-        if (state.getStagingLogs() != null) {
-            StagingLogs logs = state.getStagingLogs();
-            String stagingLogs = logs.getLogs();
-            int offset = logs.getOffset();
-
-            stagingLogs = new XMLValueFilter(stagingLogs).getFiltered();
-            execution.getStepLogger()
-                     .debug(stagingLogs);
-            offset += stagingLogs.length();
-            execution.getContext()
-                     .setVariable(Constants.VAR_OFFSET, offset);
-        }
-    }
-
 }

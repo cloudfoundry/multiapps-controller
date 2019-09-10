@@ -4,7 +4,6 @@ import static java.text.MessageFormat.format;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -34,7 +33,9 @@ public class ApplicationStager {
     public StagingState getStagingState(DelegateExecution context) {
         UUID buildGuid = (UUID) context.getVariable(Constants.VAR_BUILD_GUID);
         if (buildGuid == null) {
-            return new StagingState(PackageState.STAGED, null);
+            return ImmutableStagingState.builder()
+                                        .state(PackageState.STAGED)
+                                        .build();
         }
         CloudBuild build = getBuild(context, buildGuid);
         return getStagingState(build);
@@ -58,21 +59,25 @@ public class ApplicationStager {
     }
 
     private StagingState getStagingState(CloudBuild build) {
-        PackageState packageState = null;
-        String stagingError = null;
+        PackageState packageState = getBuildState(build);
+        ImmutableStagingState.Builder builder = ImmutableStagingState.builder()
+                                                                     .state(packageState);
+        if (packageState == PackageState.FAILED) {
+            builder.error(build.getError());
+        }
+        return builder.build();
+    }
+
+    private PackageState getBuildState(CloudBuild build) {
         switch (build.getState()) {
             case FAILED:
-                packageState = PackageState.FAILED;
-                stagingError = build.getError();
-                break;
+                return PackageState.FAILED;
             case STAGED:
-                packageState = PackageState.STAGED;
-                break;
+                return PackageState.STAGED;
             case STAGING:
-                packageState = PackageState.PENDING;
-                break;
+                return PackageState.PENDING;
         }
-        return new StagingState(packageState, stagingError);
+        throw new IllegalArgumentException("Invalid build state");
     }
 
     public boolean isApplicationStagedCorrectly(StepLogger stepLogger, CloudApplication cloudApplication) {
