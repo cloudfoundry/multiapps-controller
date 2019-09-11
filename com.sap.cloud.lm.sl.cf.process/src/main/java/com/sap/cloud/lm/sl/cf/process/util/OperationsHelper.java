@@ -12,10 +12,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent;
+import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.HistoricOperationEventService;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
+import com.sap.cloud.lm.sl.cf.web.api.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
@@ -31,6 +35,9 @@ public class OperationsHelper {
 
     @Inject
     private FlowableFacade flowableFacade;
+
+    @Inject
+    private HistoricOperationEventService historicOperationEventService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsHelper.class);
 
@@ -55,6 +62,34 @@ public class OperationsHelper {
         for (Operation ongoingOperation : existingOngoingOperations) {
             addState(ongoingOperation);
         }
+    }
+
+    public void addErrorType(Operation operation) {
+        if (operation.getState() == State.ERROR) {
+            operation.setErrorType(getErrorType(operation));
+        }
+    }
+
+    public ErrorType getErrorType(Operation operation) {
+        List<HistoricOperationEvent> historicEvents = historicOperationEventService.createQuery()
+                                                                                   .processId(operation.getProcessId())
+                                                                                   .list();
+        if (historicEvents.isEmpty()) {
+            return null;
+        }
+        EventType lastEventType = historicEvents.get(historicEvents.size() - 1)
+                                                .getType();
+        return toErrorType(lastEventType);
+    }
+
+    public ErrorType toErrorType(EventType historicType) {
+        if (historicType == EventType.FAILED_BY_CONTENT_ERROR) {
+            return ErrorType.CONTENT;
+        }
+        if (historicType == EventType.FAILED_BY_INFRASTRUCTURE_ERROR) {
+            return ErrorType.INFRASTRUCTURE;
+        }
+        return null;
     }
 
     public void addState(Operation ongoingOperation) {
