@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
@@ -72,6 +73,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
         operation.setEndedAt(ZonedDateTime.now());
         operation.setAcquiredLock(false);
         operationService.update(operation.getProcessId(), operation);
+        getHistoricOperationEventPersister().add(processInstanceId, EventType.FINISHED);
         LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
     }
 

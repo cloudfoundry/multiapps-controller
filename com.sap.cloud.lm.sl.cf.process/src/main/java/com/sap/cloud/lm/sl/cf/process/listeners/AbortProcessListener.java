@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
@@ -35,6 +36,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
 import com.sap.cloud.lm.sl.cf.process.util.CollectedDataSender;
 import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
+import com.sap.cloud.lm.sl.cf.process.util.HistoricOperationEventPersister;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.util.Runnable;
@@ -56,6 +58,8 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
     private ApplicationConfiguration configuration;
     @Inject
     private CollectedDataSender dataSender;
+    @Inject
+    private HistoricOperationEventPersister historicOperationEventPersister;
 
     @Override
     public boolean isFailOnException() {
@@ -74,6 +78,8 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
         String correlationId = getCorrelationId(engineEvent);
 
         new SafeExecutor().executeSafely(() -> setOperationInAbortedState(correlationId));
+
+        new SafeExecutor().executeSafely(() -> historicOperationEventPersister.add(correlationId, EventType.ABORTED));
 
         HistoryService historyService = Context.getProcessEngineConfiguration()
                                                .getHistoryService();

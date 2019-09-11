@@ -30,10 +30,13 @@ public class FlowableExceptionEventHandler {
 
     private ProgressMessageService progressMessageService;
     private FlowableFacade flowableFacade;
+    private HistoricOperationEventPersister historicOperationEventPersister;
 
-    public FlowableExceptionEventHandler(ProgressMessageService progressMessageService, FlowableFacade flowableFacade) {
+    public FlowableExceptionEventHandler(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
+                                         HistoricOperationEventPersister historicOperationEventPersister) {
         this.progressMessageService = progressMessageService;
         this.flowableFacade = flowableFacade;
+        this.historicOperationEventPersister = historicOperationEventPersister;
     }
 
     public void handle(FlowableEvent event) {
@@ -42,17 +45,22 @@ public class FlowableExceptionEventHandler {
         }
 
         FlowableExceptionEvent flowableExceptionEvent = getFlowableExceptionEvent(event);
-        String flowableExceptionStackTrace = ExceptionUtils.getStackTrace(flowableExceptionEvent.getCause());
+        Throwable exception = flowableExceptionEvent.getCause();
+        String flowableExceptionStackTrace = ExceptionUtils.getStackTrace(exception);
         LOGGER.error(flowableExceptionStackTrace);
-        String flowableExceptionMessage = flowableExceptionEvent.getCause()
-                                                                .getMessage();
 
-        if (flowableExceptionMessage == null) {
+        if (exception.getMessage() == null) {
             return;
         }
 
+        FlowableEngineEvent engineEvent = (FlowableEngineEvent) event;
+        historicOperationEventPersister.add(flowableFacade.getProcessInstanceId(engineEvent.getExecutionId()), exception.getCause());
+        preserveFlowableException(event, exception);
+    }
+
+    private void preserveFlowableException(FlowableEvent event, Throwable exception) {
         try {
-            tryToPreserveFlowableException(event, flowableExceptionMessage);
+            tryToPreserveFlowableException(event, exception.getMessage());
         } catch (SLException e) {
             LOGGER.warn(e.getMessage());
         }
