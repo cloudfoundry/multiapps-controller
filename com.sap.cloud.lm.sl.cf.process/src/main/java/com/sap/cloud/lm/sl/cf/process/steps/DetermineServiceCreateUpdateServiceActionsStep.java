@@ -108,8 +108,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
     private List<ServiceAction> determineActions(CloudControllerClient client, String spaceId, CloudServiceExtended service,
                                                  CloudService existingService, Map<String, List<CloudServiceKey>> serviceKeys,
-                                                 ExecutionWrapper execution)
-        throws FileStorageException {
+                                                 ExecutionWrapper execution) {
         List<ServiceAction> actions = new ArrayList<>();
 
         List<CloudServiceKey> keys = serviceKeys.get(service.getResourceName());
@@ -127,7 +126,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         getStepLogger().debug("Existing service: " + secureSerializer.toJson(existingService));
 
         Map<String, Object> serviceInstanceEntity = serviceInstanceGetter.getServiceInstanceEntity(client, service.getName(), spaceId);
-        if (shouldRecreate(service, existingService, serviceInstanceEntity, execution)) {
+        if (shouldRecreate(service, existingService, serviceInstanceEntity)) {
             if (!StepsUtil.shouldDeleteServices(execution.getContext())) {
                 throw getServiceRecreationNeededException(service, existingService);
             }
@@ -237,8 +236,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return !Objects.equals(service.getPlan(), existingService.getPlan());
     }
 
-    private boolean shouldRecreate(CloudServiceExtended service, CloudService existingService, Map<String, Object> serviceInstanceEntity,
-                                   ExecutionWrapper execution) {
+    private boolean shouldRecreate(CloudServiceExtended service, CloudService existingService, Map<String, Object> serviceInstanceEntity) {
         if (serviceInstanceEntity == null) {
             return false;
         }
