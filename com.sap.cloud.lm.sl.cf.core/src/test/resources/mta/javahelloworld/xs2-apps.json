@@ -38,7 +38,16 @@
     },
     "name": "java-hello-world",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.xs2.samples.javahelloworld",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"java-hello-world\",\n  \"appName\" : \"java-hello-world\",\n  \"resources\" : [ {\n    \"serviceName\" : \"uaa\",\n    \"modules\" : [ {\n      \"moduleName\" : \"java-hello-world\",\n      \"appName\" : \"java-hello-world\",\n      \"resources\" : [ ],\n      \"providedDependencyNames\" : [ ],\n      \"uris\" : [ ]\n    } ],\n    \"serviceInstanceParameters\" : {\n      \"clientid\" : \"xs2.node\",\n      \"clientsecret\" : \"nodeclientsecret\",\n      \"containerUser\" : \"xs2.node\",\n      \"containerUserPassword\" : \"nodeclientsecret\",\n      \"tags\" : [ \"xsuaa\" ],\n      \"uaaBaseUrl\" : \"http://uaa.sofd60245639a\",\n      \"url\" : \"http://uaa.sofd60245639a\"\n    }\n  } ],\n  \"providedDependencyNames\" : [ \"java-hello-world\" ],\n  \"uris\" : [ \"java-hello-world.sofd60245639a\" ]\n}"
+      }
+    }
   },
   {
     "moduleName": "java-hello-world-backend",
@@ -80,7 +89,16 @@
     },
     "name": "java-hello-world-backend",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.xs2.samples.javahelloworld",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"java-hello-world-backend\",\n  \"appName\" : \"java-hello-world-backend\",\n  \"resources\" : [ {\n    \"serviceName\" : \"uaa\",\n    \"modules\" : [ {\n      \"moduleName\" : \"java-hello-world-backend\",\n      \"appName\" : \"java-hello-world-backend\",\n      \"resources\" : [ ],\n      \"providedDependencyNames\" : [ ],\n      \"uris\" : [ ]\n    } ],\n    \"serviceInstanceParameters\" : {\n      \"clientid\" : \"xs2.node\",\n      \"clientsecret\" : \"nodeclientsecret\",\n      \"containerUser\" : \"xs2.node\",\n      \"containerUserPassword\" : \"nodeclientsecret\",\n      \"tags\" : [ \"xsuaa\" ],\n      \"uaaBaseUrl\" : \"http://uaa.sofd60245639a\",\n      \"url\" : \"http://uaa.sofd60245639a\"\n    }\n  }, {\n    \"resourceName\" : \"java-hdi-container\",\n    \"serviceName\" : \"java-hdi-container\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  } ],\n  \"providedDependencyNames\" : [ \"java\", \"java-hello-world-backend\" ],\n  \"uris\" : [ \"java-hello-world-backend.sofd60245639a\" ]\n}"
+      }
+    }
   },
   {
     "moduleName": "java-hello-world-db",
@@ -118,6 +136,15 @@
     },
     "name": "java-hello-world-db",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.xs2.samples.javahelloworld",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"java-hello-world-db\",\n  \"appName\" : \"java-hello-world-db\",\n  \"resources\" : [ {\n    \"resourceName\" : \"java-hdi-container\",\n    \"serviceName\" : \"java-hdi-container\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  } ],\n  \"providedDependencyNames\" : [ \"java-hello-world-db\" ],\n  \"uris\" : [ ]\n}"
+      }
+    }
   }
 ]

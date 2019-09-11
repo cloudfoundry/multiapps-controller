@@ -49,7 +49,16 @@
     },
     "name": "module-1",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "tasks-test",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"module-1\",\n  \"appName\" : \"module-1\",\n  \"resources\" : [ ],\n  \"providedDependencyNames\" : [ \"module-1\" ],\n  \"uris\" : [ \"module-1.sofd60245639a\" ]\n}"
+      }
+    }
   },
   {
     "moduleName": "module-2",
@@ -87,7 +96,16 @@
     },
     "name": "module-2",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "tasks-test",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"module-2\",\n  \"appName\" : \"module-2\",\n  \"resources\" : [ ],\n  \"providedDependencyNames\" : [ \"module-2\" ],\n  \"uris\" : [ \"module-2.sofd60245639a\" ]\n}"
+      }
+    }
   },
   {
     "moduleName": "module-3",
@@ -125,7 +143,16 @@
     },
     "name": "module-3",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "tasks-test",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"module-3\",\n  \"appName\" : \"module-3\",\n  \"resources\" : [ ],\n  \"providedDependencyNames\" : [ \"module-3\" ],\n  \"uris\" : [ \"module-3.sofd60245639a\" ]\n}"
+      }
+    }
   },
   {
     "moduleName": "module-4",
@@ -164,6 +191,15 @@
     },
     "name": "module-4",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "tasks-test",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"module-4\",\n  \"appName\" : \"module-4\",\n  \"resources\" : [ ],\n  \"providedDependencyNames\" : [ \"module-4\" ],\n  \"uris\" : [ \"module-4.sofd60245639a\" ]\n}"
+      }
+    }
   }
 ]

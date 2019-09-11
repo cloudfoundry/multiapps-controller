@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class DeployedMtaResource {
     private String resourceName;
@@ -72,6 +73,20 @@ public class DeployedMtaResource {
 
     public void setServiceInstanceParameters(Map<String, Object> serviceInstanceParameters) {
         this.serviceInstanceParameters = serviceInstanceParameters;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DeployedMtaResource that = (DeployedMtaResource) o;
+        return Objects.equals(resourceName, that.resourceName) &&
+                Objects.equals(serviceName, that.serviceName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(resourceName, serviceName);
     }
 
     public static Builder builder() {

@@ -46,6 +46,15 @@
     },
     "name": "module-1",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.sample.mta",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"module-1\",\n  \"appName\" : \"module-1\",\n  \"resources\" : [ {\n    \"serviceName\" : \"user-provided-renamed\",\n    \"modules\" : [ {\n      \"moduleName\" : \"module-1\",\n      \"appName\" : \"module-1\",\n      \"resources\" : [ ],\n      \"providedDependencyNames\" : [ ],\n      \"uris\" : [ ]\n    } ],\n    \"serviceInstanceParameters\" : { }\n  }, {\n    \"serviceName\" : \"user-provided-service\",\n    \"modules\" : [ {\n      \"moduleName\" : \"module-1\",\n      \"appName\" : \"module-1\",\n      \"resources\" : [ ],\n      \"providedDependencyNames\" : [ ],\n      \"uris\" : [ ]\n    } ],\n    \"serviceInstanceParameters\" : { }\n  }, {\n    \"serviceName\" : \"user-provider-resource-named-service\",\n    \"modules\" : [ {\n      \"moduleName\" : \"module-1\",\n      \"appName\" : \"module-1\",\n      \"resources\" : [ ],\n      \"providedDependencyNames\" : [ ],\n      \"uris\" : [ ]\n    } ],\n    \"serviceInstanceParameters\" : { }\n  }, {\n    \"resourceName\" : \"rs\",\n    \"serviceName\" : \"random-service-renamed\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  }, {\n    \"resourceName\" : \"random-service\",\n    \"serviceName\" : \"random-service\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  }, {\n    \"resourceName\" : \"random-resource-named-service\",\n    \"serviceName\" : \"random-resource-named-service\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  }, {\n    \"resourceName\" : \"es\",\n    \"serviceName\" : \"existing-service-renamed\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  }, {\n    \"resourceName\" : \"existing-service\",\n    \"serviceName\" : \"existing-service\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  }, {\n    \"resourceName\" : \"existing-resource-named-service\",\n    \"serviceName\" : \"existing-resource-named-service\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  } ],\n  \"providedDependencyNames\" : [ \"module-1\" ],\n  \"uris\" : [ \"module-1.sofd60245639a\" ]\n}"
+      }
+    }
   }
 ]

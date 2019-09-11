@@ -34,7 +34,7 @@ public class ApplicationMtaMetadataParser {
         try {
             return attemptToParseAppMetadata(app);
         } catch (ParsingException e) {
-            throw new ParsingException(e, Messages.CANT_PARSE_MTA_METADATA_FOR_APP_0, app.getName());
+            throw new ParsingException(e, Messages.CANT_PARSE_MTA_ENV_METADATA_FOR_APP_0, app.getName());
         }
     }
 
@@ -63,7 +63,7 @@ public class ApplicationMtaMetadataParser {
                                                     .withAppName(app.getName())
                                                     .withModuleName(moduleName)
                                                     .withProvidedDependencyNames(providedDependencyNames)
-                                                    .withServices(services)
+                                                    .withResources(services)
                                                     .build();
         return ApplicationMtaMetadata.builder().withMtaMetadata(mtaMetadata).withModule(module).build();
     }

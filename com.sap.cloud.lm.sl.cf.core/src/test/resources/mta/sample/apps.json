@@ -40,7 +40,16 @@
     },
     "name": "web-server",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.mta.sample",
+        "mta_version" : "1.2.1-beta+20150403144937853"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"web-server\",\n  \"appName\" : \"web-server\",\n  \"resources\" : [ {\n    \"serviceName\" : \"internal-odata-service\",\n    \"modules\" : [ {\n      \"moduleName\" : \"web-server\",\n      \"appName\" : \"web-server\",\n      \"resources\" : [ ],\n      \"providedDependencyNames\" : [ ],\n      \"uris\" : [ ]\n    } ],\n    \"serviceInstanceParameters\" : {\n      \"password\" : \"shfzj86g\",\n      \"username\" : \"technicalUser\"\n    }\n  } ],\n  \"providedDependencyNames\" : [ \"web-server\" ],\n  \"uris\" : [ \"www.bestprice.sap.com\" ]\n}"
+      }
+    }
   },
   {
     "moduleName": "pricing",
@@ -87,7 +96,16 @@
     },
     "name": "pricing",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.mta.sample",
+        "mta_version" : "1.2.1-beta+20150403144937853"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"pricing\",\n  \"appName\" : \"pricing\",\n  \"resources\" : [ {\n    \"resourceName\" : \"pricing-db-service\",\n    \"serviceName\" : \"pricing-db-service\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  } ],\n  \"providedDependencyNames\" : [ \"internal-odata\", \"pricing\" ],\n  \"uris\" : [ \"api.bestprice.sap.com\" ]\n}"
+      }
+    }
   },
   {
     "moduleName": "pricing-db",
@@ -128,6 +146,15 @@
     },
     "name": "pricing-db",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.mta.sample",
+        "mta_version" : "1.2.1-beta+20150403144937853"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"pricing-db\",\n  \"appName\" : \"pricing-db\",\n  \"resources\" : [ {\n    \"resourceName\" : \"pricing-db-service\",\n    \"serviceName\" : \"pricing-db-service\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  } ],\n  \"providedDependencyNames\" : [ \"pricing-db\" ],\n  \"uris\" : [ \"pricing-db.cfapps.neo.ondemand.com\" ]\n}"
+      }
+    }
   }
 ]

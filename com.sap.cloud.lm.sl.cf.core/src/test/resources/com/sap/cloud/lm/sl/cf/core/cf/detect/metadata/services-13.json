@@ -1,0 +1,26 @@
+[
+  {
+    "name": "mta-service-3",
+    "metadata": {
+      "labels": {
+        "mta_id": "quux",
+        "mta_version": "0.1.0"
+      },
+      "annotations": {
+        "resource": "{\n  \"resourceName\" : \"resource-name-3\",\n  \"serviceName\" : \"mta-service-3\",\n  \"modules\" : [ {\"moduleName\": \"mta-module-1\", \"appName\": \"mta-application-1\"} ],\n  \"appsCredentials\" : { }\n}"
+      }
+    }
+  },
+  {
+    "name": "mta-service-4",
+    "metadata": {
+      "labels": {
+        "mta_id": "quux",
+        "mta_version": "0.1.0"
+      },
+      "annotations": {
+        "resource": "{\n  \"resourceName\" : \"resource-name-4\",\n  \"serviceName\" : \"mta-service-4\",\n  \"modules\" : [ {\"moduleName\": \"mta-module-2\", \"appName\": \"mta-application-2\"} ],\n  \"appsCredentials\" : { }\n}"
+      }
+    }
+  }
+]

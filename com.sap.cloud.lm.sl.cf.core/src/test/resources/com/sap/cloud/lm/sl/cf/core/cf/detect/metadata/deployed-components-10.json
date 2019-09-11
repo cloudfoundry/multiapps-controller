@@ -1,0 +1,18 @@
+{
+  "value" : [ {
+    "metadata" : {
+      "id" : "quux",
+      "version" : "0.1.0"
+    },
+    "modules" : [ ],
+    "resources" : [ {
+      "resourceName" : "resource-name-1",
+      "serviceName" : "mta-service-1",
+      "modules" : [ ]
+    }, {
+      "resourceName" : "resource-name-2",
+      "serviceName" : "mta-service-2",
+      "modules" : [ ]
+    } ]
+  } ]
+}

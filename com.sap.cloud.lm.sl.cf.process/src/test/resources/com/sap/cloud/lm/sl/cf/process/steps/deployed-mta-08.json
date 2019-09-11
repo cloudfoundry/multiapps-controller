@@ -7,45 +7,69 @@
     {
       "moduleName": "a",
       "appName": "a",
-      "services": [
-        "s-1",
-        "s-2"
+      "resources": [
+        {
+          "resourceName": "s-1",
+          "serviceName": "s-1"
+        },
+        {
+          "resourceName": "s-2",
+          "serviceName": "s-2"
+        }
       ],
       "providedDependencyNames": []
     },
     {
       "moduleName": "b",
       "appName": "b",
-      "services": [],
+      "resources": [],
       "providedDependencyNames": []
     },
     {
       "moduleName": "c",
       "appName": "c",
-      "services": [
-        "s-3"
+      "resources": [
+        {
+          "resourceName": "s-3",
+          "serviceName": "s-3"
+        }
       ],
       "providedDependencyNames": []
     },
     {
       "moduleName": "d",
       "appName": "d",
-      "services": [
-        "s-1",
-        "s-3"
+      "resources": [
+        {
+          "resourceName": "s-1",
+          "serviceName": "s-1"
+        },
+        {
+          "resourceName": "s-3",
+          "serviceName": "s-3"
+        }
       ],
       "providedDependencyNames": []
     },
     {
       "moduleName": "e",
       "appName": "e",
-      "services": [],
+      "resources": [],
       "providedDependencyNames": []
     }
   ],
-  "services": [
-    "s-1",
-    "s-2",
-    "s-3"
+  "resources": [
+    {
+      "resourceName": "s-1",
+      "serviceName": "s-1"
+    },
+    {
+      "resourceName": "s-2",
+      "serviceName": "s-2"
+    },
+    {
+      "resourceName": "s-3",
+      "serviceName": "s-3"
+    }
   ]
 }

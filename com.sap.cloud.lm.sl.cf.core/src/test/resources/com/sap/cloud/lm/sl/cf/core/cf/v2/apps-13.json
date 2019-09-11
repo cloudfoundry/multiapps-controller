@@ -42,6 +42,15 @@
     },
     "name": "foo",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.sample.mta",
+        "mta_version" : "1.0.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"foo\",\n  \"appName\" : \"foo\",\n  \"resources\" : [ ],\n  \"providedDependencyNames\" : [ \"foo\" ],\n  \"uris\" : [ \"host-in-route1.test-domain\", \"host-in-route2.test-domain/path-in-route\" ]\n}"
+      }
+    }
   }
 ]

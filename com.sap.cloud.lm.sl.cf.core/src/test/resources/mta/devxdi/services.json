@@ -7,7 +7,16 @@
     "isOptional": false,
     "isManaged": false,
     "shouldIgnoreUpdateErrors": false,
-    "name": "uaa"
+    "name": "uaa",
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.devx.di",
+        "mta_version" : "1.0.0"
+      },
+      "annotations" : {
+        "resource" : "{\n  \"resourceName\" : \"uaa\",\n  \"serviceName\" : \"uaa\",\n  \"modules\" : [ {\n    \"moduleName\" : \"di-core\",\n    \"appName\" : \"di-core\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  }, {\n    \"moduleName\" : \"di-builder\",\n    \"appName\" : \"di-builder\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  }, {\n    \"moduleName\" : \"di-runner\",\n    \"appName\" : \"di-runner\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  } ],\n  \"serviceInstanceParameters\" : { }\n}"
+      }
+    }
   },
   {
     "alternativeLabels": [],
@@ -19,6 +28,15 @@
     "shouldIgnoreUpdateErrors": false,
     "label": "hana",
     "plan": "hdi-shared",
-    "name": "di-core-hdi"
+    "name": "di-core-hdi",
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.devx.di",
+        "mta_version" : "1.0.0"
+      },
+      "annotations" : {
+        "resource" : "{\n  \"resourceName\" : \"di-core-hdi\",\n  \"serviceName\" : \"di-core-hdi\",\n  \"modules\" : [ {\n    \"moduleName\" : \"di-core\",\n    \"appName\" : \"di-core\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  } ],\n  \"serviceInstanceParameters\" : { }\n}"
+      }
+    }
   }
 ]

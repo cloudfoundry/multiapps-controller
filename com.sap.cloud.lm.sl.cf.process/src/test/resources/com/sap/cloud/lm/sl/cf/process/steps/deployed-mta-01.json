@@ -7,8 +7,7 @@
     {
       "moduleName": "node-hello-world-db",
       "appName": "node-hello-world-db",
-      "services": [
-        "node-hdi-container"
+      "resources": [
       ],
       "providedDependencyNames": [],
       "uris": []
@@ -16,9 +15,7 @@
     {
       "moduleName": "node-hello-world-backend",
       "appName": "node-hello-world-backend",
-      "services": [
-        "uaa",
-        "node-hdi-container"
+      "resources": [
       ],
       "providedDependencyNames": [],
       "uris": []
@@ -26,15 +23,36 @@
     {
       "moduleName": "node-hello-world",
       "appName": "node-hello-world",
-      "services": [
-        "uaa"
+      "resources": [
       ],
       "providedDependencyNames": [],
       "uris": []
     }
   ],
-  "services": [
-    "node-hdi-container",
-    "uaa"
+  "resources": [
+    {
+      "resourceName": "node-hdi-container",
+      "serviceName": "node-hdi-container",
+      "modules": [
+        {
+          "moduleName": "node-hello-world-db",
+          "appName": "node-hello-world-db"
+        },
+        {
+          "moduleName": "node-hello-world",
+          "appName": "node-hello-world"
+        }
+      ]
+    },
+    {
+      "resourceName": "uaa",
+      "serviceName": "uaa",
+      "modules": [
+        {
+          "moduleName": "node-hello-world",
+          "appName": "node-hello-world"
+        }
+      ]
+    }
   ]
 }

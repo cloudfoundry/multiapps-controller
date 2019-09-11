@@ -36,7 +36,16 @@
     },
     "name": "com.sap.sample.mta.application-1",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.sample.mta",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"module-1\",\n  \"appName\" : \"com.sap.sample.mta.application-1\",\n  \"resources\" : [ ],\n  \"providedDependencyNames\" : [ \"module-1\" ],\n  \"uris\" : [ \"test-host.sofd60245639a/test\" ]\n}"
+      }
+    }
   },
   {
     "moduleName": "module-2",
@@ -75,6 +84,15 @@
     },
     "name": "com.sap.sample.mta.application-2",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.sample.mta",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"module-2\",\n  \"appName\" : \"com.sap.sample.mta.application-2\",\n  \"resources\" : [ ],\n  \"providedDependencyNames\" : [ \"module-2\" ],\n  \"uris\" : [ \"module-2.sofd60245639a\" ]\n}"
+      }
+    }
   }
 ]

@@ -38,6 +38,15 @@
     },
     "name": "webide",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.devx.webide",
+        "mta_version" : "1.0.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"webide\",\n  \"appName\" : \"webide\",\n  \"resources\" : [ {\n    \"resourceName\" : \"uaa\",\n    \"serviceName\" : \"uaa\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  } ],\n  \"providedDependencyNames\" : [ \"webide\" ],\n  \"uris\" : [ \"i027947-webide.cfapps.neo.ondemand.com\" ]\n}"
+      }
+    }
   }
 ]

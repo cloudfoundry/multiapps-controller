@@ -38,6 +38,15 @@
     },
     "name": "foo",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "test",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"foo\",\n  \"appName\" : \"foo\",\n  \"resources\" : [ ],\n  \"providedDependencyNames\" : [ \"foo\" ],\n  \"uris\" : [ \"foo.sofd60245639a\" ]\n}"
+      }
+    }
   }
 ]

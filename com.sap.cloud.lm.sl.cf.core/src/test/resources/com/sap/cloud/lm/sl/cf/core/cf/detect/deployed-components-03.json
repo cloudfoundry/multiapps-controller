@@ -1,9 +1,0 @@
-{
-  "mtas": [],
-  "standaloneApps": [
-    "standalone-application-1",
-    "standalone-application-2",
-    "mta-application-1",
-    "mta-application-2"
-  ]
-}

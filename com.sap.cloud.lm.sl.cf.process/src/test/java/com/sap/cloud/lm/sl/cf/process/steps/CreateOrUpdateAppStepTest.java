@@ -8,11 +8,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Rule;
@@ -151,6 +155,16 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
     }
 
     private void prepareClient() {
+        for (CloudApplicationExtended cloudApplicationExtended : stepInput.applications) {
+            Mockito.doReturn(ImmutableCloudApplication.builder()
+                    .metadata(ImmutableCloudMetadata.builder()
+                            .guid(UUID.randomUUID())
+                            .build())
+                    .build())
+                    .when(client)
+                    .getApplication(cloudApplicationExtended.getName());
+        }
+        
         for (SimpleService simpleService : stepInput.services) {
             CloudServiceExtended service = simpleService.toCloudServiceExtended();
             if (!service.isOptional()) {

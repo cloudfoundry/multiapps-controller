@@ -9,7 +9,16 @@
     "shouldIgnoreUpdateErrors": false,
     "label": "hana",
     "plan": "hdi-shared",
-    "name": "java-hdi-container"
+    "name": "java-hdi-container",
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.xs2.samples.javahelloworld",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "resource" : "{\n  \"resourceName\" : \"java-hdi-container\",\n  \"serviceName\" : \"java-hdi-container\",\n  \"modules\" : [ {\n    \"moduleName\" : \"java-hello-world-backend\",\n    \"appName\" : \"java-hello-world-backend\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  }, {\n    \"moduleName\" : \"java-hello-world-db\",\n    \"appName\" : \"java-hello-world-db\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  } ],\n  \"serviceInstanceParameters\" : { }\n}"
+      }
+    }
   },
   {
     "alternativeLabels": [],

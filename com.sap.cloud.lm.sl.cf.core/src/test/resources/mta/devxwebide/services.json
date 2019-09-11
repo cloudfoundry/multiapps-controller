@@ -7,6 +7,15 @@
     "isOptional": false,
     "isManaged": false,
     "shouldIgnoreUpdateErrors": false,
-    "name": "uaa"
+    "name": "uaa",
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.devx.webide",
+        "mta_version" : "1.0.0"
+      },
+      "annotations" : {
+        "resource" : "{\n  \"resourceName\" : \"uaa\",\n  \"serviceName\" : \"uaa\",\n  \"modules\" : [ {\n    \"moduleName\" : \"webide\",\n    \"appName\" : \"webide\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  } ],\n  \"serviceInstanceParameters\" : { }\n}"
+      }
+    }
   }
 ]

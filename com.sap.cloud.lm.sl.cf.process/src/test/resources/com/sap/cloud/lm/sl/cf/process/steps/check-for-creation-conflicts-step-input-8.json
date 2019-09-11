@@ -24,6 +24,15 @@
       "boundServices": [
         "service-1"
       ],
+      "metadata": {
+        "labels": {
+          "mta_id": "com.sap.example.mta-1",
+          "version": "1.0.0"
+        },
+        "annotations": {
+          "module": "{\n            \"moduleName\": \"application-1\",\n            \"appName\": \"application-1\",\n            \"resources\": [\n              {\n                \"resourceName\": \"service-1\",\n                \"serviceName\": \"service-1\"\n              },\n              {\n                \"resourceName\": \"service-2\",\n                \"serviceName\": \"service-2\"\n              }\n            ]\n          }"
+        }
+      },
       "env": {
         "MTA_METADATA": {
           "id": "com.sap.example.mta-1",
@@ -44,6 +53,15 @@
       "boundServices": [
         "service-1"
       ],
+      "metadata": {
+        "labels": {
+          "mta_id": "com.sap.example.mta-2",
+          "version": "0.2.0"
+        },
+        "annotations": {
+          "module": "{\n            \"moduleName\": \"application-2\",\n            \"appName\": \"application-2\",\n            \"resources\": [\n              {\n                \"resourceName\": \"service-1\",\n                \"serviceName\": \"service-1\"\n              }\n            ]\n          }"
+        }
+      },
       "env": {
         "MTA_METADATA": {
           "id": "com.sap.example.mta-2",
@@ -63,6 +81,15 @@
       "boundServices": [
         "service-2"
       ],
+      "metadata": {
+        "labels": {
+          "mta_id": "com.sap.example.mta-1",
+          "version": "1.0.0"
+        },
+        "annotations": {
+          "module": "{\n            \"moduleName\": \"application-3\",\n            \"appName\": \"application-3\",\n            \"resources\": [\n              {\n                \"resourceName\": \"service-1\",\n                \"serviceName\": \"service-1\"\n              },\n              {\n                \"resourceName\": \"service-2\",\n                \"serviceName\": \"service-2\"\n              }\n            ]\n          }"
+        }
+      },
       "env": {
         "MTA_METADATA": {
           "id": "com.sap.example.mta-1",
@@ -83,6 +110,15 @@
       "boundServices": [
         "service-3"
       ],
+      "metadata": {
+        "labels": {
+          "mta_id": "com.sap.example.mta-3",
+          "version": "1.1.0"
+        },
+        "annotations": {
+          "module": "{\n            \"moduleName\": \"application-4\",\n            \"appName\": \"application-4\",\n            \"resources\": [\n              {\n                \"resourceName\": \"service-4\",\n                \"serviceName\": \"service-4\"\n              }\n            ]\n          }"
+        }
+      },
       "env": {
         "MTA_METADATA": {
           "id": "com.sap.example.mta-3",

@@ -33,7 +33,7 @@ public class ApplicationMetadataBuilder {
                                                                .withModuleName(module.getName())
                                                                .withAppName(NameUtil.getApplicationName(module))
                                                                .withProvidedDependencyNames(providedDependenciesNames)
-                                                               .withServices(deployedResources)
+                                                               .withResources(deployedResources)
                                                                .withUris(uris)
                                                                .build();
 
@@ -61,6 +61,9 @@ public class ApplicationMetadataBuilder {
         Map<String, Object> parameters = (Map<String, Object>) resource.getParameters()
                                                                        .getOrDefault(SupportedParameters.SERVICE_CONFIG,
                                                                                      Collections.emptyMap());
+        if(parameters==null) {
+            parameters = Collections.emptyMap();
+        }
         TreeMap<String, Object> credentials = new TreeMap<>(parameters);
         return DeployedMtaResource.builder()
                                   .withServiceName(resource.getName())

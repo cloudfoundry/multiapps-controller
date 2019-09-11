@@ -41,7 +41,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class CheckForCreationConflictsStep extends SyncFlowableStep {
 
     @Autowired
-    private ApplicationMetadataFieldExtractor applicationMetadataMapper;
+    private ApplicationMetadataFieldExtractor applicationMetadataExtractor;
     
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws CloudOperationException, SLException {
@@ -143,7 +143,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         if(app.getMetadata() == null) {
             return ApplicationMtaMetadataParser.parseAppMetadata(app);
         } else {
-            return applicationMetadataMapper.extractMetadata(app);
+            return applicationMetadataExtractor.extractMetadata(app);
         }
     }
 
@@ -197,7 +197,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         CloudApplication app = selectedApp.get();
         Metadata metadata = app.getV3Metadata();
         if(metadata != null) {
-            return applicationMetadataMapper.getMtaId(metadata);
+            return applicationMetadataExtractor.getMtaId(metadata);
         }
 
         ApplicationMtaMetadata parsedAppMetadata = ApplicationMtaMetadataParser.parseAppMetadata(app);

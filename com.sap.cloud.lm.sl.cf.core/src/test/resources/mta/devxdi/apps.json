@@ -45,7 +45,16 @@
     },
     "name": "di-core",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.devx.di",
+        "mta_version" : "1.0.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"di-core\",\n  \"appName\" : \"di-core\",\n  \"resources\" : [ {\n    \"resourceName\" : \"uaa\",\n    \"serviceName\" : \"uaa\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  }, {\n    \"resourceName\" : \"di-core-hdi\",\n    \"serviceName\" : \"di-core-hdi\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  } ],\n  \"providedDependencyNames\" : [ \"di-core-url\", \"di-core\" ],\n  \"uris\" : [ \"i027947-di-core.cfapps.neo.ondemand.com\" ]\n}"
+      }
+    }
   },
   {
     "moduleName": "di-builder",
@@ -90,7 +99,16 @@
     },
     "name": "di-builder",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.devx.di",
+        "mta_version" : "1.0.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"di-builder\",\n  \"appName\" : \"di-builder\",\n  \"resources\" : [ {\n    \"resourceName\" : \"uaa\",\n    \"serviceName\" : \"uaa\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  } ],\n  \"providedDependencyNames\" : [ \"di-builder\" ],\n  \"uris\" : [ \"i027947-di-builder.cfapps.neo.ondemand.com\" ]\n}"
+      }
+    }
   },
   {
     "moduleName": "di-runner",
@@ -136,6 +154,15 @@
     },
     "name": "di-runner",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.devx.di",
+        "mta_version" : "1.0.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"di-runner\",\n  \"appName\" : \"di-runner\",\n  \"resources\" : [ {\n    \"resourceName\" : \"uaa\",\n    \"serviceName\" : \"uaa\",\n    \"modules\" : [ ],\n    \"serviceInstanceParameters\" : { }\n  } ],\n  \"providedDependencyNames\" : [ \"di-runner\" ],\n  \"uris\" : [ \"i027947-di-runner.cfapps.neo.ondemand.com\" ]\n}"
+      }
+    }
   }
 ]

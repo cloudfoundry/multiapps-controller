@@ -28,13 +28,8 @@ public class AppMetadataCollector implements MtaMetadataCollector<ApplicationMet
         List<CloudApplication> allApps = client.getApplicationsByMetadata(criteria.get());
         for (CloudApplication app : allApps) {
             ApplicationMtaMetadata appMetadata = fieldExtractor.extractMetadata(app);
-            System.out.println("Collector collected this app metadata: " + JsonUtil.toJson(appMetadata, true));
-            if (appMetadata == null) {
-                continue;
-            }
             resultEntities.add(new ApplicationMetadataEntity(appMetadata.getMtaMetadata(), appMetadata, app));
         }
         return resultEntities;
     }
-
 }

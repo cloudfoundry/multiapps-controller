@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class DeployedMtaModule {
 
@@ -83,6 +84,20 @@ public class DeployedMtaModule {
         this.uris = uris;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DeployedMtaModule that = (DeployedMtaModule) o;
+        return Objects.equals(moduleName, that.moduleName) &&
+                Objects.equals(appName, that.appName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(moduleName, appName);
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -119,7 +134,7 @@ public class DeployedMtaModule {
             return this;
         }
 
-        public Builder withServices(List<DeployedMtaResource> resources) {
+        public Builder withResources(List<DeployedMtaResource> resources) {
             this.resources = resources;
             return this;
         }

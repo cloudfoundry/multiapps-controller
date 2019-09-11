@@ -122,9 +122,10 @@ public class ApplicationCloudModelBuilder {
 
     private List<ResourceAndResourceType> getResourcesAndResourceTypesFromModule(Module module) {
         return module.getRequiredDependencies()
-                                                      .stream()
-                                                      .map(dependency -> getResourceWithType(dependency.getName()))
-                                                      .collect(Collectors.toList());
+                     .stream()
+                     .map(dependency -> getResourceWithType(dependency.getName()))
+                     .filter(Objects::nonNull)
+                     .collect(Collectors.toList());
     }
 
     private AttributeUpdateStrategy getApplicationAttributesUpdateStrategy(List<Map<String, Object>> parametersList) {

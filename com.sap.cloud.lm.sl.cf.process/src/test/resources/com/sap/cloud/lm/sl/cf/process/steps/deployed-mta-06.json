@@ -7,23 +7,38 @@
     {
       "moduleName": "d",
       "appName": "d",
-      "services": [
-        "s-1",
-        "s-2"
+      "resources": [
+        {
+          "resourceName": "s-1",
+          "serviceName": "s-1"
+        },
+        {
+          "resourceName": "s-2",
+          "serviceName": "s-2"
+        }
       ],
       "providedDependencyNames": []
     },
     {
       "moduleName": "e",
       "appName": "e",
-      "services": [
-        "s-1"
+      "resources": [
+        {
+          "resourceName": "s-1",
+          "serviceName": "s-1"
+        }
       ],
       "providedDependencyNames": []
     }
   ],
-  "services": [
-    "s-1",
-    "s-2"
+  "resources": [
+    {
+      "resourceName": "s-1",
+      "serviceName": "s-1"
+    },
+    {
+      "resourceName": "s-2",
+      "serviceName": "s-2"
+    }
   ]
 }

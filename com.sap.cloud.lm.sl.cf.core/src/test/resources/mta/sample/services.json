@@ -9,7 +9,16 @@
     "shouldIgnoreUpdateErrors": false,
     "label": "hdi-hana",
     "plan": "hdi-shared",
-    "name": "pricing-db-service"
+    "name": "pricing-db-service",
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.mta.sample",
+        "mta_version" : "1.2.1-beta+20150403144937853"
+      },
+      "annotations" : {
+        "resource" : "{\n  \"resourceName\" : \"pricing-db-service\",\n  \"serviceName\" : \"pricing-db-service\",\n  \"modules\" : [ {\n    \"moduleName\" : \"pricing\",\n    \"appName\" : \"pricing\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  }, {\n    \"moduleName\" : \"pricing-db\",\n    \"appName\" : \"pricing-db\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  } ],\n  \"serviceInstanceParameters\" : { }\n}"
+      }
+    }
   },
   {
     "alternativeLabels": [],

@@ -36,6 +36,15 @@
     },
     "name": "framework",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.sample.mta",
+        "mta_version" : "1.0.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"framework\",\n  \"appName\" : \"framework\",\n  \"resources\" : [ ],\n  \"providedDependencyNames\" : [ \"framework\" ],\n  \"uris\" : [ \"framework.sofd60245639a/v2\" ]\n}"
+      }
+    }
   }
 ]

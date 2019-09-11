@@ -66,7 +66,7 @@ public class DeployedMtaModuleDto {
         DeployedMtaModule result = DeployedMtaModule.builder()
                                                     .withModuleName(moduleName)
                                                     .withAppName(appName)
-                                                    .withServices(moduleServices)
+                                                    .withResources(moduleServices)
                                                     .withProvidedDependencyNames(providedDependencyNames)
                                                     .build();
         return result;

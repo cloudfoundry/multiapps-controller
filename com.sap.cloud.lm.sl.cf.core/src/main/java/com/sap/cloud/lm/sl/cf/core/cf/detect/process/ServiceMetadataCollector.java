@@ -32,7 +32,6 @@ public class ServiceMetadataCollector implements MtaMetadataCollector<ServiceMet
             if (serviceMetadata == null) {
                 continue;
             }
-            System.out.println("Collector collected this service metadata: " + JsonUtil.toJson(serviceMetadata, true));
             resultEntities.add(new ServiceMetadataEntity(serviceMetadata, service, serviceMetadata.getMtaMetadata()));
         }
         return resultEntities;

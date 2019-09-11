@@ -42,6 +42,15 @@
     },
     "name": "foo",
     "bindingParameters" : {},
-    "routes": []
+    "routes": [],
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.sample.mta",
+        "mta_version" : "1.0.0"
+      },
+      "annotations" : {
+        "module" : "{\n  \"moduleName\" : \"foo\",\n  \"appName\" : \"foo\",\n  \"resources\" : [ ],\n  \"providedDependencyNames\" : [ \"foo\" ],\n  \"uris\" : [ \"abc.cfapps.domain.com\", \"cba.cfapps.domain.com\", \"abc.cfapps.domain.moc\", \"cba.cfapps.domain.moc\" ]\n}"
+      }
+    }
   }
 ]

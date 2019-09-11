@@ -6,11 +6,15 @@ import static org.mockito.Matchers.eq;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.cloudfoundry.client.lib.domain.DockerInfo;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableDockerCredentials;
 import org.cloudfoundry.client.lib.domain.ImmutableDockerInfo;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
@@ -42,11 +46,22 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
         stepInput = createStepInput();
         loadParameters();
         prepareContext();
+        prepareClient();
 
         step.execute(context);
         assertStepFinishedSuccessfully();
 
         validateClient();
+    }
+
+    private void prepareClient() {
+        Mockito.doReturn(ImmutableCloudApplication.builder()
+                                                  .metadata(ImmutableCloudMetadata.builder()
+                                                                                  .guid(UUID.randomUUID())
+                                                                                  .build())
+                                                  .build())
+               .when(client)
+               .getApplication(application.getName());
     }
 
     private void prepareContext() {

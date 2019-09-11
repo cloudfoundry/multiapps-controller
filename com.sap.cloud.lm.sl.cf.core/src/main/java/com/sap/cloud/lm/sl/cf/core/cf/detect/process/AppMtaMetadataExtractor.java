@@ -65,8 +65,7 @@ public class AppMtaMetadataExtractor implements MtaMetadataExtractor<Application
          * Do not replace existing resources. They might be created by service metadata extraction. This is here only to move the user
          * provided service metadata to the service metadata because of v3 metadata api limitations regarding user provided services.
          */
-        module.getResources()
-              .stream()
+        appServices.stream()
               .filter(resource -> !containsResource(deployedMta.getResources(), resource))
               .forEach(resource -> deployedMta.getResources()
                                               .add(resource));

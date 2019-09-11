@@ -1,11 +1,13 @@
 package com.sap.cloud.lm.sl.cf.core.cf.detect;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.sap.cloud.lm.sl.mta.model.Version;
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,26 +50,28 @@ public class DeployedComponentsDetector {
     }
 
     private Optional<List<DeployedMta>> fetchDeployedMtas(MtaMetadataCriteria criteria, CloudControllerClient client) {
-        Map<String, List<MetadataEntity>> mtaEntities = collectors.stream()
-                                                                  .map(collector -> collector.collect(criteria, client))
-                                                                  .flatMap(List::stream)
-                                                                  .collect(Collectors.groupingBy(e -> e.getMtaMetadata()
-                                                                                                          .getId()));
+        Map<String, Map<Version, List<MetadataEntity>>> mtaEntitiesByIdByVersion = collectors.stream()
+                                                                                             .map(collector -> collector.collect(criteria,
+                                                                                                                                 client))
+                                                                                             .flatMap(List::stream)
+                                                                                             .collect(Collectors.groupingBy(e -> e.getMtaMetadata()
+                                                                                                                                  .getId(),
+                                                                                                                            Collectors.groupingBy(e -> e.getMtaMetadata()
+                                                                                                                                                        .getVersion())));
 
-        List<DeployedMta> deployedMtas = mtaEntities.entrySet()
-                                                    .stream()
-                                                    .map(entry -> mtaMetadataEntityAggregator.aggregate(entry.getValue()))
-                                                    .collect(Collectors.toList());
+        List<DeployedMta> deployedMtas = mtaEntitiesByIdByVersion.values()
+                                                                 .stream()
+                                                                 .flatMap(versionsMaps -> versionsMaps.values()
+                                                                                                      .stream())
+                                                                 .map(listEntitiesSameIdDifferentVersion -> mtaMetadataEntityAggregator.aggregate(listEntitiesSameIdDifferentVersion))
+                                                                 .collect(Collectors.toList());
 
         deployedMtas = processDeployedMtas(deployedMtas);
-        System.out.println("Detected deployed mtas: " + JsonUtil.toJson(deployedMtas, true));
         return Optional.of(deployedMtas);
     }
 
     private List<DeployedMta> processDeployedMtas(List<DeployedMta> deployedMtas) {
-        System.out.println("Initial deployed mtas: " + JsonUtil.toJson(deployedMtas, true));
         List<DeployedMta> mergedMtasById = mergeDifferentVersionsOfMtasWithSameId(deployedMtas);
-        System.out.println("mergedMtasById: " + JsonUtil.toJson(mergedMtasById, true));
         return removeEmptyMtas(mergedMtasById);
     }
 
@@ -96,6 +100,13 @@ public class DeployedComponentsDetector {
           .addAll(from.getResources());
         to.getModules()
           .addAll(from.getModules());
+        if (!from.getMetadata()
+                 .getVersion()
+                 .equals(to.getMetadata()
+                           .getVersion())) {
+            to.getMetadata()
+              .setVersion(null);
+        }
         return to;
     }
 

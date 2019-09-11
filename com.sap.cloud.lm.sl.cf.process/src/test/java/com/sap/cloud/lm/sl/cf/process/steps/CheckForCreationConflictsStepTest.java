@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.sap.cloud.lm.sl.cf.core.cf.detect.mapping.ApplicationMetadataFieldExtractor;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
@@ -18,6 +19,7 @@ import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
+import org.cloudfoundry.client.v3.Metadata;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,6 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
@@ -39,6 +42,8 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 @RunWith(Parameterized.class)
 public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<CheckForCreationConflictsStep> {
@@ -49,6 +54,8 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     private boolean shouldWarn;
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    @Spy
+    private ApplicationMetadataFieldExtractor applicationMetadataExtractor = new ApplicationMetadataFieldExtractor();
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -209,7 +216,6 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
         Mockito.when(client.getServices())
                .thenReturn(existingServices);
         prepareServiceInstances();
-
     }
 
     private void prepareServiceInstances() {
@@ -243,6 +249,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
         String name;
         List<String> boundServices = Collections.emptyList();
         Map<String, Object> env = Collections.emptyMap();
+        Metadata metadata;
 
         CloudApplicationExtended toCloudApplication() {
             return ImmutableCloudApplicationExtended.builder()
@@ -251,6 +258,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
                                                                                     .build())
                                                     .name(name)
                                                     .env(ENV_CONVERTER.asEnv(env))
+                                                    .v3Metadata(metadata)
                                                     .build();
         }
     }

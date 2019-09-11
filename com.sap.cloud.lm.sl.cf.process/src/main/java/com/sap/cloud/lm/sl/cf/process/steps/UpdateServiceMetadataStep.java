@@ -37,7 +37,7 @@ public class UpdateServiceMetadataStep extends ServiceStep {
     }
 
     private MethodExecution<String> updateServiceMetadata(DelegateExecution context, CloudControllerClient client, CloudServiceExtended service) {
-        getStepLogger().info(Messages.UPDATING_SERVICE_METADATA, service.getName(), service.getResourceName());
+        getStepLogger().debug(Messages.UPDATING_SERVICE_METADATA, service.getName(), service.getResourceName());
         updateServiceMetadata(service, client);
         getStepLogger().debug(Messages.SERVICE_METADATA_UPDATED, service.getName());
         return new MethodExecution<>(null, ExecutionState.FINISHED);
@@ -45,12 +45,10 @@ public class UpdateServiceMetadataStep extends ServiceStep {
 
     private void updateServiceMetadata(CloudServiceExtended serviceToProcess, CloudControllerClient client) {
         ImmutableCloudService serviceWithMetadata = ImmutableCloudService.copyOf(serviceToProcess);
-        if(serviceToProcess.getMetadata() == null || serviceToProcess.getMetadata().getGuid() == null) {
-            CloudMetadata serviceMeta = client.getService(serviceWithMetadata.getName()).getMetadata();
-            serviceWithMetadata = serviceWithMetadata.withMetadata(serviceMeta);
-        }
+        CloudMetadata serviceMeta = client.getService(serviceWithMetadata.getName()).getMetadata();
+        serviceWithMetadata = serviceWithMetadata.withMetadata(serviceMeta);
         client.updateServiceMetadata(serviceWithMetadata.getMetadata().getGuid(), serviceWithMetadata.getV3Metadata());
-        getStepLogger().info("updated service metadata name: " + serviceWithMetadata + " metadata: " + JsonUtil.toJson(serviceWithMetadata.getV3Metadata(), true));
+        getStepLogger().debug("updated service metadata name: " + serviceWithMetadata + " metadata: " + JsonUtil.toJson(serviceWithMetadata.getV3Metadata(), true));
     }
 
     @Override

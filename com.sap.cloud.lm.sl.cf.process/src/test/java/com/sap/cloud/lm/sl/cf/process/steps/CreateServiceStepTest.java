@@ -122,11 +122,15 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
 
     private void prepareClient() {
         SimpleService service = stepInput.service;
+        CloudServiceInstance cloudService = createServiceInstance(service);
         Mockito.when(client.getServiceInstance(service.name))
-               .thenReturn(createServiceInstance(service));
+               .thenReturn(cloudService);
+        Mockito.when(client.getService(service.name))
+                .thenReturn(cloudService.getService());
         Mockito.doNothing()
                .when(client)
                .createUserProvidedService(any(CloudServiceExtended.class), any(Map.class));
+
     }
 
     private void prepareFactory(String stepPhase) {

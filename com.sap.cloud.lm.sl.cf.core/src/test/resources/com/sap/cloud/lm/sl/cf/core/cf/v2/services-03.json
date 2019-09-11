@@ -39,7 +39,16 @@
     "shouldIgnoreUpdateErrors": false,
     "label": "xsuaa",
     "plan": "space",
-    "name": "random-service-renamed"
+    "name": "random-service-renamed",
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.sample.mta",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "resource" : "{\n  \"resourceName\" : \"rs\",\n  \"serviceName\" : \"random-service-renamed\",\n  \"modules\" : [ {\n    \"moduleName\" : \"module-1\",\n    \"appName\" : \"module-1\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  } ],\n  \"serviceInstanceParameters\" : { }\n}"
+      }
+    }
   },
   {
     "alternativeLabels": [],
@@ -51,7 +60,16 @@
     "shouldIgnoreUpdateErrors": false,
     "label": "xsuaa",
     "plan": "space",
-    "name": "random-service"
+    "name": "random-service",
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.sample.mta",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "resource" : "{\n  \"resourceName\" : \"random-service\",\n  \"serviceName\" : \"random-service\",\n  \"modules\" : [ {\n    \"moduleName\" : \"module-1\",\n    \"appName\" : \"module-1\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  } ],\n  \"serviceInstanceParameters\" : { }\n}"
+      }
+    }
   },
   {
     "alternativeLabels": [],
@@ -63,7 +81,16 @@
     "shouldIgnoreUpdateErrors": false,
     "label": "xsuaa",
     "plan": "space",
-    "name": "random-resource-named-service"
+    "name": "random-resource-named-service",
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.sample.mta",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "resource" : "{\n  \"resourceName\" : \"random-resource-named-service\",\n  \"serviceName\" : \"random-resource-named-service\",\n  \"modules\" : [ {\n    \"moduleName\" : \"module-1\",\n    \"appName\" : \"module-1\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  } ],\n  \"serviceInstanceParameters\" : { }\n}"
+      }
+    }
   },
   {
     "alternativeLabels": [],
@@ -73,7 +100,16 @@
     "isOptional": false,
     "isManaged": false,
     "shouldIgnoreUpdateErrors": false,
-    "name": "existing-service-renamed"
+    "name": "existing-service-renamed",
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.sample.mta",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "resource" : "{\n  \"resourceName\" : \"es\",\n  \"serviceName\" : \"existing-service-renamed\",\n  \"modules\" : [ {\n    \"moduleName\" : \"module-1\",\n    \"appName\" : \"module-1\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  } ],\n  \"serviceInstanceParameters\" : { }\n}"
+      }
+    }
   },
   {
     "alternativeLabels": [],
@@ -83,7 +119,16 @@
     "isOptional": false,
     "isManaged": false,
     "shouldIgnoreUpdateErrors": false,
-    "name": "existing-service"
+    "name": "existing-service",
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.sample.mta",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "resource" : "{\n  \"resourceName\" : \"existing-service\",\n  \"serviceName\" : \"existing-service\",\n  \"modules\" : [ {\n    \"moduleName\" : \"module-1\",\n    \"appName\" : \"module-1\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  } ],\n  \"serviceInstanceParameters\" : { }\n}"
+      }
+    }
   },
   {
     "alternativeLabels": [],
@@ -93,6 +138,15 @@
     "isOptional": false,
     "isManaged": false,
     "shouldIgnoreUpdateErrors": false,
-    "name": "existing-resource-named-service"
+    "name": "existing-resource-named-service",
+    "v3Metadata" : {
+      "labels" : {
+        "mta_id" : "com.sap.sample.mta",
+        "mta_version" : "0.1.0"
+      },
+      "annotations" : {
+        "resource" : "{\n  \"resourceName\" : \"existing-resource-named-service\",\n  \"serviceName\" : \"existing-resource-named-service\",\n  \"modules\" : [ {\n    \"moduleName\" : \"module-1\",\n    \"appName\" : \"module-1\",\n    \"resources\" : [ ],\n    \"providedDependencyNames\" : [ ],\n    \"uris\" : [ ]\n  } ],\n  \"serviceInstanceParameters\" : { }\n}"
+      }
+    }
   }
 ]

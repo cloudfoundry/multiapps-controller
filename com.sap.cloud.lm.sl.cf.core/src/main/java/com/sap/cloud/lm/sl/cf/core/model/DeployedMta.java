@@ -6,8 +6,8 @@ import java.util.List;
 public class DeployedMta {
 
     private MtaMetadata metadata;
-    private List<DeployedMtaModule> modules;
-    private List<DeployedMtaResource> resources;
+    private List<DeployedMtaModule> modules = new ArrayList<>();
+    private List<DeployedMtaResource> resources = new ArrayList<>();
 
     private DeployedMta(Builder builder) {
         this.metadata = builder.metadata;

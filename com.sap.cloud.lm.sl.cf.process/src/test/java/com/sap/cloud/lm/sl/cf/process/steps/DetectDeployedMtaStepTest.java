@@ -53,6 +53,7 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
         List<DeployedMta> deployedComponents = Arrays.asList(deployedMta);
 
         when(componentsDetector.getAllDeployedMta(client)).thenReturn(Optional.of(deployedComponents));
+        when(componentsDetector.getDeployedMta(MTA_ID, client)).thenReturn(Optional.of(deployedMta));
 
         step.execute(context);
 
@@ -66,7 +67,7 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
         when(client.getApplications()).thenReturn(Collections.emptyList());
         when(componentsDetector.getAllDeployedMta(client))
             .thenReturn(Optional.of(Collections.emptyList()));
-
+        when(componentsDetector.getDeployedMta(MTA_ID, client)).thenReturn(Optional.empty());
         step.execute(context);
 
         assertStepFinishedSuccessfully();

@@ -1,0 +1,41 @@
+{
+  "value" : [
+    {
+      "metadata":{
+        "id":"quux"
+      },
+      "modules":[
+        {
+          "moduleName":"mta-module-1",
+          "appName":"mta-application-1",
+          "resources":[
+
+          ],
+          "providedDependencyNames":[
+            "mta-provided-dependency-1",
+            "mta-provided-dependency-2"
+          ],
+          "uris":[
+
+          ]
+        },
+        {
+          "moduleName":"mta-module-2",
+          "appName":"mta-application-2",
+          "resources":[
+
+          ],
+          "providedDependencyNames":[
+
+          ],
+          "uris":[
+
+          ]
+        }
+      ],
+      "resources":[
+
+      ]
+    }
+  ]
+}

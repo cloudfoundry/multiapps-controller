@@ -1,0 +1,73 @@
+[
+  {
+    "metadata":{
+      "id":"quux",
+      "version":"0.1.0"
+    },
+    "modules":[
+      {
+        "moduleName":"mta-module-1",
+        "appName":"mta-application-1",
+        "resources":[
+
+        ],
+        "providedDependencyNames":[
+
+        ],
+        "uris":[
+
+        ]
+      },
+      {
+        "moduleName":"mta-module-2",
+        "appName":"mta-application-2",
+        "resources":[
+          {
+            "serviceName":"service-1",
+            "modules":[
+
+            ],
+            "serviceInstanceParameters":{
+
+            }
+          },
+          {
+            "serviceName":"service-2",
+            "modules":[
+
+            ],
+            "serviceInstanceParameters":{
+
+            }
+          }
+        ],
+        "providedDependencyNames":[
+
+        ],
+        "uris":[
+
+        ]
+      }
+    ],
+    "resources":[
+      {
+        "serviceName":"service-1",
+        "modules":[
+
+        ],
+        "serviceInstanceParameters":{
+
+        }
+      },
+      {
+        "serviceName":"service-2",
+        "modules":[
+
+        ],
+        "serviceInstanceParameters":{
+
+        }
+      }
+    ]
+  }
+]

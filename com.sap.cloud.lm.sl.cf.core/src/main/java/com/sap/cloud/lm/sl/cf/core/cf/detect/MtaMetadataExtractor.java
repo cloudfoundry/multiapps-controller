@@ -16,7 +16,7 @@ public interface MtaMetadataExtractor<T extends MetadataEntity> {
         if(metadata.getModules() == null) {
             metadata.setModules(new ArrayList<>());
         }
-        if(metadata.getMetadata() == null) {
+        if(metadata.getMetadata() == null && entity.getMtaMetadata() != null) {
             metadata.setMetadata(entity.getMtaMetadata());
         }
     }
