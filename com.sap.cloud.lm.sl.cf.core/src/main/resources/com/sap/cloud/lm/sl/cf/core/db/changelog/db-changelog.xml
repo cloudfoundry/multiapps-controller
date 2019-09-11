@@ -1,48 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                 http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_oauth_access_token_table.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_ongoing_operation_table.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_audit_log_table.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_configuration_subscription_table.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-rename_user_column_in_ongoing_operation_table.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_configuration_registry_table.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_ongoing_operation_table_add_final_state_column.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_visible_in_column.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_target_org_column.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop_configuration_registry_unique_constraint.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_new_configuration_registry_unique_constraint.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_split_target_space_column.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-update_configuration_subscription_table_update_filter_column.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_ongoing_operation_table_rename_slp_states.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-rename_ongoing_operation_table.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_operation_table_add_ended_at_column.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_operation_table_timestamp_storing_columns.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_quartz_tables.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_space_id_column.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_extend_provider_version_column.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-index_space_id_operation.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop_context_extension_table.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_operation_table_drop_cleaned_up_column.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-prepare_for_flowable.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_extend_provider_id_column.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop_deploy_target_tables.xml" />
+
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_oauth_access_token_table.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_ongoing_operation_table.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_audit_log_table.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_configuration_subscription_table.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-rename_user_column_in_ongoing_operation_table.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_configuration_registry_table.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_ongoing_operation_table_add_final_state_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_visible_in_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_target_org_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop_configuration_registry_unique_constraint.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_new_configuration_registry_unique_constraint.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_split_target_space_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-update_configuration_subscription_table_update_filter_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_ongoing_operation_table_rename_slp_states.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-rename_ongoing_operation_table.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_operation_table_add_ended_at_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_operation_table_timestamp_storing_columns.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_quartz_tables.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_space_id_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_extend_provider_version_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-index_space_id_operation.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop_context_extension_table.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_operation_table_drop_cleaned_up_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-prepare_for_flowable.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_extend_provider_id_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop_deploy_target_tables.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_historic_operation_event_table.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_progress_message_table.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_progress_message_add_timestamp_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_task_extension_table.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_progress_message_add_task_execution_id_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_task_extension_add_task_execution_id_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-index_process_ids_of_progress_messages.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_progress_message_drop_task_execution_id_column.xml" />
 </databaseChangeLog>

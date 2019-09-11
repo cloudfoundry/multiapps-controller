@@ -1,50 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-add_lm_sl_persistence_file_table.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_lm_sl_persistence_file_add_space_column.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-add_process_log_table.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-add_progress_message_table.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_progress_message_add_timestamp_column.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-add_task_extension_table.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_lm_sl_persistance_file_alter_content_column.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_lm_sl_persistance_file_delete_old_content.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_lm_sl_persistance_file_alter_content_column_allow_null.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_process_log_alter_content_column.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_process_log_alter_content_column_allow_null.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-add_trigger_for_lm_sl_persistance_file_process_log_cf.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_lm_sl_persistance_file_alter_namespace_column_allow_null.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_progress_message_add_task_execution_id_column.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_task_extension_add_task_execution_id_column.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-index_process_ids_of_progress_messages.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-index_space_lm_sl_persistence_file.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-postgresql_add_unlink_file_content_triggers.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_progress_message_drop_task_execution_id_column.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-remove_process_log_unique_constraint.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_process_log_add_content_column_for_bytea_cf.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-add_lm_sl_persistence_file_table.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_lm_sl_persistence_file_add_space_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-add_process_log_table.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_lm_sl_persistance_file_alter_content_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_lm_sl_persistance_file_delete_old_content.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_lm_sl_persistance_file_alter_content_column_allow_null.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_process_log_alter_content_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_process_log_alter_content_column_allow_null.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-add_trigger_for_lm_sl_persistance_file_process_log_cf.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_lm_sl_persistance_file_alter_namespace_column_allow_null.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-index_space_lm_sl_persistence_file.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-postgresql_add_unlink_file_content_triggers.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-remove_process_log_unique_constraint.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_process_log_add_content_column_for_bytea_cf.xml" />
 </databaseChangeLog>
