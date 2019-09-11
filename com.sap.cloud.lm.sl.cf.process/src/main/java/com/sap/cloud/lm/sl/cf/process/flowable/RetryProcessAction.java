@@ -9,6 +9,9 @@ import javax.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
+import com.sap.cloud.lm.sl.cf.process.util.HistoricOperationEventPersister;
+
 @Named
 public class RetryProcessAction extends ProcessAction {
 
@@ -16,9 +19,13 @@ public class RetryProcessAction extends ProcessAction {
 
     public static final String ACTION_ID_RETRY = "retry";
 
+    private HistoricOperationEventPersister historicOperationEventPersister;
+
     @Inject
-    public RetryProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions) {
+    public RetryProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
+                              HistoricOperationEventPersister historicOperationEventPersister) {
         super(flowableFacade, additionalProcessActions);
+        this.historicOperationEventPersister = historicOperationEventPersister;
     }
 
     @Override
@@ -31,6 +38,7 @@ public class RetryProcessAction extends ProcessAction {
             String subProcessId = subProcessesIdsIterator.previous();
             retryProcess(userId, subProcessId);
         }
+        historicOperationEventPersister.add(superProcessInstanceId, EventType.RETRIED);
     }
 
     private void retryProcess(String userId, String subProcessId) {

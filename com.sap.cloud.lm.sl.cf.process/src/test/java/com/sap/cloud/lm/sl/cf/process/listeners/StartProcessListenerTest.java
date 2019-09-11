@@ -31,6 +31,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.cf.process.util.HistoricOperationEventPersister;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -74,6 +75,8 @@ public class StartProcessListenerTest {
     private ProcessLogsPersister processLogsPersister = new ProcessLogsPersister();
     @Mock
     private ApplicationConfiguration configuration;
+    @Mock
+    private HistoricOperationEventPersister historicOperationEventPersister;
 
     private Supplier<ZonedDateTime> currentTimeSupplier = () -> START_TIME;
 

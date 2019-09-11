@@ -37,9 +37,10 @@ public class FlowableExceptionEventHandlerTest {
     private ProgressMessageService progressMessageServiceMock;
     @Mock(answer = Answers.RETURNS_SELF)
     private ProgressMessageQuery progressMessageQuery;
-
     @Mock
     private FlowableFacade flowableFacadeMock;
+    @Mock
+    private HistoricOperationEventPersister historicOperationEventPersisterMock;
 
     private Date now = DateTime.now()
                                .toDate();
@@ -88,6 +89,7 @@ public class FlowableExceptionEventHandlerTest {
                .thenReturn(new Exception("test-message"));
         FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageServiceMock,
                                                                                       flowableFacadeMock,
+                                                                                      historicOperationEventPersisterMock,
                                                                                       mockedExceptionEvent);
         handler.handle(new FlowableEngineEventImpl(FlowableEngineEventType.CUSTOM));
 
@@ -145,6 +147,7 @@ public class FlowableExceptionEventHandlerTest {
 
         FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageServiceMock,
                                                                                       flowableFacadeMock,
+                                                                                      historicOperationEventPersisterMock,
                                                                                       mockedExceptionEvent).withProcessEngineConfiguration(mockProcessEngineConfiguration);
 
         handler.handle(new FlowableEngineEventImpl(FlowableEngineEventType.CUSTOM, "bar", "foo", "testing"));
@@ -181,7 +184,7 @@ public class FlowableExceptionEventHandlerTest {
     }
 
     private void testSimpleWithEventAndExceptionEvent(FlowableEvent event, FlowableExceptionEvent exceptionEvent) {
-        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(null, null, exceptionEvent);
+        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(null, null, null, exceptionEvent);
         handler.handle(event);
     }
 
@@ -191,8 +194,10 @@ public class FlowableExceptionEventHandlerTest {
         private ProcessEngineConfiguration processEngineConfiguration;
 
         public FlowableExceptionEventHandlerMock(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
+
+                                                 HistoricOperationEventPersister historicOperationEventPersister,
                                                  FlowableExceptionEvent flowableExceptionEvent) {
-            super(progressMessageService, flowableFacade);
+            super(progressMessageService, flowableFacade, historicOperationEventPersister);
             this.flowableExceptionEvent = flowableExceptionEvent;
         }
 

@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
+import com.sap.cloud.lm.sl.cf.process.util.HistoricOperationEventPersister;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FlowableActionFactoryTest {
@@ -27,6 +28,8 @@ public class FlowableActionFactoryTest {
     AdditionalProcessAction additionalProcessAction;
     @Mock
     ProcessActionRegistry processActionRegistry;
+    @Mock
+    HistoricOperationEventPersister historicOperationEventPersister;
 
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -42,7 +45,7 @@ public class FlowableActionFactoryTest {
     @Test
     public void testRetryAction() {
         Mockito.when(processActionRegistry.getAction(RETRY_ACTION_ID))
-               .thenReturn(new RetryProcessAction(facade, Arrays.asList(additionalProcessAction)));
+               .thenReturn(new RetryProcessAction(facade, Arrays.asList(additionalProcessAction), historicOperationEventPersister));
         testAction(RETRY_ACTION_ID, RetryProcessAction.class);
     }
 

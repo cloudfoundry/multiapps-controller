@@ -38,9 +38,7 @@ public class HistoricOperationEventService extends PersistenceService<HistoricOp
 
     @Override
     protected void onEntityConflict(HistoricOperationEventDto dto, Throwable t) {
-        throw (ConflictException) new ConflictException(Messages.HISTORIC_OPERATION_EVENT_ALREADY_EXISTS,
-                                                        dto.getProcessId(),
-                                                        dto.getPrimaryKey()).initCause(t);
+        throw new ConflictException(t, Messages.HISTORIC_OPERATION_EVENT_ALREADY_EXISTS, dto.getProcessId(), dto.getPrimaryKey());
     }
 
     @Override
