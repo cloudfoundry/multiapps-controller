@@ -15,6 +15,7 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_ENTRY_TABLE = "configuration_registry";
         public static final String CONFIGURATION_SUBSCRIPTION_TABLE = "configuration_subscription";
         public static final String PROGRESS_MESSAGE_TABLE = "progress_message";
+        public static final String HISTORIC_OPERATION_EVENT_TABLE = "historic_operation_event";
 
     }
 
@@ -27,6 +28,7 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_ENTRY_SEQUENCE = "configuration_entry_sequence";
         public static final String CONFIGURATION_SUBSCRIPTION_SEQUENCE = "configuration_subscription_sequence";
         public static final String PROGRESS_MESSAGE_SEQUENCE = "ID_SEQ";
+        public static final String HISTORIC_OPERATION_EVENT_SEQUENCE = "historic_operation_event_sequence";
 
     }
 
@@ -67,6 +69,11 @@ public class PersistenceMetadata {
         public static final String PROGRESS_MESSAGE_TYPE = "type";
         public static final String PROGRESS_MESSAGE_TEXT = "text";
         public static final String PROGRESS_MESSAGE_TIMESTAMP = "timestamp";
+
+        public static final String HISTORIC_OPERATION_EVENT_ID = "id";
+        public static final String HISTORIC_OPERATION_EVENT_PROCESS_ID = "process_id";
+        public static final String HISTORIC_OPERATION_EVENT_TYPE = "event";
+        public static final String HISTORIC_OPERATION_EVENT_TIMESTAMP = "timestamp";
 
     }
 
