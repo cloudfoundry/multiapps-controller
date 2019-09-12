@@ -22,6 +22,9 @@ public class DomainValidator implements ParameterValidator {
         result = result.replaceAll(DOMAIN_ILLEGAL_CHARACTERS, "-");
         result = result.replaceAll("^(\\-*)", "");
         result = result.replaceAll("(\\-*)$", "");
+        if (result.isEmpty()) {
+            return result;
+        }
         if (!isValid(result)) {
             throw new ContentException(Messages.COULD_NOT_CREATE_VALID_DOMAIN, domain);
         }

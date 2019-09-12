@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
@@ -72,9 +73,9 @@ public class SystemParameters {
         systemParameters.put(SupportedParameters.ORG, organization);
         systemParameters.put(SupportedParameters.USER, user);
         systemParameters.put(SupportedParameters.SPACE, space);
-        systemParameters.put(SupportedParameters.DEFAULT_DOMAIN, defaultDomain);
+        systemParameters.put(SupportedParameters.DEFAULT_DOMAIN, getDefaultDomain());
         if (reserveTemporaryRoutes) {
-            systemParameters.put(SupportedParameters.DEFAULT_IDLE_DOMAIN, defaultDomain);
+            systemParameters.put(SupportedParameters.DEFAULT_IDLE_DOMAIN, getDefaultDomain());
         }
         systemParameters.put(SupportedParameters.XS_TARGET_API_URL, getControllerUrl());
         systemParameters.put(SupportedParameters.CONTROLLER_URL, getControllerUrl());
@@ -90,9 +91,9 @@ public class SystemParameters {
         Map<String, Object> moduleSystemParameters = new HashMap<>();
 
         Map<String, Object> moduleParameters = Collections.unmodifiableMap(module.getParameters());
-        moduleSystemParameters.put(SupportedParameters.DOMAIN, defaultDomain);
+        moduleSystemParameters.put(SupportedParameters.DOMAIN, getDefaultDomain());
         if (reserveTemporaryRoutes) {
-            moduleSystemParameters.put(SupportedParameters.IDLE_DOMAIN, defaultDomain);
+            moduleSystemParameters.put(SupportedParameters.IDLE_DOMAIN, getDefaultDomain());
         }
         moduleSystemParameters.put(SupportedParameters.APP_NAME, module.getName());
         moduleSystemParameters.put(SupportedParameters.INSTANCES, 1);
@@ -104,6 +105,10 @@ public class SystemParameters {
         moduleSystemParameters.put(SupportedParameters.GENERATED_PASSWORD, credentialsGenerator.next(GENERATED_CREDENTIALS_LENGTH));
 
         return moduleSystemParameters;
+    }
+
+    private String getDefaultDomain() {
+        return defaultDomain == null ? "" : defaultDomain;
     }
 
     private String getDefaultTimestamp() {
@@ -167,6 +172,10 @@ public class SystemParameters {
     private String getDefaultHost(String moduleName) {
         String host = (targetName + " " + moduleName).replaceAll("\\s", "-")
                                                      .toLowerCase();
+        if (CommonUtil.isEmpty(getDefaultDomain())) {
+            return "";
+        }
+
         if (!HOST_VALIDATOR.isValid(host)) {
             return HOST_VALIDATOR.attemptToCorrect(host);
         }

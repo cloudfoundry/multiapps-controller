@@ -42,11 +42,11 @@ public class DomainValidatorTest {
             // (2)
             { "test.test.test", true , new Expectation("test.test.test"), },
             // (3)
-            { "---", false, new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid domain from \"---\"") },
+            { "---", false, new Expectation("") },
             // (4)
             { "@12", false, new Expectation("12"), },
             // (5)
-            { "@@@", false, new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid domain from \"@@@\"") },
+            { "@@@", false, new Expectation("") },
 // @formatter:on
         });
     }

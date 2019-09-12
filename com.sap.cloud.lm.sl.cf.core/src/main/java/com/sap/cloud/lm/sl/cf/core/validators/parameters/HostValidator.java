@@ -25,6 +25,9 @@ public class HostValidator implements ParameterValidator {
         result = result.replaceAll(HOST_ILLEGAL_CHARACTERS, "-");
         result = result.replaceAll("^(\\-*)", "");
         result = result.replaceAll("(\\-*)$", "");
+        if (result.isEmpty()) {
+            return result;
+        }
         if (!isValid(result)) {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_HOST, host);
         }

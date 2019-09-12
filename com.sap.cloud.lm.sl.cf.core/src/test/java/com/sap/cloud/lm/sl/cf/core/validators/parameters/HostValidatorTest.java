@@ -40,11 +40,11 @@ public class HostValidatorTest {
             // (1)
             { "test-test-test", true , new Expectation("test-test-test"), },
             // (2)
-            { "---", false, new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid host from \"---\"") },
+            { "---", false, new Expectation("") },
             // (3)
             { "@12", false, new Expectation("12"), },
             // (4)
-            { "@@@", false, new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid host from \"@@@\"") },
+            { "@@@", false, new Expectation("") },
 // @formatter:on
         });
     }

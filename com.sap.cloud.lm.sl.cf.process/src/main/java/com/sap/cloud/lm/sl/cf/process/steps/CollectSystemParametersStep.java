@@ -46,6 +46,9 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         CloudControllerClient client = execution.getControllerClient();
         String defaultDomainName = getDefaultDomain(client);
         getStepLogger().debug(Messages.DEFAULT_DOMAIN, defaultDomainName);
+        if (defaultDomainName == null) {
+            getStepLogger().warn("No shared domains found. Default URLs will not be created.");
+        }
 
         DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
         SystemParameters systemParameters = createSystemParameters(execution.getContext(), client, defaultDomainName,

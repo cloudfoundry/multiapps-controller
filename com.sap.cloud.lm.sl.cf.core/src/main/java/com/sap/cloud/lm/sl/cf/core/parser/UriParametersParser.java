@@ -16,6 +16,8 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.RoutesValidator;
+import com.sap.cloud.lm.sl.common.ContentException;
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class UriParametersParser implements ParametersParser<List<String>> {
@@ -60,9 +62,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         List<String> domains = getDomainValues(parametersList);
 
         if (domains.isEmpty() && !hosts.isEmpty()) {
-            // Use hosts as domains.
-            domains = hosts;
-            hosts = Collections.emptyList();
+            throw new ContentException("Cannot create URLs with the specified hosts and no default domain");
         }
 
         return assembleUris(hosts, domains);
@@ -84,7 +84,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
 
         List<String> hosts = getValuesFromSingularName(hostParameterName, parametersList);
 
-        if (hosts.isEmpty() && defaultHost != null) {
+        if (hosts.isEmpty() && !CommonUtil.isNullOrEmpty(defaultHost)) {
             hosts.add(defaultHost);
         }
         return hosts;
@@ -93,7 +93,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     private List<String> getDomainValues(List<Map<String, Object>> parametersList) {
         List<String> domains = getValuesFromSingularName(domainParameterName, parametersList);
 
-        if (domains.isEmpty() && defaultDomain != null) {
+        if (domains.isEmpty() && !CommonUtil.isNullOrEmpty(defaultDomain)) {
             domains.add(defaultDomain);
         }
         return domains;
@@ -164,7 +164,10 @@ public class UriParametersParser implements ParametersParser<List<String>> {
 
     private static <T> List<T> getValuesFromSingularName(String singularParameterName, List<Map<String, Object>> parametersList) {
         String pluralParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(singularParameterName);
-        return getPluralOrSingular(parametersList, pluralParameterName, singularParameterName);
+        List<T> values = getPluralOrSingular(parametersList, pluralParameterName, singularParameterName);
+        return values.stream()
+                     .filter(value -> !CommonUtil.isNullOrEmpty(value))
+                     .collect(Collectors.toList());
     }
 
     private String appendRoutePathIfPresent(String uri) {
