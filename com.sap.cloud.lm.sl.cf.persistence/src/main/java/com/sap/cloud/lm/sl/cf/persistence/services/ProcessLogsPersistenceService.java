@@ -24,6 +24,7 @@ import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcesso
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.BlobSqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.ByteArraySqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.SqlFileQueryProvider;
+import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.DigestHelper;
 
@@ -53,7 +54,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         final StringBuilder builder = new StringBuilder();
         List<String> logIds = getSortedByTimestampFileIds(space, namespace, logName);
         if (logIds.isEmpty()) {
-            return null;
+            throw new NotFoundException(MessageFormat.format(Messages.ERROR_LOG_FILE_NOT_FOUND, logName, namespace, space));
         }
 
         FileContentProcessor streamProcessor = is -> builder.append(IOUtils.toString(is, Charset.defaultCharset()));

@@ -26,6 +26,7 @@ public final class Messages {
     public static final String ERROR_DELETING_PROCESS_LOGS_WITH_NAMESPACE = "Error deleting process logs with namespace \"{0}\"";
     public static final String ERROR_DELETING_DIRECTORY = "Error deleting directory \"{0}\"";
     public static final String ERROR_STORING_LOG_FILE = "Error storing log file \"{0}\"";
+    public static final String ERROR_LOG_FILE_NOT_FOUND = "Log file with name \"{0}\" for operation \"{1}\" in space \"{2}\" was not found";
     public static final String ERROR_CORRELATION_ID_OR_ACTIVITY_ID_NULL = "Unable to retrieve correlation id or activity id for process \"{0}\" at activity \"{1}\" and space \"{2}\"";
 
     // ERROR log messages:
