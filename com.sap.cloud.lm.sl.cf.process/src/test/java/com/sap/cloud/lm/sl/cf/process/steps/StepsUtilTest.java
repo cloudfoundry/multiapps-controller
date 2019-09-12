@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import com.google.common.io.ByteStreams;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
@@ -22,10 +24,66 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
+import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.common.SLException;
 
 public class StepsUtilTest {
 
+    private static final String EXAMPLE_USER = "exampleUser";
+    private static final String EXAMPLE_MODULE_NAME = "exampleModule";
+
     protected DelegateExecution context = MockDelegateExecution.createSpyInstance();
+
+    @Test
+    public void testDetermineCurrentUserWithSetUser() throws Exception {
+        Mockito.when(context.getVariable(Mockito.eq(Constants.VAR_USER)))
+               .thenReturn(EXAMPLE_USER);
+        String determinedUser = StepsUtil.determineCurrentUser(context, Mockito.mock(StepLogger.class));
+        assertEquals(EXAMPLE_USER, determinedUser);
+    }
+
+    @Test
+    public void testDetermineCurrentUserWithProcessInitiator() throws Exception {
+        Mockito.when(context.getVariable(Mockito.eq(Constants.PARAM_INITIATOR)))
+               .thenReturn(EXAMPLE_USER);
+        String determinedUser = StepsUtil.determineCurrentUser(context, Mockito.mock(StepLogger.class));
+        assertEquals(EXAMPLE_USER, determinedUser);
+        Mockito.verify(context)
+               .setVariable(Mockito.eq(Constants.VAR_USER), Mockito.eq(EXAMPLE_USER));
+    }
+
+    @Test
+    public void testDetermineCurrentUserError() throws Exception {
+        Assertions.assertThrows(SLException.class, () -> StepsUtil.determineCurrentUser(context, Mockito.mock(StepLogger.class)));
+    }
+
+    @Test
+    public void testGetModuleContentAsStream() throws Exception {
+        byte[] bytes = "example byte array".getBytes();
+        Mockito.when(context.getVariable(Mockito.eq(constructModuleContentVariable(EXAMPLE_MODULE_NAME))))
+               .thenReturn(bytes);
+        InputStream stream = StepsUtil.getModuleContentAsStream(context, EXAMPLE_MODULE_NAME);
+        byte[] readBytes = ByteStreams.toByteArray(stream);
+        assertByteArraysMatch(bytes, readBytes);
+    }
+
+    @Test
+    public void testGetModuleContentAsStreamNotFound() throws Exception {
+        Mockito.when(context.getVariable(Mockito.eq(constructModuleContentVariable(EXAMPLE_MODULE_NAME))))
+               .thenReturn(null);
+        Assertions.assertThrows(SLException.class, () -> StepsUtil.getModuleContentAsStream(context, EXAMPLE_MODULE_NAME));
+    }
+
+    private String constructModuleContentVariable(String moduleName) {
+        return Constants.VAR_MTA_MODULE_CONTENT_PREFIX + moduleName;
+    }
+
+    private void assertByteArraysMatch(byte[] expected, byte[] actual) {
+        Assertions.assertEquals(expected.length, actual.length);
+        for (int i = 0; i < expected.length; i++) {
+            Assertions.assertEquals(expected[i], actual[i]);
+        }
+    }
 
     @Test
     public void testGetServicesToCreateWithCredentials() throws Exception {

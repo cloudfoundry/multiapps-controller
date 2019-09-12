@@ -85,11 +85,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                        .build();
     }
 
-    public List<Operation> getOperations(Integer last, List<String> statusList, String spaceGuid) {
-        List<State> states = getStates(statusList);
-        return filterByQueryParameters(last, states, spaceGuid);
-    }
-
     @Override
     public Response executeOperationAction(String operationId, String actionId, SecurityContext securityContext, String spaceGuid) {
         Operation operation = dao.findRequired(operationId);
@@ -167,7 +162,20 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                        .build();
     }
 
-    public Operation getOperation(String operationId, String embed, String spaceId) {
+    @Override
+    public Response getOperationActions(String operationId, SecurityContext securityContext, String spaceGuid) {
+        Operation operation = dao.findRequired(operationId);
+        return Response.ok()
+                       .entity(getAvailableActions(operation))
+                       .build();
+    }
+
+    private List<Operation> getOperations(Integer last, List<String> statusList, String spaceGuid) {
+        List<State> states = getStates(statusList);
+        return filterByQueryParameters(last, states, spaceGuid);
+    }
+
+    private Operation getOperation(String operationId, String embed, String spaceId) {
         Operation operation = dao.findRequired(operationId);
         if (!operation.getSpaceId()
                       .equals(spaceId)) {
@@ -209,14 +217,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private boolean containsOnlyFinishedStates(List<State> statusList) {
         return Collections.disjoint(statusList, State.getActiveStates());
-    }
-
-    @Override
-    public Response getOperationActions(String operationId, SecurityContext securityContext, String spaceGuid) {
-        Operation operation = dao.findRequired(operationId);
-        return Response.ok()
-                       .entity(getAvailableActions(operation))
-                       .build();
     }
 
     private List<String> getAvailableActions(Operation operation) {
@@ -295,7 +295,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                       .toString();
     }
 
-    protected String getAuthenticatedUser(SecurityContext securityContext) {
+    private String getAuthenticatedUser(SecurityContext securityContext) {
         String user = null;
         if (securityContext.getUserPrincipal() != null) {
             user = securityContext.getUserPrincipal()

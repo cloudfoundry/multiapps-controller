@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.persistence.services;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -15,9 +14,11 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
+import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.TestDataSourceProvider;
 
 public class ProcessLogsPersistenceServiceTest {
@@ -109,8 +110,8 @@ public class ProcessLogsPersistenceServiceTest {
         logNames = processLogsService.getLogNames(space, namespaceToDelete);
         assertTrue(logNames.isEmpty());
 
-        String persistedLogContent = processLogsService.getLogContent(space, namespaceToDelete, persistedLogName);
-        assertNull(persistedLogContent);
+        Assertions.assertThrows(NotFoundException.class,
+                                () -> processLogsService.getLogContent(space, namespaceToDelete, persistedLogName));
     }
 
     private String buildExpectedContent(File... files) throws IOException {

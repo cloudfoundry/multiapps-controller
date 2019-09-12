@@ -1,0 +1,43 @@
+[
+  {
+    "metadata": {
+      "id": "foo",
+      "version": "0.1.0"
+    },
+    "modules": [
+      {
+        "moduleName": "mta-module-1",
+        "appName": "mta-1-application",
+        "services": [],
+        "providedDependencyNames": [
+          "mta-provided-dependency-1",
+          "mta-provided-dependency-2"
+        ],
+        "uris": []
+      }
+    ],
+    "services": []
+  },
+  {
+    "metadata": {
+      "id": "bar",
+      "version": "0.2.0"
+    },
+    "modules": [
+      {
+        "moduleName": "mta-module-2",
+        "appName": "mta-1-application",
+        "services": [
+          "service-1",
+          "service-2"
+        ],
+        "providedDependencyNames": [],
+        "uris": []
+      }
+    ],
+    "services": [
+      "service-1",
+      "service-2"
+    ]
+  }
+]
