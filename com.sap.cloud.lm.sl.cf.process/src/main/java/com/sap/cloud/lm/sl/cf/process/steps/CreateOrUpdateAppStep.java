@@ -119,13 +119,13 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
         private Map<String, String> buildServiceKeysCredentials(CloudControllerClient client, CloudApplicationExtended app,
-            Map<String, String> appEnv) {
+                                                                Map<String, String> appEnv) {
             Map<String, String> appServiceKeysCredentials = new HashMap<>();
             for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
                 String serviceKeyCredentials = JsonUtil.toJson(ServiceOperationUtil.getServiceKeyCredentials(client,
-                    serviceKeyToInject.getServiceName(),
-                    serviceKeyToInject.getServiceKeyName()),
-                    shouldPrettyPrint.getAsBoolean());
+                                                                                                             serviceKeyToInject.getServiceName(),
+                                                                                                             serviceKeyToInject.getServiceKeyName()),
+                                                               shouldPrettyPrint.getAsBoolean());
                 appEnv.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
                 appServiceKeysCredentials.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
             }
@@ -133,7 +133,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
         private void updateContextWithServiceKeysCredentials(DelegateExecution context, CloudApplicationExtended app,
-            Map<String, String> appServiceKeysCredentials) {
+                                                             Map<String, String> appServiceKeysCredentials) {
             Map<String, Map<String, String>> serviceKeysCredentialsToInject = StepsUtil.getServiceKeysCredentialsToInject(context);
             serviceKeysCredentialsToInject.put(app.getName(), appServiceKeysCredentials);
 
@@ -203,7 +203,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
         private void bindService(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
-            Map<String, Object> bindingParameters) {
+                                 Map<String, Object> bindingParameters) {
 
             getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters);
             client.bindService(appName, serviceName, bindingParameters, getApplicationServicesUpdateCallback(execution.getContext()));
@@ -223,10 +223,10 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationAttributes() {
-            List<UpdateState> updateStates = getApplicationAttributeUpdaters(existingApp, app.getAttributesUpdateStrategy()).stream()
-                                                                                                                            .map(updater -> updater.updateApplication(client,
-                                                                                                                                                                      app))
-                                                                                                                            .collect(Collectors.toList());
+            List<UpdateState> updateStates = getApplicationAttributeUpdaters(existingApp).stream()
+                                                                                         .map(updater -> updater.updateApplication(client,
+                                                                                                                                   app))
+                                                                                         .collect(Collectors.toList());
 
             boolean arePropertiesChanged = updateStates.stream()
                                                        .anyMatch(updateState -> updateState == UpdateState.UPDATED);
@@ -272,11 +272,12 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.APP_UPDATED, app.getName());
         }
 
-        private UpdateState updateApplicationEnvironment(CloudApplicationExtended app, CloudApplication existingApp,
-                                                         CloudControllerClient client, CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
+        private UpdateState
+                updateApplicationEnvironment(CloudApplicationExtended app, CloudApplication existingApp, CloudControllerClient client,
+                                             CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
             return new EnvironmentApplicationAttributeUpdater(existingApp,
-                getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingEnv()),
-                getStepLogger()).updateApplication(client, app);
+                                                              getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingEnv()),
+                                                              getStepLogger()).updateApplication(client, app);
         }
 
         private void reportApplicationUpdateStatus(CloudApplicationExtended app, boolean appPropertiesChanged) {
@@ -287,14 +288,11 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.APP_UPDATED, app.getName());
         }
 
-        private List<ApplicationAttributeUpdater> getApplicationAttributeUpdaters(CloudApplication existingApplication,
-                                                                                  AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
+        private List<ApplicationAttributeUpdater> getApplicationAttributeUpdaters(CloudApplication existingApplication) {
             return Arrays.asList(new StagingApplicationAttributeUpdater(existingApplication, getStepLogger()),
-                new MemoryApplicationAttributeUpdater(existingApplication, getStepLogger()),
-                new DiskQuotaApplicationAttributeUpdater(existingApplication, getStepLogger()),
-                new UrisApplicationAttributeUpdater(existingApplication,
-                    getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingRoutes()),
-                    getStepLogger()));
+                                 new MemoryApplicationAttributeUpdater(existingApplication, getStepLogger()),
+                                 new DiskQuotaApplicationAttributeUpdater(existingApplication, getStepLogger()),
+                                 new UrisApplicationAttributeUpdater(existingApplication, UpdateBehavior.REPLACE, getStepLogger()));
         }
 
         private UpdateBehavior getUpdateStrategy(boolean shouldKeepAttributes) {
@@ -328,7 +326,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
         private boolean unbindServicesIfNeeded(CloudApplicationExtended application, CloudApplication existingApplication,
-            CloudControllerClient client, List<String> services) {
+                                               CloudControllerClient client, List<String> services) {
             AttributeUpdateStrategy applicationAttributesUpdateBehavior = application.getAttributesUpdateStrategy();
             if (!applicationAttributesUpdateBehavior.shouldKeepExistingServiceBindings()) {
                 return unbindNotRequiredServices(existingApplication, services, client);
@@ -350,16 +348,16 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             client.unbindService(appName, serviceName);
         }
 
-        private boolean updateServices(DelegateExecution context, String applicationName, Map<String, Map<String, Object>> bindingParameters,
-            CloudControllerClient client, Set<String> services) {
+        private boolean updateServices(DelegateExecution context, String applicationName,
+                                       Map<String, Map<String, Object>> bindingParameters, CloudControllerClient client,
+                                       Set<String> services) {
             Map<String, Map<String, Object>> serviceNamesWithBindingParameters = services.stream()
                                                                                          .collect(Collectors.toMap(String::toString,
-                                                                                                                   serviceName -> getBindingParametersForService(
-                                                                                                                       serviceName,
-                                                                                                                       bindingParameters)));
+                                                                                                                   serviceName -> getBindingParametersForService(serviceName,
+                                                                                                                                                                 bindingParameters)));
 
             List<String> updatedServices = client.updateApplicationServices(applicationName, serviceNamesWithBindingParameters,
-                getApplicationServicesUpdateCallback(context));
+                                                                            getApplicationServicesUpdateCallback(context));
 
             reportNonUpdatedServices(services, applicationName, updatedServices);
             return !updatedServices.isEmpty();
