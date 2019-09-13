@@ -595,6 +595,10 @@
                         <groupId>commons-codec</groupId>
                         <artifactId>commons-codec</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.uuid</groupId>
+                        <artifactId>java-uuid-generator</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>

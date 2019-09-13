@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
-import org.flowable.common.engine.impl.persistence.StrongUuidGenerator;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RuntimeService;
@@ -69,7 +68,6 @@ public class FlowableConfiguration {
         processEngineConfiguration.setFailedJobCommandFactory(getFailedJobCommandFactory());
         processEngineConfiguration.setAsyncExecutor(jobExecutor);
         processEngineConfiguration.setAsyncExecutorNumberOfRetries(0);
-        processEngineConfiguration.setIdGenerator(new StrongUuidGenerator());
         return processEngineConfiguration;
     }
 
