@@ -47,6 +47,7 @@
         <spring.security.oauth2.version>2.3.6.RELEASE</spring.security.oauth2.version>
         <spring.security.jwt.version>1.0.9.RELEASE</spring.security.jwt.version>
         <spring.cloud.version>1.2.3.RELEASE</spring.cloud.version>
+        <spring.cloud.open.service.broker.version>3.0.4.RELEASE</spring.cloud.open.service.broker.version>
         <hana.cloud.version>1.0.4.RELEASE</hana.cloud.version>
         <quartz.version>2.2.1</quartz.version>
         <jackson.version>2.10.0.pr1</jackson.version>
@@ -213,7 +214,7 @@
                         <autoDetectProxySettings>true</autoDetectProxySettings>
                         <forceCheckAllDependencies>true</forceCheckAllDependencies>
                         <forceUpdate>true</forceUpdate>
-                        <productVersion>cf</productVersion> 
+                        <productVersion>cf</productVersion>
                     </configuration>
                 </plugin>
             </plugins>
@@ -657,6 +658,11 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context-support</artifactId>
                 <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-open-service-broker</artifactId>
+                <version>${spring.cloud.open.service.broker.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.quartz-scheduler</groupId>
