@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -51,7 +52,7 @@ public class RecentLogsRetriever extends CustomControllerClient {
         try {
             return getRecentLogs(client, appName);
         } catch (RuntimeException e) {
-            return null;
+            return Collections.emptyList();
         }
     }
 

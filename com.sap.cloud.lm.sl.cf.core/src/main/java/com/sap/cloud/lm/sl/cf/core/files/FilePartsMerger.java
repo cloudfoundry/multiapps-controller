@@ -40,7 +40,13 @@ public class FilePartsMerger implements Closeable {
 
     @Override
     public void close() {
-        IOUtils.closeQuietly(fileOutputStream);
+        try {
+            if (fileOutputStream != null) {
+                fileOutputStream.close();
+            }
+        } catch (IOException ioe) {
+            // ignore
+        }
     }
 
     public void cleanUp() {

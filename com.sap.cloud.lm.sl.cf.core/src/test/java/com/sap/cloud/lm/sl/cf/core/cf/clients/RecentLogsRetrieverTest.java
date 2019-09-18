@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -81,7 +82,7 @@ public class RecentLogsRetrieverTest {
         Mockito.when(restTemplate.exchange(LOGGING_ENDPOINT_URL + RecentLogsRetriever.RECENT_LOGS_ENDPOINT, HttpMethod.GET, null,
                                            Resource.class, APP_UUID))
                .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Something fails"));
-        assertEquals(null, recentLogsRetriever.getRecentLogsSafely(client, APP_NAME));
+        assertEquals(Collections.emptyList(), recentLogsRetriever.getRecentLogsSafely(client, APP_NAME));
     }
 
     private CloudApplication createDummpyApp() {
