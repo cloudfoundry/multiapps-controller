@@ -7,8 +7,8 @@ import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.mergeProperties;
 
 import java.util.Map;
 
-import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
+import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.mta.builders.v2.PropertiesChainBuilder;

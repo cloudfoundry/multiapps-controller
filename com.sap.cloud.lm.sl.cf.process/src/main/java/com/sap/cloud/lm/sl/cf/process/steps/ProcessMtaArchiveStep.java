@@ -12,9 +12,9 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
@@ -30,9 +30,9 @@ import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessMtaArchiveStep extends SyncFlowableStep {
 
-    protected Function<OperationDao, ProcessConflictPreventer> conflictPreventerSupplier = ProcessConflictPreventer::new;
+    protected Function<OperationService, ProcessConflictPreventer> conflictPreventerSupplier = ProcessConflictPreventer::new;
     @Inject
-    private OperationDao operationDao;
+    private OperationService operationService;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws FileStorageException {
@@ -118,7 +118,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
         String mtaId = deploymentDescriptor.getId();
         context.setVariable(Constants.PARAM_MTA_ID, mtaId);
-        conflictPreventerSupplier.apply(operationDao)
+        conflictPreventerSupplier.apply(operationService)
                                  .acquireLock(mtaId, StepsUtil.getSpaceId(context), StepsUtil.getCorrelationId(context));
     }
 }

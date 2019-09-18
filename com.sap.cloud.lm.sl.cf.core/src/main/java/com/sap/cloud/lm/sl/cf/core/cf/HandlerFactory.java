@@ -7,12 +7,12 @@ import com.sap.cloud.lm.sl.cf.core.cf.factory.v2.HelperFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
@@ -56,16 +56,18 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor,
-                                                                              ConfigurationEntryDao dao, CloudTarget cloudTarget,
+                                                                              ConfigurationEntryService configurationEntryService,
+                                                                              CloudTarget cloudTarget,
                                                                               ApplicationConfiguration configuration) {
-        return getHelperDelegate().getConfigurationReferencesResolver(deploymentDescriptor, dao, cloudTarget, configuration);
+        return getHelperDelegate().getConfigurationReferencesResolver(deploymentDescriptor, configurationEntryService, cloudTarget,
+                                                                      configuration);
     }
 
     @Override
     public ConfigurationReferencesResolver
-           getConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser, CloudTarget cloudTarget,
-                                              ApplicationConfiguration configuration) {
-        return getHelperDelegate().getConfigurationReferencesResolver(dao, filterParser, cloudTarget, configuration);
+           getConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService, ConfigurationFilterParser filterParser,
+                                              CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+        return getHelperDelegate().getConfigurationReferencesResolver(configurationEntryService, filterParser, cloudTarget, configuration);
     }
 
     @Override

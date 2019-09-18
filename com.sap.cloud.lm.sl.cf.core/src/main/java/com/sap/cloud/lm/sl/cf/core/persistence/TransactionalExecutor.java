@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.dao;
+package com.sap.cloud.lm.sl.cf.core.persistence;
 
 import java.util.function.Function;
 

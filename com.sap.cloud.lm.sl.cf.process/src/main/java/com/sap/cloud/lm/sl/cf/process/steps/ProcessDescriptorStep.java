@@ -12,12 +12,12 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableMtaDescriptorPropertiesResolverContext;
 import com.sap.cloud.lm.sl.cf.core.model.MtaDescriptorPropertiesResolverContext;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -30,7 +30,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
     protected SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Inject
-    private ConfigurationEntryDao configurationEntryDao;
+    private ConfigurationEntryService configurationEntryService;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -88,7 +88,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                                               .hasUseNamespaces(useNamespaces)
                                                               .hasUserNamespacesForServices(useNamespacesForServices)
                                                               .shouldReserveTemporaryRoute(setIdleRoutes)
-                                                              .configurationEntryDao(configurationEntryDao)
+                                                              .configurationEntryService(configurationEntryService)
                                                               .applicationConfiguration(configuration)
                                                               .build();
     }

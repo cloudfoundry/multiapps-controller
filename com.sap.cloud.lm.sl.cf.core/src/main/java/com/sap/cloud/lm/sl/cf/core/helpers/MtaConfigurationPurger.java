@@ -14,14 +14,14 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -30,14 +30,14 @@ public class MtaConfigurationPurger {
     private static final Logger LOGGER = LoggerFactory.getLogger(MtaConfigurationPurger.class);
 
     private CloudControllerClient client;
-    private ConfigurationEntryDao entryDao;
-    private ConfigurationSubscriptionDao subscriptionDao;
+    private ConfigurationEntryService configurationEntryService;
+    private ConfigurationSubscriptionService configurationSubscriptionService;
 
-    public MtaConfigurationPurger(CloudControllerClient client, ConfigurationEntryDao entryDao,
-                                  ConfigurationSubscriptionDao subscriptionDao) {
+    public MtaConfigurationPurger(CloudControllerClient client, ConfigurationEntryService configurationEntryService,
+                                  ConfigurationSubscriptionService configurationSubscriptionService) {
         this.client = client;
-        this.entryDao = entryDao;
-        this.subscriptionDao = subscriptionDao;
+        this.configurationEntryService = configurationEntryService;
+        this.configurationSubscriptionService = configurationSubscriptionService;
     }
 
     public void purge(String org, String space) {
@@ -70,7 +70,9 @@ public class MtaConfigurationPurger {
         LOGGER.debug(MessageFormat.format(Messages.DELETING_SUBSCRIPTION, subscription.getId()));
         AuditLoggingProvider.getFacade()
                             .logConfigDelete(subscription);
-        subscriptionDao.remove(subscription.getId());
+        configurationSubscriptionService.createQuery()
+                                        .id(subscription.getId())
+                                        .delete();
     }
 
     private void purgeConfigurationEntries(CloudTarget targetSpace, List<CloudApplication> apps) {
@@ -128,7 +130,9 @@ public class MtaConfigurationPurger {
         LOGGER.debug(MessageFormat.format(Messages.DELETING_ENTRY, entry.getId()));
         AuditLoggingProvider.getFacade()
                             .logConfigDelete(entry);
-        entryDao.remove(entry.getId());
+        configurationEntryService.createQuery()
+                                 .id(entry.getId())
+                                 .delete();
     }
 
     private List<CloudApplication> getExistingApps() {
@@ -144,10 +148,16 @@ public class MtaConfigurationPurger {
     }
 
     private List<ConfigurationEntry> getConfigurationEntries(CloudTarget targetSpace) {
-        return entryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, targetSpace, null, null);
+        return configurationEntryService.createQuery()
+                                        .providerNid(ConfigurationEntriesUtil.PROVIDER_NID)
+                                        .target(targetSpace)
+                                        .list();
     }
 
     private List<ConfigurationSubscription> getSubscriptions(String targetId) {
-        return subscriptionDao.findAll(null, null, targetId, null);
+        return configurationSubscriptionService.createQuery()
+                                               .spaceId(targetId)
+                                               .list();
     }
+
 }

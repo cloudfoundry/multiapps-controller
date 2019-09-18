@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.helpers.expander.PropertiesExpander;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
+import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.ElementContext;
@@ -25,14 +25,14 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
 
     private List<Resource> inactiveConfigResources = new ArrayList<>();
 
-    public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser, CloudTarget cloudTarget,
-                                           ApplicationConfiguration configuration) {
-        super(dao, filterParser, cloudTarget, configuration);
+    public ConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService, ConfigurationFilterParser filterParser,
+                                           CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+        super(configurationEntryService, filterParser, cloudTarget, configuration);
     }
 
     @Override
-    protected ConfigurationReferenceResolver createReferenceResolver(ConfigurationEntryDao dao) {
-        return new ConfigurationReferenceResolver(dao, configuration);
+    protected ConfigurationReferenceResolver createReferenceResolver(ConfigurationEntryService configurationEntryService) {
+        return new ConfigurationReferenceResolver(configurationEntryService, configuration);
     }
 
     @Override

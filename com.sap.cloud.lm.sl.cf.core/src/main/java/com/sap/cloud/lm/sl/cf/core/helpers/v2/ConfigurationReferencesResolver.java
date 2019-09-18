@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.helpers.expander.PropertiesExpander;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
+import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -35,7 +35,7 @@ public class ConfigurationReferencesResolver extends Visitor {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationReferencesResolver.class);
 
     protected ConfigurationReferenceResolver configurationResolver;
-    protected ConfigurationEntryDao dao;
+    protected ConfigurationEntryService configurationEntryService;
     protected Map<String, ResolvedConfigurationReference> resolvedReferences = new TreeMap<>();
     protected ConfigurationFilterParser filterParser;
     protected CloudTarget cloudTarget;
@@ -44,13 +44,13 @@ public class ConfigurationReferencesResolver extends Visitor {
     protected Map<RequiredDependency, List<RequiredDependency>> expandedDependenciesMap = new HashMap<>();
     private List<String> expandedProperties = new ArrayList<>();
 
-    public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser, CloudTarget cloudTarget,
-                                           ApplicationConfiguration configuration) {
-        this.dao = dao;
+    public ConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService, ConfigurationFilterParser filterParser,
+                                           CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+        this.configurationEntryService = configurationEntryService;
         this.filterParser = filterParser;
         this.cloudTarget = cloudTarget;
         this.configuration = configuration;
-        this.configurationResolver = createReferenceResolver(dao);
+        this.configurationResolver = createReferenceResolver(configurationEntryService);
     }
 
     public void resolve(DeploymentDescriptor descriptor) {
@@ -101,7 +101,7 @@ public class ConfigurationReferencesResolver extends Visitor {
     }
 
     protected List<RequiredDependency> getUpdatedRequiredDependencies(Module module) {
-         return module.getRequiredDependencies()
+        return module.getRequiredDependencies()
                      .stream()
                      .map(dependency -> expandRequiredDependencyIfNecessary(module, dependency))
                      .flatMap(List::stream)
@@ -175,8 +175,8 @@ public class ConfigurationReferencesResolver extends Visitor {
         return resolvedReferences;
     }
 
-    protected ConfigurationReferenceResolver createReferenceResolver(ConfigurationEntryDao dao) {
-        return new ConfigurationReferenceResolver(dao, configuration);
+    protected ConfigurationReferenceResolver createReferenceResolver(ConfigurationEntryService configurationEntryService) {
+        return new ConfigurationReferenceResolver(configurationEntryService, configuration);
     }
 
     @Override

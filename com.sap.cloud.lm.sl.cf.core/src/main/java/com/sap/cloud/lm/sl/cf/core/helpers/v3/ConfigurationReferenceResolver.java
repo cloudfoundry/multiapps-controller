@@ -4,15 +4,15 @@ import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.getIndexedName;
 
 import java.util.Map;
 
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ConfigurationReferenceResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferenceResolver {
 
-    public ConfigurationReferenceResolver(ConfigurationEntryDao dao, ApplicationConfiguration configuration) {
-        super(dao, configuration);
+    public ConfigurationReferenceResolver(ConfigurationEntryService configurationEntryService, ApplicationConfiguration configuration) {
+        super(configurationEntryService, configuration);
     }
 
     @Override

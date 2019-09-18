@@ -22,10 +22,10 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscriptions;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 
@@ -35,7 +35,7 @@ import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 public class ConfigurationSubscriptionsResource {
 
     @Inject
-    private ConfigurationSubscriptionDao configurationSubscriptionsDao;
+    private ConfigurationSubscriptionService configurationSubscriptionsService;
 
     @Inject
     private CloudControllerClientProvider clientProvider;
@@ -64,13 +64,17 @@ public class ConfigurationSubscriptionsResource {
 
     private List<ConfigurationSubscription> getConfigurationEntries(List<CloudSpace> clientSpaces, CloudControllerClient client) {
         return clientSpaces.stream()
-                           .map(clientSpace -> configurationSubscriptionsDao.findAll(null, null,
-                                                                                     computeSpaceId(client, clientSpace.getOrganization()
-                                                                                                                       .getName(),
-                                                                                                    clientSpace.getName()),
-                                                                                     null))
+                           .map(clientSpace -> getConfigurationEntries(client, clientSpace))
                            .flatMap(List::stream)
                            .collect(Collectors.toList());
+    }
+
+    private List<ConfigurationSubscription> getConfigurationEntries(CloudControllerClient client, CloudSpace clientSpace) {
+        return configurationSubscriptionsService.createQuery()
+                                                .spaceId(computeSpaceId(client, clientSpace.getOrganization()
+                                                                                           .getName(),
+                                                                        clientSpace.getName()))
+                                                .list();
     }
 
     private ConfigurationSubscriptions wrap(List<ConfigurationSubscription> configurationSubscriptions) {

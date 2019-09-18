@@ -12,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 
-import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
-import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
+import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.process.flowable.AbortProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.ProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.ProcessActionRegistry;
@@ -27,13 +27,13 @@ public class OperationsCleaner implements Cleaner {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsCleaner.class);
     private static final int DEFAULT_PAGE_SIZE = 100;
 
-    private final OperationDao dao;
+    private final OperationService operationService;
     private final ProcessActionRegistry processActionRegistry;
     private int pageSize = DEFAULT_PAGE_SIZE;
 
     @Inject
-    public OperationsCleaner(OperationDao dao, ProcessActionRegistry processActionRegistry) {
-        this.dao = dao;
+    public OperationsCleaner(OperationService operationService, ProcessActionRegistry processActionRegistry) {
+        this.operationService = operationService;
         this.processActionRegistry = processActionRegistry;
     }
 
@@ -47,7 +47,9 @@ public class OperationsCleaner implements Cleaner {
         LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.DELETING_OPERATIONS_STARTED_BEFORE_0, expirationTime));
         int abortedOperations = abortActiveOperations(expirationTime);
         LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.ABORTED_OPERATIONS_0, abortedOperations));
-        int deletedOperations = dao.removeExpiredInFinalState(expirationTime);
+        int deletedOperations = operationService.createQuery()
+                                                .startedBefore(expirationTime)
+                                                .delete();
         LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_OPERATIONS_0, deletedOperations));
     }
 
@@ -70,13 +72,13 @@ public class OperationsCleaner implements Cleaner {
     }
 
     private List<Operation> getActiveOperationsPage(Date expirationTime, int pageIndex) {
-        OperationFilter filter = new OperationFilter.Builder().inNonFinalState()
-                                                              .startedBefore(expirationTime)
-                                                              .firstElement(pageIndex * pageSize)
-                                                              .maxResults(pageSize)
-                                                              .orderByProcessId()
-                                                              .build();
-        return dao.find(filter);
+        return operationService.createQuery()
+                               .inNonFinalState()
+                               .startedBefore(expirationTime)
+                               .offsetOnSelect(pageIndex * pageSize)
+                               .limitOnSelect(pageSize)
+                               .orderByProcessId(OrderDirection.ASCENDING)
+                               .list();
     }
 
     private boolean abortSafely(Operation operation) {

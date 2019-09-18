@@ -14,8 +14,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
@@ -27,7 +27,7 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Inject
-    ConfigurationEntryDao configurationEntryDao;
+    ConfigurationEntryService configurationEntryService;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -70,9 +70,10 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
         infoConfigurationPublishment(entry);
         ConfigurationEntry currentEntry = getExistingEntry(entry);
         if (currentEntry == null) {
-            return configurationEntryDao.add(entry);
+            configurationEntryService.add(entry);
+            return entry;
         } else {
-            return configurationEntryDao.update(currentEntry.getId(), entry);
+            return configurationEntryService.update(currentEntry.getId(), entry);
         }
     }
 
@@ -83,10 +84,13 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
     }
 
     private ConfigurationEntry getExistingEntry(ConfigurationEntry targetEntry) {
-        List<ConfigurationEntry> existingEntries = configurationEntryDao.find(targetEntry.getProviderNid(), targetEntry.getProviderId(),
-                                                                              targetEntry.getProviderVersion()
-                                                                                         .toString(),
-                                                                              targetEntry.getTargetSpace(), Collections.emptyMap(), null);
+        List<ConfigurationEntry> existingEntries = configurationEntryService.createQuery()
+                                                                            .providerNid(targetEntry.getProviderNid())
+                                                                            .providerId(targetEntry.getProviderId())
+                                                                            .version(targetEntry.getProviderVersion()
+                                                                                                .toString())
+                                                                            .target(targetEntry.getTargetSpace())
+                                                                            .list();
         return existingEntries.isEmpty() ? null : existingEntries.get(0);
     }
 

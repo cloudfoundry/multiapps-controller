@@ -5,14 +5,15 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.persistence.NoResultException;
 
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Named("createSubscriptionsStep")
@@ -20,7 +21,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 public class CreateSubscriptionsStep extends SyncFlowableStep {
 
     @Inject
-    private ConfigurationSubscriptionDao dao;
+    private ConfigurationSubscriptionService configurationSubscriptionService;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -43,13 +44,16 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
     }
 
     private ConfigurationSubscription detectSubscription(String mtaId, String applicationName, String spaceId, String resourceName) {
-        List<ConfigurationSubscription> subscriptions = dao.findAll(mtaId, applicationName, spaceId, resourceName);
-        if (!subscriptions.isEmpty()) {
-            return subscriptions.get(0); // There's a unique constraint on these parameters, so
-                                         // there should be only one such configuration
-                                         // subscription.
+        try {
+            return configurationSubscriptionService.createQuery()
+                                                   .appName(applicationName)
+                                                   .spaceId(spaceId)
+                                                   .resourceName(resourceName)
+                                                   .mtaId(mtaId)
+                                                   .singleResult();
+        } catch (NoResultException e) {
+            return null;
         }
-        return null;
     }
 
     private ConfigurationSubscription detectSubscription(ConfigurationSubscription subscription) {
@@ -64,10 +68,10 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
         infoSubscriptionCreation(subscription);
         ConfigurationSubscription existingSubscription = detectSubscription(subscription);
         if (existingSubscription != null) {
-            dao.update(existingSubscription.getId(), subscription);
+            configurationSubscriptionService.update(existingSubscription.getId(), subscription);
             return;
         }
-        dao.add(subscription);
+        configurationSubscriptionService.add(subscription);
     }
 
     private void infoSubscriptionCreation(ConfigurationSubscription subscription) {

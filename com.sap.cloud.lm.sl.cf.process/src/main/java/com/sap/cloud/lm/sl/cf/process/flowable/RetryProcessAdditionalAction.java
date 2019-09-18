@@ -7,17 +7,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.flowable.engine.runtime.Execution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class RetryProcessAdditionalAction implements AdditionalProcessAction {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RetryProcessAdditionalAction.class);
 
     private FlowableFacade flowableFacade;
     private ProgressMessageService progressMessageService;
@@ -32,12 +27,11 @@ public class RetryProcessAdditionalAction implements AdditionalProcessAction {
     public void executeAdditionalProcessAction(String processInstanceId) {
         List<String> failedActivityIds = findFailedActivityIds(processInstanceId);
         for (String failedActivityId : failedActivityIds) {
-            try {
-                progressMessageService.removeByProcessInstanceIdAndTaskIdAndType(processInstanceId, failedActivityId,
-                                                                                 ProgressMessageType.ERROR);
-            } catch (SLException e) {
-                LOGGER.error(Messages.ERROR_DELETING_PROGRESS_MESSAGE, e);
-            }
+            progressMessageService.createQuery()
+                                  .processId(processInstanceId)
+                                  .taskId(failedActivityId)
+                                  .type(ProgressMessageType.ERROR)
+                                  .delete();
         }
     }
 

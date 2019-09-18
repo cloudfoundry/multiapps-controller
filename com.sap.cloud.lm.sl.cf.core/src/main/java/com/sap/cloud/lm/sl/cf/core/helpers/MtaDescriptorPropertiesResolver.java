@@ -73,7 +73,7 @@ public class MtaDescriptorPropertiesResolver {
         DeploymentDescriptor descriptorWithUnresolvedReferences = DeploymentDescriptor.copyOf(descriptor);
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(descriptor,
-                                                                                                     context.getConfigurationEntryDao(),
+                                                                                                     context.getConfigurationEntryService(),
                                                                                                      context.getCloudTarget(),
                                                                                                      context.getApplicationConfiguration());
 

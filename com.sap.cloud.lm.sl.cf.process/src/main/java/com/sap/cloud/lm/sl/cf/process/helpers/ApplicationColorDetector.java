@@ -10,13 +10,13 @@ import javax.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 
-import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
-import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
+import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -30,7 +30,7 @@ public class ApplicationColorDetector {
     private static final ApplicationColor COLOR_OF_APPLICATIONS_WITHOUT_SUFFIX = ApplicationColor.BLUE;
 
     @Inject
-    private OperationDao operationDao;
+    private OperationService operationService;
 
     @Inject
     private FlowableFacade flowableFacade;
@@ -40,10 +40,18 @@ public class ApplicationColorDetector {
             return null;
         }
         ApplicationColor olderApplicationColor = getOlderApplicationColor(deployedMta);
-        Operation currentOperation = operationDao.find(correlationId);
+        Operation currentOperation = operationService.createQuery()
+                                                     .processId(correlationId)
+                                                     .singleResult();
 
-        List<Operation> operations = operationDao.find(createLatestOperationFilter(currentOperation.getMtaId(),
-                                                                                   currentOperation.getSpaceId()));
+        List<Operation> operations = operationService.createQuery()
+                                                     .mtaId(currentOperation.getMtaId())
+                                                     .processType(ProcessType.BLUE_GREEN_DEPLOY)
+                                                     .spaceId(currentOperation.getSpaceId())
+                                                     .inFinalState()
+                                                     .orderByEndTime(OrderDirection.DESCENDING)
+                                                     .limitOnSelect(1)
+                                                     .list();
         if (CollectionUtils.isEmpty(operations)) {
             return olderApplicationColor;
         }
@@ -98,17 +106,6 @@ public class ApplicationColorDetector {
                                                        .endsWith(color.asSuffix()))
                      .findFirst()
                      .orElse(COLOR_OF_APPLICATIONS_WITHOUT_SUFFIX);
-    }
-
-    private OperationFilter createLatestOperationFilter(String mtaId, String spaceId) {
-        return new OperationFilter.Builder().mtaId(mtaId)
-                                            .processType(ProcessType.BLUE_GREEN_DEPLOY)
-                                            .spaceId(spaceId)
-                                            .inFinalState()
-                                            .orderByEndTime()
-                                            .descending()
-                                            .maxResults(1)
-                                            .build();
     }
 
     private Phase getPhaseFromHistoricProcess(String processInstanceId) {

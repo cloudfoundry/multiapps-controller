@@ -12,8 +12,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
-import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
@@ -25,7 +24,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 public class OperationsHelper {
 
     @Inject
-    private OperationDao dao;
+    private OperationService operationService;
 
     @Inject
     private ProcessTypeToOperationMetadataMapper metadataMapper;
@@ -35,8 +34,7 @@ public class OperationsHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsHelper.class);
 
-    public List<Operation> findOperations(OperationFilter operationFilter, List<State> statusList) {
-        List<Operation> operations = dao.find(operationFilter);
+    public List<Operation> findOperations(List<Operation> operations, List<State> statusList) {
         addOngoingOperationsState(operations);
         return filterBasedOnStates(operations, statusList);
     }
@@ -72,7 +70,7 @@ public class OperationsHelper {
         if (ongoingOperation.hasAcquiredLock() && (state.equals(State.ABORTED) || state.equals(State.FINISHED))) {
             ongoingOperation.acquiredLock(false);
             ongoingOperation.setState(state);
-            this.dao.merge(ongoingOperation);
+            this.operationService.update(ongoingOperation.getProcessId(), ongoingOperation);
         }
         return state;
     }

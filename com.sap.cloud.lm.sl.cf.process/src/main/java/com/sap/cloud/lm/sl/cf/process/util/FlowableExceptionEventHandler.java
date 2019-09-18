@@ -15,10 +15,10 @@ import org.flowable.engine.runtime.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -83,7 +83,9 @@ public class FlowableExceptionEventHandler {
     }
 
     private boolean isErrorProgressMessagePresented(String processInstanceId) {
-        List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(processInstanceId);
+        List<ProgressMessage> progressMessages = progressMessageService.createQuery()
+                                                                       .processId(processInstanceId)
+                                                                       .list();
         return progressMessages.stream()
                                .anyMatch(this::isErrorMessage);
     }

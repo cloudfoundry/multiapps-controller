@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.persistence.NoResultException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -26,15 +27,16 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
-import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
+import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.flowable.AbortProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.flowable.ProcessAction;
@@ -61,7 +63,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Inject
     private CloudControllerClientProvider clientProvider;
     @Inject
-    private OperationDao dao;
+    private OperationService operationService;
     @Inject
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
     @Inject
@@ -87,7 +89,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public Response executeOperationAction(String operationId, String actionId, SecurityContext securityContext, String spaceGuid) {
-        Operation operation = dao.findRequired(operationId);
+        Operation operation = operationService.createQuery()
+                                              .processId(operationId)
+                                              .singleResult();
         List<String> availableOperations = getAvailableActions(operation);
         if (!availableOperations.contains(actionId)) {
             return Response.status(Status.BAD_REQUEST)
@@ -106,7 +110,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Override
     public Response getMtaOperationLogs(String operationId, SecurityContext securityContext, String spaceGuid) {
         try {
-            Operation operation = dao.find(operationId);
+            Operation operation = getMtaOperation(operationId);
             if (operation == null) {
                 return Response.status(Status.NOT_FOUND)
                                .entity("Operation with id " + operationId + " not found")
@@ -121,6 +125,16 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                            .build();
         } catch (FileStorageException e) {
             throw new ContentException(e);
+        }
+    }
+
+    private Operation getMtaOperation(String operationId) {
+        try {
+            return operationService.createQuery()
+                                   .processId(operationId)
+                                   .singleResult();
+        } catch (NoResultException e) {
+            return null;
         }
     }
 
@@ -164,7 +178,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public Response getOperationActions(String operationId, SecurityContext securityContext, String spaceGuid) {
-        Operation operation = dao.findRequired(operationId);
+        Operation operation = operationService.createQuery()
+                                              .processId(operationId)
+                                              .singleResult();
         return Response.ok()
                        .entity(getAvailableActions(operation))
                        .build();
@@ -176,7 +192,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private Operation getOperation(String operationId, String embed, String spaceId) {
-        Operation operation = dao.findRequired(operationId);
+        Operation operation = operationService.createQuery()
+                                              .processId(operationId)
+                                              .singleResult();
         if (!operation.getSpaceId()
                       .equals(spaceId)) {
             LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_SPACE_MISMATCH, operationId,
@@ -197,22 +215,18 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private List<Operation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<State> statusList, String spaceGuid) {
-        OperationFilter operationFilter = buildOperationFilter(spaceGuid, statusList, lastRequestedOperationsCount);
-        return operationsHelper.findOperations(operationFilter, statusList);
-    }
-
-    private OperationFilter buildOperationFilter(String spaceGuid, List<State> statusList, Integer lastRequestedOperationsCount) {
-        OperationFilter.Builder builder = new OperationFilter.Builder();
-        builder.spaceId(spaceGuid);
-        if (!CollectionUtils.isEmpty(statusList) && containsOnlyFinishedStates(statusList)) {
-            builder.stateIn(statusList);
-        }
-        builder.orderByStartTime();
+        OperationQuery operationQuery = operationService.createQuery()
+                                                        .orderByStartTime(OrderDirection.ASCENDING)
+                                                        .spaceId(spaceGuid);
         if (lastRequestedOperationsCount != null) {
-            builder.maxResults(lastRequestedOperationsCount);
-            builder.descending();
+            operationQuery.limitOnSelect(lastRequestedOperationsCount)
+                          .orderByStartTime(OrderDirection.DESCENDING);
         }
-        return builder.build();
+        if (CollectionUtils.isNotEmpty(statusList) && containsOnlyFinishedStates(statusList)) {
+            operationQuery.withStateAnyOf(statusList);
+        }
+        List<Operation> operations = operationQuery.list();
+        return operationsHelper.findOperations(operations, statusList);
     }
 
     private boolean containsOnlyFinishedStates(List<State> statusList) {
@@ -313,7 +327,10 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private List<Message> getOperationMessages(Operation operation) {
-        List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(operation.getProcessId());
+        List<ProgressMessage> progressMessages = progressMessageService.createQuery()
+                                                                       .processId(operation.getProcessId())
+                                                                       .typeNot(ProgressMessageType.TASK_STARTUP)
+                                                                       .list();
         return progressMessages.stream()
                                .filter(message -> message.getType() != ProgressMessageType.TASK_STARTUP)
                                .map(this::getMessage)

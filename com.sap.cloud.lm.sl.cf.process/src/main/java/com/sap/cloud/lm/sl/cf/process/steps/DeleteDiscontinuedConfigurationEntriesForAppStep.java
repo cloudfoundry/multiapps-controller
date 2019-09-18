@@ -13,14 +13,13 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("deleteDiscontinuedConfigurationEntriesForAppStep")
@@ -28,7 +27,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowableStep {
 
     @Inject
-    private ConfigurationEntryDao configurationEntryDao;
+    private ConfigurationEntryService configurationEntryService;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -55,9 +54,10 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
         List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, oldMtaVersion, target, providedDependencyNames,
                                                                       publishedEntries);
         for (ConfigurationEntry entry : entriesToDelete) {
-            try {
-                configurationEntryDao.remove(entry.getId());
-            } catch (NotFoundException e) {
+            int deletedEntries = configurationEntryService.createQuery()
+                                                          .id(entry.getId())
+                                                          .delete();
+            if (deletedEntries == 0) {
                 getStepLogger().warn(Messages.COULD_NOT_DELETE_PROVIDED_DEPENDENCY, entry.getProviderId());
             }
         }
@@ -115,7 +115,12 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
     }
 
     private List<ConfigurationEntry> getEntries(String mtaId, String mtaVersion, CloudTarget target) {
-        return configurationEntryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, mtaVersion, target, null, mtaId);
+        return configurationEntryService.createQuery()
+                                        .providerNid(ConfigurationEntriesUtil.PROVIDER_NID)
+                                        .version(mtaVersion)
+                                        .target(target)
+                                        .mtaId(mtaId)
+                                        .list();
     }
 
 }

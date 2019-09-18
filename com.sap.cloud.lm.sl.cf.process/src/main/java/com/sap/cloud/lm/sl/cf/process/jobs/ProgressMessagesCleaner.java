@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Named
@@ -30,7 +30,9 @@ public class ProgressMessagesCleaner implements Cleaner {
     @Override
     public void execute(Date expirationTime) {
         LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.DELETING_PROGRESS_MESSAGES_STORED_BEFORE_0, expirationTime));
-        int removedProgressMessages = progressMessageService.removeOlderThan(expirationTime);
+        int removedProgressMessages = progressMessageService.createQuery()
+                                                            .olderThan(expirationTime)
+                                                            .delete();
         LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_PROGRESS_MESSAGES_0, removedProgressMessages));
     }
 
