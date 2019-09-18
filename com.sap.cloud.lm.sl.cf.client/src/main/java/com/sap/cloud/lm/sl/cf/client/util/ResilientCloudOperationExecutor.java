@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.client.util;
 
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Set;
 
@@ -13,7 +12,7 @@ import org.springframework.http.HttpStatus;
 
 public class ResilientCloudOperationExecutor extends ResilientOperationExecutor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResilientOperationExecutor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResilientCloudOperationExecutor.class);
 
     private static final Set<HttpStatus> DEFAULT_STATUSES_TO_IGNORE = Sets.newHashSet(HttpStatus.GATEWAY_TIMEOUT,
                                                                                       HttpStatus.REQUEST_TIMEOUT,
@@ -51,8 +50,7 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
         if (!shouldRetry(e)) {
             throw e;
         }
-        LOGGER.warn(MessageFormat.format("Retrying operation that failed with status {0} and message: {1}", e.getStatusCode(),
-                                         e.getMessage()));
+        LOGGER.warn("Retrying operation that failed with status {0} and message: {1}", e.getStatusCode(), e.getMessage());
     }
 
     private boolean shouldRetry(CloudOperationException e) {
