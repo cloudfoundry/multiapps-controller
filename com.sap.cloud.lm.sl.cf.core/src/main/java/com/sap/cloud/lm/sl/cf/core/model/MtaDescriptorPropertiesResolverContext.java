@@ -5,7 +5,7 @@ import org.immutables.value.Value;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 @Value.Immutable
@@ -15,7 +15,7 @@ public interface MtaDescriptorPropertiesResolverContext {
 
     HandlerFactory getHandlerFactory();
 
-    ConfigurationEntryDao getConfigurationEntryDao();
+    ConfigurationEntryService getConfigurationEntryService();
 
     CloudTarget getCloudTarget();
 

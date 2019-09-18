@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.dto.persistence;
+package com.sap.cloud.lm.sl.cf.core.persistence.dto;
 
 import java.util.Date;
 
@@ -6,7 +6,6 @@ import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -14,10 +13,7 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "operation")
 @Cacheable(false)
-@NamedQuery(name = "find_all", query = "SELECT o FROM OperationDto o ORDER BY o.startedAt")
-// TODO: Replace this named query by building it dynamically with JPA's criteria API (requires JPA 2.1).
-@NamedQuery(name = "remove_expired_in_final_state", query = "DELETE FROM OperationDto o WHERE o.finalState IS NOT NULL AND o.startedAt < :expirationTime")
-public class OperationDto {
+public class OperationDto implements DtoWithPrimaryKey<String> {
 
     public static class AttributeNames {
 
@@ -70,8 +66,8 @@ public class OperationDto {
         // Required by JPA
     }
 
-    public OperationDto(String processId, String processType, Date startedAt, Date endedAt, String spaceId, String mtaId, String user,
-                        boolean acquiredLock, String finalState) {
+    private OperationDto(String processId, String processType, Date startedAt, Date endedAt, String spaceId, String mtaId, String user,
+                         boolean acquiredLock, String finalState) {
         this.processId = processId;
         this.processType = processType;
         this.startedAt = startedAt;
@@ -81,6 +77,16 @@ public class OperationDto {
         this.user = user;
         this.acquiredLock = acquiredLock;
         this.finalState = finalState;
+    }
+
+    @Override
+    public String getPrimaryKey() {
+        return processId;
+    }
+
+    @Override
+    public void setPrimaryKey(String processId) {
+        this.processId = processId;
     }
 
     public String getProcessId() {
@@ -119,4 +125,69 @@ public class OperationDto {
         return finalState;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private String processId;
+        private String processType;
+        private Date startedAt;
+        private Date endedAt;
+        private String spaceId;
+        private String mtaId;
+        private String user;
+        private boolean acquiredLock;
+        private String finalState;
+
+        public Builder processId(String processId) {
+            this.processId = processId;
+            return this;
+        }
+
+        public Builder processType(String processType) {
+            this.processType = processType;
+            return this;
+        }
+
+        public Builder startedAt(Date startedAt) {
+            this.startedAt = startedAt;
+            return this;
+        }
+
+        public Builder endedAt(Date endedAt) {
+            this.endedAt = endedAt;
+            return this;
+        }
+
+        public Builder spaceId(String spaceId) {
+            this.spaceId = spaceId;
+            return this;
+        }
+
+        public Builder mtaId(String mtaId) {
+            this.mtaId = mtaId;
+            return this;
+        }
+
+        public Builder user(String user) {
+            this.user = user;
+            return this;
+        }
+
+        public Builder acquiredLock(boolean acquiredLock) {
+            this.acquiredLock = acquiredLock;
+            return this;
+        }
+
+        public Builder finalState(String state) {
+            this.finalState = state;
+            return this;
+        }
+
+        public OperationDto build() {
+            return new OperationDto(processId, processType, startedAt, endedAt, spaceId, mtaId, user, acquiredLock, finalState);
+        }
+    }
 }

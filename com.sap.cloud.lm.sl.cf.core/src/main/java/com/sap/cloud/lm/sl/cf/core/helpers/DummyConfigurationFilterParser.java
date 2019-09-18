@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
-import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
+import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class DummyConfigurationFilterParser extends com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser {

@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.dto.persistence;
+package com.sap.cloud.lm.sl.cf.core.persistence.dto;
 
 import static java.text.MessageFormat.format;
 
@@ -13,22 +13,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
-import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
-import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ModuleDto;
-import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
-import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.SequenceNames;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableColumnNames;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableNames;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Table(name = TableNames.CONFIGURATION_SUBSCRIPTION_TABLE, uniqueConstraints = { @UniqueConstraint(columnNames = {
     TableColumnNames.CONFIGURATION_SUBSCRIPTION_APP_NAME, TableColumnNames.CONFIGURATION_SUBSCRIPTION_MTA_ID,
@@ -36,13 +28,11 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 @Entity
 @Access(AccessType.FIELD)
 @SequenceGenerator(name = SequenceNames.CONFIGURATION_SUBSCRIPTION_SEQUENCE, sequenceName = SequenceNames.CONFIGURATION_SUBSCRIPTION_SEQUENCE, initialValue = 1, allocationSize = 1)
-@NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_SUBSCRIPTIONS, query = "SELECT cs FROM ConfigurationSubscriptionDto cs")
-@NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_SUBSCRIPTIONS_BY_SPACE_ID, query = "SELECT cs FROM ConfigurationSubscriptionDto cs WHERE cs.spaceId = :spaceId")
-public class ConfigurationSubscriptionDto {
+public class ConfigurationSubscriptionDto implements DtoWithPrimaryKey<Long> {
 
-    public static class FieldNames {
+    public static class AttributeNames {
 
-        private FieldNames() {
+        private AttributeNames() {
         }
 
         public static final String ID = "id";
@@ -85,12 +75,12 @@ public class ConfigurationSubscriptionDto {
     @Lob
     private String module;
 
-    public ConfigurationSubscriptionDto() {
+    protected ConfigurationSubscriptionDto() {
         // Required by JPA.
     }
 
-    public ConfigurationSubscriptionDto(long id, String mtaId, String spaceId, String appName, String filter, String moduleContent,
-                                        String resourceName, String resourceProperties) {
+    private ConfigurationSubscriptionDto(long id, String mtaId, String spaceId, String appName, String filter, String moduleContent,
+                                         String resourceName, String resourceProperties) {
         this.id = id;
         this.resourceProperties = resourceProperties;
         this.resourceName = resourceName;
@@ -100,29 +90,6 @@ public class ConfigurationSubscriptionDto {
         this.appName = appName;
         this.mtaId = mtaId;
 
-        validateState();
-    }
-
-    public ConfigurationSubscriptionDto(ConfigurationSubscription subscription) {
-        if (subscription.getFilter() != null) {
-            this.filter = JsonUtil.toJson(subscription.getFilter(), false);
-        }
-
-        ResourceDto resourceDto = subscription.getResourceDto();
-        ModuleDto moduleDto = subscription.getModuleDto();
-
-        if (resourceDto != null) {
-            this.resourceProperties = JsonUtil.toJson(resourceDto.getProperties(), false);
-            this.resourceName = resourceDto.getName();
-        }
-
-        if (moduleDto != null) {
-            this.module = JsonUtil.toJson(moduleDto, false);
-        }
-
-        this.appName = subscription.getAppName();
-        this.spaceId = subscription.getSpaceId();
-        this.mtaId = subscription.getMtaId();
         validateState();
     }
 
@@ -146,8 +113,14 @@ public class ConfigurationSubscriptionDto {
         return fields;
     }
 
-    public long getId() {
+    @Override
+    public Long getPrimaryKey() {
         return id;
+    }
+
+    @Override
+    public void setPrimaryKey(Long id) {
+        this.id = id;
     }
 
     public String getMtaId() {
@@ -178,16 +151,63 @@ public class ConfigurationSubscriptionDto {
         return resourceName;
     }
 
-    public ConfigurationSubscription toConfigurationSubscription() {
-        try {
-            ConfigurationFilter parsedFilter = JsonUtil.fromJson(filter, ConfigurationFilter.class);
-            Map<String, Object> parsedResourceProperties = JsonUtil.convertJsonToMap(resourceProperties);
-            ResourceDto resourceDto = new ResourceDto(resourceName, parsedResourceProperties);
-            ModuleDto moduleDto = JsonUtil.fromJson(module, ModuleDto.class);
-            return new ConfigurationSubscription(id, mtaId, spaceId, appName, parsedFilter, moduleDto, resourceDto);
-        } catch (SLException e) {
-            throw new IllegalStateException(format(Messages.UNABLE_TO_PARSE_SUBSCRIPTION, e.getMessage()), e);
-        }
+    public static Builder builder() {
+        return new Builder();
     }
 
+    public static class Builder {
+
+        private long id;
+        private String mtaId;
+        private String spaceId;
+        private String appName;
+        private String filter;
+        private String resourceProperties;
+        private String resourceName;
+        private String module;
+
+        public Builder id(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder mtaId(String mtaId) {
+            this.mtaId = mtaId;
+            return this;
+        }
+
+        public Builder spaceId(String spaceId) {
+            this.spaceId = spaceId;
+            return this;
+        }
+
+        public Builder appName(String appName) {
+            this.appName = appName;
+            return this;
+        }
+
+        public Builder filter(String filter) {
+            this.filter = filter;
+            return this;
+        }
+
+        public Builder resourceProperties(String resourceProperties) {
+            this.resourceProperties = resourceProperties;
+            return this;
+        }
+
+        public Builder resourceName(String resourceName) {
+            this.resourceName = resourceName;
+            return this;
+        }
+
+        public Builder module(String module) {
+            this.module = module;
+            return this;
+        }
+
+        public ConfigurationSubscriptionDto build() {
+            return new ConfigurationSubscriptionDto(id, mtaId, spaceId, appName, filter, module, resourceName, resourceProperties);
+        }
+    }
 }

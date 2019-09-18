@@ -10,10 +10,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.common.ParsingException;
 
 public class ConfigurationEntriesUtil {
@@ -31,8 +31,9 @@ public class ConfigurationEntriesUtil {
         return mtaId + PROVIDER_ID_DELIMITER + providedDependencyName;
     }
 
-    public static List<ConfigurationEntry> findConfigurationEntries(ConfigurationEntryDao dao, ConfigurationFilter filter,
-                                                                    List<CloudTarget> cloudTargets, CloudTarget globalConfigTarget) {
+    public static List<ConfigurationEntry> findConfigurationEntries(ConfigurationEntryService configurationEntryService,
+                                                                    ConfigurationFilter filter, List<CloudTarget> cloudTargets,
+                                                                    CloudTarget globalConfigTarget) {
         String providerNid = filter.getProviderNid();
         String org = null;
         String space = null;
@@ -47,8 +48,14 @@ public class ConfigurationEntriesUtil {
         Map<String, Object> requiredContent = filter.getRequiredContent();
         LOGGER.debug("searching for configuration entries with provider nid {}, id {}, version {}, org {}, space {}, content {}, visibleTargets {}",
                      providerNid, providerId, providerVersion, org, space, requiredContent, cloudTargets);
-        List<ConfigurationEntry> result = dao.find(providerNid, providerId, providerVersion, targetSpace, requiredContent, null,
-                                                   cloudTargets);
+        List<ConfigurationEntry> result = configurationEntryService.createQuery()
+                                                                   .providerNid(providerNid)
+                                                                   .providerId(providerId)
+                                                                   .version(providerVersion)
+                                                                   .target(targetSpace)
+                                                                   .requiredProperties(requiredContent)
+                                                                   .visibilityTargets(cloudTargets)
+                                                                   .list();
         if (!result.isEmpty()) {
             LOGGER.debug("result found {}", result);
             return result;
@@ -56,17 +63,25 @@ public class ConfigurationEntriesUtil {
         if (filter.isStrictTargetSpace() || globalConfigTarget == null) {
             return Collections.emptyList();
         }
-        return findConfigurationEntriesInGlobalConfigurationSpace(dao, providerNid, providerVersion, providerId, requiredContent,
-                                                                  cloudTargets, globalConfigTarget);
+        return findConfigurationEntriesInGlobalConfigurationSpace(configurationEntryService, providerNid, providerVersion, providerId,
+                                                                  requiredContent, cloudTargets, globalConfigTarget);
     }
 
     public static List<ConfigurationEntry>
-           findConfigurationEntriesInGlobalConfigurationSpace(ConfigurationEntryDao dao, String providerNid, String providerVersion,
-                                                              String providerId, Map<String, Object> requiredContent,
-                                                              List<CloudTarget> cloudTargets, CloudTarget globalConfigTarget) {
+           findConfigurationEntriesInGlobalConfigurationSpace(ConfigurationEntryService configurationEntryService, String providerNid,
+                                                              String providerVersion, String providerId,
+                                                              Map<String, Object> requiredContent, List<CloudTarget> cloudTargets,
+                                                              CloudTarget globalConfigTarget) {
         LOGGER.debug("searching for configuration entries with provider nid {}, id {}, version {}, global config space space {}, content {}, visibleTargets {}",
                      providerNid, providerId, providerVersion, globalConfigTarget, requiredContent, cloudTargets);
-        return dao.find(providerNid, providerId, providerVersion, globalConfigTarget, requiredContent, null, cloudTargets);
+        return configurationEntryService.createQuery()
+                                        .providerNid(providerNid)
+                                        .providerId(providerId)
+                                        .version(providerVersion)
+                                        .target(globalConfigTarget)
+                                        .requiredProperties(requiredContent)
+                                        .visibilityTargets(cloudTargets)
+                                        .list();
     }
 
     public static CloudTarget getGlobalConfigTarget(ApplicationConfiguration configuration) {

@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
@@ -47,7 +47,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
     private static final Logger LOGGER = LoggerFactory.getLogger(AbortProcessListener.class);
 
     @Inject
-    private OperationDao operationDao;
+    private OperationService operationService;
     @Inject
     private CloudControllerClientProvider clientProvider;
     @Inject
@@ -105,13 +105,15 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
     }
 
     protected void setOperationInAbortedState(String processInstanceId) {
-        Operation operation = operationDao.findRequired(processInstanceId);
+        Operation operation = operationService.createQuery()
+                                              .processId(processInstanceId)
+                                              .singleResult();
         LOGGER.info(MessageFormat.format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(),
                                          operation.getMtaId(), operation.getSpaceId()));
         operation.setState(State.ABORTED);
         operation.setEndedAt(ZonedDateTime.now());
         operation.setAcquiredLock(false);
-        operationDao.merge(operation);
+        operationService.update(operation.getProcessId(), operation);
         LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
     }
 
@@ -126,7 +128,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
                                                                                  Constants.PARAM_APP_ARCHIVE_ID);
 
         String spaceId = (String) getHistoricVarInstanceValue(historyService, processInstanceId,
-            com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID).getValue();
+                                                              com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID).getValue();
 
         FileSweeper fileSweeper = new FileSweeper(spaceId, fileService);
         fileSweeper.sweep(extensionDescriptorFileIds);

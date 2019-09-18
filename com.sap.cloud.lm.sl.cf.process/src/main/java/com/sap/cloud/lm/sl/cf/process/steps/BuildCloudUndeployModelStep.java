@@ -17,11 +17,11 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -34,7 +34,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Inject
-    private ConfigurationSubscriptionDao dao;
+    private ConfigurationSubscriptionService configurationSubscriptionService;
     @Inject
     private ModuleToDeployHelper moduleToDeployHelper;
 
@@ -193,7 +193,10 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                                                          DeployedMta deployedMta, String spaceId) {
         String mtaId = deployedMta.getMetadata()
                                   .getId();
-        List<ConfigurationSubscription> existingSubscriptions = dao.findAll(mtaId, null, spaceId, null);
+        List<ConfigurationSubscription> existingSubscriptions = configurationSubscriptionService.createQuery()
+                                                                                                .mtaId(mtaId)
+                                                                                                .spaceId(spaceId)
+                                                                                                .list();
         return existingSubscriptions.stream()
                                     .filter(subscription -> !willBeCreatedOrUpdated(subscription, subscriptionsToCreate))
                                     .collect(Collectors.toList());

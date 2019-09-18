@@ -1,7 +1,6 @@
-package com.sap.cloud.lm.sl.cf.core.dao.filters;
+package com.sap.cloud.lm.sl.cf.core.model;
 
 import java.util.Map;
-import java.util.function.BiPredicate;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -11,10 +10,8 @@ import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
-import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.filters.ContentFilter;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @XmlRootElement(name = "configuration-filter")
 @XmlAccessorType(value = XmlAccessType.FIELD)
@@ -92,41 +89,7 @@ public class ConfigurationFilter {
                                                                                     .satisfies(providerVersion))) {
             return false;
         }
-        return requiredContent == null || CONTENT_FILTER.test(entry.getContent(), requiredContent);
+        return new ContentFilter().test(entry.getContent(), requiredContent);
     }
-
-    public static final BiPredicate<String, Map<String, Object>> CONTENT_FILTER = new BiPredicate<String, Map<String, Object>>() {
-
-        @Override
-        public boolean test(String content, Map<String, Object> requiredProperties) {
-            if (requiredProperties == null || requiredProperties.isEmpty()) {
-                return true;
-            }
-            Map<String, Object> parsedContent = getParsedContent(content);
-            if (parsedContent == null) {
-                return false;
-            }
-            return requiredProperties.entrySet()
-                                     .stream()
-                                     .allMatch(requiredEntry -> exists(parsedContent, requiredEntry));
-        }
-
-        private boolean exists(Map<String, Object> content, Map.Entry<String, Object> requiredEntry) {
-            Object actualValue = content.get(requiredEntry.getKey());
-            return actualValue != null && actualValue.equals(requiredEntry.getValue());
-        }
-
-        private Map<String, Object> getParsedContent(String content) {
-            if (content == null) {
-                return null;
-            }
-            try {
-                return JsonUtil.convertJsonToMap(content);
-            } catch (Exception e) {
-                return null;
-            }
-        }
-
-    };
 
 }

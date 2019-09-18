@@ -7,29 +7,6 @@ public class PersistenceMetadata {
 
     public static final String NOT_AVAILABLE = "N/A";
 
-    public static class NamedQueries {
-
-        private NamedQueries() {
-        }
-
-        public static final String FIND_ALL_ENTRIES = "find_all_entries";
-        public static final String FIND_ALL_ENTRIES_BY_SPACE_ID = "find_all_entries_guid";
-        public static final String FIND_ALL_SUBSCRIPTIONS = "find_all_subscriptions";
-        public static final String FIND_ALL_SUBSCRIPTIONS_BY_SPACE_ID = "find_all_subscriptions_guid";
-
-    }
-
-    public static class QueryParameters {
-
-        private QueryParameters() {
-        }
-
-        public static final String MTA_ID = "mtaId";
-        public static final String LAST_QUERY_PARAM = "last";
-        public static final String STATUS_QUERY_PARAM = "status";
-
-    }
-
     public static class TableNames {
 
         private TableNames() {
@@ -37,6 +14,7 @@ public class PersistenceMetadata {
 
         public static final String CONFIGURATION_ENTRY_TABLE = "configuration_registry";
         public static final String CONFIGURATION_SUBSCRIPTION_TABLE = "configuration_subscription";
+        public static final String PROGRESS_MESSAGE_TABLE = "progress_message";
 
     }
 
@@ -48,6 +26,7 @@ public class PersistenceMetadata {
         public static final String DEPLOY_TARGET_SEQUENCE = "deploy_target_sequence";
         public static final String CONFIGURATION_ENTRY_SEQUENCE = "configuration_entry_sequence";
         public static final String CONFIGURATION_SUBSCRIPTION_SEQUENCE = "configuration_subscription_sequence";
+        public static final String PROGRESS_MESSAGE_SEQUENCE = "ID_SEQ";
 
     }
 
@@ -81,6 +60,13 @@ public class PersistenceMetadata {
         public static final String ONGOING_OPERATION_MTA_ID = "mtaId";
 
         public static final String DEPLOY_TARGET_NAME = "name";
+
+        public static final String PROGRESS_MESSAGE_ID = "id";
+        public static final String PROGRESS_MESSAGE_PROCESS_ID = "process_id";
+        public static final String PROGRESS_MESSAGE_TASK_ID = "task_id";
+        public static final String PROGRESS_MESSAGE_TYPE = "type";
+        public static final String PROGRESS_MESSAGE_TEXT = "text";
+        public static final String PROGRESS_MESSAGE_TIMESTAMP = "timestamp";
 
     }
 

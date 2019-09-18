@@ -8,8 +8,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
-import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -18,20 +17,22 @@ public class ProcessConflictPreventer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessConflictPreventer.class);
 
-    private final OperationDao dao;
+    private final OperationService operationService;
 
-    public ProcessConflictPreventer(OperationDao dao) {
-        this.dao = dao;
+    public ProcessConflictPreventer(OperationService operationService) {
+        this.operationService = operationService;
     }
 
     public synchronized void acquireLock(String mtaId, String spaceId, String processId) {
         LOGGER.info(format(Messages.ACQUIRING_LOCK, processId, mtaId));
 
         validateNoConflictingOperationsExist(mtaId, spaceId);
-        Operation currentOperation = dao.findRequired(processId);
+        Operation currentOperation = operationService.createQuery()
+                                                     .processId(processId)
+                                                     .singleResult();
         currentOperation.setMtaId(mtaId);
         currentOperation.acquiredLock(true);
-        dao.merge(currentOperation);
+        operationService.update(currentOperation.getProcessId(), currentOperation);
 
         LOGGER.info(format(Messages.ACQUIRED_LOCK, processId, mtaId));
     }
@@ -55,11 +56,11 @@ public class ProcessConflictPreventer {
     }
 
     private List<Operation> findConflictingOperations(String mtaId, String spaceId) {
-        OperationFilter filter = new OperationFilter.Builder().mtaId(mtaId)
-                                                              .spaceId(spaceId)
-                                                              .withAcquiredLock()
-                                                              .build();
-        return dao.find(filter);
+        return operationService.createQuery()
+                               .mtaId(mtaId)
+                               .spaceId(spaceId)
+                               .acquiredLock(true)
+                               .list();
     }
 
 }

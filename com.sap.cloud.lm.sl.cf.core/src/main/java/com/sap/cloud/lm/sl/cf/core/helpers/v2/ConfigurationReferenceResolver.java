@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.model.Resource;
@@ -25,18 +25,18 @@ public class ConfigurationReferenceResolver {
 
     protected static final String RESOURCE_INDEX_DELIMITER = ".";
 
-    protected ConfigurationEntryDao dao;
+    protected ConfigurationEntryService configurationEntryService;
     protected ApplicationConfiguration configuration;
     protected Map<String, ResolvedConfigurationReference> resolvedReferences = new TreeMap<>();
 
-    public ConfigurationReferenceResolver(ConfigurationEntryDao dao, ApplicationConfiguration configuration) {
-        this.dao = dao;
+    public ConfigurationReferenceResolver(ConfigurationEntryService configurationEntryService, ApplicationConfiguration configuration) {
+        this.configurationEntryService = configurationEntryService;
         this.configuration = configuration;
     }
 
     public List<Resource> resolve(Resource resource, ConfigurationFilter filter, CloudTarget cloudTarget) {
         CloudTarget globalConfigTarget = getGlobalConfigTarget(configuration);
-        return asResources(findConfigurationEntries(dao, filter, getCloudTargetsList(cloudTarget), globalConfigTarget), resource);
+        return asResources(findConfigurationEntries(configurationEntryService, filter, getCloudTargetsList(cloudTarget), globalConfigTarget), resource);
     }
 
     private List<CloudTarget> getCloudTargetsList(CloudTarget target) {

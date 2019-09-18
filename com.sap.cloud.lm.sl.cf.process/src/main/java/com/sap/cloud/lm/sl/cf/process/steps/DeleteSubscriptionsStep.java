@@ -10,11 +10,10 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("deleteSubscriptionsStep")
@@ -22,7 +21,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class DeleteSubscriptionsStep extends SyncFlowableStep {
 
     @Inject
-    private ConfigurationSubscriptionDao dao;
+    private ConfigurationSubscriptionService configurationSubscriptionService;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -31,10 +30,11 @@ public class DeleteSubscriptionsStep extends SyncFlowableStep {
         List<ConfigurationSubscription> subscriptionsToDelete = StepsUtil.getSubscriptionsToDelete(execution.getContext());
         getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, JsonUtil.toJson(subscriptionsToDelete, true));
         for (ConfigurationSubscription subscription : subscriptionsToDelete) {
-            try {
-                infoSubscriptionDeletion(subscription);
-                dao.remove(subscription.getId());
-            } catch (NotFoundException e) {
+            infoSubscriptionDeletion(subscription);
+            int removedSubscriptions = configurationSubscriptionService.createQuery()
+                                                                       .id(subscription.getId())
+                                                                       .delete();
+            if (removedSubscriptions == 0) {
                 ResourceDto resourceDto = subscription.getResourceDto();
                 getStepLogger().warn(Messages.COULD_NOT_DELETE_SUBSCRIPTION, subscription.getAppName(), getName(resourceDto));
             }
