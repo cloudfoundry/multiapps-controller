@@ -11,7 +11,13 @@
         http://www.springframework.org/schema/security/oauth2
         http://www.springframework.org/schema/security/spring-security-oauth2-1.0.xsd">
 
-    <sec:http pattern="/public/**" security="none" />
+    <sec:http pattern="/public/**" entry-point-ref="basicAuthenticationEntryPoint">
+        <sec:custom-filter ref="rateLimiter" position="FIRST"/>
+    </sec:http>
+
+    <sec:http pattern="/rest/**" entry-point-ref="basicAuthenticationEntryPoint">
+        <sec:custom-filter ref="rateLimiter" position="FIRST"/>
+    </sec:http>
 
     <sec:http pattern="/**" create-session="ifRequired" entry-point-ref="delegatingAuthenticationEntryPoint"
         access-decision-manager-ref="accessDecisionManager" authentication-manager-ref="authenticationManager">
@@ -25,12 +31,14 @@
             access="#oauth2.hasAnyScope('cloud_controller.write', 'cloud_controller.admin')" method="POST" />
         <sec:intercept-url pattern="/**"
             access="#oauth2.hasAnyScope('cloud_controller.write', 'cloud_controller.admin')" method="DELETE" />
-        <sec:custom-filter ref="resourceServerFilter" before="PRE_AUTH_FILTER" />
-        <sec:custom-filter ref="authFilter" position="LAST" />
+
         <sec:access-denied-handler ref="accessDeniedHandler" />
-        <sec:custom-filter ref="csrfHeadersFilter" after="CSRF_FILTER" />
+
         <sec:custom-filter ref="correlationIdFilter" position="FIRST" />
+        <sec:custom-filter ref="resourceServerFilter" before="PRE_AUTH_FILTER" />
         <sec:custom-filter ref="requestSizeFilter" after="PRE_AUTH_FILTER" />
+        <sec:custom-filter ref="csrfHeadersFilter" after="CSRF_FILTER" />
+        <sec:custom-filter ref="authFilter" position="LAST" />
     </sec:http>
 
     <sec:http-firewall ref="customHttpFirewall" />

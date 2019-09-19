@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.web.resources;
+package com.sap.cloud.lm.sl.cf.web.security;
 
 import java.io.IOException;
 import java.util.UUID;
