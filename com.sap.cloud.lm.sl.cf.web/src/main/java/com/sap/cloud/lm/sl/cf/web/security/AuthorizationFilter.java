@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.WebApplicationException;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
@@ -42,7 +43,8 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                 authorizationChecker.ensureUserIsAuthorized(request, userInfo, spaceGuid, null);
             }
         } catch (WebApplicationException e) {
-            response.sendError(401, MessageFormat.format(Messages.NOT_AUTHORIZED_TO_PERFORM_OPERATIONS_IN_SPACE, spaceGuid));
+            response.sendError(HttpStatus.UNAUTHORIZED.value(),
+                    MessageFormat.format(Messages.NOT_AUTHORIZED_TO_PERFORM_OPERATIONS_IN_SPACE, spaceGuid));
             return;
         }
 

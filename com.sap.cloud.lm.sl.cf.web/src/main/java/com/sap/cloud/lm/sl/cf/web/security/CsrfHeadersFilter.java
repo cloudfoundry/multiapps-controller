@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sap.cloud.lm.sl.cf.web.Constants;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -16,7 +17,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * response headers
  * 
  * @author i031908
- *
  */
 @Named("csrfHeadersFilter")
 public class CsrfHeadersFilter extends OncePerRequestFilter {
@@ -28,9 +28,9 @@ public class CsrfHeadersFilter extends OncePerRequestFilter {
         throws ServletException, IOException {
         CsrfToken token = (CsrfToken) request.getAttribute(SPRING_SECURITY_CSRF_SESSION_ATTRIBUTE);
         if (token != null) {
-            response.setHeader(CsrfHeaders.CSRF_HEADER_NAME_HEADER, token.getHeaderName());
-            response.setHeader(CsrfHeaders.CSRF_PARAM_NAME_HEADER, token.getParameterName());
-            response.setHeader(CsrfHeaders.CSRF_TOKEN_HEADER, token.getToken());
+            response.setHeader(Constants.CSRF_HEADER_NAME, token.getHeaderName());
+            response.setHeader(Constants.CSRF_PARAM_NAME, token.getParameterName());
+            response.setHeader(Constants.CSRF_TOKEN, token.getToken());
         }
         filterChain.doFilter(request, response);
     }
