@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.web.helpers.model2;
+package com.sap.cloud.lm.sl.cf.web.util.bar;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "model")
-public class Model2 {
+public class Bar {
 
     @XmlElement(name = "property-1")
     private String property1;
@@ -18,11 +18,11 @@ public class Model2 {
     @XmlElement(name = "property-4")
     private Boolean property4;
 
-    public Model2() {
+    public Bar() {
         // Required by JAXB.
     }
 
-    public Model2(String property1, String property2, Integer property3, Boolean property4) {
+    public Bar(String property1, String property2, Integer property3, Boolean property4) {
         this.property1 = property1;
         this.property2 = property2;
         this.property3 = property3;

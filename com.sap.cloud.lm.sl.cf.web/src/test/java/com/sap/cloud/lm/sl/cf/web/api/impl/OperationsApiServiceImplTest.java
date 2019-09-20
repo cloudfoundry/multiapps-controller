@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.web.api.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.security.Principal;
 import java.util.Arrays;
@@ -13,10 +14,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.SecurityContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
@@ -34,9 +32,10 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
@@ -59,6 +58,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.ContentException;
+import com.sap.cloud.lm.sl.common.NotFoundException;
 
 public class OperationsApiServiceImplTest {
 
@@ -116,15 +116,16 @@ public class OperationsApiServiceImplTest {
         setupOperationsHelperMock();
         mockProcessActionRegistry();
         mockFlowableFacade();
+        mockClientProvider(EXAMPLE_USER);
     }
 
     @Test
-    public void testGetMtaOperations() throws Exception {
-        Response response = testedClass.getMtaOperations(1, Arrays.asList(State.FINISHED.toString(), State.ABORTED.toString()),
-                                                         mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
+    public void testGetOperations() throws Exception {
+        ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID, Arrays.asList(State.FINISHED.toString(),
+                                                                                                       State.ABORTED.toString()),
+                                                                             1);
 
-        @SuppressWarnings("unchecked")
-        List<Operation> operations = (List<Operation>) response.getEntity();
+        List<Operation> operations = response.getBody();
         assertEquals(2, operations.size());
         assertEquals(State.FINISHED, operations.get(0)
                                                .getState());
@@ -134,35 +135,33 @@ public class OperationsApiServiceImplTest {
     }
 
     @Test
-    public void testGetMtaOperationsNotFound() throws Exception {
-        Response response = testedClass.getMtaOperations(1, Arrays.asList(State.ACTION_REQUIRED.toString()),
-                                                         mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
+    public void testGetOperationsNotFound() throws Exception {
+        ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID, Arrays.asList(State.ACTION_REQUIRED.toString()),
+                                                                             1);
 
-        @SuppressWarnings("unchecked")
-        List<Operation> operations = (List<Operation>) response.getEntity();
+        List<Operation> operations = response.getBody();
         assertTrue(operations.isEmpty());
 
     }
 
     @Test
-    public void testGetMtaOperation() throws Exception {
+    public void testGetOperation() throws Exception {
         String processId = FINISHED_PROCESS;
-        Response response = testedClass.getMtaOperation(processId, null, mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
-        Operation operation = (Operation) response.getEntity();
+        ResponseEntity<Operation> response = testedClass.getOperation(SPACE_GUID, processId, null);
+        Operation operation = response.getBody();
         assertEquals(processId, operation.getProcessId());
         assertEquals(State.FINISHED, operation.getState());
     }
 
     @Test
-    public void testGetMtaOperationMissing() throws Exception {
-        Assertions.assertThrows(NoResultException.class,
-                                () -> testedClass.getMtaOperation("notPresent", null, mockSecurityContext(EXAMPLE_USER), SPACE_GUID));
+    public void testGetOperationMissing() throws Exception {
+        Assertions.assertThrows(NoResultException.class, () -> testedClass.getOperation(SPACE_GUID, "notPresent", null));
     }
 
     @Test
     public void testExecuteOperationAction() throws Exception {
         String processId = RUNNING_PROCESS;
-        testedClass.executeOperationAction(processId, AbortProcessAction.ACTION_ID_ABORT, mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
+        testedClass.executeOperationAction(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, processId, AbortProcessAction.ACTION_ID_ABORT);
         Mockito.verify(processAction)
                .execute(Mockito.eq(EXAMPLE_USER), Mockito.eq(processId));
     }
@@ -170,120 +169,110 @@ public class OperationsApiServiceImplTest {
     @Test
     public void testExecuteOperationActionMissingProcess() throws Exception {
         Assertions.assertThrows(NoResultException.class,
-                                () -> testedClass.executeOperationAction("notavalidpprocess", AbortProcessAction.ACTION_ID_ABORT,
-                                                                         mockSecurityContext(EXAMPLE_USER), SPACE_GUID));
+                                () -> testedClass.executeOperationAction(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID,
+                                                                         "notavalidpprocess", AbortProcessAction.ACTION_ID_ABORT));
     }
 
     @Test
     public void testExecuteOperationActionInvalidAction() throws Exception {
-        Response response = testedClass.executeOperationAction(RUNNING_PROCESS, StartProcessAction.ACTION_ID_START,
-                                                               mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+        assertThrows(IllegalArgumentException.class,
+                     () -> testedClass.executeOperationAction(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, RUNNING_PROCESS,
+                                                              StartProcessAction.ACTION_ID_START));
     }
 
     @Test
     public void testExecuteOperationActionUnauthorized() throws Exception {
-        Assertions.assertThrows(WebApplicationException.class,
-                                () -> testedClass.executeOperationAction(RUNNING_PROCESS, AbortProcessAction.ACTION_ID_ABORT,
-                                                                         mockSecurityContext(null), SPACE_GUID));
+        Assertions.assertThrows(ResponseStatusException.class,
+                                () -> testedClass.executeOperationAction(mockHttpServletRequest(null), SPACE_GUID, RUNNING_PROCESS,
+                                                                         AbortProcessAction.ACTION_ID_ABORT));
     }
 
     @Test
-    public void testStartMtaOperation() throws Exception {
-        testedClass.startMtaOperation(createOperation(null, null), mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
+    public void testStartOperation() throws Exception {
+        testedClass.startOperation(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, createOperation(null, null));
         Mockito.verify(flowableFacade)
                .startProcess(Mockito.any(), Mockito.anyMap());
     }
 
     @Test
-    public void testGetMtaOperationLogs() throws Exception {
+    public void testGetOperationLogs() throws Exception {
         String processId = FINISHED_PROCESS;
-        testedClass.getMtaOperationLogs(processId, mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
+        testedClass.getOperationLogs(SPACE_GUID, processId);
         Mockito.verify(logsService)
                .getLogNames(Mockito.eq(SPACE_GUID), Mockito.eq(processId));
     }
 
     @Test
-    public void testGetMtaOperationLogsNotFoundOperation() throws Exception {
-        Response response = testedClass.getMtaOperationLogs("notarealop", mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
-        assertEquals(Status.NOT_FOUND.getStatusCode(), response.getStatus());
+    public void testGetOperationLogsNotFoundOperation() throws Exception {
+        assertThrows(NotFoundException.class, () -> testedClass.getOperationLogs(SPACE_GUID, "notarealop"));
     }
 
     @Test
-    public void testGetMtaOperationLogsServiceException() throws Exception {
+    public void testGetOperationLogsServiceException() throws Exception {
         String processId = FINISHED_PROCESS;
         Mockito.when(logsService.getLogNames(Mockito.eq(SPACE_GUID), Mockito.eq(processId)))
                .thenThrow(new FileStorageException("something went wrong"));
-        Assertions.assertThrows(ContentException.class,
-                                () -> testedClass.getMtaOperationLogs(processId, mockSecurityContext(EXAMPLE_USER), SPACE_GUID));
+        Assertions.assertThrows(ContentException.class, () -> testedClass.getOperationLogs(SPACE_GUID, processId));
     }
 
     @Test
-    public void testGetMtaOperationLogContent() throws Exception {
+    public void testGetOperationLogContent() throws Exception {
         String processId = FINISHED_PROCESS;
         String logName = "MAIN_LOG";
         String expectedLogContent = "somelogcontentstring\n1234";
         Mockito.when(logsService.getLogContent(Mockito.eq(SPACE_GUID), Mockito.eq(processId), Mockito.eq(logName)))
                .thenReturn(expectedLogContent);
-        Response response = testedClass.getMtaOperationLogContent(processId, logName, mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
-        String logContent = (String) response.getEntity();
+        ResponseEntity<String> response = testedClass.getOperationLogContent(SPACE_GUID, processId, logName);
+        String logContent = response.getBody();
         assertEquals(expectedLogContent, logContent);
     }
 
     @Test
-    public void testGetMtaOperationLogContentNotFound() throws Exception {
+    public void testGetOperationLogContentNotFound() throws Exception {
         String processId = FINISHED_PROCESS;
         String logName = "MAIN_LOG";
         Mockito.when(logsService.getLogContent(Mockito.eq(SPACE_GUID), Mockito.eq(processId), Mockito.eq(logName)))
                .thenThrow(new NoResultException("log file not found"));
-        Assertions.assertThrows(NoResultException.class,
-                                () -> testedClass.getMtaOperationLogContent(processId, logName, mockSecurityContext(EXAMPLE_USER),
-                                                                            SPACE_GUID));
+        Assertions.assertThrows(NoResultException.class, () -> testedClass.getOperationLogContent(SPACE_GUID, processId, logName));
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testGetOperationActionsForRunning() throws Exception {
-        Response response = testedClass.getOperationActions(RUNNING_PROCESS, mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
-        List<String> actions = (List<String>) response.getEntity();
+        ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, RUNNING_PROCESS);
+        List<String> actions = response.getBody();
         assertEquals(Arrays.asList(AbortProcessAction.ACTION_ID_ABORT), actions);
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testGetOperationActionsForFinished() throws Exception {
-        Response response = testedClass.getOperationActions(FINISHED_PROCESS, mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
-        List<String> actions = (List<String>) response.getEntity();
+        ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, FINISHED_PROCESS);
+        List<String> actions = response.getBody();
         assertEquals(Collections.emptyList(), actions);
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testGetOperationActionsForAborted() throws Exception {
-        Response response = testedClass.getOperationActions(ABORTED_PROCESS, mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
-        List<String> actions = (List<String>) response.getEntity();
+        ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, ABORTED_PROCESS);
+        List<String> actions = response.getBody();
         assertEquals(Collections.emptyList(), actions);
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testGetOperationActionsForError() throws Exception {
-        Response response = testedClass.getOperationActions(ERROR_PROCESS, mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
-        List<String> actions = (List<String>) response.getEntity();
+        ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, ERROR_PROCESS);
+        List<String> actions = response.getBody();
         assertEquals(Arrays.asList(AbortProcessAction.ACTION_ID_ABORT, RetryProcessAction.ACTION_ID_RETRY), actions);
     }
 
     @Test
     public void testGetOperationActionsOperationNotFound() throws Exception {
-        Assertions.assertThrows(NoResultException.class,
-                                () -> testedClass.getOperationActions("notarealprocess", mockSecurityContext(EXAMPLE_USER), SPACE_GUID));
+        Assertions.assertThrows(NoResultException.class, () -> testedClass.getOperationActions(SPACE_GUID, "notarealprocess"));
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testGetOperationActionsNotFound() throws Exception {
-        Response response = testedClass.getOperationActions(RUNNING_PROCESS, mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
-        List<String> actions = (List<String>) response.getEntity();
+        ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, RUNNING_PROCESS);
+        List<String> actions = response.getBody();
         assertEquals(Arrays.asList(AbortProcessAction.ACTION_ID_ABORT), actions);
     }
 
@@ -331,17 +320,16 @@ public class OperationsApiServiceImplTest {
                .thenReturn(processAction);
     }
 
-    private SecurityContext mockSecurityContext(String user) {
-        SecurityContext securityContextMock = Mockito.mock(SecurityContext.class);
+    private HttpServletRequest mockHttpServletRequest(String user) {
+        HttpServletRequest requestMock = Mockito.mock(HttpServletRequest.class);
         if (user != null) {
             Principal principalMock = Mockito.mock(Principal.class);
             Mockito.when(principalMock.getName())
                    .thenReturn(user);
-            Mockito.when(securityContextMock.getUserPrincipal())
+            Mockito.when(requestMock.getUserPrincipal())
                    .thenReturn(principalMock);
-            mockClientProvider(user);
         }
-        return securityContextMock;
+        return requestMock;
     }
 
     private void setupOperationServiceMock() {

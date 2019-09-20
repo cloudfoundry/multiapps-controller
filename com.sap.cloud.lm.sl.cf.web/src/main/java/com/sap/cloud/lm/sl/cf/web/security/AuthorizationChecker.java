@@ -7,13 +7,13 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.Status;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
@@ -25,7 +25,6 @@ import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.ResponseRenderer;
 
 @Named
 public class AuthorizationChecker {
@@ -68,8 +67,7 @@ public class AuthorizationChecker {
 
     public void ensureUserIsAuthorized(HttpServletRequest request, UserInfo userInfo, String spaceGuid, String action) {
         try {
-            if (!checkPermissions(userInfo, spaceGuid, request.getMethod()
-                                                              .equals(HttpMethod.GET))) {
+            if (!checkPermissions(userInfo, spaceGuid, isGetRequest(request))) {
                 String message = MessageFormat.format(Messages.UNAUTHORISED_OPERATION_SPACE_ID, action, spaceGuid);
                 failWithForbiddenStatus(message);
             }
@@ -77,6 +75,10 @@ public class AuthorizationChecker {
             String message = MessageFormat.format(Messages.PERMISSION_CHECK_FAILED_SPACE_ID, action, spaceGuid);
             failWithUnauthorizedStatus(message);
         }
+    }
+
+    private boolean isGetRequest(HttpServletRequest request) {
+        return HttpMethod.GET.matches(request.getMethod());
     }
 
     boolean checkPermissions(UserInfo userInfo, String orgName, String spaceName, boolean readOnly) {
@@ -174,18 +176,18 @@ public class AuthorizationChecker {
     }
 
     private void failWithUnauthorizedStatus(String message) {
-        failWithStatus(Status.UNAUTHORIZED, message);
+        failWithStatus(HttpStatus.UNAUTHORIZED, message);
     }
 
     private void failWithForbiddenStatus(String message) {
-        failWithStatus(Status.FORBIDDEN, message);
+        failWithStatus(HttpStatus.FORBIDDEN, message);
     }
 
-    private static void failWithStatus(Status status, String message) {
+    private static void failWithStatus(HttpStatus status, String message) {
         LOGGER.warn(message);
         AuditLoggingProvider.getFacade()
                             .logSecurityIncident(message);
-        throw new WebApplicationException(ResponseRenderer.renderResponseForStatus(status, message));
+        throw new ResponseStatusException(status, message);
     }
 
     public ClientHelper getClientHelper(CloudControllerClient client) {

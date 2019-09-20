@@ -13,17 +13,18 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.SecurityContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
@@ -53,6 +54,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterTypeFactory;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
+import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
@@ -80,51 +82,46 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsApiServiceImpl.class);
 
     @Override
-    public Response getMtaOperations(Integer last, List<String> state, SecurityContext securityContext, String spaceGuid) {
-        List<Operation> existingOperations = getOperations(last, state, spaceGuid);
-        return Response.ok()
-                       .entity(existingOperations)
-                       .build();
+    public ResponseEntity<List<Operation>> getOperations(String spaceGuid, List<String> stateStrings, Integer last) {
+        List<State> states = getStates(stateStrings);
+        List<Operation> operations = filterByQueryParameters(last, states, spaceGuid);
+        return ResponseEntity.ok()
+                             .body(operations);
     }
 
-    @Override
-    public Response executeOperationAction(String operationId, String actionId, SecurityContext securityContext, String spaceGuid) {
+    public ResponseEntity<Void> executeOperationAction(HttpServletRequest request, String spaceGuid, String operationId, String actionId) {
         Operation operation = operationService.createQuery()
                                               .processId(operationId)
                                               .singleResult();
         List<String> availableOperations = getAvailableActions(operation);
         if (!availableOperations.contains(actionId)) {
-            return Response.status(Status.BAD_REQUEST)
-                           .entity("Action " + actionId + " cannot be executed over operation " + operationId)
-                           .build();
+            throw new IllegalArgumentException(MessageFormat.format(Messages.ACTION_0_CANNOT_BE_EXECUTED_OVER_OPERATION_1, actionId,
+                                                                    operationId));
         }
         ProcessAction action = processActionRegistry.getAction(actionId);
-        action.execute(getAuthenticatedUser(securityContext), operationId);
+        action.execute(getAuthenticatedUser(request), operationId);
         AuditLoggingProvider.getFacade()
                             .logAboutToStart(MessageFormat.format("{0} over operation with id {1}", action, operation.getProcessId()));
-        return Response.accepted()
-                       .header("Location", getLocationHeader(operationId, spaceGuid))
-                       .build();
+        return ResponseEntity.accepted()
+                             .header("Location", getLocationHeader(operationId, spaceGuid))
+                             .build();
     }
 
     @Override
-    public Response getMtaOperationLogs(String operationId, SecurityContext securityContext, String spaceGuid) {
+    public ResponseEntity<List<Log>> getOperationLogs(String spaceGuid, String operationId) {
         try {
             Operation operation = getMtaOperation(operationId);
             if (operation == null) {
-                return Response.status(Status.NOT_FOUND)
-                               .entity("Operation with id " + operationId + " not found")
-                               .build();
+                throw new NotFoundException(Messages.OPERATION_0_NOT_FOUND, operationId);
             }
             List<String> logIds = logsService.getLogNames(spaceGuid, operationId);
             List<Log> logs = logIds.stream()
                                    .map(id -> new Log().id(id))
                                    .collect(Collectors.toList());
-            return Response.ok()
-                           .entity(logs)
-                           .build();
+            return ResponseEntity.ok()
+                                 .body(logs);
         } catch (FileStorageException e) {
-            throw new ContentException(e);
+            throw new ContentException(e, e.getMessage());
         }
     }
 
@@ -139,20 +136,19 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     @Override
-    public Response getMtaOperationLogContent(String operationId, String logId, SecurityContext securityContext, String spaceGuid) {
+    public ResponseEntity<String> getOperationLogContent(String spaceGuid, String operationId, String logId) {
         try {
             String content = logsService.getLogContent(spaceGuid, operationId, logId);
-            return Response.ok()
-                           .entity(content)
-                           .build();
+            return ResponseEntity.ok()
+                                 .body(content);
         } catch (FileStorageException e) {
-            throw new ContentException(e);
+            throw new ContentException(e, e.getMessage());
         }
     }
 
     @Override
-    public Response startMtaOperation(Operation operation, SecurityContext securityContext, String spaceGuid) {
-        String user = getAuthenticatedUser(securityContext);
+    public ResponseEntity<Operation> startOperation(HttpServletRequest request, String spaceGuid, Operation operation) {
+        String user = getAuthenticatedUser(request);
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
                                                                              .getParameters();
@@ -163,42 +159,20 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         ProcessInstance processInstance = flowableFacade.startProcess(processDefinitionKey, operation.getParameters());
         AuditLoggingProvider.getFacade()
                             .logConfigCreate(operation);
-        return Response.accepted()
-                       .header("Location", getLocationHeader(processInstance.getProcessInstanceId(), spaceGuid))
-                       .build();
+        return ResponseEntity.accepted()
+                             .header("Location", getLocationHeader(processInstance.getProcessInstanceId(), spaceGuid))
+                             .build();
     }
 
     @Override
-    public Response getMtaOperation(String operationId, String embed, SecurityContext securityContext, String spaceGuid) {
-        Operation operation = getOperation(operationId, embed, spaceGuid);
-        return Response.ok()
-                       .entity(operation)
-                       .build();
-    }
-
-    @Override
-    public Response getOperationActions(String operationId, SecurityContext securityContext, String spaceGuid) {
-        Operation operation = operationService.createQuery()
-                                              .processId(operationId)
-                                              .singleResult();
-        return Response.ok()
-                       .entity(getAvailableActions(operation))
-                       .build();
-    }
-
-    private List<Operation> getOperations(Integer last, List<String> statusList, String spaceGuid) {
-        List<State> states = getStates(statusList);
-        return filterByQueryParameters(last, states, spaceGuid);
-    }
-
-    private Operation getOperation(String operationId, String embed, String spaceId) {
+    public ResponseEntity<Operation> getOperation(String spaceGuid, String operationId, String embed) {
         Operation operation = operationService.createQuery()
                                               .processId(operationId)
                                               .singleResult();
         if (!operation.getSpaceId()
-                      .equals(spaceId)) {
+                      .equals(spaceGuid)) {
             LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_SPACE_MISMATCH, operationId,
-                                             operation.getSpaceId(), spaceId));
+                                             operation.getSpaceId(), spaceGuid));
             throw new NotFoundException(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_NOT_FOUND, operationId);
         }
         operationsHelper.addState(operation);
@@ -206,13 +180,15 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         if ("messages".equals(embed)) {
             operation.setMessages(getOperationMessages(operation));
         }
-        return operation;
+        return ResponseEntity.ok()
+                             .body(operation);
     }
 
     private List<State> getStates(List<String> statusList) {
-        return statusList.stream()
-                         .map(State::valueOf)
-                         .collect(Collectors.toList());
+        return ObjectUtils.defaultIfNull(statusList, Collections.<String> emptyList())
+                          .stream()
+                          .map(State::valueOf)
+                          .collect(Collectors.toList());
     }
 
     private List<Operation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<State> statusList, String spaceGuid) {
@@ -232,6 +208,15 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private boolean containsOnlyFinishedStates(List<State> statusList) {
         return Collections.disjoint(statusList, State.getActiveStates());
+    }
+
+    @Override
+    public ResponseEntity<List<String>> getOperationActions(String spaceGuid, String operationId) {
+        Operation operation = operationService.createQuery()
+                                              .processId(operationId)
+                                              .singleResult();
+        return ResponseEntity.ok()
+                             .body(getAvailableActions(operation));
     }
 
     private List<String> getAvailableActions(Operation operation) {
@@ -311,13 +296,13 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                       .toString();
     }
 
-    private String getAuthenticatedUser(SecurityContext securityContext) {
+    private String getAuthenticatedUser(HttpServletRequest request) {
         String user = null;
-        if (securityContext.getUserPrincipal() != null) {
-            user = securityContext.getUserPrincipal()
-                                  .getName();
+        if (request.getUserPrincipal() != null) {
+            user = request.getUserPrincipal()
+                          .getName();
         } else {
-            throw new WebApplicationException(Status.UNAUTHORIZED);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
         LOGGER.debug(MessageFormat.format("Authenticated user is: {0}", user));
         return user;

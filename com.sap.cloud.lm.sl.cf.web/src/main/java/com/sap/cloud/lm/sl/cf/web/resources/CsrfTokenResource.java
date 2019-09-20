@@ -1,16 +1,18 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Path("/csrf-token")
+@RestController
+@RequestMapping("/rest/csrf-token")
 public class CsrfTokenResource {
 
-    @GET
-    public Response getCsrfToken() {
-        return Response.status(Response.Status.NO_CONTENT)
-                       .build();
+    @GetMapping
+    public ResponseEntity<Void> getCsrfToken() {
+        return ResponseEntity.noContent()
+                             .build();
     }
 
 }

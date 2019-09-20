@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.text.MessageFormat;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
@@ -29,7 +29,7 @@ public abstract class SpaceNameBasedAuthorizationFilter implements UriAuthorizat
         CloudTarget target = extractAndLogTarget(communication.getRequest());
         try {
             authorizationChecker.ensureUserIsAuthorized(communication.getRequest(), SecurityContextUtil.getUserInfo(), target, null);
-        } catch (WebApplicationException e) {
+        } catch (ResponseStatusException e) {
             logUnauthorizedRequest(communication.getRequest(), e);
             communication.getResponse()
                          .sendError(HttpStatus.UNAUTHORIZED.value(),
@@ -44,7 +44,7 @@ public abstract class SpaceNameBasedAuthorizationFilter implements UriAuthorizat
         return target;
     }
 
-    private void logUnauthorizedRequest(HttpServletRequest request, WebApplicationException e) {
+    private void logUnauthorizedRequest(HttpServletRequest request, ResponseStatusException e) {
         if (LOGGER.isDebugEnabled()) {
             String userName = SecurityContextUtil.getUserName();
             LOGGER.debug(String.format("User \"%s\" is not authorized for requst to \"%s\".", userName, request.getRequestURI()), e);

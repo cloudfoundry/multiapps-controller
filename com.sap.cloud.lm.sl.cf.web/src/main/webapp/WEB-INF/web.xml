@@ -2,75 +2,35 @@
 <web-app id="WebApp_ID" version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-    <display-name>CF ALM Service</display-name>
+
+    <display-name>CF MTA Deployer</display-name>
+
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/application-context.xml</param-value>
+    </context-param>
+
     <servlet>
-        <description>Bootstrap Servlet</description>
+        <description>BootstrapServlet</description>
         <display-name>BootstrapServlet</display-name>
         <servlet-name>BootstrapServlet</servlet-name>
         <servlet-class>com.sap.cloud.lm.sl.cf.web.bootstrap.BootstrapServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
-        <description>MTA operations REST API Servlet</description>
-        <display-name>MTARestServlet</display-name>
-        <!-- Note that the <servlet-class> element is omitted from the Servlet declaration. For this reason the <servlet-name> 
-            element must specify the fully qualified name of the class that implements javax.ws.rs.core.Application. Otherwise the servlet 
-            registration would not work. -->
-        <servlet-name>com.sap.cloud.lm.sl.cf.web.app.CFMtaApplication</servlet-name>
+        <display-name>DispatcherServlet</display-name>
+        <servlet-name>DispatcherServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
-            <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>com.sap.cloud.lm.sl.cf.web.helpers</param-value>
-        </init-param>
-        <init-param>
-            <param-name>jersey.config.server.provider.classnames</param-name>
-            <param-value>org.glassfish.jersey.filter.LoggingFilter</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet>
-        <display-name>CFRestServlet</display-name>
-        <!-- Note that the <servlet-class> element is omitted from the Servlet declaration. For this reason the <servlet-name> 
-            element must specify the fully qualified name of the class that implements javax.ws.rs.core.Application. Otherwise the servlet 
-            registration would not work. -->
-        <servlet-name>com.sap.cloud.lm.sl.cf.web.app.CFApplication</servlet-name>
-        <init-param>
-            <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>com.sap.cloud.lm.sl.cf.web.helpers</param-value>
-        </init-param>
-        <init-param>
-            <param-name>jersey.config.server.provider.classnames</param-name>
-            <param-value>org.glassfish.jersey.filter.LoggingFilter</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet>
-        <display-name>CFPublicServlet</display-name>
-        <!-- Note that the <servlet-class> element is omitted from the Servlet declaration. For this reason the <servlet-name> 
-            element must specify the fully qualified name of the class that implements javax.ws.rs.core.Application. Otherwise the servlet 
-            registration would not work. -->
-        <servlet-name>com.sap.cloud.lm.sl.cf.web.app.CFPublicApplication</servlet-name>
-        <init-param>
-            <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>com.sap.cloud.lm.sl.cf.web.helpers</param-value>
-        </init-param>
-        <init-param>
-            <param-name>jersey.config.server.provider.classnames</param-name>
-            <param-value>org.glassfish.jersey.filter.LoggingFilter</param-value>
+            <param-name>contextConfigLocation</param-name>
+            <param-value></param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>com.sap.cloud.lm.sl.cf.web.app.CFMtaApplication</servlet-name>
-        <url-pattern>/api/v1/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>com.sap.cloud.lm.sl.cf.web.app.CFApplication</servlet-name>
-        <url-pattern>/rest/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>com.sap.cloud.lm.sl.cf.web.app.CFPublicApplication</servlet-name>
-        <url-pattern>/public/*</url-pattern>
+        <servlet-name>DispatcherServlet</servlet-name>
+        <url-pattern>/*</url-pattern>
     </servlet-mapping>
 
     <resource-ref>
@@ -89,14 +49,11 @@
         <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
     </listener>
 
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>/WEB-INF/application-context.xml</param-value>
-    </context-param>
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
+
     <filter-mapping>
         <filter-name>springSecurityFilterChain</filter-name>
         <url-pattern>/*</url-pattern>
