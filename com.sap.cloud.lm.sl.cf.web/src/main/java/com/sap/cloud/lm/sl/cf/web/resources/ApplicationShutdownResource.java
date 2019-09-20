@@ -4,35 +4,36 @@ import java.text.MessageFormat;
 import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import javax.servlet.http.HttpServletRequest;
 
-import org.glassfish.jersey.process.internal.RequestScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.shutdown.model.ApplicationShutdownDto;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 
-@RequestScoped
-@Path("/admin/shutdown")
-@Produces(MediaType.APPLICATION_JSON)
-public class AdminResource {
+@RestController
+@RequestMapping("/admin/shutdown")
+public class ApplicationShutdownResource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AdminResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationShutdownResource.class);
 
     @Inject
     private FlowableFacade flowableFacade;
 
-    @POST
-    public ApplicationShutdownDto shutdownFlowableJobExecutor(@HeaderParam("x-cf-applicationid") String appId,
-                                                              @HeaderParam("x-cf-instanceid") String appInstanceId,
-                                                              @HeaderParam("x-cf-instanceindex") String appInstanceIndex) {
+    @PostMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
+    public ApplicationShutdownDto
+           shutdownFlowableJobExecutor(HttpServletRequest request,
+                                       @RequestHeader(name = "x-cf-applicationid", required = false) String appId,
+                                       @RequestHeader(name = "x-cf-instanceid", required = false) String appInstanceId,
+                                       @RequestHeader(name = "x-cf-instanceindex", required = false) String appInstanceIndex) {
 
         CompletableFuture.runAsync(() -> {
             LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWN_REQUEST, appId, appInstanceId, appInstanceIndex));
@@ -49,10 +50,12 @@ public class AdminResource {
                                                    .build();
     }
 
-    @GET
-    public ApplicationShutdownDto getFlowableJobExecutorShutdownStatus(@HeaderParam("x-cf-applicationid") String appId,
-                                                                       @HeaderParam("x-cf-instanceid") String appInstanceId,
-                                                                       @HeaderParam("x-cf-instanceindex") String appInstanceIndex) {
+    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
+    public ApplicationShutdownDto
+           getFlowableJobExecutorShutdownStatus(HttpServletRequest request,
+                                                @RequestHeader(name = "x-cf-applicationid", required = false) String appId,
+                                                @RequestHeader(name = "x-cf-instanceid", required = false) String appInstanceId,
+                                                @RequestHeader(name = "x-cf-instanceindex", required = false) String appInstanceIndex) {
 
         ApplicationShutdownDto appShutdownDto = new ApplicationShutdownDto.Builder().isActive(flowableFacade.isJobExecutorActive())
                                                                                     .appId(appId)

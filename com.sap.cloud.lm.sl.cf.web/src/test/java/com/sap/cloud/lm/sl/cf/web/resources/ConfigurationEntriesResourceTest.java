@@ -25,7 +25,6 @@ import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationEntryDto;
-import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationFilterDto;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
@@ -334,6 +333,8 @@ public class ConfigurationEntriesResourceTest {
     private static class SearchRequestTest extends TestCase<SearchRequestTestInput> {
 
         private static final String PROVIDER_NID = "N";
+        private static final String ORG = "O";
+        private static final String SPACE = "S";
         private static final CloudTarget TARGET_SPACE = new CloudTarget("O", "S");
         private static final String PROVIDER_VERSION = "V";
         private static final String PROVIDER_ID = "I";
@@ -361,11 +362,8 @@ public class ConfigurationEntriesResourceTest {
         protected void test() throws Exception {
             TESTER.test(() -> {
 
-                return new RestResponse(resource.getConfigurationEntries(new ConfigurationFilterDto(PROVIDER_NID,
-                                                                                                    PROVIDER_ID,
-                                                                                                    PROVIDER_VERSION,
-                                                                                                    TARGET_SPACE,
-                                                                                                    input.getRequiredContent())));
+                return new RestResponse(resource.getConfigurationEntries(PROVIDER_NID, PROVIDER_ID, PROVIDER_VERSION,
+                                                                         input.getRequiredContent(), null, ORG, SPACE));
 
             }, expectation);
         }

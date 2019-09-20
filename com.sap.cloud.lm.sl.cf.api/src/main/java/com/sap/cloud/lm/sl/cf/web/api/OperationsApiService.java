@@ -2,25 +2,27 @@ package com.sap.cloud.lm.sl.cf.web.api;
 
 import java.util.List;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
+import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.http.ResponseEntity;
+
+import com.sap.cloud.lm.sl.cf.web.api.model.Log;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaJAXRSCXFCDIServerCodegen", date = "2017-10-23T14:07:53.974+03:00")
 public interface OperationsApiService {
-    public Response executeOperationAction(String operationId, String actionId, SecurityContext securityContext, String spaceGuid);
 
-    public Response getMtaOperation(String operationId, String embed, SecurityContext securityContext, String spaceGuid);
+    ResponseEntity<List<String>> getOperationActions(String spaceGuid, String operationId);
 
-    public Response getMtaOperationLogs(String operationId, SecurityContext securityContext, String spaceGuid);
+    ResponseEntity<Void> executeOperationAction(HttpServletRequest request, String spaceGuid, String operationId, String actionId);
+    
+    ResponseEntity<List<Operation>> getOperations(String spaceGuid, List<String> states, Integer last);
 
-    public Response getMtaOperationLogContent(String operationId, String logId, SecurityContext securityContext, String spaceGuid);
+    ResponseEntity<Operation> getOperation(String spaceGuid, String operationId, String embed);
 
-    public Response getMtaOperations(Integer last, List<String> state, SecurityContext securityContext, String spaceGuid);
+    ResponseEntity<List<Log>> getOperationLogs(String spaceGuid, String operationId);
 
-    public Response getOperationActions(String operationId, SecurityContext securityContext, String spaceGuid);
+    ResponseEntity<String> getOperationLogContent(String spaceGuid, String operationId, String logId);
 
-    public Response startMtaOperation(Operation operation, SecurityContext securityContext, String spaceGuid);
+    ResponseEntity<Operation> startOperation(HttpServletRequest request, String spaceGuid, Operation operation);
 
 }

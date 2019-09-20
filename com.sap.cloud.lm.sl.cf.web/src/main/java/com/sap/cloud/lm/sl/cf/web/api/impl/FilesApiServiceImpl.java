@@ -10,18 +10,14 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
@@ -38,44 +34,34 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class FilesApiServiceImpl implements FilesApiService {
 
     @Inject
-    // The @Named annotation is needed for the Jersey-Spring integration in order to identify which
-    // FileService managed instance (FileService or ProgressMessageService) to inject.
     @Named("fileService")
     private FileService fileService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FilesApiServiceImpl.class);
-
     @Override
-    public Response getMtaFiles(SecurityContext securityContext, String spaceGuid) {
+    public ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid) {
         try {
             List<FileEntry> entries = fileService.listFiles(spaceGuid, null);
             List<FileMetadata> files = entries.stream()
                                               .map(this::parseFileEntry)
                                               .collect(Collectors.toList());
-            return Response.ok()
-                           .entity(files)
-                           .build();
+            return ResponseEntity.ok()
+                                 .body(files);
         } catch (FileStorageException e) {
-            LOGGER.error(Messages.COULD_NOT_GET_FILES, e);
-            throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR)
-                                                      .build());
+            throw new SLException(e, Messages.COULD_NOT_GET_FILES_0, e.getMessage());
         }
     }
 
     @Override
-    public Response uploadMtaFile(HttpServletRequest request, SecurityContext securityContext, String spaceGuid) {
+    public ResponseEntity<FileMetadata> uploadFile(HttpServletRequest request, String spaceGuid) {
         try {
             FileEntry fileEntry = uploadFiles(request, spaceGuid).get(0);
-            FileMetadata fileMetadata = parseFileEntry(fileEntry);
+            FileMetadata file = parseFileEntry(fileEntry);
             AuditLoggingProvider.getFacade()
-                                .logConfigCreate(fileMetadata);
-            return Response.status(Status.CREATED)
-                           .entity(fileMetadata)
-                           .build();
-        } catch (Exception e) {
-            LOGGER.error(Messages.COULD_NOT_UPLOAD_FILE, e);
-            throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR)
-                                                      .build());
+                                .logConfigCreate(file);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                                 .body(file);
+        } catch (FileUploadException | IOException | FileStorageException e) {
+            throw new SLException(e, Messages.COULD_NOT_UPLOAD_FILE_0, e.getMessage());
         }
     }
 

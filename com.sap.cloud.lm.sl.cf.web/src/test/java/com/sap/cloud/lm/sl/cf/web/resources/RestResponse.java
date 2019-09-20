@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
-import javax.ws.rs.core.Response;
+import org.springframework.http.ResponseEntity;
 
 public class RestResponse {
 
@@ -17,9 +17,9 @@ public class RestResponse {
         this.entity = entity;
     }
 
-    public RestResponse(Response response) {
-        this.status = response.getStatus();
-        this.entity = response.getEntity();
+    public RestResponse(ResponseEntity<?> response) {
+        this.status = response.getStatusCodeValue();
+        this.entity = response.getBody();
     }
 
     public int getStatus() {

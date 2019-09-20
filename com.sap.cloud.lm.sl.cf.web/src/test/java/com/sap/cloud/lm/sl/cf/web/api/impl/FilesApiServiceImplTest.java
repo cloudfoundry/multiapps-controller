@@ -10,10 +10,6 @@ import java.util.Random;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
@@ -26,6 +22,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
@@ -35,6 +33,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.util.DefaultConfiguration;
 import com.sap.cloud.lm.sl.cf.web.api.model.FileMetadata;
+import com.sap.cloud.lm.sl.common.SLException;
 
 public class FilesApiServiceImplTest {
 
@@ -52,9 +51,6 @@ public class FilesApiServiceImplTest {
 
     @Mock
     private ServletFileUpload servletFileUpload;
-
-    @Mock
-    private SecurityContext securityContext;
 
     private static final long MAX_PERMITTED_SIZE = new DefaultConfiguration().getMaxUploadSize();
 
@@ -84,10 +80,9 @@ public class FilesApiServiceImplTest {
         FileEntry entryTwo = createFileEntry("extension.mtaet");
         Mockito.when(fileService.listFiles(Mockito.eq(SPACE_GUID), Mockito.eq(null)))
                .thenReturn(Arrays.asList(entryOne, entryTwo));
-        Response response = testedClass.getMtaFiles(securityContext, SPACE_GUID);
-        assertEquals(Status.OK.getStatusCode(), response.getStatus());
-        @SuppressWarnings("unchecked")
-        List<FileMetadata> files = (List<FileMetadata>) response.getEntity();
+        ResponseEntity<List<FileMetadata>> response = testedClass.getFiles(SPACE_GUID);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        List<FileMetadata> files = response.getBody();
         assertEquals(2, files.size());
         assertMetadataMatches(entryOne, files.get(0));
         assertMetadataMatches(entryTwo, files.get(1));
@@ -98,7 +93,7 @@ public class FilesApiServiceImplTest {
     public void testGetMtaFilesError() throws Exception {
         Mockito.when(fileService.listFiles(Mockito.eq(SPACE_GUID), Mockito.eq(null)))
                .thenThrow(new FileStorageException("error"));
-        Assertions.assertThrows(WebApplicationException.class, () -> testedClass.getMtaFiles(securityContext, SPACE_GUID));
+        Assertions.assertThrows(SLException.class, () -> testedClass.getFiles(SPACE_GUID));
     }
 
     @Test
@@ -121,7 +116,7 @@ public class FilesApiServiceImplTest {
         Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(fileName), (FileUploadProcessor) Mockito.any(), Mockito.any()))
                .thenReturn(fileEntry);
 
-        Response response = testedClass.uploadMtaFile(request, securityContext, SPACE_GUID);
+        ResponseEntity<FileMetadata> response = testedClass.uploadFile(request, SPACE_GUID);
 
         Mockito.verify(servletFileUpload)
                .setSizeMax(Mockito.eq(new DefaultConfiguration().getMaxUploadSize()));
@@ -132,7 +127,7 @@ public class FilesApiServiceImplTest {
         Mockito.verify(fileService)
                .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(fileName), (FileUploadProcessor) Mockito.any(), Mockito.any());
 
-        FileMetadata fileMetadata = (FileMetadata) response.getEntity();
+        FileMetadata fileMetadata = response.getBody();
         assertMetadataMatches(fileEntry, fileMetadata);
     }
 
@@ -140,7 +135,7 @@ public class FilesApiServiceImplTest {
     public void testUploadMtaFileErrorSizeExceeded() throws Exception {
         Mockito.when(servletFileUpload.getItemIterator(Mockito.eq(request)))
                .thenThrow(new SizeLimitExceededException("size limit exceeded", MAX_PERMITTED_SIZE + 1024, MAX_PERMITTED_SIZE));
-        Assertions.assertThrows(WebApplicationException.class, () -> testedClass.uploadMtaFile(request, securityContext, SPACE_GUID));
+        Assertions.assertThrows(SLException.class, () -> testedClass.uploadFile(request, SPACE_GUID));
     }
 
     private void assertMetadataMatches(FileEntry expected, FileMetadata actual) {

@@ -1,16 +1,19 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Path("/ping")
+@RestController
+@RequestMapping("/public/ping")
 public class PingResource {
 
-    @GET
-    public Response ping() {
-        return Response.ok("pong")
-                       .build();
+    @GetMapping(produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<String> ping() {
+        return ResponseEntity.ok()
+                             .body("pong");
     }
 
 }

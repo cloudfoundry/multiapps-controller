@@ -3,19 +3,17 @@ package com.sap.cloud.lm.sl.cf.web.api;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
+import javax.servlet.http.HttpServletRequest;
 
-import org.glassfish.jersey.process.internal.RequestScoped;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.sap.cloud.lm.sl.cf.web.api.model.Log;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -27,113 +25,94 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 
-@RequestScoped
 @Api(description = "the operations API")
-@Consumes({ "application/json" })
-@Produces({ "application/json" })
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaJAXRSCXFCDIServerCodegen", date = "2017-10-23T14:07:53.974+03:00")
+@RestController
+@RequestMapping("/api/v1/spaces/{spaceGuid}/operations")
 public class OperationsApi {
-
-    @PathParam("space_guid")
-    private String spaceGuid;
-
-    @Context
-    private SecurityContext securityContext;
 
     @Inject
     private OperationsApiService delegate;
 
-    @POST
-    @Path("/{operationId}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
+    @PostMapping("/{operationId}")
     @ApiOperation(value = "", notes = "Executes a particular action over Multi-Target Application operation ", response = Void.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted", response = Void.class) })
-    public Response executeOperationAction(@ApiParam(value = "", required = true) @PathParam("operationId") String operationId,
-                                           @NotNull @ApiParam(value = "", required = true) @QueryParam("actionId") String actionId) {
-        return delegate.executeOperationAction(operationId, actionId, securityContext, spaceGuid);
+    public ResponseEntity<Void> executeOperationAction(HttpServletRequest request, @PathVariable("spaceGuid") String spaceGuid,
+                                                       @PathVariable("operationId") String operationId,
+                                                       @RequestParam("actionId") String actionId) {
+        return delegate.executeOperationAction(request, spaceGuid, operationId, actionId);
     }
 
-    @GET
-    @Path("/{operationId}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
+    @GetMapping(path = "/{operationId}", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
     @ApiOperation(value = "", notes = "Retrieves Multi-Target Application operation ", response = Operation.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Operation.class) })
-    public Response
-           getMtaOperation(@ApiParam(value = "", required = true) @PathParam("operationId") String operationId,
-                           @ApiParam(value = "Adds the specified property in the response body ") @QueryParam("embed") String embed) {
-        return delegate.getMtaOperation(operationId, embed, securityContext, spaceGuid);
+    public ResponseEntity<Operation>
+           getOperation(@PathVariable("spaceGuid") String spaceGuid, @PathVariable("operationId") String operationId,
+                        @ApiParam(value = "Adds the specified property in the response body ") @RequestParam(name = "embed", required = false) String embed) {
+        return delegate.getOperation(spaceGuid, operationId, embed);
     }
 
-    @GET
-    @Path("/{operationId}/logs")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
+    @GetMapping(path = "/{operationId}/logs", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
     @ApiOperation(value = "", notes = "Retrieves the logs Multi-Target Application operation ", response = Log.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Log.class, responseContainer = "List") })
-    public Response getMtaOperationLogs(@ApiParam(value = "", required = true) @PathParam("operationId") String operationId) {
-        return delegate.getMtaOperationLogs(operationId, securityContext, spaceGuid);
+    public ResponseEntity<List<Log>> getOperationLogs(@PathVariable("spaceGuid") String spaceGuid,
+                                                      @PathVariable("operationId") String operationId) {
+        return delegate.getOperationLogs(spaceGuid, operationId);
     }
 
-    @GET
-    @Path("/{operationId}/logs/{logId}/content")
-    @Consumes({ "application/json" })
-    @Produces({ "text/plain" })
+    @GetMapping(path = "/{operationId}/logs/{logId}/content", produces = MediaType.TEXT_PLAIN_VALUE)
     @ApiOperation(value = "", notes = "Retrieves the log content for Multi-Target Application operation ", response = String.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
-    public Response getMtaOperationLogContent(@ApiParam(value = "", required = true) @PathParam("operationId") String operationId,
-                                              @ApiParam(value = "", required = true) @PathParam("logId") String logId) {
-        return delegate.getMtaOperationLogContent(operationId, logId, securityContext, spaceGuid);
+    public ResponseEntity<String> getOperationLogContent(@PathVariable("spaceGuid") String spaceGuid,
+                                                         @PathVariable("operationId") String operationId,
+                                                         @PathVariable("logId") String logId) {
+        return delegate.getOperationLogContent(spaceGuid, operationId, logId);
     }
 
-    @GET
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
+    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
     @ApiOperation(value = "", notes = "Retrieves Multi-Target Application operations ", response = Operation.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Operation.class, responseContainer = "List") })
-    public Response getMtaOperations(@ApiParam(value = "") @QueryParam("last") Integer last,
-                                     @ApiParam(value = "") @QueryParam("state") List<String> state) {
-        return delegate.getMtaOperations(last, state, securityContext, spaceGuid);
+    public ResponseEntity<List<Operation>> getOperations(@PathVariable("spaceGuid") String spaceGuid,
+                                                         @RequestParam(name = "last", required = false) Integer last,
+                                                         @RequestParam(name = "state", required = false) List<String> states) {
+        return delegate.getOperations(spaceGuid, states, last);
     }
 
-    @GET
-    @Path("/{operationId}/actions")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
+    @GetMapping(path = "/{operationId}/actions", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
     @ApiOperation(value = "", notes = "Retrieves available actions for Multi-Target Application operation ", response = String.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List") })
-    public Response getOperationActions(@ApiParam(value = "", required = true) @PathParam("operationId") String operationId) {
-        return delegate.getOperationActions(operationId, securityContext, spaceGuid);
+    public ResponseEntity<List<String>> getOperationActions(@PathVariable("spaceGuid") String spaceGuid,
+                                                            @PathVariable("operationId") String operationId) {
+        return delegate.getOperationActions(spaceGuid, operationId);
     }
 
-    @POST
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
+    @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = {
+        MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
     @ApiOperation(value = "", notes = "Starts execution of a Multi-Target Application operation ", response = Void.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted", response = Void.class) })
-    public Response startMtaOperation(@ApiParam(value = "", required = true) Operation operation) {
-        return delegate.startMtaOperation(operation, securityContext, spaceGuid);
+    public ResponseEntity<Operation> startOperation(HttpServletRequest request, @PathVariable("spaceGuid") String spaceGuid,
+                                                    @RequestBody Operation operation) {
+        return delegate.startOperation(request, spaceGuid, operation);
     }
+
 }

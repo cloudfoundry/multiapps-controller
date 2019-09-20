@@ -15,28 +15,25 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
@@ -44,10 +41,12 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationEntriesDto;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationEntryDto;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationFilterDto;
+import com.sap.cloud.lm.sl.cf.core.filters.TargetWildcardFilter;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaConfigurationPurger;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
+import com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -59,9 +58,8 @@ import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.XmlUtil;
 
-@Named
-@Path("/configuration-entries")
-@Produces(MediaType.APPLICATION_XML)
+@RestController
+@RequestMapping("/rest/configuration-entries")
 public class ConfigurationEntriesResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationEntriesResource.class);
@@ -75,27 +73,20 @@ public class ConfigurationEntriesResource {
 
     @Inject
     private ConfigurationEntryService configurationEntryService;
-
     @Inject
     private ConfigurationSubscriptionService configurationSubscriptionService;
-
     @Inject
     private CloudControllerClientProvider clientProvider;
-
     @Inject
     private ApplicationConfiguration configuration;
 
-    @Context
-    private HttpServletRequest request;
-
-    protected Response filterConfigurationEntries(ConfigurationFilter filter) {
+    protected ResponseEntity<ConfigurationEntriesDto> filterConfigurationEntries(ConfigurationFilter filter) {
         try {
             CloudTarget globalConfigTarget = getGlobalConfigTarget(configuration);
             List<ConfigurationEntry> entries = findConfigurationEntries(configurationEntryService, filter, getUserTargets(),
                                                                         globalConfigTarget);
-            return Response.status(Response.Status.OK)
-                           .entity(wrap(entries))
-                           .build();
+            return ResponseEntity.ok()
+                                 .body(wrap(entries));
         } catch (IllegalArgumentException e) {
             /**
              * Thrown if the version parameter is not a valid version requirement.
@@ -125,12 +116,11 @@ public class ConfigurationEntriesResource {
                                                   .collect(Collectors.toList()));
     }
 
-    @Path("/{id}")
-    @GET
-    public Response getConfigurationEntry(@PathParam(ID) long id) {
-        return Response.status(Response.Status.OK)
-                       .entity(getConfigurationEntryDto(id))
-                       .build();
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<ConfigurationEntryDto> getConfigurationEntry(@PathVariable(ID) long id) {
+        ConfigurationEntryDto configurationEntry = getConfigurationEntryDto(id);
+        return ResponseEntity.ok()
+                             .body(configurationEntry);
     }
 
     private ConfigurationEntryDto getConfigurationEntryDto(long id) {
@@ -185,10 +175,8 @@ public class ConfigurationEntriesResource {
         return parsedContent;
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_XML)
-    public Response createConfigurationEntry(String xml) {
-
+    @PostMapping(consumes = MediaType.APPLICATION_XML_VALUE, produces = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<ConfigurationEntryDto> createConfigurationEntry(@RequestBody String xml) {
         ConfigurationEntryDto dto = parseDto(xml, CREATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION);
         ConfigurationEntry configurationEntry = dto.toConfigurationEntry();
         if (configurationEntry.getTargetSpace() == null) {
@@ -197,17 +185,12 @@ public class ConfigurationEntriesResource {
         configurationEntryService.add(configurationEntry);
         AuditLoggingProvider.getFacade()
                             .logConfigCreate(configurationEntry);
-        return Response.status(Response.Status.CREATED)
-                       .entity(new ConfigurationEntryDto(configurationEntry))
-                       .build();
-        // TODO: check if this would work fine:
-        // return Response.status(Response.Status.CREATED).entity(dto).build();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                             .body(new ConfigurationEntryDto(configurationEntry));
     }
 
-    @Path("/{id}")
-    @PUT
-    @Consumes(MediaType.APPLICATION_XML)
-    public Response updateConfigurationEntry(@PathParam(ID) long id, String xml) {
+    @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_XML_VALUE, produces = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<ConfigurationEntryDto> updateConfigurationEntry(@PathVariable(ID) long id, @RequestBody String xml) {
         ConfigurationEntryDto dto = parseDto(xml, UPDATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION);
         if (dto.getId() != 0 && dto.getId() != id) {
             throw new ParsingException(Messages.CONFIGURATION_ENTRY_ID_CANNOT_BE_UPDATED, id);
@@ -217,18 +200,16 @@ public class ConfigurationEntriesResource {
         AuditLoggingProvider.getFacade()
                             .logConfigUpdate(result);
 
-        return Response.status(Response.Status.OK)
-                       .entity(new ConfigurationEntryDto(result))
-                       .build();
+        return ResponseEntity.ok()
+                             .body(new ConfigurationEntryDto(result));
     }
 
     private ConfigurationEntryDto parseDto(String dXml, URL schemaLocation) {
         return XmlUtil.fromXml(dXml, ConfigurationEntryDto.class, schemaLocation);
     }
 
-    @Path("/{id}")
-    @DELETE
-    public Response deleteConfigurationEntry(@PathParam(ID) long id) {
+    @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<ConfigurationEntryDto> deleteConfigurationEntry(@PathVariable(ID) long id) {
         try {
             ConfigurationEntry entry = configurationEntryService.createQuery()
                                                                 .id(id)
@@ -238,17 +219,29 @@ public class ConfigurationEntriesResource {
                                      .delete();
             AuditLoggingProvider.getFacade()
                                 .logConfigDelete(entry);
-            return Response.status(Response.Status.NO_CONTENT)
-                           .build();
+            return ResponseEntity.noContent()
+                                 .build();
         } catch (NoResultException e) {
-            return Response.status(Response.Status.NOT_FOUND)
-                           .build();
+            return ResponseEntity.notFound()
+                                 .build();
         }
-
     }
 
-    @GET
-    public Response getConfigurationEntries(@BeanParam ConfigurationFilterDto filterDto) {
+    @GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<ConfigurationEntriesDto>
+           getConfigurationEntries(@RequestParam(name = RequestParameters.PROVIDER_NID, required = false) String providerNid,
+                                   @RequestParam(name = RequestParameters.PROVIDER_ID, required = false) String providerId,
+                                   @RequestParam(name = RequestParameters.VERSION, required = false) String providerVersion,
+                                   @RequestParam(name = RequestParameters.CONTENT, required = false) List<String> content,
+                                   @RequestParam(name = RequestParameters.TARGET_SPACE, required = false) String targetSpace,
+                                   @RequestParam(name = RequestParameters.ORG, required = false, defaultValue = TargetWildcardFilter.ANY_TARGET_WILDCARD) String org,
+                                   @RequestParam(name = RequestParameters.SPACE, required = false, defaultValue = TargetWildcardFilter.ANY_TARGET_WILDCARD) String space) {
+        ConfigurationFilterDto filterDto = new ConfigurationFilterDto(providerNid,
+                                                                      providerId,
+                                                                      providerVersion,
+                                                                      new CloudTarget(org, space),
+                                                                      targetSpace,
+                                                                      content);
         return filterConfigurationEntries(asConfigurationFilter(filterDto));
     }
 
@@ -256,10 +249,8 @@ public class ConfigurationEntriesResource {
         return XmlUtil.fromXml(fXml, ConfigurationFilterDto.class, CONFIGURATION_FILTER_SCHEMA_LOCATION);
     }
 
-    @Path("/searches")
-    @POST
-    @Consumes(MediaType.APPLICATION_XML)
-    public Response search(String xml) {
+    @PostMapping(path = "/searches", consumes = MediaType.APPLICATION_XML_VALUE, produces = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<ConfigurationEntriesDto> search(@RequestBody String xml) {
         return filterConfigurationEntries(asConfigurationFilter(parseFilterBean(xml)));
     }
 
@@ -273,14 +264,14 @@ public class ConfigurationEntriesResource {
         return new ConfigurationFilter(providerNid, providerId, providerVersion, target, content);
     }
 
-    @Path("/purge")
-    @POST
-    public Response purgeConfigurationRegistry(@QueryParam(ORG) String org, @QueryParam(SPACE) String space) {
+    @PostMapping("/purge")
+    public ResponseEntity<Void> purgeConfigurationRegistry(HttpServletRequest request, @RequestParam(ORG) String org,
+                                                           @RequestParam(SPACE) String space) {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
         CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName(), org, space, null);
         MtaConfigurationPurger purger = new MtaConfigurationPurger(client, configurationEntryService, configurationSubscriptionService);
         purger.purge(org, space);
-        return Response.status(Response.Status.NO_CONTENT)
-                       .build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                             .build();
     }
 }

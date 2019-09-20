@@ -8,18 +8,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
@@ -29,9 +26,8 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscription
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 
-@Named
-@Produces(MediaType.APPLICATION_XML)
-@Path("/configuration-subscriptions")
+@RestController
+@RequestMapping("/rest/configuration-subscriptions")
 public class ConfigurationSubscriptionsResource {
 
     @Inject
@@ -40,19 +36,15 @@ public class ConfigurationSubscriptionsResource {
     @Inject
     private CloudControllerClientProvider clientProvider;
 
-    @Context
-    private HttpServletRequest request;
-
-    @GET
-    public Response getConfigurationSubscriptions(@QueryParam(ORG) String org, @QueryParam(SPACE) String space) {
+    @GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<ConfigurationSubscriptions> getConfigurationSubscriptions(@RequestParam(ORG) String org, @RequestParam(name = SPACE, required = false) String space) {
         CloudControllerClient client = getCloudFoundryClient();
         List<CloudSpace> clientSpaces = getClientSpaces(org, space, client);
 
         List<ConfigurationSubscription> configurationSubscriptions = getConfigurationEntries(clientSpaces, client);
 
-        return Response.ok()
-                       .entity(wrap(configurationSubscriptions))
-                       .build();
+        return ResponseEntity.ok()
+                       .body(wrap(configurationSubscriptions));
     }
 
     private List<CloudSpace> getClientSpaces(String org, String space, CloudControllerClient client) {

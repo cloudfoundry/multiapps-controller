@@ -1,12 +1,17 @@
 package com.sap.cloud.lm.sl.cf.web.api;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaJAXRSCXFCDIServerCodegen", date = "2017-10-23T14:07:53.974+03:00")
+import org.springframework.http.ResponseEntity;
+
+import com.sap.cloud.lm.sl.cf.web.api.model.FileMetadata;
+
 public interface FilesApiService {
-    public Response getMtaFiles(SecurityContext securityContext, String spaceGuid);
 
-    public Response uploadMtaFile(HttpServletRequest request, SecurityContext securityContext, String spaceGuid);
+    ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid);
+
+    ResponseEntity<FileMetadata> uploadFile(HttpServletRequest request, String spaceGuid);
+
 }

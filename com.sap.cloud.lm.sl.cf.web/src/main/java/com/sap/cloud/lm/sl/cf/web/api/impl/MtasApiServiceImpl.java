@@ -5,12 +5,10 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.springframework.http.ResponseEntity;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedComponentsDetector;
@@ -24,38 +22,30 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Metadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.Module;
 import com.sap.cloud.lm.sl.cf.web.api.model.Mta;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
-import com.sap.cloud.lm.sl.cf.web.security.AuthorizationChecker;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 
 @Named
 public class MtasApiServiceImpl implements MtasApiService {
 
-    private static final String ACTION = "Get deployed components";
-
     @Inject
     private CloudControllerClientProvider clientProvider;
-    @Inject
-    private AuthorizationChecker authorizationChecker;
 
-    public Response getMta(String mtaId, SecurityContext securityContext, String spaceGuid, HttpServletRequest request) {
-        authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), spaceGuid, ACTION);
+    @Override
+    public ResponseEntity<List<Mta>> getMtas(String spaceGuid) {
+        DeployedComponents deployedComponents = detectDeployedComponents(spaceGuid);
+        return ResponseEntity.ok()
+                             .body(getMtas(deployedComponents));
+    }
+
+    @Override
+    public ResponseEntity<Mta> getMta(String spaceGuid, String mtaId) {
         DeployedMta mta = detectDeployedComponents(spaceGuid).findDeployedMta(mtaId);
         if (mta == null) {
             throw new NotFoundException(Messages.MTA_NOT_FOUND, mtaId);
         }
-        return Response.ok()
-                       .entity(getMta(mta))
-                       .build();
-    }
-
-    public Response getMtas(SecurityContext securityContext, String spaceGuid, HttpServletRequest request) {
-        authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), spaceGuid, ACTION);
-        DeployedComponents deployedComponents = detectDeployedComponents(spaceGuid);
-        return Response.ok()
-                       .entity(getMtas(deployedComponents))
-                       .build();
-
+        return ResponseEntity.ok()
+                             .body(getMta(mta));
     }
 
     private DeployedComponents detectDeployedComponents(String spaceGuid) {
@@ -106,4 +96,5 @@ public class MtasApiServiceImpl implements MtasApiService {
                                   .toString());
         return result;
     }
+
 }

@@ -3,13 +3,9 @@ package com.sap.cloud.lm.sl.cf.web.api.impl;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.SecurityContext;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -20,6 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -59,6 +57,7 @@ public class MtaApiServiceImplTest {
         MockitoAnnotations.initMocks(this);
         apps = parseApps();
         mtas = parseMtas();
+        mockClient(USER_NAME);
     }
 
     private List<CloudApplication> parseApps() throws IOException {
@@ -75,43 +74,26 @@ public class MtaApiServiceImplTest {
 
     @Test
     public void testGetMtas() throws Exception {
-        Response response = testedClass.getMtas(mockSecurityContext(USER_NAME), SPACE_GUID, request);
-        assertEquals(Status.OK.getStatusCode(), response.getStatus());
-        @SuppressWarnings("unchecked")
-        List<Mta> responseMtas = (List<Mta>) response.getEntity();
+        ResponseEntity<List<Mta>> response = testedClass.getMtas(SPACE_GUID);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        List<Mta> responseMtas = response.getBody();
         mtas.equals(responseMtas);
-
     }
 
     @Test
     public void testGetMta() throws Exception {
         Mta mtaToGet = mtas.get(1);
-        Response response = testedClass.getMta(mtaToGet.getMetadata()
-                                                       .getId(),
-                                               mockSecurityContext(USER_NAME), SPACE_GUID, request);
-        assertEquals(Status.OK.getStatusCode(), response.getStatus());
-        Mta responseMtas = (Mta) response.getEntity();
+        ResponseEntity<Mta> response = testedClass.getMta(SPACE_GUID, mtaToGet.getMetadata()
+                                                                                       .getId());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        Mta responseMtas = response.getBody();
         mtaToGet.equals(responseMtas);
 
     }
 
     @Test
     public void testGetMtaNotFound() throws Exception {
-        Assertions.assertThrows(NotFoundException.class,
-                                () -> testedClass.getMta("not_a_real_mta", mockSecurityContext(USER_NAME), SPACE_GUID, request));
-    }
-
-    private SecurityContext mockSecurityContext(String user) {
-        SecurityContext securityContextMock = Mockito.mock(SecurityContext.class);
-        if (user != null) {
-            Principal principalMock = Mockito.mock(Principal.class);
-            Mockito.when(principalMock.getName())
-                   .thenReturn(user);
-            Mockito.when(securityContextMock.getUserPrincipal())
-                   .thenReturn(principalMock);
-            mockClient(user);
-        }
-        return securityContextMock;
+        Assertions.assertThrows(NotFoundException.class, () -> testedClass.getMta(SPACE_GUID, "not_a_real_mta"));
     }
 
     private void mockClient(String user) {

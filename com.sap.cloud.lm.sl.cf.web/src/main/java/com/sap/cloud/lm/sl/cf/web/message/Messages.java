@@ -12,6 +12,10 @@ public final class Messages {
     public static final String PROPERTY_DOES_NOT_CONTAIN_KEY_VALUE_PAIR = "Property \"{0}\" does not contain a key value pair";
     public static final String COULD_NOT_PARSE_CONTENT_PARAMETER = "Could not parse content query parameter as JSON or list";
     public static final String MAX_UPLOAD_SIZE_EXCEEDED = "Cannot upload file, size is bigger than the configured maximum upload size \"{0}\" bytes";
+    public static final String COULD_NOT_GET_FILES_0 = "Could not get files: {0}";
+    public static final String COULD_NOT_UPLOAD_FILE_0 = "Could not upload file: {0}";
+    public static final String ACTION_0_CANNOT_BE_EXECUTED_OVER_OPERATION_1 = "Action \"{0}\" cannot be executed over operation \"{1}\".";
+    public static final String OPERATION_0_NOT_FOUND = "Operation \"{0}\" was not found.";
 
     // Audit log messages
 
@@ -28,8 +32,6 @@ public final class Messages {
     public static final String ORG_AND_SPACE_MUST_BE_SPECIFIED = "Org and space must be specified!";
     public static final String NOT_AUTHORIZED_TO_OPERATE_IN_ORGANIZATION_0_AND_SPACE_1 = "You are not authorized to perform operations in organization \"{0}\", space \"{0}\". You need the SpaceDeveloper role to operate in that space.";
     public static final String NOT_AUTHORIZED_TO_OPERATE_IN_SPACE_WITH_GUID_0 = "You are not authorized to perform operations in space with GUID \"{0}\". You need the SpaceDeveloper role to operate in that space.";
-    public static final String COULD_NOT_GET_FILES = "Could not get MTA files";
-    public static final String COULD_NOT_UPLOAD_FILE = "Could not upload MTA file";
     public static final String FILE_SERVICE_CLEANUP_FAILED = "FileService: Failed to delete files without content. Reason: \"{0}\"";
 
     // WARN log messages
