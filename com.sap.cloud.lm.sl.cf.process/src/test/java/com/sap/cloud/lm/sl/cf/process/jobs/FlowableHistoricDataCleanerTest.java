@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.jobs;
 
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -67,6 +68,7 @@ public class FlowableHistoricDataCleanerTest {
         HistoricProcessInstanceQuery historicProcessInstanceQuery = mock(HistoricProcessInstanceQuery.class);
         when(historicProcessInstanceQuery.startedBefore(EXPIRATION_TIME)).thenReturn(historicProcessInstanceQuery);
         when(historicProcessInstanceQuery.finished()).thenReturn(historicProcessInstanceQuery);
+        when(historicProcessInstanceQuery.excludeSubprocesses(anyBoolean())).thenReturn(historicProcessInstanceQuery);
         when(historicProcessInstanceQuery.listPage(anyInt(), anyInt())).thenAnswer(AdditionalAnswers.returnsElementsOf(pages));
         long processesCount = getTotalProcessesCount(pages);
         when(historicProcessInstanceQuery.count()).thenReturn(processesCount);

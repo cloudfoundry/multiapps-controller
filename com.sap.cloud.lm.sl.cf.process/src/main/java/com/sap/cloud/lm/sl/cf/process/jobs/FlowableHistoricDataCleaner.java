@@ -58,14 +58,15 @@ public class FlowableHistoricDataCleaner implements Cleaner {
     private HistoricProcessInstanceQuery createExpiredHistoricProcessInstancesQuery(Date expirationTime) {
         return historyService.createHistoricProcessInstanceQuery()
                              .finished()
+                             .excludeSubprocesses(true)
                              .startedBefore(expirationTime);
     }
 
     private long deleteExpiredProcessesPage(Date expirationTime) {
         List<HistoricProcessInstance> processesToDelete = getExpiredProcessesPage(expirationTime);
         return processesToDelete.stream()
-            .filter(this::deleteProcessSafely)
-            .count();
+                                .filter(this::deleteProcessSafely)
+                                .count();
     }
 
     private List<HistoricProcessInstance> getExpiredProcessesPage(Date expirationTime) {

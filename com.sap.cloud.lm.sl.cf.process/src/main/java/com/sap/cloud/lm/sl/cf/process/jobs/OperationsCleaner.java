@@ -2,12 +2,14 @@ package com.sap.cloud.lm.sl.cf.process.jobs;
 
 import static java.text.MessageFormat.format;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -19,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.process.flowable.ProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.ProcessActionRegistry;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 @Named
 @Order(10)
@@ -49,6 +52,7 @@ public class OperationsCleaner implements Cleaner {
         LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.ABORTED_OPERATIONS_0, abortedOperations));
         int deletedOperations = operationService.createQuery()
                                                 .startedBefore(expirationTime)
+                                                .inFinalState()
                                                 .delete();
         LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_OPERATIONS_0, deletedOperations));
     }
@@ -85,6 +89,9 @@ public class OperationsCleaner implements Cleaner {
         try {
             abort(operation);
             return true;
+        } catch (FlowableObjectNotFoundException e) {
+            abortOrphanedOperation(operation);
+            return true;
         } catch (Exception e) {
             LOGGER.warn(CleanUpJob.LOG_MARKER, format(Messages.COULD_NOT_ABORT_OPERATION_0, operation.getProcessId()), e);
             return false;
@@ -96,6 +103,13 @@ public class OperationsCleaner implements Cleaner {
         String processId = operation.getProcessId();
         LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.ABORTING_OPERATION_0, processId));
         abortAction.execute(null, processId);
+    }
+
+    private void abortOrphanedOperation(Operation operation) {
+        operation.setState(State.ABORTED);
+        operation.setEndedAt(ZonedDateTime.now());
+        operation.setAcquiredLock(false);
+        operationService.update(operation.getProcessId(), operation);
     }
 
 }
