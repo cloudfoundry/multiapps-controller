@@ -1,8 +1,8 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -432,7 +432,7 @@ public class ConfigurationEntriesResourceTest {
 
     }
 
-    private static class ConfigurationEntryMatcher extends ArgumentMatcher<ConfigurationEntry> {
+    private static class ConfigurationEntryMatcher implements ArgumentMatcher<ConfigurationEntry> {
 
         private String xml;
 
@@ -441,7 +441,7 @@ public class ConfigurationEntriesResourceTest {
         }
 
         @Override
-        public boolean matches(Object entry) {
+        public boolean matches(ConfigurationEntry entry) {
             try {
                 return xml.trim()
                           .equals(XmlUtil.toXml(new ConfigurationEntryDto((ConfigurationEntry) entry), true)

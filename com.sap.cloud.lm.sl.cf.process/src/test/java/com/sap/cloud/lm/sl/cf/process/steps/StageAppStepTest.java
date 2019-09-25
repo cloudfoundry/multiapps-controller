@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.text.MessageFormat;
 import java.util.List;

@@ -2,8 +2,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -121,7 +121,7 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
         return new CheckServicesToDeleteStep();
     }
 
-    private class CloudServiceExtendedMatcher extends ArgumentMatcher<CloudServiceExtended> {
+    private class CloudServiceExtendedMatcher implements ArgumentMatcher<CloudServiceExtended> {
 
         private String serviceName;
 
@@ -130,8 +130,7 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
         }
 
         @Override
-        public boolean matches(Object argument) {
-            CloudServiceExtended service = (CloudServiceExtended) argument;
+        public boolean matches(CloudServiceExtended service) {
             return service != null && service.getName()
                                              .equals(serviceName);
         }

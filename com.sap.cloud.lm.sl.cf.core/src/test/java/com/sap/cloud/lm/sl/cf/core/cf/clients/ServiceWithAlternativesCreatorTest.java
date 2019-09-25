@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpEntity;
@@ -71,9 +71,9 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
                 continue;
             }
             HttpStatus httpStatusCode = HttpStatus.valueOf(exchange.responseCode);
-            Mockito.when(getMockedRestTemplate().exchange(Matchers.eq(getControllerUrl() + CREATE_SERVICE_URL),
+            Mockito.when(getMockedRestTemplate().exchange(ArgumentMatchers.eq(getControllerUrl() + CREATE_SERVICE_URL),
 
-                                                          Matchers.eq(HttpMethod.POST), any(), Matchers.eq(String.class)))
+                                                          ArgumentMatchers.eq(HttpMethod.POST), any(), ArgumentMatchers.eq(String.class)))
                    .thenThrow(new CloudOperationException(httpStatusCode));
         }
     }
@@ -119,8 +119,8 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     private void validateRestCall() {
         for (Exchange exchange : input.expectedExchanges) {
             Mockito.verify(getMockedRestTemplate())
-                   .exchange(Matchers.eq(getControllerUrl() + CREATE_SERVICE_URL), Matchers.eq(HttpMethod.POST), any(),
-                             Matchers.eq(String.class));
+                   .exchange(ArgumentMatchers.eq(getControllerUrl() + CREATE_SERVICE_URL), ArgumentMatchers.eq(HttpMethod.POST), any(),
+                             ArgumentMatchers.eq(String.class));
         }
     }
 

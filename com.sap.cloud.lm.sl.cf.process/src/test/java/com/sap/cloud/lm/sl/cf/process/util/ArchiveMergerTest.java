@@ -1,8 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -60,14 +59,6 @@ public class ArchiveMergerTest {
     @Test
     public void testCreateArchiveFromPartsFileStorageExceptionThrown() throws FileStorageException {
         Mockito.doThrow(FileStorageException.class)
-               .when(fileService)
-               .processFileContent(any());
-        Assertions.assertThrows(SLException.class, () -> archiveMerger.createArchiveFromParts(createFileEntriesFromFile(FILE_ENTRIES)));
-    }
-
-    @Test
-    public void testCreateArchiveFromPartsIOExceptionThrown() throws FileStorageException {
-        Mockito.doThrow(IOException.class)
                .when(fileService)
                .processFileContent(any());
         Assertions.assertThrows(SLException.class, () -> archiveMerger.createArchiveFromParts(createFileEntriesFromFile(FILE_ENTRIES)));

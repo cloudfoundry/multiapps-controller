@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.text.MessageFormat;
@@ -41,8 +41,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -193,13 +193,13 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         StepsUtil.setServicesData(context, servicesData);
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_DELETE_SERVICES, true);
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
-        when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
-        when(clientProvider.getControllerClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
+        when(clientProvider.getControllerClient(any(), any())).thenReturn(client);
+        when(clientProvider.getControllerClient(any(), any(), any(), any())).thenReturn(client);
     }
 
     private void prepareClient() {
         for (SimpleService service : stepInput.servicesToDelete) {
-            Mockito.when(client.getService(Matchers.eq(service.name), Matchers.anyBoolean()))
+            Mockito.when(client.getService(ArgumentMatchers.eq(service.name), ArgumentMatchers.anyBoolean()))
                    .thenReturn(createCloudService(service));
             Mockito.when(client.getService(service.name))
                    .thenReturn(createCloudService(service));
@@ -343,7 +343,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         for (SimpleService service : stepInput.servicesToDelete) {
             if (service.hasBoundApplications) {
                 Mockito.verify(client, Mockito.atLeastOnce())
-                       .unbindService(Mockito.anyString(), Mockito.eq(service.name));
+                       .unbindService(any(), Mockito.eq(service.name));
             }
         }
     }
@@ -352,7 +352,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         for (SimpleService service : stepInput.servicesToDelete) {
             if (service.hasServiceKeys) {
                 Mockito.verify(client, Mockito.atLeastOnce())
-                       .deleteServiceKey(Mockito.eq(service.name), Mockito.anyString());
+                       .deleteServiceKey(Mockito.eq(service.name), any());
             }
         }
     }

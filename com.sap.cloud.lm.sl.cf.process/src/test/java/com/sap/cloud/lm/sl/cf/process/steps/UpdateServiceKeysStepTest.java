@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,7 +18,7 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceKey;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -104,7 +104,7 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
     }
 
     private void prepareServiceOperationExecutor(List<CloudServiceKey> existingServiceKeys) {
-        when(serviceOperationExecutor.executeServiceOperation(any(), Matchers.<Supplier<List<CloudServiceKey>>> any(),
+        when(serviceOperationExecutor.executeServiceOperation(any(), ArgumentMatchers.<Supplier<List<CloudServiceKey>>> any(),
                                                               any())).thenReturn(existingServiceKeys);
     }
 

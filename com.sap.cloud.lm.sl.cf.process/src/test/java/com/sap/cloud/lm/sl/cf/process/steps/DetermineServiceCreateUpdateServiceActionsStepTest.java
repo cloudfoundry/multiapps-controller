@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -25,7 +26,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -113,7 +113,7 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
 
     private void prepareServiceInstanceGetter() {
         Mockito.reset(serviceInstanceGetter);
-        Mockito.when(serviceInstanceGetter.getServiceInstanceEntity(Matchers.any(), Matchers.any(), Matchers.any()))
+        Mockito.when(serviceInstanceGetter.getServiceInstanceEntity(any(), any(), any()))
                .thenReturn(stepInput.getExistingServiceInstanceEntity());
     }
 

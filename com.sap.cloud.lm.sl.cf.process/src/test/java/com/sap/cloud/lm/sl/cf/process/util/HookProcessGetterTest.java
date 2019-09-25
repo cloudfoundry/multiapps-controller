@@ -46,7 +46,7 @@ public class HookProcessGetterTest {
 
     @Test
     public void testWithHookWhichIsOfUnsupportedType() {
-        Mockito.when(flowableFacade.getProcessInstanceId(Mockito.anyString()))
+        Mockito.when(flowableFacade.getProcessInstanceId(Mockito.any()))
                .thenReturn("foo-process-id");
         Mockito.when(context.getCurrentActivityId())
                .thenReturn("foo-current-activity-id");
