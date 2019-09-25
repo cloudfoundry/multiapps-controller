@@ -39,6 +39,7 @@ public class QuartzConfiguration {
         CronTriggerFactoryBean factory = new CronTriggerFactoryBean();
         factory.setJobDetail(cleanUpJobDetail().getObject());
         factory.setCronExpression(configuration.getCronExpressionForOldData());
+        factory.setMisfireInstruction(org.quartz.CronTrigger.MISFIRE_INSTRUCTION_FIRE_ONCE_NOW);
         factory.setGroup(TRIGGER_GROUP);
         factory.setName(CLEAN_UP_TRIGGER_NAME);
         return factory;
