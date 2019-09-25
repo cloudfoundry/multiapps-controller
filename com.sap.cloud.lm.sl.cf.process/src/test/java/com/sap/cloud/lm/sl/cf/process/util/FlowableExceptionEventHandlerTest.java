@@ -64,7 +64,7 @@ public class FlowableExceptionEventHandlerTest {
 
     @Test
     public void testWithErrorMessageAlreadyPresented() {
-        Mockito.when(flowableFacadeMock.getProcessInstanceId(Mockito.anyString()))
+        Mockito.when(flowableFacadeMock.getProcessInstanceId(Mockito.any()))
                .thenReturn("foo");
         Mockito.when(progressMessageServiceMock.findByProcessId("foo"))
                .thenReturn(Arrays.asList(ImmutableProgressMessage.builder()

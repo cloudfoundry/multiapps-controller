@@ -12,7 +12,7 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -55,7 +55,8 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
     private void validatePlanUpdate(String servicePlanGuid) throws MalformedURLException {
         String updateServicePlanUrl = getUpdateServicePlanUrl();
         Mockito.verify(getMockedRestTemplate())
-               .exchange(Matchers.eq(updateServicePlanUrl), Matchers.any(HttpMethod.class), Matchers.any(), Matchers.any(Class.class));
+               .exchange(ArgumentMatchers.eq(updateServicePlanUrl), ArgumentMatchers.any(HttpMethod.class), ArgumentMatchers.any(),
+                         ArgumentMatchers.any(Class.class));
     }
 
     private String getUpdateServicePlanUrl() {

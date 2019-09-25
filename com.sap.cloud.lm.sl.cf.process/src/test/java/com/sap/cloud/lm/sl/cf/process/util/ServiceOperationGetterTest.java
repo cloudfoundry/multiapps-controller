@@ -2,8 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -101,7 +100,7 @@ public class ServiceOperationGetterTest {
     }
 
     private void prepareServiceGetter(Map<String, Object> serviceInstanceEntity) {
-        when(serviceGetter.getServiceInstanceEntity(any(), anyString(), anyString())).thenReturn(serviceInstanceEntity);
+        when(serviceGetter.getServiceInstanceEntity(any(), any(), any())).thenReturn(serviceInstanceEntity);
     }
 
     private void prepareEventsGetter(boolean wasDeletedService) {

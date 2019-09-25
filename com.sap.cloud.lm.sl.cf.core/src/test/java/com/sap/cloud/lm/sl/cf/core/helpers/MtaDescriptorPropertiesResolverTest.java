@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.function.BiFunction;

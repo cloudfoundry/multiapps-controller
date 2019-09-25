@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -10,7 +11,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -67,7 +67,7 @@ public class UpdateServiceCredentialsStepTest extends SyncFlowableStepTest<Updat
             default:
                 throw new UnsupportedOperationException("Unsupported test phase");
         }
-        Mockito.when(serviceUpdater.updateServiceParameters(Matchers.any(), Matchers.any(), Matchers.any()))
+        Mockito.when(serviceUpdater.updateServiceParameters(any(), any(), any()))
                .thenReturn(methodExec);
     }
 
@@ -89,7 +89,7 @@ public class UpdateServiceCredentialsStepTest extends SyncFlowableStepTest<Updat
 
     private void assertMethodCalls() {
         Mockito.verify(serviceUpdater, Mockito.times(1))
-               .updateServiceParameters(Matchers.any(), Matchers.any(), Matchers.any());
+               .updateServiceParameters(any(), any(), any());
     }
 
     @SuppressWarnings("unchecked")

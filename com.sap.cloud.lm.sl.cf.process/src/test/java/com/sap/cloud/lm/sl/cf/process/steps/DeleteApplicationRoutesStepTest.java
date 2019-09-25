@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -26,7 +26,7 @@ public class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
 
     private void assertRoutesWereDeleted() {
         int routesToDeleteCount = stepOutput.expectedRoutesToDelete.size();
-        verify(client, times(routesToDeleteCount)).deleteRoute(anyString(), anyString(), anyString());
+        verify(client, times(routesToDeleteCount)).deleteRoute(any(), any(), any());
         for (Route route : stepOutput.expectedRoutesToDelete) {
             verify(client).deleteRoute(route.host, route.domain, route.path);
             routesToDeleteCount--;

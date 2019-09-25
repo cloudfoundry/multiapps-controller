@@ -1,8 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -22,7 +21,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,11 +58,6 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     protected StepLogger stepLogger;
     @Mock
     protected ProcessLogsPersistenceService processLogsPersistenceService;
-    @Spy
-    protected ProcessLoggerProvider processLoggerProvider = new ProcessLoggerProvider();
-    @Spy
-    @InjectMocks
-    protected ProcessLogsPersister processLogsPersister = new ProcessLogsPersister();
     @Mock
     protected ProgressMessageService progressMessageService;
     @Mock
@@ -79,6 +72,9 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     protected ApplicationConfiguration configuration;
     @Mock
     protected ProcessEngineConfiguration processEngineConfiguration;
+    protected ProcessLoggerProvider processLoggerProvider = Mockito.spy(ProcessLoggerProvider.class);
+    @InjectMocks
+    protected ProcessLogsPersister processLogsPersister = Mockito.spy(ProcessLogsPersister.class);
 
     protected ExecutionWrapper execution;
     @InjectMocks
@@ -96,8 +92,8 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_GUID);
         context.setVariable(Constants.VAR_USER, USER_NAME);
         context.setVariable(Constants.VAR_ORG, ORG_NAME);
-        when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
-        when(clientProvider.getControllerClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
+        when(clientProvider.getControllerClient(any(), any())).thenReturn(client);
+        when(clientProvider.getControllerClient(any(), any(), any(), any())).thenReturn(client);
         context.setVariable("correlationId", getCorrelationId());
         context.setVariable("__TASK_ID", getTaskId());
         prepareExecution();

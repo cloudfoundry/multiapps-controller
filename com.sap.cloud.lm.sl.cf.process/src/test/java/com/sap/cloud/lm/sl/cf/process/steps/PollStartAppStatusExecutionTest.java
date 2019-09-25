@@ -1,7 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -105,7 +106,7 @@ public class PollStartAppStatusExecutionTest {
     }
 
     private void prepareClientProvider() {
-        when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
+        when(clientProvider.getControllerClient(any(), any())).thenReturn(client);
     }
 
     private InstancesInfo buildInstancesInfo(List<InstanceState> instancesStates) {
