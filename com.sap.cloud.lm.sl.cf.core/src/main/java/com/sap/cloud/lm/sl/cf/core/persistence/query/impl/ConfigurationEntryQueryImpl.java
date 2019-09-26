@@ -58,21 +58,25 @@ public class ConfigurationEntryQueryImpl extends AbstractQueryImpl<Configuration
 
     @Override
     public ConfigurationEntryQuery providerNid(String providerNid) {
-        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
-                                                                       .attribute(AttributeNames.PROVIDER_NID)
-                                                                       .condition(getCriteriaBuilder()::equal)
-                                                                       .value(providerNid)
-                                                                       .build());
+        if (providerNid != null) {
+            queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                           .attribute(AttributeNames.PROVIDER_NID)
+                                                                           .condition(getCriteriaBuilder()::equal)
+                                                                           .value(providerNid)
+                                                                           .build());
+        }
         return this;
     }
 
     @Override
     public ConfigurationEntryQuery providerId(String providerId) {
-        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
-                                                                       .attribute(AttributeNames.PROVIDER_ID)
-                                                                       .condition(getCriteriaBuilder()::equal)
-                                                                       .value(providerId)
-                                                                       .build());
+        if (providerId != null) {
+            queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                           .attribute(AttributeNames.PROVIDER_ID)
+                                                                           .condition(getCriteriaBuilder()::equal)
+                                                                           .value(providerId)
+                                                                           .build());
+        }
         return this;
     }
 
@@ -108,11 +112,13 @@ public class ConfigurationEntryQueryImpl extends AbstractQueryImpl<Configuration
 
     @Override
     public ConfigurationEntryQuery mtaId(String mtaId) {
-        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<String> builder()
-                                                                       .attribute(AttributeNames.PROVIDER_ID)
-                                                                       .condition(getCriteriaBuilder()::like)
-                                                                       .value(mtaId + ":%")
-                                                                       .build());
+        if (mtaId != null) {
+            queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<String> builder()
+                                                                           .attribute(AttributeNames.PROVIDER_ID)
+                                                                           .condition(getCriteriaBuilder()::like)
+                                                                           .value(mtaId + ":%")
+                                                                           .build());
+        }
         return this;
     }
 
