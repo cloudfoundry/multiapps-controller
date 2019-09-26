@@ -166,9 +166,9 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     }
 
     private CloudSpace createDummySpace(CloudTarget cloudTarget) {
-        CloudOrganization org = createDummyOrg(cloudTarget.getOrg());
+        CloudOrganization org = createDummyOrg(cloudTarget.getOrganizationName());
         return ImmutableCloudSpace.builder()
-                                  .name(cloudTarget.getSpace())
+                                  .name(cloudTarget.getSpaceName())
                                   .organization(org)
                                   .build();
     }
@@ -302,7 +302,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     }
 
     private CloudControllerClient getClient(ExecutionWrapper execution, CloudTarget cloudTarget) {
-        return execution.getControllerClient(cloudTarget.getOrg(), cloudTarget.getSpace());
+        return execution.getControllerClient(cloudTarget.getOrganizationName(), cloudTarget.getSpaceName());
     }
 
     private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, HandlerFactory handlerFactory) {

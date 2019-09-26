@@ -19,20 +19,20 @@ public class TransformFilterColumnTest {
     public void testSplitTargetSpaceValue() {
 
         CloudTarget targetSpace = ConfigurationEntriesUtil.splitTargetSpaceValue("org space");
-        assertEquals("org", targetSpace.getOrg());
-        assertEquals("space", targetSpace.getSpace());
+        assertEquals("org", targetSpace.getOrganizationName());
+        assertEquals("space", targetSpace.getSpaceName());
 
         targetSpace = ConfigurationEntriesUtil.splitTargetSpaceValue("orgspace");
-        assertEquals("", targetSpace.getOrg());
-        assertEquals("orgspace", targetSpace.getSpace());
+        assertEquals("", targetSpace.getOrganizationName());
+        assertEquals("orgspace", targetSpace.getSpaceName());
 
         targetSpace = ConfigurationEntriesUtil.splitTargetSpaceValue("org test space sap");
-        assertEquals("org", targetSpace.getOrg());
-        assertEquals("test space sap", targetSpace.getSpace());
+        assertEquals("org", targetSpace.getOrganizationName());
+        assertEquals("test space sap", targetSpace.getSpaceName());
 
         targetSpace = ConfigurationEntriesUtil.splitTargetSpaceValue("");
-        assertEquals("", targetSpace.getOrg());
-        assertEquals("", targetSpace.getSpace());
+        assertEquals("", targetSpace.getOrganizationName());
+        assertEquals("", targetSpace.getSpaceName());
     }
 
     @Test
@@ -44,15 +44,15 @@ public class TransformFilterColumnTest {
         retrievedData.put(3l, "{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":\"org test space sap\"}");
 
         Map<Long, String> transformedData = transformFilterColumn.transformData(retrievedData);
-        assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"space\":\"space\",\"org\":\"org\"}}",
+        assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"organizationName\":\"org\",\"spaceName\":\"space\"}}",
                      transformedData.get(1l));
 
         transformedData = transformFilterColumn.transformData(retrievedData);
-        assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"space\":\"orgspace\",\"org\":\"\"}}",
+        assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"organizationName\":\"\",\"spaceName\":\"orgspace\"}}",
                      transformedData.get(2l));
 
         transformedData = transformFilterColumn.transformData(retrievedData);
-        assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"space\":\"test space sap\",\"org\":\"org\"}}",
+        assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"organizationName\":\"org\",\"spaceName\":\"test space sap\"}}",
                      transformedData.get(3l));
     }
 

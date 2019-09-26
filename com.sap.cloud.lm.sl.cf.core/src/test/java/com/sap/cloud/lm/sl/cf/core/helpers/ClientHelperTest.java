@@ -67,8 +67,8 @@ public class ClientHelperTest {
         Mockito.when(client.getSpace(Matchers.any(UUID.class)))
                .thenReturn(createCloudSpace(GUID, SPACE_NAME, ORG_NAME));
         CloudTarget target = clientHelper.computeTarget(SPACE_ID);
-        Assertions.assertEquals(ORG_NAME, target.getOrg());
-        Assertions.assertEquals(SPACE_NAME, target.getSpace());
+        Assertions.assertEquals(ORG_NAME, target.getOrganizationName());
+        Assertions.assertEquals(SPACE_NAME, target.getSpaceName());
     }
 
     @Test

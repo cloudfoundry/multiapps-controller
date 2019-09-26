@@ -26,16 +26,16 @@ public class VisibilityFilter implements BiPredicate<ConfigurationEntry, List<Cl
             return true;
         }
         for (CloudTarget visibleTarget : visibilityCloudTargets) {
-            if ("*".equals(visibleTarget.getOrg()) && "*".equals(visibleTarget.getSpace())) {
+            if ("*".equals(visibleTarget.getOrganizationName()) && "*".equals(visibleTarget.getSpaceName())) {
                 return true;
             }
-            if ("*".equals(visibleTarget.getOrg()) && visibleTarget.getSpace()
-                                                                   .equals(cloudTarget.getSpace())) {
+            if ("*".equals(visibleTarget.getOrganizationName()) && visibleTarget.getSpaceName()
+                                                                                .equals(cloudTarget.getSpaceName())) {
                 return true;
             }
-            if (visibleTarget.getOrg()
-                             .equals(cloudTarget.getOrg())
-                && "*".equals(visibleTarget.getSpace())) {
+            if (visibleTarget.getOrganizationName()
+                             .equals(cloudTarget.getOrganizationName())
+                && "*".equals(visibleTarget.getSpaceName())) {
                 return true;
             }
         }
@@ -46,7 +46,7 @@ public class VisibilityFilter implements BiPredicate<ConfigurationEntry, List<Cl
         List<CloudTarget> visibleTargets = entry.getVisibility();
         if (visibleTargets == null) {
             String org = entry.getTargetSpace()
-                              .getOrg();
+                              .getOrganizationName();
             visibleTargets = Arrays.asList(new CloudTarget(org, "*"));
         }
         return visibleTargets;

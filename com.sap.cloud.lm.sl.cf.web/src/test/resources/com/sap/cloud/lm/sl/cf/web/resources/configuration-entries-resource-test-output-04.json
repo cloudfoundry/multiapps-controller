@@ -7,8 +7,8 @@
     "providerVersion": "N/A",
     "targetSpace": "org sap",
     "cloudTarget": {
-      "space": "sap",
-      "org": "org"
+      "spaceName": "sap",
+      "organizationName": "org"
     },
     "content": "{type:prod}"
   }

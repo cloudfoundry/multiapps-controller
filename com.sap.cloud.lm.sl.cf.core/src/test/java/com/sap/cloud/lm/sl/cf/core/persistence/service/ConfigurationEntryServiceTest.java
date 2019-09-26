@@ -70,9 +70,9 @@ public class ConfigurationEntryServiceTest {
                                                                CONFIGURATION_ENTRY_1.getProviderVersion()
                                                                                     .toString(),
                                                                CONFIGURATION_ENTRY_1.getTargetSpace()
-                                                                                    .getOrg(),
+                                                                                    .getOrganizationName(),
                                                                CONFIGURATION_ENTRY_1.getTargetSpace()
-                                                                                    .getSpace());
+                                                                                    .getSpaceName());
         assertEquals(expectedExceptionMessage, exception.getMessage());
     }
 

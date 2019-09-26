@@ -83,18 +83,18 @@ public class ConfigurationEntryQueryImpl extends AbstractQueryImpl<Configuration
     @Override
     public ConfigurationEntryQuery target(CloudTarget target) {
         this.target = target;
-        if (target != null && !StringUtils.isEmpty(target.getSpace())) {
+        if (target != null && !StringUtils.isEmpty(target.getSpaceName())) {
             queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
                                                                            .attribute(AttributeNames.TARGET_SPACE)
                                                                            .condition(getCriteriaBuilder()::equal)
-                                                                           .value(target.getSpace())
+                                                                           .value(target.getSpaceName())
                                                                            .build());
         }
-        if (target != null && !StringUtils.isEmpty(target.getOrg())) {
+        if (target != null && !StringUtils.isEmpty(target.getOrganizationName())) {
             queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
                                                                            .attribute(AttributeNames.TARGET_ORG)
                                                                            .condition(getCriteriaBuilder()::equal)
-                                                                           .value(target.getOrg())
+                                                                           .value(target.getOrganizationName())
                                                                            .build());
         }
         return this;
@@ -155,8 +155,8 @@ public class ConfigurationEntryQueryImpl extends AbstractQueryImpl<Configuration
     public String getVisibilityTargets() {
         StringBuilder visibilityTargetsStringBuilder = new StringBuilder();
         for (CloudTarget cloudTarget : visibilityTargets) {
-            visibilityTargetsStringBuilder.append(MessageFormat.format("('\"{0}\"', '\"{1}\"')", cloudTarget.getOrg(),
-                                                                       cloudTarget.getSpace()));
+            visibilityTargetsStringBuilder.append(MessageFormat.format("('\"{0}\"', '\"{1}\"')", cloudTarget.getOrganizationName(),
+                                                                       cloudTarget.getSpaceName()));
         }
         return visibilityTargetsStringBuilder.toString();
     }

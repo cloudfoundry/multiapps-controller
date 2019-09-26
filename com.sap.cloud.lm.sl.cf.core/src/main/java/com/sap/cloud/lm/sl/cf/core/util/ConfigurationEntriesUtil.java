@@ -39,8 +39,8 @@ public class ConfigurationEntriesUtil {
         String space = null;
         CloudTarget targetSpace = filter.getTargetSpace();
         if (targetSpace != null) {
-            org = targetSpace.getOrg();
-            space = targetSpace.getSpace();
+            org = targetSpace.getOrganizationName();
+            space = targetSpace.getSpaceName();
         }
         String providerVersion = filter.getProviderVersion();
         String providerId = filter.getProviderId();
@@ -95,7 +95,7 @@ public class ConfigurationEntriesUtil {
     }
 
     public static String computeTargetSpace(CloudTarget target) {
-        return target.getOrg() + TARGET_DELIMITER + target.getSpace();
+        return target.getOrganizationName() + TARGET_DELIMITER + target.getSpaceName();
     }
 
     public static CloudTarget createImplicitCloudTarget(String targetSpace) {
