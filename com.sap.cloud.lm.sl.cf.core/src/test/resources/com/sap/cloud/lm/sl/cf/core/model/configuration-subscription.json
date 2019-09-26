@@ -6,8 +6,8 @@
     "requiredContent" : { },
     "providerNid" : "test-provider-nid",
     "targetSpace" : {
-      "space" : "space-1",
-      "org" : "org-1"
+      "organizationName" : "org-1",
+      "spaceName" : "space-1"
     }
   },
   "spaceId" : "space-1",

@@ -4,8 +4,8 @@
         "providerId": "mta-2:provided-dependency-1",
         "providerNid": "mta",
         "targetSpace": {
-          "space": "initial",
-          "org": "initial"
+          "spaceName": "initial",
+          "organizationName": "initial"
         },
         "providerVersion": "2.0.0"
     },

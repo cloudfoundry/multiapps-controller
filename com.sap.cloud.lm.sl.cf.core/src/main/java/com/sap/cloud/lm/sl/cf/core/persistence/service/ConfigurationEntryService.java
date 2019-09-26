@@ -123,10 +123,10 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
             String providerVersion = getNotNull(entry.getProviderVersion());
             String targetOrg = entry.getTargetSpace() == null ? null
                 : entry.getTargetSpace()
-                       .getOrg();
+                       .getOrganizationName();
             String targetSpace = entry.getTargetSpace() == null ? null
                 : entry.getTargetSpace()
-                       .getSpace();
+                       .getSpaceName();
             String content = entry.getContent();
             String visibility = entry.getVisibility() == null ? null : JsonUtil.toJson(entry.getVisibility());
             String spaceId = entry.getSpaceId();

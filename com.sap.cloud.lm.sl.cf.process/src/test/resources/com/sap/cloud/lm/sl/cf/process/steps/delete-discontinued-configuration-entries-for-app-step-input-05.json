@@ -19,8 +19,8 @@
       "providerId": "com.sap.sample.mta:foo",
       "providerVersion": "0.1.0",
       "targetSpace": {
-         "space": "SAP",
-         "org": "myorg"
+         "spaceName": "SAP",
+         "organizationName": "myorg"
       },
       "content": "foo"
     },
@@ -30,8 +30,8 @@
       "providerId": "com.sap.sample.mta:bar",
       "providerVersion": "0.1.0",
       "targetSpace": {
-         "space": "SAP",
-         "org": "myorg"
+         "spaceName": "SAP",
+         "organizationName": "myorg"
       },
       "content": "bar"
     }
@@ -43,8 +43,8 @@
       "providerId": "com.sap.sample.mta:foo",
       "providerVersion": "0.1.0",
       "targetSpace": {
-         "space": "SAP",
-         "org": "myorg"
+         "spaceName": "SAP",
+         "organizationName": "myorg"
       },
       "content": "baz"
     },
@@ -54,8 +54,8 @@
       "providerId": "com.sap.sample.mta:qux",
       "providerVersion": "0.1.0",
       "targetSpace": {
-         "space": "SAP",
-         "org": "myorg"
+         "spaceName": "SAP",
+         "organizationName": "myorg"
       },
       "content": "bar"
     }

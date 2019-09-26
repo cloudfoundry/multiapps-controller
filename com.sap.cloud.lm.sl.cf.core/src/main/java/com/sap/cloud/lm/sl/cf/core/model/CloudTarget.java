@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.core.model;
 import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.ORG;
 import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.SPACE;
 
+import java.util.Objects;
+
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -16,69 +18,57 @@ import com.sap.cloud.lm.sl.cf.core.filters.TargetWildcardFilter;
 @XmlAccessorType(value = XmlAccessType.FIELD)
 public class CloudTarget {
 
-    @XmlElement(name = "space")
-    @QueryParam(SPACE)
-    @DefaultValue(TargetWildcardFilter.ANY_TARGET_WILDCARD)
-    private String space;
-
     @XmlElement(name = "org")
     @QueryParam(ORG)
     @DefaultValue(TargetWildcardFilter.ANY_TARGET_WILDCARD)
-    private String org;
+    private String organizationName;
+    @XmlElement(name = "space")
+    @QueryParam(SPACE)
+    @DefaultValue(TargetWildcardFilter.ANY_TARGET_WILDCARD)
+    private String spaceName;
 
     public CloudTarget() {
         // Required by JAXB.
     }
 
-    public CloudTarget(String org, String space) {
-        this.org = org;
-        this.space = space;
+    public CloudTarget(String organizationName, String spaceName) {
+        this.organizationName = organizationName;
+        this.spaceName = spaceName;
     }
 
-    public String getSpace() {
-        return space;
+    public String getOrganizationName() {
+        return organizationName;
     }
 
-    public void setSpace(String space) {
-        this.space = space;
+    public String getSpaceName() {
+        return spaceName;
     }
 
-    public String getOrg() {
-        return org;
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
     }
 
-    public void setOrg(String org) {
-        this.org = org;
+    public void setSpaceName(String spaceName) {
+        this.spaceName = spaceName;
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((org == null) ? 0 : org.hashCode());
-        result = prime * result + ((space == null) ? 0 : space.hashCode());
-        return result;
+        return Objects.hash(organizationName, spaceName);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
+    public boolean equals(Object object) {
+        if (this == object) {
             return true;
-        if (obj == null)
+        }
+        if (object == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != object.getClass()) {
             return false;
-        CloudTarget other = (CloudTarget) obj;
-        if (org == null) {
-            if (other.org != null)
-                return false;
-        } else if (!org.equals(other.org))
-            return false;
-        if (space == null) {
-            if (other.space != null)
-                return false;
-        } else if (!space.equals(other.space))
-            return false;
-        return true;
+        }
+        CloudTarget other = (CloudTarget) object;
+        return Objects.equals(organizationName, other.organizationName) && Objects.equals(spaceName, other.spaceName);
     }
 }

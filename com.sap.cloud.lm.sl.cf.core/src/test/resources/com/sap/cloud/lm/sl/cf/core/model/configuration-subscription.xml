@@ -7,8 +7,8 @@
         <required-content/>
         <provider-nid>test-provider-nid</provider-nid>
         <target-space>
-            <space>space-1</space>
             <org>org-1</org>
+            <space>space-1</space>
         </target-space>
     </configuration-filter>
     <space-id>space-1</space-id>

@@ -5,8 +5,8 @@
         "type": "com.acme.plugin"
       },
     "targetSpace": {
-        "space": "initial",
-        "org": "initial"
+        "spaceName": "initial",
+        "organizationName": "initial"
       }
     },
     "configurationEntries": [
@@ -16,8 +16,8 @@
         "providerId": "mta-2:provided-dependency",
         "providerVersion": "2.0.0",
         "targetSpace": {
-          "space": "initial",
-          "org": "initial"
+          "spaceName": "initial",
+          "organizationName": "initial"
         },
         "content": "{\"type\": \"com.acme.plugin\", \"plugin_name\": \"plugin-1\", \"url\": \"https://localhost:52010\"}"
       },
@@ -27,8 +27,8 @@
         "providerId": "mta-3:provided-dependency",
         "providerVersion": "1.2.0",
         "targetSpace": {
-          "space": "initial",
-          "org": "initial"
+          "spaceName": "initial",
+          "organizationName": "initial"
         },
         "content": "{\"type\": \"com.acme.plugin\", \"plugin_name\": \"plugin-2\", \"url\": \"https://localhost:52011\"}"
       }

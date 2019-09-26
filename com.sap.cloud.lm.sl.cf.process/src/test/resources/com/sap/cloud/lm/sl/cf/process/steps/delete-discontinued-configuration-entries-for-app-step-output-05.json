@@ -6,8 +6,8 @@
       "providerId": "com.sap.sample.mta:bar",
       "providerVersion": "0.1.0",
       "targetSpace": {
-         "space": "SAP",
-         "org": "myorg"
+         "spaceName": "SAP",
+         "organizationName": "myorg"
       },
       "content": "bar"
     }

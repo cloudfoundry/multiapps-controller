@@ -11,24 +11,24 @@ public class TargetWildcardFilter implements BiPredicate<CloudTarget, CloudTarge
     @Override
     public boolean test(CloudTarget actualEntryTarget, CloudTarget requestedTarget) {
 
-        if (requestedTarget == null
-            || ANY_TARGET_WILDCARD.equals(requestedTarget.getOrg()) && ANY_TARGET_WILDCARD.equals(requestedTarget.getSpace())) {
+        if (requestedTarget == null || ANY_TARGET_WILDCARD.equals(requestedTarget.getOrganizationName())
+            && ANY_TARGET_WILDCARD.equals(requestedTarget.getSpaceName())) {
             return true;
         }
 
-        if (ANY_TARGET_WILDCARD.equals(requestedTarget.getOrg())) {
-            return actualEntryTarget.getSpace()
-                                    .equals(requestedTarget.getSpace());
+        if (ANY_TARGET_WILDCARD.equals(requestedTarget.getOrganizationName())) {
+            return actualEntryTarget.getSpaceName()
+                                    .equals(requestedTarget.getSpaceName());
         }
 
-        if (ANY_TARGET_WILDCARD.equals(requestedTarget.getSpace())) {
-            return actualEntryTarget.getOrg()
-                                    .equals(requestedTarget.getOrg());
+        if (ANY_TARGET_WILDCARD.equals(requestedTarget.getSpaceName())) {
+            return actualEntryTarget.getOrganizationName()
+                                    .equals(requestedTarget.getOrganizationName());
         }
 
-        return actualEntryTarget.getOrg()
-                                .equals(requestedTarget.getOrg())
-            && actualEntryTarget.getSpace()
-                                .equals(requestedTarget.getSpace());
+        return actualEntryTarget.getOrganizationName()
+                                .equals(requestedTarget.getOrganizationName())
+            && actualEntryTarget.getSpaceName()
+                                .equals(requestedTarget.getSpaceName());
     }
 }

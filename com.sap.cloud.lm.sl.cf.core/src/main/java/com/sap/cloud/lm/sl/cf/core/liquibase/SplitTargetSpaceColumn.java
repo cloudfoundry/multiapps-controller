@@ -43,12 +43,12 @@ public class SplitTargetSpaceColumn extends AbstractDataTransformationChange<Map
         throws SQLException {
         for (Map.Entry<Long, CloudTarget> entry : transformedData.entrySet()) {
             CloudTarget cloudTarget = entry.getValue();
-            preparedStatement.setString(1, cloudTarget.getOrg());
-            preparedStatement.setString(2, cloudTarget.getSpace());
+            preparedStatement.setString(1, cloudTarget.getOrganizationName());
+            preparedStatement.setString(2, cloudTarget.getSpaceName());
             preparedStatement.setLong(3, entry.getKey());
             preparedStatement.addBatch();
             logger.debug(String.format("Executed update for row ID: '%s' , TARGET_ORG: '%s' , TARGET_SPACE: '%s'", entry.getKey(),
-                                       cloudTarget.getOrg(), cloudTarget.getSpace()));
+                                       cloudTarget.getOrganizationName(), cloudTarget.getSpaceName()));
         }
     }
 

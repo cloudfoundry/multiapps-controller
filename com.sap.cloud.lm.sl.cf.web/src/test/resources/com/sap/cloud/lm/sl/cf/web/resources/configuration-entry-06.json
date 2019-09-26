@@ -2,7 +2,7 @@
   "id": 0,
   "providerId": "com.sap.mta.test",
   "targetSpace": {
-     "space": "sap",
-     "org": "org"
+     "spaceName": "sap",
+     "organizationName": "org"
   }
 }
