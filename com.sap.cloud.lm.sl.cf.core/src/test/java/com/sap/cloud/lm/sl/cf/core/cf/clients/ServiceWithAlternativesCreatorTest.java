@@ -23,6 +23,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.util.ResilientCloudOperationExecutor;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -110,7 +111,7 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, ServiceWithAlternativesCreatorTest.class), Input.class);
         this.expectedExceptionMessage = expected;
         this.expectedExceptionType = expectedExceptionClass;
-        serviceCreator = new ServiceCreator(getMockedRestTemplateFactory());
+        serviceCreator = new ServiceCreator(getMockedRestTemplateFactory()).withErrorHandlerSupplier(() -> new CustomControllerClientErrorHandler().withExecutorFactory(() -> new ResilientCloudOperationExecutor().withWaitTimeBetweenRetriesInMillis(0)));
         serviceWithAlternativesCreator = new ServiceWithAlternativesCreator(serviceCreator, userMessageLogger);
         setUpServiceRequests();
         throwExceptionOnExistingService(input.service.getName());
