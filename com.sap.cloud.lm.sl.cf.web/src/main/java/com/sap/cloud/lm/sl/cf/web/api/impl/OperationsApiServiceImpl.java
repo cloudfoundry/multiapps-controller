@@ -331,6 +331,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         List<ProgressMessage> progressMessages = progressMessageService.createQuery()
                                                                        .processId(operation.getProcessId())
                                                                        .typeNot(ProgressMessageType.TASK_STARTUP)
+                                                                       .orderById(OrderDirection.ASCENDING)
                                                                        .list();
         return progressMessages.stream()
                                .filter(message -> message.getType() != ProgressMessageType.TASK_STARTUP)

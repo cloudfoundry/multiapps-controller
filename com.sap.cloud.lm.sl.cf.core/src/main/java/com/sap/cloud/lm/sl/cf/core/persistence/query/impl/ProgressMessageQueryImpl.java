@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
+import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.ProgressMessageDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.ProgressMessageDto.AttributeNames;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ProgressMessageQuery;
@@ -92,6 +93,12 @@ public class ProgressMessageQueryImpl extends AbstractQueryImpl<ProgressMessage,
                                                                        .condition(getCriteriaBuilder()::lessThan)
                                                                        .value(time)
                                                                        .build());
+        return this;
+    }
+
+    @Override
+    public ProgressMessageQuery orderById(OrderDirection orderDirection) {
+        setOrder(AttributeNames.ID, orderDirection);
         return this;
     }
 
