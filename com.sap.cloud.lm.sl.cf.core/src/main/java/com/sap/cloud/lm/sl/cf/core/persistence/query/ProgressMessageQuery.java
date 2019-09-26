@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.persistence.query;
 
 import java.util.Date;
 
+import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 
@@ -20,5 +21,7 @@ public interface ProgressMessageQuery extends Query<ProgressMessage, ProgressMes
     ProgressMessageQuery text(String text);
 
     ProgressMessageQuery olderThan(Date time);
+
+    ProgressMessageQuery orderById(OrderDirection orderDirection);
 
 }
