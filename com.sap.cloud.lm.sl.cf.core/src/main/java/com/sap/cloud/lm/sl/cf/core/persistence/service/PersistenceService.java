@@ -17,16 +17,18 @@ public abstract class PersistenceService<T, D extends DtoWithPrimaryKey<P>, P> {
         this.entityManagerFactory = entityManagerFactory;
     }
 
-    public void add(T object) {
+    public T add(T object) {
         D dto = getPersistenceObjectMapper().toDto(object);
         try {
-            executeInTransaction(manager -> {
+            D newDto = executeInTransaction(manager -> {
                 manager.persist(dto);
-                return null;
+                return dto;
             });
+            return getPersistenceObjectMapper().fromDto(newDto);
         } catch (RollbackException e) {
             onEntityConflict(dto, e);
         }
+        return null;
     }
 
     public T update(P primaryKey, T newObject) {
