@@ -42,17 +42,6 @@ public class StepsUtilTest {
         assertEquals(EXAMPLE_USER, determinedUser);
     }
 
-    @Test
-    public void testDetermineCurrentUserWithProcessInitiator() throws Exception {
-        Mockito.when(context.getVariable(Mockito.eq(Constants.PARAM_INITIATOR)))
-               .thenReturn(EXAMPLE_USER);
-        String determinedUser = StepsUtil.determineCurrentUser(context, Mockito.mock(StepLogger.class));
-        assertEquals(EXAMPLE_USER, determinedUser);
-        Mockito.verify(context)
-               .setVariable(Mockito.eq(Constants.VAR_USER), Mockito.eq(EXAMPLE_USER));
-    }
-
-    @Test
     public void testDetermineCurrentUserError() throws Exception {
         Assertions.assertThrows(SLException.class, () -> StepsUtil.determineCurrentUser(context, Mockito.mock(StepLogger.class)));
     }

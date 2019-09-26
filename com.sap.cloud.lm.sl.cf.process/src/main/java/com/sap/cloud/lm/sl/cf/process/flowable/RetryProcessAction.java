@@ -29,21 +29,21 @@ public class RetryProcessAction extends ProcessAction {
     }
 
     @Override
-    protected void executeActualProcessAction(String userId, String superProcessInstanceId) {
+    protected void executeActualProcessAction(String user, String superProcessInstanceId) {
         List<String> subProcessIds = getActiveExecutionIds(superProcessInstanceId);
         ListIterator<String> subProcessesIdsIterator = subProcessIds.listIterator(subProcessIds.size());
 
-        updateUserIfNecessary(userId, superProcessInstanceId);
+        updateUserIfNecessary(user, superProcessInstanceId);
         while (subProcessesIdsIterator.hasPrevious()) {
             String subProcessId = subProcessesIdsIterator.previous();
-            retryProcess(userId, subProcessId);
+            retryProcess(subProcessId);
         }
         historicOperationEventPersister.add(superProcessInstanceId, EventType.RETRIED);
     }
 
-    private void retryProcess(String userId, String subProcessId) {
+    private void retryProcess(String subProcessId) {
         try {
-            flowableFacade.executeJob(userId, subProcessId);
+            flowableFacade.executeJob(subProcessId);
         } catch (RuntimeException e) {
             // Consider the retry as successful. The execution error could be later obtained through
             // the getError() method.

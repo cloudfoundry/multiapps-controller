@@ -70,8 +70,8 @@ public class OperationsCleanerTest {
         initQueryMockForPage(0, operationsList);
 
         cleaner.execute(EXPIRATION_TIME);
-        verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
-        verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_2), any());
+        verify(flowableFacade).deleteProcessInstance(eq(OPERATION_ID_1), any());
+        verify(flowableFacade).deleteProcessInstance(eq(OPERATION_ID_2), any());
     }
 
     private void initQueryMockForPage(int pageIndex, List<Operation> result) {
@@ -95,11 +95,11 @@ public class OperationsCleanerTest {
         when(operationService.createQuery()).thenReturn(operationQuery);
         initQueryMockForPage(0, operationsList);
         doThrow(new FlowableOptimisticLockingException("I'm an exception")).when(flowableFacade)
-                                                                           .deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
+                                                                           .deleteProcessInstance(eq(OPERATION_ID_1), any());
 
         cleaner.execute(EXPIRATION_TIME);
-        verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
-        verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_2), any());
+        verify(flowableFacade).deleteProcessInstance(eq(OPERATION_ID_1), any());
+        verify(flowableFacade).deleteProcessInstance(eq(OPERATION_ID_2), any());
     }
 
     @Test
@@ -118,9 +118,9 @@ public class OperationsCleanerTest {
         initQueryMockForPage(1, operationsPage2);
 
         cleaner.execute(EXPIRATION_TIME);
-        verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
-        verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_2), any());
-        verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_3), any());
+        verify(flowableFacade).deleteProcessInstance(eq(OPERATION_ID_1), any());
+        verify(flowableFacade).deleteProcessInstance(eq(OPERATION_ID_2), any());
+        verify(flowableFacade).deleteProcessInstance(eq(OPERATION_ID_3), any());
     }
 
     @Test

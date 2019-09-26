@@ -31,12 +31,12 @@ public abstract class ProcessAction {
         return activeHistoricSubProcessIds;
     }
 
-    public void execute(String userId, String superProcessInstanceId) {
+    public void execute(String user, String superProcessInstanceId) {
         for (AdditionalProcessAction additionalProcessAction : filterAdditionalActionsForThisAction()) {
             additionalProcessAction.executeAdditionalProcessAction(superProcessInstanceId);
         }
 
-        executeActualProcessAction(userId, superProcessInstanceId);
+        executeActualProcessAction(user, superProcessInstanceId);
     }
 
     private List<AdditionalProcessAction> filterAdditionalActionsForThisAction() {
@@ -46,20 +46,20 @@ public abstract class ProcessAction {
                                        .collect(Collectors.toList());
     }
 
-    protected abstract void executeActualProcessAction(String userId, String superProcessInstanceId);
+    protected abstract void executeActualProcessAction(String user, String superProcessInstanceId);
 
     public abstract String getActionId();
 
-    protected void updateUserIfNecessary(String userId, String executionId) {
+    protected void updateUserIfNecessary(String user, String executionId) {
         HistoryService historyService = flowableFacade.getProcessEngine()
                                                       .getHistoryService();
-        String oldUserId = HistoricVariablesUtil.getCurrentUser(historyService, executionId);
-        if (!userId.equals(oldUserId)) {
+        String currentUser = HistoricVariablesUtil.getCurrentUser(historyService, executionId);
+        if (!user.equals(currentUser)) {
             ClientReleaser clientReleaser = new ClientReleaser(clientProvider);
             clientReleaser.releaseClientFor(historyService, executionId);
             flowableFacade.getProcessEngine()
                           .getRuntimeService()
-                          .setVariable(executionId, Constants.VAR_USER, userId);
+                          .setVariable(executionId, Constants.VAR_USER, user);
         }
     }
 }

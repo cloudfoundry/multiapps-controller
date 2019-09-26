@@ -10,14 +10,8 @@ public class HistoricVariablesUtil {
     }
 
     public static String getCurrentUser(HistoryService historyService, String processInstanceId) {
-        HistoricVariableInstance user = getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_USER);
-        if (user == null) {
-            user = getHistoricVarInstanceValue(historyService, processInstanceId, Constants.PARAM_INITIATOR);
-            if (user == null) {
-                return null;
-            }
-        }
-        return (String) user.getValue();
+        HistoricVariableInstance userVariable = getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_USER);
+        return userVariable != null ? (String) userVariable.getValue() : null;
     }
 
     public static HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId,
@@ -27,4 +21,5 @@ public class HistoricVariablesUtil {
                              .variableName(parameter)
                              .singleResult();
     }
+
 }

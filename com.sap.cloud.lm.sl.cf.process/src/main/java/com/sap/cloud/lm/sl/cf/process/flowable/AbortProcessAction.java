@@ -18,11 +18,11 @@ public class AbortProcessAction extends ProcessAction {
     }
 
     @Override
-    public void executeActualProcessAction(String userId, String superProcessInstanceId) {
+    public void executeActualProcessAction(String user, String superProcessInstanceId) {
         if (flowableFacade.isProcessInstanceSuspended(superProcessInstanceId)) {
             flowableFacade.activateProcessInstance(superProcessInstanceId);
         }
-        flowableFacade.deleteProcessInstance(userId, superProcessInstanceId, State.ABORTED.name());
+        flowableFacade.deleteProcessInstance(superProcessInstanceId, State.ABORTED.name());
     }
 
     @Override

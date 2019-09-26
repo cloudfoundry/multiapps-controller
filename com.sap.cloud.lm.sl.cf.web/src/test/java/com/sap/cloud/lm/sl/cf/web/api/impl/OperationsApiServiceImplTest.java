@@ -189,11 +189,10 @@ public class OperationsApiServiceImplTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testStartMtaOperation() throws Exception {
         testedClass.startMtaOperation(createOperation(null, null), mockSecurityContext(EXAMPLE_USER), SPACE_GUID);
         Mockito.verify(flowableFacade)
-               .startProcess(Mockito.any(), Mockito.any(), Mockito.anyMap());
+               .startProcess(Mockito.any(), Mockito.anyMap());
     }
 
     @Test
@@ -288,9 +287,8 @@ public class OperationsApiServiceImplTest {
         assertEquals(Arrays.asList(AbortProcessAction.ACTION_ID_ABORT), actions);
     }
 
-    @SuppressWarnings("unchecked")
     private void mockFlowableFacade() {
-        Mockito.when(flowableFacade.startProcess(Mockito.any(), Mockito.any(), Mockito.anyMap()))
+        Mockito.when(flowableFacade.startProcess(Mockito.any(), Mockito.anyMap()))
                .thenReturn(Mockito.mock(ProcessInstance.class));
     }
 

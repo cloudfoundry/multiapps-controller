@@ -44,23 +44,9 @@ public class FlowableFacade {
         this.processEngine = processEngine;
     }
 
-    public ProcessInstance startProcess(String userId, String processDefinitionKey, Map<String, Object> variables) {
-        try {
-            processEngine.getIdentityService()
-                         .setAuthenticatedUserId(userId);
-            return processEngine.getRuntimeService()
-                                .startProcessInstanceByKey(processDefinitionKey, variables);
-        } finally {
-            // After the setAuthenticatedUserId() method is invoked, all
-            // Flowable service methods
-            // executed within the current thread will have access to this
-            // userId. Just before
-            // leaving the method, the userId is set to null, preventing other
-            // services from using
-            // it unintentionally.
-            processEngine.getIdentityService()
-                         .setAuthenticatedUserId(null);
-        }
+    public ProcessInstance startProcess(String processDefinitionKey, Map<String, Object> variables) {
+        return processEngine.getRuntimeService()
+                            .startProcessInstanceByKey(processDefinitionKey, variables);
     }
 
     public String getProcessInstanceId(String executionId) {
@@ -239,25 +225,18 @@ public class FlowableFacade {
                             .list();
     }
 
-    public void executeJob(String userId, String processInstanceId) {
+    public void executeJob(String processInstanceId) {
         List<Job> deadLetterJobs = getDeadLetterJobs(processInstanceId);
         if (deadLetterJobs.isEmpty()) {
             LOGGER.info(MessageFormat.format("No dead letter jobs found for process with id {0}", processInstanceId));
             return;
         }
-        moveDeadLetterJobsToExecutableJobs(userId, deadLetterJobs);
+        moveDeadLetterJobsToExecutableJobs(deadLetterJobs);
     }
 
-    private void moveDeadLetterJobsToExecutableJobs(String userId, List<Job> deadLetterJobs) {
+    private void moveDeadLetterJobsToExecutableJobs(List<Job> deadLetterJobs) {
         for (Job deadLetterJob : deadLetterJobs) {
-            try {
-                processEngine.getIdentityService()
-                             .setAuthenticatedUserId(userId);
-                moveDeadLetterJobToExecutableJob(deadLetterJob);
-            } finally {
-                processEngine.getIdentityService()
-                             .setAuthenticatedUserId(null);
-            }
+            moveDeadLetterJobToExecutableJob(deadLetterJob);
         }
     }
 
@@ -266,46 +245,31 @@ public class FlowableFacade {
                      .moveDeadLetterJobToExecutableJob(deadLetterJob.getId(), DEFAULT_JOB_RETRIES);
     }
 
-    public void trigger(String userId, String executionId, Map<String, Object> variables) {
-        try {
-            processEngine.getIdentityService()
-                         .setAuthenticatedUserId(userId);
-            processEngine.getRuntimeService()
-                         .trigger(executionId, variables);
-        } finally {
-            processEngine.getIdentityService()
-                         .setAuthenticatedUserId(null);
-        }
+    public void trigger(String executionId, Map<String, Object> variables) {
+        processEngine.getRuntimeService()
+                     .trigger(executionId, variables);
     }
 
-    public void deleteProcessInstance(String userId, String processInstanceId, String deleteReason) {
-        try {
-            processEngine.getIdentityService()
-                         .setAuthenticatedUserId(userId);
+    public void deleteProcessInstance(String processInstanceId, String deleteReason) {
+        long deadline = System.currentTimeMillis() + DEFAULT_ABORT_TIMEOUT_MS;
+        while (true) {
+            try {
+                LOGGER.debug(format(Messages.SETTING_VARIABLE, Constants.PROCESS_ABORTED, Boolean.TRUE));
 
-            long deadline = System.currentTimeMillis() + DEFAULT_ABORT_TIMEOUT_MS;
-            while (true) {
-                try {
-                    LOGGER.debug(format(Messages.SETTING_VARIABLE, Constants.PROCESS_ABORTED, Boolean.TRUE));
-
-                    // TODO: Use execution ID instead of process instance ID, as
-                    // they can be
-                    // different if the process has parallel executions.
-                    processEngine.getRuntimeService()
-                                 .setVariable(processInstanceId, Constants.PROCESS_ABORTED, Boolean.TRUE);
-                    processEngine.getRuntimeService()
-                                 .deleteProcessInstance(processInstanceId, deleteReason);
-                    break;
-                } catch (FlowableOptimisticLockingException e) {
-                    if (isPastDeadline(deadline)) {
-                        throw new IllegalStateException(Messages.ABORT_OPERATION_TIMED_OUT, e);
-                    }
-                    LOGGER.warn(format(Messages.RETRYING_PROCESS_ABORT, processInstanceId));
+                // TODO: Use execution ID instead of process instance ID, as
+                // they can be
+                // different if the process has parallel executions.
+                processEngine.getRuntimeService()
+                             .setVariable(processInstanceId, Constants.PROCESS_ABORTED, Boolean.TRUE);
+                processEngine.getRuntimeService()
+                             .deleteProcessInstance(processInstanceId, deleteReason);
+                break;
+            } catch (FlowableOptimisticLockingException e) {
+                if (isPastDeadline(deadline)) {
+                    throw new IllegalStateException(Messages.ABORT_OPERATION_TIMED_OUT, e);
                 }
+                LOGGER.warn(format(Messages.RETRYING_PROCESS_ABORT, processInstanceId));
             }
-        } finally {
-            processEngine.getIdentityService()
-                         .setAuthenticatedUserId(null);
         }
     }
 
