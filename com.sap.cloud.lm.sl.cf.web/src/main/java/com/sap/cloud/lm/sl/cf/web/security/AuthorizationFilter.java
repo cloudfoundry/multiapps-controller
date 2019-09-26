@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 @Named("authFilter")
 public class AuthorizationFilter extends OncePerRequestFilter {
 
-    private static final String SPACE_ID_REGEX = "/api/v1/spaces/(.*?)/.*";
+    private static final String SPACE_GUID_REGEX = "/api/v1/spaces/(.*?)/.*";
 
     @Inject
     private AuthorizationChecker authorizationChecker;
@@ -31,30 +31,29 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
 
-        String requestUri = request.getRequestURI();
-        String spaceId = getSpaceIdFromUri(requestUri);
+        String uri = request.getRequestURI();
+        String spaceGuid = getSpaceGuidFromUri(uri);
 
         try {
-            // The spaceId will be null when the requestURI does not match the expected one /api/v1/spaces/*.
-            // This could happen when the filter is used for processing requests from the SLP API.
-            // In such cases the filter will be skipped.
-            if (spaceId != null) {
+            // The space GUID will be null when the URI does not match the SPACE_GUID_REGEX. This could happen when the filter is used for
+            // processing of requests to the SLP API. In such cases this filter should be skipped.
+            if (spaceGuid != null) {
                 UserInfo userInfo = SecurityContextUtil.getUserInfo();
-                authorizationChecker.ensureUserIsAuthorized(request, userInfo, spaceId, null);
+                authorizationChecker.ensureUserIsAuthorized(request, userInfo, spaceGuid, null);
             }
         } catch (WebApplicationException e) {
-            response.sendError(401, MessageFormat.format(Messages.NOT_AUTHORIZED_TO_PERFORM_OPERATIONS_IN_SPACE, spaceId));
+            response.sendError(401, MessageFormat.format(Messages.NOT_AUTHORIZED_TO_PERFORM_OPERATIONS_IN_SPACE, spaceGuid));
             return;
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private String getSpaceIdFromUri(String requestUri) {
-        Pattern pattern = Pattern.compile(SPACE_ID_REGEX);
-        Matcher regexMatcher = pattern.matcher(requestUri);
-        if (regexMatcher.matches()) {
-            return regexMatcher.group(1);
+    private String getSpaceGuidFromUri(String uri) {
+        Pattern pattern = Pattern.compile(SPACE_GUID_REGEX);
+        Matcher matcher = pattern.matcher(uri);
+        if (matcher.matches()) {
+            return matcher.group(1);
         }
         return null;
     }
