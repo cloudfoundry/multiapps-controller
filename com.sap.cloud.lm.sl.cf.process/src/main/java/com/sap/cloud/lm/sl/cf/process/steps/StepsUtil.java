@@ -91,27 +91,16 @@ public class StepsUtil {
 
     static CloudControllerClient getControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
                                                      StepLogger stepLogger, String org, String space) {
-        // Determine the current user
         String userName = determineCurrentUser(context, stepLogger);
         return clientProvider.getControllerClient(userName, org, space, context.getProcessInstanceId());
     }
 
     public static String determineCurrentUser(VariableScope scope, StepLogger stepLogger) {
-        String userId = (String) scope.getVariable(Constants.VAR_USER);
-        if (userId == null) {
-            userId = getProcessInitiator(scope, stepLogger);
-            if (userId == null) {
-                throw new SLException(Messages.CANT_DETERMINE_CURRENT_USER);
-            }
-            scope.setVariable(Constants.VAR_USER, userId);
+        String user = (String) scope.getVariable(Constants.VAR_USER);
+        if (user == null) {
+            throw new SLException(Messages.CANT_DETERMINE_CURRENT_USER);
         }
-        return userId;
-    }
-
-    private static String getProcessInitiator(VariableScope scope, StepLogger stepLogger) {
-        String initiator = (String) scope.getVariable(Constants.PARAM_INITIATOR);
-        stepLogger.debug(Messages.PROCESS_INITIATOR, initiator);
-        return initiator;
+        return user;
     }
 
     public static MtaArchiveElements getMtaArchiveElements(VariableScope scope) {

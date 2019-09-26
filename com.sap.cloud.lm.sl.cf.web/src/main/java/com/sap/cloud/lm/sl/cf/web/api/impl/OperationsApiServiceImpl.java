@@ -152,15 +152,15 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public Response startMtaOperation(Operation operation, SecurityContext securityContext, String spaceGuid) {
-        String userId = getAuthenticatedUser(securityContext);
+        String user = getAuthenticatedUser(securityContext);
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
                                                                              .getParameters();
-        addServiceParameters(operation, spaceGuid);
+        addServiceParameters(operation, spaceGuid, user);
         addDefaultParameters(operation, predefinedParameters);
         addParameterValues(operation, predefinedParameters);
         ensureRequiredParametersSet(operation, predefinedParameters);
-        ProcessInstance processInstance = flowableFacade.startProcess(userId, processDefinitionKey, operation.getParameters());
+        ProcessInstance processInstance = flowableFacade.startProcess(processDefinitionKey, operation.getParameters());
         AuditLoggingProvider.getFacade()
                             .logConfigCreate(operation);
         return Response.accepted()
@@ -250,7 +250,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         throw new IllegalStateException("State " + operationState.name() + " not recognised!");
     }
 
-    private void addServiceParameters(Operation operation, String spaceGuid) {
+    private void addServiceParameters(Operation operation, String spaceGuid, String user) {
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Map<String, Object> parameters = operation.getParameters();
         CloudControllerClient client = getCloudFoundryClient(spaceGuid);
@@ -260,6 +260,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_ORG, space.getOrganization()
                                                                               .getName());
         parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_SPACE, space.getName());
+        parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_USER, user);
     }
 
     private void addDefaultParameters(Operation operation, Set<ParameterMetadata> predefinedParameters) {

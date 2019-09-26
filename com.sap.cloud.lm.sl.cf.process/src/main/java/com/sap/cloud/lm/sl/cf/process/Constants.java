@@ -23,7 +23,6 @@ public class Constants {
     public static final String PARAM_USE_NAMESPACES = "useNamespaces";
     public static final String PARAM_USE_NAMESPACES_FOR_SERVICES = "useNamespacesForServices";
     public static final String PARAM_ALLOW_INVALID_ENV_NAMES = "allowInvalidEnvNames";
-    public static final String PARAM_INITIATOR = "initiator";
     public static final String PARAM_VERSION_RULE = "versionRule";
     public static final String PARAM_DELETE_SERVICES = "deleteServices";
     public static final String PARAM_DELETE_SERVICE_KEYS = "deleteServiceKeys";

@@ -26,27 +26,27 @@ public class ResumeProcessAction extends ProcessAction {
     }
 
     @Override
-    public void executeActualProcessAction(String userId, String superProcessInstanceId) {
+    public void executeActualProcessAction(String user, String superProcessInstanceId) {
         List<String> activeProcessIds = getActiveExecutionIds(superProcessInstanceId);
         List<String> processesAtReceiveTask = activeProcessIds.stream()
                                                               .filter(processId -> !flowableFacade.findExecutionsAtReceiveTask(processId)
                                                                                                   .isEmpty())
                                                               .collect(Collectors.toList());
 
-        updateUserIfNecessary(userId, superProcessInstanceId);
+        updateUserIfNecessary(user, superProcessInstanceId);
         for (String processAtReceiveTask : processesAtReceiveTask) {
-            triggerProcessInstance(userId, processAtReceiveTask);
+            triggerProcessInstance(user, processAtReceiveTask);
         }
     }
 
-    private void triggerProcessInstance(String userId, String processId) {
+    private void triggerProcessInstance(String user, String processId) {
         List<Execution> executionsAtReceiveTask = flowableFacade.findExecutionsAtReceiveTask(processId);
         if (executionsAtReceiveTask.isEmpty()) {
             LOGGER.warn(MessageFormat.format("Process with id {0} is in undetermined process state", processId));
             return;
         }
         for (Execution execution : executionsAtReceiveTask) {
-            flowableFacade.trigger(userId, execution.getId(), MapUtil.asMap(Constants.VAR_USER, userId));
+            flowableFacade.trigger(execution.getId(), MapUtil.asMap(Constants.VAR_USER, user));
         }
     }
 
