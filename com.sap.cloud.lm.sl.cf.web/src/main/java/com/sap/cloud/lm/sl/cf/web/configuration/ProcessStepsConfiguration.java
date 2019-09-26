@@ -14,6 +14,7 @@ import org.springframework.jmx.export.MBeanExporter;
 import com.sap.cloud.lm.sl.cf.process.steps.BuildApplicationDeployModelStep;
 import com.sap.cloud.lm.sl.cf.process.steps.BuildCloudDeployModelStep;
 import com.sap.cloud.lm.sl.cf.process.steps.ProcessDescriptorStep;
+import com.sap.cloud.lm.sl.cf.process.util.ModuleDeployProcessGetter;
 import com.sap.cloud.lm.sl.cf.web.monitoring.Metrics;
 
 @Configuration
@@ -47,5 +48,10 @@ public class ProcessStepsConfiguration {
         beans.put(METRICS_BEAN, metrics);
         mBeanExporter.setBeans(beans);
         return mBeanExporter;
+    }
+
+    @Bean
+    public ModuleDeployProcessGetter moduleDeployProcessGetter() {
+        return new ModuleDeployProcessGetter();
     }
 }
