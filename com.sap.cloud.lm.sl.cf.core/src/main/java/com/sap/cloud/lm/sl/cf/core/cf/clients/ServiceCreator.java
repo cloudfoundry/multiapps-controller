@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -23,14 +24,21 @@ import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 public class ServiceCreator extends CloudServiceOperator {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(ServiceCreator.class);
+    private Supplier<CustomControllerClientErrorHandler> errorHandlerSupplier = CustomControllerClientErrorHandler::new;
 
     @Inject
     public ServiceCreator(RestTemplateFactory restTemplateFactory) {
         super(restTemplateFactory);
     }
 
+    ServiceCreator withErrorHandlerSupplier(Supplier<CustomControllerClientErrorHandler> errorHandlerSupplier) {
+        this.errorHandlerSupplier = errorHandlerSupplier;
+        return this;
+    }
+
     public MethodExecution<String> createService(CloudControllerClient client, CloudServiceExtended service, String spaceId) {
-        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToCreateService(client, service, spaceId));
+        return errorHandlerSupplier.get()
+                                   .handleErrorsOrReturnResult(() -> attemptToCreateService(client, service, spaceId));
     }
 
     private MethodExecution<String> attemptToCreateService(CloudControllerClient client, CloudServiceExtended service, String spaceId) {

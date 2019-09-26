@@ -29,9 +29,10 @@ public class CustomControllerClientErrorHandlerTest {
 
         @Test(expected = IllegalArgumentException.class)
         public void testHandleErrorsWithWrongExceptionType() {
-            new CustomControllerClientErrorHandler().handleErrors(() -> {
-                throw new IllegalArgumentException("Should not be handled by the error handler");
-            });
+            new CustomControllerClientErrorHandler().withExecutorFactory(() -> new ResilientCloudOperationExecutor().withWaitTimeBetweenRetriesInMillis(0))
+                                                    .handleErrors(() -> {
+                                                        throw new IllegalArgumentException("Should not be handled by the error handler");
+                                                    });
         }
 
     }
