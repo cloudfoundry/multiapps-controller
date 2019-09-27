@@ -71,4 +71,10 @@ public class CloudTarget {
         CloudTarget other = (CloudTarget) object;
         return Objects.equals(organizationName, other.organizationName) && Objects.equals(spaceName, other.spaceName);
     }
+
+    @Override
+    public String toString() {
+        return "CloudTarget [organizationName=" + organizationName + ", spaceName=" + spaceName + "]";
+    }
+
 }

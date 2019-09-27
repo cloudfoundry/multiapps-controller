@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CachedMap;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -50,15 +51,17 @@ public class AuthorizationChecker {
         spaceDevelopersCache = new CachedMap<>(cacheExpirationInSeconds);
     }
 
-    public void ensureUserIsAuthorized(HttpServletRequest request, UserInfo userInfo, String organization, String space, String action) {
+    public void ensureUserIsAuthorized(HttpServletRequest request, UserInfo userInfo, CloudTarget target, String action) {
         try {
-            if (!checkPermissions(userInfo, organization, space, request.getMethod()
-                                                                        .equals(HttpMethod.GET))) {
-                String message = MessageFormat.format(Messages.UNAUTHORISED_OPERATION_ORG_SPACE, action, organization, space);
+            if (!checkPermissions(userInfo, target.getOrganizationName(), target.getSpaceName(), request.getMethod()
+                                                                                                        .equals(HttpMethod.GET))) {
+                String message = MessageFormat.format(Messages.UNAUTHORISED_OPERATION_ORG_SPACE, action, target.getOrganizationName(),
+                                                      target.getSpaceName());
                 failWithForbiddenStatus(message);
             }
         } catch (SLException e) {
-            String message = MessageFormat.format(Messages.PERMISSION_CHECK_FAILED_ORG_SPACE, action, organization, space);
+            String message = MessageFormat.format(Messages.PERMISSION_CHECK_FAILED_ORG_SPACE, action, target.getOrganizationName(),
+                                                  target.getSpaceName());
             failWithUnauthorizedStatus(message);
         }
     }

@@ -26,7 +26,8 @@ public final class Messages {
     public static final String COULD_NOT_PARSE_CONTENT_PARAMETER_AS_JSON = "Could not parse content query parameter as JSON: {0}";
     public static final String COULD_NOT_PARSE_CONTENT_PARAMETER_AS_LIST = "Could not parse content query parameter as list: {0}";
     public static final String ORG_AND_SPACE_MUST_BE_SPECIFIED = "Org and space must be specified!";
-    public static final String NOT_AUTHORIZED_TO_PERFORM_OPERATIONS_IN_SPACE = "You are not authorized to perform operations in the space with id {0}. You need a SpaceDeveloper role to operate in the space";
+    public static final String NOT_AUTHORIZED_TO_OPERATE_IN_ORGANIZATION_0_AND_SPACE_1 = "You are not authorized to perform operations in organization \"{0}\", space \"{0}\". You need the SpaceDeveloper role to operate in that space.";
+    public static final String NOT_AUTHORIZED_TO_OPERATE_IN_SPACE_WITH_GUID_0 = "You are not authorized to perform operations in space with GUID \"{0}\". You need the SpaceDeveloper role to operate in that space.";
     public static final String COULD_NOT_GET_FILES = "Could not get MTA files";
     public static final String COULD_NOT_UPLOAD_FILE = "Could not upload MTA file";
     public static final String FILE_SERVICE_CLEANUP_FAILED = "FileService: Failed to delete files without content. Reason: \"{0}\"";

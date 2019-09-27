@@ -1,40 +1,69 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
+import java.text.MessageFormat;
+import java.util.concurrent.CompletableFuture;
+
 import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.web.security.AuthorizationChecker;
-import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
+import org.glassfish.jersey.process.internal.RequestScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Path("/admin")
-@Named
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.shutdown.model.ApplicationShutdownDto;
+import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
+
+@RequestScoped
+@Path("/admin/shutdown")
+@Produces(MediaType.APPLICATION_JSON)
 public class AdminResource {
 
-    @Inject
-    private ApplicationShutdownResource appShutdownResource;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AdminResource.class);
 
     @Inject
-    private AuthorizationChecker authorizationChecker;
+    private FlowableFacade flowableFacade;
 
-    @Inject
-    private ApplicationConfiguration appConfiguration;
+    @POST
+    public ApplicationShutdownDto shutdownFlowableJobExecutor(@HeaderParam("x-cf-applicationid") String appId,
+                                                              @HeaderParam("x-cf-instanceid") String appInstanceId,
+                                                              @HeaderParam("x-cf-instanceindex") String appInstanceIndex) {
 
-    @Context
-    private HttpServletRequest request;
+        CompletableFuture.runAsync(() -> {
+            LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWN_REQUEST, appId, appInstanceId, appInstanceIndex));
+            flowableFacade.shutdownJobExecutor();
+        })
+                         .thenRun(() -> {
+                             LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWNED, appId, appInstanceId, appInstanceIndex));
+                         });
 
-    @Path("/shutdown")
-    public ApplicationShutdownResource getApplicationShutdownResource() {
-        ensureUserIsAuthorized(ApplicationShutdownResource.ACTION);
-        return appShutdownResource;
+        return new ApplicationShutdownDto.Builder().isActive(flowableFacade.isJobExecutorActive())
+                                                   .appId(appId)
+                                                   .appInstanceId(appInstanceId)
+                                                   .appInstanceIndex(appInstanceIndex)
+                                                   .build();
     }
 
-    private void ensureUserIsAuthorized(String resourceAction) {
-        authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), appConfiguration.getSpaceId(),
-                                                    resourceAction);
+    @GET
+    public ApplicationShutdownDto getFlowableJobExecutorShutdownStatus(@HeaderParam("x-cf-applicationid") String appId,
+                                                                       @HeaderParam("x-cf-instanceid") String appInstanceId,
+                                                                       @HeaderParam("x-cf-instanceindex") String appInstanceIndex) {
+
+        ApplicationShutdownDto appShutdownDto = new ApplicationShutdownDto.Builder().isActive(flowableFacade.isJobExecutorActive())
+                                                                                    .appId(appId)
+                                                                                    .appInstanceId(appInstanceId)
+                                                                                    .appInstanceIndex(appInstanceIndex)
+                                                                                    .build();
+
+        LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWN_STATUS_MONITOR, appId, appInstanceId, appInstanceIndex,
+                                         appShutdownDto.getStatus()));
+
+        return appShutdownDto;
     }
 
 }
