@@ -99,7 +99,7 @@ public final class Messages {
     public static final String IGNORING_LABEL_FOR_USER_PROVIDED_SERVICE = "Ignoring label \"{0}\" for service \"{1}\", as user-provided services do not support labels!";
     public static final String NOT_DESCRIBED_MODULE = "MTA module \"{0}\" is found deployed, but it is not part of MTA manifest file";
     public static final String COULD_NOT_PARSE_PROVIDED_DEPENDENCY_NAMES_1_OF_APP_0 = "Could not parse provided dependency names of application \"{0}\". Assuming that they're written in the \"old\" format. This is what they look like: {1}";
-    public static final String SPACE_ID_NOT_SPECIFIED_USING_DEFAULT_0 = "Space ID is not specified in the environment. Using default: \"{0}\"";
+    public static final String SPACE_GUID_NOT_SPECIFIED_USING_DEFAULT_0 = "Space GUID is not specified in the environment. Using default: \"{0}\"";
     public static final String ORG_NAME_NOT_SPECIFIED = "Org name is not specified in the environment.";
     public static final String DEPLOY_SERVICE_URL_NOT_SPECIFIED = "Deploy service URL is not specified in the environment.";
     public static final String INVALID_SUPPORT_COMPONENTS = "Invalid SUPPORT_COMPONENTS \"{0}\"";
@@ -127,7 +127,7 @@ public final class Messages {
     public static final String MAX_RESOURCE_FILE_SIZE = "Max resource file size is set to: {0}";
     public static final String CRON_EXPRESSION_FOR_OLD_DATA = "Cron expression for old data: {0}";
     public static final String MAX_TTL_FOR_OLD_DATA = "Max TTL for old data: {0}";
-    public static final String SPACE_ID = "Space ID: {0}";
+    public static final String SPACE_GUID = "Space GUID: {0}";
     public static final String ORG_NAME = "Org name: {0}";
     public static final String ROUTER_PORT = "Router port: {0}";
     public static final String DUMMY_TOKENS_ENABLED = "Dummy tokens enabled: {0}";
@@ -146,7 +146,7 @@ public final class Messages {
     public static final String GATHER_STATISTICS = "Gather statistics: {0}";
     public static final String HEALTH_CHECK_CONFIGURATION = "Health check configuration: {0}";
     public static final String MAIL_API_URL = "Mail API URL: {0}";
-    public static final String APPLICATION_ID = "Application ID: {0}";
+    public static final String APPLICATION_GUID = "Application GUID: {0}";
     public static final String APPLICATION_INSTANCE_INDEX = "Application instance index: {0}";
     public static final String AUDIT_LOG_CLIENT_CORE_THREADS = "Audit log client core threads: {0}";
     public static final String AUDIT_LOG_CLIENT_MAX_THREADS = "Audit log client max threads: {0}";

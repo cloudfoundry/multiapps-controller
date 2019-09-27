@@ -109,12 +109,12 @@ public class FlowableConfiguration {
     @Inject
     @Bean
     public String jobExecutorId(ApplicationConfiguration applicationConfiguration) {
-        String applicationId = applicationConfiguration.getApplicationId();
+        String applicationGuid = applicationConfiguration.getApplicationGuid();
         Integer applicationInstanceIndex = applicationConfiguration.getApplicationInstanceIndex();
-        if (applicationId == null || applicationInstanceIndex == null) {
+        if (applicationGuid == null || applicationInstanceIndex == null) {
             return randomIdGenerator.get();
         }
-        return buildJobExecutorId(applicationId, applicationInstanceIndex);
+        return buildJobExecutorId(applicationGuid, applicationInstanceIndex);
     }
 
     private String buildJobExecutorId(String applicationId, int applicationInstanceIndex) {

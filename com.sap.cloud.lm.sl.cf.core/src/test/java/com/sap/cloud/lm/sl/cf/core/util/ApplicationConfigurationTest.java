@@ -86,41 +86,41 @@ public class ApplicationConfigurationTest {
     }
 
     @Test
-    public void testGetSpaceIdWithNull() {
-        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
+    public void testGetSpaceGuidWithNull() {
+        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_GUID, configuration.getSpaceGuid());
     }
 
     @Test
-    public void testGetSpaceIdWithEmptyString() {
+    public void testGetSpaceGuidWithEmptyString() {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
                .thenReturn("");
-        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
+        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_GUID, configuration.getSpaceGuid());
     }
 
     @Test
-    public void testGetSpaceIdWithInvalidJson() {
+    public void testGetSpaceGuidWithInvalidJson() {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
                .thenReturn("invalid");
-        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
+        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_GUID, configuration.getSpaceGuid());
     }
 
     @Test
-    public void testGetSpaceIdWithEmptyMap() {
+    public void testGetSpaceGuidWithEmptyMap() {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
                .thenReturn("{}");
-        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
+        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_GUID, configuration.getSpaceGuid());
     }
 
     @Test
-    public void testGetSpaceIdWithMissingSpaceId() {
+    public void testGetSpaceGuidWithMissingSpaceGuid() {
         injectFileInEnvironment(VCAP_APPLICATION_WITHOUT_SPACE, ApplicationConfiguration.CFG_VCAP_APPLICATION);
-        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
+        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_GUID, configuration.getSpaceGuid());
     }
 
     @Test
-    public void testGetSpaceId() {
+    public void testGetSpaceGuid() {
         Map<String, Object> vcapApplication = injectFileInEnvironment(VCAP_APPLICATION, ApplicationConfiguration.CFG_VCAP_APPLICATION);
-        String spaceId = configuration.getSpaceId();
+        String spaceId = configuration.getSpaceGuid();
         assertEquals(vcapApplication.get("space_id"), spaceId);
     }
 
@@ -212,6 +212,7 @@ public class ApplicationConfigurationTest {
     @Test
     public void testGetDeployServiceUrlUrlIsSet() {
         Map<String, Object> vcapApplication = injectFileInEnvironment(VCAP_APPLICATION, ApplicationConfiguration.CFG_VCAP_APPLICATION);
+        @SuppressWarnings("unchecked")
         List<String> urls = (List<String>) vcapApplication.get("uris");
         Assertions.assertEquals(urls.get(0), configuration.getDeployServiceUrl());
     }
@@ -339,7 +340,7 @@ public class ApplicationConfigurationTest {
         String healthCheckMtaId = "healthCheckMtaId";
         String healthCheckUserName = "healthCheckUserId";
         int healthCheckTimeRange = 10;
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_HEALTH_CHECK_SPACE_ID))
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_HEALTH_CHECK_SPACE_GUID))
                .thenReturn(healthCheckSpaceId);
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_HEALTH_CHECK_MTA_ID))
                .thenReturn(healthCheckMtaId);
@@ -364,9 +365,9 @@ public class ApplicationConfigurationTest {
     }
 
     @Test
-    public void testGetApplicationId() {
+    public void testGetApplicationGuid() {
         Map<String, Object> vcapApplication = injectFileInEnvironment(VCAP_APPLICATION, ApplicationConfiguration.CFG_VCAP_APPLICATION);
-        Assertions.assertEquals(vcapApplication.get("application_id"), configuration.getApplicationId());
+        Assertions.assertEquals(vcapApplication.get("application_id"), configuration.getApplicationGuid());
     }
 
     @Test

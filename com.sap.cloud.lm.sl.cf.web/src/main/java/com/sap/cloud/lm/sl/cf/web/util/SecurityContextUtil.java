@@ -16,4 +16,9 @@ public class SecurityContextUtil {
         return authentication == null ? null : (UserInfo) authentication.getPrincipal();
     }
 
+    public static String getUserName() {
+        UserInfo userInfo = getUserInfo();
+        return userInfo == null ? null : userInfo.getName();
+    }
+
 }

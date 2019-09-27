@@ -68,7 +68,7 @@ public class ApplicationConfiguration {
     static final String CFG_CHANGE_LOG_LOCK_ATTEMPTS = "CHANGE_LOG_LOCK_ATTEMPTS";
     static final String CFG_GLOBAL_CONFIG_SPACE = "GLOBAL_CONFIG_SPACE";
     static final String CFG_GATHER_USAGE_STATISTICS = "GATHER_USAGE_STATISTICS";
-    static final String CFG_HEALTH_CHECK_SPACE_ID = "HEALTH_CHECK_SPACE_ID";
+    static final String CFG_HEALTH_CHECK_SPACE_GUID = "HEALTH_CHECK_SPACE_ID";
     static final String CFG_HEALTH_CHECK_MTA_ID = "HEALTH_CHECK_MTA_ID";
     static final String CFG_HEALTH_CHECK_USER = "HEALTH_CHECK_USER";
     static final String CFG_HEALTH_CHECK_TIME_RANGE = "HEALTH_CHECK_TIME_RANGE";
@@ -102,7 +102,7 @@ public class ApplicationConfiguration {
     public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024L; // 1GB
 
     public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
-    public static final String DEFAULT_SPACE_ID = "";
+    public static final String DEFAULT_SPACE_GUID = "";
     public static final Boolean DEFAULT_DUMMY_TOKENS_ENABLED = false;
     public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
     public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
@@ -141,7 +141,7 @@ public class ApplicationConfiguration {
     private String cronExpressionForOldData;
     private Long maxTtlForOldData;
     private Boolean useXSAuditLogging;
-    private String spaceId;
+    private String spaceGuid;
     private String orgName;
     private Boolean dummyTokensEnabled;
     private Boolean basicAuthEnabled;
@@ -159,7 +159,7 @@ public class ApplicationConfiguration {
     private Boolean gatherUsageStatistics;
     private HealthCheckConfiguration healthCheckConfiguration;
     private String mailApiUrl;
-    private String applicationId;
+    private String applicationGuid;
     private Integer applicationInstanceIndex;
     private Integer auditLogClientCoreThreads;
     private Integer auditLogClientMaxThreads;
@@ -192,7 +192,7 @@ public class ApplicationConfiguration {
         getMaxManifestSize();
         getMaxResourceFileSize();
         shouldUseXSAuditLogging();
-        getSpaceId();
+        getSpaceGuid();
         getOrgName();
         getDeployServiceUrl();
         areDummyTokensEnabled();
@@ -210,7 +210,7 @@ public class ApplicationConfiguration {
         shouldGatherUsageStatistics();
         getHealthCheckConfiguration();
         getMailApiUrl();
-        getApplicationId();
+        getApplicationGuid();
         getApplicationInstanceIndex();
         getAuditLogClientCoreThreads();
         getAuditLogClientMaxThreads();
@@ -313,11 +313,11 @@ public class ApplicationConfiguration {
         return useXSAuditLogging;
     }
 
-    public String getSpaceId() {
-        if (spaceId == null) {
-            spaceId = getSpaceIdFromEnvironment();
+    public String getSpaceGuid() {
+        if (spaceGuid == null) {
+            spaceGuid = getSpaceGuidFromEnvironment();
         }
-        return spaceId;
+        return spaceGuid;
     }
 
     public String getOrgName() {
@@ -439,11 +439,11 @@ public class ApplicationConfiguration {
         return mailApiUrl;
     }
 
-    public String getApplicationId() {
-        if (applicationId == null) {
-            applicationId = getApplicationIdFromEnvironment();
+    public String getApplicationGuid() {
+        if (applicationGuid == null) {
+            applicationGuid = getApplicationGuidFromEnvironment();
         }
-        return applicationId;
+        return applicationGuid;
     }
 
     public Integer getApplicationInstanceIndex() {
@@ -620,15 +620,15 @@ public class ApplicationConfiguration {
         return value;
     }
 
-    private String getSpaceIdFromEnvironment() {
+    private String getSpaceGuidFromEnvironment() {
         Map<String, Object> vcapApplicationMap = getVcapApplication();
-        Object spaceIdValue = vcapApplicationMap.get("space_id");
-        if (spaceIdValue != null) {
-            LOGGER.info(format(Messages.SPACE_ID, spaceIdValue));
-            return spaceIdValue.toString();
+        Object spaceGuidValue = vcapApplicationMap.get("space_id");
+        if (spaceGuidValue != null) {
+            LOGGER.info(format(Messages.SPACE_GUID, spaceGuidValue));
+            return spaceGuidValue.toString();
         }
-        LOGGER.warn(format(Messages.SPACE_ID_NOT_SPECIFIED_USING_DEFAULT_0, DEFAULT_SPACE_ID));
-        return DEFAULT_SPACE_ID;
+        LOGGER.warn(format(Messages.SPACE_GUID_NOT_SPECIFIED_USING_DEFAULT_0, DEFAULT_SPACE_GUID));
+        return DEFAULT_SPACE_GUID;
     }
 
     private String getOrgNameFromEnvironment() {
@@ -756,7 +756,7 @@ public class ApplicationConfiguration {
     }
 
     private HealthCheckConfiguration getHealthCheckConfigurationFromEnvironment() {
-        HealthCheckConfiguration healthCheckConfigurationFromEnvironment = new HealthCheckConfiguration.Builder().spaceId(getHealthCheckSpaceIdFromEnvironment())
+        HealthCheckConfiguration healthCheckConfigurationFromEnvironment = new HealthCheckConfiguration.Builder().spaceId(getHealthCheckSpaceGuidFromEnvironment())
                                                                                                                  .mtaId(getHealthCheckMtaIdFromEnvironment())
                                                                                                                  .userName(getHealthCheckUserFromEnvironment())
                                                                                                                  .timeRangeInSeconds(getHealthCheckTimeRangeFromEnvironment())
@@ -765,8 +765,8 @@ public class ApplicationConfiguration {
         return healthCheckConfigurationFromEnvironment;
     }
 
-    private String getHealthCheckSpaceIdFromEnvironment() {
-        return environment.getString(CFG_HEALTH_CHECK_SPACE_ID);
+    private String getHealthCheckSpaceGuidFromEnvironment() {
+        return environment.getString(CFG_HEALTH_CHECK_SPACE_GUID);
     }
 
     private String getHealthCheckMtaIdFromEnvironment() {
@@ -787,10 +787,10 @@ public class ApplicationConfiguration {
         return value;
     }
 
-    private String getApplicationIdFromEnvironment() {
+    private String getApplicationGuidFromEnvironment() {
         Map<String, Object> vcapApplicationMap = getVcapApplication();
         String applicationGuid = (String) vcapApplicationMap.get("application_id");
-        LOGGER.info(format(Messages.APPLICATION_ID, applicationGuid));
+        LOGGER.info(format(Messages.APPLICATION_GUID, applicationGuid));
         return applicationGuid;
     }
 

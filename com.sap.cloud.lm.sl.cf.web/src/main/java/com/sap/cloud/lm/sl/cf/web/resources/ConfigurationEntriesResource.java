@@ -1,6 +1,8 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
 import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.ID;
+import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.ORG;
+import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.SPACE;
 import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.findConfigurationEntries;
 import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.getGlobalConfigTarget;
 import static java.text.MessageFormat.format;
@@ -52,7 +54,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
-import com.sap.cloud.lm.sl.cf.web.security.AuthorizationChecker;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -66,7 +67,6 @@ public class ConfigurationEntriesResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationEntriesResource.class);
 
     private static final String KEYVALUE_SEPARATOR = ":";
-    private static final String PURGE_COMMAND = "Purge configuration entries and subscriptions";
 
     private static final URL CREATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION = ConfigurationEntriesResource.class.getResource("/create-configuration-entry-schema.xsd");
     private static final URL UPDATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION = ConfigurationEntriesResource.class.getResource("/update-configuration-entry-schema.xsd");
@@ -81,9 +81,6 @@ public class ConfigurationEntriesResource {
 
     @Inject
     private CloudControllerClientProvider clientProvider;
-
-    @Inject
-    private AuthorizationChecker authorizationChecker;
 
     @Inject
     private ApplicationConfiguration configuration;
@@ -278,15 +275,8 @@ public class ConfigurationEntriesResource {
 
     @Path("/purge")
     @POST
-    public Response purgeConfigurationRegistry(@QueryParam("org") String org, @QueryParam("space") String space) {
-        if (StringUtils.isEmpty(org) || StringUtils.isEmpty(space)) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                           .entity(Messages.ORG_AND_SPACE_MUST_BE_SPECIFIED)
-                           .build();
-        }
-
+    public Response purgeConfigurationRegistry(@QueryParam(ORG) String org, @QueryParam(SPACE) String space) {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        authorizationChecker.ensureUserIsAuthorized(request, userInfo, org, space, PURGE_COMMAND);
         CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName(), org, space, null);
         MtaConfigurationPurger purger = new MtaConfigurationPurger(client, configurationEntryService, configurationSubscriptionService);
         purger.purge(org, space);
