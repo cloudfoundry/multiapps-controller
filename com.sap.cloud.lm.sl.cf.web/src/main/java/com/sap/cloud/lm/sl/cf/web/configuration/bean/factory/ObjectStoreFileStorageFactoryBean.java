@@ -12,6 +12,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cloud.Cloud;
 import org.springframework.cloud.CloudException;
 import org.springframework.cloud.CloudFactory;
+import org.springframework.cloud.service.ServiceInfo;
 
 import com.sap.cloud.lm.sl.cf.persistence.services.ObjectStoreFileStorage;
 import com.sap.cloud.lm.sl.cf.web.configuration.service.ObjectStoreServiceInfo;
@@ -34,7 +35,7 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
 
     private ObjectStoreFileStorage createObjectStoreFileStorage() {
         BlobStoreContext context = getBlobStoreContext();
-        return context == null ? null : new ObjectStoreFileStorage(context.getBlobStore(), getServiceInfo().getBucket());
+        return context == null ? null : new ObjectStoreFileStorage(context.getBlobStore(), getServiceInfo().getContainer());
     }
 
     private BlobStoreContext getBlobStoreContext() {
@@ -43,8 +44,8 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         if (serviceInfo == null) {
             return null;
         }
-        blobStoreContext = ContextBuilder.newBuilder("aws-s3")
-                                         .credentials(serviceInfo.getAccessKeyId(), serviceInfo.getSecretAccessKey())
+        blobStoreContext = ContextBuilder.newBuilder(serviceInfo.getProvider())
+                                         .credentials(serviceInfo.getIdentity(), serviceInfo.getCredential())
                                          .buildView(BlobStoreContext.class);
         return blobStoreContext;
     }
@@ -57,7 +58,11 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         try {
             CloudFactory cloudFactory = new CloudFactory();
             Cloud cloud = cloudFactory.getCloud();
-            return (ObjectStoreServiceInfo) cloud.getServiceInfo(serviceName);
+            ServiceInfo serviceInfo = cloud.getServiceInfo(serviceName);
+            if (serviceInfo instanceof ObjectStoreServiceInfo) {
+                return (ObjectStoreServiceInfo) serviceInfo;
+            }
+            LOGGER.warn("Service instance did not match allowed label and plans.");
         } catch (CloudException e) {
             LOGGER.warn(MessageFormat.format("Failed to detect service info for service \"{0}\"!", serviceName), e);
         }

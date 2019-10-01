@@ -6,26 +6,32 @@ import org.springframework.cloud.service.ServiceInfo.ServiceLabel;
 @ServiceLabel("objectstore")
 public class ObjectStoreServiceInfo extends BaseServiceInfo {
 
-    private final String accessKeyId;
-    private final String secretAccessKey;
-    private final String bucket;
+    private String provider;
+    private String identity;
+    private String credential;
+    private String container;
 
-    public ObjectStoreServiceInfo(String id, String accessKeyId, String secretAccessKey, String bucket) {
+    public ObjectStoreServiceInfo(String id, String provider, String identity, String credential, String container) {
         super(id);
-        this.accessKeyId = accessKeyId;
-        this.secretAccessKey = secretAccessKey;
-        this.bucket = bucket;
+        this.provider = provider;
+        this.identity = identity;
+        this.credential = credential;
+        this.container = container;
     }
 
-    public String getSecretAccessKey() {
-        return secretAccessKey;
+    public String getProvider() {
+        return provider;
     }
 
-    public String getAccessKeyId() {
-        return accessKeyId;
+    public String getIdentity() {
+        return identity;
     }
 
-    public String getBucket() {
-        return bucket;
+    public String getCredential() {
+        return credential;
+    }
+
+    public String getContainer() {
+        return container;
     }
 }
