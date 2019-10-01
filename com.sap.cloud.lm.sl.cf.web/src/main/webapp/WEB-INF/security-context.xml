@@ -33,7 +33,6 @@
             access="#oauth2.hasAnyScope('cloud_controller.write', 'cloud_controller.admin')" method="DELETE" />
         <sec:access-denied-handler ref="accessDeniedHandler" />
 
-        <sec:custom-filter ref="correlationIdFilter" position="FIRST" />
         <sec:custom-filter ref="resourceServerFilter" before="PRE_AUTH_FILTER" />
         <sec:custom-filter ref="requestSizeFilter" after="PRE_AUTH_FILTER" />
         <sec:custom-filter ref="csrfHeadersFilter" after="CSRF_FILTER" />
