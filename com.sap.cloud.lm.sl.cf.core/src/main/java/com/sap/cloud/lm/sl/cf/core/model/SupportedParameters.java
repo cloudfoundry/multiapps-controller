@@ -66,6 +66,8 @@ public class SupportedParameters {
     public static final String IDLE_DOMAINS = "idle-domains";
     public static final String IDLE_HOST = "idle-host";
     public static final String IDLE_HOSTS = "idle-hosts";
+    public static final String IDLE_ROUTE = "idle-route";
+    public static final String IDLE_ROUTES = "idle-routes";
     public static final String DEPENDENCY_TYPE = "dependency-type";
     public static final String TASKS = "tasks";
     public static final String RESTART_ON_ENV_CHANGE = "restart-on-env-change";
