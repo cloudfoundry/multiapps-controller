@@ -52,8 +52,7 @@ public class AuthorizationChecker {
 
     public void ensureUserIsAuthorized(HttpServletRequest request, UserInfo userInfo, CloudTarget target, String action) {
         try {
-            if (!checkPermissions(userInfo, target.getOrganizationName(), target.getSpaceName(), request.getMethod()
-                                                                                                        .equals(HttpMethod.GET))) {
+            if (!checkPermissions(userInfo, target.getOrganizationName(), target.getSpaceName(), isGetRequest(request))) {
                 String message = MessageFormat.format(Messages.UNAUTHORISED_OPERATION_ORG_SPACE, action, target.getOrganizationName(),
                                                       target.getSpaceName());
                 failWithForbiddenStatus(message);
