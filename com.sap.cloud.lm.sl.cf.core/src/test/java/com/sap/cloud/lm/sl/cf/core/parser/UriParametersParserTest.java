@@ -19,10 +19,10 @@ import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 public class UriParametersParserTest {
 
-    private final Tester tester = Tester.forClass(getClass());
-
     private static final String DEFAULT_HOST = "test-host";
     private static final String DEFAULT_DOMAIN = "default-domain.com";
+
+    private final Tester tester = Tester.forClass(getClass());
 
     public static Stream<Arguments> testUriParameterParsing() {
         // @formatter:off

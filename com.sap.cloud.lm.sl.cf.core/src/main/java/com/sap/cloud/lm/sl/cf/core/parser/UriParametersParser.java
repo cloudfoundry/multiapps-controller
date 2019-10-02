@@ -24,20 +24,18 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     private final String defaultDomain;
     private final String hostParameterName;
     private final String domainParameterName;
-    private final boolean modifyRoute;
     private final String routePath;
 
     public UriParametersParser(String defaultHost, String defaultDomain, String routePath) {
-        this(defaultHost, defaultDomain, SupportedParameters.HOST, SupportedParameters.DOMAIN, false, routePath);
+        this(defaultHost, defaultDomain, SupportedParameters.HOST, SupportedParameters.DOMAIN, routePath);
     }
 
     public UriParametersParser(String defaultHost, String defaultDomain, String hostParameterName, String domainParameterName,
-                               boolean modifyRoute, String routePath) {
+                               String routePath) {
         this.defaultHost = defaultHost;
         this.defaultDomain = defaultDomain;
         this.hostParameterName = hostParameterName;
         this.domainParameterName = domainParameterName;
-        this.modifyRoute = modifyRoute;
         this.routePath = routePath;
     }
 
@@ -76,7 +74,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         return getDomainValues(parametersList);
     }
 
-    private List<String> getHostValues(List<Map<String, Object>> parametersList) {
+    protected List<String> getHostValues(List<Map<String, Object>> parametersList) {
         boolean noHostname = (Boolean) getPropertyValue(parametersList, SupportedParameters.NO_HOSTNAME, false);
         if (noHostname) {
             return Collections.emptyList();
@@ -90,7 +88,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         return hosts;
     }
 
-    private List<String> getDomainValues(List<Map<String, Object>> parametersList) {
+    protected List<String> getDomainValues(List<Map<String, Object>> parametersList) {
         List<String> domains = getValuesFromSingularName(domainParameterName, parametersList);
 
         if (domains.isEmpty() && defaultDomain != null) {
@@ -126,32 +124,8 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         return routesMaps.stream()
                          .map(routesMap -> (String) routesMap.get(SupportedParameters.ROUTE))
                          .filter(Objects::nonNull)
-                         .map(route -> modifyRoute(route, parametersList))
+                         .map(UriUtil::stripScheme)
                          .collect(Collectors.toList());
-    }
-
-    private String modifyRoute(String route, List<Map<String, Object>> parametersList) {
-        if (modifyRoute) {
-            return modifyUri(route, parametersList);
-        }
-        return UriUtil.stripScheme(route);
-    }
-
-    public String modifyUri(String inputURI, List<Map<String, Object>> customURIParts) {
-        ApplicationURI modifiedURI = new ApplicationURI(inputURI);
-
-        List<String> domains = getDomainValues(customURIParts);
-        List<String> hosts = getHostValues(customURIParts);
-
-        if (!domains.isEmpty()) {
-            modifiedURI.setDomain(domains.get(0));
-        }
-
-        if (!hosts.isEmpty()) {
-            modifiedURI.setHost(hosts.get(0));
-        }
-
-        return modifiedURI.toString();
     }
 
     private List<String> getDomainsFromRoutes(List<String> routes) {
@@ -172,6 +146,14 @@ public class UriParametersParser implements ParametersParser<List<String>> {
             return uri + routePath;
         }
         return uri;
+    }
+
+    protected String getDefaultHost() {
+        return defaultHost;
+    }
+
+    protected String getDefaultDomain() {
+        return defaultDomain;
     }
 
 }
