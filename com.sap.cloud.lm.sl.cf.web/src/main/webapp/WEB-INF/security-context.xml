@@ -11,13 +11,7 @@
         http://www.springframework.org/schema/security/oauth2
         http://www.springframework.org/schema/security/spring-security-oauth2-1.0.xsd">
 
-    <sec:http pattern="/public/**" entry-point-ref="basicAuthenticationEntryPoint">
-        <sec:custom-filter ref="rateLimiter" position="FIRST"/>
-    </sec:http>
-
-    <sec:http pattern="/rest/**" entry-point-ref="basicAuthenticationEntryPoint">
-        <sec:custom-filter ref="rateLimiter" position="FIRST"/>
-    </sec:http>
+    <sec:http pattern="/public/**" security="none" />
 
     <sec:http pattern="/**" create-session="ifRequired" entry-point-ref="delegatingAuthenticationEntryPoint"
         access-decision-manager-ref="accessDecisionManager" authentication-manager-ref="authenticationManager">
