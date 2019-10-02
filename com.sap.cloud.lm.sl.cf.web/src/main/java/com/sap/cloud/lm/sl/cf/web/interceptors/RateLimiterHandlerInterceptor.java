@@ -1,33 +1,38 @@
-package com.sap.cloud.lm.sl.cf.web.security;
+package com.sap.cloud.lm.sl.cf.web.interceptors;
 
-import com.sap.cloud.lm.sl.cf.web.Constants;
-import com.sap.cloud.lm.sl.cf.web.helpers.RateLimiterProvider;
-import io.github.resilience4j.ratelimiter.RateLimiterConfig;
-import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter;
-import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter.AtomicRateLimiterMetrics;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
-@Named("rateLimiter")
-public class RateLimiterFilter extends OncePerRequestFilter {
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+
+import com.sap.cloud.lm.sl.cf.web.Constants;
+import com.sap.cloud.lm.sl.cf.web.helpers.RateLimiterProvider;
+
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter;
+import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter.AtomicRateLimiterMetrics;
+
+@Named
+public class RateLimiterHandlerInterceptor implements CustomHandlerInterceptor {
+
+    private final RateLimiterProvider rateLimiterProvider;
 
     @Inject
-    private RateLimiterProvider rateLimiterProvider;
+    public RateLimiterHandlerInterceptor(RateLimiterProvider rateLimiterProvider) {
+        this.rateLimiterProvider = rateLimiterProvider;
+    }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-        throws ServletException, IOException {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (!shouldRateLimit(request)) {
+            return true;
+        }
         String ipAddress = request.getRemoteAddr();
         AtomicRateLimiter rateLimiter = rateLimiterProvider.getRateLimiter(ipAddress);
 
@@ -41,9 +46,13 @@ public class RateLimiterFilter extends OncePerRequestFilter {
         if (!hasAcquiredPermission) {
             response.setHeader(Constants.RATE_LIMIT_RESET, Long.toString(getUtcTimeForNextReset(metrics.getNanosToWait())));
             response.sendError(HttpStatus.TOO_MANY_REQUESTS.value(), HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase());
-            return;
+            return false;
         }
-        filterChain.doFilter(request, response);
+        return true;
+    }
+
+    private static boolean shouldRateLimit(HttpServletRequest request) {
+        return request.getHeader(HttpHeaders.AUTHORIZATION) == null;
     }
 
     private static long getUtcTimeForNextReset(long nanosToWaitForReset) {
@@ -52,8 +61,4 @@ public class RateLimiterFilter extends OncePerRequestFilter {
                              .toEpochSecond();
     }
 
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getHeader(HttpHeaders.AUTHORIZATION) != null;
-    }
 }
