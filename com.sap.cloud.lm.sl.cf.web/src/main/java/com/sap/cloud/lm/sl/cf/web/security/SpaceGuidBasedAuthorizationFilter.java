@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,15 +25,16 @@ public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizat
     }
 
     @Override
-    public final void ensureUserIsAuthorized(HttpCommunication communication) throws IOException {
-        String spaceGuid = extractAndLogSpaceGuid(communication.getRequest());
+    public final boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String spaceGuid = extractAndLogSpaceGuid(request);
         try {
-            authorizationChecker.ensureUserIsAuthorized(communication.getRequest(), SecurityContextUtil.getUserInfo(), spaceGuid, null);
+            authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), spaceGuid, null);
+            return true;
         } catch (ResponseStatusException e) {
-            logUnauthorizedRequest(communication.getRequest(), e);
-            communication.getResponse()
-                         .sendError(HttpStatus.UNAUTHORIZED.value(),
-                                    MessageFormat.format(Messages.NOT_AUTHORIZED_TO_OPERATE_IN_SPACE_WITH_GUID_0, spaceGuid));
+            logUnauthorizedRequest(request, e);
+            response.sendError(HttpStatus.UNAUTHORIZED.value(),
+                               MessageFormat.format(Messages.NOT_AUTHORIZED_TO_OPERATE_IN_SPACE_WITH_GUID_0, spaceGuid));
+            return false;
         }
     }
 

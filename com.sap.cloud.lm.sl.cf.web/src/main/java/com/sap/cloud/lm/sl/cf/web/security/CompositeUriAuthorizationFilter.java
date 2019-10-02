@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,31 +24,29 @@ public class CompositeUriAuthorizationFilter extends AuthorizationFilter {
     }
 
     @Override
-    protected void ensureUserIsAuthorized(HttpCommunication communication) throws IOException {
+    protected boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
-            String uri = getRequestUri(communication);
+            String uri = request.getRequestURI();
             LOGGER.trace("Looking for a matching authorization filter for request to \"{}\"...", uri);
             LOGGER.trace("Registered authorization filters: {}", uriAuthorizationFilters);
             for (UriAuthorizationFilter uriAuthorizationFilter : uriAuthorizationFilters) {
                 if (uri.matches(uriAuthorizationFilter.getUriRegex())) {
-                    ensureUserIsAuthorized(uriAuthorizationFilter, communication);
-                    return;
+                    return ensureUserIsAuthorized(uriAuthorizationFilter, request, response);
                 }
             }
+            LOGGER.trace("No matching authorization filter for request to \"{}\".", uri);
+            return true;
         } catch (AuthorizationException e) {
-            communication.getResponse()
-                         .sendError(e.getStatusCode(), e.getMessage());
+            response.sendError(e.getStatusCode(), e.getMessage());
+            return false;
         }
     }
 
-    private void ensureUserIsAuthorized(UriAuthorizationFilter uriAuthorizationFilter, HttpCommunication communication) throws IOException {
-        LOGGER.debug("Using authorization filter {} for request to \"{}\".", uriAuthorizationFilter, getRequestUri(communication));
-        uriAuthorizationFilter.ensureUserIsAuthorized(communication);
-    }
-
-    private String getRequestUri(HttpCommunication communication) {
-        return communication.getRequest()
-                            .getRequestURI();
+    private boolean ensureUserIsAuthorized(UriAuthorizationFilter uriAuthorizationFilter, HttpServletRequest request,
+                                           HttpServletResponse response)
+        throws IOException {
+        LOGGER.debug("Using authorization filter {} for request to \"{}\".", uriAuthorizationFilter, request.getRequestURI());
+        return uriAuthorizationFilter.ensureUserIsAuthorized(request, response);
     }
 
 }
