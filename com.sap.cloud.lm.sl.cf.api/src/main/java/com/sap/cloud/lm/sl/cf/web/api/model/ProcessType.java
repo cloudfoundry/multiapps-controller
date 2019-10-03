@@ -18,7 +18,7 @@ public class ProcessType {
     private String name;
 
     public ProcessType() {
-        // Default constructur required by jersey
+        // Default constructor required by jersey
     }
 
     protected ProcessType(String name) {

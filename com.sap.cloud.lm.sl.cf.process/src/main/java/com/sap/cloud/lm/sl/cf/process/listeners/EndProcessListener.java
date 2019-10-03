@@ -24,6 +24,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.CollectedDataSender;
 import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
@@ -69,10 +70,13 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
                                               .singleResult();
         LOGGER.info(MessageFormat.format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(),
                                          operation.getMtaId(), operation.getSpaceId()));
-        operation.setState(State.FINISHED);
-        operation.setEndedAt(ZonedDateTime.now());
-        operation.setAcquiredLock(false);
-        operationService.update(operation.getProcessId(), operation);
+        Operation finishedOperation = ImmutableOperation.builder()
+                                                        .from(operation)
+                                                        .state(State.FINISHED)
+                                                        .endedAt(ZonedDateTime.now())
+                                                        .hasAcquiredLock(false)
+                                                        .build();
+        operationService.update(operation.getProcessId(), finishedOperation);
         getHistoricOperationEventPersister().add(processInstanceId, EventType.FINISHED);
         LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
     }

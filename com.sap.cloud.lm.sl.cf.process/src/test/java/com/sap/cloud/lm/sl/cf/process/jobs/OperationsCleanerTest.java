@@ -28,6 +28,7 @@ import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.process.flowable.AbortProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.flowable.ProcessActionRegistry;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 public class OperationsCleanerTest {
@@ -60,10 +61,14 @@ public class OperationsCleanerTest {
 
     @Test
     public void testExpiredOperationsAreAborted() {
-        Operation operation1 = new Operation().processId(OPERATION_ID_1)
-                                              .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1));
-        Operation operation2 = new Operation().processId(OPERATION_ID_2)
-                                              .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2));
+        Operation operation1 = ImmutableOperation.builder()
+                                                 .processId(OPERATION_ID_1)
+                                                 .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
+                                                 .build();
+        Operation operation2 = ImmutableOperation.builder()
+                                                 .processId(OPERATION_ID_2)
+                                                 .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
+                                                 .build();
         List<Operation> operationsList = Arrays.asList(operation1, operation2);
 
         when(operationService.createQuery()).thenReturn(operationQuery);
@@ -86,10 +91,14 @@ public class OperationsCleanerTest {
 
     @Test
     public void testAbortResilience() {
-        Operation operation1 = new Operation().processId(OPERATION_ID_1)
-                                              .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1));
-        Operation operation2 = new Operation().processId(OPERATION_ID_2)
-                                              .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2));
+        Operation operation1 = ImmutableOperation.builder()
+                                                 .processId(OPERATION_ID_1)
+                                                 .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
+                                                 .build();
+        Operation operation2 = ImmutableOperation.builder()
+                                                 .processId(OPERATION_ID_2)
+                                                 .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
+                                                 .build();
         List<Operation> operationsList = Arrays.asList(operation1, operation2);
 
         when(operationService.createQuery()).thenReturn(operationQuery);
@@ -104,12 +113,18 @@ public class OperationsCleanerTest {
 
     @Test
     public void testPaging() {
-        Operation operation1 = new Operation().processId(OPERATION_ID_1)
-                                              .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1));
-        Operation operation2 = new Operation().processId(OPERATION_ID_2)
-                                              .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2));
-        Operation operation3 = new Operation().processId(OPERATION_ID_3)
-                                              .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2));
+        Operation operation1 = ImmutableOperation.builder()
+                                                 .processId(OPERATION_ID_1)
+                                                 .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
+                                                 .build();
+        Operation operation2 = ImmutableOperation.builder()
+                                                 .processId(OPERATION_ID_2)
+                                                 .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
+                                                 .build();
+        Operation operation3 = ImmutableOperation.builder()
+                                                 .processId(OPERATION_ID_3)
+                                                 .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
+                                                 .build();
         List<Operation> operationsPage1 = Arrays.asList(operation1, operation2);
         List<Operation> operationsPage2 = Arrays.asList(operation3);
 

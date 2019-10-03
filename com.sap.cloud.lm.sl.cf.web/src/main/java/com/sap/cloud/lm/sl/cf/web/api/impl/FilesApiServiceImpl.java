@@ -27,6 +27,7 @@ import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.cf.persistence.util.DefaultConfiguration;
 import com.sap.cloud.lm.sl.cf.web.api.FilesApiService;
 import com.sap.cloud.lm.sl.cf.web.api.model.FileMetadata;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableFileMetadata;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -101,13 +102,13 @@ public class FilesApiServiceImpl implements FilesApiService {
     }
 
     private FileMetadata parseFileEntry(FileEntry fileEntry) {
-        FileMetadata fileMetadata = new FileMetadata();
-        fileMetadata.setId(fileEntry.getId());
-        fileMetadata.setDigest(fileEntry.getDigest());
-        fileMetadata.setDigestAlgorithm(fileEntry.getDigestAlgorithm());
-        fileMetadata.setName(fileEntry.getName());
-        fileMetadata.setSize(fileEntry.getSize());
-        fileMetadata.setSpace(fileEntry.getSpace());
-        return fileMetadata;
+        return ImmutableFileMetadata.builder()
+                                    .id(fileEntry.getId())
+                                    .digest(fileEntry.getDigest())
+                                    .digestAlgorithm(fileEntry.getDigestAlgorithm())
+                                    .name(fileEntry.getName())
+                                    .size(fileEntry.getSize())
+                                    .space(fileEntry.getSpace())
+                                    .build();
     }
 }

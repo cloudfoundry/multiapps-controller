@@ -18,6 +18,9 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.api.MtasApiService;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableMetadata;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableModule;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableMta;
 import com.sap.cloud.lm.sl.cf.web.api.model.Metadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.Module;
 import com.sap.cloud.lm.sl.cf.web.api.model.Mta;
@@ -66,11 +69,11 @@ public class MtasApiServiceImpl implements MtasApiService {
     }
 
     private Mta getMta(DeployedMta mta) {
-        Mta result = new Mta();
-        result.setMetadata(getMetadata(mta.getMetadata()));
-        result.setModules(getModules(mta.getModules()));
-        result.setServices(mta.getServices());
-        return result;
+        return ImmutableMta.builder()
+                           .metadata(getMetadata(mta.getMetadata()))
+                           .modules(getModules(mta.getModules()))
+                           .services(mta.getServices())
+                           .build();
     }
 
     private List<Module> getModules(List<DeployedMtaModule> modules) {
@@ -80,21 +83,21 @@ public class MtasApiServiceImpl implements MtasApiService {
     }
 
     private Module getModule(DeployedMtaModule module) {
-        Module result = new Module();
-        result.setAppName(module.getAppName());
-        result.setModuleName(module.getModuleName());
-        result.setProvidedDendencyNames(module.getProvidedDependencyNames());
-        result.setUris(module.getUris());
-        result.setServices(module.getServices());
-        return result;
+        return ImmutableModule.builder()
+                              .appName(module.getAppName())
+                              .moduleName(module.getModuleName())
+                              .providedDendencyNames(module.getProvidedDependencyNames())
+                              .uris(module.getUris())
+                              .services(module.getServices())
+                              .build();
     }
 
     private Metadata getMetadata(DeployedMtaMetadata metadata) {
-        Metadata result = new Metadata();
-        result.setId(metadata.getId());
-        result.setVersion(metadata.getVersion()
-                                  .toString());
-        return result;
+        return ImmutableMetadata.builder()
+                                .id(metadata.getId())
+                                .version(metadata.getVersion()
+                                                 .toString())
+                                .build();
     }
 
 }

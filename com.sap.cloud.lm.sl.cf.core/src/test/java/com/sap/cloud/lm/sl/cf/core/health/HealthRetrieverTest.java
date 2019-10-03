@@ -25,6 +25,7 @@ import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckOperation;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
@@ -76,13 +77,15 @@ public class HealthRetrieverTest {
     }
 
     private Operation getOperation() {
-        return new Operation().mtaId(MTA_ID)
-                              .spaceId(SPACE_ID)
-                              .user(USER_NAME)
-                              .processId(OPERATION_ID)
-                              .startedAt(OPERATION_START_TIME)
-                              .state(State.FINISHED)
-                              .endedAt(OPERATION_END_TIME);
+        return ImmutableOperation.builder()
+                                 .mtaId(MTA_ID)
+                                 .spaceId(SPACE_ID)
+                                 .user(USER_NAME)
+                                 .processId(OPERATION_ID)
+                                 .startedAt(OPERATION_START_TIME)
+                                 .state(State.FINISHED)
+                                 .endedAt(OPERATION_END_TIME)
+                                 .build();
     }
 
     @Test

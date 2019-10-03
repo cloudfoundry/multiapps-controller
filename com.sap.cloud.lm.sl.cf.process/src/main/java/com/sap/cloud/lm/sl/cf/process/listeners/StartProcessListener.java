@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
@@ -93,12 +94,14 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     }
 
     private void addOperation(DelegateExecution context, String correlationId, ProcessType processType) {
-        Operation operation = new Operation().processId(correlationId)
-                                             .processType(processType)
-                                             .startedAt(currentTimeSupplier.get())
-                                             .spaceId(StepsUtil.getSpaceId(context))
-                                             .user(StepsUtil.determineCurrentUser(context, getStepLogger()))
-                                             .acquiredLock(false);
+        Operation operation = ImmutableOperation.builder()
+                                                .processId(correlationId)
+                                                .processType(processType)
+                                                .startedAt(currentTimeSupplier.get())
+                                                .spaceId(StepsUtil.getSpaceId(context))
+                                                .user(StepsUtil.determineCurrentUser(context, getStepLogger()))
+                                                .hasAcquiredLock(false)
+                                                .build();
         operationService.add(operation);
     }
 

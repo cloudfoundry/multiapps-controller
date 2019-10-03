@@ -20,6 +20,7 @@ import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.web.api.model.ErrorType;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
@@ -42,7 +43,7 @@ public class OperationsHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsHelper.class);
 
     public List<Operation> findOperations(List<Operation> operations, List<State> statusList) {
-        addOngoingOperationsState(operations);
+        operations = addOngoingOperationsState(operations);
         return filterBasedOnStates(operations, statusList);
     }
 
@@ -58,16 +59,18 @@ public class OperationsHelper {
         return processDefinitionKeys;
     }
 
-    private void addOngoingOperationsState(List<Operation> existingOngoingOperations) {
-        for (Operation ongoingOperation : existingOngoingOperations) {
-            addState(ongoingOperation);
-        }
+    private List<Operation> addOngoingOperationsState(List<Operation> existingOngoingOperations) {
+        return existingOngoingOperations.stream()
+                                        .map(this::addState)
+                                        .collect(Collectors.toList());
     }
 
-    public void addErrorType(Operation operation) {
+    public Operation addErrorType(Operation operation) {
         if (operation.getState() == State.ERROR) {
-            operation.setErrorType(getErrorType(operation));
+            return ImmutableOperation.copyOf(operation)
+                                     .withErrorType(getErrorType(operation));
         }
+        return operation;
     }
 
     public ErrorType getErrorType(Operation operation) {
@@ -92,22 +95,22 @@ public class OperationsHelper {
         return null;
     }
 
-    public void addState(Operation ongoingOperation) {
-        ongoingOperation.setState(getOngoingOperationState(ongoingOperation));
-    }
-
-    protected State getOngoingOperationState(Operation ongoingOperation) {
+    public Operation addState(Operation ongoingOperation) {
         if (ongoingOperation.getState() != null) {
-            return ongoingOperation.getState();
+            return ongoingOperation;
         }
         State state = computeState(ongoingOperation);
         // Fixes bug XSBUG-2035: Inconsistency in 'operation', 'act_hi_procinst' and 'act_ru_execution' tables
         if (ongoingOperation.hasAcquiredLock() && (state.equals(State.ABORTED) || state.equals(State.FINISHED))) {
-            ongoingOperation.acquiredLock(false);
-            ongoingOperation.setState(state);
+            ongoingOperation = ImmutableOperation.builder()
+                                                 .from(ongoingOperation)
+                                                 .hasAcquiredLock(false)
+                                                 .state(state)
+                                                 .build();
             this.operationService.update(ongoingOperation.getProcessId(), ongoingOperation);
         }
-        return state;
+        return ImmutableOperation.copyOf(ongoingOperation)
+                                 .withState(state);
     }
 
     public State computeState(Operation ongoingOperation) {

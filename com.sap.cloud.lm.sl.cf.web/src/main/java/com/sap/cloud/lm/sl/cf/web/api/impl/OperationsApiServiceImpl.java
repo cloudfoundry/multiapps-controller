@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +48,9 @@ import com.sap.cloud.lm.sl.cf.process.flowable.RetryProcessAction;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
 import com.sap.cloud.lm.sl.cf.web.api.OperationsApiService;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableLog;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableMessage;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Log;
 import com.sap.cloud.lm.sl.cf.web.api.model.Message;
 import com.sap.cloud.lm.sl.cf.web.api.model.MessageType;
@@ -116,7 +120,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             }
             List<String> logIds = logsService.getLogNames(spaceGuid, operationId);
             List<Log> logs = logIds.stream()
-                                   .map(id -> new Log().id(id))
+                                   .map(id -> ImmutableLog.builder()
+                                                          .id(id)
+                                                          .build())
                                    .collect(Collectors.toList());
             return ResponseEntity.ok()
                                  .body(logs);
@@ -152,9 +158,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
                                                                              .getParameters();
-        addServiceParameters(operation, spaceGuid, user);
-        addDefaultParameters(operation, predefinedParameters);
-        addParameterValues(operation, predefinedParameters);
+        operation = addServiceParameters(operation, spaceGuid, user);
+        operation = addDefaultParameters(operation, predefinedParameters);
+        operation = addParameterValues(operation, predefinedParameters);
         ensureRequiredParametersSet(operation, predefinedParameters);
         ProcessInstance processInstance = flowableFacade.startProcess(processDefinitionKey, operation.getParameters());
         AuditLoggingProvider.getFacade()
@@ -175,10 +181,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                                              operation.getSpaceId(), spaceGuid));
             throw new NotFoundException(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_NOT_FOUND, operationId);
         }
-        operationsHelper.addState(operation);
-        operationsHelper.addErrorType(operation);
+        operation = operationsHelper.addState(operation);
+        operation = operationsHelper.addErrorType(operation);
         if ("messages".equals(embed)) {
-            operation.setMessages(getOperationMessages(operation));
+            operation = ImmutableOperation.copyOf(operation)
+                                          .withMessages(getOperationMessages(operation));
         }
         return ResponseEntity.ok()
                              .body(operation);
@@ -235,9 +242,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         throw new IllegalStateException("State " + operationState.name() + " not recognised!");
     }
 
-    private void addServiceParameters(Operation operation, String spaceGuid, String user) {
+    private Operation addServiceParameters(Operation operation, String spaceGuid, String user) {
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
-        Map<String, Object> parameters = operation.getParameters();
+        Map<String, Object> parameters = new HashMap<>(operation.getParameters());
         CloudControllerClient client = getCloudFoundryClient(spaceGuid);
         CloudSpace space = client.getSpace(UUID.fromString(spaceGuid));
         parameters.put(Constants.VARIABLE_NAME_SPACE_ID, spaceGuid);
@@ -246,22 +253,27 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                                                                               .getName());
         parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_SPACE, space.getName());
         parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_USER, user);
+        return ImmutableOperation.copyOf(operation)
+                                 .withParameters(parameters);
     }
 
-    private void addDefaultParameters(Operation operation, Set<ParameterMetadata> predefinedParameters) {
-        Map<String, Object> parameters = operation.getParameters();
+    private Operation addDefaultParameters(Operation operation, Set<ParameterMetadata> predefinedParameters) {
+        Map<String, Object> parameters = new HashMap<>(operation.getParameters());
         for (ParameterMetadata predefinedParameter : predefinedParameters) {
             if (!parameters.containsKey(predefinedParameter.getId()) && predefinedParameter.getDefaultValue() != null) {
                 parameters.put(predefinedParameter.getId(), predefinedParameter.getDefaultValue());
             }
         }
+        return ImmutableOperation.copyOf(operation)
+                                 .withParameters(parameters);
     }
 
-    private void addParameterValues(Operation operation, Set<ParameterMetadata> predefinedParameters) {
-        Map<String, Object> parameters = operation.getParameters();
+    private Operation addParameterValues(Operation operation, Set<ParameterMetadata> predefinedParameters) {
+        Map<String, Object> parameters = new HashMap<>(operation.getParameters());
         ParameterTypeFactory parameterTypeFactory = new ParameterTypeFactory(parameters, predefinedParameters);
         parameters.putAll(parameterTypeFactory.getParametersValues());
-        operation.setParameters(parameters);
+        return ImmutableOperation.copyOf(operation)
+                                 .withParameters(parameters);
     }
 
     private void ensureRequiredParametersSet(Operation operation, Set<ParameterMetadata> predefinedParameters) {
@@ -326,11 +338,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private Message getMessage(ProgressMessage progressMessage) {
-        Message message = new Message();
-        message.setId(progressMessage.getId());
-        message.setText(progressMessage.getText());
-        message.setType(getMessageType(progressMessage.getType()));
-        return message;
+        return ImmutableMessage.builder()
+                               .id(progressMessage.getId())
+                               .text(progressMessage.getText())
+                               .type(getMessageType(progressMessage.getType()))
+                               .build();
 
     }
 

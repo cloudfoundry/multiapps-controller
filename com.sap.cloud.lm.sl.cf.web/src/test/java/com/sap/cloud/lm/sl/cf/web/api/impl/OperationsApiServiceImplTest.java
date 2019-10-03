@@ -54,6 +54,7 @@ import com.sap.cloud.lm.sl.cf.process.flowable.RetryProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.StartProcessAction;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
@@ -365,14 +366,18 @@ public class OperationsApiServiceImplTest {
                                         .collect(Collectors.toList());
                    }
                });
+        Mockito.when(operationsHelper.addState(Mockito.any()))
+               .thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(operationsHelper.addErrorType(Mockito.any()))
+               .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     private Operation createOperation(String processId, State state) {
-        Operation operation = new Operation();
-        operation.setState(state);
-        operation.setSpaceId(SPACE_GUID);
-        operation.setProcessId(processId);
-        operation.setProcessType(ProcessType.DEPLOY);
-        return operation;
+        return ImmutableOperation.builder()
+                                 .state(state)
+                                 .spaceId(SPACE_GUID)
+                                 .processId(processId)
+                                 .processType(ProcessType.DEPLOY)
+                                 .build();
     }
 }

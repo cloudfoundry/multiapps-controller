@@ -34,6 +34,7 @@ import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.HistoricOperationEventPersister;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.ConflictException;
@@ -152,12 +153,14 @@ public class StartProcessListenerTest {
 
     private void verifyOperationInsertion() throws SLException, ConflictException {
         String user = StepsUtil.determineCurrentUser(context, stepLogger);
-        Operation operation = new Operation().processId(processInstanceId)
-                                             .processType(processType)
-                                             .spaceId(SPACE_ID)
-                                             .startedAt(START_TIME)
-                                             .user(user)
-                                             .acquiredLock(false);
+        Operation operation = ImmutableOperation.builder()
+                                                .processId(processInstanceId)
+                                                .processType(processType)
+                                                .spaceId(SPACE_ID)
+                                                .startedAt(START_TIME)
+                                                .user(user)
+                                                .hasAcquiredLock(false)
+                                                .build();
         Mockito.verify(operationService)
                .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
         Mockito.verify(processLogsPersister, Mockito.atLeastOnce())

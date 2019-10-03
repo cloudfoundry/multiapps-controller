@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -36,11 +37,13 @@ public class ProcessConflictPreventerTest {
     @Test
     public void testAcquireLock() {
         try {
-            Operation operation = new Operation().processId(testProcessId)
-                                                 .processType(ProcessType.DEPLOY)
-                                                 .spaceId(testSpaceId)
-                                                 .mtaId(testMtaId)
-                                                 .acquiredLock(false);
+            Operation operation = ImmutableOperation.builder()
+                                                    .processId(testProcessId)
+                                                    .processType(ProcessType.DEPLOY)
+                                                    .spaceId(testSpaceId)
+                                                    .mtaId(testMtaId)
+                                                    .hasAcquiredLock(false)
+                                                    .build();
             when(operationServiceMock.createQuery()
                                      .list()).thenReturn(Arrays.asList(operation));
             processConflictPreventerMock.acquireLock(testMtaId, testSpaceId, testProcessId);
@@ -69,10 +72,12 @@ public class ProcessConflictPreventerTest {
     }
 
     private Operation getOperation() {
-        return new Operation().processId(testProcessId)
-                              .processType(ProcessType.DEPLOY)
-                              .mtaId(testMtaId)
-                              .acquiredLock(false);
+        return ImmutableOperation.builder()
+                                 .processId(testProcessId)
+                                 .processType(ProcessType.DEPLOY)
+                                 .mtaId(testMtaId)
+                                 .hasAcquiredLock(false)
+                                 .build();
     }
 
     private class ProcessConflictPreventerMock extends ProcessConflictPreventer {

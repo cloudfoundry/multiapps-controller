@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService.OperationMapper;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
@@ -70,80 +71,88 @@ public class OperationServiceTest {
 
     @Test
     public void testQueryByProcessId() {
-        testQueryByCriteria((query, operation) -> query.processId(operation.getProcessId()));
+        testQueryByCriteria((query, operation) -> query.processId(operation.getProcessId()), OPERATION_1, OPERATION_2);
     }
 
     @Test
     public void testQueryByProcessType() {
-        testQueryByCriteria((query, operation) -> query.processType(operation.getProcessType()));
+        testQueryByCriteria((query, operation) -> query.processType(operation.getProcessType()), OPERATION_1, OPERATION_2);
     }
 
     @Test
     public void testQueryBySpaceId() {
-        testQueryByCriteria((query, operation) -> query.spaceId(operation.getSpaceId()));
+        testQueryByCriteria((query, operation) -> query.spaceId(operation.getSpaceId()), OPERATION_1, OPERATION_2);
     }
 
     @Test
     public void testQueryByMtaId() {
-        testQueryByCriteria((query, operation) -> query.mtaId(operation.getMtaId()));
+        testQueryByCriteria((query, operation) -> query.mtaId(operation.getMtaId()), OPERATION_1, OPERATION_2);
     }
 
     @Test
     public void testQueryByUser() {
-        testQueryByCriteria((query, operation) -> query.user(operation.getUser()));
+        testQueryByCriteria((query, operation) -> query.user(operation.getUser()), OPERATION_1, OPERATION_2);
     }
 
     @Test
     public void testQueryByAcquiredLock() {
-        testQueryByCriteria((query, operation) -> query.acquiredLock(operation.hasAcquiredLock()));
+        testQueryByCriteria((query, operation) -> query.acquiredLock(operation.hasAcquiredLock()), OPERATION_1, OPERATION_2);
     }
 
     @Test
     public void testQueryByState() {
-        OPERATION_1.state(State.ERROR);
-        OPERATION_2.state(State.RUNNING);
-        testQueryByCriteria((query, operation) -> query.state(operation.getState()));
+        Operation operation1 = ImmutableOperation.copyOf(OPERATION_1)
+                                                 .withState(State.ERROR);
+        Operation operation2 = ImmutableOperation.copyOf(OPERATION_2)
+                                                 .withState(State.RUNNING);
+        testQueryByCriteria((query, operation) -> query.state(operation.getState()), operation1, operation2);
     }
 
     @Test
     public void testQueryByStartedBefore() {
-        testQueryByCriteria((query, operation) -> query.startedBefore(toDate(ZonedDateTime.parse("2010-10-09T00:00:00.000Z[UTC]"))));
+        testQueryByCriteria((query, operation) -> query.startedBefore(toDate(ZonedDateTime.parse("2010-10-09T00:00:00.000Z[UTC]"))),
+                            OPERATION_1, OPERATION_2);
     }
 
     @Test
     public void testQueryByEndedAfter() {
-        testQueryByCriteria((query, operation) -> query.endedAfter(toDate(ZonedDateTime.parse("2010-10-13T10:00:00.000Z[UTC]"))));
+        testQueryByCriteria((query, operation) -> query.endedAfter(toDate(ZonedDateTime.parse("2010-10-13T10:00:00.000Z[UTC]"))),
+                            OPERATION_1, OPERATION_2);
     }
 
     @Test
     public void testQueryWithStateAnyOf() {
-        OPERATION_1.state(State.ERROR);
-        OPERATION_2.state(State.RUNNING);
-        testQueryByCriteria((query, operation) -> query.withStateAnyOf(Arrays.asList(State.ERROR)));
+        Operation operation1 = ImmutableOperation.copyOf(OPERATION_1)
+                                                 .withState(State.ERROR);
+        Operation operation2 = ImmutableOperation.copyOf(OPERATION_2)
+                                                 .withState(State.RUNNING);
+        testQueryByCriteria((query, operation) -> query.withStateAnyOf(Arrays.asList(State.ERROR)), operation1, operation2);
     }
 
     @Test
     public void testQueryInNonFinalState() {
-        OPERATION_1.state(null);
-        OPERATION_2.state(State.ABORTED);
-        testQueryByCriteria((query, operation) -> query.inNonFinalState());
+        Operation operation1 = OPERATION_1;
+        Operation operation2 = ImmutableOperation.copyOf(OPERATION_2)
+                                                 .withState(State.ABORTED);
+        testQueryByCriteria((query, operation) -> query.inNonFinalState(), operation1, operation2);
     }
 
     @Test
     public void testQueryInFinalState() {
-        OPERATION_1.state(State.FINISHED);
-        OPERATION_2.state(null);
-        testQueryByCriteria((query, operation) -> query.inFinalState());
+        Operation operation1 = ImmutableOperation.copyOf(OPERATION_1)
+                                                 .withState(State.FINISHED);
+        Operation operation2 = OPERATION_2;
+        testQueryByCriteria((query, operation) -> query.inFinalState(), operation1, operation2);
     }
 
-    private void testQueryByCriteria(OperationQueryBuilder operationQueryBuilder) {
-        addOperations(Arrays.asList(OPERATION_1, OPERATION_2));
-        assertEquals(1, operationQueryBuilder.build(operationService.createQuery(), OPERATION_1)
+    private void testQueryByCriteria(OperationQueryBuilder operationQueryBuilder, Operation operation1, Operation operation2) {
+        addOperations(Arrays.asList(operation1, operation2));
+        assertEquals(1, operationQueryBuilder.build(operationService.createQuery(), operation1)
                                              .list()
                                              .size());
-        assertEquals(1, operationQueryBuilder.build(operationService.createQuery(), OPERATION_1)
+        assertEquals(1, operationQueryBuilder.build(operationService.createQuery(), operation1)
                                              .delete());
-        assertOperationExists(OPERATION_2.getProcessId());
+        assertOperationExists(operation2.getProcessId());
     }
 
     private interface OperationQueryBuilder {
@@ -164,14 +173,16 @@ public class OperationServiceTest {
 
     private static Operation createOperation(String processId, ProcessType type, String spaceId, String mtaId, String user,
                                              boolean acquiredLock, ZonedDateTime startedAt, ZonedDateTime endedAt) {
-        return new Operation().processId(processId)
-                              .processType(type)
-                              .spaceId(spaceId)
-                              .mtaId(mtaId)
-                              .user(user)
-                              .acquiredLock(acquiredLock)
-                              .startedAt(startedAt)
-                              .endedAt(endedAt);
+        return ImmutableOperation.builder()
+                                 .processId(processId)
+                                 .processType(type)
+                                 .spaceId(spaceId)
+                                 .mtaId(mtaId)
+                                 .user(user)
+                                 .hasAcquiredLock(acquiredLock)
+                                 .startedAt(startedAt)
+                                 .endedAt(endedAt)
+                                 .build();
     }
 
     private Date toDate(ZonedDateTime zonedDateTime) {

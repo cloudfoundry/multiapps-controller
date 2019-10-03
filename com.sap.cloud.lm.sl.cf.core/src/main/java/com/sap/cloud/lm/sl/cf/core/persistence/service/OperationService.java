@@ -12,6 +12,7 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.OperationDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.impl.OperationQueryImpl;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
@@ -54,15 +55,17 @@ public class OperationService extends PersistenceService<Operation, OperationDto
 
         @Override
         public Operation fromDto(OperationDto dto) {
-            return new Operation().processId(dto.getPrimaryKey())
-                                  .processType(toProcessType(dto.getProcessType()))
-                                  .startedAt(toZonedDateTime(dto.getStartedAt()))
-                                  .endedAt(toZonedDateTime(dto.getEndedAt()))
-                                  .spaceId(dto.getSpaceId())
-                                  .mtaId(dto.getMtaId())
-                                  .user(dto.getUser())
-                                  .acquiredLock(dto.hasAcquiredLock())
-                                  .state(toState(dto.getFinalState()));
+            return ImmutableOperation.builder()
+                                     .processId(dto.getPrimaryKey())
+                                     .processType(toProcessType(dto.getProcessType()))
+                                     .startedAt(toZonedDateTime(dto.getStartedAt()))
+                                     .endedAt(toZonedDateTime(dto.getEndedAt()))
+                                     .spaceId(dto.getSpaceId())
+                                     .mtaId(dto.getMtaId())
+                                     .user(dto.getUser())
+                                     .hasAcquiredLock(dto.hasAcquiredLock())
+                                     .state(toState(dto.getFinalState()))
+                                     .build();
         }
 
         private ProcessType toProcessType(String processType) {

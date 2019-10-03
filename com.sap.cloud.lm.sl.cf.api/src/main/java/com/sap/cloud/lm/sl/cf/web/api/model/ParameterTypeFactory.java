@@ -7,6 +7,7 @@ import java.util.Set;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata.ParameterType;
 
 public class ParameterTypeFactory {
+
     private Map<String, Object> operationParameters;
     private Set<ParameterMetadata> operationParametersMetadata;
 
@@ -39,4 +40,5 @@ public class ParameterTypeFactory {
 
         return new StringParameterTypeProvider();
     }
+
 }

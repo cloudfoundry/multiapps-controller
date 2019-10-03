@@ -37,6 +37,7 @@ import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
 import com.sap.cloud.lm.sl.cf.process.util.CollectedDataSender;
 import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
 import com.sap.cloud.lm.sl.cf.process.util.HistoricOperationEventPersister;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.util.Runnable;
@@ -116,10 +117,13 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
                                               .singleResult();
         LOGGER.info(MessageFormat.format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(),
                                          operation.getMtaId(), operation.getSpaceId()));
-        operation.setState(State.ABORTED);
-        operation.setEndedAt(ZonedDateTime.now());
-        operation.setAcquiredLock(false);
-        operationService.update(operation.getProcessId(), operation);
+        Operation abortedOperation = ImmutableOperation.builder()
+                                                       .from(operation)
+                                                       .state(State.ABORTED)
+                                                       .endedAt(ZonedDateTime.now())
+                                                       .hasAcquiredLock(false)
+                                                       .build();
+        operationService.update(operation.getProcessId(), abortedOperation);
         LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
     }
 
