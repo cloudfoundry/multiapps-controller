@@ -18,7 +18,10 @@ import org.slf4j.MDC;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.core.model.ImmutableStepAnalyticsData;
+import com.sap.cloud.lm.sl.cf.core.model.StepAnalyticsData.StepEvent;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.StepAnalyticsDataService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
@@ -53,9 +56,12 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     private StepLogger stepLogger;
     @Inject
     protected ApplicationConfiguration configuration;
+    @Inject
+    private StepAnalyticsDataService stepAnalyticsDataService;
 
     @Override
     public void execute(DelegateExecution context) {
+        reportAnalyticsData(StepEvent.STARTED, context);
         initializeStepLogger(context);
         ExecutionWrapper executionWrapper = createExecutionWrapper(context);
         StepPhase stepPhase = getInitialStepPhase(executionWrapper);
@@ -73,7 +79,16 @@ public abstract class SyncFlowableStep implements JavaDelegate {
         } finally {
             StepsUtil.setStepPhase(context, stepPhase);
             postExecuteStep(context, stepPhase);
+            reportAnalyticsData(StepEvent.ENDED, context);
         }
+    }
+
+    private void reportAnalyticsData(StepEvent stepEvent, DelegateExecution context) {
+        stepAnalyticsDataService.add(ImmutableStepAnalyticsData.builder()
+                                                               .processId(StepsUtil.getCorrelationId(context))
+                                                               .taskId(context.getCurrentActivityId())
+                                                               .event(stepEvent)
+                                                               .build());
     }
 
     protected StepPhase getInitialStepPhase(ExecutionWrapper executionWrapper) {

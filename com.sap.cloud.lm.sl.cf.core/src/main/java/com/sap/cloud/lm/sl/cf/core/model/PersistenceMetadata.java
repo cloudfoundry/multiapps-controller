@@ -16,6 +16,7 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_SUBSCRIPTION_TABLE = "configuration_subscription";
         public static final String PROGRESS_MESSAGE_TABLE = "progress_message";
         public static final String HISTORIC_OPERATION_EVENT_TABLE = "historic_operation_event";
+        public static final String STEP_ANALYTICS_DATA_TABLE = "step_analytics_data";
 
     }
 
@@ -29,6 +30,7 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_SUBSCRIPTION_SEQUENCE = "configuration_subscription_sequence";
         public static final String PROGRESS_MESSAGE_SEQUENCE = "ID_SEQ";
         public static final String HISTORIC_OPERATION_EVENT_SEQUENCE = "historic_operation_event_sequence";
+        public static final String STEP_ANALYTICS_DATA_SEQUENCE = "step_analytics_data_sequence";
 
     }
 

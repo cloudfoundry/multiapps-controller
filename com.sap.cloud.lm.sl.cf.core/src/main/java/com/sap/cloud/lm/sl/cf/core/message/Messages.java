@@ -86,6 +86,8 @@ public final class Messages {
     public static final String PROGRESS_MESSAGE_ALREADY_EXISTS = "Progress message for process \"{0}\" with ID \"{1}\" already exist";
     public static final String HISTORIC_OPERATION_EVENT_NOT_FOUND = "Historic operation event with ID \"{0}\" does not exist";
     public static final String HISTORIC_OPERATION_EVENT_ALREADY_EXISTS = "Historic operation event for process \"{0}\" with ID \"{1}\" already exist";
+    public static final String STEP_ANALYTICS_DATA_ALREADY_EXISTS = "Step analytics data with ID \"{0}\" for process \"{1}\" and task id \"{2}\" already exist";
+    public static final String STEP_ANALYTICS_DATA_NOT_FOUND = "Step analytics data with ID \"{0}\" does not exist";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";

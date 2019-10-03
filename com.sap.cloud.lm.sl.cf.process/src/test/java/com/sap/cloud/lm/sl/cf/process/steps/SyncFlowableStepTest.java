@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.StepAnalyticsDataService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
@@ -72,6 +73,8 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     protected ApplicationConfiguration configuration;
     @Mock
     protected ProcessEngineConfiguration processEngineConfiguration;
+    @Mock
+    protected StepAnalyticsDataService stepAnalyticsDataService;
     protected ProcessLoggerProvider processLoggerProvider = Mockito.spy(ProcessLoggerProvider.class);
     @InjectMocks
     protected ProcessLogsPersister processLogsPersister = Mockito.spy(ProcessLogsPersister.class);

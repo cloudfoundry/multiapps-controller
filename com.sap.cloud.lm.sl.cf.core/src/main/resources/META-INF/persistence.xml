@@ -11,6 +11,7 @@
 		<class>com.sap.cloud.lm.sl.cf.core.persistence.dto.ConfigurationEntryDto</class>
 		<class>com.sap.cloud.lm.sl.cf.core.persistence.dto.ProgressMessageDto</class>
 		<class>com.sap.cloud.lm.sl.cf.core.persistence.dto.HistoricOperationEventDto</class>
+		<class>com.sap.cloud.lm.sl.cf.core.persistence.dto.StepAnalyticsDataDto</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="eclipselink.weaving" value="static" />

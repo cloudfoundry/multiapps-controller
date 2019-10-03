@@ -211,6 +211,7 @@ public class Messages {
     public static final String DELETED_PROCESS_LOGS_0 = "Deleted process logs: {0}";
     public static final String DELETED_PROGRESS_MESSAGES_0 = "Deleted progress messages: {0}";
     public static final String DELETED_HISTORIC_OPERATION_EVENTS_0 = "Deleted historic operation events: {0}";
+    public static final String DELETED_STEP_ANALYTICS_DATA_ENTRIES_0 = "Deleted step analytics data entries: {0}";
     public static final String REMOVED_TOKENS_0 = "Removed tokens: {0}";
     public static final String REMOVED_TOKENS_1 = "Removed tokens: {0} with clientId: {1}";
     public static final String DELETED_DATA_FOR_NON_EXISTING_USERS = "Deleted data for no-longer existing users.";
@@ -447,6 +448,7 @@ public class Messages {
     public static final String REMOVING_EXPIRED_TOKENS_FROM_TOKEN_STORE = "Removing expired tokens from the token store...";
     public static final String DELETING_HISTORIC_OPERATION_EVENTS_STORED_BEFORE_0 = "Deleting historic operation events stored before \"{0}\"...";
     public static final String DELETING_DATA_FOR_NON_EXISTING_USERS = "Deleting data for no-longer existing users...";
+    public static final String DELETING_STEP_ANALYTICS_DATA_BEFORE_0 = "Deleting step analytics data stored before \"{0}\"...";
     public static final String REGISTERED_CLEANERS_IN_CLEAN_UP_JOB_0 = "Registered cleaners in clean-up job: {0}";
     public static final String MISSING_SERVICES_TO_DELETE = "Missing services to delete.";
     public static final String NO_CONTENT_TO_UPLOAD = "No content to upload";

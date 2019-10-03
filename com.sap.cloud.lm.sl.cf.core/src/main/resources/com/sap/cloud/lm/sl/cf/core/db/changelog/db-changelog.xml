@@ -73,4 +73,6 @@
 		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-index_process_ids_of_progress_messages.xml" />
 	<include
 		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_progress_message_drop_task_execution_id_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_step_analytics_data_table.xml" />
 </databaseChangeLog>
