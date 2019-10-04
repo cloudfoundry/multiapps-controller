@@ -10,7 +10,7 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class DomainValidator implements ParameterValidator {
 
-    public static final String DOMAIN_ILLEGAL_CHARACTERS = "[^a-z-0-9\\-\\.]";
+    public static final String DOMAIN_ILLEGAL_CHARACTERS = "[^a-z-0-9\\-.]";
     public static final String DOMAIN_PATTERN = "^([a-z0-9]|[a-z0-9][a-z0-9\\-\\.]{0,251}[a-z0-9])$";
     public static final int DOMAIN_MAX_LENGTH = 253;
 
@@ -20,8 +20,8 @@ public class DomainValidator implements ParameterValidator {
         result = NameUtil.getNameWithProperLength(result, DOMAIN_MAX_LENGTH);
         result = result.toLowerCase(Locale.US);
         result = result.replaceAll(DOMAIN_ILLEGAL_CHARACTERS, "-");
-        result = result.replaceAll("^(\\-*)", "");
-        result = result.replaceAll("(\\-*)$", "");
+        result = result.replaceAll("^(-*)", "");
+        result = result.replaceAll("(-*)$", "");
         if (!isValid(result)) {
             throw new ContentException(Messages.COULD_NOT_CREATE_VALID_DOMAIN, domain);
         }

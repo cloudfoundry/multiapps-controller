@@ -23,8 +23,8 @@ public class HostValidator implements ParameterValidator {
         result = NameUtil.getNameWithProperLength(result, HOST_MAX_LENGTH);
         result = result.toLowerCase(Locale.US);
         result = result.replaceAll(HOST_ILLEGAL_CHARACTERS, "-");
-        result = result.replaceAll("^(\\-*)", "");
-        result = result.replaceAll("(\\-*)$", "");
+        result = result.replaceAll("^(-*)", "");
+        result = result.replaceAll("(-*)$", "");
         if (!isValid(result)) {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_HOST, host);
         }

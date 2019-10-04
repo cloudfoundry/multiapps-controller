@@ -28,7 +28,7 @@ public class NameUtil {
         public static final int CONTAINER_NAME_MAX_LENGTH = 64;
 
         public static final String ENVIRONMENT_NAME_ILLEGAL_CHARACTERS = "[^_a-zA-Z0-9]";
-        public static final String XS_APP_NAME_ILLEGAL_CHARACTERS = "[^a-zA-Z0-9\\._\\-\\\\/]";
+        public static final String XS_APP_NAME_ILLEGAL_CHARACTERS = "[^a-zA-Z0-9._\\-\\\\/]";
         public static final String CONTAINER_NAME_ILLEGAL_CHARACTERS = "[^_A-Z0-9]";
 
     }
