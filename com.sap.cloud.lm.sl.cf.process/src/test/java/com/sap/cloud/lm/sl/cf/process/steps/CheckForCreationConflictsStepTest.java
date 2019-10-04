@@ -45,9 +45,9 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     private final StepInput stepInput;
     private final String expectedExceptionMessage;
     private Map<CloudServiceExtended, CloudServiceInstance> existingServiceInstances;
-    private boolean shouldWarn;
+    private final boolean shouldWarn;
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -223,13 +223,13 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     }
 
     private static class StepInput {
-        List<CloudServiceExtended> servicesToDeploy = Collections.emptyList();
-        List<CloudServiceExtended> existingServices = Collections.emptyList();
-        List<CloudServiceExtended> servicesFromDeployedMta = Collections.emptyList();
+        final List<CloudServiceExtended> servicesToDeploy = Collections.emptyList();
+        final List<CloudServiceExtended> existingServices = Collections.emptyList();
+        final List<CloudServiceExtended> servicesFromDeployedMta = Collections.emptyList();
 
-        List<SimpleApplication> appsToDeploy = Collections.emptyList();
-        List<SimpleApplication> existingApps = Collections.emptyList();
-        List<SimpleApplication> appsFromDeployedMta = Collections.emptyList();
+        final List<SimpleApplication> appsToDeploy = Collections.emptyList();
+        final List<SimpleApplication> existingApps = Collections.emptyList();
+        final List<SimpleApplication> appsFromDeployedMta = Collections.emptyList();
     }
 
     private static final MapToEnvironmentConverter ENV_CONVERTER = new MapToEnvironmentConverter(false);
@@ -237,8 +237,8 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     private static class SimpleApplication {
 
         String name;
-        List<String> boundServices = Collections.emptyList();
-        Map<String, Object> env = Collections.emptyMap();
+        final List<String> boundServices = Collections.emptyList();
+        final Map<String, Object> env = Collections.emptyMap();
 
         CloudApplicationExtended toCloudApplication() {
             return ImmutableCloudApplicationExtended.builder()

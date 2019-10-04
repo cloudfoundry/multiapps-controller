@@ -17,7 +17,7 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 public class JwtTokenParserTest {
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void testParseNotCorrectJwtTokenWithOnlyTwoFiledsPresented() {
@@ -109,7 +109,7 @@ public class JwtTokenParserTest {
 
     private class JwtTokenParserMock extends JwtTokenParser {
 
-        private boolean shouldVerify;
+        private final boolean shouldVerify;
 
         public JwtTokenParserMock(TokenFactory tokenFactory, UAAClient uaaClient) {
             this(tokenFactory, uaaClient, false);

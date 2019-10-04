@@ -36,8 +36,8 @@ public class ObjectStoreFileStorage implements FileStorage {
 
     private static final long RETRY_BASE_WAIT_TIME_IN_MILLIS = 5000L;
 
-    private BlobStore blobStore;
-    private String container;
+    private final BlobStore blobStore;
+    private final String container;
 
     public ObjectStoreFileStorage(BlobStore blobStore, String container) {
         this.blobStore = blobStore;

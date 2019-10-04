@@ -18,9 +18,9 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 @Named
 public class HealthRetriever {
 
-    private OperationService operationService;
-    private ApplicationConfiguration configuration;
-    private Supplier<ZonedDateTime> currentTimeSupplier;
+    private final OperationService operationService;
+    private final ApplicationConfiguration configuration;
+    private final Supplier<ZonedDateTime> currentTimeSupplier;
 
     @Inject
     public HealthRetriever(OperationService operationService, ApplicationConfiguration configuration) {

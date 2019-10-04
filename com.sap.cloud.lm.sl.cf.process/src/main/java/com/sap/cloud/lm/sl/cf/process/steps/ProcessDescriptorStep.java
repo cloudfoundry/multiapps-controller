@@ -27,7 +27,7 @@ import liquibase.util.StringUtils;
 
 public class ProcessDescriptorStep extends SyncFlowableStep {
 
-    protected SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    protected final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Inject
     private ConfigurationEntryService configurationEntryService;

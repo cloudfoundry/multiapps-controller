@@ -11,7 +11,7 @@ public enum ResourceType {
     MANAGED_SERVICE("managed-service", SupportedParameters.SERVICE, SupportedParameters.SERVICE_PLAN), USER_PROVIDED_SERVICE(
         "user-provided-service"), EXISTING_SERVICE("existing-service"), EXISTING_SERVICE_KEY("existing-service-key");
 
-    private String name;
+    private final String name;
     private final Set<String> requiredParameters = new HashSet<>();
 
     ResourceType(String value, String... requiredParameters) {

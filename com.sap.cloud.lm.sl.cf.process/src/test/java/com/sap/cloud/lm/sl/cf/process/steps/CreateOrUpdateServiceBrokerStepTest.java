@@ -41,13 +41,13 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
     private StepOutput expectedOutput;
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @InjectMocks
     private CreateOrUpdateServiceBrokerStep step = new CreateOrUpdateServiceBrokerStep();
-    private CloudOperationException updateException;
-    private CloudOperationException createException;
-    private Class<? extends Throwable> expectedExceptionClass;
+    private final CloudOperationException updateException;
+    private final CloudOperationException createException;
+    private final Class<? extends Throwable> expectedExceptionClass;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {

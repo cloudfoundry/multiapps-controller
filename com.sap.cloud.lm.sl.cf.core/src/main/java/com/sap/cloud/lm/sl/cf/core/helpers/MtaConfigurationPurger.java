@@ -29,9 +29,9 @@ public class MtaConfigurationPurger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MtaConfigurationPurger.class);
 
-    private CloudControllerClient client;
-    private ConfigurationEntryService configurationEntryService;
-    private ConfigurationSubscriptionService configurationSubscriptionService;
+    private final CloudControllerClient client;
+    private final ConfigurationEntryService configurationEntryService;
+    private final ConfigurationSubscriptionService configurationSubscriptionService;
 
     public MtaConfigurationPurger(CloudControllerClient client, ConfigurationEntryService configurationEntryService,
                                   ConfigurationSubscriptionService configurationSubscriptionService) {

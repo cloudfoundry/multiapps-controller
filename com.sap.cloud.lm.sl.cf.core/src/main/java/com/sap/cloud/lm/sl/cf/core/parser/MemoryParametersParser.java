@@ -13,8 +13,8 @@ public class MemoryParametersParser implements ParametersParser<Integer> {
 
     private static final String GIGABYTES_MATCHER = "[0-9]+[Gg][Bb]?";
     private static final String MEGABYTES_MATCHER = "[0-9]+([Mm][Bb]?|$)";
-    private String parameterName;
-    private String defaultMemory;
+    private final String parameterName;
+    private final String defaultMemory;
 
     public MemoryParametersParser(String parameterName, String defaultMemory) {
         this.parameterName = parameterName;

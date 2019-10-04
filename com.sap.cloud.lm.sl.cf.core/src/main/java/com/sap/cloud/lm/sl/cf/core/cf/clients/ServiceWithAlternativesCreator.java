@@ -135,7 +135,7 @@ public class ServiceWithAlternativesCreator {
     @Named
     public static class Factory {
 
-        private ServiceCreator serviceCreator;
+        private final ServiceCreator serviceCreator;
 
         @Inject
         public Factory(ServiceCreator serviceCreator) {

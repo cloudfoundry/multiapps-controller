@@ -79,8 +79,8 @@ public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
     }
 
     static class SimpleApplication {
-        String name;
-        int instances;
+        final String name;
+        final int instances;
 
         public SimpleApplication(String name, int instances) {
             this.name = name;

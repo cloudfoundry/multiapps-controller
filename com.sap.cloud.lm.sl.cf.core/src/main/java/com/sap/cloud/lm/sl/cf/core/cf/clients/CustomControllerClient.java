@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public abstract class CustomControllerClient {
 
-    private RestTemplateFactory restTemplateFactory;
+    private final RestTemplateFactory restTemplateFactory;
 
     protected CustomControllerClient(RestTemplateFactory restTemplateFactory) {
         this.restTemplateFactory = restTemplateFactory;

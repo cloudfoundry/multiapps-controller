@@ -7,9 +7,9 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 public abstract class ParametersValidator<T> {
 
-    protected ParametersValidatorHelper helper;
-    protected String prefix;
-    protected Class<?> containerClass;
+    protected final ParametersValidatorHelper helper;
+    protected final String prefix;
+    protected final Class<?> containerClass;
 
     protected ParametersValidator(String prefix, String objectName, ParametersValidatorHelper helper, Class<?> containerClass) {
         this.containerClass = containerClass;

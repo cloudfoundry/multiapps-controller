@@ -16,7 +16,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PollExecuteTaskStatusExecution.class);
 
-    private RecentLogsRetriever recentLogsRetriever;
+    private final RecentLogsRetriever recentLogsRetriever;
 
     public PollExecuteTaskStatusExecution(RecentLogsRetriever recentLogsRetriever) {
         this.recentLogsRetriever = recentLogsRetriever;
@@ -35,9 +35,9 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
 
     public class PollExecuteTaskStatusDelegate {
 
-        private ExecutionWrapper execution;
-        private CloudApplicationExtended app;
-        private CloudTask taskToPoll;
+        private final ExecutionWrapper execution;
+        private final CloudApplicationExtended app;
+        private final CloudTask taskToPoll;
 
         public PollExecuteTaskStatusDelegate(ExecutionWrapper execution) {
             this.taskToPoll = StepsUtil.getStartedTask(execution.getContext());

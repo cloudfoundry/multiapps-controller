@@ -14,7 +14,7 @@ public class DeployedAfterModulesContentValidator implements ModulesContentValid
 
     private static final String DEFAULT_MESSAGE_DELIMITER = ", ";
 
-    private CloudControllerClient client;
+    private final CloudControllerClient client;
 
     public DeployedAfterModulesContentValidator(CloudControllerClient client) {
         this.client = client;

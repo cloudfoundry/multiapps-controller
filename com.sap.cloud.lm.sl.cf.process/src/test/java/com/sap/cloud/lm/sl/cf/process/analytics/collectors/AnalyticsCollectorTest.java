@@ -58,11 +58,11 @@ public class AnalyticsCollectorTest {
         TRIGGERED_SERVICE_OPERATIONS.put("qux", ServiceOperationType.CREATE);
     }
 
-    private Tester tester = Tester.forClass(getClass());
+    private final Tester tester = Tester.forClass(getClass());
 
-    protected DelegateExecution context = com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution.createSpyInstance();
+    protected final DelegateExecution context = com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution.createSpyInstance();
 
-    protected FileService fileService = Mockito.mock(FileService.class);
+    protected final FileService fileService = Mockito.mock(FileService.class);
     @Mock
     protected ApplicationConfiguration configuration;
 

@@ -18,8 +18,8 @@ import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageT
 
 public class ProgressMessageQueryImpl extends AbstractQueryImpl<ProgressMessage, ProgressMessageQuery> implements ProgressMessageQuery {
 
-    private QueryCriteria queryCriteria = new QueryCriteria();
-    private ProgressMessageMapper progressMessageFactory;
+    private final QueryCriteria queryCriteria = new QueryCriteria();
+    private final ProgressMessageMapper progressMessageFactory;
 
     public ProgressMessageQueryImpl(EntityManager entityManager, ProgressMessageMapper progressMessageFactory) {
         super(entityManager);

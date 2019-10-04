@@ -31,7 +31,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscription
 public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubscriptionsStep> {
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -135,8 +135,8 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
 
     private static class StepInput {
 
-        public List<Long> subscriptionsToDelete;
-        public List<Long> existingSubscriptions;
+        public final List<Long> subscriptionsToDelete;
+        public final List<Long> existingSubscriptions;
 
         public StepInput(List<Long> subscriptionsToDelete, List<Long> existingSubscriptions) {
             this.subscriptionsToDelete = subscriptionsToDelete;

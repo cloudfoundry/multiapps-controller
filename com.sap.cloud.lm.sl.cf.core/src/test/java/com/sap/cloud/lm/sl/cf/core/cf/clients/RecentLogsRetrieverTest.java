@@ -43,7 +43,7 @@ public class RecentLogsRetrieverTest {
     private RestTemplate restTemplate;
     private RecentLogsRetriever recentLogsRetriever;
 
-    private ResilientCloudOperationExecutor fastRetrier = new ResilientCloudOperationExecutor().withRetryCount(1)
+    private final ResilientCloudOperationExecutor fastRetrier = new ResilientCloudOperationExecutor().withRetryCount(1)
                                                                                                .withWaitTimeBetweenRetriesInMillis(0);
 
     @Before

@@ -28,7 +28,7 @@ public class ConfigurationEntryServiceTest {
                                                                                              "space", "content");
     private static final ConfigurationEntry CONFIGURATION_ENTRY_2 = createConfigurationEntry(2l, "providerNid1", "providerId1", "3.1",
                                                                                              "org1", "space1", "content1");
-    private ConfigurationEntryService configurationEntryService = createConfigurationEntryService();
+    private final ConfigurationEntryService configurationEntryService = createConfigurationEntryService();
 
     @AfterEach
     public void cleanUp() {

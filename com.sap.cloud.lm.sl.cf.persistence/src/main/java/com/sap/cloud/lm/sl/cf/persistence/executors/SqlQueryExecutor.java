@@ -10,7 +10,7 @@ import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
 
 public class SqlQueryExecutor {
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     public SqlQueryExecutor(DataSource dataSource) {
         this.dataSource = dataSource;

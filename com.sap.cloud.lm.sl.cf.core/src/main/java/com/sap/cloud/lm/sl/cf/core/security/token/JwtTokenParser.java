@@ -106,8 +106,8 @@ public class JwtTokenParser implements TokenParser {
     }
 
     private static class TokenKey {
-        private String value;
-        private String algorithm;
+        private final String value;
+        private final String algorithm;
 
         TokenKey(String value, String algorithm) {
             this.value = value;

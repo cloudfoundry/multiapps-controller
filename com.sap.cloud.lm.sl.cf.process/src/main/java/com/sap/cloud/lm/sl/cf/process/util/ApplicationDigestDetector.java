@@ -6,8 +6,8 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
 
 public class ApplicationDigestDetector {
-    private CloudApplication app;
-    private CloudControllerClient client;
+    private final CloudApplication app;
+    private final CloudControllerClient client;
 
     public ApplicationDigestDetector(CloudApplication app, CloudControllerClient client) {
         this.app = app;

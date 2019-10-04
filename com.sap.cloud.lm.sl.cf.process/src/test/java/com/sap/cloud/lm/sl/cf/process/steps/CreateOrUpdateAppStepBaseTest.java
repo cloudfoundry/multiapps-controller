@@ -18,10 +18,10 @@ public abstract class CreateOrUpdateAppStepBaseTest extends SyncFlowableStepTest
 
     protected static class StepInput {
         List<CloudApplicationExtended> applications = Collections.emptyList();
-        List<SimpleService> services = Collections.emptyList();
+        final List<SimpleService> services = Collections.emptyList();
         int applicationIndex;
-        Map<String, String> bindingErrors = new HashMap<>();
-        Map<String, List<CloudServiceKey>> existingServiceKeys = new HashMap<>();
+        final Map<String, String> bindingErrors = new HashMap<>();
+        final Map<String, List<CloudServiceKey>> existingServiceKeys = new HashMap<>();
     }
 
     protected static class SimpleService {

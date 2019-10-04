@@ -11,7 +11,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.dto.DtoWithPrimaryKey;
 
 public abstract class PersistenceService<T, D extends DtoWithPrimaryKey<P>, P> {
 
-    private EntityManagerFactory entityManagerFactory;
+    private final EntityManagerFactory entityManagerFactory;
 
     public PersistenceService(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;

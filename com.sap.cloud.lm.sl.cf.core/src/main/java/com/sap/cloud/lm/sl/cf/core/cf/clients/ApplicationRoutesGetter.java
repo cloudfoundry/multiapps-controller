@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
 @Named
 public class ApplicationRoutesGetter extends CustomControllerClient {
 
-    private CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
+    private final CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
 
     @Inject
     public ApplicationRoutesGetter(RestTemplateFactory restTemplateFactory) {

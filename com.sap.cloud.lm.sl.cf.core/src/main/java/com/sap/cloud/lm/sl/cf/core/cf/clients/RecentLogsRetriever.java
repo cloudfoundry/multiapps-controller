@@ -137,7 +137,7 @@ public class RecentLogsRetriever extends CustomControllerClient {
     }
 
     private class LogMessageConverter {
-        private LogMessage logMessage;
+        private final LogMessage logMessage;
 
         public LogMessageConverter(LogMessage logMessage) {
             this.logMessage = logMessage;

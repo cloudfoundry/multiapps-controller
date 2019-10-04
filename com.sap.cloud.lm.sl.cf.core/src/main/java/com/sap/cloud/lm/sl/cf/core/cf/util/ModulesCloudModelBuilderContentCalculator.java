@@ -14,12 +14,12 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuilderContentCalculator<Module> {
 
-    private Set<String> mtaModulesInArchive;
-    private Set<String> deployedModules;
-    private List<String> modulesSpecifiedForDeployment;
-    private UserMessageLogger userMessageLogger;
-    private ModuleToDeployHelper moduleToDeployHelper;
-    private List<ModulesContentValidator> modulesContentValidators;
+    private final Set<String> mtaModulesInArchive;
+    private final Set<String> deployedModules;
+    private final List<String> modulesSpecifiedForDeployment;
+    private final UserMessageLogger userMessageLogger;
+    private final ModuleToDeployHelper moduleToDeployHelper;
+    private final List<ModulesContentValidator> modulesContentValidators;
 
     public ModulesCloudModelBuilderContentCalculator(Set<String> mtaModulesInArchive, Set<String> deployedModules,
                                                      List<String> modulesSpecifiedForDeployment, UserMessageLogger userMessageLogger,

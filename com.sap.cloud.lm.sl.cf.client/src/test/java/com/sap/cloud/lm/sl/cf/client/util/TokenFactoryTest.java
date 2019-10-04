@@ -34,10 +34,10 @@ public class TokenFactoryTest {
             });
         }
 
-        private String userName;
-        private String clientId;
+        private final String userName;
+        private final String clientId;
 
-        private TokenFactory tokenFactory = new TokenFactory();
+        private final TokenFactory tokenFactory = new TokenFactory();
 
         public DummyTokenFactoryTest(String userName, String clientId) {
             this.userName = userName;
@@ -86,7 +86,7 @@ public class TokenFactoryTest {
         private final String tokenString;
         private final TokenProperties expectedTokenProperties;
 
-        private TokenFactory tokenFactory = new TokenFactory();
+        private final TokenFactory tokenFactory = new TokenFactory();
 
         public OauthTokenFactoryTest(String tokenString, TokenProperties expectedTokenProperties) {
             this.tokenString = tokenString;
@@ -130,7 +130,7 @@ public class TokenFactoryTest {
         private final String tokenString;
         private final Map<String, Object> tokenInfo;
 
-        private TokenFactory tokenFactory = new TokenFactory();
+        private final TokenFactory tokenFactory = new TokenFactory();
 
         public AdditionalInfoTokenFactoryTest(String additionalTokenString, String tokenString, Map<String, Object> tokenInfo) {
             this.additionalTokenString = additionalTokenString;

@@ -62,9 +62,9 @@ public class UploadAppStepTest {
         private static final String SPACE = "space";
         private static final String APP_ARCHIVE = "sample-app.mtar";
 
-        public TemporaryFolder tempDir = new TemporaryFolder();
+        public final TemporaryFolder tempDir = new TemporaryFolder();
         @Rule
-        public ExpectedException expectedException = ExpectedException.none();
+        public final ExpectedException expectedException = ExpectedException.none();
 
         @Parameters
         public static Iterable<Object[]> getParameters() {
@@ -98,9 +98,9 @@ public class UploadAppStepTest {
             });
         }
 
-        private String expectedIOExceptionMessage;
-        private String expectedCFExceptionMessage;
-        private MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
+        private final String expectedIOExceptionMessage;
+        private final String expectedCFExceptionMessage;
+        private final MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
 
         private File appFile;
 

@@ -8,8 +8,8 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata.ParameterType;
 
 public class ParameterTypeFactory {
 
-    private Map<String, Object> operationParameters;
-    private Set<ParameterMetadata> operationParametersMetadata;
+    private final Map<String, Object> operationParameters;
+    private final Set<ParameterMetadata> operationParametersMetadata;
 
     public ParameterTypeFactory(Map<String, Object> operationParameters, Set<ParameterMetadata> operationParametersMetadata) {
         this.operationParameters = operationParameters;

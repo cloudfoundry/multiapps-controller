@@ -46,12 +46,12 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
     protected static class StepInput {
 
-        public String servicesToBindLocation;
-        public String servicesToCreateLocation;
-        public String deployedMtaLocation;
-        public String serviceKeysLocation;
-        public String modulesToDeployLocation;
-        public List<String> customDomains;
+        public final String servicesToBindLocation;
+        public final String servicesToCreateLocation;
+        public final String deployedMtaLocation;
+        public final String serviceKeysLocation;
+        public final String modulesToDeployLocation;
+        public final List<String> customDomains;
 
         public StepInput(String modulesToDeployLocation, String servicesToBindLocation, String servicesToCreateLocation,
                          String serviceKeysLocation, List<String> customDomains, String deployedMtaLocation) {
@@ -67,7 +67,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
     protected static class StepOutput {
 
-        public String newMtaVersion;
+        public final String newMtaVersion;
 
         public StepOutput(String newMtaVersion) {
             this.newMtaVersion = newMtaVersion;
@@ -113,8 +113,8 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         });
     }
 
-    protected StepOutput output;
-    protected StepInput input;
+    protected final StepOutput output;
+    protected final StepInput input;
 
     protected List<Module> modulesToDeploy;
     protected DeployedMta deployedMta;

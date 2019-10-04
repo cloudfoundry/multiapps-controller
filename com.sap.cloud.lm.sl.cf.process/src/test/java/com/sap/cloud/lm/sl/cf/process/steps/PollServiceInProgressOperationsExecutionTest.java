@@ -119,13 +119,13 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
     @Mock
     private CloudControllerClient client;
     @Rule
-    public ExpectedException exception = ExpectedException.none();
-    private List<String> serviceNames;
-    private List<ServiceOperationType> servicesOperationTypes;
-    private List<ServiceOperationState> servicesOperationStates;
-    private boolean shouldVerifyStepLogger;
-    private AsyncExecutionState expectedExecutionState;
-    private String expectedExceptionMessage;
+    public final ExpectedException exception = ExpectedException.none();
+    private final List<String> serviceNames;
+    private final List<ServiceOperationType> servicesOperationTypes;
+    private final List<ServiceOperationState> servicesOperationStates;
+    private final boolean shouldVerifyStepLogger;
+    private final AsyncExecutionState expectedExecutionState;
+    private final String expectedExceptionMessage;
 
     @Before
     public void setUp() {

@@ -7,9 +7,9 @@ import java.util.function.Supplier;
 public class CachedObject<T> {
 
     private T object;
-    private long expirationTimeInSeconds;
+    private final long expirationTimeInSeconds;
     private long lastRefreshTime;
-    private LongSupplier currentTimeSupplier;
+    private final LongSupplier currentTimeSupplier;
 
     public CachedObject(long expirationTimeInSeconds) {
         this(expirationTimeInSeconds, System::currentTimeMillis);

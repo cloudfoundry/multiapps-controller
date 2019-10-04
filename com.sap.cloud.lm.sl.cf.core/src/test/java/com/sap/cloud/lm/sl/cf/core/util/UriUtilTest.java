@@ -18,7 +18,7 @@ public class UriUtilTest {
     private static final String PORT_BASED_URI = "https://valid-domain:4000";
     private static final String PORT_BASED_URI_WITHOUT_SCHEME = "valid-domain:4000";
 
-    private CloudRoute route = ImmutableCloudRoute.builder()
+    private final CloudRoute route = ImmutableCloudRoute.builder()
                                                   .host("valid-host")
                                                   .domain(ImmutableCloudDomain.builder()
                                                                               .name("valid-domain")

@@ -6,8 +6,8 @@ import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
 
 public class ModuleMasker extends AbstractMasker<Module> {
 
-    private ProvidedDependencyMasker providedMasker = new ProvidedDependencyMasker();
-    private RequiredDependencyMasker requiredMasker = new RequiredDependencyMasker();
+    private final ProvidedDependencyMasker providedMasker = new ProvidedDependencyMasker();
+    private final RequiredDependencyMasker requiredMasker = new RequiredDependencyMasker();
 
     @Override
     public void mask(Module module) {

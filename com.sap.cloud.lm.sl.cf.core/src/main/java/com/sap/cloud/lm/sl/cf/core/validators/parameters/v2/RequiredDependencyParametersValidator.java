@@ -9,7 +9,7 @@ import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
 
 public class RequiredDependencyParametersValidator extends ParametersValidator<RequiredDependency> {
 
-    protected RequiredDependency requiredDependency;
+    protected final RequiredDependency requiredDependency;
 
     public RequiredDependencyParametersValidator(String prefix, RequiredDependency requiredDependency, ParametersValidatorHelper helper) {
         super(prefix, requiredDependency.getName(), helper, Module.class);

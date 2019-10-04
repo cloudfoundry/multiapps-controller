@@ -26,11 +26,11 @@ public class ProcessStepHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessStepHelper.class);
 
-    private ProgressMessageService progressMessageService;
-    private ProcessLogsPersister processLogsPersister;
-    private StepLogger stepLogger;
+    private final ProgressMessageService progressMessageService;
+    private final ProcessLogsPersister processLogsPersister;
+    private final StepLogger stepLogger;
 
-    private ProcessEngineConfiguration processEngineConfiguration;
+    private final ProcessEngineConfiguration processEngineConfiguration;
 
     public ProcessStepHelper(ProgressMessageService progressMessageService, StepLogger stepLogger,
                              ProcessLogsPersister processLogsPersister, ProcessEngineConfiguration processEngineConfigurationSupplier) {

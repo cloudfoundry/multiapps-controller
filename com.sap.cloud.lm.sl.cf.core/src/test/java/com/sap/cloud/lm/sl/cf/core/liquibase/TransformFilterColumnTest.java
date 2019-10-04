@@ -13,7 +13,7 @@ import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 
 public class TransformFilterColumnTest {
 
-    private TransformFilterColumn transformFilterColumn = new TransformFilterColumn();
+    private final TransformFilterColumn transformFilterColumn = new TransformFilterColumn();
 
     @Test
     public void testSplitTargetSpaceValue() {

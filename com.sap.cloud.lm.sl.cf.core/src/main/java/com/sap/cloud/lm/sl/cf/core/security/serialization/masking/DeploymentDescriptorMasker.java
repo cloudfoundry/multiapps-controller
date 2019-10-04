@@ -5,8 +5,8 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class DeploymentDescriptorMasker extends AbstractMasker<DeploymentDescriptor> {
-    private ModuleMasker moduleMasker = new ModuleMasker();
-    private ResourceMasker resourceMasker = new ResourceMasker();
+    private final ModuleMasker moduleMasker = new ModuleMasker();
+    private final ResourceMasker resourceMasker = new ResourceMasker();
 
     @Override
     public void mask(DeploymentDescriptor descriptor) {

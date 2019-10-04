@@ -12,7 +12,7 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class RouteValidator implements ParameterValidator {
 
-    private List<ParameterValidator> validators;
+    private final List<ParameterValidator> validators;
 
     public RouteValidator() {
         this.validators = Arrays.asList(new HostValidator(), new DomainValidator());

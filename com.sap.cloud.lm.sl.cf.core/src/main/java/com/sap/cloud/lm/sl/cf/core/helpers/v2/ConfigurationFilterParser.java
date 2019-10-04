@@ -19,8 +19,8 @@ public class ConfigurationFilterParser {
     private static final String NEW_SYNTAX_FILTER = "configuration";
     private static final String OLD_SYNTAX_FILTER = "mta-provides-dependency";
 
-    protected CloudTarget currentTarget;
-    protected PropertiesChainBuilder chainBuilder;
+    protected final CloudTarget currentTarget;
+    protected final PropertiesChainBuilder chainBuilder;
 
     public ConfigurationFilterParser(CloudTarget currentTarget, PropertiesChainBuilder chainBuilder) {
         this.currentTarget = currentTarget;

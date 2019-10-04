@@ -7,7 +7,7 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class ModuleSerializer extends SecureJsonSerializer {
 
-    ModuleMasker masker = new ModuleMasker();
+    final ModuleMasker masker = new ModuleMasker();
 
     public ModuleSerializer(SecureSerializerConfiguration configuration) {
         super(configuration);

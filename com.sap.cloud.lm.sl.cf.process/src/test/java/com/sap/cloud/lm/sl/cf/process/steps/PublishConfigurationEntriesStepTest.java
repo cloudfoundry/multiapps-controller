@@ -39,14 +39,14 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     private static class StepInput {
 
         List<ConfigurationEntry> entriesToPublish;
-        List<ConfigurationEntry> expectedCreatedEntries = Collections.emptyList();
-        List<ConfigurationEntry> expectedUpdatedEntries = Collections.emptyList();
+        final List<ConfigurationEntry> expectedCreatedEntries = Collections.emptyList();
+        final List<ConfigurationEntry> expectedUpdatedEntries = Collections.emptyList();
 
     }
 
     private static List<ConfigurationEntry> existingConfigurationEntries;
 
-    private StepInput input;
+    private final StepInput input;
     @Mock
     private ConfigurationEntryService configurationEntryService;
     @Mock(answer = Answers.RETURNS_SELF)

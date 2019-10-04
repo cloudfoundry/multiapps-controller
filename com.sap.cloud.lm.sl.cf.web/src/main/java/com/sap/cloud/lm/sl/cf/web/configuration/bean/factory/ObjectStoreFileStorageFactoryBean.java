@@ -20,7 +20,7 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectStoreFileStorageFactoryBean.class);
 
-    private String serviceName;
+    private final String serviceName;
     private ObjectStoreFileStorage objectStoreFileService;
 
     public ObjectStoreFileStorageFactoryBean(String serviceName) {

@@ -266,12 +266,12 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
             });
         }
 
-        private boolean vcapPropertiesChanged;
-        private boolean vcapServicesChanged;
-        private boolean userPropertiesChanged;
-        private boolean shouldRestartOnVcapAppChange;
-        private boolean shouldRestartOnVcapServicesChange;
-        private boolean shouldRestartOnUserProvidedChange;
+        private final boolean vcapPropertiesChanged;
+        private final boolean vcapServicesChanged;
+        private final boolean userPropertiesChanged;
+        private final boolean shouldRestartOnVcapAppChange;
+        private final boolean shouldRestartOnVcapServicesChange;
+        private final boolean shouldRestartOnUserProvidedChange;
 
         public DetermineAppRestartTest(ApplicationStartupState currentAppState, ApplicationStartupState desiredAppState, Set<ApplicationStateAction> expectedAppStateActions, List<CloudBuild> cloudBuilds, boolean vcapPropertiesChanged, boolean vcapServicesChanged, boolean userPropertiesChanged , boolean shouldRestartOnVcapAppChange, boolean shouldRestartOnVcapServicesChange,  boolean shouldRestartOnUserProvidedChange) {
             super(currentAppState, desiredAppState, HAS_APP_CHANGED, expectedAppStateActions, cloudBuilds);

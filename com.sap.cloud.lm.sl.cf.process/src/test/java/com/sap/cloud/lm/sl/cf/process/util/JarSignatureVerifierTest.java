@@ -28,7 +28,7 @@ public class JarSignatureVerifierTest {
     private static final String CONTAINS_UNSIGNED_FILES = "contains-unsigned-files.mtar";
     private static final String CUSTOM_CERTIFICATE = "custom-certificate.crt";
 
-    private JarSignatureVerifier verifier = new JarSignatureVerifier();
+    private final JarSignatureVerifier verifier = new JarSignatureVerifier();
 
     @Test
     public void verifyMtarWithNonSymantecCertificate() {

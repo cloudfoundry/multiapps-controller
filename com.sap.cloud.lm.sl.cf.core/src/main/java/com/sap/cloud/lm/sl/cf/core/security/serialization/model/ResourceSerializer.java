@@ -6,7 +6,7 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.masking.ResourceMasker
 import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ResourceSerializer extends SecureJsonSerializer {
-    private ResourceMasker masker = new ResourceMasker();
+    private final ResourceMasker masker = new ResourceMasker();
 
     public ResourceSerializer(SecureSerializerConfiguration configuration) {
         super(configuration);

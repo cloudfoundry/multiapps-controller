@@ -34,7 +34,7 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubscriptionsStep> {
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     private static final long DUMMY_ID = 9L;
 

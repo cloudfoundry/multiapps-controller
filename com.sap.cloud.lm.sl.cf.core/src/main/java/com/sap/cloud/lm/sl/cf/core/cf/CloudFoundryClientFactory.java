@@ -22,9 +22,9 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 @Named
 public class CloudFoundryClientFactory extends ClientFactory {
 
-    private ApplicationConfiguration configuration;
-    private CloudControllerRestClientFactory clientFactory;
-    private OAuthClientFactory oAuthClientFactory;
+    private final ApplicationConfiguration configuration;
+    private final CloudControllerRestClientFactory clientFactory;
+    private final OAuthClientFactory oAuthClientFactory;
 
     @Inject
     public CloudFoundryClientFactory(ApplicationConfiguration configuration, OAuthClientFactory oAuthClientFactory) {

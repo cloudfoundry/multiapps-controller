@@ -15,7 +15,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.service.TokenService;
 public class OAuthClientExtended extends OAuthClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuthClientExtended.class);
-    private TokenService tokenService;
+    private final TokenService tokenService;
 
     public OAuthClientExtended(URL authorizationUrl, RestTemplate restTemplate, TokenService tokenService) {
         super(authorizationUrl, restTemplate);

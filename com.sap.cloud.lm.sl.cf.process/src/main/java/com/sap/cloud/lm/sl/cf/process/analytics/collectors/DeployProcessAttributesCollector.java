@@ -22,7 +22,7 @@ public class DeployProcessAttributesCollector extends AbstractCommonProcessAttri
 
     private static final Integer DEFAULT_NON_EXISTING_MTA_SIZE = 0;
 
-    private FileService fileService;
+    private final FileService fileService;
 
     @Inject
     public DeployProcessAttributesCollector(FileService fileService) {

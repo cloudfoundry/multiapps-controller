@@ -27,7 +27,7 @@ public class TaggingRequestInterceptorTest {
     private static final String TEST_ORG_VALUE = "faceorg";
     private static final String TEST_SPACE_VALUE = "myspace";
     private org.springframework.http.HttpRequest requestStub;
-    private byte[] body = new byte[] {};
+    private final byte[] body = new byte[] {};
     @Mock
     private ClientHttpRequestExecution execution;
 

@@ -17,8 +17,8 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.criteria.QueryCriteria;
 
 public abstract class AbstractQueryImpl<R, T extends Query<R, T>> implements Query<R, T> {
 
-    private EntityManager entityManager;
-    private CriteriaBuilder criteriaBuilder;
+    private final EntityManager entityManager;
+    private final CriteriaBuilder criteriaBuilder;
     private Integer limit;
     private Integer offset;
     private OrderDirection orderDirection;

@@ -12,10 +12,10 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class ModuleDependencyChecker {
 
-    private Set<String> modulesForDeployment;
-    private Set<String> modulesNotForDeployment;
-    private Set<String> modulesAlreadyDeployed;
-    private CloudControllerClient client;
+    private final Set<String> modulesForDeployment;
+    private final Set<String> modulesNotForDeployment;
+    private final Set<String> modulesAlreadyDeployed;
+    private final CloudControllerClient client;
 
     public ModuleDependencyChecker(CloudControllerClient client, List<Module> allModulesInDescriptor, List<Module> allModulesToDeploy,
                                    List<Module> completedModules) {

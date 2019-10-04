@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ComputeNextModulesStep extends SyncFlowableStep {
 
-    protected SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    protected final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

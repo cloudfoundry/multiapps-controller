@@ -17,8 +17,8 @@ public class ObjectToEnvironmentValueConverterTest {
 
     private final Tester tester = Tester.forClass(getClass());
 
-    private String objectJsonFilePath;
-    private Expectation expectation;
+    private final String objectJsonFilePath;
+    private final Expectation expectation;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {

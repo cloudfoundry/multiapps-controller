@@ -45,7 +45,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     @Inject
     private ModuleToDeployHelper moduleToDeployHelper;
 
-    protected SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    protected final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

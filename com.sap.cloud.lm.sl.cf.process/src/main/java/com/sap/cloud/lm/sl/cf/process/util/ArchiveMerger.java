@@ -21,9 +21,9 @@ public class ArchiveMerger {
 
     private static final String PART_POSTFIX = ".part.";
 
-    private FileService fileService;
-    private StepLogger stepLogger;
-    private DelegateExecution context;
+    private final FileService fileService;
+    private final StepLogger stepLogger;
+    private final DelegateExecution context;
 
     public ArchiveMerger(FileService fileService, StepLogger stepLogger, DelegateExecution context) {
         this.fileService = fileService;

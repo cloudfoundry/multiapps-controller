@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
 
-    protected SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
+    protected final SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
     protected DescriptorParserFacade descriptorParserFacade = new DescriptorParserFacade();
     protected ExtensionDescriptorChainBuilder extensionDescriptorChainBuilder = new ExtensionDescriptorChainBuilder(false);
 

@@ -29,7 +29,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         STARTING, STARTED, CRASHED, FLAPPING
     }
 
-    private RecentLogsRetriever recentLogsRetriever;
+    private final RecentLogsRetriever recentLogsRetriever;
 
     public PollStartAppStatusExecution(RecentLogsRetriever recentLogsRetriever) {
         this.recentLogsRetriever = recentLogsRetriever;

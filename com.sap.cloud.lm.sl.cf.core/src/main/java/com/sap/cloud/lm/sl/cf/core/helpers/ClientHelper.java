@@ -17,7 +17,7 @@ public class ClientHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientHelper.class);
 
-    private CloudControllerClient client;
+    private final CloudControllerClient client;
 
     public ClientHelper(CloudControllerClient client) {
         this.client = client;

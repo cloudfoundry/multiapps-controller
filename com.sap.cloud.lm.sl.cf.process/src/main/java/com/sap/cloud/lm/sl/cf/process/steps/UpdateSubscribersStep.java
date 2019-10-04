@@ -86,7 +86,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
     private static final String DUMMY_VERSION = "1.0.0";
 
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     protected BiFunction<ClientHelper, String, CloudTarget> targetCalculator = ClientHelper::computeTarget;
 
@@ -339,7 +339,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
             super(ReferencePattern.FULLY_QUALIFIED, reference -> name.equals(reference.getDependencyName()));
         }
 
-        private List<String> relevantProperties = new ArrayList<>();
+        private final List<String> relevantProperties = new ArrayList<>();
 
         @Override
         protected Object visit(String key, String value, List<Reference> references) {

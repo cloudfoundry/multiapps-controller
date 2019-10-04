@@ -10,7 +10,7 @@ import com.sap.cloud.lm.sl.mta.resolvers.v2.ModuleReferenceResolver;
 
 public class PartialDescriptorReferenceResolver extends DescriptorReferenceResolver {
 
-    private List<String> dependenciesToIgnore;
+    private final List<String> dependenciesToIgnore;
 
     public PartialDescriptorReferenceResolver(DeploymentDescriptor descriptor, List<String> dependenciesToIgnore) {
         super(descriptor, new ResolverBuilder(), new ResolverBuilder());

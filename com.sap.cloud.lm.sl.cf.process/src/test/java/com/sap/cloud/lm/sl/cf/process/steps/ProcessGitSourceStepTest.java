@@ -61,7 +61,7 @@ public class ProcessGitSourceStepTest extends SyncFlowableStepTest<ProcessGitSou
     @RunWith(Parameterized.class)
     public static class ZipRepoContentTest extends ProcessGitSourceStepTest {
 
-        String repository;
+        final String repository;
 
         @Parameters
         public static Iterable<Object[]> getParameters() {

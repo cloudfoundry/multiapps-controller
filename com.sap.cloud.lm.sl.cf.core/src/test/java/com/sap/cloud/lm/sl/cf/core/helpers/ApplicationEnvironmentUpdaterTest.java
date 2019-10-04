@@ -25,10 +25,10 @@ public class ApplicationEnvironmentUpdaterTest {
 
     private final Tester tester = Tester.forClass(getClass());
 
-    private Input input;
-    private Expectation expectation;
+    private final Input input;
+    private final Expectation expectation;
     private ApplicationEnvironmentUpdater applicationEnvironmentUpdater;
-    private CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
+    private final CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
 
     @Parameters
     public static Iterable<Object[]> getParameters() {

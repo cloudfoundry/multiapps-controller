@@ -29,7 +29,7 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private ApplicationColorDetector applicationColorDetector;

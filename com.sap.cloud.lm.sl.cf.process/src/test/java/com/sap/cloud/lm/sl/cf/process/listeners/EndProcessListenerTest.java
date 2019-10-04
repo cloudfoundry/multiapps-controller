@@ -28,7 +28,7 @@ public class EndProcessListenerTest {
     private final boolean keepFiles;
     private final String[] expectedFileIdsToSweep;
 
-    private DelegateExecution context = MockDelegateExecution.createSpyInstance();
+    private final DelegateExecution context = MockDelegateExecution.createSpyInstance();
 
     @Mock
     private FileService fileService;

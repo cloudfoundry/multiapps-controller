@@ -32,7 +32,7 @@ public class StepsUtilTest {
     private static final String EXAMPLE_USER = "exampleUser";
     private static final String EXAMPLE_MODULE_NAME = "exampleModule";
 
-    protected DelegateExecution context = MockDelegateExecution.createSpyInstance();
+    protected final DelegateExecution context = MockDelegateExecution.createSpyInstance();
 
     @Test
     public void testDetermineCurrentUserWithSetUser() {

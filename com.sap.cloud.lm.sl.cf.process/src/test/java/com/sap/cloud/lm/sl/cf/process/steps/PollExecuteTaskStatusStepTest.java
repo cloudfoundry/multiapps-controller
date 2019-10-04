@@ -85,11 +85,11 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
         });
     }
 
-    private CloudTask.State currentTaskState;
-    private long currentTime;
-    private AsyncExecutionState expectedExecutionStatus;
+    private final CloudTask.State currentTaskState;
+    private final long currentTime;
+    private final AsyncExecutionState expectedExecutionStatus;
 
-    private CloudTask task = ImmutableCloudTask.builder()
+    private final CloudTask task = ImmutableCloudTask.builder()
                                                .metadata(ImmutableCloudMetadata.builder()
                                                                                .guid(TASK_UUID)
                                                                                .build())

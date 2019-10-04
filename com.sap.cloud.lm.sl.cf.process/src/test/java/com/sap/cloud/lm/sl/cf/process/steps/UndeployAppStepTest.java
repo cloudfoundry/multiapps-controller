@@ -115,13 +115,13 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     }
 
     protected static class StepInput {
-        protected List<CloudApplication> appsToDelete = Collections.emptyList();
-        protected Map<String, List<CloudRoute>> appRoutesPerApplication = Collections.emptyMap();
-        protected Map<String, List<CloudTask>> tasksPerApplication = Collections.emptyMap();
+        protected final List<CloudApplication> appsToDelete = Collections.emptyList();
+        protected final Map<String, List<CloudRoute>> appRoutesPerApplication = Collections.emptyMap();
+        protected final Map<String, List<CloudTask>> tasksPerApplication = Collections.emptyMap();
     }
 
     protected static class StepOutput {
-        protected List<Route> expectedRoutesToDelete = Collections.emptyList();
+        protected final List<Route> expectedRoutesToDelete = Collections.emptyList();
         protected List<String> expectedTasksToCancel = Collections.emptyList();
     }
 

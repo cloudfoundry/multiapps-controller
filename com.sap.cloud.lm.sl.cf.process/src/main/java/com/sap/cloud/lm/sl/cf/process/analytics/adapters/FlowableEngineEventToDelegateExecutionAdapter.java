@@ -15,7 +15,7 @@ import org.flowable.variable.api.persistence.entity.VariableInstance;
 
 public class FlowableEngineEventToDelegateExecutionAdapter implements DelegateExecution {
 
-    private FlowableEngineEvent event;
+    private final FlowableEngineEvent event;
 
     public FlowableEngineEventToDelegateExecutionAdapter(FlowableEngineEvent event) {
         this.event = event;

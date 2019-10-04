@@ -5,7 +5,7 @@ import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class DummyConfigurationFilterParser extends com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser {
 
-    private ConfigurationFilter filter;
+    private final ConfigurationFilter filter;
 
     public DummyConfigurationFilterParser(ConfigurationFilter filter) {
         super(null, null);

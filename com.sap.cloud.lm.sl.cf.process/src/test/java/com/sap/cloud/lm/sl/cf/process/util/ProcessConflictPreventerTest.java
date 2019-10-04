@@ -22,9 +22,9 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 public class ProcessConflictPreventerTest {
 
-    private String testMtaId = "test-mta-id";
-    private String testSpaceId = "test-space-id";
-    private String testProcessId = "test-process-id";
+    private final String testMtaId = "test-mta-id";
+    private final String testSpaceId = "test-space-id";
+    private final String testProcessId = "test-process-id";
     private OperationService operationServiceMock;
     private ProcessConflictPreventer processConflictPreventerMock;
 

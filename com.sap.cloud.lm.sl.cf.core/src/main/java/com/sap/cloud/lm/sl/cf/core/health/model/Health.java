@@ -8,8 +8,8 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 public class Health {
 
-    private boolean healthy;
-    private List<HealthCheckOperation> healthCheckOperations;
+    private final boolean healthy;
+    private final List<HealthCheckOperation> healthCheckOperations;
 
     protected Health(boolean healthy, List<HealthCheckOperation> healthCheckOperations) {
         this.healthy = healthy;

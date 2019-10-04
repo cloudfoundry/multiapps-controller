@@ -11,8 +11,8 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class UnresolvedModulesContentValidator implements ModulesContentValidator {
 
-    private Set<String> allMtaModules;
-    private Set<String> deployedModules;
+    private final Set<String> allMtaModules;
+    private final Set<String> deployedModules;
 
     public UnresolvedModulesContentValidator(Set<String> allMtaModules, Set<String> deployedModules) {
         this.allMtaModules = allMtaModules;

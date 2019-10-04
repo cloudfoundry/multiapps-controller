@@ -7,8 +7,8 @@ import com.sap.cloud.lm.sl.cf.persistence.dialects.DefaultDataSourceDialect;
 
 public class DataSourceWithDialect {
 
-    private DataSource dataSource;
-    private DataSourceDialect dataSourceDialect;
+    private final DataSource dataSource;
+    private final DataSourceDialect dataSourceDialect;
 
     public DataSourceWithDialect(DataSource dataSource) {
         this(dataSource, new DefaultDataSourceDialect());

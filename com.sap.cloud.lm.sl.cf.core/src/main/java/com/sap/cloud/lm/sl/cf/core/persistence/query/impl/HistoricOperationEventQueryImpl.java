@@ -18,8 +18,8 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.HistoricOperationEventSer
 public class HistoricOperationEventQueryImpl extends AbstractQueryImpl<HistoricOperationEvent, HistoricOperationEventQuery>
     implements HistoricOperationEventQuery {
 
-    private QueryCriteria queryCriteria = new QueryCriteria();
-    private HistoricOperationEventMapper historicOperationEventFactory;
+    private final QueryCriteria queryCriteria = new QueryCriteria();
+    private final HistoricOperationEventMapper historicOperationEventFactory;
 
     public HistoricOperationEventQueryImpl(EntityManager entityManager, HistoricOperationEventMapper historicOperationEventFactory) {
         super(entityManager);

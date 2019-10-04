@@ -7,9 +7,9 @@ import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateBehavior;
 
 public abstract class ApplicationAttributeUpdater {
 
-    protected CloudApplication existingApp;
-    protected StepLogger stepLogger;
-    protected UpdateBehavior updateBehavior;
+    protected final CloudApplication existingApp;
+    protected final StepLogger stepLogger;
+    protected final UpdateBehavior updateBehavior;
 
     public ApplicationAttributeUpdater(CloudApplication existingApp, StepLogger stepLogger) {
         this(existingApp, UpdateBehavior.REPLACE, stepLogger);

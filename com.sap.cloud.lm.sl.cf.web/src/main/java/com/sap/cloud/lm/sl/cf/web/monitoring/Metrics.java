@@ -16,11 +16,11 @@ public class Metrics implements MetricsMBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Metrics.class);
 
-    private ApplicationConfiguration appConfigurations;
+    private final ApplicationConfiguration appConfigurations;
 
-    private FileSystemFileStorage fileSystemStorage;
+    private final FileSystemFileStorage fileSystemStorage;
 
-    private FssMonitor fssMonitor;
+    private final FssMonitor fssMonitor;
 
     @Inject
     public Metrics(ApplicationConfiguration appConfigurations, FssMonitor fssMonitor, FileSystemFileStorage fss) {

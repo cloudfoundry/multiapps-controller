@@ -10,7 +10,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 public class CFOptimizedEventGetter extends CustomControllerClient {
 
     private static final String FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT = "/v2/events?inline-relations-depth=1&results-per-page=100&q=type:{type}&q=timestamp>{timestamp}";
-    private CloudControllerClient client;
+    private final CloudControllerClient client;
 
     public CFOptimizedEventGetter(CloudControllerClient client) {
         super(new RestTemplateFactory());

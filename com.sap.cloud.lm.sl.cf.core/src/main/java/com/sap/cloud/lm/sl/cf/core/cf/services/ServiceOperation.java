@@ -11,9 +11,9 @@ public class ServiceOperation {
     public static final String SERVICE_OPERATION_STATE = "state";
     public static final String SERVICE_OPERATION_DESCRIPTION = "description";
 
-    private ServiceOperationType type;
-    private String description;
-    private ServiceOperationState state;
+    private final ServiceOperationType type;
+    private final String description;
+    private final ServiceOperationState state;
 
     public ServiceOperation(ServiceOperationType type, String description, ServiceOperationState state) {
         this.type = type;

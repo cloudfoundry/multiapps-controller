@@ -57,7 +57,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
     private static final String USER = "XSMASTER";
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -122,13 +122,13 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
     @Mock
     protected ModuleToDeployHelper moduleToDeployHelper;
 
-    private String expectedExceptionMessage;
+    private final String expectedExceptionMessage;
 
-    private int majorSchemaVersion;
-    private String expectedOutputLocation;
+    private final int majorSchemaVersion;
+    private final String expectedOutputLocation;
     private StepOutput expectedOutput;
     private Map<CloudSpace, CloudControllerClient> clients;
-    private String inputLocation;
+    private final String inputLocation;
     private StepInput input;
 
     public UpdateSubscribersStepTest(String inputLocation, String expectedOutputLocation, int majorSchemaVersion,

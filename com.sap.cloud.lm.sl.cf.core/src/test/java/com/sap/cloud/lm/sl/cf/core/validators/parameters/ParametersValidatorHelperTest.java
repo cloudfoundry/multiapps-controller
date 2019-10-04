@@ -71,12 +71,12 @@ public class ParametersValidatorHelperTest {
         });
     }
 
-    private List<ParameterValidator> validators = Arrays.asList(new HostValidator(), new DomainValidator(), new RoutesValidator());
-    private ParametersValidatorHelper validatorHelper = new ParametersValidatorHelper(validators, false);
-    private Module container = Module.createV2();
+    private final List<ParameterValidator> validators = Arrays.asList(new HostValidator(), new DomainValidator(), new RoutesValidator());
+    private final ParametersValidatorHelper validatorHelper = new ParametersValidatorHelper(validators, false);
+    private final Module container = Module.createV2();
 
-    private Map<String, Object> initialParameters;
-    private Map<String, Object> correctParameters;
+    private final Map<String, Object> initialParameters;
+    private final Map<String, Object> correctParameters;
 
     public ParametersValidatorHelperTest(Map<String, Object> initialParameters, Map<String, Object> correctParameters) {
         this.initialParameters = initialParameters;

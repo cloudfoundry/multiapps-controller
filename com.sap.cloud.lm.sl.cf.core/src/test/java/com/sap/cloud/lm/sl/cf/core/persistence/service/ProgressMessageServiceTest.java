@@ -29,7 +29,7 @@ public class ProgressMessageServiceTest {
     private static final ProgressMessage PROGRESS_MESSAGE_2 = createProgressMessage(2L, "2", "taskId2", ProgressMessageType.ERROR,
                                                                                     "error text", new Date());
 
-    private ProgressMessageService progressMessageService = createProgressMessageService();
+    private final ProgressMessageService progressMessageService = createProgressMessageService();
 
     @AfterEach
     public void cleanUp() {

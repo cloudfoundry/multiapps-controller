@@ -8,7 +8,7 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class ModuleParametersValidator extends ParametersValidator<Module> {
 
-    protected Module module;
+    protected final Module module;
 
     protected ModuleParametersValidator(Module module, ParametersValidatorHelper helper) {
         super("", module.getName(), helper, Module.class);

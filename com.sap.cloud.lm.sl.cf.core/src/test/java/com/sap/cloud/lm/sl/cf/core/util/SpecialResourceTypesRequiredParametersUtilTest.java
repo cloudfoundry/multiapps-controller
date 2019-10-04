@@ -10,7 +10,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
 import com.sap.cloud.lm.sl.common.ContentException;
 
 class SpecialResourceTypesRequiredParametersUtilTest {
-    private String testServiceName = "testService";
+    private final String testServiceName = "testService";
 
     @Test
     void checkRequiredParametersForManagedServiceWithNoParameters() {

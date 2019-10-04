@@ -10,7 +10,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class ApplicationFileDigestDetector {
 
-    private Map<String, String> appEnv;
+    private final Map<String, String> appEnv;
 
     public ApplicationFileDigestDetector(Map<String, String> appEnv) {
         this.appEnv = appEnv;

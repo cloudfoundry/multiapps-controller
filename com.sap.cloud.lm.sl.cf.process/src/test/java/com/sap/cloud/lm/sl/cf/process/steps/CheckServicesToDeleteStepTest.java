@@ -123,7 +123,7 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
 
     private class CloudServiceExtendedMatcher implements ArgumentMatcher<CloudServiceExtended> {
 
-        private String serviceName;
+        private final String serviceName;
 
         public CloudServiceExtendedMatcher(String serviceName) {
             this.serviceName = serviceName;

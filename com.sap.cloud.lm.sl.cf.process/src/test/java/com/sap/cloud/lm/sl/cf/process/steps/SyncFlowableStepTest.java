@@ -28,7 +28,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
-import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
@@ -47,12 +46,12 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     protected static final String ORG_NAME = "org";
     protected static final String SPACE_NAME = "space";
     protected static final String SPACE_GUID = "spaceGuid";
-    protected String TEST_CORRELATION_ID = "test";
-    protected String TEST_TASK_ID = "testTask";
+    protected final String TEST_CORRELATION_ID = "test";
+    protected final String TEST_TASK_ID = "testTask";
 
-    protected Tester tester = Tester.forClass(getClass());
+    protected final Tester tester = Tester.forClass(getClass());
 
-    protected DelegateExecution context = MockDelegateExecution.createSpyInstance();
+    protected final DelegateExecution context = MockDelegateExecution.createSpyInstance();
     @Mock
     protected StepLogger.Factory stepLoggerFactory;
     protected StepLogger stepLogger;
@@ -72,7 +71,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     protected ApplicationConfiguration configuration;
     @Mock
     protected ProcessEngineConfiguration processEngineConfiguration;
-    protected ProcessLoggerProvider processLoggerProvider = Mockito.spy(ProcessLoggerProvider.class);
+    protected final ProcessLoggerProvider processLoggerProvider = Mockito.spy(ProcessLoggerProvider.class);
     @InjectMocks
     protected ProcessLogsPersister processLogsPersister = Mockito.spy(ProcessLogsPersister.class);
 

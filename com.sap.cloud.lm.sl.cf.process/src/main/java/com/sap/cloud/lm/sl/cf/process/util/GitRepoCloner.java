@@ -31,7 +31,7 @@ public class GitRepoCloner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessGitSourceStep.class);
 
-    CloneCommand cloneCommand;
+    final CloneCommand cloneCommand;
     private String refName;
     private Path gitconfigFilePath;
     private boolean skipSslValidation;

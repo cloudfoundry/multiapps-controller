@@ -22,9 +22,9 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class ConfigurationEntriesCloudModelBuilder {
 
-    private String orgName;
-    private String spaceName;
-    private String spaceId;
+    private final String orgName;
+    private final String spaceName;
+    private final String spaceId;
 
     public ConfigurationEntriesCloudModelBuilder(String orgName, String spaceName, String spaceId) {
         this.orgName = orgName;

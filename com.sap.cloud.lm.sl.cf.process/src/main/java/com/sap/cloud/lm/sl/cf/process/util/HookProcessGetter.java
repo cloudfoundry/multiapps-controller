@@ -20,8 +20,8 @@ import com.sap.cloud.lm.sl.mta.model.Hook;
 @Named("hookProcessGetter")
 public class HookProcessGetter {
 
-    private ProgressMessageService progressMessageService;
-    private FlowableFacade flowableFacade;
+    private final ProgressMessageService progressMessageService;
+    private final FlowableFacade flowableFacade;
 
     @Inject
     public HookProcessGetter(ProgressMessageService progressMessageService, FlowableFacade flowableFacade) {

@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 @Named
 public class ApplicationZipBuilder {
     private static final int BUFFER_SIZE = 4 * 1024; // 4KB
-    private ApplicationArchiveReader applicationArchiveReader;
+    private final ApplicationArchiveReader applicationArchiveReader;
 
     @Inject
     public ApplicationZipBuilder(ApplicationArchiveReader applicationArchiveReader) {

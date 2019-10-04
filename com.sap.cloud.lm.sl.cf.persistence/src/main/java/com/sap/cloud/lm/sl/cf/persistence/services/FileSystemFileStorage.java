@@ -29,7 +29,7 @@ public class FileSystemFileStorage implements FileStorage {
 
     private static final String DEFAULT_FILES_STORAGE_PATH = "files";
 
-    private String storagePath;
+    private final String storagePath;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 

@@ -25,7 +25,7 @@ public class TokensCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokensCleaner.class);
 
-    protected TokenStore tokenStore;
+    protected final TokenStore tokenStore;
 
     @Inject
     public TokensCleaner(@Named("tokenStore") TokenStore tokenStore) {

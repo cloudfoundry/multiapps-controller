@@ -54,7 +54,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     @Inject
     private ServiceGetter serviceInstanceGetter;
 
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {

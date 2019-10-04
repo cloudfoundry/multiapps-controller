@@ -6,7 +6,7 @@ import java.util.TreeMap;
 
 public class MapToEnvironmentConverter {
 
-    private ObjectToEnvironmentValueConverter objectToEnvValueConverter;
+    private final ObjectToEnvironmentValueConverter objectToEnvValueConverter;
 
     public MapToEnvironmentConverter(boolean prettyPrinting) {
         this.objectToEnvValueConverter = new ObjectToEnvironmentValueConverter(prettyPrinting);

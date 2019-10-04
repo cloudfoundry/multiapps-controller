@@ -10,7 +10,7 @@ import com.sap.cloud.lm.sl.mta.resolvers.ReferencePattern;
 
 public class PartialPropertiesResolver extends PropertiesResolver {
 
-    private List<String> dependenciesToIgnore;
+    private final List<String> dependenciesToIgnore;
 
     public PartialPropertiesResolver(Map<String, Object> properties, ProvidedValuesResolver valuesResolver,
                                      ReferencePattern referencePattern, String prefix, List<String> dependenciesToIgnore) {

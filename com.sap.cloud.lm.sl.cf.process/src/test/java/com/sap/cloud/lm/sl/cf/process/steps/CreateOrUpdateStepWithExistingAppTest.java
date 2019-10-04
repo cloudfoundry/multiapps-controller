@@ -49,11 +49,11 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     private final StepInput input;
     private final String expectedExceptionMessage;
 
-    private List<String> notRequiredServices = new ArrayList<>();
+    private final List<String> notRequiredServices = new ArrayList<>();
     private List<String> expectedServicesToBind = new ArrayList<>();
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -298,7 +298,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         SimpleApplication application;
         SimpleApplication existingApplication;
         Map<String, List<SimpleBinding>> existingServiceBindings;
-        Map<String, List<CloudServiceKey>> existingServiceKeys = new HashMap<>();
+        final Map<String, List<CloudServiceKey>> existingServiceKeys = new HashMap<>();
         boolean updateStaging;
         boolean updateMemory;
         boolean updateDiskQuota;
@@ -320,12 +320,12 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
 
     private static class SimpleApplication {
         String name;
-        List<String> services = Collections.emptyList();
-        Map<String, Map<String, Object>> bindingParameters = Collections.emptyMap();
-        Map<String, String> env = Collections.emptyMap();
-        List<ServiceKeyToInject> serviceKeysToInject = Collections.emptyList();
+        final List<String> services = Collections.emptyList();
+        final Map<String, Map<String, Object>> bindingParameters = Collections.emptyMap();
+        final Map<String, String> env = Collections.emptyMap();
+        final List<ServiceKeyToInject> serviceKeysToInject = Collections.emptyList();
         String command;
-        List<String> uris = Collections.emptyList();
+        final List<String> uris = Collections.emptyList();
         String buildpackUrl;
         int memory;
         int instances;
@@ -365,7 +365,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     }
 
     private static class SimpleService {
-        String name;
+        final String name;
 
         SimpleService(String name) {
             this.name = name;

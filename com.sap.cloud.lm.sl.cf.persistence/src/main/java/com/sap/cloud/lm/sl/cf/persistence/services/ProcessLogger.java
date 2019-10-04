@@ -12,9 +12,9 @@ public class ProcessLogger extends Logger {
     private Logger logger;
     private File log;
     private String logName;
-    protected String spaceId;
-    protected String processId;
-    protected String activityId;
+    protected final String spaceId;
+    protected final String processId;
+    protected final String activityId;
 
     public ProcessLogger(Logger logger, File log, String logName, String spaceId, String processId, String activityId) {
         super(logger.getName());

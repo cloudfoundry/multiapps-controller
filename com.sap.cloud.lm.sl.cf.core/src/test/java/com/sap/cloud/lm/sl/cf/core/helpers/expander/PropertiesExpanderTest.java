@@ -54,12 +54,12 @@ public class PropertiesExpanderTest {
         });
     }
 
-    private String originalDependencyName;
-    private String propertiesLocation;
-    private List<String> newDependencyNames;
-    private List<String> expandedProperties;
+    private final String originalDependencyName;
+    private final String propertiesLocation;
+    private final List<String> newDependencyNames;
+    private final List<String> expandedProperties;
 
-    private Expectation expectation;
+    private final Expectation expectation;
 
     public PropertiesExpanderTest(String propertiesLocation, String originalDependencyName, List<String> newDependencyNames,
                                   Expectation expectation, List<String> expandedProperties) {

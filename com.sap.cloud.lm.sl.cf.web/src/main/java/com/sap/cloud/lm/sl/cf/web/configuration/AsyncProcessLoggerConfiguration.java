@@ -13,7 +13,7 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 @EnableAsync
 public class AsyncProcessLoggerConfiguration {
 
-    ApplicationConfiguration configuration = new ApplicationConfiguration();
+    final ApplicationConfiguration configuration = new ApplicationConfiguration();
 
     @Bean("asyncExecutor")
     public Executor getAsyncExecutor() {

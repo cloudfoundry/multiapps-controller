@@ -42,7 +42,7 @@ public class FlowableExceptionEventHandlerTest {
     @Mock
     private HistoricOperationEventPersister historicOperationEventPersisterMock;
 
-    private Date now = DateTime.now()
+    private final Date now = DateTime.now()
                                .toDate();
 
     @BeforeEach
@@ -190,7 +190,7 @@ public class FlowableExceptionEventHandlerTest {
 
     private class FlowableExceptionEventHandlerMock extends FlowableExceptionEventHandler {
 
-        private FlowableExceptionEvent flowableExceptionEvent;
+        private final FlowableExceptionEvent flowableExceptionEvent;
         private ProcessEngineConfiguration processEngineConfiguration;
 
         public FlowableExceptionEventHandlerMock(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,

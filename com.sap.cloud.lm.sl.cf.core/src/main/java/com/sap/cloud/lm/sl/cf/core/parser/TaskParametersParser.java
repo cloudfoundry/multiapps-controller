@@ -13,8 +13,8 @@ import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
 
-    private String parameterName;
-    private CloudTaskMapper cloudTaskMapper = new CloudTaskMapper();
+    private final String parameterName;
+    private final CloudTaskMapper cloudTaskMapper = new CloudTaskMapper();
 
     public TaskParametersParser(String parameterName) {
         this.parameterName = parameterName;

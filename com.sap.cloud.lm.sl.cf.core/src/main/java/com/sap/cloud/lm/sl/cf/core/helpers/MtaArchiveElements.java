@@ -5,9 +5,9 @@ import java.util.Map;
 
 public class MtaArchiveElements {
 
-    private Map<String, String> modulesFileNames = new HashMap<>();
-    private Map<String, String> resourcesFileNames = new HashMap<>();
-    private Map<String, String> requiresFileNames = new HashMap<>();
+    private final Map<String, String> modulesFileNames = new HashMap<>();
+    private final Map<String, String> resourcesFileNames = new HashMap<>();
+    private final Map<String, String> requiresFileNames = new HashMap<>();
 
     public void addModuleFileName(String moduleName, String fileName) {
         modulesFileNames.put(moduleName, fileName);

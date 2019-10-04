@@ -11,7 +11,7 @@ import org.mockito.stubbing.Answer;
 public class MockBuilder<T> {
 
     private T mock;
-    private Class<T> mockClass;
+    private final Class<T> mockClass;
 
     @SuppressWarnings("unchecked")
     public MockBuilder(T mock) {

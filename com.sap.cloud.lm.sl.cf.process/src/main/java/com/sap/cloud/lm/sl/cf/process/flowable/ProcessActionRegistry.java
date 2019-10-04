@@ -8,7 +8,7 @@ import javax.inject.Named;
 @Named
 public class ProcessActionRegistry {
 
-    private List<ProcessAction> processActions;
+    private final List<ProcessAction> processActions;
 
     @Inject
     public ProcessActionRegistry(List<ProcessAction> processActions) {

@@ -19,7 +19,7 @@ public class FileSystemFileStorageFactoryBean implements FactoryBean<FileSystemF
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemFileStorageFactoryBean.class);
 
-    private String serviceName;
+    private final String serviceName;
     private FileSystemFileStorage fileSystemFileStorage;
 
     public FileSystemFileStorageFactoryBean(String serviceName) {

@@ -19,7 +19,7 @@ public class RetryProcessAction extends ProcessAction {
 
     public static final String ACTION_ID_RETRY = "retry";
 
-    private HistoricOperationEventPersister historicOperationEventPersister;
+    private final HistoricOperationEventPersister historicOperationEventPersister;
 
     @Inject
     public RetryProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,

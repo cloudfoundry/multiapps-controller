@@ -33,8 +33,8 @@ public class ConfigurationEntryQueryImpl extends AbstractQueryImpl<Configuration
     private static final BiPredicate<CloudTarget, CloudTarget> TARGET_WILDCARD_FILTER = new TargetWildcardFilter();
     private static final BiPredicate<String, Map<String, Object>> CONTENT_FILTER = new ContentFilter();
 
-    private QueryCriteria queryCriteria = new QueryCriteria();
-    private ConfigurationEntryMapper entryMapper;
+    private final QueryCriteria queryCriteria = new QueryCriteria();
+    private final ConfigurationEntryMapper entryMapper;
 
     private Map<String, Object> requiredProperties;
     private CloudTarget target;

@@ -52,7 +52,7 @@ public class HealthRetrieverTest {
     @Mock
     private ApplicationConfiguration configuration;
 
-    private Supplier<ZonedDateTime> currentTimeSupplier = () -> CURRENT_TIME;
+    private final Supplier<ZonedDateTime> currentTimeSupplier = () -> CURRENT_TIME;
 
     public HealthRetrieverTest() {
         MockitoAnnotations.initMocks(this);

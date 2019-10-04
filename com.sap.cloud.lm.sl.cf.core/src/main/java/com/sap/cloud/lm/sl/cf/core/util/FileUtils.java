@@ -77,8 +77,8 @@ public class FileUtils {
 
     private static class CopyDirVisitor extends SimpleFileVisitor<Path> {
 
-        private Path fromPath;
-        private Path toPath;
+        private final Path fromPath;
+        private final Path toPath;
 
         CopyDirVisitor(Path fromPath, Path toPath) {
             this.fromPath = fromPath;

@@ -47,10 +47,10 @@ public class ConfigurationSubscriptionFactoryTest {
         });
     }
 
-    private String mtadFilePath;
-    private List<String> configurationResources;
-    private String spaceId;
-    private Expectation expectation;
+    private final String mtadFilePath;
+    private final List<String> configurationResources;
+    private final String spaceId;
+    private final Expectation expectation;
 
     public ConfigurationSubscriptionFactoryTest(String mtadFilePath, List<String> configurationResources, String spaceId,
                                                 Expectation expectation) {

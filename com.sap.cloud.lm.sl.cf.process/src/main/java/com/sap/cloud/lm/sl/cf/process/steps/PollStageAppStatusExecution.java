@@ -24,9 +24,9 @@ public class PollStageAppStatusExecution implements AsyncExecution {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PollStageAppStatusExecution.class);
 
-    private RecentLogsRetriever recentLogsRetriever;
+    private final RecentLogsRetriever recentLogsRetriever;
 
-    private ApplicationStager applicationStager;
+    private final ApplicationStager applicationStager;
 
     public PollStageAppStatusExecution(RecentLogsRetriever recentLogsRetriever, ApplicationStager applicationStager) {
         this.recentLogsRetriever = recentLogsRetriever;

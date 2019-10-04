@@ -44,7 +44,7 @@ public class ConfigurationEntriesResourceTest {
 
     private static final Tester TESTER = Tester.forClass(ConfigurationEntriesResourceTest.class);
 
-    private TestCase<TestInput> test;
+    private final TestCase<TestInput> test;
 
     public ConfigurationEntriesResourceTest(TestCase<TestInput> test) {
         this.test = test;
@@ -151,8 +151,8 @@ public class ConfigurationEntriesResourceTest {
 
     private static class GetRequestTestInput extends TestInput {
 
-        private long id;
-        private ConfigurationEntry entry;
+        private final long id;
+        private final ConfigurationEntry entry;
 
         public GetRequestTestInput(long id, String entryJsonLocation) {
             this.id = id;
@@ -171,7 +171,7 @@ public class ConfigurationEntriesResourceTest {
 
     private static class SearchRequestTestInput extends TestInput {
 
-        private List<String> requiredContent;
+        private final List<String> requiredContent;
 
         public SearchRequestTestInput(List<String> requiredContent, String parsedRequiredContentLocation) {
             this.requiredContent = requiredContent;
@@ -184,7 +184,7 @@ public class ConfigurationEntriesResourceTest {
 
     private static class PostRequestTestInput extends TestInput {
 
-        private String entryXml;
+        private final String entryXml;
 
         public PostRequestTestInput(String entryXmlLocation) {
             this.entryXml = TestUtil.getResourceAsString(entryXmlLocation, getClass());
@@ -212,7 +212,7 @@ public class ConfigurationEntriesResourceTest {
 
     private static class DeleteRequestTestInput extends TestInput {
 
-        private long id;
+        private final long id;
 
         public DeleteRequestTestInput(long id) {
             this.id = id;
@@ -426,7 +426,7 @@ public class ConfigurationEntriesResourceTest {
 
     private static class ConfigurationEntryMatcher implements ArgumentMatcher<ConfigurationEntry> {
 
-        private String xml;
+        private final String xml;
 
         public ConfigurationEntryMatcher(ConfigurationEntryDto dto) {
             this.xml = XmlUtil.toXml(dto, true);

@@ -135,8 +135,8 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
     @Mock
     protected ApplicationCloudModelBuilder applicationCloudModelBuilder;
 
-    private StepInput input;
-    private StepOutput output;
+    private final StepInput input;
+    private final StepOutput output;
 
     protected List<Module> modulesToDeploy;
     private List<CloudApplicationExtended> deployedApps;
@@ -260,15 +260,15 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
 
     private static class StepInput {
 
-        public String modulesToDeployLocation;
-        public String appsToDeployLocation;
-        public List<String> services;
-        public String deployedAppsLocation;
-        public Set<String> mtaModules;
-        public String subscriptionsToCreateLocation;
-        public String deployedMtaLocation;
-        public String existingSubscriptionsLocation;
-        public Set<String> deploymentDescriptorModules;
+        public final String modulesToDeployLocation;
+        public final String appsToDeployLocation;
+        public final List<String> services;
+        public final String deployedAppsLocation;
+        public final Set<String> mtaModules;
+        public final String subscriptionsToCreateLocation;
+        public final String deployedMtaLocation;
+        public final String existingSubscriptionsLocation;
+        public final Set<String> deploymentDescriptorModules;
 
         public StepInput(String modulesToDeployLocation, String appsToDeployLocation, List<String> services, String deployedAppsLocation,
                          Set<String> mtaModules, String deployedMtaLocation, String subscriptionsToCreateLocation,
@@ -288,9 +288,9 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
 
     private static class StepOutput {
 
-        public List<String> appsToUndeployNames;
-        public List<String> servicesToDelete;
-        public Expectation subscriptionsToDeleteExpectation;
+        public final List<String> appsToUndeployNames;
+        public final List<String> servicesToDelete;
+        public final Expectation subscriptionsToDeleteExpectation;
 
         public StepOutput(List<String> appsToUndeployNames, List<String> servicesToDelete, Expectation subscriptionsToDeleteExpectation) {
             this.appsToUndeployNames = appsToUndeployNames;

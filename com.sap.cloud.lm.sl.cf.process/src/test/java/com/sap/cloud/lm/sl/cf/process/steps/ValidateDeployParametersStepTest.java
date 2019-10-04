@@ -183,11 +183,11 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
 
     private static class StepInput {
 
-        private String appArchiveId;
-        private String extDescriptorId;
-        private int startTimeout;
-        private String versionRule;
-        private boolean shouldVerifyArchive;
+        private final String appArchiveId;
+        private final String extDescriptorId;
+        private final int startTimeout;
+        private final String versionRule;
+        private final boolean shouldVerifyArchive;
 
         public StepInput(String appArchiveId, String extDescriptorId, int startTimeout, String versionRule, boolean shouldVerifyArchive) {
             this.appArchiveId = appArchiveId;

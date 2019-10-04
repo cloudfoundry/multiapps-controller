@@ -58,7 +58,7 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     protected BooleanSupplier shouldPrettyPrint = () -> true;
 
@@ -100,9 +100,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
     private abstract class StepFlowHandler {
 
-        ExecutionWrapper execution;
+        final ExecutionWrapper execution;
         CloudApplicationExtended app;
-        CloudControllerClient client;
+        final CloudControllerClient client;
 
         public StepFlowHandler(ExecutionWrapper execution, CloudControllerClient client, CloudApplicationExtended app) {
             this.execution = execution;
@@ -213,7 +213,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
     private class UpdateAppFlowHandler extends StepFlowHandler {
 
-        CloudApplication existingApp;
+        final CloudApplication existingApp;
 
         public UpdateAppFlowHandler(ExecutionWrapper execution, CloudControllerClient client, CloudApplicationExtended app,
                                     CloudApplication existingApp) {
@@ -447,7 +447,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
     private class DefaultApplicationServicesUpdateCallback implements ApplicationServicesUpdateCallback {
 
-        private DelegateExecution context;
+        private final DelegateExecution context;
 
         private DefaultApplicationServicesUpdateCallback(DelegateExecution context) {
             this.context = context;

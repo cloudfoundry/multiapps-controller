@@ -70,8 +70,8 @@ public class MtaConfigurationPurgerTest {
     @Mock
     AuditLoggingFacadeSLImpl auditLoggingFacade;
 
-    private List<Query<?, ?>> queriesToVerifyDeleteCallOn = new ArrayList<>();
-    private List<Query<?, ?>> queriesToVerifyNoDeleteCallOn = new ArrayList<>();
+    private final List<Query<?, ?>> queriesToVerifyDeleteCallOn = new ArrayList<>();
+    private final List<Query<?, ?>> queriesToVerifyNoDeleteCallOn = new ArrayList<>();
 
     @Before
     public void setUp() throws IOException {

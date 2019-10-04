@@ -7,7 +7,7 @@ import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
 
 public class RequiredDependencySerializer extends SecureJsonSerializer {
 
-    private RequiredDependencyMasker masker = new RequiredDependencyMasker();
+    private final RequiredDependencyMasker masker = new RequiredDependencyMasker();
 
     public RequiredDependencySerializer(SecureSerializerConfiguration configuration) {
         super(configuration);

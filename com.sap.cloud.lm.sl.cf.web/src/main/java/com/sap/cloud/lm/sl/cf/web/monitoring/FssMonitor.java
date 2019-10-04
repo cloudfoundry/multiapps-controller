@@ -17,11 +17,11 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 @Named
 public class FssMonitor {
 
-    Map<File, Long> usedSpaceMap = new ConcurrentHashMap<>(1);
-    Map<File, LocalDateTime> updateTimesMap = new ConcurrentHashMap<>(1);
+    final Map<File, Long> usedSpaceMap = new ConcurrentHashMap<>(1);
+    final Map<File, LocalDateTime> updateTimesMap = new ConcurrentHashMap<>(1);
     private static final Logger LOGGER = LoggerFactory.getLogger(FssMonitor.class);
 
-    private Integer updateTimeoutMinutes;
+    private final Integer updateTimeoutMinutes;
 
     @Inject
     public FssMonitor(ApplicationConfiguration appConfigurations) {

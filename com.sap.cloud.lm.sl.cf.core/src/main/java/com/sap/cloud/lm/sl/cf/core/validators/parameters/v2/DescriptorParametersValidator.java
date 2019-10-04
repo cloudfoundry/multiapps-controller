@@ -12,7 +12,7 @@ import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class DescriptorParametersValidator extends ParametersValidator<DeploymentDescriptor> {
 
-    protected DeploymentDescriptor descriptor;
+    protected final DeploymentDescriptor descriptor;
 
     public DescriptorParametersValidator(DeploymentDescriptor deploymentDescriptor, List<ParameterValidator> parameterValidators) {
         this(deploymentDescriptor, parameterValidators, false);

@@ -8,9 +8,9 @@ import java.util.Objects;
 
 public class JsonElement<T> implements Element {
 
-    protected String name;
-    protected String prefix;
-    protected T object;
+    protected final String name;
+    protected final String prefix;
+    protected final T object;
 
     public JsonElement(String name, String prefix, T object) {
         this.name = name;

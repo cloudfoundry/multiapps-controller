@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 class RestartOnEnvChangeValidatorTest {
-    private RestartOnEnvChangeValidator validator = new RestartOnEnvChangeValidator();
+    private final RestartOnEnvChangeValidator validator = new RestartOnEnvChangeValidator();
 
     @Test
     void testGetParameterName() {

@@ -26,7 +26,7 @@ public class ProcessLoggerProvider {
     private static final String DEFAULT_LOG_DIR = "logs";
     private static final String LOG_FILE_EXTENSION = ".log";
 
-    private Map<String, ProcessLogger> loggersCache = new ConcurrentHashMap<>();
+    private final Map<String, ProcessLogger> loggersCache = new ConcurrentHashMap<>();
 
     public ProcessLogger getLogger(DelegateExecution context) {
         return getLogger(context, DEFAULT_LOG_NAME);

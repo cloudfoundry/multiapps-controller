@@ -25,8 +25,8 @@ public class ConfigurationReferenceResolver {
 
     protected static final String RESOURCE_INDEX_DELIMITER = ".";
 
-    protected ConfigurationEntryService configurationEntryService;
-    protected ApplicationConfiguration configuration;
+    protected final ConfigurationEntryService configurationEntryService;
+    protected final ApplicationConfiguration configuration;
     protected Map<String, ResolvedConfigurationReference> resolvedReferences = new TreeMap<>();
 
     public ConfigurationReferenceResolver(ConfigurationEntryService configurationEntryService, ApplicationConfiguration configuration) {

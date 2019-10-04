@@ -14,10 +14,10 @@ import com.sap.cloud.lm.sl.mta.model.Platform;
 
 public class MtaDescriptorMerger {
 
-    private HandlerFactory handlerFactory;
-    private Platform platform;
-    private UserMessageLogger userMessageLogger;
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    private final HandlerFactory handlerFactory;
+    private final Platform platform;
+    private final UserMessageLogger userMessageLogger;
+    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     public MtaDescriptorMerger(HandlerFactory handlerFactory, Platform platform) {
         this(handlerFactory, platform, null);

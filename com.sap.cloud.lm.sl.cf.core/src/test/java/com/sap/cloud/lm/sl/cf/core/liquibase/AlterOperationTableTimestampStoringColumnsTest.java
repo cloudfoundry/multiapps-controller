@@ -55,15 +55,15 @@ public class AlterOperationTableTimestampStoringColumnsTest {
     }
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
-    private AlterOperationTableTimestampStoringColumnsPostgresqlChange change = new AlterOperationTableTimestampStoringColumnsPostgresqlChange();
+    private final AlterOperationTableTimestampStoringColumnsPostgresqlChange change = new AlterOperationTableTimestampStoringColumnsPostgresqlChange();
     private List<OriginalOperation> originalOperations;
     private List<ExpectedOperation> expectedOperations;
 
-    private String originalOperationsJsonLocation;
-    private String expectedOperationsJsonLocation;
-    private Class<? extends Throwable> expectedExceptionType;
+    private final String originalOperationsJsonLocation;
+    private final String expectedOperationsJsonLocation;
+    private final Class<? extends Throwable> expectedExceptionType;
 
     public AlterOperationTableTimestampStoringColumnsTest(String originalOperationsJsonLocation, String expectedOperationsJsonLocation,
                                                           Class<? extends Exception> expectedExceptionType) {

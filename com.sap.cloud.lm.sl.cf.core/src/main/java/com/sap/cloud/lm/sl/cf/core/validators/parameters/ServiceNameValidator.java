@@ -8,9 +8,9 @@ import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ServiceNameValidator implements ParameterValidator {
 
-    private String namespace;
-    private boolean useNamespaces;
-    private boolean useNamespacesForServices;
+    private final String namespace;
+    private final boolean useNamespaces;
+    private final boolean useNamespacesForServices;
 
     public ServiceNameValidator(String namespace, boolean useNamespaces, boolean useNamespacesForServices) {
         this.namespace = namespace;

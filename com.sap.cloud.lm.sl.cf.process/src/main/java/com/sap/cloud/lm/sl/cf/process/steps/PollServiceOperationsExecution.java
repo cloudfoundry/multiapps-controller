@@ -27,8 +27,8 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public abstract class PollServiceOperationsExecution implements AsyncExecution {
 
-    private ServiceOperationGetter serviceOperationGetter;
-    private ServiceProgressReporter serviceProgressReporter;
+    private final ServiceOperationGetter serviceOperationGetter;
+    private final ServiceProgressReporter serviceProgressReporter;
 
     public PollServiceOperationsExecution(ServiceOperationGetter serviceOperationGetter, ServiceProgressReporter serviceProgressReporter) {
         this.serviceOperationGetter = serviceOperationGetter;

@@ -15,21 +15,21 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ZonedDateTimeSerializer;
 
 public class HealthCheckOperation {
 
-    private String id;
+    private final String id;
     @JsonSerialize(using = ProcessTypeSerializer.class)
     @JsonDeserialize(using = ProcessTypeDeserializer.class)
-    private ProcessType type;
+    private final ProcessType type;
     @JsonSerialize(using = ZonedDateTimeSerializer.class)
     @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
-    private ZonedDateTime startedAt;
+    private final ZonedDateTime startedAt;
     @JsonSerialize(using = ZonedDateTimeSerializer.class)
     @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
-    private ZonedDateTime endedAt;
-    private long durationInSeconds;
-    private State state;
-    private String spaceId;
-    private String mtaId;
-    private String user;
+    private final ZonedDateTime endedAt;
+    private final long durationInSeconds;
+    private final State state;
+    private final String spaceId;
+    private final String mtaId;
+    private final String user;
 
     protected HealthCheckOperation(Builder builder) {
         this.id = builder.id;

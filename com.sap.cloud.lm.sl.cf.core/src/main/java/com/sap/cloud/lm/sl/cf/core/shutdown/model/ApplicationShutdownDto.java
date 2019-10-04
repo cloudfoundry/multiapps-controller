@@ -2,10 +2,10 @@ package com.sap.cloud.lm.sl.cf.core.shutdown.model;
 
 public class ApplicationShutdownDto {
     private Status status = Status.RUNNING;
-    private String appId;
-    private String appInstanceId;
-    private String appInstanceIndex;
-    private long cooldownTimeoutInSeconds;
+    private final String appId;
+    private final String appInstanceId;
+    private final String appInstanceIndex;
+    private final long cooldownTimeoutInSeconds;
 
     private ApplicationShutdownDto(Status status, String appId, String appInstanceId, String appInstanceIndex,
                                    long cooldownTimeoutInSeconds) {

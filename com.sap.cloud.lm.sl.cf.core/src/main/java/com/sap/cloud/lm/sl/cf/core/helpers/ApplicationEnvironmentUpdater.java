@@ -13,8 +13,8 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class ApplicationEnvironmentUpdater {
 
-    private CloudApplication app;
-    private CloudControllerClient client;
+    private final CloudApplication app;
+    private final CloudControllerClient client;
     private boolean prettyPrinting = true;
 
     public ApplicationEnvironmentUpdater(CloudApplication app, CloudControllerClient client) {

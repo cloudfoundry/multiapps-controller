@@ -7,9 +7,9 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 
 public class ExecutionWrapper {
-    private DelegateExecution context;
-    private StepLogger stepLogger;
-    private CloudControllerClientProvider clientProvider;
+    private final DelegateExecution context;
+    private final StepLogger stepLogger;
+    private final CloudControllerClientProvider clientProvider;
 
     public ExecutionWrapper(DelegateExecution context, StepLogger stepLogger, CloudControllerClientProvider clientProvider) {
         this.context = context;

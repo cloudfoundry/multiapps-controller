@@ -15,7 +15,7 @@ public class SetUndeployPhaseListenerTest {
 
     private ExecutionListener executionListener;
 
-    protected DelegateExecution context = MockDelegateExecution.createSpyInstance();
+    protected final DelegateExecution context = MockDelegateExecution.createSpyInstance();
 
     @BeforeEach
     public void setUp() {

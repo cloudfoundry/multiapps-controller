@@ -10,10 +10,10 @@ import org.apache.commons.collections4.map.ReferenceMap;
 
 public class CachedMap<K, V> {
 
-    private long expirationTimeInSeconds;
-    private LongSupplier currentTimeSupplier = System::currentTimeMillis;
+    private final long expirationTimeInSeconds;
+    private final LongSupplier currentTimeSupplier = System::currentTimeMillis;
 
-    private Map<K, CachedObject<V>> referenceMap = Collections.synchronizedMap(new ReferenceMap<>(ReferenceStrength.HARD,
+    private final Map<K, CachedObject<V>> referenceMap = Collections.synchronizedMap(new ReferenceMap<>(ReferenceStrength.HARD,
                                                                                                   ReferenceStrength.SOFT));
 
     public CachedMap(long expirationTimeInSeconds) {

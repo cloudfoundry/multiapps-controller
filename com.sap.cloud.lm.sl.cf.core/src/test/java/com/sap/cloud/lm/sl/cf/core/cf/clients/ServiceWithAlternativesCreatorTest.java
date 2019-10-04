@@ -127,14 +127,14 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     private static class Input {
 
         private CloudServiceExtended service;
-        private List<Exchange> expectedExchanges = new ArrayList<>();
+        private final List<Exchange> expectedExchanges = new ArrayList<>();
 
     }
 
     private static class Exchange {
 
         private Map<String, Object> requestBody;
-        private int responseCode = HttpStatus.CREATED.value();
+        private final int responseCode = HttpStatus.CREATED.value();
 
     }
 

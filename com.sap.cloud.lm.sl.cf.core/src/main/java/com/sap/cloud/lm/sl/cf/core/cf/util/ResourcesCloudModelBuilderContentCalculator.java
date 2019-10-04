@@ -10,8 +10,8 @@ import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBuilderContentCalculator<Resource> {
 
-    private List<String> resourcesSpecifiedForDeployment;
-    private UserMessageLogger userMessageLogger;
+    private final List<String> resourcesSpecifiedForDeployment;
+    private final UserMessageLogger userMessageLogger;
 
     public ResourcesCloudModelBuilderContentCalculator(List<String> resourcesSpecifiedForDeployment, UserMessageLogger userMessageLogger) {
         this.resourcesSpecifiedForDeployment = resourcesSpecifiedForDeployment;

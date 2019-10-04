@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 
 public class MethodExecution<T> {
 
-    private ExecutionState state;
-    private T response;
+    private final ExecutionState state;
+    private final T response;
 
     public MethodExecution(T response, ExecutionState state) {
         this.response = response;

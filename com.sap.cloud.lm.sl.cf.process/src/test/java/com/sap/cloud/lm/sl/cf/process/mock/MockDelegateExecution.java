@@ -16,7 +16,7 @@ import org.mockito.Mockito;
 
 public class MockDelegateExecution implements DelegateExecution {
 
-    private Map<String, Object> mockVariables = new HashMap<>();
+    private final Map<String, Object> mockVariables = new HashMap<>();
 
     public static DelegateExecution createSpyInstance() {
         MockDelegateExecution instance = new MockDelegateExecution();

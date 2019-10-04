@@ -141,8 +141,8 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
     class ModuleHooksAggregator {
 
-        private DelegateExecution context;
-        private Module moduleToDeploy;
+        private final DelegateExecution context;
+        private final Module moduleToDeploy;
 
         public ModuleHooksAggregator(DelegateExecution context, Module moduleToDeploy) {
             this.context = context;

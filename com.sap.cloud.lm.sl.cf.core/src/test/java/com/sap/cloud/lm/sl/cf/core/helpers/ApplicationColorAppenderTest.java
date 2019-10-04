@@ -35,8 +35,8 @@ public class ApplicationColorAppenderTest {
         });
     }
 
-    private String deploymentDescriptorString;
-    private Expectation expectation;
+    private final String deploymentDescriptorString;
+    private final Expectation expectation;
 
     public ApplicationColorAppenderTest(String deploymentDescriptorString, Expectation expectation) {
         this.deploymentDescriptorString = deploymentDescriptorString;

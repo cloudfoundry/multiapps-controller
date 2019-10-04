@@ -19,8 +19,8 @@ public class RecoveringLockService extends StandardLockService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RecoveringLockService.class);
 
-    private long changeLogLockAttempts;
-    private long changeLogLockDuration;
+    private final long changeLogLockAttempts;
+    private final long changeLogLockDuration;
 
     public RecoveringLockService() {
         ApplicationConfiguration configuration = new ApplicationConfiguration();

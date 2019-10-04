@@ -6,7 +6,7 @@ import java.util.List;
 
 public abstract class SecureSerializer<E extends Element> {
 
-    protected SecureSerializerConfiguration configuration;
+    protected final SecureSerializerConfiguration configuration;
 
     public SecureSerializer() {
         this(new SecureSerializerConfiguration());

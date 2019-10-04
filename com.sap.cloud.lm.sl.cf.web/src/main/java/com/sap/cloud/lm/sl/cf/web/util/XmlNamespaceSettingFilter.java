@@ -7,7 +7,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
 
 public class XmlNamespaceSettingFilter extends XMLFilterImpl {
 
-    private String namespaceToSet;
+    private final String namespaceToSet;
 
     public XmlNamespaceSettingFilter(XMLReader reader, String namespaceToSet) {
         super(reader);

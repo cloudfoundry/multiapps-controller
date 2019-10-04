@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Named
 public class RateLimiterProvider {
 
-    private Map<String, AtomicRateLimiter> rateLimiters = new ConcurrentHashMap<>();
+    private final Map<String, AtomicRateLimiter> rateLimiters = new ConcurrentHashMap<>();
 
     public AtomicRateLimiter getRateLimiter(String ipAddress) {
         return rateLimiters.computeIfAbsent(ipAddress, k -> createRateLimiter());

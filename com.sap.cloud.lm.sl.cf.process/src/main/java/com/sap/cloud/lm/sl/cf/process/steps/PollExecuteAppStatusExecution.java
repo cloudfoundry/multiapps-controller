@@ -57,7 +57,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
     private static final String DEFAULT_SUCCESS_MARKER = "STDOUT:SUCCESS";
     private static final String DEFAULT_FAILURE_MARKER = "STDERR:FAILURE";
 
-    private RecentLogsRetriever recentLogsRetriever;
+    private final RecentLogsRetriever recentLogsRetriever;
 
     public PollExecuteAppStatusExecution(RecentLogsRetriever recentLogsRetriever) {
         this.recentLogsRetriever = recentLogsRetriever;
@@ -188,8 +188,8 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
     }
 
     private static class Marker {
-        MessageType messageType;
-        String text;
+        final MessageType messageType;
+        final String text;
 
         Marker(MessageType messageType, String text) {
             this.messageType = messageType;

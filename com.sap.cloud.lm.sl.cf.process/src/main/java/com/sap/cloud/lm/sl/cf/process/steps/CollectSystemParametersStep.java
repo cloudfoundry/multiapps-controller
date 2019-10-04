@@ -30,7 +30,7 @@ import com.sap.cloud.lm.sl.mta.model.VersionRule;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CollectSystemParametersStep extends SyncFlowableStep {
 
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = CredentialsGenerator::new;
     protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance()

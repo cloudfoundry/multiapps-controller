@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 public class ServiceKeysCloudModelBuilder {
 
-    protected DeploymentDescriptor deploymentDescriptor;
+    protected final DeploymentDescriptor deploymentDescriptor;
 
     public ServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
         this.deploymentDescriptor = deploymentDescriptor;

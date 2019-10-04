@@ -52,10 +52,10 @@ public class StartProcessListenerTest {
     private final ProcessType processType;
     private final String exceptionMessage;
 
-    private DelegateExecution context = MockDelegateExecution.createSpyInstance();
+    private final DelegateExecution context = MockDelegateExecution.createSpyInstance();
 
     @Rule
-    public ExpectedException exception = ExpectedException.none();
+    public final ExpectedException exception = ExpectedException.none();
 
     @Mock
     private OperationService operationService;
@@ -78,7 +78,7 @@ public class StartProcessListenerTest {
     @Mock
     private HistoricOperationEventPersister historicOperationEventPersister;
 
-    private Supplier<ZonedDateTime> currentTimeSupplier = () -> START_TIME;
+    private final Supplier<ZonedDateTime> currentTimeSupplier = () -> START_TIME;
 
     @InjectMocks
     private StartProcessListener listener = new StartProcessListener();

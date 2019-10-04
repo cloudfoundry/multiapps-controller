@@ -14,8 +14,8 @@ import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageT
 @Named
 public class RetryProcessAdditionalAction implements AdditionalProcessAction {
 
-    private FlowableFacade flowableFacade;
-    private ProgressMessageService progressMessageService;
+    private final FlowableFacade flowableFacade;
+    private final ProgressMessageService progressMessageService;
 
     @Inject
     public RetryProcessAdditionalAction(FlowableFacade flowableFacade, ProgressMessageService progressMessageService) {

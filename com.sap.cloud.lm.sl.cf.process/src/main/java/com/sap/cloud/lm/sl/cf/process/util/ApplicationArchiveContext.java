@@ -10,9 +10,9 @@ import java.util.zip.ZipInputStream;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileUploader;
 
 public class ApplicationArchiveContext {
-    private ZipInputStream zipInputStream;
-    private String moduleFileName;
-    private long maxSizeInBytes;
+    private final ZipInputStream zipInputStream;
+    private final String moduleFileName;
+    private final long maxSizeInBytes;
     private long currentSizeInBytes;
     private DigestCalculator applicationDigestCalculator;
     private Set<String> alreadyUploadedFiles;

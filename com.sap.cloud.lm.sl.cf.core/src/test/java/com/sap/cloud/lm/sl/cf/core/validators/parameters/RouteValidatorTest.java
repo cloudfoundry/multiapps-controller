@@ -32,12 +32,12 @@ public class RouteValidatorTest {
         });
     }
 
-    private static RouteValidator validator = new RouteValidator();
+    private static final RouteValidator validator = new RouteValidator();
 
-    private String inputRoute;
-    private boolean isValid;
-    private String correctedRoute;
-    private String expectedException;
+    private final String inputRoute;
+    private final boolean isValid;
+    private final String correctedRoute;
+    private final String expectedException;
 
     public RouteValidatorTest(String inputRoute, boolean isValid, String correctedRoute, String expectedException) {
         this.inputRoute = inputRoute;

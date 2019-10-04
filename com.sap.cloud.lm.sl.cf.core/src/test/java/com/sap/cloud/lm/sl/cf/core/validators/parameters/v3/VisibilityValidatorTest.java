@@ -15,10 +15,10 @@ import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 
 @RunWith(Parameterized.class)
 public class VisibilityValidatorTest {
-    private VisibilityValidator validator = new VisibilityValidator();
+    private final VisibilityValidator validator = new VisibilityValidator();
 
-    private boolean isValid;
-    private String visibleTargets;
+    private final boolean isValid;
+    private final String visibleTargets;
 
     public VisibilityValidatorTest(String visibleTargets, boolean isValid) {
         this.visibleTargets = visibleTargets;

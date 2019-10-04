@@ -24,8 +24,8 @@ public class RestTemplateFactory {
 
     private static class HttpRequestFactory implements ClientHttpRequestFactory {
 
-        private ClientHttpRequestFactory requestFactory;
-        private CloudControllerClient client;
+        private final ClientHttpRequestFactory requestFactory;
+        private final CloudControllerClient client;
 
         public HttpRequestFactory(ClientHttpRequestFactory requestFactory, CloudControllerClient client) {
             this.requestFactory = requestFactory;

@@ -20,10 +20,10 @@ public class SecureSerializationFacadeTest {
 
     private final Tester tester = Tester.forClass(getClass());
 
-    private String objectLocation;
-    private Collection<String> sensitiveElementNames;
-    private Class<?> classOfObject;
-    private Expectation expectation;
+    private final String objectLocation;
+    private final Collection<String> sensitiveElementNames;
+    private final Class<?> classOfObject;
+    private final Expectation expectation;
 
     public SecureSerializationFacadeTest(String objectLocation, Class<?> classOfObject, Collection<String> sensitiveElementNames,
                                          Expectation expectation) {

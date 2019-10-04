@@ -13,8 +13,8 @@ public class ApplicationColorAppender extends Visitor {
 
     protected static final String RESOURCE_IS_NOT_FOUND_ERROR = "Resource \"{0}\" is not found";
 
-    protected ApplicationColor applicationColor;
-    protected ApplicationColor deployedMtaColor;
+    protected final ApplicationColor applicationColor;
+    protected final ApplicationColor deployedMtaColor;
 
     public ApplicationColorAppender(ApplicationColor deployedMtaColor, ApplicationColor applicationColor) {
         this.applicationColor = applicationColor;

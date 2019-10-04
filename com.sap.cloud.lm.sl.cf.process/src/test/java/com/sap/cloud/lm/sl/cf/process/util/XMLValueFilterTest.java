@@ -16,8 +16,8 @@ public class XMLValueFilterTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private String input;
-    private String expectedOutput;
+    private final String input;
+    private final String expectedOutput;
 
     // "\u004f\u0055\u0054\u0020\u0020\u0020\u0050\u004b\u0005\u0006\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0066\u0069"
 

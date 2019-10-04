@@ -6,9 +6,9 @@ import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ResolvedConfigurationReference {
 
-    private ConfigurationFilter referenceFilter;
-    private Resource reference;
-    private List<Resource> resolvedResources;
+    private final ConfigurationFilter referenceFilter;
+    private final Resource reference;
+    private final List<Resource> resolvedResources;
 
     public ResolvedConfigurationReference(ConfigurationFilter referenceFilter, Resource reference, List<Resource> resolvedResources) {
         this.resolvedResources = resolvedResources;

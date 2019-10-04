@@ -56,7 +56,7 @@ public class XmlNamespaceIgnoringHttpMessageConverterTest {
     private final Class<?> type;
     private final Expectation expectation;
 
-    private XmlNamespaceIgnoringHttpMessageConverter converter = new XmlNamespaceIgnoringHttpMessageConverter();
+    private final XmlNamespaceIgnoringHttpMessageConverter converter = new XmlNamespaceIgnoringHttpMessageConverter();
 
     public XmlNamespaceIgnoringHttpMessageConverterTest(String entityResource, Class<?> type, Expectation expectation) {
         this.entityResource = entityResource;

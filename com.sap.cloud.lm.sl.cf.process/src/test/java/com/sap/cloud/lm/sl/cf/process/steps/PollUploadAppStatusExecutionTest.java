@@ -37,10 +37,10 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
     private final AsyncExecutionState expectedStatus;
     private final Exception expectedCfException;
 
-    private SimpleApplication application = new SimpleApplication(APP_NAME, 2);
+    private final SimpleApplication application = new SimpleApplication(APP_NAME, 2);
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Parameters
     public static Iterable<Object[]> getParameters() {

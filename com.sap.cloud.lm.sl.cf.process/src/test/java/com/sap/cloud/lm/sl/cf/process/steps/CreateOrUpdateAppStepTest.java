@@ -36,16 +36,11 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 @RunWith(Parameterized.class)
 public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
 
-    private String expectedExceptionMessage;
-
-    private final ApplicationServicesUpdateCallback callback = (e, applicationName, serviceName) -> {
-        if (expectedExceptionMessage != null) {
-            throw new RuntimeException(expectedExceptionMessage, e);
-        }
-    };
+    private final String expectedExceptionMessage;
+    private final ApplicationServicesUpdateCallback callback;
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -91,6 +86,11 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
     public CreateOrUpdateAppStepTest(String stepInput, String expectedExceptionMessage) {
         this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CreateOrUpdateAppStepTest.class), StepInput.class);
         this.expectedExceptionMessage = expectedExceptionMessage;
+        this.callback = (e, applicationName, serviceName) -> {
+            if (expectedExceptionMessage != null) {
+                throw new RuntimeException(expectedExceptionMessage, e);
+            }
+        };
     }
 
     @Before

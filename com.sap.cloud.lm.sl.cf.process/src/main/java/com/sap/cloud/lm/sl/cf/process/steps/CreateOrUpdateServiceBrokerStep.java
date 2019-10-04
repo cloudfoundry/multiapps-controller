@@ -31,7 +31,7 @@ import com.sap.cloud.lm.sl.common.NotFoundException;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
 
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

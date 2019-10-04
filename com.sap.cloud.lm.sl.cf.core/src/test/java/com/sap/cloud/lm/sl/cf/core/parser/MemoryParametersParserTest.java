@@ -23,15 +23,15 @@ import com.sap.cloud.lm.sl.common.ContentException;
 @RunWith(Parameterized.class)
 public class MemoryParametersParserTest {
 
-    private String memoryString;
-    private Integer expectedParsedMemory;
-    private Class<? extends RuntimeException> expectedExceptionClass;
-    private List<Map<String, Object>> parametersList = new ArrayList<>();
+    private final String memoryString;
+    private final Integer expectedParsedMemory;
+    private final Class<? extends RuntimeException> expectedExceptionClass;
+    private final List<Map<String, Object>> parametersList = new ArrayList<>();
     private static final Integer DEFAULT_MEMORY = 100;
     private final MemoryParametersParser parser = new MemoryParametersParser(SupportedParameters.MEMORY, "100");
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Parameters
     public static Iterable<Object[]> getParameters() {

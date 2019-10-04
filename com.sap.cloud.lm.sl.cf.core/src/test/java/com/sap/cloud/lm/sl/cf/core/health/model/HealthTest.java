@@ -37,8 +37,8 @@ public class HealthTest {
         });
     }
 
-    private String operationsJsonLocation;
-    private Expectation expectation;
+    private final String operationsJsonLocation;
+    private final Expectation expectation;
 
     private List<Operation> operations;
 

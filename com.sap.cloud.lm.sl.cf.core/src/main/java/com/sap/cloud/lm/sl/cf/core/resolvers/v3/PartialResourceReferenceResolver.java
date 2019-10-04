@@ -11,7 +11,7 @@ import com.sap.cloud.lm.sl.mta.resolvers.v3.ResourceReferenceResolver;
 
 public class PartialResourceReferenceResolver extends ResourceReferenceResolver {
 
-    private List<String> dependenciesToIgnore;
+    private final List<String> dependenciesToIgnore;
 
     public PartialResourceReferenceResolver(DeploymentDescriptor descriptor, Resource resource, String prefix,
                                             List<String> dependenciesToIgnore) {

@@ -36,7 +36,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     @Inject
     private JarSignatureOperations jarSignatureOperations;
 
-    private ResilientOperationExecutor resilientOperationExecutor = new ResilientOperationExecutor();
+    private final ResilientOperationExecutor resilientOperationExecutor = new ResilientOperationExecutor();
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

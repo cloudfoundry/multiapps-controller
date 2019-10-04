@@ -32,10 +32,10 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class MtaArchiveBuilderTest {
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     private MtaArchiveBuilder mtaArchiveBuilder;
-    private String path;
+    private final String path;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {

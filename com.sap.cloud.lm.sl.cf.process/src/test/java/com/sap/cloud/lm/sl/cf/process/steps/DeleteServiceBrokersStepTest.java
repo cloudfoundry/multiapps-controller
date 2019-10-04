@@ -37,14 +37,14 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
     private final String inputLocation;
     private final String[] expectedDeletedBrokers;
     private final String expectedExceptionMessage;
-    private Class<? extends Throwable> expectedExceptionClass;
+    private final Class<? extends Throwable> expectedExceptionClass;
 
-    private CloudOperationException deleteException;
+    private final CloudOperationException deleteException;
 
     private StepInput input;
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     private class DeleteServiceBrokersStepMock extends DeleteServiceBrokersStep {
         @Override

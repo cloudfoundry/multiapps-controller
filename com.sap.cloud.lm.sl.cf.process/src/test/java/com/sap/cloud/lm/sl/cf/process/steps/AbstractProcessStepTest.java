@@ -35,8 +35,8 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
         });
     }
 
-    private Exception exceptionToSimulate;
-    private ErrorType expectedErrorType;
+    private final Exception exceptionToSimulate;
+    private final ErrorType expectedErrorType;
 
     public AbstractProcessStepTest(Exception exceptionToSimulate, ErrorType expectedErrorType) {
         this.exceptionToSimulate = exceptionToSimulate;

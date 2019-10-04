@@ -46,9 +46,9 @@ public class MtaArchiveBuilder {
 
     private static final int BUFFER_SIZE = 4 * 1024;
 
-    private Path mtaDir;
+    private final Path mtaDir;
     private Path deploymentDescriptorFile;
-    private DeploymentDescriptor deploymentDescriptor;
+    private final DeploymentDescriptor deploymentDescriptor;
     private Path mtaAssemblyDir;
 
     private Map<String, Attributes> manifestEntries;

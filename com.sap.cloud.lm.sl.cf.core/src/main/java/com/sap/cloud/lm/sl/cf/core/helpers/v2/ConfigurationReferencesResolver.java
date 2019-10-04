@@ -34,15 +34,15 @@ public class ConfigurationReferencesResolver extends Visitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationReferencesResolver.class);
 
-    protected ConfigurationReferenceResolver configurationResolver;
-    protected ConfigurationEntryService configurationEntryService;
-    protected Map<String, ResolvedConfigurationReference> resolvedReferences = new TreeMap<>();
-    protected ConfigurationFilterParser filterParser;
-    protected CloudTarget cloudTarget;
-    protected ApplicationConfiguration configuration;
+    protected final ConfigurationReferenceResolver configurationResolver;
+    protected final ConfigurationEntryService configurationEntryService;
+    protected final Map<String, ResolvedConfigurationReference> resolvedReferences = new TreeMap<>();
+    protected final ConfigurationFilterParser filterParser;
+    protected final CloudTarget cloudTarget;
+    protected final ApplicationConfiguration configuration;
 
-    protected Map<RequiredDependency, List<RequiredDependency>> expandedDependenciesMap = new HashMap<>();
-    private List<String> expandedProperties = new ArrayList<>();
+    protected final Map<RequiredDependency, List<RequiredDependency>> expandedDependenciesMap = new HashMap<>();
+    private final List<String> expandedProperties = new ArrayList<>();
 
     public ConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService, ConfigurationFilterParser filterParser,
                                            CloudTarget cloudTarget, ApplicationConfiguration configuration) {

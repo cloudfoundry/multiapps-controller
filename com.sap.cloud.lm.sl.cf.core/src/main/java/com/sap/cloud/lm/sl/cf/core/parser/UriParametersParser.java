@@ -20,12 +20,12 @@ import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class UriParametersParser implements ParametersParser<List<String>> {
 
-    private String defaultHost;
-    private String defaultDomain;
-    private String hostParameterName;
-    private String domainParameterName;
-    private boolean modifyRoute;
-    private String routePath;
+    private final String defaultHost;
+    private final String defaultDomain;
+    private final String hostParameterName;
+    private final String domainParameterName;
+    private final boolean modifyRoute;
+    private final String routePath;
 
     public UriParametersParser(String defaultHost, String defaultDomain, String routePath) {
         this(defaultHost, defaultDomain, SupportedParameters.HOST, SupportedParameters.DOMAIN, false, routePath);

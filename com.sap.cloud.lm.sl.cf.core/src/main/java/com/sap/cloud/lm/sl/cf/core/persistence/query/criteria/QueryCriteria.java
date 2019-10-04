@@ -10,7 +10,7 @@ import javax.persistence.criteria.Root;
 
 public class QueryCriteria {
 
-    private Map<String, QueryAttributeRestriction<?>> attributeRestrictions = new HashMap<>();
+    private final Map<String, QueryAttributeRestriction<?>> attributeRestrictions = new HashMap<>();
 
     public void addRestriction(QueryAttributeRestriction<?> attributeRestriction) {
         attributeRestrictions.put(attributeRestriction.getAttribute(), attributeRestriction);

@@ -48,11 +48,11 @@ public class ConfigurationEntriesCloudModelBuilderTest {
         });
     }
 
-    private String deploymentDescriptorLocation;
-    private int majorSchemaVersion;
-    private String orgName;
-    private String spaceName;
-    private Expectation expectation;
+    private final String deploymentDescriptorLocation;
+    private final int majorSchemaVersion;
+    private final String orgName;
+    private final String spaceName;
+    private final Expectation expectation;
 
     private DeploymentDescriptor deploymentDescriptor;
 

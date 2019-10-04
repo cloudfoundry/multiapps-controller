@@ -26,8 +26,8 @@ public class CustomTokenServices implements ResourceServerTokenServices {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomTokenServices.class);
 
-    private TokenStore tokenStore;
-    private TokenParserChain tokenParserChain;
+    private final TokenStore tokenStore;
+    private final TokenParserChain tokenParserChain;
 
     @Inject
     public CustomTokenServices(TokenStore tokenStore, ApplicationConfiguration configuration, TokenParserChain tokenParserChain) {

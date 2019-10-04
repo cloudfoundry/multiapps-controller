@@ -13,7 +13,7 @@ import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 @Named
 public class TokenProviderFactory {
 
-    private OAuthClientFactory oAuthClientFactory;
+    private final OAuthClientFactory oAuthClientFactory;
 
     @Inject
     public TokenProviderFactory(OAuthClientFactory oAuthClientFactory) {

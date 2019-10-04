@@ -14,8 +14,8 @@ class TaggingRequestInterceptor implements ClientHttpRequestInterceptor {
     public static final String TAG_HEADER_ORG_NAME = "source-org";
     public static final String TAG_HEADER_NAME = "source";
     private final String headerValue;
-    private String orgHeaderValue;
-    private String spaceHeaderValue;
+    private final String orgHeaderValue;
+    private final String spaceHeaderValue;
 
     TaggingRequestInterceptor(String deployServiceVersion) {
         this(deployServiceVersion, null, null);

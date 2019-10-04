@@ -12,8 +12,8 @@ public class UAAClient {
 
     private static final String TOKEN_KEY_ENDPOINT = "/token_key";
 
-    protected URL uaaUrl;
-    protected RestTemplate restTemplate;
+    protected final URL uaaUrl;
+    protected final RestTemplate restTemplate;
 
     protected UAAClient(URL uaaUrl, RestTemplate restTemplate) {
         this.uaaUrl = uaaUrl;

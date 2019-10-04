@@ -19,8 +19,8 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 public class OperationQueryImpl extends AbstractQueryImpl<Operation, OperationQuery> implements OperationQuery {
 
-    private QueryCriteria queryCriteria = new QueryCriteria();
-    private OperationMapper operationFactory;
+    private final QueryCriteria queryCriteria = new QueryCriteria();
+    private final OperationMapper operationFactory;
 
     public OperationQueryImpl(EntityManager entityManager, OperationMapper operationFactory) {
         super(entityManager);

@@ -25,9 +25,9 @@ public class NoJobRetryCommandFactory extends DefaultFailedJobCommandFactory {
     public static class NoJobRetryCommand implements Command<Object> {
 
         private static final int NO_RETRIES = 0;
-        private String jobId;
-        private Throwable exception;
-        private Command<Object> delegate;
+        private final String jobId;
+        private final Throwable exception;
+        private final Command<Object> delegate;
 
         public NoJobRetryCommand(String jobId, Throwable exception, Command<Object> delegate) {
             this.jobId = jobId;

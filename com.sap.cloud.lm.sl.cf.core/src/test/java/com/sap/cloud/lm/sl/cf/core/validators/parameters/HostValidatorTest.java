@@ -19,11 +19,11 @@ public class HostValidatorTest {
 
     private final Tester tester = Tester.forClass(getClass());
 
-    private HostValidator validator = new HostValidator();
+    private final HostValidator validator = new HostValidator();
 
-    private boolean isValid;
-    private String host;
-    private Expectation expectation;
+    private final boolean isValid;
+    private final String host;
+    private final Expectation expectation;
 
     public HostValidatorTest(String host, boolean isValid, Expectation expectation) {
         this.isValid = isValid;

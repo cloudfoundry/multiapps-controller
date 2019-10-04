@@ -20,7 +20,7 @@ public class HistoricOperationEventsCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HistoricOperationEventsCleaner.class);
 
-    private HistoricOperationEventService historicOperationEventService;
+    private final HistoricOperationEventService historicOperationEventService;
 
     @Inject
     public HistoricOperationEventsCleaner(HistoricOperationEventService historicOperationEventService) {

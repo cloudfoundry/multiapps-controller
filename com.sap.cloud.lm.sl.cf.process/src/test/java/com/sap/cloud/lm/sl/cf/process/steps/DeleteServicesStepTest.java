@@ -72,7 +72,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
     private List<String> servicesToDelete = new ArrayList<>();
     private List<CloudServiceExtended> servicesData = new ArrayList<>();
 
-    private CloudMetadata metadata = ImmutableCloudMetadata.builder()
+    private final CloudMetadata metadata = ImmutableCloudMetadata.builder()
                                                            .guid(UUID.randomUUID())
                                                            .build();
 
@@ -89,7 +89,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
     private ServiceOperationGetter serviceOperationGetter;
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Parameters
     public static Iterable<Object[]> getParameters() {

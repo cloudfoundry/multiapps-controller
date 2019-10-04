@@ -22,7 +22,7 @@ public class FlowableConfigurationTest {
 
     @Mock
     private ApplicationConfiguration applicationConfiguration;
-    private FlowableConfiguration flowableConfiguration = new FlowableConfiguration();
+    private final FlowableConfiguration flowableConfiguration = new FlowableConfiguration();
 
     @BeforeEach
     public void initMocks() {

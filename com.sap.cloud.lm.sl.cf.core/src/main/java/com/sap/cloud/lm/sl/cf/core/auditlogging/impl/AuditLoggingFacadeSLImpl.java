@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
 
     private static final Logger LOGGER = Logger.getLogger(AuditLoggingFacadeSLImpl.class);
-    private AuditLogManager auditLogManager;
+    private final AuditLogManager auditLogManager;
 
     public AuditLoggingFacadeSLImpl(DataSource dataSource, UserInfoProvider userInfoProvider) {
         this.auditLogManager = new AuditLogManager(dataSource, userInfoProvider);

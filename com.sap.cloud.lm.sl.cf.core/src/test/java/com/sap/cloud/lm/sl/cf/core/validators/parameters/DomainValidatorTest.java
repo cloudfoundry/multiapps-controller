@@ -19,11 +19,11 @@ public class DomainValidatorTest {
 
     private final Tester tester = Tester.forClass(getClass());
 
-    private DomainValidator validator = new DomainValidator();
+    private final DomainValidator validator = new DomainValidator();
 
-    private boolean isValid;
-    private String domain;
-    private Expectation expectation;
+    private final boolean isValid;
+    private final String domain;
+    private final Expectation expectation;
 
     public DomainValidatorTest(String domain, boolean isValid, Expectation expectation) {
         this.isValid = isValid;

@@ -22,9 +22,9 @@ public class ApplicationEnvironmentCloudModelBuilder {
 
     private static final int MTA_MAJOR_VERSION = 2;
 
-    protected DeploymentDescriptor deploymentDescriptor;
-    protected String deployId;
-    protected boolean prettyPrinting;
+    protected final DeploymentDescriptor deploymentDescriptor;
+    protected final String deployId;
+    protected final boolean prettyPrinting;
 
     public ApplicationEnvironmentCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, String deployId, boolean prettyPrinting) {
         this.deploymentDescriptor = deploymentDescriptor;

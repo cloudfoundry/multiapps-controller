@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Named
 public class ServiceGetter {
 
-    private AbstractServiceGetter serviceInstanceGetter;
-    private AbstractServiceGetter userProvidedServiceInstanceGetter;
+    private final AbstractServiceGetter serviceInstanceGetter;
+    private final AbstractServiceGetter userProvidedServiceInstanceGetter;
 
     @Inject
     public ServiceGetter(@Qualifier("serviceInstanceGetter") AbstractServiceGetter serviceInstanceGetter,

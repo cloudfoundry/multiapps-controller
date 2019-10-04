@@ -68,8 +68,8 @@ public class CustomControllerClientErrorHandlerTest {
             });
         }
 
-        private HttpStatusCodeException exceptionToThrow;
-        private CloudOperationException expected;
+        private final HttpStatusCodeException exceptionToThrow;
+        private final CloudOperationException expected;
 
         public ParameterizedTest(HttpStatusCodeException exceptionToThrow, CloudOperationException expected) {
             this.exceptionToThrow = exceptionToThrow;

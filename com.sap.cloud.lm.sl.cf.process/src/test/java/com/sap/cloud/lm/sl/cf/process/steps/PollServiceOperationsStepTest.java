@@ -98,9 +98,9 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     @Mock
     protected CloudControllerClient client;
     @Rule
-    public ExpectedException exception = ExpectedException.none();
-    private StepInput input;
-    private String expectedExceptionMessage;
+    public final ExpectedException exception = ExpectedException.none();
+    private final StepInput input;
+    private final String expectedExceptionMessage;
 
     @Before
     public void setUp() {

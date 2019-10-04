@@ -24,7 +24,7 @@ public class EventsGetter extends CustomControllerClient {
     private static final String USER_PROVIDED_SERVICE_EVENT_TYPE_DELETE = "audit.user_provided_service_instance.delete";
     private static final String SERVICE_EVENT_TYPE_DELETE = "audit.service_instance.delete";
 
-    private CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
+    private final CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
 
     @Inject
     public EventsGetter(RestTemplateFactory restTemplateFactory) {

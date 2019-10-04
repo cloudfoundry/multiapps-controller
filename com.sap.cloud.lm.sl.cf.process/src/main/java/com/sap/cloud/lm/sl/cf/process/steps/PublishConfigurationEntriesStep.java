@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.common.util.CommonUtil;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PublishConfigurationEntriesStep extends SyncFlowableStep {
 
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Inject
     ConfigurationEntryService configurationEntryService;

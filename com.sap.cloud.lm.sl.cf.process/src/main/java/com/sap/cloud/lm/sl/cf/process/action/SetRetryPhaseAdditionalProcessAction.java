@@ -14,7 +14,7 @@ import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 @Named
 public class SetRetryPhaseAdditionalProcessAction implements AdditionalProcessAction {
 
-    private FlowableFacade flowableFacade;
+    private final FlowableFacade flowableFacade;
 
     @Inject
     public SetRetryPhaseAdditionalProcessAction(FlowableFacade flowableFacade) {

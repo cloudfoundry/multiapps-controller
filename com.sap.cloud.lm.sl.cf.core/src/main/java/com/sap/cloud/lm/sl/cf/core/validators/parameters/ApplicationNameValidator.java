@@ -8,8 +8,8 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class ApplicationNameValidator implements ParameterValidator {
 
-    private String namespace;
-    private boolean useNamespaces;
+    private final String namespace;
+    private final boolean useNamespaces;
 
     public ApplicationNameValidator(String namespace, boolean useNamespaces) {
         this.namespace = namespace;

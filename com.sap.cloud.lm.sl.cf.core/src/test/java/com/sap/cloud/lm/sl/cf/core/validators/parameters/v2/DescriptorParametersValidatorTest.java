@@ -26,10 +26,10 @@ public class DescriptorParametersValidatorTest {
     protected static final List<ParameterValidator> PARAMETER_VALIDATORS = Arrays.asList(new HostValidator(), new DomainValidator(),
                                                                                          new TestValidator(), new RouteValidator());
 
-    private Tester tester = Tester.forClass(getClass());
+    private final Tester tester = Tester.forClass(getClass());
 
-    private String descriptorLocation;
-    private Expectation expectation;
+    private final String descriptorLocation;
+    private final Expectation expectation;
 
     private DescriptorParametersValidator validator;
 

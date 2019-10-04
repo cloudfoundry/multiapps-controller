@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.mta.model.VersionedEntity;
 
 public class SecureSerializationFacade {
 
-    private SecureSerializerConfiguration configuration = new SecureSerializerConfiguration();
+    private final SecureSerializerConfiguration configuration = new SecureSerializerConfiguration();
 
     public SecureSerializationFacade setSensitiveElementNames(Collection<String> sensitiveElementNames) {
         this.configuration.setSensitiveElementNames(sensitiveElementNames);

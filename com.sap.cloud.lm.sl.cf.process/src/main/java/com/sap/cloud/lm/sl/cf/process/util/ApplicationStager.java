@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 
 public class ApplicationStager {
 
-    private CloudControllerClient client;
+    private final CloudControllerClient client;
 
     public ApplicationStager(CloudControllerClient client) {
         this.client = client;

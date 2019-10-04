@@ -32,7 +32,7 @@ public class OperationServiceTest {
     private static final Operation OPERATION_2 = createOperation("2", ProcessType.UNDEPLOY, "spaceId1", "mtaId1", "user1", true,
                                                                  ZonedDateTime.parse("2010-10-10T10:00:00.000Z[UTC]"),
                                                                  ZonedDateTime.parse("2010-10-12T10:00:00.000Z[UTC]"));
-    private OperationService operationService = createOperationService();
+    private final OperationService operationService = createOperationService();
 
     @AfterEach
     public void cleanUp() {

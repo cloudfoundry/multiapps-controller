@@ -46,13 +46,13 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
     @Mock
     private ServiceGetter serviceInstanceGetter;
 
-    private StepInput stepInput;
+    private final StepInput stepInput;
 
     @Rule
-    public ErrorCollector collector = new ErrorCollector();
+    public final ErrorCollector collector = new ErrorCollector();
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Parameters(name = "{0}")
     public static Iterable<Object[]> getParameters() {
@@ -197,7 +197,7 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
         boolean shouldUpdateServiceCredentials;
 
         // ServiceKeys - Input
-        List<CloudServiceKey> serviceKeysToCreate = Collections.emptyList();
+        final List<CloudServiceKey> serviceKeysToCreate = Collections.emptyList();
         // ServiceKeys - Expectation
 
         public Map<String, List<CloudServiceKey>> getServiceKeysToCreate() {

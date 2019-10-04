@@ -34,9 +34,9 @@ class AuditLogManager {
 
     private Logger securityLogger = null;
 
-    private Logger configLogger;
+    private final Logger configLogger;
 
-    private Logger actionLogger;
+    private final Logger actionLogger;
 
     Logger getSecurityLogger() {
         return securityLogger;

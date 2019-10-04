@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver {
 
-    private List<Resource> inactiveConfigResources = new ArrayList<>();
+    private final List<Resource> inactiveConfigResources = new ArrayList<>();
 
     public ConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService, ConfigurationFilterParser filterParser,
                                            CloudTarget cloudTarget, ApplicationConfiguration configuration) {

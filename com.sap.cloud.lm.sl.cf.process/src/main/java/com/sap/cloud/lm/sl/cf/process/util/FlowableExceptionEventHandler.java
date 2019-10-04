@@ -28,9 +28,9 @@ public class FlowableExceptionEventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowableExceptionEventHandler.class);
 
-    private ProgressMessageService progressMessageService;
-    private FlowableFacade flowableFacade;
-    private HistoricOperationEventPersister historicOperationEventPersister;
+    private final ProgressMessageService progressMessageService;
+    private final FlowableFacade flowableFacade;
+    private final HistoricOperationEventPersister historicOperationEventPersister;
 
     public FlowableExceptionEventHandler(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
                                          HistoricOperationEventPersister historicOperationEventPersister) {

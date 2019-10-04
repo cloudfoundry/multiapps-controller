@@ -5,7 +5,7 @@ import java.security.MessageDigest;
 import javax.xml.bind.DatatypeConverter;
 
 public class DigestCalculator {
-    private MessageDigest messageDigest;
+    private final MessageDigest messageDigest;
 
     public DigestCalculator(MessageDigest messageDigest) {
         this.messageDigest = messageDigest;

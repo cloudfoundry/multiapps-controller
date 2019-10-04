@@ -33,7 +33,7 @@ public class SyncFlowableStepWithHooksTest {
     @Mock
     private ModuleHooksAggregator moduleHooksAggregatorMock;
 
-    private DelegateExecution context = MockDelegateExecution.createSpyInstance();
+    private final DelegateExecution context = MockDelegateExecution.createSpyInstance();
 
     @BeforeEach
     public void setUp() {
@@ -215,7 +215,7 @@ public class SyncFlowableStepWithHooksTest {
 
     private class SyncFlowableStepWithHooksMock extends SyncFlowableStepWithHooks {
 
-        private String moduleName;
+        private final String moduleName;
 
         public SyncFlowableStepWithHooksMock() {
             this(null);
@@ -261,7 +261,7 @@ public class SyncFlowableStepWithHooksTest {
 
         private static final String DEFAULT_MODULE_NAME = "testModuleName";
 
-        private DelegateExecution context = MockDelegateExecution.createSpyInstance();
+        private final DelegateExecution context = MockDelegateExecution.createSpyInstance();
 
         @Test
         public void withNoAlreadyExecutedHooksAndWithHooksForCurrentStepPhase() {

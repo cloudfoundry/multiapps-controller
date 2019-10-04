@@ -54,7 +54,7 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     protected ApplicationConfiguration configuration;
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     public DetermineDesiredStateAchievingActionsStepBaseTest(ApplicationStartupState currentAppState,
                                                              ApplicationStartupState desiredAppState, boolean hasAppChanged,

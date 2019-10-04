@@ -11,8 +11,8 @@ import com.sap.cloud.lm.sl.mta.helpers.VisitableObject;
 
 public class ObjectToEnvironmentValueConverter {
 
-    private List<EscapeSequenceToReplace> customEscapeSequences;
-    private boolean prettyPrinting;
+    private final List<EscapeSequenceToReplace> customEscapeSequences;
+    private final boolean prettyPrinting;
 
     public ObjectToEnvironmentValueConverter(boolean prettyPrinting) {
         this(getDefaultCustomEscapeSequences(), prettyPrinting);

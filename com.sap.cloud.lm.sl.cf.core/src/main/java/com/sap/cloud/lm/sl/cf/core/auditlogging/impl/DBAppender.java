@@ -22,11 +22,11 @@ class DBAppender extends org.apache.log4j.AppenderSkeleton implements org.apache
         void handleException(Exception e);
     }
 
-    private DataSource dataSource;
-    private LogEventAdapter eventAdapter;
-    private String sql;
-    private ExceptionHandler exceptionHandler;
-    private UserInfoProvider userInfoProvider;
+    private final DataSource dataSource;
+    private final LogEventAdapter eventAdapter;
+    private final String sql;
+    private final ExceptionHandler exceptionHandler;
+    private final UserInfoProvider userInfoProvider;
 
     DBAppender(DataSource dataSource, String sql, LogEventAdapter eventAdapter, ExceptionHandler exceptionHandler,
                UserInfoProvider userInfoProvider) {

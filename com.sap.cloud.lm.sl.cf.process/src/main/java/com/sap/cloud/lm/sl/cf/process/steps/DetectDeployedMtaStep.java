@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetectDeployedMtaStep extends SyncFlowableStep {
 
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     protected Function<List<CloudApplication>, DeployedComponents> componentsDetector = deployedApps -> new DeployedComponentsDetector().detectAllDeployedComponents(deployedApps);
 

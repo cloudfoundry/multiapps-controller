@@ -57,8 +57,8 @@ public class TasksValidatorTest {
         });
     }
 
-    private String locationOfFileContainingTasks;
-    private boolean expectedResult;
+    private final String locationOfFileContainingTasks;
+    private final boolean expectedResult;
 
     public TasksValidatorTest(String locationOfFileContainingTasks, boolean expectedResult) {
         this.locationOfFileContainingTasks = locationOfFileContainingTasks;

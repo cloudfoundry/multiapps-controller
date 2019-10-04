@@ -71,11 +71,11 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
     @Mock
     public SchemaVersionDetector versionDetector;
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
-    private String schemaVersion;
-    private int expectedMajor;
-    private String expectedExceptionMessage;
+    private final String schemaVersion;
+    private final int expectedMajor;
+    private final String expectedExceptionMessage;
 
     public DetectMtaSchemaVersionStepTest(String schemaVersion, int expectedMajor, String expectedExceptionMessage) {
         this.schemaVersion = schemaVersion;

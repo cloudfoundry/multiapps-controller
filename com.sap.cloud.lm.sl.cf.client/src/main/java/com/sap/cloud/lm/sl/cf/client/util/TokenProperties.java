@@ -10,9 +10,9 @@ public class TokenProperties {
     public static final String USER_NAME_KEY = "user_name";
     public static final String USER_ID_KEY = "user_id";
 
-    private String clientId;
-    private String userName;
-    private String userId;
+    private final String clientId;
+    private final String userName;
+    private final String userId;
 
     public TokenProperties(String clientId, String userId, String userName) {
         this.clientId = clientId;

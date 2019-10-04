@@ -31,7 +31,7 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BuildCloudUndeployModelStep extends SyncFlowableStep {
 
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Inject
     private ConfigurationSubscriptionService configurationSubscriptionService;

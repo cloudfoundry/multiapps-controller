@@ -18,7 +18,7 @@ import com.sap.cloud.lm.sl.mta.model.Hook;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetermineTasksFromHookStep extends SyncFlowableStep {
 
-    protected TaskHookParser hookParser = new TaskHookParser();
+    protected final TaskHookParser hookParser = new TaskHookParser();
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

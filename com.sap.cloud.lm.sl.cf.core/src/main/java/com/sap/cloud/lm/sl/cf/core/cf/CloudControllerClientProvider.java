@@ -27,7 +27,7 @@ public class CloudControllerClientProvider {
 
     // Cached clients. These are stored in memory-sensitive cache, i.e. no OutOfMemory error would
     // occur before GC tries to release the not-used clients.
-    private Map<String, CloudControllerClient> clients = Collections.synchronizedMap(new ReferenceMap<>(ReferenceStrength.HARD,
+    private final Map<String, CloudControllerClient> clients = Collections.synchronizedMap(new ReferenceMap<>(ReferenceStrength.HARD,
                                                                                                         ReferenceStrength.SOFT));
 
     /**

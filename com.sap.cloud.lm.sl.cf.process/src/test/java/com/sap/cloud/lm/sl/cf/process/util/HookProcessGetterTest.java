@@ -29,7 +29,7 @@ public class HookProcessGetterTest {
     @Mock
     private DelegateExecution context;
 
-    private Date now = Date.valueOf(LocalDate.now());
+    private final Date now = Date.valueOf(LocalDate.now());
 
     @BeforeEach
     public void setUp() {

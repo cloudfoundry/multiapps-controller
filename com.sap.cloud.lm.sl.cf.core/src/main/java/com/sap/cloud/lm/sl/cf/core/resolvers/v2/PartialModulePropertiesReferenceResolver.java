@@ -10,7 +10,7 @@ import com.sap.cloud.lm.sl.mta.resolvers.v2.ModulePropertiesReferenceResolver;
 
 public class PartialModulePropertiesReferenceResolver extends ModulePropertiesReferenceResolver {
 
-    private List<String> dependenciesToIgnore;
+    private final List<String> dependenciesToIgnore;
 
     public PartialModulePropertiesReferenceResolver(DeploymentDescriptor descriptor, Module module, Map<String, Object> properties,
                                                     String prefix, List<String> dependenciesToIgnore) {

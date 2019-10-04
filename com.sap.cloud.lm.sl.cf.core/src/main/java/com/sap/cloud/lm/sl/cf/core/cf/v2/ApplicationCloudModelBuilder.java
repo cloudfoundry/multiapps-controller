@@ -54,14 +54,14 @@ public class ApplicationCloudModelBuilder {
 
     private static final int MTA_MAJOR_VERSION = 2;
 
-    protected DescriptorHandler handler;
-    protected DeploymentDescriptor deploymentDescriptor;
-    protected boolean prettyPrinting;
-    protected ApplicationEnvironmentCloudModelBuilder applicationEnvCloudModelBuilder;
-    protected DeployedMta deployedMta;
-    protected UserMessageLogger stepLogger;
+    protected final DescriptorHandler handler;
+    protected final DeploymentDescriptor deploymentDescriptor;
+    protected final boolean prettyPrinting;
+    protected final ApplicationEnvironmentCloudModelBuilder applicationEnvCloudModelBuilder;
+    protected final DeployedMta deployedMta;
+    protected final UserMessageLogger stepLogger;
 
-    protected ParametersChainBuilder parametersChainBuilder;
+    protected final ParametersChainBuilder parametersChainBuilder;
 
     public ApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
                                         String deployId, UserMessageLogger stepLogger) {

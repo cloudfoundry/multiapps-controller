@@ -6,7 +6,7 @@ import org.mockito.ArgumentMatcher;
 
 public class LambdaArgumentMatcher<T> implements ArgumentMatcher<T> {
 
-    private Predicate<Object> matcher;
+    private final Predicate<Object> matcher;
 
     public LambdaArgumentMatcher(Predicate<Object> matcher) {
         this.matcher = matcher;

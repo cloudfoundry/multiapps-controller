@@ -44,8 +44,8 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
         CloudApplication existingApp;
         String mtaId;
         String mtaVersion;
-        List<ConfigurationEntry> publishedEntries = Collections.emptyList();
-        List<ConfigurationEntry> existingEntries = Collections.emptyList();
+        final List<ConfigurationEntry> publishedEntries = Collections.emptyList();
+        final List<ConfigurationEntry> existingEntries = Collections.emptyList();
     }
 
     private static class StepOutput {
@@ -85,8 +85,8 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
         });
     }
 
-    private String inputLocation;
-    private String expectedOutputLocation;
+    private final String inputLocation;
+    private final String expectedOutputLocation;
 
     private StepInput input;
     private StepOutput expectedOutput;

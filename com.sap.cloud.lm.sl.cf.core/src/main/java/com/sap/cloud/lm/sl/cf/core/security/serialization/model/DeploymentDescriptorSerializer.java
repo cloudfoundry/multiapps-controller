@@ -7,7 +7,7 @@ import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 public class DeploymentDescriptorSerializer extends SecureJsonSerializer {
 
-    private DeploymentDescriptorMasker masker = new DeploymentDescriptorMasker();
+    private final DeploymentDescriptorMasker masker = new DeploymentDescriptorMasker();
 
     public DeploymentDescriptorSerializer(SecureSerializerConfiguration configuration) {
         super(configuration);

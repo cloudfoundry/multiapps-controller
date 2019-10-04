@@ -37,7 +37,7 @@ public class ConfigurationSubscriptionServiceTest {
                                                                                                                   createModuleDto("moduleName1"),
                                                                                                                   createResourceDto("resourceName1"));
 
-    private ConfigurationSubscriptionService configurationSubscriptionService = createConfigurationSubscriptionService();
+    private final ConfigurationSubscriptionService configurationSubscriptionService = createConfigurationSubscriptionService();
 
     @AfterEach
     public void cleanUp() {

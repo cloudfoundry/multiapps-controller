@@ -22,8 +22,8 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 @RunWith(Parameterized.class)
 public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
 
-    private SimpleApplicationWithState application;
-    private SimpleApplicationWithState existingApplication;
+    private final SimpleApplicationWithState application;
+    private final SimpleApplicationWithState existingApplication;
 
     @Mock
     private ProcessTypeParser processTypeParser;
@@ -100,7 +100,7 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     }
 
     private static class SimpleApplicationWithState extends SimpleApplication {
-        State state;
+        final State state;
 
         public SimpleApplicationWithState(String name, int instances, State state) {
             super(name, instances);

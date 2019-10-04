@@ -33,12 +33,12 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 @RunWith(Parameterized.class)
 public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<UpdateServiceBrokerSubscriberStep> {
 
-    private StepInput input;
-    private String expectedExceptionMessage;
-    private String warningMessage;
+    private final StepInput input;
+    private final String expectedExceptionMessage;
+    private final String warningMessage;
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Parameters
     public static Iterable<Object[]> getParameters() {

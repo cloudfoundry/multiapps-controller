@@ -31,7 +31,7 @@ public class MtaDescriptorPropertiesResolver {
     public static final String IDLE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.IDLE_DOMAIN + "}";
     public static final String IDLE_HOST_PLACEHOLDER = "${" + SupportedParameters.IDLE_HOST + "}";
 
-    private MtaDescriptorPropertiesResolverContext context;
+    private final MtaDescriptorPropertiesResolverContext context;
     private List<ConfigurationSubscription> subscriptions;
 
     public MtaDescriptorPropertiesResolver(MtaDescriptorPropertiesResolverContext context) {

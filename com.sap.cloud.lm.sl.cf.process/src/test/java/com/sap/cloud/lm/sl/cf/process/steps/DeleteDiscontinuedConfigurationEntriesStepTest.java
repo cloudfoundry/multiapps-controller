@@ -40,7 +40,7 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
     @Mock(answer = Answers.RETURNS_SELF)
     private ConfigurationEntryQuery configurationEntryQuery;
 
-    private StepInput stepInput;
+    private final StepInput stepInput;
 
     public DeleteDiscontinuedConfigurationEntriesStepTest(String stepInputLocation) throws ParsingException {
         stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInputLocation, DeleteDiscontinuedConfigurationEntriesStepTest.class),

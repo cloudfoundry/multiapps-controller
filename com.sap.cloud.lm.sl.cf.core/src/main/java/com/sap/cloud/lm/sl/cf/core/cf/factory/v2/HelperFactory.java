@@ -26,7 +26,7 @@ import com.sap.cloud.lm.sl.mta.model.Platform;
 
 public class HelperFactory implements HelperFactoryConstructor {
 
-    protected DescriptorHandler descriptorHandler;
+    protected final DescriptorHandler descriptorHandler;
 
     public HelperFactory(DescriptorHandler descriptorHandler) {
         this.descriptorHandler = descriptorHandler;

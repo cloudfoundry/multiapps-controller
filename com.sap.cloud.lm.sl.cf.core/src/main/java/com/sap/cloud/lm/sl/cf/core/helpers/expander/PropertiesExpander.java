@@ -16,8 +16,8 @@ public class PropertiesExpander extends ReferencingPropertiesVisitor implements 
 
     private static final ReferencePattern REFERENCE_PATTERN = ReferencePattern.FULLY_QUALIFIED;
 
-    private List<String> newDependencyNames;
-    private List<String> expandedProperties;
+    private final List<String> newDependencyNames;
+    private final List<String> expandedProperties;
 
     public PropertiesExpander(String originalDependencyName, List<String> newDependencyNames) {
         this(originalDependencyName, newDependencyNames, new ArrayList<>());

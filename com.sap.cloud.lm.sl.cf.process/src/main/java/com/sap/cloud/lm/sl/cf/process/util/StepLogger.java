@@ -23,10 +23,10 @@ import com.sap.cloud.lm.sl.common.SLException;
  */
 public class StepLogger implements UserMessageLogger {
 
-    protected DelegateExecution context;
-    protected ProgressMessageService progressMessageService;
-    protected ProcessLoggerProvider processLoggerProvider;
-    protected Logger simpleStepLogger;
+    protected final DelegateExecution context;
+    protected final ProgressMessageService progressMessageService;
+    protected final ProcessLoggerProvider processLoggerProvider;
+    protected final Logger simpleStepLogger;
 
     public StepLogger(DelegateExecution context, ProgressMessageService progressMessageService, ProcessLoggerProvider processLoggerProvider,
                       Logger simpleStepLogger) {

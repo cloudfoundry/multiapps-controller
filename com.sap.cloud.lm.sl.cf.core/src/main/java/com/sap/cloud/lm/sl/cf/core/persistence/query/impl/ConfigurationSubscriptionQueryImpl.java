@@ -19,8 +19,8 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscription
 public class ConfigurationSubscriptionQueryImpl extends AbstractQueryImpl<ConfigurationSubscription, ConfigurationSubscriptionQuery>
     implements ConfigurationSubscriptionQuery {
 
-    private QueryCriteria queryCriteria = new QueryCriteria();
-    private ConfigurationSubscriptionMapper subscriptionMapper;
+    private final QueryCriteria queryCriteria = new QueryCriteria();
+    private final ConfigurationSubscriptionMapper subscriptionMapper;
     private List<ConfigurationEntry> matchingEntries;
 
     public ConfigurationSubscriptionQueryImpl(EntityManager entityManager, ConfigurationSubscriptionMapper subscriptionMapper) {

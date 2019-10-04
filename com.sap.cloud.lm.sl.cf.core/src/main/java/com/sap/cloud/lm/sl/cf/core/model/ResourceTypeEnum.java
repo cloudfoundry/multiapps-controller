@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.model;
 public enum ResourceTypeEnum {
     HDI_CONTAINER("com.sap.xs.hdi-container");
 
-    private String resourceType;
+    private final String resourceType;
 
     ResourceTypeEnum(String resourceType) {
         this.resourceType = resourceType;
