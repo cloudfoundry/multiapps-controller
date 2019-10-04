@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class ApplicationBitsChangesDetectorTest {
     public void testDetectCurrentAppFileDigestWithNoInfoInEnv() {
         detector = new ApplicationFileDigestDetector(appEnv);
 
-        assertEquals(null, detector.detectCurrentAppFileDigest());
+        assertNull(detector.detectCurrentAppFileDigest());
     }
 
     @Test

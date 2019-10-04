@@ -1,8 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,6 +23,8 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StepsUtilTest {
 
@@ -87,9 +86,9 @@ public class StepsUtilTest {
         List<CloudServiceExtended> actualServicesToCreate = StepsUtil.getServicesToCreate(context);
 
         assertEquals(1, actualServicesToCreate.size());
-        assertTrue(!actualServicesToCreate.get(0)
-                                          .getCredentials()
-                                          .isEmpty());
+        assertFalse(actualServicesToCreate.get(0)
+                .getCredentials()
+                .isEmpty());
         assertEquals(Integer.class, actualServicesToCreate.get(0)
                                                           .getCredentials()
                                                           .get("integer-value")
@@ -121,11 +120,11 @@ public class StepsUtilTest {
         StepsUtil.setApp(context, application);
         CloudApplicationExtended actualAppToDeploy = StepsUtil.getApp(context);
 
-        assertTrue(!actualAppToDeploy.getBindingParameters()
-                                     .isEmpty());
-        assertTrue(!actualAppToDeploy.getBindingParameters()
-                                     .get("service-1")
-                                     .isEmpty());
+        assertFalse(actualAppToDeploy.getBindingParameters()
+                .isEmpty());
+        assertFalse(actualAppToDeploy.getBindingParameters()
+                .get("service-1")
+                .isEmpty());
         assertEquals(Integer.class, actualAppToDeploy.getBindingParameters()
                                                      .get("service-1")
                                                      .get("integer-value")

@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -106,15 +105,15 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
 
     private void testResources() {
         for (String expectedResource : input.expectedResources) {
-            assertTrue(StepsUtil.getMtaArchiveElements(context)
-                                .getResourceFileName(expectedResource) != null);
+            assertNotNull(StepsUtil.getMtaArchiveElements(context)
+                    .getResourceFileName(expectedResource));
         }
     }
 
     private void testDependencies() {
         for (String expectedDependency : input.expectedRequiredDependencies) {
-            assertTrue(StepsUtil.getMtaArchiveElements(context)
-                                .getRequiredDependencyFileName(expectedDependency) != null);
+            assertNotNull(StepsUtil.getMtaArchiveElements(context)
+                    .getRequiredDependencyFileName(expectedDependency));
         }
     }
 

@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -164,7 +165,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         tester.test(() -> StepsUtil.getServiceKeysToCreate(context), new Expectation(Expectation.Type.JSON, input.serviceKeysLocation));
         tester.test(() -> StepsUtil.getModulesToDeploy(context), new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
         tester.test(() -> StepsUtil.getAllModulesToDeploy(context), new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
-        assertEquals(false, StepsUtil.getUseIdleUris(context));
+        assertFalse(StepsUtil.getUseIdleUris(context));
         assertEquals(input.customDomains, StepsUtil.getCustomDomains(context));
         assertEquals(output.newMtaVersion, StepsUtil.getNewMtaVersion(context));
     }

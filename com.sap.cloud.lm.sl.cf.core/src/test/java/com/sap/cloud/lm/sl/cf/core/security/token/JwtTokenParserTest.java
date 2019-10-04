@@ -41,8 +41,8 @@ public class JwtTokenParserTest {
         JwtTokenParser parser = new JwtTokenParserMock(new TokenFactory(), mockUaaCLient());
         OAuth2AccessToken token = parser.parse(correctToken);
         Assert.assertNotNull(token);
-        Assert.assertTrue(!token.getAdditionalInformation()
-                                .isEmpty());
+        Assert.assertFalse(token.getAdditionalInformation()
+                .isEmpty());
         Assert.assertEquals("cf", token.getAdditionalInformation()
                                        .get("client_id"));
         Assert.assertNotNull(token.getAdditionalInformation()
