@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
 import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.ID;
-import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.ORG;
+import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.ORGANIZATION;
 import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.SPACE;
 import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.findConfigurationEntries;
 import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.getGlobalConfigTarget;
@@ -234,7 +234,7 @@ public class ConfigurationEntriesResource {
                                    @RequestParam(name = RequestParameters.VERSION, required = false) String providerVersion,
                                    @RequestParam(name = RequestParameters.CONTENT, required = false) List<String> content,
                                    @RequestParam(name = RequestParameters.TARGET_SPACE, required = false) String targetSpace,
-                                   @RequestParam(name = RequestParameters.ORG, required = false, defaultValue = TargetWildcardFilter.ANY_TARGET_WILDCARD) String org,
+                                   @RequestParam(name = RequestParameters.ORGANIZATION, required = false, defaultValue = TargetWildcardFilter.ANY_TARGET_WILDCARD) String org,
                                    @RequestParam(name = RequestParameters.SPACE, required = false, defaultValue = TargetWildcardFilter.ANY_TARGET_WILDCARD) String space) {
         ConfigurationFilterDto filterDto = new ConfigurationFilterDto(providerNid,
                                                                       providerId,
@@ -265,7 +265,7 @@ public class ConfigurationEntriesResource {
     }
 
     @PostMapping("/purge")
-    public ResponseEntity<Void> purgeConfigurationRegistry(HttpServletRequest request, @RequestParam(ORG) String org,
+    public ResponseEntity<Void> purgeConfigurationRegistry(HttpServletRequest request, @RequestParam(ORGANIZATION) String org,
                                                            @RequestParam(SPACE) String space) {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
         CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName(), org, space, null);

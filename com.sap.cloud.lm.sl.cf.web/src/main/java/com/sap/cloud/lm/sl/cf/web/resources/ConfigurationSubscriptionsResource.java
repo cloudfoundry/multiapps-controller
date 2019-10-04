@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
-import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.ORG;
+import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.ORGANIZATION;
 import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.SPACE;
 
 import java.util.Arrays;
@@ -37,7 +37,7 @@ public class ConfigurationSubscriptionsResource {
     private CloudControllerClientProvider clientProvider;
 
     @GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
-    public ResponseEntity<ConfigurationSubscriptions> getConfigurationSubscriptions(@RequestParam(ORG) String org, @RequestParam(name = SPACE, required = false) String space) {
+    public ResponseEntity<ConfigurationSubscriptions> getConfigurationSubscriptions(@RequestParam(ORGANIZATION) String org, @RequestParam(name = SPACE, required = false) String space) {
         CloudControllerClient client = getCloudFoundryClient();
         List<CloudSpace> clientSpaces = getClientSpaces(org, space, client);
 

@@ -26,7 +26,7 @@ public class PurgeApiAuthorizationFilter extends SpaceNameBasedAuthorizationFilt
 
     @Override
     protected CloudTarget extractTarget(HttpServletRequest request) {
-        String organizationName = request.getParameter(RequestParameters.ORG);
+        String organizationName = request.getParameter(RequestParameters.ORGANIZATION);
         String spaceName = request.getParameter(RequestParameters.SPACE);
         if (StringUtils.isAnyEmpty(organizationName, spaceName)) {
             throw new AuthorizationException(HttpStatus.BAD_REQUEST.value(), Messages.ORG_AND_SPACE_MUST_BE_SPECIFIED);
