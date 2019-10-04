@@ -280,14 +280,14 @@ public class ApplicationConfiguration {
 
     public Long getMaxManifestSize() {
         if (maxManifestSize == null) {
-            maxManifestSize = getMaxManifestSizeFromEnviroment();
+            maxManifestSize = getMaxManifestSizeFromEnvironment();
         }
         return maxManifestSize;
     }
 
     public Long getMaxResourceFileSize() {
         if (maxResourceFileSize == null) {
-            maxResourceFileSize = getMaxResourceFileSizeFromEnviroment();
+            maxResourceFileSize = getMaxResourceFileSizeFromEnvironment();
         }
         return maxResourceFileSize;
     }
@@ -590,13 +590,13 @@ public class ApplicationConfiguration {
         return parsedPlatform;
     }
 
-    private Long getMaxManifestSizeFromEnviroment() {
+    private Long getMaxManifestSizeFromEnvironment() {
         Long value = environment.getLong(CFG_MAX_MANIFEST_SIZE, DEFAULT_MAX_MANIFEST_SIZE);
         LOGGER.info(format(Messages.MAX_MANIFEST_SIZE, value));
         return value;
     }
 
-    private Long getMaxResourceFileSizeFromEnviroment() {
+    private Long getMaxResourceFileSizeFromEnvironment() {
         Long value = environment.getLong(CFG_MAX_RESOURCE_FILE_SIZE, DEFAULT_MAX_RESOURCE_FILE_SIZE);
         LOGGER.info(format(Messages.MAX_RESOURCE_FILE_SIZE, value));
         return value;

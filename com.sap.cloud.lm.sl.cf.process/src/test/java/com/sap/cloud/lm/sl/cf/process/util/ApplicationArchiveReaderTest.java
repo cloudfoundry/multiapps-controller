@@ -45,18 +45,18 @@ public class ApplicationArchiveReaderTest {
     @ParameterizedTest
     @MethodSource
     public void testFailingCalculateDigest(String mtar, String fileName, String expectedException, long maxFileUploadSize) {
-        ApplicationArchiveContext applicatonArchiveContext = getApplicationArchiveContext(mtar, fileName, maxFileUploadSize);
+        ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(mtar, fileName, maxFileUploadSize);
         ApplicationArchiveReader reader = getApplicationArchiveReader();
-        Exception exception = Assertions.assertThrows(Exception.class, () -> reader.calculateApplicationDigest(applicatonArchiveContext));
+        Exception exception = Assertions.assertThrows(Exception.class, () -> reader.calculateApplicationDigest(applicationArchiveContext));
         assertEquals(expectedException, exception.getMessage());
     }
 
     @ParameterizedTest
     @MethodSource
     public void testBadAbsolutePathRead(String mtar, String fileName, String expectedException, long maxFileUploadSize) {
-        ApplicationArchiveContext applicatonArchiveContext = getApplicationArchiveContext(mtar, fileName, maxFileUploadSize);
+        ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(mtar, fileName, maxFileUploadSize);
         ApplicationArchiveReader reader = getApplicationArchiveReaderForAbsolutePath();
-        Exception exception = Assertions.assertThrows(Exception.class, () -> reader.calculateApplicationDigest(applicatonArchiveContext));
+        Exception exception = Assertions.assertThrows(Exception.class, () -> reader.calculateApplicationDigest(applicationArchiveContext));
         assertEquals(expectedException, exception.getMessage());
     }
 

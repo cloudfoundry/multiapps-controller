@@ -158,7 +158,7 @@ public final class Messages {
 
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION = "About to perform action \"{0}\"";
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION_WITH_PARAMS = "About to perform action \"{0}\" with parameters \"{1}\"";
-    public static final String AUDIT_LOG_ACTION_SUCCESS = "Succesfuly performed action \"{0}\"";
+    public static final String AUDIT_LOG_ACTION_SUCCESS = "Successfully performed action \"{0}\"";
     public static final String AUDIT_LOG_ACTION_FAILURE = "Failed to perform action \"{0}\"";
     public static final String AUDIT_LOGGING_FAILED = "Failed to write message to the audit log";
     public static final String AUDIT_LOG_CONFIG = "Deploy service configuration \"{0}\": {1}";

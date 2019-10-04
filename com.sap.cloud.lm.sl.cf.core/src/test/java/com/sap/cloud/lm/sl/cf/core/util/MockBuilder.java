@@ -23,13 +23,13 @@ public class MockBuilder<T> {
         return on(mockMethodCall, null);
     }
 
-    public MockBuilder<T> on(MockMethodCall<T> mockMethodCall, Consumer<InvocationOnMock> invocationCosumer) {
+    public MockBuilder<T> on(MockMethodCall<T> mockMethodCall, Consumer<InvocationOnMock> invocationConsumer) {
         T callResult = mockMethodCall.performOn(mock);
         if (!Objects.equals(callResult, mock)) {
             this.mock = callResult;
             return this;
         }
-        initNewMock(mockMethodCall, invocationCosumer);
+        initNewMock(mockMethodCall, invocationConsumer);
         return this;
     }
 

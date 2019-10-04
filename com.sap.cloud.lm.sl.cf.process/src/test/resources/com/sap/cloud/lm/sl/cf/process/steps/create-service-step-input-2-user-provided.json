@@ -19,7 +19,7 @@
 					}
 				}
 			},
-			"expextedStepPhase": "DONE"
+			"expectedStepPhase": "DONE"
 		}
 	}
 }

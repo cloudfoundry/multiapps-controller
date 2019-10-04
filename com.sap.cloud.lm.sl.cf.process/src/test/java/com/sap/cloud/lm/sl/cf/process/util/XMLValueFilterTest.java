@@ -42,8 +42,8 @@ public class XMLValueFilterTest {
             },
             // (02) Legal xml reserved characters:
             {
-                "Many replacements \u0000\u0001\u0002\u0003 with \u0004\u0005\u0006\u0007 random characters \u0008\u000B\u000C in betwen \u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F\uFFFE\uFFFF",
-                "Many replacements **** with **** random characters *** in betwen ********************"
+                "Many replacements \u0000\u0001\u0002\u0003 with \u0004\u0005\u0006\u0007 random characters \u0008\u000B\u000C in between \u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F\uFFFE\uFFFF",
+                "Many replacements **** with **** random characters *** in between ********************"
             },
 // @formatter:on
         });

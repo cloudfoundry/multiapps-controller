@@ -185,9 +185,9 @@ public class SupportedParameters {
         }
     }
 
-    public static class ApplicationUpdateStarategy {
+    public static class ApplicationUpdateStrategy {
 
-        private ApplicationUpdateStarategy() {
+        private ApplicationUpdateStrategy() {
         }
 
         public static final String SERVICE_BINDINGS_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY = "service-bindings";

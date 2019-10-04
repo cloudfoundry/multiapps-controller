@@ -108,13 +108,13 @@ public class Messages {
     public static final String ERROR_DELETING_PUBLISHED_DEPENDENCIES = "Error deleting discontinued published dependencies";
     public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP = "Error determining actions to execute on application \"{0}\"";
     public static final String ERROR_EXECUTING_HOOK = "Error executing hook \"{0}\"";
-    public static final String ERROR_INCREMENET_INDEX = "Error incrementing index";
+    public static final String ERROR_INCREMENT_INDEX = "Error incrementing index";
     public static final String ERROR_PREPARING_MODULES_DEPLOYMENT = "Error preparing modules deployment";
-    public static final String ERROR_COMPUTING_ZDM_SERVICES_FOR_DELETION = "Error comuputing zdm services for deletion";
+    public static final String ERROR_COMPUTING_ZDM_SERVICES_FOR_DELETION = "Error computing ZDM services for deletion";
     public static final String ERROR_STOPPING_APP = "Error stopping application \"{0}\"";
     public static final String ERROR_STAGING_APP_1 = "Error staging application \"{0}\"";
     public static final String ERROR_STAGING_APP_2 = "Staging of application \"{0}\" failed. Download the application logs via the dmol command and check them for more information.";
-    public static final String ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES = "Error publishing public provided dependecies";
+    public static final String ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES = "Error publishing public provided dependencies";
     public static final String ERROR_STARTING_APP_1 = "Error starting application \"{0}\"";
     public static final String ERROR_STARTING_APP_2 = "Starting of application \"{0}\" failed. Download the application logs via the dmol command and check them for more information.";
     public static final String ERROR_EXECUTING_APP_1 = "Error executing application \"{0}\"";
@@ -131,7 +131,7 @@ public class Messages {
     public static final String ERROR_UPDATING_SUBSCRIBERS = "Error updating subscribers";
     public static final String ERROR_RESTARTING_SUBSCRIBERS = "Error restarting subscribers";
     public static final String ERROR_NO_SERVICE_URL_SPECIFIED = "No service URL is specified for service \"{0}\" and application \"{1}\"";
-    public static final String ERROR_RETRIEVING_OAUT_TOKEN = "Error retrieving OAuth token";
+    public static final String ERROR_RETRIEVING_OAUTH_TOKEN = "Error retrieving OAuth token";
     public static final String ERROR_PROCESSING_GIT_URI = "Error processing Git URI";
     public static final String ERROR_PROCESSING_GIT_MTA_SOURCE = "Failed to process Git MTA source";
     public static final String ERROR_DOWNLOADING_DEPLOYABLE_FROM_GIT = "Error downloading deployable from Git";
@@ -305,7 +305,7 @@ public class Messages {
     public static final String COLLECTING_SYSTEM_PARAMETERS = "Collecting system parameters...";
     public static final String SYSTEM_PARAMETERS_COLLECTED = "System parameters collected";
     public static final String RESOLVING_DESCRIPTOR_PROPERTIES = "Resolving properties and parameters in merged descriptor...";
-    public static final String DESCRIPTOR_PROPERTIES_RESOVED = "Merged descriptor properties and parameters resolved";
+    public static final String DESCRIPTOR_PROPERTIES_RESOLVED = "Merged descriptor properties and parameters resolved";
     public static final String CREATING_SUBSCRIPTIONS = "Creating subscriptions...";
     public static final String SUBSCRIPTIONS_CREATED = "Subscriptions created";
     public static final String BUILDING_CLOUD_MODEL = "Building cloud deployment model...";
@@ -319,7 +319,7 @@ public class Messages {
     public static final String ASSIGNING_IDLE_URIS = "Assigning idle URIs to applications...";
     public static final String ADDING_DOMAINS = "Adding domains...";
     public static final String DOMAINS_ADDED = "Domains added";
-    public static final String DELETING_SERVICES = "Deleting discontinuied services...";
+    public static final String DELETING_SERVICES = "Deleting discontinued services...";
     public static final String SERVICES_DELETED = "Discontinued services deleted";
     public static final String SERVICES_TO_CREATE = "Services to create: {0}";
     public static final String CREATED_SERVICE_KEY = "Service key \"{0}\" created";
@@ -334,7 +334,7 @@ public class Messages {
     public static final String CHECKING_UPLOAD_APP_STATUS = "Checking upload status of application \"{0}\"...";
     public static final String UPLOAD_STATUS_0 = "Upload status: {0}";
     public static final String MATCHED_FILES_COUNT_0 = "Matched files count: {0}";
-    public static final String MATCHED_RESROUCES_PROCESSED_TOTAL_SIZE_0 = "Matched resources processed, total size is {0}";
+    public static final String MATCHED_RESOURCES_PROCESSED_TOTAL_SIZE_0 = "Matched resources processed, total size is {0}";
     public static final String APP_UPLOADED = "Application \"{0}\" uploaded";
     public static final String SCALING_APP = "Scaling application \"{0}\"...";
     public static final String APP_SCALED = "Application \"{0}\" scaled";
@@ -362,7 +362,7 @@ public class Messages {
     public static final String SERVICE_URLS_REGISTERED = "Service URLs registered";
     public static final String REGISTERED_SERVICE_URL = "Service URL \"{0}\" named \"{1}\" was registered";
     public static final String UNREGISTERING_SERVICE_URLS = "Unregistering discontinued service URLs...";
-    public static final String SERVICE_URLS_UNREGISTERED = "Discontinuied service URLs unregistered";
+    public static final String SERVICE_URLS_UNREGISTERED = "Discontinued service URLs unregistered";
     public static final String UNREGISTERED_SERVICE_URL = "Service URL \"{0}\" for application \"{1}\" unregistered";
     public static final String CREATING_SERVICE_BROKERS = "Creating service brokers...";
     public static final String SERVICE_BROKERS_CREATED = "Service brokers created";
@@ -403,8 +403,8 @@ public class Messages {
     public static final String APP_WITH_UPDATED_ENVIRONMENT = "App with updated environment: {0}";
     public static final String VALIDATING_EXISTING_SERVICE_ASSOCIATION = "Trying to validate association of service \"{0}\"";
     public static final String VALIDATING_EXISTING_APPLICATION_ASSOCIATION = "Trying to validate association of application \"{0}\"";
-    public static final String SERVICES_VALIDATED = "Services to create succesfully validated";
-    public static final String APPLICATIONS_VALIDATED = "Applications to deploy succesfully validated";
+    public static final String SERVICES_VALIDATED = "Services to create successfully validated";
+    public static final String APPLICATIONS_VALIDATED = "Applications to deploy successfully validated";
     public static final String UPLOADING_MTAR = "Uploading MTAR...";
     public static final String MTAR_UPLOADED = "MTAR uploaded.";
     public static final String CLONING_REPOSITORY = "Cloning repository {0}";

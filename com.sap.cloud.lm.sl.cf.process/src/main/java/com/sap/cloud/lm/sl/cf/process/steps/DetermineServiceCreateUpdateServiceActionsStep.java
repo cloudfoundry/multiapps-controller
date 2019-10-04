@@ -72,7 +72,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
         serviceToProcess = StepsUtil.getServiceToProcess(execution.getContext());
 
-        List<ServiceAction> actions = dermineActionsAndHandleExceptions(controllerClient, spaceId, serviceToProcess, existingService,
+        List<ServiceAction> actions = determineActionsAndHandleExceptions(controllerClient, spaceId, serviceToProcess, existingService,
                                                                         serviceKeys, execution);
 
         StepsUtil.setServiceActionsToExecute(actions, execution.getContext());
@@ -87,10 +87,10 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                                                                                                        .getName());
     }
 
-    private List<ServiceAction> dermineActionsAndHandleExceptions(CloudControllerClient client, String spaceId,
-                                                                  CloudServiceExtended service, CloudService existingService,
-                                                                  Map<String, List<CloudServiceKey>> serviceKeys,
-                                                                  ExecutionWrapper execution)
+    private List<ServiceAction> determineActionsAndHandleExceptions(CloudControllerClient client, String spaceId,
+                                                                    CloudServiceExtended service, CloudService existingService,
+                                                                    Map<String, List<CloudServiceKey>> serviceKeys,
+                                                                    ExecutionWrapper execution)
         throws FileStorageException {
         try {
             return determineActions(client, spaceId, service, existingService, serviceKeys, execution);

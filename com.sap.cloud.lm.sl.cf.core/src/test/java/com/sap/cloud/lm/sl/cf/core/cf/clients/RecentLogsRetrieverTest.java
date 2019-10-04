@@ -56,7 +56,7 @@ public class RecentLogsRetrieverTest {
         Mockito.when(client.getCloudInfo())
                .thenReturn(cloudInfo);
         Mockito.when(client.getApplication(APP_NAME))
-               .thenReturn(createDummpyApp());
+               .thenReturn(createDummyApp());
         Mockito.when(client.getCloudControllerUrl())
                .thenReturn(new URL(CONTROLLER_URL));
         Mockito.when(restTemplateFactory.getRestTemplate(client))
@@ -85,7 +85,7 @@ public class RecentLogsRetrieverTest {
         assertEquals(Collections.emptyList(), recentLogsRetriever.getRecentLogsSafely(client, APP_NAME));
     }
 
-    private CloudApplication createDummpyApp() {
+    private CloudApplication createDummyApp() {
         return ImmutableCloudApplication.builder()
                                         .metadata(ImmutableCloudMetadata.builder()
                                                                         .guid(APP_UUID)

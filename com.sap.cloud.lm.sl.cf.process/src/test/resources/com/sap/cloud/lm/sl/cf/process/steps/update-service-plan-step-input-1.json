@@ -27,7 +27,7 @@
 					}
 				}
 			},
-			"expextedStepPhase": "POLL"
+			"expectedStepPhase": "POLL"
 		},
 		"polling": {
 			"serviceInstanceResponse": {
@@ -46,7 +46,7 @@
 					}
 				}
 			},
-			"expextedStepPhase": "DONE"
+			"expectedStepPhase": "DONE"
 		}
 	}
 }

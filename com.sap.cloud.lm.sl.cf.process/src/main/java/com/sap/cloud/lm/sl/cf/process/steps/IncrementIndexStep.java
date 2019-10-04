@@ -25,7 +25,7 @@ public class IncrementIndexStep extends SyncFlowableStep {
 
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
-        return Messages.ERROR_INCREMENET_INDEX;
+        return Messages.ERROR_INCREMENT_INDEX;
     }
 
 }

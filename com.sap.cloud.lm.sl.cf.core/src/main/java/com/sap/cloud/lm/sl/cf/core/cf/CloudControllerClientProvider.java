@@ -81,7 +81,7 @@ public class CloudControllerClientProvider {
     }
 
     /**
-     * Returns a client for the specified user nameby either getting it from the clients cache or creating a new one.
+     * Returns a client for the specified user name by either getting it from the clients cache or creating a new one.
      *
      * @param userName the user name associated with the client
      * @return a CF client for the specified access token, organization, and space

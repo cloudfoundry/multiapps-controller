@@ -72,7 +72,7 @@ public class MtaArchiveBuilder {
     }
 
     private DeploymentDescriptor getDeploymentDescriptor(Path mtaDirectory) {
-        deploymentDescriptorFile = findDeploymenDescriptor(mtaDirectory);
+        deploymentDescriptorFile = findDeploymentDescriptor(mtaDirectory);
         String deploymentDescriptorString = readDeploymentDescriptor(deploymentDescriptorFile);
 
         DeploymentDescriptor parsedDeploymentDescriptor = new DescriptorParserFacade().parseDeploymentDescriptor(deploymentDescriptorString);
@@ -269,7 +269,7 @@ public class MtaArchiveBuilder {
         }
     }
 
-    private Path findDeploymenDescriptor(Path mtaDirectory) {
+    private Path findDeploymentDescriptor(Path mtaDirectory) {
         try (Stream<Path> mtaDirContents = Files.list(mtaDirectory)) {
             return mtaDirContents.filter(path -> MTAD_YAML.equals(path.getFileName()
                                                                       .toString()))

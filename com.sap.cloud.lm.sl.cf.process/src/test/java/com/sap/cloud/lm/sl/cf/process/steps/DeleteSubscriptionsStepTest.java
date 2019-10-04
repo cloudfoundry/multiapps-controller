@@ -87,8 +87,8 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
                                     .collect(Collectors.toList());
     }
 
-    private ConfigurationSubscription asSubscription(Long subscriptionnId) {
-        return new ConfigurationSubscription(subscriptionnId, null, null, null, null, null, null);
+    private ConfigurationSubscription asSubscription(Long subscriptionId) {
+        return new ConfigurationSubscription(subscriptionId, null, null, null, null, null, null);
     }
 
     private void loadParameters() {

@@ -940,14 +940,14 @@ public class StepsUtil {
     }
 
     public static List<String> getModulesForDeployment(VariableScope scope) {
-        return getVariableWithCommaSepearator(scope, Constants.PARAM_MODULES_FOR_DEPLOYMENT);
+        return getVariableWithCommaSeparator(scope, Constants.PARAM_MODULES_FOR_DEPLOYMENT);
     }
 
     public static List<String> getResourcesForDeployment(VariableScope scope) {
-        return getVariableWithCommaSepearator(scope, Constants.PARAM_RESOURCES_FOR_DEPLOYMENT);
+        return getVariableWithCommaSeparator(scope, Constants.PARAM_RESOURCES_FOR_DEPLOYMENT);
     }
 
-    private static List<String> getVariableWithCommaSepearator(VariableScope scope, String variableName) {
+    private static List<String> getVariableWithCommaSeparator(VariableScope scope, String variableName) {
         String variableWithCommaSeparator = (String) scope.getVariable(variableName);
         if (variableWithCommaSeparator == null) {
             return null;
@@ -981,8 +981,8 @@ public class StepsUtil {
         setAsJsonStrings(scope, Constants.VAR_HOOKS_FOR_EXECUTION, hooksForExecution);
     }
 
-    static Hook getHookForExecution(VariableScope scole) {
-        return getFromJsonString(scole, Constants.VAR_HOOK_FOR_EXECUTION, Hook.class);
+    static Hook getHookForExecution(VariableScope scope) {
+        return getFromJsonString(scope, Constants.VAR_HOOK_FOR_EXECUTION, Hook.class);
     }
 
     public static <E> E getEnum(VariableScope scope, String name, Function<String, E> factory) {

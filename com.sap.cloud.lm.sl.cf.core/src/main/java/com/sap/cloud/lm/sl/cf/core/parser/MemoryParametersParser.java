@@ -11,7 +11,7 @@ import com.sap.cloud.lm.sl.common.ContentException;
 
 public class MemoryParametersParser implements ParametersParser<Integer> {
 
-    private static final String GYGABYTES_MATCHER = "[0-9]+[Gg][Bb]?";
+    private static final String GIGABYTES_MATCHER = "[0-9]+[Gg][Bb]?";
     private static final String MEGABYTES_MATCHER = "[0-9]+([Mm][Bb]?|$)";
     private String parameterName;
     private String defaultMemory;
@@ -33,7 +33,7 @@ public class MemoryParametersParser implements ParametersParser<Integer> {
         if (value.matches(MEGABYTES_MATCHER)) {
             return getNumberFromString(value);
         }
-        if (value.matches(GYGABYTES_MATCHER)) {
+        if (value.matches(GIGABYTES_MATCHER)) {
             return getNumberFromString(value) * 1024;
         }
         throw new ContentException(MessageFormat.format(Messages.UNABLE_TO_PARSE_MEMORY_STRING_0, value));

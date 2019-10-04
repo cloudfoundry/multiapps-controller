@@ -74,12 +74,12 @@ public class ServiceOperationGetterTest {
     @ParameterizedTest
     @MethodSource
     public void testGetLastServiceOperation(ServiceOperationType serviceOperationType, ServiceOperationState serviceOperationState,
-                                            String description, boolean isDeletedService, boolean isMissingServiceMetada,
+                                            String description, boolean isDeletedService, boolean isMissingServiceMetadata,
                                             ServiceOperation expectedServiceOperation) {
         Map<String, Object> serviceInstanceEntity = generateServiceInstanceEntity(serviceOperationType, serviceOperationState, description);
         prepareServiceGetter(serviceInstanceEntity);
         prepareEventsGetter(isDeletedService);
-        prepareService(isMissingServiceMetada);
+        prepareService(isMissingServiceMetadata);
         prepareExecution();
 
         ServiceOperation serviceOperation = serviceOperationGetter.getLastServiceOperation(execution, service);
@@ -108,8 +108,8 @@ public class ServiceOperationGetterTest {
         when(eventsGetter.isDeleteEvent(any())).thenReturn(wasDeletedService);
     }
 
-    private void prepareService(boolean isMissingServiceMetada) {
-        if (!isMissingServiceMetada) {
+    private void prepareService(boolean isMissingServiceMetadata) {
+        if (!isMissingServiceMetadata) {
             when(service.getMetadata()).thenReturn(ImmutableCloudMetadata.builder()
                                                                          .guid(UUID.randomUUID())
                                                                          .build());

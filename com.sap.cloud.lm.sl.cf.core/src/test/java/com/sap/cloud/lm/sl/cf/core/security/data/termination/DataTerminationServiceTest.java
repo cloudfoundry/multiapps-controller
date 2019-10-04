@@ -71,7 +71,7 @@ public class DataTerminationServiceTest {
     @Mock
     private ApplicationConfiguration configuration;
     @Mock
-    private CFOptimizedEventGetter cfOptmizedEventsGetter;
+    private CFOptimizedEventGetter cfOptimizedEventsGetter;
     @Mock
     private AuditLoggingFacade auditLoggingFacade;
 
@@ -89,7 +89,7 @@ public class DataTerminationServiceTest {
 
             @Override
             protected CFOptimizedEventGetter getCfOptimizedEventGetter() {
-                return cfOptmizedEventsGetter;
+                return cfOptimizedEventsGetter;
             }
 
         };
@@ -133,7 +133,7 @@ public class DataTerminationServiceTest {
     }
 
     private void prepareCfOptimizedEventsGetter(List<String> deletedSpaces) {
-        when(cfOptmizedEventsGetter.findEvents(anyString(), anyString())).thenReturn(deletedSpaces);
+        when(cfOptimizedEventsGetter.findEvents(anyString(), anyString())).thenReturn(deletedSpaces);
     }
 
     private void prepareServices(List<String> deletedSpaces, boolean isExistSubscriptionData, boolean isExistConfigurationEntryData) {

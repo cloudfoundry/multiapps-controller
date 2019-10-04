@@ -49,7 +49,7 @@ public abstract class SpaceNameBasedAuthorizationFilter implements UriAuthorizat
     private void logUnauthorizedRequest(HttpServletRequest request, ResponseStatusException e) {
         if (LOGGER.isDebugEnabled()) {
             String userName = SecurityContextUtil.getUserName();
-            LOGGER.debug(String.format("User \"%s\" is not authorized for requst to \"%s\".", userName, request.getRequestURI()), e);
+            LOGGER.debug(String.format("User \"%s\" is not authorized for request to \"%s\".", userName, request.getRequestURI()), e);
         }
     }
 

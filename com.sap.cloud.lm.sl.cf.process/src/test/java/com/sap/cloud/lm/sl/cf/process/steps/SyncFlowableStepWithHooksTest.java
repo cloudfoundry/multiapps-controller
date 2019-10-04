@@ -257,7 +257,7 @@ public class SyncFlowableStepWithHooksTest {
 
     }
 
-    public static class ModuleHooksAgregatorTest {
+    public static class ModuleHooksAggregatorTest {
 
         private static final String DEFAULT_MODULE_NAME = "testModuleName";
 

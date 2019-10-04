@@ -50,7 +50,7 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
             {
                 "create-subscriptions-step-input-01.json", null,
             },
-            // (2) A NPE should not be thrown when any of the subscripton's components is null:
+            // (2) A NPE should not be thrown when any of the subscription's components is null:
             {
                 "create-subscriptions-step-input-02.json", null,
             },

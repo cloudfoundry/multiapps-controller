@@ -35,7 +35,7 @@ import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 
 @RunWith(Parameterized.class)
-public class PollServiceInProgessOperationsExecutionTest extends AsyncStepOperationTest<CheckForOperationsInProgressStep> {
+public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOperationTest<CheckForOperationsInProgressStep> {
 
     private static final String TEST_SPACE_ID = "test";
     private static final String TEST_PROVIDER = "testProvider";
@@ -99,9 +99,9 @@ public class PollServiceInProgessOperationsExecutionTest extends AsyncStepOperat
         });
     }
 
-    public PollServiceInProgessOperationsExecutionTest(List<String> serviceNames, List<ServiceOperationType> servicesOperationTypes,
-                                                       List<ServiceOperationState> servicesOperationStates, boolean shouldVerifyStepLogger,
-                                                       AsyncExecutionState expectedExecutionState, String expectedExceptionMessage) {
+    public PollServiceInProgressOperationsExecutionTest(List<String> serviceNames, List<ServiceOperationType> servicesOperationTypes,
+                                                        List<ServiceOperationState> servicesOperationStates, boolean shouldVerifyStepLogger,
+                                                        AsyncExecutionState expectedExecutionState, String expectedExceptionMessage) {
         this.serviceNames = serviceNames;
         this.servicesOperationTypes = servicesOperationTypes;
         this.servicesOperationStates = servicesOperationStates;
@@ -155,15 +155,15 @@ public class PollServiceInProgessOperationsExecutionTest extends AsyncStepOperat
     }
 
     private void prepareTriggeredServiceOperations() {
-        Map<String, ServiceOperationType> trigerredServiceOperations = new HashMap<>();
+        Map<String, ServiceOperationType> triggeredServiceOperations = new HashMap<>();
         for (int index = 0; index < serviceNames.size(); index++) {
             String serviceName = serviceNames.get(index);
             ServiceOperationType serviceOperationType = servicesOperationTypes.get(index);
             if (serviceOperationType != null) {
-                trigerredServiceOperations.put(serviceName, serviceOperationType);
+                triggeredServiceOperations.put(serviceName, serviceOperationType);
             }
         }
-        StepsUtil.setTriggeredServiceOperations(context, trigerredServiceOperations);
+        StepsUtil.setTriggeredServiceOperations(context, triggeredServiceOperations);
     }
 
     private List<CloudServiceExtended> generateCloudServicesExtended() {

@@ -163,7 +163,7 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
 
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    if (shouldOmmitFile(file)) {
+                    if (shouldOmitFile(file)) {
                         return FileVisitResult.CONTINUE;
                     }
                     String pathName = getPathName(mtaPath, file);
@@ -175,7 +175,7 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
 
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    if (shouldOmmitDirectory(dir)) {
+                    if (shouldOmitDirectory(dir)) {
                         return FileVisitResult.SKIP_SUBTREE;
                     }
                     String pathName = getPathName(mtaPath, dir) + PATH_SEPARATOR;
@@ -189,13 +189,13 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
         return zipFilePath;
     }
 
-    private boolean shouldOmmitDirectory(Path dir) {
+    private boolean shouldOmitDirectory(Path dir) {
         return dir.toFile()
                   .getName()
                   .equals(org.eclipse.jgit.lib.Constants.DOT_GIT);
     }
 
-    private boolean shouldOmmitFile(Path file) {
+    private boolean shouldOmitFile(Path file) {
         return file.toFile()
                    .getName()
                    .equals(org.eclipse.jgit.lib.Constants.DOT_GIT_IGNORE);

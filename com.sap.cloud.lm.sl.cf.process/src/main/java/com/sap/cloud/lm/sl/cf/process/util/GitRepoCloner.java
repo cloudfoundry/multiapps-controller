@@ -83,8 +83,8 @@ public class GitRepoCloner {
                              .exists()) {
             Files.delete(gitconfigFilePath);
         }
-        File userConcigFile = gitconfigFilePath.toFile();
-        try (PrintWriter configWriter = new PrintWriter(userConcigFile, "UTF-8")) {
+        File userConfigFile = gitconfigFilePath.toFile();
+        try (PrintWriter configWriter = new PrintWriter(userConfigFile, "UTF-8")) {
             configWriter.println("[http]");
             configWriter.println("\t" + "sslVerify = false");
         } catch (FileNotFoundException e) {
@@ -94,7 +94,7 @@ public class GitRepoCloner {
         SystemReader.setInstance(new SystemReader() {
             @Override
             public FileBasedConfig openUserConfig(Config parent, FS fs) {
-                return new FileBasedConfig(parent, userConcigFile, fs);
+                return new FileBasedConfig(parent, userConfigFile, fs);
             }
 
             @Override

@@ -35,7 +35,7 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
 
     @Override
     public List<Module> calculateContentForBuilding(List<? extends Module> modulesForDeployment) {
-        initializeModulesDependecyTypes(modulesForDeployment);
+        initializeModulesDependencyTypes(modulesForDeployment);
         List<Module> calculatedModules = modulesForDeployment.stream()
                                                              .filter(module -> shouldDeployModule(module, mtaModulesInArchive,
                                                                                                   deployedModules))
@@ -49,7 +49,7 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
         modulesContentValidators.forEach(validator -> validator.validate(calculatedModules));
     }
 
-    private void initializeModulesDependecyTypes(List<? extends Module> modulesForDeployment) {
+    private void initializeModulesDependencyTypes(List<? extends Module> modulesForDeployment) {
         for (Module module : modulesForDeployment) {
             String dependencyType = getDependencyType(module);
             Map<String, Object> parameters = new TreeMap<>(module.getParameters());

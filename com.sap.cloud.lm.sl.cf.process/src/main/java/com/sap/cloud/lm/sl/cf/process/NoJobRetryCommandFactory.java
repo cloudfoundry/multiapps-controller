@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Sets number of retries on failed Activiti job. By default Activiti will retry failed jobs three times. Responsible also for set of
- * exception and stack trace if availalble.
+ * Sets number of retries on failed Flowable job. By default Flowable will retry failed jobs three times. Responsible also for set of
+ * exception and stack trace if available.
  */
 public class NoJobRetryCommandFactory extends DefaultFailedJobCommandFactory {
 

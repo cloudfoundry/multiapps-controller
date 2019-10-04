@@ -127,16 +127,16 @@ public class TaggingRequestInterceptorTest {
                                .stream()
                                .filter(value -> value.equals(expectedValue))
                                .count();
-        assertEquals("Main tag header occurence is not 1", 1l, tagCount);
+        assertEquals("Main tag header occurrence is not 1", 1l, tagCount);
         long orgTagCount = headers.get(TaggingRequestInterceptor.TAG_HEADER_ORG_NAME)
                                   .stream()
                                   .filter(value -> value.equals(TEST_ORG_VALUE))
                                   .count();
-        assertEquals("Org tag header occurence is not 1", 1l, orgTagCount);
+        assertEquals("Org tag header occurrence is not 1", 1l, orgTagCount);
         long spaceTagCount = headers.get(TaggingRequestInterceptor.TAG_HEADER_SPACE_NAME)
                                     .stream()
                                     .filter(value -> value.equals(TEST_SPACE_VALUE))
                                     .count();
-        assertEquals("Space tag header occurence is not 1", 1l, spaceTagCount);
+        assertEquals("Space tag header occurrence is not 1", 1l, spaceTagCount);
     }
 }

@@ -87,7 +87,7 @@ public class AuthorizationChecker {
         if (hasAdminScope(userInfo)) {
             return true;
         }
-        // TODO a lot of cpu time is lost in the getControllerCloient method
+        // TODO a lot of cpu time is lost in the getControllerClient method
         CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName());
         UUID userGuid = UUID.fromString(userInfo.getId());
         // TODO and some more cpu time in hasPermissions

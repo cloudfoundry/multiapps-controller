@@ -59,7 +59,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         StepsUtil.setMtaModules(context, mtaModules);
 
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(descriptor));
-        getStepLogger().debug(Messages.DESCRIPTOR_PROPERTIES_RESOVED);
+        getStepLogger().debug(Messages.DESCRIPTOR_PROPERTIES_RESOLVED);
 
         return StepPhase.DONE;
     }

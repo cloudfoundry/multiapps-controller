@@ -103,9 +103,9 @@ public class FlowableExceptionEventHandler {
     }
 
     private String getCurrentTaskId(FlowableEngineEvent flowableEngineEvent) {
-        Execution currentExecutionForProces = findCurrentExecution(flowableEngineEvent);
+        Execution currentExecutionForProcess = findCurrentExecution(flowableEngineEvent);
 
-        return currentExecutionForProces != null ? currentExecutionForProces.getActivityId()
+        return currentExecutionForProcess != null ? currentExecutionForProcess.getActivityId()
             : flowableFacade.getCurrentTaskId(flowableEngineEvent.getExecutionId());
     }
 
@@ -120,9 +120,9 @@ public class FlowableExceptionEventHandler {
 
             // Based on the above comment, one of the executions will have null activityId(because it will be the monitoring one) and thus
             // should be excluded from the list of executions
-            Execution currentExecutionForProces = CommonUtil.isNullOrEmpty(currentExecutionsForProcess) ? null
+            Execution currentExecutionForProcess = CommonUtil.isNullOrEmpty(currentExecutionsForProcess) ? null
                 : findCurrentExecution(currentExecutionsForProcess);
-            return currentExecutionForProces;
+            return currentExecutionForProcess;
         } catch (Throwable e) {
             return null;
         }

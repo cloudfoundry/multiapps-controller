@@ -37,7 +37,7 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 public class PollStartAppStatusExecutionTest {
 
     private static final String USER_NAME = "testUsername";
-    private static final String APP_NAME = "testApplcaition";
+    private static final String APP_NAME = "testApplication";
     private static final String INSTANCE_STATE = "state";
     private static final long PROCESS_START_TIME = new GregorianCalendar(2019, Calendar.JANUARY, 1).toInstant()
                                                                                                    .toEpochMilli();

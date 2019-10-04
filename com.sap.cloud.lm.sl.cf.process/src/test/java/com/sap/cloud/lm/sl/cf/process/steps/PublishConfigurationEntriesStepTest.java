@@ -44,7 +44,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
 
     }
 
-    private static List<ConfigurationEntry> exisitingConfigurationEntries;
+    private static List<ConfigurationEntry> existingConfigurationEntries;
 
     private StepInput input;
     @Mock
@@ -78,7 +78,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
 
     @BeforeClass
     public static void loadConfigurationEntries() throws Exception {
-        exisitingConfigurationEntries = JsonUtil.fromJson(TestUtil.getResourceAsString("configuration-entries.json",
+        existingConfigurationEntries = JsonUtil.fromJson(TestUtil.getResourceAsString("configuration-entries.json",
                                                                                        PublishConfigurationEntriesStepTest.class),
                                                           new TypeReference<List<ConfigurationEntry>>() {
                                                           });
@@ -93,7 +93,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
 
     public void prepareConfigurationEntryService() throws Exception {
         when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
-        for (ConfigurationEntry entry : exisitingConfigurationEntries) {
+        for (ConfigurationEntry entry : existingConfigurationEntries) {
             ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(entry.getProviderNid()))
                                                                                                .on(query -> query.providerId(entry.getProviderId()))
                                                                                                .on(query -> query.version(entry.getProviderVersion()

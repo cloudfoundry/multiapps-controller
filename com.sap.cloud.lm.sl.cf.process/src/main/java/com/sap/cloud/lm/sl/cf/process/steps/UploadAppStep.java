@@ -241,7 +241,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
         @Override
         public void onProcessMatchedResources(int length) {
-            getStepLogger().debug(Messages.MATCHED_RESROUCES_PROCESSED_TOTAL_SIZE_0, length);
+            getStepLogger().debug(Messages.MATCHED_RESOURCES_PROCESSED_TOTAL_SIZE_0, length);
         }
 
         @Override

@@ -38,8 +38,8 @@ public class ApplicationColorAppenderTest {
     private String deploymentDescriptorString;
     private Expectation expectation;
 
-    public ApplicationColorAppenderTest(String deploymentDescritorString, Expectation expectation) {
-        this.deploymentDescriptorString = deploymentDescritorString;
+    public ApplicationColorAppenderTest(String deploymentDescriptorString, Expectation expectation) {
+        this.deploymentDescriptorString = deploymentDescriptorString;
         this.expectation = expectation;
     }
 

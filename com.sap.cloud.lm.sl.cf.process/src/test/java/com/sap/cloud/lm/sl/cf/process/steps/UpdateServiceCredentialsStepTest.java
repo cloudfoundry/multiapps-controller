@@ -95,7 +95,7 @@ public class UpdateServiceCredentialsStepTest extends SyncFlowableStepTest<Updat
     @SuppressWarnings("unchecked")
     private void assertStepPhase(String stepPhase) {
         Map<String, Object> stepPhaseResults = (Map<String, Object>) stepInput.stepPhaseResults.get(stepPhase);
-        String expectedStepPhase = (String) stepPhaseResults.get("expextedStepPhase");
+        String expectedStepPhase = (String) stepPhaseResults.get("expectedStepPhase");
         assertEquals(expectedStepPhase, getExecutionStatus());
     }
 
