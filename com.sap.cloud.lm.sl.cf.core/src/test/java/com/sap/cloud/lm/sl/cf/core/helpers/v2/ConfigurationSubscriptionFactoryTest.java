@@ -86,7 +86,7 @@ public class ConfigurationSubscriptionFactoryTest {
     private ResolvedConfigurationReference getResolvedConfigurationReference(DeploymentDescriptor descriptor,
                                                                              String configurationResource) {
         DescriptorHandler handler = new DescriptorHandler();
-        Resource resource = (Resource) handler.findResource(descriptor, configurationResource);
+        Resource resource = handler.findResource(descriptor, configurationResource);
         return new ResolvedConfigurationReference(createDummyFilter(), resource, Collections.emptyList());
     }
 

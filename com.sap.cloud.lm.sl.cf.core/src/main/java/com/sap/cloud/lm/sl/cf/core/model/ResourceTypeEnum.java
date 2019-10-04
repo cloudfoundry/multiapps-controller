@@ -5,7 +5,7 @@ public enum ResourceTypeEnum {
 
     private String resourceType;
 
-    private ResourceTypeEnum(String resourceType) {
+    ResourceTypeEnum(String resourceType) {
         this.resourceType = resourceType;
     }
 

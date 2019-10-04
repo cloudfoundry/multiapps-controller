@@ -181,7 +181,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
                .thenReturn(varInstanceMock);
         Mockito.when(varInstanceMock.getValue())
                .thenReturn(getBytes(getPublishedEntries()));
-        Mockito.when(moduleToDeployHelper.isApplication((Module) any()))
+        Mockito.when(moduleToDeployHelper.isApplication(any()))
                .thenReturn(true);
     }
 
@@ -369,7 +369,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
 
     }
 
-    private static enum UserPermission {
+    private enum UserPermission {
 
         READ, WRITE,
 

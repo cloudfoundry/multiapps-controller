@@ -29,7 +29,7 @@ public interface ParameterMetadata {
         return ParameterType.STRING;
     }
 
-    public enum ParameterType {
+    enum ParameterType {
         STRING, INTEGER, BOOLEAN, TABLE
     }
 

@@ -15,7 +15,7 @@ public class ExceptionMessageTailMapper {
         CLOUD_CONTROLLER("cloud-controller"), DEPLOY_SERVICE("deploy-service"), SERVICE_BROKERS("service-brokers");
         private String name;
 
-        private CloudComponents(String name) {
+        CloudComponents(String name) {
             this.name = name;
         }
     }

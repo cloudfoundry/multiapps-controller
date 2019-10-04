@@ -23,7 +23,7 @@ public interface HistoricOperationEvent {
         return new Timestamp(System.currentTimeMillis());
     }
 
-    public enum EventType {
+    enum EventType {
         STARTED, FINISHED, FAILED_BY_CONTENT_ERROR, FAILED_BY_INFRASTRUCTURE_ERROR, RETRIED, ABORTED
     }
 

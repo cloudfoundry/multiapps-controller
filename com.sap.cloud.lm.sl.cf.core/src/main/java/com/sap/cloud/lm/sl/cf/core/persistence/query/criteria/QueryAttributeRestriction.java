@@ -23,7 +23,7 @@ public interface QueryAttributeRestriction<T> {
         return getCondition().satisfiedBy(root.get(getAttribute()), getValue());
     }
 
-    public interface Condition<T> {
+    interface Condition<T> {
         Predicate satisfiedBy(Expression attribute, T value);
     }
 

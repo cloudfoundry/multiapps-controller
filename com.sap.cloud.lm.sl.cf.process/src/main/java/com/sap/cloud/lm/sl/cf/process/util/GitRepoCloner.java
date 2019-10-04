@@ -84,7 +84,7 @@ public class GitRepoCloner {
             Files.delete(gitconfigFilePath);
         }
         File userConcigFile = gitconfigFilePath.toFile();
-        try (PrintWriter configWriter = new PrintWriter(userConcigFile, "UTF-8");) {
+        try (PrintWriter configWriter = new PrintWriter(userConcigFile, "UTF-8")) {
             configWriter.println("[http]");
             configWriter.println("\t" + "sslVerify = false");
         } catch (FileNotFoundException e) {

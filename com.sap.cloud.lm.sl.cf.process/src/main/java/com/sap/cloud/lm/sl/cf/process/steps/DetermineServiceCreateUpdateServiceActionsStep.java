@@ -266,7 +266,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         if (service.isUserProvided()) {
             return false;
         }
-        existingServiceTags = ObjectUtils.defaultIfNull(existingServiceTags, Collections.<String> emptyList());
+        existingServiceTags = ObjectUtils.defaultIfNull(existingServiceTags, Collections.emptyList());
         return !existingServiceTags.equals(service.getTags());
     }
 

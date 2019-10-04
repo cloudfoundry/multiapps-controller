@@ -78,9 +78,9 @@ public class StepsUtilTest {
     public void testGetServicesToCreateWithCredentials() throws Exception {
         CloudServiceExtended service = ImmutableCloudServiceExtended.builder()
                                                                     .name("my-service")
-                                                                    .putCredential("integer-value", (Integer) 1)
-                                                                    .putCredential("double-value", (Double) 1.4)
-                                                                    .putCredential("string-value", (String) "1")
+                                                                    .putCredential("integer-value", 1)
+                                                                    .putCredential("double-value", 1.4)
+                                                                    .putCredential("string-value", "1")
                                                                     .build();
 
         StepsUtil.setServicesToCreate(context, Arrays.asList(service));
@@ -108,9 +108,9 @@ public class StepsUtilTest {
     public void testGetAppsToDeployWithBindingParameters() throws Exception {
         Map<String, Map<String, Object>> bindingParameters = new HashMap<String, Map<String, Object>>();
         Map<String, Object> serviceBindingParameters = new HashMap<String, Object>();
-        serviceBindingParameters.put("integer-value", (Integer) 1);
-        serviceBindingParameters.put("double-value", (Double) 1.4);
-        serviceBindingParameters.put("string-value", (String) "1");
+        serviceBindingParameters.put("integer-value", 1);
+        serviceBindingParameters.put("double-value", 1.4);
+        serviceBindingParameters.put("string-value", "1");
         bindingParameters.put("service-1", serviceBindingParameters);
 
         CloudApplicationExtended application = ImmutableCloudApplicationExtended.builder()

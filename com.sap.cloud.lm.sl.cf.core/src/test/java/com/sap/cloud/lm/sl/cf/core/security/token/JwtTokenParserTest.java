@@ -91,7 +91,7 @@ public class JwtTokenParserTest {
                        {
                            put("alg", alghoritm);
                            put("value", alghoritmValue);
-                       };
+                       }
                    });
         } else {
             if (alghoritm != null) {

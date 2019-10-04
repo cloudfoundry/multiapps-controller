@@ -16,7 +16,7 @@ public interface FileUploadProcessor {
      *
      * @return buffer size
      */
-    public int getProcessingBufferSize();
+    int getProcessingBufferSize();
 
     /**
      * Writes chunk of data in the given output stream.
@@ -27,6 +27,6 @@ public interface FileUploadProcessor {
      * @return processed data
      * @throws Exception
      */
-    public void writeFileChunk(OutputStream outputStream, byte[] data, int readToIndex) throws IOException;
+    void writeFileChunk(OutputStream outputStream, byte[] data, int readToIndex) throws IOException;
 
 }

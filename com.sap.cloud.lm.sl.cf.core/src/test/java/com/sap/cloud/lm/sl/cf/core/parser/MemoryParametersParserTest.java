@@ -18,7 +18,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.common.ContentException;;
+import com.sap.cloud.lm.sl.common.ContentException;
 
 @RunWith(Parameterized.class)
 public class MemoryParametersParserTest {

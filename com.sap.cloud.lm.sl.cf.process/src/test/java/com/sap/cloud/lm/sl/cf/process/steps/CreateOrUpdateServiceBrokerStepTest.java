@@ -214,7 +214,7 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
         StepOutput actualOutput = new StepOutput();
 
         ArgumentCaptor<CloudServiceBroker> createArgumentCaptor = ArgumentCaptor.forClass(CloudServiceBroker.class);
-        boolean expectCreateServiceBroker = (expectedOutput != null && expectedOutput.createdServiceBroker != null) ? true : false;
+        boolean expectCreateServiceBroker = expectedOutput != null && expectedOutput.createdServiceBroker != null;
         if (expectCreateServiceBroker) {
             Mockito.verify(client, Mockito.times(1))
                    .createServiceBroker(createArgumentCaptor.capture());
@@ -225,7 +225,7 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
         }
 
         ArgumentCaptor<CloudServiceBroker> updateArgumentCaptor = ArgumentCaptor.forClass(CloudServiceBroker.class);
-        boolean expectUpdateServiceBroker = (expectedOutput != null && expectedOutput.updatedServiceBroker != null) ? true : false;
+        boolean expectUpdateServiceBroker = expectedOutput != null && expectedOutput.updatedServiceBroker != null;
         if (expectUpdateServiceBroker) {
             Mockito.verify(client, Mockito.times(1))
                    .updateServiceBroker(updateArgumentCaptor.capture());

@@ -73,7 +73,7 @@ public class PrepareModulesDeploymentStepTest extends SyncFlowableStepTest<Prepa
         assertTrue((boolean) context.getVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT));
         assertTrue((boolean) context.getVariable(Constants.EXECUTE_ONE_OFF_TASKS));
 
-        assertEquals(skipUpdateConfigurations, (boolean) context.getVariable(Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES));
+        assertEquals(skipUpdateConfigurations, context.getVariable(Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES));
     }
 
     private DelegateExecution prepareContext() {

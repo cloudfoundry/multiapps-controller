@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.model;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class DeployedMta {
@@ -44,27 +45,22 @@ public class DeployedMta {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((metadata == null) ? 0 : metadata.hashCode());
-        return result;
+        return Objects.hash(metadata);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
+    public boolean equals(Object object) {
+        if (this == object) {
             return true;
-        if (obj == null)
+        }
+        if (object == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != object.getClass()) {
             return false;
-        DeployedMta other = (DeployedMta) obj;
-        if (metadata == null) {
-            if (other.metadata != null)
-                return false;
-        } else if (!metadata.equals(other.metadata))
-            return false;
-        return true;
+        }
+        DeployedMta other = (DeployedMta) object;
+        return Objects.equals(metadata, other.metadata);
     }
 
     public DeployedMtaModule findDeployedModule(String moduleName) {

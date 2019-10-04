@@ -9,11 +9,11 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public interface ElementUpdater {
 
-    public <T> List<T> updateList(List<T> oldList, List<T> newList);
+    <T> List<T> updateList(List<T> oldList, List<T> newList);
 
-    public <K, V> Map<K, V> updateMap(Map<K, V> oldMap, Map<K, V> newMap);
+    <K, V> Map<K, V> updateMap(Map<K, V> oldMap, Map<K, V> newMap);
 
-    public class AttributeReplacer implements ElementUpdater {
+    class AttributeReplacer implements ElementUpdater {
 
         @Override
         public <T> List<T> updateList(List<T> oldList, List<T> newList) {
@@ -27,7 +27,7 @@ public interface ElementUpdater {
 
     }
 
-    public class AttributeMerger implements ElementUpdater {
+    class AttributeMerger implements ElementUpdater {
 
         @Override
         public <T> List<T> updateList(List<T> oldList, List<T> newList) {
@@ -41,7 +41,7 @@ public interface ElementUpdater {
 
     }
 
-    public static ElementUpdater getUpdater(UpdateBehavior updateBehavior) {
+    static ElementUpdater getUpdater(UpdateBehavior updateBehavior) {
         if (updateBehavior == UpdateBehavior.REPLACE) {
             return new AttributeReplacer();
         }
@@ -49,7 +49,7 @@ public interface ElementUpdater {
         return new AttributeMerger();
     }
 
-    public enum UpdateBehavior {
+    enum UpdateBehavior {
         REPLACE, MERGE
     }
 }

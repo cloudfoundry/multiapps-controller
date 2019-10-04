@@ -75,11 +75,7 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     }
 
     private void determineActionForApplication() {
-        if (existingApplication.state != State.STOPPED) {
-            shouldBeStopped = true;
-        } else {
-            shouldBeStopped = false;
-        }
+        shouldBeStopped = existingApplication.state != State.STOPPED;
     }
 
     private void prepareContext() {

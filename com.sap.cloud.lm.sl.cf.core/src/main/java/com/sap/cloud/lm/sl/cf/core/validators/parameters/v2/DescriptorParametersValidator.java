@@ -69,7 +69,7 @@ public class DescriptorParametersValidator extends ParametersValidator<Deploymen
     }
 
     protected ModuleParametersValidator getModuleParametersValidator(Module module) {
-        return new ModuleParametersValidator((Module) module, helper);
+        return new ModuleParametersValidator(module, helper);
     }
 
 }

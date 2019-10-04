@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.api.model;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 // An enum is NOT used here intentionally. This allows other projects to extend this class if they want to add another process type.
@@ -37,32 +39,22 @@ public class ProcessType {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        return result;
+        return Objects.hash(name);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object object) {
+        if (this == object) {
             return true;
         }
-        if (obj == null) {
+        if (object == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != object.getClass()) {
             return false;
         }
-        ProcessType other = (ProcessType) obj;
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        return true;
+        ProcessType other = (ProcessType) object;
+        return Objects.equals(name, other.name);
     }
 
     public static ProcessType fromString(String name) {

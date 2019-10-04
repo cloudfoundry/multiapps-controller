@@ -59,7 +59,7 @@ public class FilesApiServiceImplTest {
         @Override
         protected ServletFileUpload getFileUploadServlet() {
             return servletFileUpload;
-        };
+        }
 
     };
 

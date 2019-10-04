@@ -6,5 +6,5 @@ import java.sql.SQLException;
 @FunctionalInterface
 public interface SqlQuery<R> {
 
-    public R execute(Connection connection) throws SQLException;
+    R execute(Connection connection) throws SQLException;
 }

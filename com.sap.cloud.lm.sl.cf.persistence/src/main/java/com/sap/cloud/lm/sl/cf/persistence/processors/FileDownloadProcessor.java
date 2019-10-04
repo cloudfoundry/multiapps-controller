@@ -20,7 +20,7 @@ public interface FileDownloadProcessor {
      *
      * @return file entry
      */
-    public FileEntry getFileEntry();
+    FileEntry getFileEntry();
 
     /**
      * Processes file content from the input stream.
@@ -28,6 +28,6 @@ public interface FileDownloadProcessor {
      * @param blobStream input stream
      * @throws NoSuchAlgorithmException, IOException, FileStorageException
      */
-    public void processContent(InputStream blobStream) throws NoSuchAlgorithmException, IOException, FileStorageException;
+    void processContent(InputStream blobStream) throws NoSuchAlgorithmException, IOException, FileStorageException;
 
 }

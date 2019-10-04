@@ -32,6 +32,6 @@ public class MethodExecution<T> {
     }
 
     public enum ExecutionState {
-        FINISHED, EXECUTING;
+        FINISHED, EXECUTING
     }
 }

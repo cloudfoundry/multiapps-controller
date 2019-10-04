@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.util;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
@@ -44,7 +45,7 @@ public class ApplicationURI {
         if (route == null) {
             return;
         }
-        
+
         if (route.getHost() != null) {
             setHost(route.getHost());
         }
@@ -148,38 +149,21 @@ public class ApplicationURI {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((domain == null) ? 0 : domain.hashCode());
-        result = prime * result + ((host == null) ? 0 : host.hashCode());
-        result = prime * result + ((path == null) ? 0 : path.hashCode());
-        return result;
+        return Objects.hash(domain, host, path);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
+    public boolean equals(Object object) {
+        if (this == object) {
             return true;
-        if (obj == null)
+        }
+        if (object == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != object.getClass()) {
             return false;
-        ApplicationURI other = (ApplicationURI) obj;
-        if (domain == null) {
-            if (other.domain != null)
-                return false;
-        } else if (!domain.equals(other.domain))
-            return false;
-        if (host == null) {
-            if (other.host != null)
-                return false;
-        } else if (!host.equals(other.host))
-            return false;
-        if (path == null) {
-            if (other.path != null)
-                return false;
-        } else if (!path.equals(other.path))
-            return false;
-        return true;
+        }
+        ApplicationURI other = (ApplicationURI) object;
+        return Objects.equals(domain, other.domain) && Objects.equals(host, other.host) && Objects.equals(path, other.path);
     }
 }

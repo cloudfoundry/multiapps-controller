@@ -436,7 +436,7 @@ public class ConfigurationEntriesResourceTest {
         public boolean matches(ConfigurationEntry entry) {
             try {
                 return xml.trim()
-                          .equals(XmlUtil.toXml(new ConfigurationEntryDto((ConfigurationEntry) entry), true)
+                          .equals(XmlUtil.toXml(new ConfigurationEntryDto(entry), true)
                                          .trim());
             } catch (Exception e) {
                 throw new RuntimeException(e);
