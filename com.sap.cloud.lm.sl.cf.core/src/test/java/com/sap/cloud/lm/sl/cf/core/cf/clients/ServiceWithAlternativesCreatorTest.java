@@ -35,7 +35,6 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     private static final String SPACE_ID = "TEST_SPACE";
     @Mock
     private UserMessageLogger userMessageLogger;
-    private ServiceCreator serviceCreator;
     private ServiceWithAlternativesCreator serviceWithAlternativesCreator;
     private Input input;
     private String expectedExceptionMessage;
@@ -111,7 +110,7 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, ServiceWithAlternativesCreatorTest.class), Input.class);
         this.expectedExceptionMessage = expected;
         this.expectedExceptionType = expectedExceptionClass;
-        serviceCreator = new ServiceCreator(getMockedRestTemplateFactory()).withErrorHandlerSupplier(() -> new CustomControllerClientErrorHandler().withExecutorFactory(() -> new ResilientCloudOperationExecutor().withWaitTimeBetweenRetriesInMillis(0)));
+        ServiceCreator serviceCreator = new ServiceCreator(getMockedRestTemplateFactory()).withErrorHandlerSupplier(() -> new CustomControllerClientErrorHandler().withExecutorFactory(() -> new ResilientCloudOperationExecutor().withWaitTimeBetweenRetriesInMillis(0)));
         serviceWithAlternativesCreator = new ServiceWithAlternativesCreator(serviceCreator, userMessageLogger);
         setUpServiceRequests();
         throwExceptionOnExistingService(input.service.getName());

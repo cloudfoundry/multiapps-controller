@@ -42,8 +42,6 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
     private StepInput stepInput;
     private boolean isArchiveChunked;
 
-    private FilePartsMerger merger;
-
     @Mock
     private JarSignatureOperations jarSignatureOperations;
 
@@ -150,7 +148,7 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
     }
 
     private void prepareArchiveMerger() {
-        merger = Mockito.mock(FilePartsMerger.class);
+        FilePartsMerger merger = Mockito.mock(FilePartsMerger.class);
         Mockito.when(merger.getMergedFilePath())
                .thenReturn(Paths.get(MERGED_ARCHIVE_TEST_MTAR));
     }

@@ -23,8 +23,6 @@ class FssMonitorTest {
 
     private static Path tempDir;
 
-    private ApplicationConfiguration appConfigurations;
-
     private FssMonitor fssMonitor;
 
     @BeforeAll
@@ -39,7 +37,7 @@ class FssMonitorTest {
 
     @BeforeEach
     void setUpBefore() {
-        appConfigurations = new ApplicationConfiguration();
+        ApplicationConfiguration appConfigurations = new ApplicationConfiguration();
         fssMonitor = new FssMonitor(appConfigurations);
     }
 

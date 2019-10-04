@@ -10,8 +10,6 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 
 public class DefaultFileDownloadProcessorTest {
 
-    private DefaultFileDownloadProcessor classUnderTest = null;
-
     @Test
     public void testNoAdditionalProcessingIsDone() throws Exception {
         String space = "testSpace";
@@ -25,7 +23,7 @@ public class DefaultFileDownloadProcessorTest {
             assertEquals(new String(data), new String(result));
         };
 
-        classUnderTest = new DefaultFileDownloadProcessor(space, fileId, fileContentProcessor);
+        DefaultFileDownloadProcessor classUnderTest = new DefaultFileDownloadProcessor(space, fileId, fileContentProcessor);
         try (ByteArrayInputStream is = new ByteArrayInputStream(data)) {
             classUnderTest.processContent(is);
         }

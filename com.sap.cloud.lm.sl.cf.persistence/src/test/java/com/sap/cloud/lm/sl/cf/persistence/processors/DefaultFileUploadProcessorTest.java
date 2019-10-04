@@ -11,12 +11,10 @@ import org.junit.Test;
 
 public class DefaultFileUploadProcessorTest {
 
-    private DefaultFileUploadProcessor classUnderTest = null;
-
     @Test
     public void testNoAdditionalProcessingIsDone() throws IOException {
         final byte[] data = "test".getBytes();
-        classUnderTest = new DefaultFileUploadProcessor();
+        DefaultFileUploadProcessor classUnderTest = new DefaultFileUploadProcessor();
 
         FileOutputStream os = mock(FileOutputStream.class);
         classUnderTest.writeFileChunk(os, data, data.length);
