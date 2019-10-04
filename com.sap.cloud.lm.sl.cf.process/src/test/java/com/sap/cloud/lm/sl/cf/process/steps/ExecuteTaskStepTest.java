@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
@@ -38,8 +38,8 @@ public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
     @Test
     public void testExecute() {
         // Given:
-        StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(app), context);
-        StepsUtil.setTasksToExecute(context, Arrays.asList(task));
+        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(app), context);
+        StepsUtil.setTasksToExecute(context, Collections.singletonList(task));
         context.setVariable(Constants.VAR_TASKS_INDEX, 0);
 
         when(client.runTask(eq(app.getName()),

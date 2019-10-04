@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.parser;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,24 +27,24 @@ public class IdleUriParametersParserTest {
         return Stream.of(
                 // with default host and default domain
                 Arguments.of(null, null, null, null,
-                        new Expectation(Expectation.Type.STRING, Arrays.asList(DEFAULT_HOST + "." + DEFAULT_DOMAIN).toString())),
+                        new Expectation(Expectation.Type.STRING, Collections.singletonList(DEFAULT_HOST + "." + DEFAULT_DOMAIN).toString())),
                 // one idle host with default domain
                 Arguments.of("hello-host", null, null, null,
-                        new Expectation(Expectation.Type.STRING, Arrays.asList("hello-host" + "." + DEFAULT_DOMAIN).toString())),
+                        new Expectation(Expectation.Type.STRING, Collections.singletonList("hello-host" + "." + DEFAULT_DOMAIN).toString())),
                 // two idle hosts with default domain
                 Arguments.of(null, Arrays.asList("hello-host", "hello-host-another"), null, null,
                         new Expectation(Expectation.Type.STRING,
                                 Arrays.asList("hello-host" + "." + DEFAULT_DOMAIN, "hello-host-another" + "." + DEFAULT_DOMAIN).toString())),
                 // one idle domain with default host
                 Arguments.of(null, null, "hello-domain", null,
-                        new Expectation(Expectation.Type.STRING, Arrays.asList(DEFAULT_HOST + "." + "hello-domain").toString())),
+                        new Expectation(Expectation.Type.STRING, Collections.singletonList(DEFAULT_HOST + "." + "hello-domain").toString())),
                 // two idle domains with default host
                 Arguments.of(null, null, null, Arrays.asList("hello-domain", "hello-another-domain"),
                         new Expectation(Expectation.Type.STRING,
                                 Arrays.asList(DEFAULT_HOST + "." + "hello-domain", DEFAULT_HOST + "." + "hello-another-domain").toString())),
                 // one idle host with one idle domain
                 Arguments.of("hello-host", null, "hello-domain", null,
-                        new Expectation(Expectation.Type.STRING, Arrays.asList("hello-host.hello-domain").toString())),
+                        new Expectation(Expectation.Type.STRING, Collections.singletonList("hello-host.hello-domain").toString())),
                 // two idle hosts with one idle domain
                 Arguments.of(null, Arrays.asList("hello-host", "hello-host-another"), "hello-domain", null,
                         new Expectation(Expectation.Type.STRING, Arrays.asList("hello-host.hello-domain", "hello-host-another.hello-domain").toString())),
@@ -70,7 +71,7 @@ public class IdleUriParametersParserTest {
         parameters.put(SupportedParameters.IDLE_DOMAINS, idleDomains);
 
         IdleUriParametersParser idleParser = new IdleUriParametersParser(DEFAULT_HOST, DEFAULT_DOMAIN, null);
-        tester.test(() -> idleParser.parse(Arrays.asList(parameters)), expectation);
+        tester.test(() -> idleParser.parse(Collections.singletonList(parameters)), expectation);
     }
 
 }

@@ -126,7 +126,7 @@ public class OperationsCleanerTest {
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
                                                  .build();
         List<Operation> operationsPage1 = Arrays.asList(operation1, operation2);
-        List<Operation> operationsPage2 = Arrays.asList(operation3);
+        List<Operation> operationsPage2 = Collections.singletonList(operation3);
 
         when(operationService.createQuery()).thenReturn(operationQuery);
         initQueryMockForPage(0, operationsPage1);

@@ -207,11 +207,11 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
                    .thenReturn(createCloudServiceInstance(service));
             if (service.hasBoundApplications) {
                 Mockito.when(client.getApplications())
-                       .thenReturn(Arrays.asList(createCloudApplication(metadata)));
+                       .thenReturn(Collections.singletonList(createCloudApplication(metadata)));
             }
             if (service.hasServiceKeys) {
                 Mockito.when(client.getServiceKeys(service.name))
-                       .thenReturn(Arrays.asList(createCloudServiceKey(metadata)));
+                       .thenReturn(Collections.singletonList(createCloudServiceKey(metadata)));
             }
             if (service.httpErrorCodeToReturnOnDelete != null) {
                 HttpStatus httpStatusToReturnOnDelete = HttpStatus.valueOf(service.httpErrorCodeToReturnOnDelete);
@@ -287,9 +287,9 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         if (!service.hasBoundApplications) {
             return Collections.emptyList();
         }
-        return Arrays.asList(ImmutableCloudServiceBinding.builder()
-                                                         .applicationGuid(metadata.getGuid())
-                                                         .build());
+        return Collections.singletonList(ImmutableCloudServiceBinding.builder()
+                .applicationGuid(metadata.getGuid())
+                .build());
     }
 
     private CloudEvent createDeleteServiceCloudEvent(SimpleService service) {

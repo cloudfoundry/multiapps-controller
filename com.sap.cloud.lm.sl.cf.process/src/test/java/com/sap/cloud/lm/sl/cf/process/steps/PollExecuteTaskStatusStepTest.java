@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -114,7 +115,7 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
         context.setVariable(Constants.VAR_TASKS_INDEX, 0);
         context.setVariable(Constants.VAR_START_TIME, 0L);
         context.setVariable(Constants.PARAM_START_TIMEOUT, START_TIMEOUT);
-        StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(APPLICATION), context);
+        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(APPLICATION), context);
     }
 
     private void prepareClientExtensions() {

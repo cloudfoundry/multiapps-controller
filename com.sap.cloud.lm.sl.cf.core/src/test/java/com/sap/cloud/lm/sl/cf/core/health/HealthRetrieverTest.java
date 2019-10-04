@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -72,7 +72,7 @@ public class HealthRetrieverTest {
     @Before
     public void prepareOperationService() {
         when(operationService.createQuery()).thenReturn(operationQuery);
-        doReturn(Arrays.asList(getOperation())).when(operationQuery)
+        doReturn(Collections.singletonList(getOperation())).when(operationQuery)
                                                .list();
     }
 

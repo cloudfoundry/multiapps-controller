@@ -7,11 +7,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.sap.cloud.lm.sl.cf.web.Constants;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler;
 import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
+
+import com.sap.cloud.lm.sl.cf.web.Constants;
 
 @Named("accessDeniedHandler")
 public class CsrfAccessDeniedHandler extends OAuth2AccessDeniedHandler {

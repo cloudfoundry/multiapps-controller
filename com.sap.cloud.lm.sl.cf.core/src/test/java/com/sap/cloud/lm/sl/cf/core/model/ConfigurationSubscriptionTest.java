@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.core.model;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import org.junit.Test;

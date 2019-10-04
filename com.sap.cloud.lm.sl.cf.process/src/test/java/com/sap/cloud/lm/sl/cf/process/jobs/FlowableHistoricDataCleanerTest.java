@@ -47,7 +47,7 @@ public class FlowableHistoricDataCleanerTest {
         HistoricProcessInstance process2 = mockHistoricProcessInstanceWithId(OPERATION_ID_2);
         HistoricProcessInstance process3 = mockHistoricProcessInstanceWithId(OPERATION_ID_3);
         List<HistoricProcessInstance> page1 = Arrays.asList(process1, process2);
-        List<HistoricProcessInstance> page2 = Arrays.asList(process3);
+        List<HistoricProcessInstance> page2 = Collections.singletonList(process3);
         List<HistoricProcessInstance> page3 = Collections.emptyList();
 
         HistoricProcessInstanceQuery query = mockHistoricProcessInstanceQueryWithPages(Arrays.asList(page1, page2, page3));
@@ -78,8 +78,8 @@ public class FlowableHistoricDataCleanerTest {
 
     private long getTotalProcessesCount(List<List<HistoricProcessInstance>> pages) {
         return pages.stream()
-                    .flatMap(Collection::stream)
-                    .count();
+                    .mapToLong(Collection::size)
+                    .sum();
     }
 
     @Test

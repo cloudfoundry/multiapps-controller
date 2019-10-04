@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.filters;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiPredicate;
 
@@ -47,7 +47,7 @@ public class VisibilityFilter implements BiPredicate<ConfigurationEntry, List<Cl
         if (visibleTargets == null) {
             String org = entry.getTargetSpace()
                               .getOrganizationName();
-            visibleTargets = Arrays.asList(new CloudTarget(org, "*"));
+            visibleTargets = Collections.singletonList(new CloudTarget(org, "*"));
         }
         return visibleTargets;
     }

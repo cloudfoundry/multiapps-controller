@@ -6,7 +6,7 @@ import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.getIndexedName;
 import static com.sap.cloud.lm.sl.common.util.MapUtil.merge;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -40,7 +40,7 @@ public class ConfigurationReferenceResolver {
     }
 
     private List<CloudTarget> getCloudTargetsList(CloudTarget target) {
-        return target == null ? null : Arrays.asList(target);
+        return target == null ? null : Collections.singletonList(target);
     }
 
     protected List<Resource> asResources(List<ConfigurationEntry> entries, Resource resource) {

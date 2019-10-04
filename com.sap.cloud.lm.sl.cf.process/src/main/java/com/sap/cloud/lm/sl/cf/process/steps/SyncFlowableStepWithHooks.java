@@ -139,7 +139,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
     protected abstract StepPhase executeStepInternal(ExecutionWrapper execution);
 
-    class ModuleHooksAggregator {
+    static class ModuleHooksAggregator {
 
         private final DelegateExecution context;
         private final Module moduleToDeploy;

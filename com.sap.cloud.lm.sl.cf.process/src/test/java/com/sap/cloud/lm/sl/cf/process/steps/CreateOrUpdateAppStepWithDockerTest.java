@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -65,7 +64,7 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
         CloudApplicationExtended cloudApplicationExtended = createFakeCloudApplicationExtended();
 
         stepInput.applicationIndex = 0;
-        stepInput.applications = Arrays.asList(cloudApplicationExtended);
+        stepInput.applications = Collections.singletonList(cloudApplicationExtended);
 
         return stepInput;
     }

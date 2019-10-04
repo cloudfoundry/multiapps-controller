@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -53,16 +54,16 @@ public class ParametersValidatorHelperTest {
             },
             // [3]
             {new TreeMap<String, Object>() {{
-                    put("routes", Arrays.asList(new TreeMap<String, String>() {{
-                                                        put("route", "only_one%route.$$$in.need$$of$$$correction^^^");
-                                                }}));
+                    put("routes", Collections.singletonList(new TreeMap<String, String>() {{
+                        put("route", "only_one%route.$$$in.need$$of$$$correction^^^");
+                    }}));
                     put("host", "a-proper-host");
                     put("domains", Arrays.asList("one.correct.domain", "and#one%with@special^^characters"));
                 }},
                 new TreeMap<String, Object>() {{
-                    put("routes", Arrays.asList(new TreeMap<String, String>() {{
-                                                        put("route", "only-one-route.in.need--of---correction");
-                                                }}));
+                    put("routes", Collections.singletonList(new TreeMap<String, String>() {{
+                        put("route", "only-one-route.in.need--of---correction");
+                    }}));
                     put("host", "a-proper-host");
                     put("domains", Arrays.asList("one.correct.domain", "and-one-with-special--characters"));
                 }}

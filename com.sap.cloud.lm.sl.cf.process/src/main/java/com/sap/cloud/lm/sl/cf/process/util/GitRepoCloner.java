@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
-import java.util.Arrays;
+import java.util.Collections;
 
 import javax.net.ssl.SSLHandshakeException;
 
@@ -54,7 +54,7 @@ public class GitRepoCloner {
         configureGitSslValidation();
         if (refName != null && !refName.isEmpty()) {
             String fullRefName = refName.startsWith("refs/") ? refName : "refs/heads/" + refName;
-            cloneCommand.setBranchesToClone(Arrays.asList(fullRefName));
+            cloneCommand.setBranchesToClone(Collections.singletonList(fullRefName));
             cloneCommand.setBranch(fullRefName);
         }
         cloneCommand.setTimeout(290);

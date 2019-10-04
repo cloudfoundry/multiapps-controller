@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.web.resources;
 import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.ORGANIZATION;
 import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.SPACE;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,7 +51,7 @@ public class ConfigurationSubscriptionsResource {
         if (space == null) {
             return client.getSpaces(org);
         }
-        return Arrays.asList(client.getSpace(org, space));
+        return Collections.singletonList(client.getSpace(org, space));
     }
 
     private List<ConfigurationSubscription> getConfigurationEntries(List<CloudSpace> clientSpaces, CloudControllerClient client) {

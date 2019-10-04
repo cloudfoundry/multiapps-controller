@@ -185,7 +185,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
         return executionEntity.isProcessInstanceType() && Constants.PROCESS_ABORTED.equals(executionEntity.getDeleteReason());
     }
 
-    private class SafeExecutor {
+    private static class SafeExecutor {
 
         private void executeSafely(Runnable runnable) {
             try {

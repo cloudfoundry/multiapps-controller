@@ -66,7 +66,7 @@ public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
     }
 
     List<CloudApplicationExtended> toCloudApplication() {
-        return Arrays.asList(application.toCloudApplication());
+        return Collections.singletonList(application.toCloudApplication());
     }
 
     private void validateUpdatedApplications() {

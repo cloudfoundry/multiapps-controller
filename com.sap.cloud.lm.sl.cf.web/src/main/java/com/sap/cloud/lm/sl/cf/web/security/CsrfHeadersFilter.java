@@ -8,9 +8,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.sap.cloud.lm.sl.cf.web.Constants;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.sap.cloud.lm.sl.cf.web.Constants;
 
 /**
  * A filter that is added in the Spring filter chain after the CSRF_FILTER, reads the CSRF from the session and exposes its information in

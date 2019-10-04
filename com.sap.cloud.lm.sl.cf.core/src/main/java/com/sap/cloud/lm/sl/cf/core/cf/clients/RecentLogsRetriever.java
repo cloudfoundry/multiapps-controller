@@ -136,7 +136,7 @@ public class RecentLogsRetriever extends CustomControllerClient {
         return loggregatorEndpoint.replaceFirst("loggregator", "doppler");
     }
 
-    private class LogMessageConverter {
+    private static class LogMessageConverter {
         private final LogMessage logMessage;
 
         public LogMessageConverter(LogMessage logMessage) {

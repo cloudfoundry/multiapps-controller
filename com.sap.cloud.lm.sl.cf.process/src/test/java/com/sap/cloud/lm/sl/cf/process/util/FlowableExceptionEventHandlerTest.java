@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -76,12 +75,12 @@ public class FlowableExceptionEventHandlerTest {
                .thenReturn(progressMessageQuery);
         ProgressMessageQuery queryMock = new MockBuilder<>(progressMessageQuery).on(query -> query.processId("foo"))
                                                                                 .build();
-        Mockito.doReturn(Arrays.asList(ImmutableProgressMessage.builder()
-                                                               .processId("foo")
-                                                               .taskId("")
-                                                               .text("")
-                                                               .type(ProgressMessageType.ERROR)
-                                                               .build()))
+        Mockito.doReturn(Collections.singletonList(ImmutableProgressMessage.builder()
+                .processId("foo")
+                .taskId("")
+                .text("")
+                .type(ProgressMessageType.ERROR)
+                .build()))
                .when(queryMock)
                .list();
         FlowableExceptionEvent mockedExceptionEvent = Mockito.mock(FlowableExceptionEvent.class);
@@ -170,7 +169,7 @@ public class FlowableExceptionEventHandlerTest {
     }
 
     private List<Execution> getList(ExecutionEntityImpl executionEntity) {
-        return executionEntity == null ? Collections.emptyList() : Arrays.asList(executionEntity);
+        return executionEntity == null ? Collections.emptyList() : Collections.singletonList(executionEntity);
     }
 
     private ExecutionEntityImpl getExecutionEntity(boolean shouldUseExecutionEntity) {

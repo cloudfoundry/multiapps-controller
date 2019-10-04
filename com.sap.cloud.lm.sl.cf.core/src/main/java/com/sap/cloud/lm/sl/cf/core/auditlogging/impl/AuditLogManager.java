@@ -1,17 +1,13 @@
 package com.sap.cloud.lm.sl.cf.core.auditlogging.impl;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.DBAppender.LogEventAdapter;
-import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 
 class AuditLogManager {
 

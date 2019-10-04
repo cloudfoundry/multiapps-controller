@@ -137,7 +137,7 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testGetOperationsNotFound() {
-        ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID, Arrays.asList(State.ACTION_REQUIRED.toString()),
+        ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID, Collections.singletonList(State.ACTION_REQUIRED.toString()),
                                                                              1);
 
         List<Operation> operations = response.getBody();
@@ -241,7 +241,7 @@ public class OperationsApiServiceImplTest {
     public void testGetOperationActionsForRunning() {
         ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, RUNNING_PROCESS);
         List<String> actions = response.getBody();
-        assertEquals(Arrays.asList(AbortProcessAction.ACTION_ID_ABORT), actions);
+        assertEquals(Collections.singletonList(AbortProcessAction.ACTION_ID_ABORT), actions);
     }
 
     @Test
@@ -274,7 +274,7 @@ public class OperationsApiServiceImplTest {
     public void testGetOperationActionsNotFound() {
         ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, RUNNING_PROCESS);
         List<String> actions = response.getBody();
-        assertEquals(Arrays.asList(AbortProcessAction.ACTION_ID_ABORT), actions);
+        assertEquals(Collections.singletonList(AbortProcessAction.ACTION_ID_ABORT), actions);
     }
 
     private void mockFlowableFacade() {

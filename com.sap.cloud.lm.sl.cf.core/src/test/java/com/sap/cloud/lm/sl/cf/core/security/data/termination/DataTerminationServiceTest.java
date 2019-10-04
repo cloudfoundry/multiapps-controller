@@ -11,7 +11,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -144,12 +143,12 @@ public class DataTerminationServiceTest {
     }
 
     private List<ConfigurationSubscription> generateSubscriptions(boolean isExistSubscriptionData) {
-        return isExistSubscriptionData ? Arrays.asList(new ConfigurationSubscription()) : Collections.emptyList();
+        return isExistSubscriptionData ? Collections.singletonList(new ConfigurationSubscription()) : Collections.emptyList();
     }
 
     private List<ConfigurationEntry> generatedConfigurationEntries(boolean isExistConfigurationEntryData) {
         return isExistConfigurationEntryData
-            ? Arrays.asList(new ConfigurationEntry("", "", Version.parseVersion("1"), new CloudTarget(), "", Collections.emptyList(), ""))
+            ? Collections.singletonList(new ConfigurationEntry("", "", Version.parseVersion("1"), new CloudTarget(), "", Collections.emptyList(), ""))
             : Collections.emptyList();
     }
 

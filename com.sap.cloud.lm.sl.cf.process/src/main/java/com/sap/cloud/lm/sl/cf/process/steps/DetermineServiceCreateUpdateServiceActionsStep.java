@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -120,7 +119,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         if (existingService == null) {
             getStepLogger().debug("Service should be created");
             actions.add(ServiceAction.CREATE);
-            StepsUtil.setServicesToCreate(execution.getContext(), Arrays.asList(service));
+            StepsUtil.setServicesToCreate(execution.getContext(), Collections.singletonList(service));
             return actions;
         }
         getStepLogger().debug("Existing service: " + secureSerializer.toJson(existingService));
@@ -132,7 +131,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             }
 
             getStepLogger().debug("Service should be recreated");
-            StepsUtil.setServicesToDelete(execution.getContext(), Arrays.asList(service.getName()));
+            StepsUtil.setServicesToDelete(execution.getContext(), Collections.singletonList(service.getName()));
             actions.add(ServiceAction.RECREATE);
             return actions;
         }

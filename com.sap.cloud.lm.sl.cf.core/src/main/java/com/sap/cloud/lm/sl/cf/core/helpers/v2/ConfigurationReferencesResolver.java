@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.helpers.v2;
 import static java.text.MessageFormat.format;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +74,7 @@ public class ConfigurationReferencesResolver extends Visitor {
         if (reference != null) {
             return reference.getResolvedResources();
         }
-        return Arrays.asList(resource);
+        return Collections.singletonList(resource);
     }
 
     protected void updateReferencesToResolvedResources(DeploymentDescriptor descriptor) {
@@ -122,12 +121,12 @@ public class ConfigurationReferencesResolver extends Visitor {
         ResolvedConfigurationReference resolvedReference = resolvedReferences.get(dependency.getName());
 
         if (!refersToResolvedResource(dependency)) {
-            return Arrays.asList(dependency);
+            return Collections.singletonList(dependency);
         }
 
         if (!permitsMultipleResources(dependency)) {
             makeSureIsResolvedToSingleResource(dependency.getName(), resolvedReference.getResolvedResources());
-            return Arrays.asList(dependency);
+            return Collections.singletonList(dependency);
         }
 
         if (resolvedReference.getResolvedResources()

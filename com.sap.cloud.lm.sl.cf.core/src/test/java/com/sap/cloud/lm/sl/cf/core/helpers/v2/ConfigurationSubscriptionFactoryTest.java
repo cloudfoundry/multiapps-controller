@@ -33,15 +33,15 @@ public class ConfigurationSubscriptionFactoryTest {
 // @formatter:off
             // (0) The required dependency is managed, so a subscription should be created:
             {
-                "subscriptions-mtad-00.yaml", Arrays.asList("plugins"), "SPACE_ID_1", new Expectation(Expectation.Type.JSON, "subscriptions-00.json"),
+                "subscriptions-mtad-00.yaml", Collections.singletonList("plugins"), "SPACE_ID_1", new Expectation(Expectation.Type.JSON, "subscriptions-00.json"),
             },
             // (1) The required dependency is not managed, so a subscription should not be created:
             {
-                "subscriptions-mtad-01.yaml", Arrays.asList("plugins"), "SPACE_ID_1", new Expectation("[]"),
+                "subscriptions-mtad-01.yaml", Collections.singletonList("plugins"), "SPACE_ID_1", new Expectation("[]"),
             },
             // (2) The required dependency is not managed, so a subscription should not be created:
             {
-                "subscriptions-mtad-02.yaml", Arrays.asList("plugins"), "SPACE_ID_1", new Expectation("[]"),
+                "subscriptions-mtad-02.yaml", Collections.singletonList("plugins"), "SPACE_ID_1", new Expectation("[]"),
             },
 // @formatter:on
         });

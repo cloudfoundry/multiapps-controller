@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -121,8 +122,8 @@ public class AuthorizationCheckerTest {
     @Test
     public void testSpaceDevelopersCache() {
         setUpMocks(true, true, null);
-        when(client.getSpaceDevelopers(UUID.fromString(SPACE_ID))).thenReturn(Arrays.asList(USER_ID));
-        when(client.getSpaceDevelopers(UUID.fromString(SECOND_SPACE_ID))).thenReturn(Arrays.asList(USER_ID));
+        when(client.getSpaceDevelopers(UUID.fromString(SPACE_ID))).thenReturn(Collections.singletonList(USER_ID));
+        when(client.getSpaceDevelopers(UUID.fromString(SECOND_SPACE_ID))).thenReturn(Collections.singletonList(USER_ID));
 
         assertTrue(authorizationChecker.checkPermissions(userInfo, SPACE_ID, false));
         Mockito.verify(client, Mockito.times(1))
@@ -142,7 +143,7 @@ public class AuthorizationCheckerTest {
     @Test
     public void testSpaceDevelopersCacheNegativeResult() {
         setUpMocks(true, true, null);
-        when(client.getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)))).thenReturn(Arrays.asList(USER_ID));
+        when(client.getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)))).thenReturn(Collections.singletonList(USER_ID));
 
         assertTrue(authorizationChecker.checkPermissions(userInfo, THIRD_SPACE_ID, false));
         Mockito.verify(client, Mockito.times(1))

@@ -105,10 +105,10 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         return Arrays.asList(new Object[][] {
 // @formatter:off
             {
-                new StepInput("modules-to-deploy-01.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("api.cf.neo.ondemand.com"), "deployed-mta-12.json"), new StepOutput("0.1.0"),
+                new StepInput("modules-to-deploy-01.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Collections.singletonList("api.cf.neo.ondemand.com"), "deployed-mta-12.json"), new StepOutput("0.1.0"),
             },
             {
-                new StepInput("modules-to-deploy-01.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("api.cf.neo.ondemand.com"), null), new StepOutput("0.1.0"),
+                new StepInput("modules-to-deploy-01.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Collections.singletonList("api.cf.neo.ondemand.com"), null), new StepOutput("0.1.0"),
             },
 // @formatter:on
         });

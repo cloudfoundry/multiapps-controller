@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class OperationServiceTest {
     @Test
     public void testAdd() {
         operationService.add(OPERATION_1);
-        assertEquals(Arrays.asList(OPERATION_1), operationService.createQuery()
+        assertEquals(Collections.singletonList(OPERATION_1), operationService.createQuery()
                                                                  .list());
         assertEquals(OPERATION_1, operationService.createQuery()
                                                   .processId(OPERATION_1.getProcessId())
@@ -126,7 +127,7 @@ public class OperationServiceTest {
                                                  .withState(State.ERROR);
         Operation operation2 = ImmutableOperation.copyOf(OPERATION_2)
                                                  .withState(State.RUNNING);
-        testQueryByCriteria((query, operation) -> query.withStateAnyOf(Arrays.asList(State.ERROR)), operation1, operation2);
+        testQueryByCriteria((query, operation) -> query.withStateAnyOf(Collections.singletonList(State.ERROR)), operation1, operation2);
     }
 
     @Test

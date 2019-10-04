@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.util.List;

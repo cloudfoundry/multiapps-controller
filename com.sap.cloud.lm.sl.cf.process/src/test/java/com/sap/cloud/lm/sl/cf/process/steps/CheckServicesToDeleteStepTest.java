@@ -50,7 +50,7 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
             // (2) One service in progress
             Arguments.of(Arrays.asList("service-1","service-2","service-3"), Arrays.asList("service-2","service-3"), 
                 MapUtil.of(Pair.of("service-2", ServiceOperationState.SUCCEEDED),Pair.of("service-3", ServiceOperationState.IN_PROGRESS)),
-                Arrays.asList("service-3"), "POLL"),
+                    Collections.singletonList("service-3"), "POLL"),
             // (3) All services are not in progress state
             Arguments.of(Arrays.asList("service-1","service-2","service-3"), Arrays.asList("service-1","service-2"), 
                 MapUtil.of(Pair.of("service-1", ServiceOperationState.SUCCEEDED),Pair.of("service-2", ServiceOperationState.SUCCEEDED)),
@@ -121,7 +121,7 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
         return new CheckServicesToDeleteStep();
     }
 
-    private class CloudServiceExtendedMatcher implements ArgumentMatcher<CloudServiceExtended> {
+    private static class CloudServiceExtendedMatcher implements ArgumentMatcher<CloudServiceExtended> {
 
         private final String serviceName;
 

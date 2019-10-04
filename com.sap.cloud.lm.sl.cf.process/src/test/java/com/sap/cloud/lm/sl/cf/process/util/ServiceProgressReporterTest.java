@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class ServiceProgressReporterTest {
         // @formatter:off
                       Arguments.of(Arrays.asList(new ServiceOperation(ServiceOperationType.CREATE, "", ServiceOperationState.IN_PROGRESS), 
                                                  new ServiceOperation(ServiceOperationType.UPDATE, "", ServiceOperationState.IN_PROGRESS)), 2),
-                      Arguments.of(Arrays.asList(new ServiceOperation(ServiceOperationType.UPDATE, "", ServiceOperationState.SUCCEEDED)), 0));
+                      Arguments.of(Collections.singletonList(new ServiceOperation(ServiceOperationType.UPDATE, "", ServiceOperationState.SUCCEEDED)), 0));
         // @formatter:on
     }
 

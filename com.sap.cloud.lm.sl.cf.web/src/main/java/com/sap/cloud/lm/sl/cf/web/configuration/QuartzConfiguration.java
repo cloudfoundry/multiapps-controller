@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.web.configuration;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -64,10 +64,10 @@ public class QuartzConfiguration {
         schedulerFactoryBean.setOverwriteExistingJobs(true);
         schedulerFactoryBean.setSchedulerName("cleanupScheduler");
         schedulerFactoryBean.setApplicationContextSchedulerContextKey("applicationContext");
-        JobDetail[] jobDetails = Arrays.asList(jobDetail)
+        JobDetail[] jobDetails = Collections.singletonList(jobDetail)
                                        .toArray(new JobDetail[0]);
         schedulerFactoryBean.setJobDetails(jobDetails);
-        Trigger[] triggers = Arrays.asList(trigger)
+        Trigger[] triggers = Collections.singletonList(trigger)
                                    .toArray(new Trigger[0]);
         schedulerFactoryBean.setTriggers(triggers);
         schedulerFactoryBean.setConfigLocation(new ClassPathResource(QUARTZ_POSTGRESQL_PROPERTIES));

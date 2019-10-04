@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
-import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.common.util.TestDataSourceProvider;
 
 public class AuditLogManagerTest {

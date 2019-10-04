@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -174,7 +175,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         context.setVariable(Constants.VAR_USER, USER);
         step.targetCalculator = (client, spaceId) -> new CloudTarget(spaceId, spaceId);
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
-               .thenReturn(Arrays.asList("test-subprocess-id"));
+               .thenReturn(Collections.singletonList("test-subprocess-id"));
         HistoricVariableInstance varInstanceMock = Mockito.mock(HistoricVariableInstance.class);
         Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES))
                .thenReturn(varInstanceMock);
@@ -265,9 +266,9 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
 
         for (SubscriberToUpdate subscriber : input.subscribersToUpdate) {
             ConfigurationFilter filter = subscriber.subscription.getFilter();
-            List<CloudTarget> targets = Arrays.asList(new CloudTarget(input.currentSpace.getOrganization()
-                                                                                        .getName(),
-                                                                      input.currentSpace.getName()));
+            List<CloudTarget> targets = Collections.singletonList(new CloudTarget(input.currentSpace.getOrganization()
+                    .getName(),
+                    input.currentSpace.getName()));
             ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(filter.getProviderNid()))
                                                                                                .on(query -> query.providerId(filter.getProviderId()))
                                                                                                .on(query -> query.version(filter.getProviderVersion()))

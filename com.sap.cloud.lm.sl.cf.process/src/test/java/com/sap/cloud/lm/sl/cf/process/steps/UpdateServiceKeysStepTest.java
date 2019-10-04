@@ -41,9 +41,9 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
                          // (1) There no exists service keys
                          Arguments.of(Arrays.asList("key-1", "key-2", "key-3"), Collections.emptyList(), false, Collections.emptyList()),
                          // (2) Service key "key-2" should be deleted and "key-3" updated
-                         Arguments.of(Arrays.asList("key-1", "key-3"), Arrays.asList("key-1", "key-2", "key-3"), true, Arrays.asList("key-3")),
+                         Arguments.of(Arrays.asList("key-1", "key-3"), Arrays.asList("key-1", "key-2", "key-3"), true, Collections.singletonList("key-3")),
                          // (3) Service key "key-2" should be reported that cannot be deleted and "key-1" updated
-                         Arguments.of(Arrays.asList("key-1", "key-3"), Arrays.asList("key-1", "key-2", "key-3"), false, Arrays.asList("key-1"))
+                         Arguments.of(Arrays.asList("key-1", "key-3"), Arrays.asList("key-1", "key-2", "key-3"), false, Collections.singletonList("key-1"))
                          
         // @formatter:on
         );

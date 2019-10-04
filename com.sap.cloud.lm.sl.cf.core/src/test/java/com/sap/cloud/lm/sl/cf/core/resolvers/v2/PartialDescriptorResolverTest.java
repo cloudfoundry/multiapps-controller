@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.resolvers.v2;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ public class PartialDescriptorResolverTest {
     @Test
     public void testResolve() {
         DeploymentDescriptor descriptor = new DescriptorParser().parseDeploymentDescriptorYaml(getClass().getResourceAsStream("mtad.yaml"));
-        PartialDescriptorReferenceResolver resolver = new PartialDescriptorReferenceResolver(descriptor, Arrays.asList("plugins"));
+        PartialDescriptorReferenceResolver resolver = new PartialDescriptorReferenceResolver(descriptor, Collections.singletonList("plugins"));
         tester.test(resolver::resolve, new Expectation(Expectation.Type.JSON, "resolved-mtad.json"));
     }
 

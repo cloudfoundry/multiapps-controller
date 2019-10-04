@@ -235,7 +235,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             case ERROR:
                 return new ArrayList<>(Arrays.asList(AbortProcessAction.ACTION_ID_ABORT, RetryProcessAction.ACTION_ID_RETRY));
             case RUNNING:
-                return new ArrayList<>(Arrays.asList(AbortProcessAction.ACTION_ID_ABORT));
+                return new ArrayList<>(Collections.singletonList(AbortProcessAction.ACTION_ID_ABORT));
             case ACTION_REQUIRED:
                 return new ArrayList<>(Arrays.asList(AbortProcessAction.ACTION_ID_ABORT, ResumeProcessAction.ACTION_ID_RESUME));
         }

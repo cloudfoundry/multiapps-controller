@@ -267,7 +267,7 @@ public class ApplicationColorDetectorTest {
         when(operationService.createQuery()).thenReturn(operationQuery);
         doReturn(currentOperation).when(operationQuery)
                                   .singleResult();
-        doReturn(Arrays.asList(lastOperation)).when(operationQuery)
+        doReturn(Collections.singletonList(lastOperation)).when(operationQuery)
                                               .list();
     }
 

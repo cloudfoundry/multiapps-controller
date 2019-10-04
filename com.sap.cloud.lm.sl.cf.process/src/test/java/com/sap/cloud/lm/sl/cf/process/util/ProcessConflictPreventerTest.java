@@ -6,7 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ public class ProcessConflictPreventerTest {
                                                     .hasAcquiredLock(false)
                                                     .build();
             when(operationServiceMock.createQuery()
-                                     .list()).thenReturn(Arrays.asList(operation));
+                                     .list()).thenReturn(Collections.singletonList(operation));
             processConflictPreventerMock.acquireLock(testMtaId, testSpaceId, testProcessId);
             Operation op = operationServiceMock.createQuery()
                                                .processId(testProcessId)

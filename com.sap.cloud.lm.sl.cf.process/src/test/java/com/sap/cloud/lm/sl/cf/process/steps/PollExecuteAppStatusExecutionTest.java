@@ -8,7 +8,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -148,13 +147,13 @@ public class PollExecuteAppStatusExecutionTest {
 
     private void prepareContext(CloudApplicationExtended application) {
         StepsUtil.setApp(context, application);
-        StepsUtil.setAppStateActionsToExecute(context, new HashSet<>(Arrays.asList(ApplicationStateAction.EXECUTE)));
+        StepsUtil.setAppStateActionsToExecute(context, new HashSet<>(Collections.singletonList(ApplicationStateAction.EXECUTE)));
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.VAR_USER, USER_NAME);
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.VAR_START_TIME, PROCESS_START_TIME);
     }
 
     private void prepareRecentLogsRetriever(ApplicationLog applicationLog) {
-        when(recentLogsRetriever.getRecentLogs(any(), anyString())).thenReturn(Arrays.asList(applicationLog));
+        when(recentLogsRetriever.getRecentLogs(any(), anyString())).thenReturn(Collections.singletonList(applicationLog));
     }
 
     private void prepareStepLogger() {

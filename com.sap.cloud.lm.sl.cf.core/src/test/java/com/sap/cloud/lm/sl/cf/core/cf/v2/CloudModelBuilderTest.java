@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -542,7 +543,7 @@ public class CloudModelBuilderTest {
         Platform platform = loadPlatform();
         DeployedMta deployedMta = loadDeployedMta();
 
-        deploymentDescriptor = getDescriptorMerger().merge(deploymentDescriptor, Arrays.asList(extensionDescriptor));
+        deploymentDescriptor = getDescriptorMerger().merge(deploymentDescriptor, Collections.singletonList(extensionDescriptor));
         PlatformMerger platformMerger = getPlatformMerger(platform, descriptorHandler);
         platformMerger.mergeInto(deploymentDescriptor);
 
@@ -558,8 +559,8 @@ public class CloudModelBuilderTest {
                                                                           null,
                                                                           getUserMessageLogger(),
                                                                           new ModuleToDeployHelper(),
-                                                                          Arrays.asList(new UnresolvedModulesContentValidator(mtaModules,
-                                                                                                                              deployedApps)));
+                Collections.singletonList(new UnresolvedModulesContentValidator(mtaModules,
+                        deployedApps)));
 
         moduleToDeployHelper = new ModuleToDeployHelper();
 

@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -94,7 +94,7 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
         Mockito.when(context.getProcessInstanceId())
                .thenReturn("process-instance-id");
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
-               .thenReturn(Arrays.asList("test-subprocess-id"));
+               .thenReturn(Collections.singletonList("test-subprocess-id"));
         HistoricVariableInstance varInstanceMock = Mockito.mock(HistoricVariableInstance.class);
         Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES))
                .thenReturn(varInstanceMock);

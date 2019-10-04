@@ -285,7 +285,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         CloudApplicationExtended cloudApp = input.application.toCloudApp();
         // TODO
         StepsUtil.setAppsToDeploy(context, Collections.emptyList());
-        StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(cloudApp), context);
+        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(cloudApp), context);
         StepsUtil.setServicesToBind(context, mapToCloudServices());
         StepsUtil.setTriggeredServiceOperations(context, Collections.emptyMap());
         context.setVariable(Constants.VAR_MODULES_INDEX, 0);
@@ -343,7 +343,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
                                                     .name(name)
                                                     .moduleName("test")
                                                     .staging(new Staging.StagingBuilder().command(command)
-                                                                                         .buildpacks(Arrays.asList(buildpackUrl))
+                                                                                         .buildpacks(Collections.singletonList(buildpackUrl))
                                                                                          .healthCheckTimeout(0)
                                                                                          .detectedBuildpack("none")
                                                                                          .healthCheckType(healthCheckType)
@@ -386,7 +386,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         return new CreateAppStepMock();
     }
 
-    private class CreateAppStepMock extends CreateOrUpdateAppStep {
+    private static class CreateAppStepMock extends CreateOrUpdateAppStep {
         @Override
         protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(DelegateExecution context) {
             return CALLBACK;

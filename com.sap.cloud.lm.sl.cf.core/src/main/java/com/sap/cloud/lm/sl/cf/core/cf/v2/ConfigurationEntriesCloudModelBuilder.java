@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +89,6 @@ public class ConfigurationEntriesCloudModelBuilder {
     }
 
     private List<CloudTarget> getDefaultVisibility() {
-        return Arrays.asList(new CloudTarget(orgName, "*"));
+        return Collections.singletonList(new CloudTarget(orgName, "*"));
     }
 }

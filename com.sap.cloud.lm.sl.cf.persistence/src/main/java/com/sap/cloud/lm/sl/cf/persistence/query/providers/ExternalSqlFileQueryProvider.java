@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.persistence.query.providers;
 import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import com.sap.cloud.lm.sl.cf.persistence.dialects.DataSourceDialect;
 

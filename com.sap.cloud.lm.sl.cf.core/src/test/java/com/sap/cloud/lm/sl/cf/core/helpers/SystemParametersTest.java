@@ -6,6 +6,7 @@ import static org.junit.Assert.assertFalse;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,7 +122,7 @@ public class SystemParametersTest {
                                             .setName("first")
                                             .setParameters(createParametersMap(fields));
         DeploymentDescriptor descriptor = DeploymentDescriptor.createV3()
-                                                              .setModules(Arrays.asList(moduleWithParameters));
+                                                              .setModules(Collections.singletonList(moduleWithParameters));
 
         testedClass.injectInto(descriptor);
         assertCustomValueMap(fields, descriptor.getModules()
@@ -161,7 +162,7 @@ public class SystemParametersTest {
                                                   .setName("first")
                                                   .setParameters(createParametersMap(fields));
         DeploymentDescriptor descriptor = DeploymentDescriptor.createV3()
-                                                              .setResources(Arrays.asList(resourceWithParameters));
+                                                              .setResources(Collections.singletonList(resourceWithParameters));
 
         testedClass.injectInto(descriptor);
         assertCustomValueMap(fields, descriptor.getResources()

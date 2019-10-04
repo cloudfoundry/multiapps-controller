@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.escaping.CharacterToReplace;
@@ -58,7 +58,7 @@ public class ObjectToEnvironmentValueConverter {
     }
 
     public static List<EscapeSequenceToReplace> getDefaultCustomEscapeSequences() {
-        return Arrays.asList(new EscapeSequenceToReplace(getDefaultEscapeCharacter(), new CharacterToReplace('$', getPlaceholder('$'))));
+        return Collections.singletonList(new EscapeSequenceToReplace(getDefaultEscapeCharacter(), new CharacterToReplace('$', getPlaceholder('$'))));
     }
 
     private static String getPlaceholder(char c) {

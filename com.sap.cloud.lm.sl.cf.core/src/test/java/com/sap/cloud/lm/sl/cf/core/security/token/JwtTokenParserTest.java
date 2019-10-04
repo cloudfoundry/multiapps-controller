@@ -68,8 +68,8 @@ public class JwtTokenParserTest {
         expectedException.expectMessage("Unsupported verifier algorithm not-supported-algorith");
 
         JwtTokenParser parser = new JwtTokenParserMock(new TokenFactory(),
-                                                       mockUaaCLient(false, "not-supported-algorith", "not-at-all-matters"),
-                                                       true);
+                mockUaaCLient(false, "not-supported-algorith", "not-at-all-matters"),
+                true);
         parser.parse("not-important-token-string");
     }
 
@@ -107,7 +107,7 @@ public class JwtTokenParserTest {
         return client;
     }
 
-    private class JwtTokenParserMock extends JwtTokenParser {
+    private static class JwtTokenParserMock extends JwtTokenParser {
 
         private final boolean shouldVerify;
 

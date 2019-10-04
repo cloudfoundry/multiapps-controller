@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
+import java.util.Collections;
 
 import javax.inject.Named;
 
@@ -27,7 +27,7 @@ public class DetermineTasksFromHookStep extends SyncFlowableStep {
         getStepLogger().info(Messages.EXECUTING_HOOK_0, hook.getName());
 
         CloudTask task = hookParser.parse(hook);
-        StepsUtil.setTasksToExecute(execution.getContext(), Arrays.asList(task));
+        StepsUtil.setTasksToExecute(execution.getContext(), Collections.singletonList(task));
 
         return StepPhase.DONE;
     }

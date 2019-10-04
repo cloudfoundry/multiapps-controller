@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.helpers.v2;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +64,7 @@ public class ConfigurationSubscriptionFactory {
                      .setProperties(module.getProperties())
                      .setParameters(module.getParameters())
                      .setProvidedDependencies(module.getProvidedDependencies())
-                     .setRequiredDependencies(Arrays.asList(dependency));
+                     .setRequiredDependencies(Collections.singletonList(dependency));
     }
 
     protected int getMajorSchemaVersion() {

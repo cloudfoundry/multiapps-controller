@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.client.util;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
@@ -114,13 +115,13 @@ public class TokenFactoryTest {
                 {
                     "a25723f22ac754f792c50f07623dzd75",
                     "aRh98oYD80teGrkjDFzg3ln55EV3O96y",
-                    MapUtil.of(Pair.of("scope", Arrays.asList("controller.read")), Pair.of("exp", 999))
+                    MapUtil.of(Pair.of("scope", Collections.singletonList("controller.read")), Pair.of("exp", 999))
                 },
                 // (1) Missing exchangedToken:
                 {
                     null,
                     "aRh98oYD80teGrkjDFzg3ln55EV3O96y",
-                    MapUtil.of(Pair.of("scope", Arrays.asList("controller.read")), Pair.of("exp", 999))
+                    MapUtil.of(Pair.of("scope", Collections.singletonList("controller.read")), Pair.of("exp", 999))
                 }
 // @formatter:on
             });

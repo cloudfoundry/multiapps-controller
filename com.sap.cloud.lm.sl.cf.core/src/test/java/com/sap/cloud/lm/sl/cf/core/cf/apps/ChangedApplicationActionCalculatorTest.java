@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -27,7 +28,7 @@ public class ChangedApplicationActionCalculatorTest {
         return Stream.of(
         //@formatter:off
                         Arguments.of(ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, Arrays.asList(ApplicationStateAction.STAGE, ApplicationStateAction.START)),
-                        Arguments.of(ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, Arrays.asList(ApplicationStateAction.STAGE)),
+                        Arguments.of(ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, Collections.singletonList(ApplicationStateAction.STAGE)),
                         Arguments.of(ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED,
                                      Arrays.asList(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START)),
                         Arguments.of(ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, Arrays.asList(ApplicationStateAction.STAGE, ApplicationStateAction.STOP)),

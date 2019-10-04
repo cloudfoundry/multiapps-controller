@@ -1,7 +1,10 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.io.InputStream;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +26,6 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class StepsUtilTest {
 
@@ -82,7 +83,7 @@ public class StepsUtilTest {
                                                                     .putCredential("string-value", "1")
                                                                     .build();
 
-        StepsUtil.setServicesToCreate(context, Arrays.asList(service));
+        StepsUtil.setServicesToCreate(context, Collections.singletonList(service));
         List<CloudServiceExtended> actualServicesToCreate = StepsUtil.getServicesToCreate(context);
 
         assertEquals(1, actualServicesToCreate.size());

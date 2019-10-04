@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.EntityManagerFactory;
@@ -114,13 +115,13 @@ public class ConfigurationSubscriptionServiceTest {
         addConfigurationSubscriptions(Arrays.asList(CONFIGURATION_SUBSCRIPTION_1, CONFIGURATION_SUBSCRIPTION_2));
 
         int foundSubscriptions = configurationSubscriptionService.createQuery()
-                                                                 .onSelectMatching(Arrays.asList(new ConfigurationEntry(null,
-                                                                                                                        null,
-                                                                                                                        Version.parseVersion("3.1"),
-                                                                                                                        null,
-                                                                                                                        null,
-                                                                                                                        null,
-                                                                                                                        null)))
+                                                                 .onSelectMatching(Collections.singletonList(new ConfigurationEntry(null,
+                                                                         null,
+                                                                         Version.parseVersion("3.1"),
+                                                                         null,
+                                                                         null,
+                                                                         null,
+                                                                         null)))
                                                                  .list()
                                                                  .size();
         assertEquals(1, foundSubscriptions);

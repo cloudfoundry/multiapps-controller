@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,7 @@ public class PollStartAppStatusExecutionTest {
         //@formatter:off
                         Arguments.of(Arrays.asList(InstanceState.RUNNING, InstanceState.STARTING), true, AsyncExecutionState.RUNNING),
                         Arguments.of(Arrays.asList(InstanceState.CRASHED, InstanceState.CRASHED, InstanceState.CRASHED), true, AsyncExecutionState.ERROR),
-                        Arguments.of(Arrays.asList(InstanceState.CRASHED), false, AsyncExecutionState.RUNNING),
+                        Arguments.of(Collections.singletonList(InstanceState.CRASHED), false, AsyncExecutionState.RUNNING),
                         Arguments.of(Arrays.asList(InstanceState.FLAPPING, InstanceState.RUNNING), true, AsyncExecutionState.ERROR),
                         Arguments.of(Arrays.asList(InstanceState.RUNNING, InstanceState.RUNNING), true, AsyncExecutionState.FINISHED)
         );

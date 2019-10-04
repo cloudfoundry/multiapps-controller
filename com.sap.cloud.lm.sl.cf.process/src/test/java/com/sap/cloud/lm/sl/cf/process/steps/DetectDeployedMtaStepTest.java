@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -50,7 +49,7 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
         when(client.getApplications()).thenReturn(Collections.emptyList());
 
         DeployedMta deployedMta = JsonUtil.fromJson(TestUtil.getResourceAsString(DEPLOYED_MTA_LOCATION, getClass()), DeployedMta.class);
-        DeployedComponents deployedComponents = new DeployedComponents(Arrays.asList(deployedMta), Collections.emptyList());
+        DeployedComponents deployedComponents = new DeployedComponents(Collections.singletonList(deployedMta), Collections.emptyList());
 
         when(componentsDetector.detectAllDeployedComponents(Collections.emptyList())).thenReturn(deployedComponents);
 

@@ -100,7 +100,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
                                                                                                                                .toString()))
                                                                                                .on(query -> query.target(Mockito.eq(entry.getTargetSpace())))
                                                                                                .build();
-            doReturn(Arrays.asList(entry)).when(entryQueryMock)
+            doReturn(Collections.singletonList(entry)).when(entryQueryMock)
                                           .list();
         }
     }

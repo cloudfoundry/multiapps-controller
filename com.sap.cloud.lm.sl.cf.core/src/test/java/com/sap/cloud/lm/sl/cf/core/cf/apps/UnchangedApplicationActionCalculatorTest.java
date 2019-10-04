@@ -41,7 +41,7 @@ public class UnchangedApplicationActionCalculatorTest {
                         Arguments.of(ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED, false,
                                      Arrays.asList(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START)),
                         
-                        Arguments.of(ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, true, Arrays.asList(ApplicationStateAction.STOP)),
+                        Arguments.of(ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, true, Collections.singletonList(ApplicationStateAction.STOP)),
                         
                         Arguments.of(ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, false, Arrays.asList(ApplicationStateAction.STAGE, ApplicationStateAction.STOP)),
                         
@@ -50,7 +50,7 @@ public class UnchangedApplicationActionCalculatorTest {
                         Arguments.of(ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, false, 
                                      Arrays.asList(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START)),
                         
-                        Arguments.of(ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, true, Arrays.asList(ApplicationStateAction.STOP)),
+                        Arguments.of(ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, true, Collections.singletonList(ApplicationStateAction.STOP)),
                         
                         Arguments.of(ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, false, Arrays.asList(ApplicationStateAction.STOP, ApplicationStateAction.STAGE)),
                         

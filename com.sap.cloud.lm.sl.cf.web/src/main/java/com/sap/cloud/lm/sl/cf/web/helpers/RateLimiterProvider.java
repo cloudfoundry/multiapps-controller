@@ -1,12 +1,13 @@
 package com.sap.cloud.lm.sl.cf.web.helpers;
 
-import io.github.resilience4j.ratelimiter.RateLimiterConfig;
-import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter;
-
-import javax.inject.Named;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.inject.Named;
+
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter;
 
 @Named
 public class RateLimiterProvider {

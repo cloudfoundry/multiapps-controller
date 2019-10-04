@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -124,7 +123,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     private void mockExecutionQuery(ExecutionQuery mockExecutionQuery) {
         Execution mockExecution = Mockito.mock(Execution.class);
         when(mockExecution.getActivityId()).thenReturn("1");
-        when(mockExecutionQuery.list()).thenReturn(Arrays.asList(mockExecution));
+        when(mockExecutionQuery.list()).thenReturn(Collections.singletonList(mockExecution));
         when(mockExecutionQuery.processInstanceId(Mockito.anyString())).thenReturn(mockExecutionQuery);
     }
 

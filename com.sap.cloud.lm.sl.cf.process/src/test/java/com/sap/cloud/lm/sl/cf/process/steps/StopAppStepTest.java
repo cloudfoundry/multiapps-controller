@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication.State;
@@ -85,7 +86,7 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     }
 
     List<CloudApplicationExtended> toCloudApplication() {
-        return Arrays.asList(application.toCloudApplication());
+        return Collections.singletonList(application.toCloudApplication());
     }
 
     private void validateStoppedApplications() {

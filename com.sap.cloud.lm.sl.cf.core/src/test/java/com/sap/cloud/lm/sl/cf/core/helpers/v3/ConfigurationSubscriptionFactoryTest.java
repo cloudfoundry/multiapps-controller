@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.helpers.v3;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -27,19 +28,19 @@ public class ConfigurationSubscriptionFactoryTest extends com.sap.cloud.lm.sl.cf
 // @formatter:off
             // (0) The required dependency is managed, so a subscription should be created:
             {
-                "subscriptions-mtad-00.yaml", Arrays.asList("plugins"), "SPACE_ID_1", new Expectation(Expectation.Type.JSON, "subscriptions-00.json"),
+                "subscriptions-mtad-00.yaml", Collections.singletonList("plugins"), "SPACE_ID_1", new Expectation(Expectation.Type.JSON, "subscriptions-00.json"),
             },
             // (1) The required dependency is not managed, so a subscription should not be created:
             {
-                "subscriptions-mtad-01.yaml", Arrays.asList("plugins"), "SPACE_ID_1", new Expectation("[]"),
+                "subscriptions-mtad-01.yaml", Collections.singletonList("plugins"), "SPACE_ID_1", new Expectation("[]"),
             },
             // (2) The required dependency is not managed, so a subscription should not be created:
             {
-                "subscriptions-mtad-02.yaml", Arrays.asList("plugins"), "SPACE_ID_1", new Expectation("[]"),
+                "subscriptions-mtad-02.yaml", Collections.singletonList("plugins"), "SPACE_ID_1", new Expectation("[]"),
             },
             // (3) The required dependency is not active, so a subscription should not be created:
             {
-                "subscriptions-mtad-03.yaml", Arrays.asList("plugins"), "SPACE_ID_1", new Expectation("[]"),
+                "subscriptions-mtad-03.yaml", Collections.singletonList("plugins"), "SPACE_ID_1", new Expectation("[]"),
             }
 // @formatter:on
         });

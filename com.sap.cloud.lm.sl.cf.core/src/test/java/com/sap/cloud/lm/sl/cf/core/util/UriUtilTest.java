@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.domain.CloudRoute;
@@ -27,20 +27,20 @@ public class UriUtilTest {
 
     @Test
     public void testFindRouteWithHostBasedUriWithPort() {
-        List<CloudRoute> routes = Arrays.asList(route);
+        List<CloudRoute> routes = Collections.singletonList(route);
         Assertions.assertThrows(NotFoundException.class, () -> UriUtil.findRoute(routes, HOST_BASED_URI_WITH_PORT));
     }
 
     @Test
     public void testFindRouteWithHostBasedUriWithoutPort() {
-        List<CloudRoute> routes = Arrays.asList(route);
+        List<CloudRoute> routes = Collections.singletonList(route);
         CloudRoute actualResult = UriUtil.findRoute(routes, HOST_BASED_URI_WITHOUT_PORT);
         Assertions.assertEquals(route, actualResult);
     }
 
     @Test
     public void testFindRouteWithPortBasedUri() {
-        List<CloudRoute> routes = Arrays.asList(route);
+        List<CloudRoute> routes = Collections.singletonList(route);
         Assertions.assertThrows(NotFoundException.class, () -> UriUtil.findRoute(routes, PORT_BASED_URI));
     }
 

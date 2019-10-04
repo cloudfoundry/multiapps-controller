@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -57,7 +57,7 @@ public abstract class CloudServiceOperatorTest {
                .thenReturn(serviceOfferings);
         CloudService cloudService = loadServiceFromFile(SERVICE_FILE_NAME);
         Mockito.when(client.getServices())
-               .thenReturn(Arrays.asList(cloudService));
+               .thenReturn(Collections.singletonList(cloudService));
     }
 
     private List<CloudServiceOffering> loadServiceOfferingsFromFile(String filePath) {

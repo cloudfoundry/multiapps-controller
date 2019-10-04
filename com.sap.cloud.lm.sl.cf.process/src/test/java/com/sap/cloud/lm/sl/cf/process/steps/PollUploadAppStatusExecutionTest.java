@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -109,7 +110,7 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
     }
 
     private void prepareContext() {
-        StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(application.toCloudApplication()), context);
+        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(application.toCloudApplication()), context);
         context.setVariable(Constants.VAR_MODULES_INDEX, 0);
         context.setVariable(Constants.VAR_UPLOAD_TOKEN, JsonUtil.toJson(new UploadToken(UPLOAD_TOKEN, UUID.fromString(PACKAGE_GUID))));
     }

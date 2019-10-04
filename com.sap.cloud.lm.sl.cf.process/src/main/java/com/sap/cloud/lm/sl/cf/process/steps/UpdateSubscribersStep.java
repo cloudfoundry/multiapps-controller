@@ -5,7 +5,7 @@ import static com.sap.cloud.lm.sl.common.util.JsonUtil.convertJsonToMap;
 import static com.sap.cloud.lm.sl.common.util.JsonUtil.toJson;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -321,9 +321,9 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         Map<String, Object> dummyDescriptorMap = new TreeMap<>();
         dummyDescriptorMap.put(DeploymentDescriptorParser.SCHEMA_VERSION, SCHEMA_VERSION);
         dummyDescriptorMap.put(DeploymentDescriptorParser.ID, subscription.getMtaId());
-        dummyDescriptorMap.put(DeploymentDescriptorParser.MODULES, Arrays.asList(moduleMap));
+        dummyDescriptorMap.put(DeploymentDescriptorParser.MODULES, Collections.singletonList(moduleMap));
         dummyDescriptorMap.put(DeploymentDescriptorParser.VERSION, DUMMY_VERSION);
-        dummyDescriptorMap.put(DeploymentDescriptorParser.RESOURCES, Arrays.asList(resourceMap));
+        dummyDescriptorMap.put(DeploymentDescriptorParser.RESOURCES, Collections.singletonList(resourceMap));
 
         return handlerFactory.getDescriptorParser()
                              .parseDeploymentDescriptor(dummyDescriptorMap);

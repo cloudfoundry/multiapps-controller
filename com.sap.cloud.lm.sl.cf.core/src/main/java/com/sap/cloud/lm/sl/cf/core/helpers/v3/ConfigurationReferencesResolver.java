@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.helpers.v3;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +59,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
         ResolvedConfigurationReference resolvedReference = resolvedReferences.get(dependency.getName());
 
         if (!refersToResolvedResource(dependency)) {
-            return Arrays.asList(dependency);
+            return Collections.singletonList(dependency);
         }
 
         if (refersToInactiveResource(dependency)) {
@@ -73,7 +72,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
 
         if (!permitsMultipleResources(dependency)) {
             makeSureIsResolvedToSingleResource(dependency.getName(), resolvedReference.getResolvedResources());
-            return Arrays.asList(dependency);
+            return Collections.singletonList(dependency);
         }
 
         if (resolvedReference.getResolvedResources()

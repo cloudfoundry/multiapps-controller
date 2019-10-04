@@ -116,12 +116,12 @@ public class ConfigurationEntriesResourceTest {
             },
             // (12)
             {
-                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("{\"foo\":\"bar\",\"baz\":\"qux\"}"), "parsed-properties-01.json"),
+                new SearchRequestTest(new SearchRequestTestInput(Collections.singletonList("{\"foo\":\"bar\",\"baz\":\"qux\"}"), "parsed-properties-01.json"),
                     new Expectation(Expectation.Type.JSON, "configuration-entries-resource-test-output-08.json")),
             },
             // (13)
             {
-                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("a"), "parsed-properties-01.json"),
+                new SearchRequestTest(new SearchRequestTestInput(Collections.singletonList("a"), "parsed-properties-01.json"),
                     new Expectation(Expectation.Type.EXCEPTION, "Could not parse content query parameter as JSON or list")),
             },
             // (14)
