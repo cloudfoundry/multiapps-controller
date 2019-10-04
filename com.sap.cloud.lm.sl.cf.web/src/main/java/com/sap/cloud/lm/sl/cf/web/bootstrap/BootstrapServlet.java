@@ -2,12 +2,14 @@ package com.sap.cloud.lm.sl.cf.web.bootstrap;
 
 import static java.text.MessageFormat.format;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.naming.NamingException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -93,7 +95,7 @@ public class BootstrapServlet extends HttpServlet {
         destroyExtras();
     }
 
-    protected void initExtras() throws Exception {
+    protected void initExtras() throws NamingException, IOException {
         // Do nothing
     }
 

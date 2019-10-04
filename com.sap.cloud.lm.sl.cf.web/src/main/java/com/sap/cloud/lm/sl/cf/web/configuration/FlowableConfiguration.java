@@ -78,9 +78,7 @@ public class FlowableConfiguration {
     }
 
     protected List<Resource> getFlowableResourcesAsList() {
-        List<Resource> resources = new ArrayList<>();
-        resources.addAll(Arrays.asList(flowableResources));
-        return resources;
+        return new ArrayList<>(Arrays.asList(flowableResources));
     }
 
     protected FailedJobCommandFactory getFailedJobCommandFactory() {

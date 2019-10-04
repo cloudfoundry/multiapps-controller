@@ -56,7 +56,7 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
 
         prepareContext();
         determineActionForApplication();
@@ -66,7 +66,7 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();

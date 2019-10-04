@@ -126,7 +126,6 @@ public class FileServiceTest extends DatabaseFileServiceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void deleteFilesEntriesWithoutContentTest() throws Exception {
         FileEntry noContent = addTestFile(SPACE_1, NAMESPACE_1);
         FileEntry noContent2 = addTestFile(SPACE_2, NAMESPACE_1);

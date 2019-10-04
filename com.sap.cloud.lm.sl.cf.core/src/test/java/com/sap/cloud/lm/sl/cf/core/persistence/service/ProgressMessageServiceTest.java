@@ -141,8 +141,7 @@ public class ProgressMessageServiceTest {
     private ProgressMessageService createProgressMessageService() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("TestDefault");
         ProgressMessageService progressMessageService = new ProgressMessageService(entityManagerFactory);
-        ProgressMessageMapper progressMessageFactory = new ProgressMessageMapper();
-        progressMessageService.progressMessageMapper = progressMessageFactory;
+        progressMessageService.progressMessageMapper = new ProgressMessageMapper();
         return progressMessageService;
     }
 }

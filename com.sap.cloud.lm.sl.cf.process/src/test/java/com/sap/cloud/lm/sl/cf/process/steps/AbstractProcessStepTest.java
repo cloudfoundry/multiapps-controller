@@ -50,7 +50,7 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.exceptionSupplier = () -> exceptionToSimulate;
         try {
             step.execute(context);

@@ -62,7 +62,7 @@ public class ObjectToEnvironmentValueConverterTest {
         tester.test(() -> new ObjectToEnvironmentValueConverter(true).convert(loadObject()), expectation);
     }
 
-    private Object loadObject() throws Exception {
+    private Object loadObject() {
         String objectAsAString = TestUtil.getResourceAsString(objectJsonFilePath, getClass());
         return JsonUtil.fromJson(objectAsAString, Object.class);
     }

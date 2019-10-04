@@ -79,7 +79,7 @@ public class PropertiesExpanderTest {
     }
 
     @Test
-    public void testExpand() throws Exception {
+    public void testExpand() {
         Map<String, Object> properties = JsonUtil.convertJsonToMap(TestUtil.getResourceAsString(propertiesLocation, getClass()));
 
         PropertiesExpander expander = new PropertiesExpander(originalDependencyName, newDependencyNames);

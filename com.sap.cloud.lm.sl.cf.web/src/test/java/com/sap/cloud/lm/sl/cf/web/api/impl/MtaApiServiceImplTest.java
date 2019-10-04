@@ -60,20 +60,20 @@ public class MtaApiServiceImplTest {
         mockClient(USER_NAME);
     }
 
-    private List<CloudApplication> parseApps() throws IOException {
+    private List<CloudApplication> parseApps() {
         String appsJson = TestUtil.getResourceAsString("apps-01.json", getClass());
         return JsonUtil.fromJson(appsJson, new TypeReference<List<CloudApplication>>() {
         });
     }
 
-    private List<Mta> parseMtas() throws IOException {
+    private List<Mta> parseMtas() {
         String appsJson = TestUtil.getResourceAsString("mtas-01.json", getClass());
         return JsonUtil.fromJson(appsJson, new TypeReference<List<Mta>>() {
         });
     }
 
     @Test
-    public void testGetMtas() throws Exception {
+    public void testGetMtas() {
         ResponseEntity<List<Mta>> response = testedClass.getMtas(SPACE_GUID);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<Mta> responseMtas = response.getBody();
@@ -81,7 +81,7 @@ public class MtaApiServiceImplTest {
     }
 
     @Test
-    public void testGetMta() throws Exception {
+    public void testGetMta() {
         Mta mtaToGet = mtas.get(1);
         ResponseEntity<Mta> response = testedClass.getMta(SPACE_GUID, mtaToGet.getMetadata()
                                                                                        .getId());
@@ -92,7 +92,7 @@ public class MtaApiServiceImplTest {
     }
 
     @Test
-    public void testGetMtaNotFound() throws Exception {
+    public void testGetMtaNotFound() {
         Assertions.assertThrows(NotFoundException.class, () -> testedClass.getMta(SPACE_GUID, "not_a_real_mta"));
     }
 

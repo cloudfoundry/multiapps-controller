@@ -154,7 +154,7 @@ public class ConfigurationEntriesResourceTest {
         private long id;
         private ConfigurationEntry entry;
 
-        public GetRequestTestInput(long id, String entryJsonLocation) throws Exception {
+        public GetRequestTestInput(long id, String entryJsonLocation) {
             this.id = id;
             this.entry = loadJsonInput(entryJsonLocation, ConfigurationEntry.class, getClass());
         }
@@ -173,7 +173,7 @@ public class ConfigurationEntriesResourceTest {
 
         private List<String> requiredContent;
 
-        public SearchRequestTestInput(List<String> requiredContent, String parsedRequiredContentLocation) throws Exception {
+        public SearchRequestTestInput(List<String> requiredContent, String parsedRequiredContentLocation) {
             this.requiredContent = requiredContent;
         }
 
@@ -186,7 +186,7 @@ public class ConfigurationEntriesResourceTest {
 
         private String entryXml;
 
-        public PostRequestTestInput(String entryXmlLocation) throws Exception {
+        public PostRequestTestInput(String entryXmlLocation) {
             this.entryXml = TestUtil.getResourceAsString(entryXmlLocation, getClass());
         }
 
@@ -238,7 +238,7 @@ public class ConfigurationEntriesResourceTest {
         }
 
         @Override
-        protected void test() throws Exception {
+        protected void test() {
             TESTER.test(() -> {
 
                 return new RestResponse(resource.getConfigurationEntry(input.getId()));
@@ -247,7 +247,7 @@ public class ConfigurationEntriesResourceTest {
         }
 
         @Override
-        protected void setUp() throws Exception {
+        protected void setUp() {
             MockitoAnnotations.initMocks(this);
             when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
             Mockito.doReturn(input.getEntry())
@@ -273,7 +273,7 @@ public class ConfigurationEntriesResourceTest {
         }
 
         @Override
-        protected void test() throws Exception {
+        protected void test() {
 
             TESTER.test(() -> {
 
@@ -283,7 +283,7 @@ public class ConfigurationEntriesResourceTest {
         }
 
         @Override
-        protected void setUp() throws Exception {
+        protected void setUp() {
             MockitoAnnotations.initMocks(this);
             AuditLoggingProvider.setFacade(auditLoggingFacade);
         }
@@ -304,7 +304,7 @@ public class ConfigurationEntriesResourceTest {
         }
 
         @Override
-        protected void test() throws Exception {
+        protected void test() {
             TESTER.test(() -> {
 
                 return new RestResponse(resource.updateConfigurationEntry(input.getId(), input.getEntryXml()));
@@ -320,7 +320,7 @@ public class ConfigurationEntriesResourceTest {
             when(configurationEntryService.update(eq(input.getId()), argThat(entryMatcher))).thenReturn(dto.toConfigurationEntry());
         }
 
-        private ConfigurationEntryDto getDto() throws Exception {
+        private ConfigurationEntryDto getDto() {
             return provideDefaultsForFields(XmlUtil.fromXml(input.getEntryXml(), ConfigurationEntryDto.class));
         }
 
@@ -359,7 +359,7 @@ public class ConfigurationEntriesResourceTest {
         }
 
         @Override
-        protected void test() throws Exception {
+        protected void test() {
             TESTER.test(() -> {
 
                 return new RestResponse(resource.getConfigurationEntries(PROVIDER_NID, PROVIDER_ID, PROVIDER_VERSION,
@@ -369,7 +369,7 @@ public class ConfigurationEntriesResourceTest {
         }
 
         @Override
-        protected void setUp() throws Exception {
+        protected void setUp() {
             MockitoAnnotations.initMocks(this);
             resource.userInfoSupplier = () -> userInfo;
             when(userInfo.getName()).thenReturn("");
@@ -397,7 +397,7 @@ public class ConfigurationEntriesResourceTest {
         }
 
         @Override
-        protected void test() throws Exception {
+        protected void test() {
             TESTER.test(() -> {
 
                 return new RestResponse(resource.deleteConfigurationEntry(input.getId()));
@@ -406,7 +406,7 @@ public class ConfigurationEntriesResourceTest {
         }
 
         @Override
-        protected void setUp() throws Exception {
+        protected void setUp() {
             MockitoAnnotations.initMocks(this);
             when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
             ConfigurationEntryQuery inputQuery = new MockBuilder<>(configurationEntryQuery).on(queryMock -> queryMock.id(input.getId()))
@@ -417,7 +417,7 @@ public class ConfigurationEntriesResourceTest {
             AuditLoggingProvider.setFacade(auditLoggingFacade);
         }
 
-        protected void tearDown() throws Exception {
+        protected void tearDown() {
             verify(configurationEntryService.createQuery()
                                             .id(input.getId())).delete();
         }
@@ -428,7 +428,7 @@ public class ConfigurationEntriesResourceTest {
 
         private String xml;
 
-        public ConfigurationEntryMatcher(ConfigurationEntryDto dto) throws Exception {
+        public ConfigurationEntryMatcher(ConfigurationEntryDto dto) {
             this.xml = XmlUtil.toXml(dto, true);
         }
 

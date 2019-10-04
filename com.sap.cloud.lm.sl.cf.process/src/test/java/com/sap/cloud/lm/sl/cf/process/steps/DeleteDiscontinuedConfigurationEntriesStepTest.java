@@ -42,7 +42,7 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
 
     private StepInput stepInput;
 
-    public DeleteDiscontinuedConfigurationEntriesStepTest(String stepInputLocation) throws ParsingException, IOException {
+    public DeleteDiscontinuedConfigurationEntriesStepTest(String stepInputLocation) throws ParsingException {
         stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInputLocation, DeleteDiscontinuedConfigurationEntriesStepTest.class),
                                       StepInput.class);
     }
@@ -72,7 +72,7 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         prepareContext();
 
         CloudTarget target = new CloudTarget(stepInput.org, stepInput.space);
@@ -112,7 +112,7 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         List<ConfigurationEntryQuery> queriesToExecuteDeleteOn = initEntryQueries();
 
         step.execute(context);

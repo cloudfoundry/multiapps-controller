@@ -18,6 +18,6 @@ public interface FileContentProcessor {
      * @param is an input stream representing the file content
      * @throws Exception
      */
-    void processFileContent(InputStream is) throws NoSuchAlgorithmException, IOException, FileStorageException; // NOPMD
+    void processFileContent(InputStream is) throws NoSuchAlgorithmException, IOException; // NOPMD
 
 }

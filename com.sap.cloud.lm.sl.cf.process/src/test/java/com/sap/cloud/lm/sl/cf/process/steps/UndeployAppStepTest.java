@@ -74,7 +74,7 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
 
     protected abstract void performAfterUndeploymentValidation();
 
-    private void undeployApp(CloudApplication cloudApplication) throws Exception {
+    private void undeployApp(CloudApplication cloudApplication) {
         context.setVariable(Constants.VAR_APP_TO_PROCESS, JsonUtil.toJson(cloudApplication));
         step.execute(context);
 

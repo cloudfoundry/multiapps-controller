@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableNames;
 @Entity
 @Table(name = TableNames.PROGRESS_MESSAGE_TABLE)
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@SequenceGenerator(name = SequenceNames.PROGRESS_MESSAGE_SEQUENCE, sequenceName = SequenceNames.PROGRESS_MESSAGE_SEQUENCE, initialValue = 1, allocationSize = 1)
+@SequenceGenerator(name = SequenceNames.PROGRESS_MESSAGE_SEQUENCE, sequenceName = SequenceNames.PROGRESS_MESSAGE_SEQUENCE, allocationSize = 1)
 public class ProgressMessageDto implements DtoWithPrimaryKey<Long> {
 
     public static class AttributeNames {

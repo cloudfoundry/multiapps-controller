@@ -136,13 +136,13 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         });
     }
 
-    public CreateOrUpdateStepWithExistingAppTest(String input, String expectedExceptionMessage) throws Exception {
+    public CreateOrUpdateStepWithExistingAppTest(String input, String expectedExceptionMessage) {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, CreateOrUpdateStepWithExistingAppTest.class), StepInput.class);
         this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         if (expectedExceptionMessage != null) {
             expectedException.expectMessage(expectedExceptionMessage);
         }
@@ -151,7 +151,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();
@@ -236,7 +236,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     private void prepareExistingServiceBindings() {
         for (String serviceName : input.existingServiceBindings.keySet()) {
             CloudServiceInstance cloudServiceInstance = Mockito.mock(CloudServiceInstance.class);
-            List<CloudServiceBinding> serviceBindings = new ArrayList<CloudServiceBinding>();
+            List<CloudServiceBinding> serviceBindings = new ArrayList<>();
             for (SimpleBinding simpleBinding : input.existingServiceBindings.get(serviceName)) {
                 serviceBindings.add(simpleBinding.toCloudServiceBinding());
             }

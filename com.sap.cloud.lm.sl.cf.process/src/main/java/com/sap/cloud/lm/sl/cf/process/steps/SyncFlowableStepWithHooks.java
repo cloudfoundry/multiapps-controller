@@ -137,7 +137,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         return HookPhase.NONE;
     }
 
-    protected abstract StepPhase executeStepInternal(ExecutionWrapper execution) throws Exception;
+    protected abstract StepPhase executeStepInternal(ExecutionWrapper execution);
 
     class ModuleHooksAggregator {
 

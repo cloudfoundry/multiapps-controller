@@ -145,7 +145,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         prepareContext();
     }
 
-    protected void prepareContext() throws Exception {
+    protected void prepareContext() {
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
         StepsUtil.setMtaModules(context, Collections.emptySet());
@@ -154,7 +154,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();
@@ -169,7 +169,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         assertEquals(output.newMtaVersion, StepsUtil.getNewMtaVersion(context));
     }
 
-    protected void loadParameters() throws Exception {
+    protected void loadParameters() {
         String modulesToDeployString = TestUtil.getResourceAsString(input.modulesToDeployLocation, getClass());
         modulesToDeploy = JsonUtil.fromJson(modulesToDeployString, new TypeReference<List<Module>>() {
         });

@@ -23,7 +23,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
     }
 
     @Test
-    public void testExecuteWhenAppIsStopped() throws Exception {
+    public void testExecuteWhenAppIsStopped() {
         CloudApplicationExtended app = createApplication(APP_NAME, State.STOPPED);
         StartingInfo startingInfo = new StartingInfo("dummyStagingFile");
         prepareContextAndClient(app, startingInfo);
@@ -45,7 +45,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
     }
 
     @Test
-    public void testExecuteWhenAppIsStarted() throws Exception {
+    public void testExecuteWhenAppIsStarted() {
         CloudApplicationExtended app = createApplication(APP_NAME, State.STARTED);
         StartingInfo startingInfo = new StartingInfo("dummyStagingFile");
         prepareContextAndClient(app, startingInfo);

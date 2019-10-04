@@ -49,7 +49,6 @@ import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 @RunWith(Parameterized.class)
 public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersStep> {
@@ -148,7 +147,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         prepareConfigurationServices();
     }
 
-    private void loadParameters() throws Exception {
+    private void loadParameters() {
         if (expectedExceptionMessage != null) {
             expectedException.expectMessage(expectedExceptionMessage);
         }
@@ -209,7 +208,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         }
     }
 
-    private void prepareClientProvider(CloudSpace space, CloudControllerClient clientMock) throws Exception {
+    private void prepareClientProvider(CloudSpace space, CloudControllerClient clientMock) {
         String orgName = space.getOrganization()
                               .getName();
         String spaceName = space.getName();
@@ -295,7 +294,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();

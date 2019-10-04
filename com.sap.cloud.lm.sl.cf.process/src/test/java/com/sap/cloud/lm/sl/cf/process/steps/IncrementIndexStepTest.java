@@ -28,12 +28,12 @@ public class IncrementIndexStepTest extends SyncFlowableStepTest<IncrementIndexS
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         prepareContext();
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();

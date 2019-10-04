@@ -45,12 +45,12 @@ public class UpdateServicePlanStepTest extends SyncFlowableStepTest<UpdateServic
         });
     }
 
-    public UpdateServicePlanStepTest(String stepInput, String expectedExceptionMessage) throws Exception {
+    public UpdateServicePlanStepTest(String stepInput, String expectedExceptionMessage) {
         this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, UpdateServicePlanStepTest.class), StepInput.class);
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         prepareContext();
     }
 
@@ -58,10 +58,10 @@ public class UpdateServicePlanStepTest extends SyncFlowableStepTest<UpdateServic
         MethodExecution<String> methodExec;
         switch (stepPhase) {
             case POLLING:
-                methodExec = new MethodExecution<String>(null, ExecutionState.FINISHED);
+                methodExec = new MethodExecution<>(null, ExecutionState.FINISHED);
                 break;
             case STEP_EXECUTION:
-                methodExec = new MethodExecution<String>(null, ExecutionState.EXECUTING);
+                methodExec = new MethodExecution<>(null, ExecutionState.EXECUTING);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported test phase");
@@ -71,7 +71,7 @@ public class UpdateServicePlanStepTest extends SyncFlowableStepTest<UpdateServic
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         prepareResponses(STEP_EXECUTION);
         step.execute(context);
         assertStepPhase(STEP_EXECUTION);

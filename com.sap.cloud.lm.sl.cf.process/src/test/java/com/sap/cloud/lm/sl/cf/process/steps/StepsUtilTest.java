@@ -35,14 +35,14 @@ public class StepsUtilTest {
     protected DelegateExecution context = MockDelegateExecution.createSpyInstance();
 
     @Test
-    public void testDetermineCurrentUserWithSetUser() throws Exception {
+    public void testDetermineCurrentUserWithSetUser() {
         Mockito.when(context.getVariable(Mockito.eq(Constants.VAR_USER)))
                .thenReturn(EXAMPLE_USER);
         String determinedUser = StepsUtil.determineCurrentUser(context, Mockito.mock(StepLogger.class));
         assertEquals(EXAMPLE_USER, determinedUser);
     }
 
-    public void testDetermineCurrentUserError() throws Exception {
+    public void testDetermineCurrentUserError() {
         Assertions.assertThrows(SLException.class, () -> StepsUtil.determineCurrentUser(context, Mockito.mock(StepLogger.class)));
     }
 
@@ -57,7 +57,7 @@ public class StepsUtilTest {
     }
 
     @Test
-    public void testGetModuleContentAsStreamNotFound() throws Exception {
+    public void testGetModuleContentAsStreamNotFound() {
         Mockito.when(context.getVariable(Mockito.eq(constructModuleContentVariable(EXAMPLE_MODULE_NAME))))
                .thenReturn(null);
         Assertions.assertThrows(SLException.class, () -> StepsUtil.getModuleContentAsStream(context, EXAMPLE_MODULE_NAME));
@@ -75,7 +75,7 @@ public class StepsUtilTest {
     }
 
     @Test
-    public void testGetServicesToCreateWithCredentials() throws Exception {
+    public void testGetServicesToCreateWithCredentials() {
         CloudServiceExtended service = ImmutableCloudServiceExtended.builder()
                                                                     .name("my-service")
                                                                     .putCredential("integer-value", 1)
@@ -105,9 +105,9 @@ public class StepsUtilTest {
     }
 
     @Test
-    public void testGetAppsToDeployWithBindingParameters() throws Exception {
-        Map<String, Map<String, Object>> bindingParameters = new HashMap<String, Map<String, Object>>();
-        Map<String, Object> serviceBindingParameters = new HashMap<String, Object>();
+    public void testGetAppsToDeployWithBindingParameters() {
+        Map<String, Map<String, Object>> bindingParameters = new HashMap<>();
+        Map<String, Object> serviceBindingParameters = new HashMap<>();
         serviceBindingParameters.put("integer-value", 1);
         serviceBindingParameters.put("double-value", 1.4);
         serviceBindingParameters.put("string-value", "1");

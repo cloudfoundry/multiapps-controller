@@ -66,7 +66,7 @@ public class TasksValidatorTest {
     }
 
     @Test
-    public void testValidate() throws Exception {
+    public void testValidate() {
         String tasksJson = TestUtil.getResourceAsString(locationOfFileContainingTasks, getClass());
         Object tasks = JsonUtil.fromJson(tasksJson, Object.class);
         assertEquals(expectedResult, new TasksValidator().isValid(tasks));

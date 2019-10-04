@@ -16,7 +16,7 @@ import org.mockito.Mockito;
 
 public class MockDelegateExecution implements DelegateExecution {
 
-    private Map<String, Object> mockVariables = new HashMap<String, Object>();
+    private Map<String, Object> mockVariables = new HashMap<>();
 
     public static DelegateExecution createSpyInstance() {
         MockDelegateExecution instance = new MockDelegateExecution();
@@ -114,11 +114,11 @@ public class MockDelegateExecution implements DelegateExecution {
     }
 
     @Override
-    public void setVariables(Map<String, ? extends Object> arg0) {
+    public void setVariables(Map<String, ?> arg0) {
     }
 
     @Override
-    public void setVariablesLocal(Map<String, ? extends Object> arg0) {
+    public void setVariablesLocal(Map<String, ?> arg0) {
     }
 
     @Override

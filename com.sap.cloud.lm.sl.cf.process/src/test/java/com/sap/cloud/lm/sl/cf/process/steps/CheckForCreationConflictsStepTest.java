@@ -93,7 +93,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
         });
     }
 
-    public CheckForCreationConflictsStepTest(String stepInput, String expectedExceptionMessage, boolean shouldWarn) throws Exception {
+    public CheckForCreationConflictsStepTest(String stepInput, String expectedExceptionMessage, boolean shouldWarn) {
         this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CheckForCreationConflictsStepTest.class),
                                            StepInput.class);
         this.expectedExceptionMessage = expectedExceptionMessage;
@@ -109,7 +109,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();
@@ -165,7 +165,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
         prepareExistingServices();
     }
 
-    private Map<CloudServiceExtended, CloudServiceInstance> createServiceInstances(StepInput stepInput) throws Exception {
+    private Map<CloudServiceExtended, CloudServiceInstance> createServiceInstances(StepInput stepInput) {
         Map<CloudServiceExtended, CloudServiceInstance> result = new HashMap<>();
         for (CloudServiceExtended service : stepInput.existingServices) {
             List<SimpleApplication> boundApplications = findBoundApplications(service.getName(), stepInput.existingApps);

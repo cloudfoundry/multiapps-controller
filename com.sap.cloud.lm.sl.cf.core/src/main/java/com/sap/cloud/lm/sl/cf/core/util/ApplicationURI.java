@@ -101,7 +101,6 @@ public class ApplicationURI {
                 setPath(part);
                 break;
             default:
-                return;
         }
     }
 

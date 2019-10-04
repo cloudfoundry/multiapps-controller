@@ -17,7 +17,7 @@ public class DeployAppSubProcessEndListener extends AbstractProcessExecutionList
     private static final Logger LOGGER = LoggerFactory.getLogger(DeployAppSubProcessEndListener.class);
 
     @Override
-    protected void notifyInternal(DelegateExecution context) throws Exception {
+    protected void notifyInternal(DelegateExecution context) {
         CloudServiceBroker cloudServiceBrokerExtended = StepsUtil.getCreatedOrUpdatedServiceBroker(context);
 
         if (cloudServiceBrokerExtended != null) {

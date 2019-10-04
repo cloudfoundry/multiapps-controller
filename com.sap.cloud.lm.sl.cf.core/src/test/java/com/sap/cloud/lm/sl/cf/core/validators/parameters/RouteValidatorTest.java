@@ -57,7 +57,7 @@ public class RouteValidatorTest {
     }
 
     @Test
-    public void testAttemptToCorrect() throws Exception {
+    public void testAttemptToCorrect() {
         if (!validator.canCorrect())
             return;
 

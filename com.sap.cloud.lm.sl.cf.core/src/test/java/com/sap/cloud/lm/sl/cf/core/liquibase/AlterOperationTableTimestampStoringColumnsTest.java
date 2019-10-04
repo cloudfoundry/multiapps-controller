@@ -73,14 +73,14 @@ public class AlterOperationTableTimestampStoringColumnsTest {
     }
 
     @Before
-    public void loadOriginalOperations() throws Exception {
+    public void loadOriginalOperations() {
         String originalOperationsJson = TestUtil.getResourceAsString(originalOperationsJsonLocation, getClass());
         this.originalOperations = JsonUtil.fromJson(originalOperationsJson, new TypeReference<List<OriginalOperation>>() {
         });
     }
 
     @Before
-    public void loadExpectedOperations() throws Exception {
+    public void loadExpectedOperations() {
         if (expectedOperationsJsonLocation == null) {
             return;
         }

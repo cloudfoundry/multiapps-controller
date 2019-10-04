@@ -226,7 +226,7 @@ public class SyncFlowableStepWithHooksTest {
         }
 
         @Override
-        protected StepPhase executeStepInternal(ExecutionWrapper execution) throws Exception {
+        protected StepPhase executeStepInternal(ExecutionWrapper execution) {
             return StepPhase.DONE;
         }
 
@@ -283,7 +283,7 @@ public class SyncFlowableStepWithHooksTest {
         private ModuleHooksAggregator getModuleHooksAggregator(Module module) {
             return new SyncFlowableStepWithHooks() {
                 @Override
-                protected StepPhase executeStepInternal(ExecutionWrapper execution) throws Exception {
+                protected StepPhase executeStepInternal(ExecutionWrapper execution) {
                     return StepPhase.DONE;
                 }
 

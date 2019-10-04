@@ -88,13 +88,13 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
         });
     }
 
-    public CreateOrUpdateAppStepTest(String stepInput, String expectedExceptionMessage) throws Exception {
+    public CreateOrUpdateAppStepTest(String stepInput, String expectedExceptionMessage) {
         this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CreateOrUpdateAppStepTest.class), StepInput.class);
         this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         step.shouldPrettyPrint = () -> false;
         loadParameters();
         prepareContext();
@@ -102,7 +102,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();

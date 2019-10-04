@@ -52,7 +52,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     @Mock(answer = Answers.RETURNS_SELF)
     private ConfigurationEntryQuery configurationEntryQuery;
 
-    public PublishConfigurationEntriesStepTest(String input) throws Exception {
+    public PublishConfigurationEntriesStepTest(String input) {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, PublishConfigurationEntriesStepTest.class), StepInput.class);
     }
 
@@ -77,7 +77,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     }
 
     @BeforeClass
-    public static void loadConfigurationEntries() throws Exception {
+    public static void loadConfigurationEntries() {
         existingConfigurationEntries = JsonUtil.fromJson(TestUtil.getResourceAsString("configuration-entries.json",
                                                                                        PublishConfigurationEntriesStepTest.class),
                                                           new TypeReference<List<ConfigurationEntry>>() {
@@ -91,7 +91,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
         step.configurationEntryService = configurationEntryService;
     }
 
-    public void prepareConfigurationEntryService() throws Exception {
+    public void prepareConfigurationEntryService() {
         when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
         for (ConfigurationEntry entry : existingConfigurationEntries) {
             ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(entry.getProviderNid()))
@@ -124,7 +124,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
         validateConfigurationEntryService();
     }
 
-    private void validateConfigurationEntryService() throws Exception {
+    private void validateConfigurationEntryService() {
         if (CollectionUtils.isEmpty(input.entriesToPublish)) {
             Mockito.verify(configurationEntryService, Mockito.never())
                    .add(Mockito.any());

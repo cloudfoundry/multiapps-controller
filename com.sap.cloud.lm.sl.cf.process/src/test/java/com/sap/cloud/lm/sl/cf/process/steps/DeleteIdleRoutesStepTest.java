@@ -53,8 +53,7 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
     @MethodSource
     public void testExecute(String existingAppFile, String appToDeployFile, List<String> urisToDelete,
                             CloudOperationException exceptionThrownByClient, CloudOperationException expectedException,
-                            StepPhase expectedStepPhase)
-        throws Throwable {
+                            StepPhase expectedStepPhase) {
         prepareContext(existingAppFile, appToDeployFile, exceptionThrownByClient);
         step.execute(context);
         assertStepPhaseMatch(expectedStepPhase);

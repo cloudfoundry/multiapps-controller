@@ -65,7 +65,7 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     @Override
-    public List<FileEntry> getFileEntriesWithoutContent(List<FileEntry> fileEntries) throws FileStorageException {
+    public List<FileEntry> getFileEntriesWithoutContent(List<FileEntry> fileEntries) {
         Set<String> existingFiles = blobStore.list(container)
                                              .stream()
                                              .map(StorageMetadata::getName)
@@ -80,22 +80,22 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     @Override
-    public void deleteFile(String id, String space) throws FileStorageException {
+    public void deleteFile(String id, String space) {
         blobStore.removeBlob(container, id);
     }
 
     @Override
-    public void deleteFilesBySpace(String space) throws FileStorageException {
+    public void deleteFilesBySpace(String space) {
         removeBlobsByFilter(blob -> filterBySpace(blob, space));
     }
 
     @Override
-    public void deleteFilesBySpaceAndNamespace(String space, String namespace) throws FileStorageException {
+    public void deleteFilesBySpaceAndNamespace(String space, String namespace) {
         removeBlobsByFilter(blob -> filterBySpaceAndNamespace(blob, space, namespace));
     }
 
     @Override
-    public int deleteFilesModifiedBefore(Date modificationTime) throws FileStorageException {
+    public int deleteFilesModifiedBefore(Date modificationTime) {
         return removeBlobsByFilter(blob -> filterByModificationTime(blob, modificationTime));
     }
 

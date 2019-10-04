@@ -21,12 +21,12 @@ public class SSLUtil {
     private static final X509TrustManager NULL_TRUST_MANAGER = new X509TrustManager() {
 
         @Override
-        public void checkClientTrusted(X509Certificate[] xcs, String string) throws java.security.cert.CertificateException {
+        public void checkClientTrusted(X509Certificate[] xcs, String string) {
             // NOSONAR
         }
 
         @Override
-        public void checkServerTrusted(X509Certificate[] xcs, String string) throws java.security.cert.CertificateException {
+        public void checkServerTrusted(X509Certificate[] xcs, String string) {
             // NOSONAR
         }
 

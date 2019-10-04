@@ -131,18 +131,16 @@ public class OperationServiceTest {
 
     @Test
     public void testQueryInNonFinalState() {
-        Operation operation1 = OPERATION_1;
         Operation operation2 = ImmutableOperation.copyOf(OPERATION_2)
                                                  .withState(State.ABORTED);
-        testQueryByCriteria((query, operation) -> query.inNonFinalState(), operation1, operation2);
+        testQueryByCriteria((query, operation) -> query.inNonFinalState(), OPERATION_1, operation2);
     }
 
     @Test
     public void testQueryInFinalState() {
         Operation operation1 = ImmutableOperation.copyOf(OPERATION_1)
                                                  .withState(State.FINISHED);
-        Operation operation2 = OPERATION_2;
-        testQueryByCriteria((query, operation) -> query.inFinalState(), operation1, operation2);
+        testQueryByCriteria((query, operation) -> query.inFinalState(), operation1, OPERATION_2);
     }
 
     private void testQueryByCriteria(OperationQueryBuilder operationQueryBuilder, Operation operation1, Operation operation2) {

@@ -80,7 +80,7 @@ public class ApplicationAttributesTest {
         assertEquals("default-url", appAttributes.get("service-broker-url", String.class, "default-url"));
     }
 
-    private ApplicationAttributes createApplicationAttributesFromJsonFile(String jsonFileLocation) throws Exception {
+    private ApplicationAttributes createApplicationAttributesFromJsonFile(String jsonFileLocation) {
         String applicationJson = TestUtil.getResourceAsString(jsonFileLocation, getClass());
         CloudApplication application = JsonUtil.fromJson(applicationJson, CloudApplication.class);
         return ApplicationAttributes.fromApplication(application);

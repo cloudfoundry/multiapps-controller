@@ -40,7 +40,7 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
         step.applicationColorDetector = applicationColorDetector;
     }
 
-    private void prepareContext() throws Exception {
+    private void prepareContext() {
         StepsUtil.setDeployedMta(context,
                                  JsonUtil.fromJson(TestUtil.getResourceAsString("deployed-mta-01.json", getClass()), DeployedMta.class));
 
@@ -50,7 +50,7 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
     }
 
     @Test
-    public void testWithNoColorsDeployed() throws Exception {
+    public void testWithNoColorsDeployed() {
         when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenReturn(null);
 
         step.execute(context);
@@ -62,7 +62,7 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
     }
 
     @Test
-    public void testWithOneColorDeployed() throws Exception {
+    public void testWithOneColorDeployed() {
         when(applicationColorDetector.detectSingularDeployedApplicationColor(any(DeployedMta.class))).thenReturn(ApplicationColor.GREEN);
 
         step.execute(context);
@@ -74,7 +74,7 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
     }
 
     @Test
-    public void testWithTwoColorsDeployed() throws Exception {
+    public void testWithTwoColorsDeployed() {
         when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(new ConflictException(Messages.CONFLICTING_APP_COLORS));
         when(applicationColorDetector.detectLiveApplicationColor(any(), any())).thenReturn(ApplicationColor.GREEN);
         step.execute(context);

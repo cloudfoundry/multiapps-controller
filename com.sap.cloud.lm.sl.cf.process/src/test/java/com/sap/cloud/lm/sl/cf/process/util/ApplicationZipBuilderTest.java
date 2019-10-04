@@ -129,7 +129,6 @@ public class ApplicationZipBuilderTest {
 
     @Test
     public void testFailToCreateZip() {
-        String mtar = SAMPLE_MTAR;
         String fileName = "db/";
         ApplicationArchiveReader reader = new ApplicationArchiveReader();
         ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader) {
@@ -140,7 +139,7 @@ public class ApplicationZipBuilderTest {
             }
 
         };
-        ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(mtar, fileName);
+        ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(SAMPLE_MTAR, fileName);
         Assertions.assertThrows(SLException.class,
                                 () -> appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext, logger));
     }

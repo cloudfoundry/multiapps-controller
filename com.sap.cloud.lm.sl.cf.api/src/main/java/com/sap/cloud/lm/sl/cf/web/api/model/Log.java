@@ -17,37 +17,37 @@ import io.swagger.annotations.ApiModelProperty;
 public interface Log {
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("id")
     String getId();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("lastModified")
     Date getLastModified();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("content")
     String getContent();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("size")
     Long getSize();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("displayName")
     String getDisplayName();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("description")
     String getDescription();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("externalInfo")
     String getExternalInfo();
 

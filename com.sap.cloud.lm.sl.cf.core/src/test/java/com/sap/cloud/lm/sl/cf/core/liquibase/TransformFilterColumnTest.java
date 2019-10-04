@@ -38,7 +38,7 @@ public class TransformFilterColumnTest {
     @Test
     public void testTransformData() {
 
-        Map<Long, String> retrievedData = new HashMap<Long, String>();
+        Map<Long, String> retrievedData = new HashMap<>();
         retrievedData.put(1l, "{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":\"org space\"}");
         retrievedData.put(2l, "{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":\"orgspace\"}");
         retrievedData.put(3l, "{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":\"org test space sap\"}");
@@ -59,7 +59,7 @@ public class TransformFilterColumnTest {
     @Test
     public void testTransformDataEmptyContent() {
 
-        Map<Long, String> retrievedData = new HashMap<Long, String>();
+        Map<Long, String> retrievedData = new HashMap<>();
         Map<Long, String> transformedData = null;
 
         retrievedData.put(1l, "{\"requiredContent\":{\"type\":\"com.acme.plugin\"}}");

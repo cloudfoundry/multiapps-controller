@@ -29,7 +29,7 @@ public class JarSignatureOperationsTest {
     private JarSignatureOperations mtaCertificateChecker;
 
     @BeforeEach
-    public void setUp() throws MalformedURLException {
+    public void setUp() {
         mtaCertificateChecker = new JarSignatureOperations();
         MockitoAnnotations.initMocks(this);
     }

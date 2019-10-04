@@ -48,7 +48,7 @@ public class HealthTest {
     }
 
     @Before
-    public void loadOperations() throws Exception {
+    public void loadOperations() {
         String operationsJson = TestUtil.getResourceAsString(operationsJsonLocation, getClass());
         this.operations = JsonUtil.fromJson(operationsJson, new TypeReference<List<Operation>>() {
         });

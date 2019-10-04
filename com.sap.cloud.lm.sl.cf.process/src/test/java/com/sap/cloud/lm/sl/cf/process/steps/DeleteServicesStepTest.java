@@ -127,20 +127,20 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         });
     }
 
-    public DeleteServicesStepTest(String stepInput, String expectedExceptionMessage) throws Exception {
+    public DeleteServicesStepTest(String stepInput, String expectedExceptionMessage) {
         this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, DeleteServicesStepTest.class), StepInput.class);
         this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         loadParameters();
         prepareContext();
         prepareClient();
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         if (StepsUtil.getServicesToDelete(context)
                      .isEmpty()) {
             return;

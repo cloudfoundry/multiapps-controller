@@ -53,7 +53,7 @@ public class PrepareModulesDeploymentStepTest extends SyncFlowableStepTest<Prepa
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         prepareContext();
         Mockito.when(configuration.getStepPollingIntervalInSeconds())
                .thenReturn(ApplicationConfiguration.DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS);
@@ -61,7 +61,7 @@ public class PrepareModulesDeploymentStepTest extends SyncFlowableStepTest<Prepa
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();

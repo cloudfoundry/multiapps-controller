@@ -120,9 +120,8 @@ public class FlowableExceptionEventHandler {
 
             // Based on the above comment, one of the executions will have null activityId(because it will be the monitoring one) and thus
             // should be excluded from the list of executions
-            Execution currentExecutionForProcess = CommonUtil.isNullOrEmpty(currentExecutionsForProcess) ? null
+            return CommonUtil.isNullOrEmpty(currentExecutionsForProcess) ? null
                 : findCurrentExecution(currentExecutionsForProcess);
-            return currentExecutionForProcess;
         } catch (Throwable e) {
             return null;
         }

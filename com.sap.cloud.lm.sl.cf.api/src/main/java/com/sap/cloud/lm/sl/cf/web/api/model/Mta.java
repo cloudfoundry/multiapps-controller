@@ -18,15 +18,15 @@ import io.swagger.annotations.ApiModelProperty;
 public interface Mta {
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("metadata")
     Metadata getMetadata();
 
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("modules")
     List<Module> getModules();
 
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("services")
     Set<String> getServices();
 

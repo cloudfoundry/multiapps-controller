@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 public class RestartSubscribersStep extends SyncFlowableStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         List<CloudApplication> updatedSubscribers = StepsUtil.getUpdatedSubscribers(execution.getContext());
         for (CloudApplication subscriber : updatedSubscribers) {
             getStepLogger().debug(Messages.UPDATING_SUBSCRIBER_0, subscriber.getName());

@@ -44,7 +44,7 @@ public class ApplicationEnvironmentUpdaterTest {
         });
     }
 
-    public ApplicationEnvironmentUpdaterTest(String input, Expectation expectation) throws Exception {
+    public ApplicationEnvironmentUpdaterTest(String input, Expectation expectation) {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, getClass()), Input.class);
         this.expectation = expectation;
     }

@@ -26,7 +26,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
     private ModuleToDeployHelper moduleToDeployHelper;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         Module module = StepsUtil.getModuleToDeploy(execution.getContext());
         getStepLogger().debug(Messages.BUILDING_CLOUD_APP_MODEL, module.getName());
 

@@ -81,7 +81,7 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         prepareContext();
         prepareClient();
         prepareExpectedException();

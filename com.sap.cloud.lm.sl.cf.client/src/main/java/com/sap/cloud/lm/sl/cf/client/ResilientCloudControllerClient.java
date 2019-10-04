@@ -362,7 +362,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void uploadApplication(String applicationName, File file, UploadStatusCallback callback) throws IOException {
+    public void uploadApplication(String applicationName, File file, UploadStatusCallback callback) {
         executeWithRetry(() -> {
             try {
                 delegate.uploadApplication(applicationName, file, callback);
@@ -373,7 +373,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void uploadApplication(String applicationName, InputStream inputStream, UploadStatusCallback callback) throws IOException {
+    public void uploadApplication(String applicationName, InputStream inputStream, UploadStatusCallback callback) {
         executeWithRetry(() -> {
             try {
                 delegate.uploadApplication(applicationName, inputStream, callback);
@@ -384,7 +384,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public UploadToken asyncUploadApplication(String applicationName, File file, UploadStatusCallback callback) throws IOException {
+    public UploadToken asyncUploadApplication(String applicationName, File file, UploadStatusCallback callback) {
         return executeWithRetry(() -> {
             try {
                 return delegate.asyncUploadApplication(applicationName, file, callback);
@@ -826,7 +826,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void uploadApplication(String applicationName, String file) throws IOException {
+    public void uploadApplication(String applicationName, String file) {
         executeWithRetry(() -> {
             try {
                 delegate.uploadApplication(applicationName, file);
@@ -837,7 +837,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void uploadApplication(String applicationName, File file) throws IOException {
+    public void uploadApplication(String applicationName, File file) {
         executeWithRetry(() -> {
             try {
                 delegate.uploadApplication(applicationName, file);
@@ -848,7 +848,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void uploadApplication(String applicationName, InputStream inputStream) throws IOException {
+    public void uploadApplication(String applicationName, InputStream inputStream) {
         executeWithRetry(() -> {
             try {
                 delegate.uploadApplication(applicationName, inputStream);
@@ -859,7 +859,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public UploadToken asyncUploadApplication(String applicationName, File file) throws IOException {
+    public UploadToken asyncUploadApplication(String applicationName, File file) {
         return executeWithRetry(() -> {
             try {
                 return delegate.asyncUploadApplication(applicationName, file);

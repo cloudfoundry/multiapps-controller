@@ -300,12 +300,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private String getLocationHeader(String processInstanceId, String spaceId) {
-        StringBuilder builder = new StringBuilder("spaces/");
-        return builder.append(spaceId)
-                      .append("/operations/")
-                      .append(processInstanceId)
-                      .append("?embed=messages")
-                      .toString();
+        return "spaces/" + spaceId + "/operations/" + processInstanceId + "?embed=messages";
     }
 
     private String getAuthenticatedUser(HttpServletRequest request) {

@@ -46,11 +46,11 @@ public class TaggingRequestInterceptorTest {
                 return null;
             }
 
-            protected OutputStream getBodyInternal(HttpHeaders headers) throws IOException {
+            protected OutputStream getBodyInternal(HttpHeaders headers) {
                 return null;
             }
 
-            protected ClientHttpResponse executeInternal(HttpHeaders headers) throws IOException {
+            protected ClientHttpResponse executeInternal(HttpHeaders headers) {
                 return null;
             }
 
@@ -107,7 +107,7 @@ public class TaggingRequestInterceptorTest {
     }
 
     @Test
-    public void testGetHeaderValue() throws IOException {
+    public void testGetHeaderValue() {
         TaggingRequestInterceptor testedInterceptor = new TaggingRequestInterceptor(null, null, null);
         final String dsversion = "9.9.9-SNAPSHOT";
         String headerValue = testedInterceptor.getHeaderValue(dsversion);

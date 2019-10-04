@@ -64,7 +64,7 @@ public class TokenFactory {
         }
         DefaultOAuth2AccessToken token = new DefaultOAuth2AccessToken(tokenString);
         token.setExpiration(new Date(exp.longValue() * 1000));
-        token.setScope(new HashSet<String>(scope));
+        token.setScope(new HashSet<>(scope));
         token.setAdditionalInformation(tokenInfo);
         return token;
     }

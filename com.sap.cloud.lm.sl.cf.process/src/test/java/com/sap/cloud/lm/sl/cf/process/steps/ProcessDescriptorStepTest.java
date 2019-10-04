@@ -39,7 +39,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
         prepareContext();
     }
 
-    private void prepareContext() throws Exception {
+    private void prepareContext() {
         StepsUtil.setDeploymentDescriptorWithSystemParameters(context, DEPLOYMENT_DESCRIPTOR);
 
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
@@ -50,7 +50,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     }
 
     @Test
-    public void testExecute1() throws Exception {
+    public void testExecute1() {
         when(resolver.resolve(any())).thenAnswer((invocation) -> invocation.getArguments()[0]);
 
         step.execute(context);
@@ -64,7 +64,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     }
 
     @Test(expected = SLException.class)
-    public void testExecute2() throws Exception {
+    public void testExecute2() {
         when(resolver.resolve(any())).thenThrow(new SLException("Error!"));
 
         step.execute(context);

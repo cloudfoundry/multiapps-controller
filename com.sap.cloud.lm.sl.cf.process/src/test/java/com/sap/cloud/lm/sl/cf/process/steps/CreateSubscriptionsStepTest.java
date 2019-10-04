@@ -79,7 +79,7 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
         prepareSubscriptionService();
     }
 
-    private void loadParameters() throws Exception {
+    private void loadParameters() {
         if (expectedExceptionMessage != null) {
             expectedException.expectMessage(expectedExceptionMessage);
         }
@@ -93,7 +93,7 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
         StepsUtil.setSubscriptionsToCreate(context, subscriptions);
     }
 
-    private void prepareSubscriptionService() throws Exception {
+    private void prepareSubscriptionService() {
         when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
         doReturn(null).when(configurationSubscriptionQuery)
                       .singleResult();
@@ -135,7 +135,7 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
         assertEquals(JsonUtil.toJson(output.updatedSubscriptions, true), JsonUtil.toJson(input.subscriptionsToUpdate, true));
     }
 
-    private StepOutput captureStepOutput() throws Exception {
+    private StepOutput captureStepOutput() {
         ArgumentCaptor<ConfigurationSubscription> argumentCaptor;
 
         StepOutput output = new StepOutput();

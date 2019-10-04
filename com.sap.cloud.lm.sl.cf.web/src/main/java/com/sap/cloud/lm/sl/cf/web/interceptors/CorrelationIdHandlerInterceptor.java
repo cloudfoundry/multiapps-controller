@@ -14,7 +14,7 @@ import com.sap.cloud.lm.sl.cf.core.Constants;
 public class CorrelationIdHandlerInterceptor implements CustomHandlerInterceptor {
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         MDC.put(Constants.ATTR_CORRELATION_ID, UUID.randomUUID()
                                                    .toString());
         return true;

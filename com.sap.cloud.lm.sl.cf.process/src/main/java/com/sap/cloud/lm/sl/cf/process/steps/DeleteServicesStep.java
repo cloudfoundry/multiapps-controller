@@ -57,7 +57,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
     }
 
     @Override
-    protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws Exception {
+    protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.DELETING_SERVICES);
 
         CloudControllerClient client = execution.getControllerClient();

@@ -109,7 +109,7 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         initSubscriptionQueries();
 
         step.execute(context);

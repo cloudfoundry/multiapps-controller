@@ -60,7 +60,7 @@ public abstract class CloudServiceOperatorTest {
                .thenReturn(Arrays.asList(cloudService));
     }
 
-    private List<CloudServiceOffering> loadServiceOfferingsFromFile(String filePath) throws IOException {
+    private List<CloudServiceOffering> loadServiceOfferingsFromFile(String filePath) {
         String serviceOfferingsJson = TestUtil.getResourceAsString(filePath, getClass());
         return JsonUtil.fromJson(serviceOfferingsJson, new TypeReference<List<CloudServiceOffering>>() {
         });

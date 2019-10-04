@@ -44,7 +44,7 @@ public class ApplicationColorAppenderTest {
     }
 
     @Test
-    public void testPrepare() throws Exception {
+    public void testPrepare() {
         DeploymentDescriptor descriptor = getDescriptorParser().parseDeploymentDescriptorYaml(TestUtil.getResourceAsString(deploymentDescriptorString,
                                                                                                                            getClass()));
 

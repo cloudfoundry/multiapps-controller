@@ -176,7 +176,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
                      .setType("a");
     }
 
-    private void loadParameters() throws Exception {
+    private void loadParameters() {
         String modulesToDeployString = TestUtil.getResourceAsString(input.modulesToDeployLocation, getClass());
         String appsToDeployString = TestUtil.getResourceAsString(input.appsToDeployLocation, getClass());
         String deployedAppsString = TestUtil.getResourceAsString(input.deployedAppsLocation, getClass());
@@ -237,7 +237,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();

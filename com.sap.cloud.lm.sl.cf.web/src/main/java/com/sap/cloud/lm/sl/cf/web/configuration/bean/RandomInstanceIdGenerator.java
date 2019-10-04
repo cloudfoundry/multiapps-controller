@@ -8,7 +8,7 @@ import org.quartz.spi.InstanceIdGenerator;
 public class RandomInstanceIdGenerator implements InstanceIdGenerator {
 
     @Override
-    public String generateInstanceId() throws SchedulerException {
+    public String generateInstanceId() {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
     }

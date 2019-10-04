@@ -98,7 +98,7 @@ public class CompositeUriAuthorizationFilterTest {
         }
 
         @Override
-        public boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        public boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) {
             return true;
         }
 
@@ -112,7 +112,7 @@ public class CompositeUriAuthorizationFilterTest {
         }
 
         @Override
-        public boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        public boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) {
             return false;
         }
 

@@ -32,7 +32,7 @@ public class DeployedComponentsDetectorTest {
         tester.test(() -> new DeployedComponentsDetector().detectAllDeployedComponents(apps), expectation);
     }
 
-    private List<CloudApplication> parseApps(String appsResourceLocation) throws IOException {
+    private List<CloudApplication> parseApps(String appsResourceLocation) {
         String appsJson = TestUtil.getResourceAsString(appsResourceLocation, getClass());
         List<TestCloudApplication> testApps = JsonUtil.fromJson(appsJson, new TypeReference<List<TestCloudApplication>>() {
         });

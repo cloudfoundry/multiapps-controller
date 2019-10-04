@@ -22,11 +22,11 @@ public class CsrfTokenApi {
     private CsrfTokenApiService delegate;
 
     @GetMapping
-    @ApiOperation(value = "", notes = "Retrieves a csrf-token header ", response = Void.class, authorizations = {
+    @ApiOperation(value = "", notes = "Retrieves a csrf-token header ", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class) })
+    @ApiResponses(value = { @ApiResponse(code = 204, message = "No Content") })
     public ResponseEntity<Void> getCsrfToken() {
         return delegate.getCsrfToken();
     }

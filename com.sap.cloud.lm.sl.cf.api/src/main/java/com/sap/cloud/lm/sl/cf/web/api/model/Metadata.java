@@ -15,12 +15,12 @@ import io.swagger.annotations.ApiModelProperty;
 public interface Metadata {
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("id")
     String getId();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("version")
     String getVersion();
 

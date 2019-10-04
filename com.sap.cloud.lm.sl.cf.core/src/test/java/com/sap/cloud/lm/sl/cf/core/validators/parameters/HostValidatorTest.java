@@ -60,7 +60,7 @@ public class HostValidatorTest {
     }
 
     @Test
-    public void testAttemptToCorrect() throws Exception {
+    public void testAttemptToCorrect() {
         tester.test(() -> validator.attemptToCorrect(host), expectation);
     }
 

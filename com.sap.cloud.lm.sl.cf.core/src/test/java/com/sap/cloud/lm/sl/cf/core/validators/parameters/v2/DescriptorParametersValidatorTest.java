@@ -39,7 +39,7 @@ public class DescriptorParametersValidatorTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         String descriptorYaml = TestUtil.getResourceAsString(descriptorLocation, getClass());
         validator = createDescriptorParametersValidator(getDescriptorParser().parseDeploymentDescriptorYaml(descriptorYaml));
     }

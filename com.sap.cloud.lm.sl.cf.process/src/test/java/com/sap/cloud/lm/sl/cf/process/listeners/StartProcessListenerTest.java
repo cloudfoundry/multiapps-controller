@@ -37,7 +37,6 @@ import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 
@@ -124,7 +123,7 @@ public class StartProcessListenerTest {
     }
 
     @Test
-    public void testVerify() throws Exception {
+    public void testVerify() {
         listener.notify(context);
 
         verifyOperationInsertion();

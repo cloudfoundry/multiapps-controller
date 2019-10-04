@@ -83,7 +83,7 @@ public class ConfigurationReferencesResolverTest {
     }
 
     @BeforeAll
-    public static void initializePlatform() throws Exception {
+    public static void initializePlatform() {
         ConfigurationParser parser = new ConfigurationParser();
         platform = parser.parsePlatformJson(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/xs-platform.json"));
     }

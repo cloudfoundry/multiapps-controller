@@ -84,7 +84,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
 
     @Before
     @BeforeEach
-    public void initMocks() throws FileStorageException {
+    public void initMocks() {
         MockitoAnnotations.initMocks(this);
         this.stepLogger = Mockito.spy(new StepLogger(context, progressMessageService, processLoggerProvider, LOGGER));
         when(stepLoggerFactory.create(any(), any(), any(), any())).thenReturn(stepLogger);

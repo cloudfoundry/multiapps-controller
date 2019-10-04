@@ -86,7 +86,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
         });
     }
 
-    public PollServiceOperationsStepTest(String inputLocation, String expectedExceptionMessage) throws ParsingException, IOException {
+    public PollServiceOperationsStepTest(String inputLocation, String expectedExceptionMessage) throws ParsingException {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, PollServiceOperationsStepTest.class), StepInput.class);
         this.expectedExceptionMessage = expectedExceptionMessage;
     }

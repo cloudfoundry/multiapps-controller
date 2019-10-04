@@ -1143,7 +1143,7 @@ public class StepsUtil {
         scope.setVariable(name, jsonString);
     }
 
-    public static void setAsJsonStrings(VariableScope scope, String name, List<? extends Object> values) {
+    public static void setAsJsonStrings(VariableScope scope, String name, List<?> values) {
         if (values == null) {
             scope.setVariable(name, null);
             return;
@@ -1154,7 +1154,7 @@ public class StepsUtil {
         scope.setVariable(name, jsonStrings);
     }
 
-    public static void setAsJsonBinaries(VariableScope scope, String name, List<? extends Object> values) {
+    public static void setAsJsonBinaries(VariableScope scope, String name, List<?> values) {
         if (values == null) {
             scope.setVariable(name, null);
             return;

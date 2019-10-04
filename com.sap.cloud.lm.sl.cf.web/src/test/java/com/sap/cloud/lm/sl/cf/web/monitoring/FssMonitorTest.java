@@ -62,7 +62,7 @@ class FssMonitorTest {
         );
     }
 
-    private static long getSizeOfDir(Path filePath) throws IOException {
+    private static long getSizeOfDir(Path filePath) {
         return FileUtils.sizeOf(filePath.toFile());
     }
 

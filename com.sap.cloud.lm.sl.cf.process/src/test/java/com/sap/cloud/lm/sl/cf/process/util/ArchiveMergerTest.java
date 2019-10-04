@@ -65,7 +65,7 @@ public class ArchiveMergerTest {
     }
 
     @Test
-    public void testCreateArchiveFromParts() throws FileStorageException {
+    public void testCreateArchiveFromParts() {
         List<FileEntry> fileEntries = createFileEntriesFromFile(FILE_ENTRIES);
         Path archiveFromParts = archiveMerger.createArchiveFromParts(fileEntries);
         Assertions.assertTrue(archiveFromParts.toString()

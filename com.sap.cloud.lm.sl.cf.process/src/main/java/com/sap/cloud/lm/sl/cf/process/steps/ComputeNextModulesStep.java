@@ -23,7 +23,7 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
     protected SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.COMPUTING_NEXT_MODULES_FOR_PARALLEL_ITERATION);
         List<Module> allModulesToDeploy = StepsUtil.getModulesToDeploy(execution.getContext());
         List<Module> completedModules = StepsUtil.getIteratedModulesInParallel(execution.getContext());

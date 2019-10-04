@@ -64,7 +64,7 @@ public class ApplicationStartupStateCalculatorTest {
         }
 
         @Before
-        public void loadApp() throws Exception {
+        public void loadApp() {
             String appJson = TestUtil.getResourceAsString(pathToFileContainingAppJson, getClass());
             this.app = JsonUtil.fromJson(appJson, CloudApplication.class);
 
@@ -126,7 +126,7 @@ public class ApplicationStartupStateCalculatorTest {
         }
 
         @Before
-        public void loadApp() throws Exception {
+        public void loadApp() {
             String appJson = TestUtil.getResourceAsString(pathToFileContainingAppJson, getClass());
             this.app = JsonUtil.fromJson(appJson, CloudApplication.class);
 

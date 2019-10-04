@@ -24,7 +24,7 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
     private static final String MTA_ID = "com.sap.xs2.samples.helloworld";
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         context.setVariable(Constants.PARAM_MTA_ID, MTA_ID);
 
         step.conflictPreventerSupplier = service -> mock(ProcessConflictPreventer.class);
@@ -33,7 +33,7 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();

@@ -149,7 +149,7 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();
@@ -174,7 +174,7 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
         }
     }
 
-    private void loadParameters() throws Exception {
+    private void loadParameters() {
         boolean shouldSucceed = true;
         if (expectedExceptionMessage != null) {
             expectedException.expectMessage(expectedExceptionMessage);

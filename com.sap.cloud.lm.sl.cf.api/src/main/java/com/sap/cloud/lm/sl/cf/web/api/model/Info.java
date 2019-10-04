@@ -15,7 +15,7 @@ import io.swagger.annotations.ApiModelProperty;
 public interface Info {
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("api_version")
     Integer getApiVersion();
 

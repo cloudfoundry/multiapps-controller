@@ -56,7 +56,7 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
 
     @ParameterizedTest
     @MethodSource
-    public void testExecute(String stepInput, String expectedExceptionMessage) throws Exception {
+    public void testExecute(String stepInput, String expectedExceptionMessage) {
         initializeInput(stepInput, expectedExceptionMessage);
         prepareResponses(STEP_EXECUTION);
         step.execute(context);
@@ -133,10 +133,10 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
         MethodExecution<String> methodExec;
         switch (stepPhase) {
             case POLLING:
-                methodExec = new MethodExecution<String>(null, ExecutionState.FINISHED);
+                methodExec = new MethodExecution<>(null, ExecutionState.FINISHED);
                 break;
             case STEP_EXECUTION:
-                methodExec = new MethodExecution<String>(null, ExecutionState.EXECUTING);
+                methodExec = new MethodExecution<>(null, ExecutionState.EXECUTING);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported test phase");

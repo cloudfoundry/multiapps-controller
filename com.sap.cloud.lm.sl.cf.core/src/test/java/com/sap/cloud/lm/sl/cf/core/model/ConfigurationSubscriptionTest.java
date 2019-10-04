@@ -30,7 +30,7 @@ public class ConfigurationSubscriptionTest {
         });
     }
 
-    public ConfigurationSubscriptionTest(String jsonResource, String xmlResource) throws IOException {
+    public ConfigurationSubscriptionTest(String jsonResource, String xmlResource) {
         this.jsonResource = loadResource(jsonResource);
         this.xmlResource = loadResource(xmlResource);
     }

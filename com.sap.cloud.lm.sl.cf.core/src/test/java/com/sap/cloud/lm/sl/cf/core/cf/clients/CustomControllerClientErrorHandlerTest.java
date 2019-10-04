@@ -93,8 +93,7 @@ public class CustomControllerClientErrorHandlerTest {
         }
 
         private static HttpStatusCodeException prepareHttpStatusCodeException(HttpStatus statusCode, String statusText,
-                                                                              String locationOfFileContainingResponseBody)
-            throws IOException {
+                                                                              String locationOfFileContainingResponseBody) {
             HttpStatusCodeException exception = Mockito.mock(HttpStatusCodeException.class);
             Mockito.when(exception.getStatusCode())
                    .thenReturn(statusCode);

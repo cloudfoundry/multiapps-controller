@@ -26,7 +26,7 @@ public class SecurityUtil {
 
     public static OAuth2Authentication createAuthentication(String clientId, Set<String> scope, UserInfo userInfo) {
         List<SimpleGrantedAuthority> authorities = getAuthorities(scope);
-        OAuth2Request request = new OAuth2Request(new HashMap<String, String>(),
+        OAuth2Request request = new OAuth2Request(new HashMap<>(),
                                                   clientId,
                                                   authorities,
                                                   true,

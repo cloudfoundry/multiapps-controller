@@ -25,7 +25,7 @@ import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableNames;
 @Table(name = TableNames.CONFIGURATION_ENTRY_TABLE, uniqueConstraints = {
     @UniqueConstraint(columnNames = { TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_NID, TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_ID,
         TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_VERSION, TableColumnNames.CONFIGURATION_ENTRY_TARGET_SPACE }) })
-@SequenceGenerator(name = SequenceNames.CONFIGURATION_ENTRY_SEQUENCE, sequenceName = SequenceNames.CONFIGURATION_ENTRY_SEQUENCE, initialValue = 1, allocationSize = 1)
+@SequenceGenerator(name = SequenceNames.CONFIGURATION_ENTRY_SEQUENCE, sequenceName = SequenceNames.CONFIGURATION_ENTRY_SEQUENCE, allocationSize = 1)
 @XmlRootElement(name = "configuration-entry")
 @XmlAccessorType(value = XmlAccessType.FIELD)
 public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
@@ -83,7 +83,7 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
 
     @XmlElement(name = "visibility")
     @Lob
-    @Column(name = TableColumnNames.CONFIGURATION_CLOUD_TARGET, nullable = true)
+    @Column(name = TableColumnNames.CONFIGURATION_CLOUD_TARGET)
     private String visibility;
 
     protected ConfigurationEntryDto() {

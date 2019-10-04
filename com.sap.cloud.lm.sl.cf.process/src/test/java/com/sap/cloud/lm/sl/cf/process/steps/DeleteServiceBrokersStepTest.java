@@ -110,7 +110,7 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();
@@ -120,7 +120,7 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
         assertArrayEquals(expectedDeletedBrokers, deletedBrokers);
     }
 
-    private void loadParameters() throws Exception {
+    private void loadParameters() {
         boolean shouldSucceed = true;
         if (expectedExceptionMessage != null) {
             expectedException.expectMessage(expectedExceptionMessage);

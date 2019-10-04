@@ -47,7 +47,7 @@ public class ObjectStoreFileStorageTest {
     private BlobStoreContext blobStoreContext;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         createBlobStoreContext();
         fileStorage = new ObjectStoreFileStorage(blobStoreContext.getBlobStore(), CONTAINER) {
             @Override
@@ -69,7 +69,7 @@ public class ObjectStoreFileStorageTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         blobStoreContext.close();
     }
 

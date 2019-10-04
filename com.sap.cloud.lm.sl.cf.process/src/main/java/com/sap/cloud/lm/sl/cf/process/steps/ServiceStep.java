@@ -33,7 +33,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     private ServiceProgressReporter serviceProgressReporter;
 
     @Override
-    protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws Exception {
+    protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
         CloudServiceExtended serviceToProcess = StepsUtil.getServiceToProcess(execution.getContext());
         MethodExecution<String> methodExecution = executeOperationAndHandleExceptions(execution.getContext(),
                                                                                       execution.getControllerClient(), serviceToProcess);

@@ -53,8 +53,7 @@ public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<C
     @ParameterizedTest
     @MethodSource
     public void testExecute(String serviceName, boolean serviceExist, ServiceOperation serviceOperation,
-                            ServiceOperationType expectedTriggeredServiceOperation, String expectedStatus)
-        throws Exception {
+                            ServiceOperationType expectedTriggeredServiceOperation, String expectedStatus) {
         CloudServiceExtended service = ImmutableCloudServiceExtended.builder()
                                                                     .name(serviceName)
                                                                     .metadata(ImmutableCloudMetadata.builder()

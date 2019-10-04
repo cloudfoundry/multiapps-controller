@@ -95,7 +95,7 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
         });
     }
 
-    public DetermineServiceCreateUpdateServiceActionsStepTest(String stepInput, String expectedExceptionMessage) throws Exception {
+    public DetermineServiceCreateUpdateServiceActionsStepTest(String stepInput, String expectedExceptionMessage) {
         this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput,
                                                                         DetermineServiceCreateUpdateServiceActionsStepTest.class),
                                            StepInput.class);
@@ -125,7 +125,7 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepIsRunning();

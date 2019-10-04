@@ -69,7 +69,7 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
     }
 
     public UpdateSubscribedServiceBrokerStepTest(String inputLocation, String expectedExceptionMessage, String warningMessage)
-        throws ParsingException, IOException {
+        throws ParsingException {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, UpdateSubscribedServiceBrokerStepTest.class),
                                        StepInput.class);
         this.expectedExceptionMessage = expectedExceptionMessage;
@@ -103,7 +103,7 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         validateExecution();

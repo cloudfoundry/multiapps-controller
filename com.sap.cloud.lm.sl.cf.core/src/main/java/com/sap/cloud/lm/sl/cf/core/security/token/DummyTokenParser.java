@@ -12,7 +12,7 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 
 @Named
-@Order(Ordered.LOWEST_PRECEDENCE)
+@Order()
 public class DummyTokenParser implements TokenParser {
 
     private final TokenFactory tokenFactory;

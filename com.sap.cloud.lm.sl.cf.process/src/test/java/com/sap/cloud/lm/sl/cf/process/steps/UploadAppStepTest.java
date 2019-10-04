@@ -118,12 +118,12 @@ public class UploadAppStepTest {
         }
 
         @After
-        public void tearDown() throws IOException {
+        public void tearDown() {
             FileUtils.deleteQuietly(appFile.getParentFile());
         }
 
         @Test
-        public void test() throws Throwable {
+        public void test() {
             try {
                 step.execute(context);
             } catch (Throwable e) {
@@ -141,7 +141,7 @@ public class UploadAppStepTest {
                    .setVariable(variableName, variableValue);
         }
 
-        public void loadParameters() throws Exception {
+        public void loadParameters() {
             if (expectedIOExceptionMessage != null) {
                 expectedException.expectMessage(expectedIOExceptionMessage);
                 expectedException.expect(SLException.class);
@@ -152,7 +152,7 @@ public class UploadAppStepTest {
             }
         }
 
-        public void prepareContext() throws Exception {
+        public void prepareContext() {
             CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
                                                                             .name(APP_NAME)
                                                                             .moduleName(APP_NAME)
@@ -211,7 +211,7 @@ public class UploadAppStepTest {
             private ApplicationZipBuilder getApplicationZipBuilder(ApplicationArchiveReader applicationArchiveReader) {
                 return new ApplicationZipBuilder(applicationArchiveReader) {
                     @Override
-                    protected Path createTempFile() throws IOException {
+                    protected Path createTempFile() {
                         return appFile.toPath();
                     }
                 };

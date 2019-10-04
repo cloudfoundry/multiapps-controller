@@ -9,7 +9,7 @@ public abstract class AsyncStepOperationTest<AsyncStep extends SyncFlowableStep>
     protected abstract List<AsyncExecution> getAsyncOperations(ExecutionWrapper wrapper);
 
     @Test
-    public void testExecuteOperations() throws Exception {
+    public void testExecuteOperations() {
         step.initializeStepLogger(context);
         ExecutionWrapper wrapper = step.createExecutionWrapper(context);
 

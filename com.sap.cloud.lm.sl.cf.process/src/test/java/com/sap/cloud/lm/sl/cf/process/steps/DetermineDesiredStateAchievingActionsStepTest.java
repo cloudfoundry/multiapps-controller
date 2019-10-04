@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesiredStateAchievingActionsStepBaseTest {
 
     @Parameters
-    public static List<Object[]> getParameters() throws ParseException {
+    public static List<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
             // @formatter:off
             // (0)
@@ -187,7 +187,7 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         if (exception != null) {
             expectedException.expect(exception);
         }
@@ -216,7 +216,7 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
 
         // Staging is always required, because there are no previous builds
         @Parameters
-        public static List<Object[]> getParameters() throws ParseException {
+        public static List<Object[]> getParameters() {
             return Arrays.asList(new Object[][] {
                 // @formatter:off
                 // (0)

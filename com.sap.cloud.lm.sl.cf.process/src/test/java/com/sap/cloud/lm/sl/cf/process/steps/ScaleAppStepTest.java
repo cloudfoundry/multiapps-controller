@@ -45,12 +45,12 @@ public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         prepareContext();
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();

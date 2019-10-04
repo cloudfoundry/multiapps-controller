@@ -221,12 +221,12 @@ public class FlowableEngineEventToDelegateExecutionAdapter implements DelegateEx
     }
 
     @Override
-    public void setVariables(Map<String, ? extends Object> arg0) {
+    public void setVariables(Map<String, ?> arg0) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void setVariablesLocal(Map<String, ? extends Object> arg0) {
+    public void setVariablesLocal(Map<String, ?> arg0) {
         throw new UnsupportedOperationException();
     }
 

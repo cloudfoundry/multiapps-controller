@@ -47,7 +47,7 @@ public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         prepareContext();
         Mockito.when(client.getDomains())
                .thenReturn(getExistingDomainsList());
@@ -55,7 +55,7 @@ public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();

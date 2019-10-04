@@ -26,7 +26,7 @@ public abstract class AbstractChange implements CustomTaskChange {
     }
 
     @Override
-    public void setUp() throws SetupException {
+    public void setUp() {
     }
 
     @Override

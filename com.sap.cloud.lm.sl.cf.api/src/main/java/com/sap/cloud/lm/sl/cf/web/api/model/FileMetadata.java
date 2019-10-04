@@ -22,32 +22,32 @@ import io.swagger.annotations.ApiModelProperty;
 public abstract class FileMetadata implements AuditableConfiguration {
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("id")
     public abstract String getId();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("name")
     public abstract String getName();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("size")
     public abstract BigInteger getSize();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("digest")
     public abstract String getDigest();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("digestAlgorithm")
     public abstract String getDigestAlgorithm();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("space")
     public abstract String getSpace();
 

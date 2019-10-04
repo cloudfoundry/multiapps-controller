@@ -18,7 +18,7 @@ import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableNames;
 
 @Entity
 @Table(name = TableNames.HISTORIC_OPERATION_EVENT_TABLE)
-@SequenceGenerator(name = SequenceNames.HISTORIC_OPERATION_EVENT_SEQUENCE, sequenceName = SequenceNames.HISTORIC_OPERATION_EVENT_SEQUENCE, initialValue = 1, allocationSize = 1)
+@SequenceGenerator(name = SequenceNames.HISTORIC_OPERATION_EVENT_SEQUENCE, sequenceName = SequenceNames.HISTORIC_OPERATION_EVENT_SEQUENCE, allocationSize = 1)
 public class HistoricOperationEventDto implements DtoWithPrimaryKey<Long> {
 
     public static class AttributeNames {

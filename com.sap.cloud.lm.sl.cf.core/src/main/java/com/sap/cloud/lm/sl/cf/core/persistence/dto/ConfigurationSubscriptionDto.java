@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableNames;
     TableColumnNames.CONFIGURATION_SUBSCRIPTION_SPACE_ID, TableColumnNames.CONFIGURATION_SUBSCRIPTION_RESOURCE_NAME }) })
 @Entity
 @Access(AccessType.FIELD)
-@SequenceGenerator(name = SequenceNames.CONFIGURATION_SUBSCRIPTION_SEQUENCE, sequenceName = SequenceNames.CONFIGURATION_SUBSCRIPTION_SEQUENCE, initialValue = 1, allocationSize = 1)
+@SequenceGenerator(name = SequenceNames.CONFIGURATION_SUBSCRIPTION_SEQUENCE, sequenceName = SequenceNames.CONFIGURATION_SUBSCRIPTION_SEQUENCE, allocationSize = 1)
 public class ConfigurationSubscriptionDto implements DtoWithPrimaryKey<Long> {
 
     public static class AttributeNames {

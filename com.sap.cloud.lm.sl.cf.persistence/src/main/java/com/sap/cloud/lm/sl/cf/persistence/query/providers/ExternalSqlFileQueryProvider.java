@@ -14,12 +14,12 @@ public class ExternalSqlFileQueryProvider extends SqlFileQueryProvider {
     }
 
     @Override
-    protected void setContentBinaryStream(PreparedStatement statement, int index, InputStream content) throws SQLException {
+    protected void setContentBinaryStream(PreparedStatement statement, int index, InputStream content) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected InputStream getContentBinaryStream(ResultSet resultSet, String columnName) throws SQLException {
+    protected InputStream getContentBinaryStream(ResultSet resultSet, String columnName) {
         throw new UnsupportedOperationException();
     }
 

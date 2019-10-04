@@ -84,7 +84,7 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         step.detectorSupplier = () -> versionDetector;
 
         StepsUtil.setDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
@@ -92,7 +92,7 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
     }
 
     @Test
-    public void testExecute1() throws Exception {
+    public void testExecute1() {
         when(versionDetector.detect(any(), any())).thenReturn(Version.parseVersion(schemaVersion));
         if (expectedExceptionMessage != null) {
             expectedException.expectMessage(expectedExceptionMessage);
@@ -106,7 +106,7 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
     }
 
     @Test
-    public void testExecute2() throws Exception {
+    public void testExecute2() {
         expectedException.expectMessage("Error");
 
         when(versionDetector.detect(any(), any())).thenThrow(new SLException("Error"));

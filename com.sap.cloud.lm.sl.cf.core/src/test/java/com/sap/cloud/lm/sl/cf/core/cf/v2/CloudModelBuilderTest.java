@@ -590,7 +590,7 @@ public class CloudModelBuilderTest {
         return JsonUtil.fromJson(deployedMtaJson, DeployedMta.class);
     }
 
-    protected void insertProperNames(DeploymentDescriptor descriptor) throws Exception {
+    protected void insertProperNames(DeploymentDescriptor descriptor) {
         insertProperAppNames(descriptor);
         insertProperServiceNames(descriptor);
     }
@@ -644,7 +644,7 @@ public class CloudModelBuilderTest {
     public void testGetApplications() {
         tester.test(new Callable<List<CloudApplicationExtended>>() {
             @Override
-            public List<CloudApplicationExtended> call() throws Exception {
+            public List<CloudApplicationExtended> call() {
                 List<CloudApplicationExtended> apps = new ArrayList<>();
                 List<Module> modulesToDeploy = modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules());
                 for (Module module : modulesToDeploy) {
@@ -659,7 +659,7 @@ public class CloudModelBuilderTest {
     public void testGetServices() {
         tester.test(new Callable<List<CloudServiceExtended>>() {
             @Override
-            public List<CloudServiceExtended> call() throws Exception {
+            public List<CloudServiceExtended> call() {
                 return servicesBuilder.build(resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources()));
             }
         }, expectedServices);

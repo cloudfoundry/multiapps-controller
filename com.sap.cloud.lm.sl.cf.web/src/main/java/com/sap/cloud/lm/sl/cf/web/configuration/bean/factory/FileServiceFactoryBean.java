@@ -26,7 +26,7 @@ public class FileServiceFactoryBean implements FactoryBean<FileService>, Initial
     private FileService fileService;
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         FileStorage fileStorage = objectStoreFileStorage != null ? objectStoreFileStorage : fileSystemFileStorage;
         if (fileStorage != null) {
             this.fileService = new FileService(dataSourceWithDialect, fileStorage);
@@ -36,7 +36,7 @@ public class FileServiceFactoryBean implements FactoryBean<FileService>, Initial
     }
 
     @Override
-    public FileService getObject() throws Exception {
+    public FileService getObject() {
         return fileService;
     }
 

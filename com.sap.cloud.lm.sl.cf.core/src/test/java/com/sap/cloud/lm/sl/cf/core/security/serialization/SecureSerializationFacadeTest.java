@@ -62,7 +62,7 @@ public class SecureSerializationFacadeTest {
     }
 
     @Test
-    public void testToJson() throws Exception {
+    public void testToJson() {
         Object object = JsonUtil.fromJson(getResourceAsString(objectLocation), classOfObject);
         tester.test(() -> {
             String json = new SecureSerializationFacade().setFormattedOutput(true)

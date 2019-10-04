@@ -38,7 +38,7 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
     private ServiceProgressReporter serviceProgressReporter;
 
     @Override
-    protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws Exception {
+    protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
         List<CloudServiceExtended> servicesToProcess = getServicesToProcess(execution);
 
         List<CloudServiceExtended> existingServices = getExistingServices(execution.getControllerClient(), servicesToProcess);

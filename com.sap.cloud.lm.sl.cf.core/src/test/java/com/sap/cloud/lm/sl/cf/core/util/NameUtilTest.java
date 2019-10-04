@@ -51,7 +51,7 @@ public class NameUtilTest {
     }
 
     @Test
-    public void testGetNameWithProperLength() throws Exception {
+    public void testGetNameWithProperLength() {
         assertEquals("foo", NameUtil.getNameWithProperLength("foo", 3));
         assertEquals("foo", NameUtil.getNameWithProperLength("foo", 5));
 
@@ -59,7 +59,7 @@ public class NameUtilTest {
     }
 
     @Test
-    public void testCreateValidContainerName() throws Exception {
+    public void testCreateValidContainerName() {
         String containerName = NameUtil.computeValidContainerName("initial", "initial",
                                                                   "com.sap.cloud.lm.sl.xs2.a.very.very.long.service.name.with.illegal.container.name.characters");
         assertEquals("INITIAL_INITIAL_COM_SAP_CLOUD_LM_SL_XS2_A_VERY_VERY_LONG3AC0B612", containerName);
@@ -67,7 +67,7 @@ public class NameUtilTest {
     }
 
     @Test
-    public void testCreateValidXsAppName() throws Exception {
+    public void testCreateValidXsAppName() {
         String xsAppName1 = NameUtil.computeValidXsAppName("sap_system_com.sap.cloud.lm.sl.xs2.deploy-service-database");
         assertEquals("_com.sap.cloud.lm.sl.xs2.deploy-service-database", xsAppName1);
         assertTrue(NameUtil.isValidName(xsAppName1, NameRequirements.XS_APP_NAME_PATTERN));

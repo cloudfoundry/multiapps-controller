@@ -31,7 +31,7 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
     private DeployedComponentsDetector componentsDetector;
 
     @Test(expected = SLException.class)
-    public void testExecute1() throws Exception {
+    public void testExecute1() {
         when(client.getApplications()).thenReturn(Collections.emptyList());
         when(componentsDetector.detectAllDeployedComponents(Collections.emptyList())).thenThrow(new ParsingException("Error!"));
 
@@ -39,14 +39,14 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
     }
 
     @Test(expected = SLException.class)
-    public void testExecute2() throws Exception {
+    public void testExecute2() {
         when(client.getApplications(false)).thenThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         step.execute(context);
     }
 
     @Test
-    public void testExecute3() throws Exception {
+    public void testExecute3() {
         when(client.getApplications()).thenReturn(Collections.emptyList());
 
         DeployedMta deployedMta = JsonUtil.fromJson(TestUtil.getResourceAsString(DEPLOYED_MTA_LOCATION, getClass()), DeployedMta.class);
@@ -62,7 +62,7 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
     }
 
     @Test
-    public void testExecute4() throws Exception {
+    public void testExecute4() {
         when(client.getApplications()).thenReturn(Collections.emptyList());
         when(componentsDetector.detectAllDeployedComponents(Collections.emptyList())).thenReturn(new DeployedComponents(Collections.emptyList(),
                                                                                                                         Collections.emptyList()));
@@ -80,7 +80,7 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
         step.componentsDetector = (deployedApps) -> componentsDetector.detectAllDeployedComponents(deployedApps);
     }
 
-    private void prepareContext() throws Exception {
+    private void prepareContext() {
         context.setVariable(Constants.PARAM_MTA_ID, MTA_ID);
     }
 

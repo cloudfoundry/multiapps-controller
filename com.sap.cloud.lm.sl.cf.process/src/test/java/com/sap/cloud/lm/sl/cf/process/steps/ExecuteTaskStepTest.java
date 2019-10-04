@@ -36,7 +36,7 @@ public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         // Given:
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(app), context);
         StepsUtil.setTasksToExecute(context, Arrays.asList(task));

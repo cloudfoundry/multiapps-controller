@@ -52,7 +52,7 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
     }
 
     @SuppressWarnings("unchecked")
-    private void validatePlanUpdate(String servicePlanGuid) throws MalformedURLException {
+    private void validatePlanUpdate(String servicePlanGuid) {
         String updateServicePlanUrl = getUpdateServicePlanUrl();
         Mockito.verify(getMockedRestTemplate())
                .exchange(ArgumentMatchers.eq(updateServicePlanUrl), ArgumentMatchers.any(HttpMethod.class), ArgumentMatchers.any(),

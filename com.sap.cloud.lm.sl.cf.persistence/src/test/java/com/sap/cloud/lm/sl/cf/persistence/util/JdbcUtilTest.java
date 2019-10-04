@@ -30,7 +30,7 @@ public class JdbcUtilTest {
     }
 
     @Test
-    public void closeQuietlyResultSetWithNull() throws SQLException {
+    public void closeQuietlyResultSetWithNull() {
         ResultSet resultSet = null;
         JdbcUtil.closeQuietly(resultSet);
     }
@@ -55,7 +55,7 @@ public class JdbcUtilTest {
     }
 
     @Test
-    public void closeQuietlyStatementWithNull() throws SQLException {
+    public void closeQuietlyStatementWithNull() {
         Statement statement = null;
         JdbcUtil.closeQuietly(statement);
     }
@@ -80,7 +80,7 @@ public class JdbcUtilTest {
     }
 
     @Test
-    public void closeQuietlyConnectionWithNull() throws SQLException {
+    public void closeQuietlyConnectionWithNull() {
         Connection connection = null;
         JdbcUtil.closeQuietly(connection);
     }

@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtende
 public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribersStep> {
 
     @Test
-    public void testClientsForCorrectSpacesAreRequested() throws Exception {
+    public void testClientsForCorrectSpacesAreRequested() {
         // Given:
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app", createCloudSpace("org", "space-foo")));
@@ -40,7 +40,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
     }
 
     @Test
-    public void testSubscribersAreRestartedWhenClientExtensionsAreNotSupported() throws Exception {
+    public void testSubscribersAreRestartedWhenClientExtensionsAreNotSupported() {
         // Given:
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace("org", "space-foo")));
@@ -70,7 +70,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
     }
 
     @Test
-    public void testSubscribersAreRestartedWhenClientExtensionsAreSupported() throws Exception {
+    public void testSubscribersAreRestartedWhenClientExtensionsAreSupported() {
         // Given:
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace("org", "space-foo")));
@@ -101,7 +101,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
     }
 
     @Test
-    public void testNothingHappensWhenThereAreNoSubscribersToRestart() throws Exception {
+    public void testNothingHappensWhenThereAreNoSubscribersToRestart() {
         // Given:
         StepsUtil.setUpdatedSubscribers(context, Collections.emptyList());
 
@@ -113,7 +113,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
     }
 
     @Test
-    public void testOtherSubscribersAreRestartedWhenOneRestartFails() throws Exception {
+    public void testOtherSubscribersAreRestartedWhenOneRestartFails() {
         // Given:
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace(ORG_NAME, SPACE_NAME)));

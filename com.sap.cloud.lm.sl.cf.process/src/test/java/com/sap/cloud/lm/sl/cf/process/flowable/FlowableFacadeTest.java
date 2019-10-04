@@ -23,7 +23,7 @@ class FlowableFacadeTest {
     ProcessEngineConfiguration mockedProcessEngineConfiguration;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
 
         Mockito.when(mockedProcessEngineConfiguration.getAsyncExecutor())

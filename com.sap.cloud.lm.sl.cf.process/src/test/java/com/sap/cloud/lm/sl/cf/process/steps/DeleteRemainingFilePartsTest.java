@@ -36,7 +36,6 @@ public class DeleteRemainingFilePartsTest extends SyncFlowableStepTest<DeleteRem
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testThrowingException() throws FileStorageException {
         when(fileService.deleteFile(any(String.class), any(String.class))).thenThrow(FileStorageException.class);
         step.execute(context);

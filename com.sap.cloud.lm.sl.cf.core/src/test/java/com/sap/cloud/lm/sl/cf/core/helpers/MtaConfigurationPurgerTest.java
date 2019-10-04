@@ -145,7 +145,7 @@ public class MtaConfigurationPurgerTest {
                                         .build();
     }
 
-    private Map<String, Object> getApplicationEnvFromFile(String path) throws IOException {
+    private Map<String, Object> getApplicationEnvFromFile(String path) {
         String envJson = TestUtil.getResourceAsString(path, MtaConfigurationPurgerTest.class);
         return JsonUtil.convertJsonToMap(envJson);
     }

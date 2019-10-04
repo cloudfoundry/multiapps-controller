@@ -103,7 +103,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
         prepareConfigurationEntryService();
     }
 
-    private void loadParameters() throws IOException {
+    private void loadParameters() {
         String inputJson = TestUtil.getResourceAsString(inputLocation, getClass());
         this.input = JsonUtil.fromJson(inputJson, StepInput.class);
         String expectedOutputJson = TestUtil.getResourceAsString(expectedOutputLocation, getClass());
@@ -135,7 +135,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(context);
 
         assertStepFinishedSuccessfully();

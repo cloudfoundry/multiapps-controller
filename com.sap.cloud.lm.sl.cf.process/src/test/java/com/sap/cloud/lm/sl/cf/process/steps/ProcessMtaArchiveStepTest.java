@@ -49,7 +49,7 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
             { "process-mta-archive-step-1.json" } });
     }
 
-    public ProcessMtaArchiveStepTest(String input) throws ParsingException, IOException {
+    public ProcessMtaArchiveStepTest(String input) throws ParsingException {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, ProcessMtaArchiveStepTest.class), StepInput.class);
     }
 
@@ -95,7 +95,7 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
         testDependencies();
     }
 
-    private void testModules() throws Exception {
+    private void testModules() {
         Set<String> actualModules = StepsUtil.getMtaArchiveModules(context);
 
         assertEquals(input.expectedModules.size(), actualModules.size());
@@ -104,14 +104,14 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
         }
     }
 
-    private void testResources() throws Exception {
+    private void testResources() {
         for (String expectedResource : input.expectedResources) {
             assertTrue(StepsUtil.getMtaArchiveElements(context)
                                 .getResourceFileName(expectedResource) != null);
         }
     }
 
-    private void testDependencies() throws Exception {
+    private void testDependencies() {
         for (String expectedDependency : input.expectedRequiredDependencies) {
             assertTrue(StepsUtil.getMtaArchiveElements(context)
                                 .getRequiredDependencyFileName(expectedDependency) != null);

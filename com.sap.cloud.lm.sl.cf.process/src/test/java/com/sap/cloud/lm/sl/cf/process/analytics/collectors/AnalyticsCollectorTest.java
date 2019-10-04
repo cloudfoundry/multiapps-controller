@@ -92,7 +92,7 @@ public class AnalyticsCollectorTest {
         prepareContextForDeploy();
     }
 
-    public void mockProcessStartTime() throws Exception {
+    public void mockProcessStartTime() {
         HistoricProcessInstanceQuery query = Mockito.mock(HistoricProcessInstanceQuery.class);
         HistoryService service = Mockito.mock(HistoryService.class);
         when(service.createHistoricProcessInstanceQuery()).thenReturn(query);
@@ -110,7 +110,7 @@ public class AnalyticsCollectorTest {
         when(fileEntry.getSize()).thenReturn(BigInteger.valueOf(1234));
     }
 
-    private void prepareContextForDeploy() throws Exception {
+    private void prepareContextForDeploy() {
         when(context.getProcessInstanceId()).thenReturn(PROCESS_ID);
         when(context.getVariable(Constants.PARAM_MTA_ID)).thenReturn(MTA_ID);
         context.setVariable(Constants.VAR_SPACE, SPACE_NAME);
@@ -180,7 +180,7 @@ public class AnalyticsCollectorTest {
     }
 
     @Test
-    public void collectAttributesDeployTest() throws Exception {
+    public void collectAttributesDeployTest() {
         when(processTypeParser.getProcessType(context)).thenReturn(ProcessType.DEPLOY);
         tester.test(() -> {
             return collector.collectAnalyticsData(context);
@@ -188,7 +188,7 @@ public class AnalyticsCollectorTest {
     }
 
     @Test
-    public void collectAttributesUndeployTest() throws Exception {
+    public void collectAttributesUndeployTest() {
         when(processTypeParser.getProcessType(context)).thenReturn(ProcessType.UNDEPLOY);
         tester.test(() -> {
             return collector.collectAnalyticsData(context);

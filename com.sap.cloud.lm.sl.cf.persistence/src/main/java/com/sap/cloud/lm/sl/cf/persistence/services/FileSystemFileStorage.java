@@ -95,7 +95,7 @@ public class FileSystemFileStorage implements FileStorage {
     }
 
     @Override
-    public void deleteFilesBySpaceAndNamespace(String space, String namespace) throws FileStorageException {
+    public void deleteFilesBySpaceAndNamespace(String space, String namespace) {
         throw new UnsupportedOperationException();
     }
 

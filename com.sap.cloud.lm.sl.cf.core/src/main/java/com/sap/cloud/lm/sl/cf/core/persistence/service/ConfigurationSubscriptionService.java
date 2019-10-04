@@ -107,7 +107,7 @@ public class ConfigurationSubscriptionService extends PersistenceService<Configu
 
         @Override
         public ConfigurationSubscriptionDto toDto(ConfigurationSubscription subscription) {
-            Long id = subscription.getId();
+            long id = subscription.getId();
             String filter = null;
             if (subscription.getFilter() != null) {
                 filter = JsonUtil.toJson(subscription.getFilter(), false);

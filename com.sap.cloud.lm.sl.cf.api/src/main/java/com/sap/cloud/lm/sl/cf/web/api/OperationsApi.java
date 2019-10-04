@@ -34,11 +34,11 @@ public class OperationsApi {
     private OperationsApiService delegate;
 
     @PostMapping("/{operationId}")
-    @ApiOperation(value = "", notes = "Executes a particular action over Multi-Target Application operation ", response = Void.class, authorizations = {
+    @ApiOperation(value = "", notes = "Executes a particular action over Multi-Target Application operation ", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted", response = Void.class) })
+    @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted") })
     public ResponseEntity<Void> executeOperationAction(HttpServletRequest request, @PathVariable("spaceGuid") String spaceGuid,
                                                        @PathVariable("operationId") String operationId,
                                                        @RequestParam("actionId") String actionId) {
@@ -105,11 +105,11 @@ public class OperationsApi {
 
     @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = {
         MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
-    @ApiOperation(value = "", notes = "Starts execution of a Multi-Target Application operation ", response = Void.class, authorizations = {
+    @ApiOperation(value = "", notes = "Starts execution of a Multi-Target Application operation ", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})
-    @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted", response = Void.class) })
+    @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted") })
     public ResponseEntity<Operation> startOperation(HttpServletRequest request, @PathVariable("spaceGuid") String spaceGuid,
                                                     @RequestBody Operation operation) {
         return delegate.startOperation(request, spaceGuid, operation);

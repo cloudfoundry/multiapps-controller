@@ -13,7 +13,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class CleanUpJobTest {
 
     @Test
-    public void testExecutionResilience() throws JobExecutionException {
+    public void testExecutionResilience() {
         Cleaner cleaner1 = Mockito.mock(Cleaner.class);
         Cleaner cleaner2 = Mockito.mock(Cleaner.class);
         Mockito.doThrow(new SLException("Will it work?"))

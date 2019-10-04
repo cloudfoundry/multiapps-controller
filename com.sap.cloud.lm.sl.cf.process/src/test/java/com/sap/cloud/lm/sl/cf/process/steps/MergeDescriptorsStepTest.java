@@ -40,7 +40,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     private MtaDescriptorMerger merger;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         prepareContext();
     }
 
@@ -52,7 +52,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     }
 
     @Test
-    public void testExecute1() throws Exception {
+    public void testExecute1() {
         when(merger.merge(any(), eq(Collections.emptyList()))).thenReturn(DEPLOYMENT_DESCRIPTOR);
 
         step.execute(context);
@@ -63,7 +63,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     }
 
     @Test(expected = SLException.class)
-    public void testExecute2() throws Exception {
+    public void testExecute2() {
         when(merger.merge(any(), eq(Collections.emptyList()))).thenThrow(new ContentException("Error!"));
 
         step.execute(context);

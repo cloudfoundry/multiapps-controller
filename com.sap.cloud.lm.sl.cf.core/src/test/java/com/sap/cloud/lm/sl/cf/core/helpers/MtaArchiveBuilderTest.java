@@ -167,7 +167,7 @@ public class MtaArchiveBuilderTest {
         }
     }
 
-    private void initMtaArchiveBuilder(Path mtaDir) throws Exception {
+    private void initMtaArchiveBuilder(Path mtaDir) {
         this.mtaArchiveBuilder = new MtaArchiveBuilder(mtaDir);
     }
 

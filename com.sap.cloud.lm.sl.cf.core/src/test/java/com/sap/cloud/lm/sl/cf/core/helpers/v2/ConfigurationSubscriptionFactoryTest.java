@@ -61,7 +61,7 @@ public class ConfigurationSubscriptionFactoryTest {
     }
 
     @Test
-    public void testCreate() throws Exception {
+    public void testCreate() {
         String mtadString = TestUtil.getResourceAsString(mtadFilePath, getClass());
         DeploymentDescriptor mtad = getDescriptorParser().parseDeploymentDescriptorYaml(mtadString);
         Map<String, ResolvedConfigurationReference> resolvedResources = getResolvedConfigurationReferences(mtad);

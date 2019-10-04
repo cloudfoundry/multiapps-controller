@@ -29,7 +29,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
     private RecentLogsRetriever recentLogsRetriever;
 
     @Override
-    protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws Exception {
+    protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
         CloudTask taskToExecute = StepsUtil.getTask(execution.getContext());
         CloudControllerClient client = execution.getControllerClient();

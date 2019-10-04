@@ -23,7 +23,7 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
     }
 
     @Test
-    public void testIterationOverTasksIsInitialized() throws Exception {
+    public void testIterationOverTasksIsInitialized() {
         // Given:
         StepsUtil.setTasksToExecute(context, createDummyApplicationWithTasks(3).getTasks());
 
@@ -40,7 +40,7 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
     }
 
     @Test
-    public void testExecuteWhenTasksAreSupported() throws Exception {
+    public void testExecuteWhenTasksAreSupported() {
         // Given:
         StepsUtil.setTasksToExecute(context, createDummyApplicationWithTasks(0).getTasks());
         when(client.areTasksSupported()).thenReturn(true);

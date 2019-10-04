@@ -18,35 +18,35 @@ import io.swagger.annotations.ApiModelProperty;
 public interface Module {
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("moduleName")
     String getModuleName();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("appName")
     String getAppName();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("createdOn")
     Date getCreatedOn();
 
     @Nullable
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("updatedOn")
     Date getUpdatedOn();
 
     // FIXME: This name should be changed in the API as it contains a typo.
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("providedDendencyNames")
     List<String> getProvidedDendencyNames();
 
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("services")
     List<String> getServices();
 
-    @ApiModelProperty(value = "")
+    @ApiModelProperty
     @JsonProperty("uris")
     List<String> getUris();
 

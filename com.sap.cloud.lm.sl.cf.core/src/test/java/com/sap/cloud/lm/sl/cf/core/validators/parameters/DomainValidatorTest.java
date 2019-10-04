@@ -62,7 +62,7 @@ public class DomainValidatorTest {
     }
 
     @Test
-    public void testAttemptToCorrect() throws Exception {
+    public void testAttemptToCorrect() {
         tester.test(() -> validator.attemptToCorrect(domain), expectation);
     }
 
