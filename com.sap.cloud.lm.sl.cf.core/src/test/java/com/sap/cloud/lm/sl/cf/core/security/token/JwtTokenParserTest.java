@@ -42,7 +42,7 @@ public class JwtTokenParserTest {
         OAuth2AccessToken token = parser.parse(correctToken);
         Assert.assertNotNull(token);
         Assert.assertFalse(token.getAdditionalInformation()
-                .isEmpty());
+                                .isEmpty());
         Assert.assertEquals("cf", token.getAdditionalInformation()
                                        .get("client_id"));
         Assert.assertNotNull(token.getAdditionalInformation()
@@ -68,8 +68,8 @@ public class JwtTokenParserTest {
         expectedException.expectMessage("Unsupported verifier algorithm not-supported-algorith");
 
         JwtTokenParser parser = new JwtTokenParserMock(new TokenFactory(),
-                mockUaaCLient(false, "not-supported-algorith", "not-at-all-matters"),
-                true);
+                                                       mockUaaCLient(false, "not-supported-algorith", "not-at-all-matters"),
+                                                       true);
         parser.parse("not-important-token-string");
     }
 

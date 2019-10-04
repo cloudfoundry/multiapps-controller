@@ -35,7 +35,8 @@ public class ConfigurationFilterDto {
         // Required by JAX-RS.
     }
 
-    public ConfigurationFilterDto(String providerNid, String providerId, String version, CloudTarget cloudTarget, String targetSpace, List<String> content) {
+    public ConfigurationFilterDto(String providerNid, String providerId, String version, CloudTarget cloudTarget, String targetSpace,
+                                  List<String> content) {
         this.providerId = providerId;
         this.providerVersion = version;
         this.content = content;

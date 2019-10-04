@@ -349,7 +349,8 @@ public class ConfigurationEntriesResourceTest {
         @Override
         protected void test() {
             TESTER.test(() -> new RestResponse(resource.getConfigurationEntries(PROVIDER_NID, PROVIDER_ID, PROVIDER_VERSION,
-                                                                     input.getRequiredContent(), null, ORG, SPACE)), expectation);
+                                                                                input.getRequiredContent(), null, ORG, SPACE)),
+                        expectation);
         }
 
         @Override

@@ -42,7 +42,7 @@ public class FlowableExceptionEventHandlerTest {
     private HistoricOperationEventPersister historicOperationEventPersisterMock;
 
     private final Date now = DateTime.now()
-                               .toDate();
+                                     .toDate();
 
     @BeforeEach
     public void setUp() {
@@ -76,11 +76,11 @@ public class FlowableExceptionEventHandlerTest {
         ProgressMessageQuery queryMock = new MockBuilder<>(progressMessageQuery).on(query -> query.processId("foo"))
                                                                                 .build();
         Mockito.doReturn(Collections.singletonList(ImmutableProgressMessage.builder()
-                .processId("foo")
-                .taskId("")
-                .text("")
-                .type(ProgressMessageType.ERROR)
-                .build()))
+                                                                           .processId("foo")
+                                                                           .taskId("")
+                                                                           .text("")
+                                                                           .type(ProgressMessageType.ERROR)
+                                                                           .build()))
                .when(queryMock)
                .list();
         FlowableExceptionEvent mockedExceptionEvent = Mockito.mock(FlowableExceptionEvent.class);

@@ -79,9 +79,9 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     @BeforeClass
     public static void loadConfigurationEntries() {
         existingConfigurationEntries = JsonUtil.fromJson(TestUtil.getResourceAsString("configuration-entries.json",
-                                                                                       PublishConfigurationEntriesStepTest.class),
-                                                          new TypeReference<List<ConfigurationEntry>>() {
-                                                          });
+                                                                                      PublishConfigurationEntriesStepTest.class),
+                                                         new TypeReference<List<ConfigurationEntry>>() {
+                                                         });
     }
 
     @Before
@@ -101,7 +101,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
                                                                                                .on(query -> query.target(Mockito.eq(entry.getTargetSpace())))
                                                                                                .build();
             doReturn(Collections.singletonList(entry)).when(entryQueryMock)
-                                          .list();
+                                                      .list();
         }
     }
 

@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.persistence.query;
 
- import java.util.Date;
+import java.util.Date;
 import java.util.List;
 
 import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
@@ -8,36 +8,36 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
- public interface OperationQuery extends Query<Operation, OperationQuery> {
+public interface OperationQuery extends Query<Operation, OperationQuery> {
 
-     OperationQuery processId(String processId);
+    OperationQuery processId(String processId);
 
-     OperationQuery processType(ProcessType processType);
+    OperationQuery processType(ProcessType processType);
 
-     OperationQuery spaceId(String spaceId);
+    OperationQuery spaceId(String spaceId);
 
-     OperationQuery mtaId(String mtaId);
+    OperationQuery mtaId(String mtaId);
 
-     OperationQuery user(String user);
+    OperationQuery user(String user);
 
-     OperationQuery acquiredLock(Boolean acquiredLock);
+    OperationQuery acquiredLock(Boolean acquiredLock);
 
-     OperationQuery state(State finalState);
+    OperationQuery state(State finalState);
 
-     OperationQuery startedBefore(Date startedBefore);
+    OperationQuery startedBefore(Date startedBefore);
 
-     OperationQuery endedAfter(Date endedAfter);
+    OperationQuery endedAfter(Date endedAfter);
 
-     OperationQuery inNonFinalState();
+    OperationQuery inNonFinalState();
 
-     OperationQuery inFinalState();
+    OperationQuery inFinalState();
 
-     OperationQuery withStateAnyOf(List<State> states);
+    OperationQuery withStateAnyOf(List<State> states);
 
-     OperationQuery orderByProcessId(OrderDirection orderDirection);
+    OperationQuery orderByProcessId(OrderDirection orderDirection);
 
-     OperationQuery orderByEndTime(OrderDirection orderDirection);
+    OperationQuery orderByEndTime(OrderDirection orderDirection);
 
-     OperationQuery orderByStartTime(OrderDirection orderDirection);
+    OperationQuery orderByStartTime(OrderDirection orderDirection);
 
- }
+}

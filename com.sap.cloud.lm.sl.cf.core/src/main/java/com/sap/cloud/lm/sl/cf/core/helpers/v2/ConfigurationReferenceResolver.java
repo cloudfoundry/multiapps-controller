@@ -36,7 +36,9 @@ public class ConfigurationReferenceResolver {
 
     public List<Resource> resolve(Resource resource, ConfigurationFilter filter, CloudTarget cloudTarget) {
         CloudTarget globalConfigTarget = getGlobalConfigTarget(configuration);
-        return asResources(findConfigurationEntries(configurationEntryService, filter, getCloudTargetsList(cloudTarget), globalConfigTarget), resource);
+        return asResources(findConfigurationEntries(configurationEntryService, filter, getCloudTargetsList(cloudTarget),
+                                                    globalConfigTarget),
+                           resource);
     }
 
     private List<CloudTarget> getCloudTargetsList(CloudTarget target) {

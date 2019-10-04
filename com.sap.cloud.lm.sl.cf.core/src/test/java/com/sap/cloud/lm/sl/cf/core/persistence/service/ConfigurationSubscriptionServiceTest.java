@@ -116,12 +116,12 @@ public class ConfigurationSubscriptionServiceTest {
 
         int foundSubscriptions = configurationSubscriptionService.createQuery()
                                                                  .onSelectMatching(Collections.singletonList(new ConfigurationEntry(null,
-                                                                         null,
-                                                                         Version.parseVersion("3.1"),
-                                                                         null,
-                                                                         null,
-                                                                         null,
-                                                                         null)))
+                                                                                                                                    null,
+                                                                                                                                    Version.parseVersion("3.1"),
+                                                                                                                                    null,
+                                                                                                                                    null,
+                                                                                                                                    null,
+                                                                                                                                    null)))
                                                                  .list()
                                                                  .size();
         assertEquals(1, foundSubscriptions);

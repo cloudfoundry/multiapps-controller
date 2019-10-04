@@ -268,7 +268,7 @@ public class ApplicationColorDetectorTest {
         doReturn(currentOperation).when(operationQuery)
                                   .singleResult();
         doReturn(Collections.singletonList(lastOperation)).when(operationQuery)
-                                              .list();
+                                                          .list();
     }
 
     private Operation createFakeOperation(State state) {

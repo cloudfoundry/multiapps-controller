@@ -107,14 +107,14 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
     private void testResources() {
         for (String expectedResource : input.expectedResources) {
             assertNotNull(StepsUtil.getMtaArchiveElements(context)
-                    .getResourceFileName(expectedResource));
+                                   .getResourceFileName(expectedResource));
         }
     }
 
     private void testDependencies() {
         for (String expectedDependency : input.expectedRequiredDependencies) {
             assertNotNull(StepsUtil.getMtaArchiveElements(context)
-                    .getRequiredDependencyFileName(expectedDependency));
+                                   .getRequiredDependencyFileName(expectedDependency));
         }
     }
 

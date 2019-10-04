@@ -83,7 +83,7 @@ public class MtaApiServiceImplTest {
     public void testGetMta() {
         Mta mtaToGet = mtas.get(1);
         ResponseEntity<Mta> response = testedClass.getMta(SPACE_GUID, mtaToGet.getMetadata()
-                                                                                       .getId());
+                                                                              .getId());
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Mta responseMtas = response.getBody();
         mtaToGet.equals(responseMtas);

@@ -45,7 +45,9 @@ public class FlowableActionFactoryTest {
     @Test
     public void testRetryAction() {
         Mockito.when(processActionRegistry.getAction(RETRY_ACTION_ID))
-               .thenReturn(new RetryProcessAction(facade, Collections.singletonList(additionalProcessAction), historicOperationEventPersister));
+               .thenReturn(new RetryProcessAction(facade,
+                                                  Collections.singletonList(additionalProcessAction),
+                                                  historicOperationEventPersister));
         testAction(RETRY_ACTION_ID, RetryProcessAction.class);
     }
 

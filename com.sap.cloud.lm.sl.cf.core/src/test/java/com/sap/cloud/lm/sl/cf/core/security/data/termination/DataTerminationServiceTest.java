@@ -148,7 +148,13 @@ public class DataTerminationServiceTest {
 
     private List<ConfigurationEntry> generatedConfigurationEntries(boolean isExistConfigurationEntryData) {
         return isExistConfigurationEntryData
-            ? Collections.singletonList(new ConfigurationEntry("", "", Version.parseVersion("1"), new CloudTarget(), "", Collections.emptyList(), ""))
+            ? Collections.singletonList(new ConfigurationEntry("",
+                                                               "",
+                                                               Version.parseVersion("1"),
+                                                               new CloudTarget(),
+                                                               "",
+                                                               Collections.emptyList(),
+                                                               ""))
             : Collections.emptyList();
     }
 

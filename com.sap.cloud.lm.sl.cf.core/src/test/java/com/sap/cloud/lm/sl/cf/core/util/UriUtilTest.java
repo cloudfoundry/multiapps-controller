@@ -19,11 +19,11 @@ public class UriUtilTest {
     private static final String PORT_BASED_URI_WITHOUT_SCHEME = "valid-domain:4000";
 
     private final CloudRoute route = ImmutableCloudRoute.builder()
-                                                  .host("valid-host")
-                                                  .domain(ImmutableCloudDomain.builder()
-                                                                              .name("valid-domain")
-                                                                              .build())
-                                                  .build();
+                                                        .host("valid-host")
+                                                        .domain(ImmutableCloudDomain.builder()
+                                                                                    .name("valid-domain")
+                                                                                    .build())
+                                                        .build();
 
     @Test
     public void testFindRouteWithHostBasedUriWithPort() {

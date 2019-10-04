@@ -46,9 +46,9 @@ public class AbortFailedProcessCommandFactory extends NoJobRetryCommandFactory {
             Object result = delegate.execute(commandContext);
             String processInstanceId = getProcessId();
             HistoricVariableInstance correlationId = getHistoryService(commandContext).createHistoricVariableInstanceQuery()
-                                                                                     .processInstanceId(processInstanceId)
-                                                                                     .variableName(Constants.VAR_CORRELATION_ID)
-                                                                                     .singleResult();
+                                                                                      .processInstanceId(processInstanceId)
+                                                                                      .variableName(Constants.VAR_CORRELATION_ID)
+                                                                                      .singleResult();
             if (!processInstanceId.equals(correlationId.getValue())) {
                 return result;
             }

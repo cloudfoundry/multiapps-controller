@@ -162,7 +162,7 @@ public class ObjectStoreFileStorage implements FileStorage {
         metadata.put(Constants.FILE_ENTRY_SPACE.toLowerCase(), fileEntry.getSpace());
         metadata.put(Constants.FILE_ENTRY_NAME.toLowerCase(), fileEntry.getName());
         metadata.put(Constants.FILE_ENTRY_MODIFIED.toLowerCase(), Long.toString(fileEntry.getModified()
-                                                                              .getTime()));
+                                                                                         .getTime()));
         if (fileEntry.getNamespace() != null) {
             metadata.put(Constants.FILE_ENTRY_NAMESPACE.toLowerCase(), fileEntry.getNamespace());
         }

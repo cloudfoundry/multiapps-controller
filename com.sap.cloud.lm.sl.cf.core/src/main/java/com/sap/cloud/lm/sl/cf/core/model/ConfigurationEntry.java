@@ -102,7 +102,8 @@ public class ConfigurationEntry implements AuditableConfiguration {
         configurationIdentifiers.add(new ConfigurationIdentifier("provider namespace", providerNid));
         configurationIdentifiers.add(new ConfigurationIdentifier("provider id", providerId));
         configurationIdentifiers.add(new ConfigurationIdentifier("provider version", Objects.toString(providerVersion)));
-        configurationIdentifiers.add(new ConfigurationIdentifier("provider target", targetSpace.getOrganizationName() + "/" + targetSpace.getSpaceName()));
+        configurationIdentifiers.add(new ConfigurationIdentifier("provider target",
+                                                                 targetSpace.getOrganizationName() + "/" + targetSpace.getSpaceName()));
         configurationIdentifiers.add(new ConfigurationIdentifier("configuration content", content));
         return configurationIdentifiers;
     }

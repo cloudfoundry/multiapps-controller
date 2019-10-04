@@ -267,8 +267,8 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         for (SubscriberToUpdate subscriber : input.subscribersToUpdate) {
             ConfigurationFilter filter = subscriber.subscription.getFilter();
             List<CloudTarget> targets = Collections.singletonList(new CloudTarget(input.currentSpace.getOrganization()
-                    .getName(),
-                    input.currentSpace.getName()));
+                                                                                                    .getName(),
+                                                                                  input.currentSpace.getName()));
             ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(filter.getProviderNid()))
                                                                                                .on(query -> query.providerId(filter.getProviderId()))
                                                                                                .on(query -> query.version(filter.getProviderVersion()))

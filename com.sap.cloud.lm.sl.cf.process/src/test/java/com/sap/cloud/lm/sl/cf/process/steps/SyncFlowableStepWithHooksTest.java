@@ -46,8 +46,8 @@ public class SyncFlowableStepWithHooksTest {
         Module module = Module.createV3()
                               .setName("test")
                               .setHooks(Collections.singletonList(Hook.createV3()
-                                      .setType("tasks")
-                                      .setPhases(Collections.singletonList("application.before-start"))));
+                                                                      .setType("tasks")
+                                                                      .setPhases(Collections.singletonList("application.before-start"))));
         StepsUtil.setModuleToDeploy(context, module);
 
         List<Hook> moduleHooks = module.getHooks();
@@ -69,8 +69,8 @@ public class SyncFlowableStepWithHooksTest {
         Module module = Module.createV3()
                               .setName("test")
                               .setHooks(Collections.singletonList(Hook.createV3()
-                                      .setType("tasks")
-                                      .setPhases(Collections.singletonList("application.before-stop"))));
+                                                                      .setType("tasks")
+                                                                      .setPhases(Collections.singletonList("application.before-stop"))));
         StepsUtil.setModuleToDeploy(context, module);
 
         List<Hook> moduleHooks = module.getHooks();

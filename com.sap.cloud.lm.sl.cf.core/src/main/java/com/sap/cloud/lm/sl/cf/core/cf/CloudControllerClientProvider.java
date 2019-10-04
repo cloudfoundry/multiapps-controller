@@ -28,11 +28,11 @@ public class CloudControllerClientProvider {
     // Cached clients. These are stored in memory-sensitive cache, i.e. no OutOfMemory error would
     // occur before GC tries to release the not-used clients.
     private final Map<String, CloudControllerClient> clients = Collections.synchronizedMap(new ReferenceMap<>(ReferenceStrength.HARD,
-                                                                                                        ReferenceStrength.SOFT));
+                                                                                                              ReferenceStrength.SOFT));
 
     /**
-     * Returns a client for the specified user name, organization, space and process id by either getting it from the clients cache
-     * or creating a new one.
+     * Returns a client for the specified user name, organization, space and process id by either getting it from the clients cache or
+     * creating a new one.
      *
      * @param userName the user name associated with the client
      * @param org the organization associated with the client
@@ -49,8 +49,8 @@ public class CloudControllerClientProvider {
     }
 
     /**
-     * Returns a client for the specified user name, space id and process id by either getting it from the clients cache or
-     * creating a new one.
+     * Returns a client for the specified user name, space id and process id by either getting it from the clients cache or creating a new
+     * one.
      *
      * @param userName the user name associated with the client
      * @param spaceGuid the space guid associated with the client

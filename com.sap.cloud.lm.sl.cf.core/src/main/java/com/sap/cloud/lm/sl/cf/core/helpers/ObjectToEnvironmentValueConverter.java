@@ -58,7 +58,8 @@ public class ObjectToEnvironmentValueConverter {
     }
 
     public static List<EscapeSequenceToReplace> getDefaultCustomEscapeSequences() {
-        return Collections.singletonList(new EscapeSequenceToReplace(getDefaultEscapeCharacter(), new CharacterToReplace('$', getPlaceholder('$'))));
+        return Collections.singletonList(new EscapeSequenceToReplace(getDefaultEscapeCharacter(),
+                                                                     new CharacterToReplace('$', getPlaceholder('$'))));
     }
 
     private static String getPlaceholder(char c) {

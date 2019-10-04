@@ -164,7 +164,7 @@ public class SupportedParameters {
 
         prototype.put(HOST, HOSTS);
         prototype.put(DOMAIN, DOMAINS);
-        
+
         prototype.put(BUILDPACK, BUILDPACKS);
         SINGULAR_PLURAL_MAPPING = Collections.unmodifiableMap(prototype);
     }

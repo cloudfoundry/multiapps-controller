@@ -72,7 +72,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         serviceToProcess = StepsUtil.getServiceToProcess(execution.getContext());
 
         List<ServiceAction> actions = determineActionsAndHandleExceptions(controllerClient, spaceId, serviceToProcess, existingService,
-                                                                        serviceKeys, execution);
+                                                                          serviceKeys, execution);
 
         StepsUtil.setServiceActionsToExecute(actions, execution.getContext());
         StepsUtil.isServiceUpdated(false, execution.getContext());
@@ -172,7 +172,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         if (service.isUserProvided()) {
             return ResourceType.USER_PROVIDED_SERVICE.toString();
         }
-        
+
         String label = CommonUtil.isNullOrEmpty(service.getLabel()) ? "unknown label" : service.getLabel();
         String plan = CommonUtil.isNullOrEmpty(service.getPlan()) ? "unknown plan" : service.getPlan();
         return label + "/" + plan;

@@ -45,7 +45,7 @@ public class OperationServiceTest {
     public void testAdd() {
         operationService.add(OPERATION_1);
         assertEquals(Collections.singletonList(OPERATION_1), operationService.createQuery()
-                                                                 .list());
+                                                                             .list());
         assertEquals(OPERATION_1, operationService.createQuery()
                                                   .processId(OPERATION_1.getProcessId())
                                                   .singleResult());

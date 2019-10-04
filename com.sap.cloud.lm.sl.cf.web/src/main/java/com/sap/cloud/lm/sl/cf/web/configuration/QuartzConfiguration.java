@@ -65,10 +65,10 @@ public class QuartzConfiguration {
         schedulerFactoryBean.setSchedulerName("cleanupScheduler");
         schedulerFactoryBean.setApplicationContextSchedulerContextKey("applicationContext");
         JobDetail[] jobDetails = Collections.singletonList(jobDetail)
-                                       .toArray(new JobDetail[0]);
+                                            .toArray(new JobDetail[0]);
         schedulerFactoryBean.setJobDetails(jobDetails);
         Trigger[] triggers = Collections.singletonList(trigger)
-                                   .toArray(new Trigger[0]);
+                                        .toArray(new Trigger[0]);
         schedulerFactoryBean.setTriggers(triggers);
         schedulerFactoryBean.setConfigLocation(new ClassPathResource(QUARTZ_POSTGRESQL_PROPERTIES));
         return schedulerFactoryBean;

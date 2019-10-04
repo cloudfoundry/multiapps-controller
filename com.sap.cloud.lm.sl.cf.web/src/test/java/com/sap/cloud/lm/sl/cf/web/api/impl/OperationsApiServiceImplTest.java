@@ -137,7 +137,8 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testGetOperationsNotFound() {
-        ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID, Collections.singletonList(State.ACTION_REQUIRED.toString()),
+        ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID,
+                                                                             Collections.singletonList(State.ACTION_REQUIRED.toString()),
                                                                              1);
 
         List<Operation> operations = response.getBody();

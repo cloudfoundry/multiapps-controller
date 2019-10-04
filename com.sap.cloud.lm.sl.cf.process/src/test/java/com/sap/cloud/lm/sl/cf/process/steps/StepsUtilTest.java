@@ -88,8 +88,8 @@ public class StepsUtilTest {
 
         assertEquals(1, actualServicesToCreate.size());
         assertFalse(actualServicesToCreate.get(0)
-                .getCredentials()
-                .isEmpty());
+                                          .getCredentials()
+                                          .isEmpty());
         assertEquals(Integer.class, actualServicesToCreate.get(0)
                                                           .getCredentials()
                                                           .get("integer-value")
@@ -122,10 +122,10 @@ public class StepsUtilTest {
         CloudApplicationExtended actualAppToDeploy = StepsUtil.getApp(context);
 
         assertFalse(actualAppToDeploy.getBindingParameters()
-                .isEmpty());
+                                     .isEmpty());
         assertFalse(actualAppToDeploy.getBindingParameters()
-                .get("service-1")
-                .isEmpty());
+                                     .get("service-1")
+                                     .isEmpty());
         assertEquals(Integer.class, actualAppToDeploy.getBindingParameters()
                                                      .get("service-1")
                                                      .get("integer-value")

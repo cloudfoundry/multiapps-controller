@@ -73,7 +73,7 @@ public class HealthRetrieverTest {
     public void prepareOperationService() {
         when(operationService.createQuery()).thenReturn(operationQuery);
         doReturn(Collections.singletonList(getOperation())).when(operationQuery)
-                                               .list();
+                                                           .list();
     }
 
     private Operation getOperation() {

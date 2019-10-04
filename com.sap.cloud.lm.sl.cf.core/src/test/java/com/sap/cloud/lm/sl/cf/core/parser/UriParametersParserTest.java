@@ -70,7 +70,8 @@ public class UriParametersParserTest {
         parameterMap.put(SupportedParameters.DOMAINS, domains);
         parameterMap.put(SupportedParameters.ROUTES, constructRoutesParameter(routes));
 
-        tester.test(() -> new UriParametersParser(DEFAULT_HOST, DEFAULT_DOMAIN, null).parse(Collections.singletonList(parameterMap)), expectation);
+        tester.test(() -> new UriParametersParser(DEFAULT_HOST, DEFAULT_DOMAIN, null).parse(Collections.singletonList(parameterMap)),
+                    expectation);
     }
 
     private List<Map<String, String>> constructRoutesParameter(List<String> routes) {

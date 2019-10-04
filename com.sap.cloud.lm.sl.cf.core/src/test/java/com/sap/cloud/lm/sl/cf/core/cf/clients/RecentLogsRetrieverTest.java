@@ -44,7 +44,7 @@ public class RecentLogsRetrieverTest {
     private RecentLogsRetriever recentLogsRetriever;
 
     private final ResilientCloudOperationExecutor fastRetrier = new ResilientCloudOperationExecutor().withRetryCount(1)
-                                                                                               .withWaitTimeBetweenRetriesInMillis(0);
+                                                                                                     .withWaitTimeBetweenRetriesInMillis(0);
 
     @Before
     public void setUp() throws Exception {

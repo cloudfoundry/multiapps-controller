@@ -293,9 +293,8 @@ public class ConfigurationSubscription implements AuditableConfiguration {
 
     @Override
     public List<ConfigurationIdentifier> getConfigurationIdentifiers() {
-        return Arrays.asList(new ConfigurationIdentifier("mta id", mtaId),
-            new ConfigurationIdentifier("application name", appName),
-            new ConfigurationIdentifier("space id", spaceId));
+        return Arrays.asList(new ConfigurationIdentifier("mta id", mtaId), new ConfigurationIdentifier("application name", appName),
+                             new ConfigurationIdentifier("space id", spaceId));
     }
 
 }

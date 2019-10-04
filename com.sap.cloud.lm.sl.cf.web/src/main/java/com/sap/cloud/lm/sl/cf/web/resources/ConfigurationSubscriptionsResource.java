@@ -37,14 +37,16 @@ public class ConfigurationSubscriptionsResource {
     private CloudControllerClientProvider clientProvider;
 
     @GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
-    public ResponseEntity<ConfigurationSubscriptions> getConfigurationSubscriptions(@RequestParam(ORGANIZATION) String org, @RequestParam(name = SPACE, required = false) String space) {
+    public ResponseEntity<ConfigurationSubscriptions>
+           getConfigurationSubscriptions(@RequestParam(ORGANIZATION) String org,
+                                         @RequestParam(name = SPACE, required = false) String space) {
         CloudControllerClient client = getCloudFoundryClient();
         List<CloudSpace> clientSpaces = getClientSpaces(org, space, client);
 
         List<ConfigurationSubscription> configurationSubscriptions = getConfigurationEntries(clientSpaces, client);
 
         return ResponseEntity.ok()
-                       .body(wrap(configurationSubscriptions));
+                             .body(wrap(configurationSubscriptions));
     }
 
     private List<CloudSpace> getClientSpaces(String org, String space, CloudControllerClient client) {

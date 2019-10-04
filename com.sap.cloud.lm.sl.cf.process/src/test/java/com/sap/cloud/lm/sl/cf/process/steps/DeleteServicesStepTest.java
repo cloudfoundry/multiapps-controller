@@ -73,8 +73,8 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
     private List<CloudServiceExtended> servicesData = new ArrayList<>();
 
     private final CloudMetadata metadata = ImmutableCloudMetadata.builder()
-                                                           .guid(UUID.randomUUID())
-                                                           .build();
+                                                                 .guid(UUID.randomUUID())
+                                                                 .build();
 
     @Mock
     protected CloudControllerClient client;
@@ -288,8 +288,8 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
             return Collections.emptyList();
         }
         return Collections.singletonList(ImmutableCloudServiceBinding.builder()
-                .applicationGuid(metadata.getGuid())
-                .build());
+                                                                     .applicationGuid(metadata.getGuid())
+                                                                     .build());
     }
 
     private CloudEvent createDeleteServiceCloudEvent(SimpleService service) {

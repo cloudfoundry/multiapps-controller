@@ -89,7 +89,7 @@ public class FileService {
         return fileEntry;
     }
 
-     public FileEntry addFile(String space, String namespace, String name, File existingFile) throws FileStorageException {
+    public FileEntry addFile(String space, String namespace, String name, File existingFile) throws FileStorageException {
         try {
             FileInfo fileInfo = createFileInfo(existingFile);
 

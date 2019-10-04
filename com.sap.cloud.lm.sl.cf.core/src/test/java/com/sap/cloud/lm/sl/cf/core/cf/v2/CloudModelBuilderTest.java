@@ -559,8 +559,8 @@ public class CloudModelBuilderTest {
                                                                           null,
                                                                           getUserMessageLogger(),
                                                                           new ModuleToDeployHelper(),
-                Collections.singletonList(new UnresolvedModulesContentValidator(mtaModules,
-                        deployedApps)));
+                                                                          Collections.singletonList(new UnresolvedModulesContentValidator(mtaModules,
+                                                                                                                                          deployedApps)));
 
         moduleToDeployHelper = new ModuleToDeployHelper();
 

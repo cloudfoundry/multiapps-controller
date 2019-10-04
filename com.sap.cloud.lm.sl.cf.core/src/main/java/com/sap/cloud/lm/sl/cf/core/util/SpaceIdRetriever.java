@@ -49,11 +49,7 @@ public class SpaceIdRetriever {
     }
 
     private String getSpaceCacheKey(String orgName, String spaceName, String processId) {
-        return orgName +
-                SPACE_CACHE_SEPARATOR +
-                spaceName +
-                SPACE_CACHE_SEPARATOR +
-                processId;
+        return orgName + SPACE_CACHE_SEPARATOR + spaceName + SPACE_CACHE_SEPARATOR + processId;
     }
 
 }

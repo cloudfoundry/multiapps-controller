@@ -19,8 +19,7 @@ public class RequestSizeFilter extends GenericFilterBean {
     private static final long MAX_REQUEST_SIZE_BYTES = 1024 * 1024L;
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-        throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         long requestSize = request.getContentLengthLong();
         String path = ((HttpServletRequest) request).getRequestURI();
         if (requestSize > MAX_REQUEST_SIZE_BYTES && !path.endsWith("/files")) {

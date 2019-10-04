@@ -87,8 +87,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
-        return Arrays.asList(new PollStartAppStatusExecution(recentLogsRetriever),
-                             new PollExecuteAppStatusExecution(recentLogsRetriever));
+        return Arrays.asList(new PollStartAppStatusExecution(recentLogsRetriever), new PollExecuteAppStatusExecution(recentLogsRetriever));
     }
 
     @Override
