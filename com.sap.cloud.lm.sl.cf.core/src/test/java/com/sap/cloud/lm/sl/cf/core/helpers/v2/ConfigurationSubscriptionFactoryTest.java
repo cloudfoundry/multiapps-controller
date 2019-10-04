@@ -70,9 +70,7 @@ public class ConfigurationSubscriptionFactoryTest {
 
     protected void testCreate(DeploymentDescriptor mtad, Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId,
                               Expectation expectation) {
-        tester.test(() -> {
-            return new ConfigurationSubscriptionFactory().create(mtad, resolvedResources, spaceId);
-        }, expectation);
+        tester.test(() -> new ConfigurationSubscriptionFactory().create(mtad, resolvedResources, spaceId), expectation);
     }
 
     private Map<String, ResolvedConfigurationReference> getResolvedConfigurationReferences(DeploymentDescriptor descriptor) {

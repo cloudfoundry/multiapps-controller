@@ -137,7 +137,7 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
 
     private List<CloudApplication> toCloudApplications(List<SimpleApplication> applications) {
         return applications.stream()
-                           .map((application) -> application.toCloudApplication())
+                           .map(SimpleApplication::toCloudApplication)
                            .collect(Collectors.toList());
     }
 

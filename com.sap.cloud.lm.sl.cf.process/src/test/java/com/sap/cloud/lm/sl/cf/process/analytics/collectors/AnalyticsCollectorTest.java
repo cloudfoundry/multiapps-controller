@@ -182,17 +182,13 @@ public class AnalyticsCollectorTest {
     @Test
     public void collectAttributesDeployTest() {
         when(processTypeParser.getProcessType(context)).thenReturn(ProcessType.DEPLOY);
-        tester.test(() -> {
-            return collector.collectAnalyticsData(context);
-        }, new Expectation(Expectation.Type.JSON, "AnalyticsDeploy.json"));
+        tester.test(() -> collector.collectAnalyticsData(context), new Expectation(Expectation.Type.JSON, "AnalyticsDeploy.json"));
     }
 
     @Test
     public void collectAttributesUndeployTest() {
         when(processTypeParser.getProcessType(context)).thenReturn(ProcessType.UNDEPLOY);
-        tester.test(() -> {
-            return collector.collectAnalyticsData(context);
-        }, new Expectation(Expectation.Type.JSON, "AnalyticsUndeploy.json"));
+        tester.test(() -> collector.collectAnalyticsData(context), new Expectation(Expectation.Type.JSON, "AnalyticsUndeploy.json"));
     }
 
 }

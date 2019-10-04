@@ -61,7 +61,7 @@ public class ApplicationEnvironmentUpdaterTest {
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
         Mockito.verify(client)
                .updateApplicationEnv(Mockito.eq(input.app.name), (Map<String, String>) captor.capture());
-        tester.test(() -> captor.getValue(), expectation);
+        tester.test(captor::getValue, expectation);
     }
 
     private static class Input {

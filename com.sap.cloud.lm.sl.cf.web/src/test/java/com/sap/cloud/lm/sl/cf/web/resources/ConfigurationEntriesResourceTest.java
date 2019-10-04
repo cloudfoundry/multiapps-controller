@@ -239,11 +239,7 @@ public class ConfigurationEntriesResourceTest {
 
         @Override
         protected void test() {
-            TESTER.test(() -> {
-
-                return new RestResponse(resource.getConfigurationEntry(input.getId()));
-
-            }, expectation);
+            TESTER.test(() -> new RestResponse(resource.getConfigurationEntry(input.getId())), expectation);
         }
 
         @Override
@@ -275,11 +271,7 @@ public class ConfigurationEntriesResourceTest {
         @Override
         protected void test() {
 
-            TESTER.test(() -> {
-
-                return new RestResponse(resource.createConfigurationEntry(input.getEntryXml()));
-
-            }, expectation);
+            TESTER.test(() -> new RestResponse(resource.createConfigurationEntry(input.getEntryXml())), expectation);
         }
 
         @Override
@@ -305,11 +297,7 @@ public class ConfigurationEntriesResourceTest {
 
         @Override
         protected void test() {
-            TESTER.test(() -> {
-
-                return new RestResponse(resource.updateConfigurationEntry(input.getId(), input.getEntryXml()));
-
-            }, expectation);
+            TESTER.test(() -> new RestResponse(resource.updateConfigurationEntry(input.getId(), input.getEntryXml())), expectation);
         }
 
         @Override
@@ -360,12 +348,8 @@ public class ConfigurationEntriesResourceTest {
 
         @Override
         protected void test() {
-            TESTER.test(() -> {
-
-                return new RestResponse(resource.getConfigurationEntries(PROVIDER_NID, PROVIDER_ID, PROVIDER_VERSION,
-                                                                         input.getRequiredContent(), null, ORG, SPACE));
-
-            }, expectation);
+            TESTER.test(() -> new RestResponse(resource.getConfigurationEntries(PROVIDER_NID, PROVIDER_ID, PROVIDER_VERSION,
+                                                                     input.getRequiredContent(), null, ORG, SPACE)), expectation);
         }
 
         @Override
@@ -398,11 +382,7 @@ public class ConfigurationEntriesResourceTest {
 
         @Override
         protected void test() {
-            TESTER.test(() -> {
-
-                return new RestResponse(resource.deleteConfigurationEntry(input.getId()));
-
-            }, expectation);
+            TESTER.test(() -> new RestResponse(resource.deleteConfigurationEntry(input.getId())), expectation);
         }
 
         @Override

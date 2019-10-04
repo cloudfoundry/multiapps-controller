@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -77,7 +78,7 @@ public class FlowableHistoricDataCleanerTest {
 
     private long getTotalProcessesCount(List<List<HistoricProcessInstance>> pages) {
         return pages.stream()
-                    .flatMap(page -> page.stream())
+                    .flatMap(Collection::stream)
                     .count();
     }
 

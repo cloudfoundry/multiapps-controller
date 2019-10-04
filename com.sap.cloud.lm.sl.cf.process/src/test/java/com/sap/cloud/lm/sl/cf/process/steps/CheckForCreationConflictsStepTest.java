@@ -189,7 +189,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private List<CloudServiceBinding> createServiceBindings(List<SimpleApplication> boundApplications) {
         return boundApplications.stream()
-                                .map(boundApplication -> createServiceBinding(boundApplication))
+                                .map(this::createServiceBinding)
                                 .collect(Collectors.toList());
     }
 
@@ -201,7 +201,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private void prepareExistingServices() {
         List<CloudService> existingServices = new ArrayList<>();
-        stepInput.existingServices.forEach(service -> existingServices.add(service));
+        stepInput.existingServices.forEach(existingServices::add);
         Mockito.when(client.getServices())
                .thenReturn(existingServices);
         prepareServiceInstances();
@@ -209,7 +209,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     }
 
     private void prepareServiceInstances() {
-        existingServiceInstances.forEach((service, instance) -> prepareServiceInstance(service, instance));
+        existingServiceInstances.forEach(this::prepareServiceInstance);
     }
 
     private void prepareServiceInstance(CloudServiceExtended service, CloudServiceInstance instance) {

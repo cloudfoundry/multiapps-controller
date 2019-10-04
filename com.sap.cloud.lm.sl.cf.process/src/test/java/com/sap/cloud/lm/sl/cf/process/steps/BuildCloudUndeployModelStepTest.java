@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudEntity;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Test;
@@ -254,7 +255,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
             return null;
         }
         return appsToUndeploy.stream()
-                             .map((app) -> app.getName())
+                             .map(CloudEntity::getName)
                              .collect(Collectors.toList());
     }
 

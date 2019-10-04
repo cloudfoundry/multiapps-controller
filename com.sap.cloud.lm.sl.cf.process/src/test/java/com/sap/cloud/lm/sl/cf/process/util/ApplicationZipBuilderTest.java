@@ -109,9 +109,7 @@ public class ApplicationZipBuilderTest {
     private Set<String> relativizeUploadedFilesPaths(ApplicationZipBuilder zipBuilder, String fileName, Set<String> alreadyUploadedFiles) {
         Set<String> relativizedFilePaths = new HashSet<>();
         alreadyUploadedFiles.stream()
-                            .forEach(filePath -> {
-                                relativizedFilePaths.add(FileUtils.getRelativePath(fileName, filePath));
-                            });
+                            .forEach(filePath -> relativizedFilePaths.add(FileUtils.getRelativePath(fileName, filePath)));
         return relativizedFilePaths;
     }
 

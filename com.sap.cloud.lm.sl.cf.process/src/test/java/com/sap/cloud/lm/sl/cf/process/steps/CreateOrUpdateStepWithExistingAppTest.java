@@ -255,7 +255,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
 
     private List<CloudServiceExtended> mapToCloudServices() {
         return input.application.services.stream()
-                                         .map(serviceName -> mapToCloudService(serviceName))
+                                         .map(this::mapToCloudService)
                                          .collect(Collectors.toList());
     }
 

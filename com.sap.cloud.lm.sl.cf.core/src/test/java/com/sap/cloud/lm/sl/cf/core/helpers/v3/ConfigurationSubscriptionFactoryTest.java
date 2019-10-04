@@ -48,9 +48,7 @@ public class ConfigurationSubscriptionFactoryTest extends com.sap.cloud.lm.sl.cf
     @Override
     protected void testCreate(DeploymentDescriptor mtad, Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId,
                               Expectation expectation) {
-        tester.test(() -> {
-            return new ConfigurationSubscriptionFactory().create(mtad, resolvedResources, spaceId);
-        }, expectation);
+        tester.test(() -> new ConfigurationSubscriptionFactory().create(mtad, resolvedResources, spaceId), expectation);
     }
 
     @Override

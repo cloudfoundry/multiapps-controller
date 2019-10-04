@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.Expression;
 
 import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.OperationDto;
@@ -141,7 +142,7 @@ public class OperationQueryImpl extends AbstractQueryImpl<Operation, OperationQu
     public OperationQuery withStateAnyOf(List<State> states) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<List<State>> builder()
                                                                        .attribute(AttributeNames.FINAL_STATE)
-                                                                       .condition((state, expectedStates) -> state.in(expectedStates))
+                                                                       .condition(Expression::in)
                                                                        .value(states)
                                                                        .build());
         return this;

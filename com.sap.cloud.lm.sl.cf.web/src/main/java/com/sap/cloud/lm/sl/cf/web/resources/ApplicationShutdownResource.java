@@ -39,9 +39,7 @@ public class ApplicationShutdownResource {
             LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWN_REQUEST, appId, appInstanceId, appInstanceIndex));
             flowableFacade.shutdownJobExecutor();
         })
-                         .thenRun(() -> {
-                             LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWNED, appId, appInstanceId, appInstanceIndex));
-                         });
+                         .thenRun(() -> LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWNED, appId, appInstanceId, appInstanceIndex)));
 
         return new ApplicationShutdownDto.Builder().isActive(flowableFacade.isJobExecutorActive())
                                                    .appId(appId)

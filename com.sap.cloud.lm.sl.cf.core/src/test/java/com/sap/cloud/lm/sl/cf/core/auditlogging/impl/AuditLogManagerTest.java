@@ -54,12 +54,7 @@ public class AuditLogManagerTest {
     }
 
     private static UserInfoProvider createTestUserInfoProvider() {
-        return new UserInfoProvider() {
-            @Override
-            public UserInfo getUserInfo() {
-                return null;
-            }
-        };
+        return () -> null;
     }
 
 }

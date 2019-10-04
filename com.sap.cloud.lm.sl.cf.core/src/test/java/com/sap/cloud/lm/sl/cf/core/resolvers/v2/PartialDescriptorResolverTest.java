@@ -17,7 +17,7 @@ public class PartialDescriptorResolverTest {
     public void testResolve() {
         DeploymentDescriptor descriptor = new DescriptorParser().parseDeploymentDescriptorYaml(getClass().getResourceAsStream("mtad.yaml"));
         PartialDescriptorReferenceResolver resolver = new PartialDescriptorReferenceResolver(descriptor, Arrays.asList("plugins"));
-        tester.test(() -> resolver.resolve(), new Expectation(Expectation.Type.JSON, "resolved-mtad.json"));
+        tester.test(resolver::resolve, new Expectation(Expectation.Type.JSON, "resolved-mtad.json"));
     }
 
 }
