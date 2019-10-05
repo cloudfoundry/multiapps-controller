@@ -6035,7 +6035,7 @@ UuidFactory.UUID, UuidFactory.UUID.Builder, UuidFactory.UUIDOrBuilder>(
           dataSize += computeStringSizeNoTag(forwarded_.getRaw(i));
         }
         size += dataSize;
-        size += 1 * getForwardedList().size();
+        size += getForwardedList().size();
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;

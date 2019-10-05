@@ -88,8 +88,8 @@ public class ConfigurationEntriesResource {
             return ResponseEntity.ok()
                                  .body(wrap(entries));
         } catch (IllegalArgumentException e) {
-            /**
-             * Thrown if the version parameter is not a valid version requirement.
+            /*
+              Thrown if the version parameter is not a valid version requirement.
              */
             throw new ParsingException(e.getMessage(), e);
         }

@@ -50,7 +50,7 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
         if (!shouldRetry(e)) {
             throw e;
         }
-        LOGGER.warn("Retrying operation that failed with status {0} and message: {1}", e.getStatusCode(), e.getMessage());
+        LOGGER.warn("Retrying operation that failed with status {} and message: {}", e.getStatusCode(), e.getMessage());
     }
 
     private boolean shouldRetry(CloudOperationException e) {

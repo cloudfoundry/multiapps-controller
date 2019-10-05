@@ -39,21 +39,21 @@ public class TransformFilterColumnTest {
     public void testTransformData() {
 
         Map<Long, String> retrievedData = new HashMap<>();
-        retrievedData.put(1l, "{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":\"org space\"}");
-        retrievedData.put(2l, "{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":\"orgspace\"}");
-        retrievedData.put(3l, "{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":\"org test space sap\"}");
+        retrievedData.put(1L, "{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":\"org space\"}");
+        retrievedData.put(2L, "{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":\"orgspace\"}");
+        retrievedData.put(3L, "{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":\"org test space sap\"}");
 
         Map<Long, String> transformedData = transformFilterColumn.transformData(retrievedData);
         assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"organizationName\":\"org\",\"spaceName\":\"space\"}}",
-                     transformedData.get(1l));
+                     transformedData.get(1L));
 
         transformedData = transformFilterColumn.transformData(retrievedData);
         assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"organizationName\":\"\",\"spaceName\":\"orgspace\"}}",
-                     transformedData.get(2l));
+                     transformedData.get(2L));
 
         transformedData = transformFilterColumn.transformData(retrievedData);
         assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"organizationName\":\"org\",\"spaceName\":\"test space sap\"}}",
-                     transformedData.get(3l));
+                     transformedData.get(3L));
     }
 
     @Test
@@ -62,15 +62,15 @@ public class TransformFilterColumnTest {
         Map<Long, String> retrievedData = new HashMap<>();
         Map<Long, String> transformedData = null;
 
-        retrievedData.put(1l, "{\"requiredContent\":{\"type\":\"com.acme.plugin\"}}");
+        retrievedData.put(1L, "{\"requiredContent\":{\"type\":\"com.acme.plugin\"}}");
         transformedData = transformFilterColumn.transformData(retrievedData);
         assertTrue(transformedData.isEmpty());
 
-        retrievedData.put(1l, "{}");
+        retrievedData.put(1L, "{}");
         transformedData = transformFilterColumn.transformData(retrievedData);
         assertTrue(transformedData.isEmpty());
 
-        retrievedData.put(1l, "");
+        retrievedData.put(1L, "");
         transformedData = transformFilterColumn.transformData(retrievedData);
         assertTrue(transformedData.isEmpty());
     }

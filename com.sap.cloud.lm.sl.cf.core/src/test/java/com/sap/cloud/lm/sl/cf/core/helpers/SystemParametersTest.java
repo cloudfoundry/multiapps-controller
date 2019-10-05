@@ -172,13 +172,13 @@ public class SystemParametersTest {
 
     private Map<String, Object> createParametersMap(List<String> fields) {
         Map<String, Object> customParameters = new HashMap<>();
-        fields.stream()
+        fields
               .forEach(field -> customParameters.put(field, DESCRIPTOR_DEFINED_VALUE));
         return customParameters;
     }
 
     private void assertCustomValueMap(List<String> fields, Map<String, Object> parametersMap) {
-        fields.stream()
+        fields
               .forEach(field -> assertEquals(DESCRIPTOR_DEFINED_VALUE, parametersMap.get(field)));
     }
 

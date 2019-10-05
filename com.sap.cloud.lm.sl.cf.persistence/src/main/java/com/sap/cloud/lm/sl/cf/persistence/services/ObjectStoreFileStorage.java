@@ -144,7 +144,7 @@ public class ObjectStoreFileStorage implements FileStorage {
             if (blob != null) {
                 return blob;
             }
-            LOGGER.warn(Messages.ATTEMPT_TO_DOWNLOAD_MISSING_BLOB, i, retries, fileEntry.getId());
+            LOGGER.warn(MessageFormat.format(Messages.ATTEMPT_TO_DOWNLOAD_MISSING_BLOB, i, retries, fileEntry.getId()));
             if (i == retries) {
                 break;
             }

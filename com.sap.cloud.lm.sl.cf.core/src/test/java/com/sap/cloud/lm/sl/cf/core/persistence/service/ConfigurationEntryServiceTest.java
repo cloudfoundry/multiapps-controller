@@ -24,9 +24,9 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class ConfigurationEntryServiceTest {
 
-    private static final ConfigurationEntry CONFIGURATION_ENTRY_1 = createConfigurationEntry(1l, "providerNid", "providerId", "2.0", "org",
+    private static final ConfigurationEntry CONFIGURATION_ENTRY_1 = createConfigurationEntry(1L, "providerNid", "providerId", "2.0", "org",
                                                                                              "space", "content");
-    private static final ConfigurationEntry CONFIGURATION_ENTRY_2 = createConfigurationEntry(2l, "providerNid1", "providerId1", "3.1",
+    private static final ConfigurationEntry CONFIGURATION_ENTRY_2 = createConfigurationEntry(2L, "providerNid1", "providerId1", "3.1",
                                                                                              "org1", "space1", "content1");
     private final ConfigurationEntryService configurationEntryService = createConfigurationEntryService();
 

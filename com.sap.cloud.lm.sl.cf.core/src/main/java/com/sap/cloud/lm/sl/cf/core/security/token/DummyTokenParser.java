@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.security.token;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 

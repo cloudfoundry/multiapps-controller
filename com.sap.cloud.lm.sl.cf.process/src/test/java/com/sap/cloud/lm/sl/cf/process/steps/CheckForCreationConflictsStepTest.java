@@ -201,7 +201,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private void prepareExistingServices() {
         List<CloudService> existingServices = new ArrayList<>();
-        stepInput.existingServices.forEach(existingServices::add);
+        existingServices.addAll(stepInput.existingServices);
         Mockito.when(client.getServices())
                .thenReturn(existingServices);
         prepareServiceInstances();

@@ -27,12 +27,12 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class ConfigurationSubscriptionServiceTest {
 
-    private static final ConfigurationSubscription CONFIGURATION_SUBSCRIPTION_1 = createConfigurationSubscription(1l, "mta", "space", "app",
+    private static final ConfigurationSubscription CONFIGURATION_SUBSCRIPTION_1 = createConfigurationSubscription(1L, "mta", "space", "app",
                                                                                                                   createConfigurationFilter("3.1"),
                                                                                                                   createModuleDto("moduleName"),
                                                                                                                   createResourceDto("resourceName"));
 
-    private static final ConfigurationSubscription CONFIGURATION_SUBSCRIPTION_2 = createConfigurationSubscription(2l, "mta1", "space1",
+    private static final ConfigurationSubscription CONFIGURATION_SUBSCRIPTION_2 = createConfigurationSubscription(2L, "mta1", "space1",
                                                                                                                   "app1",
                                                                                                                   createConfigurationFilter("2.0"),
                                                                                                                   createModuleDto("moduleName1"),

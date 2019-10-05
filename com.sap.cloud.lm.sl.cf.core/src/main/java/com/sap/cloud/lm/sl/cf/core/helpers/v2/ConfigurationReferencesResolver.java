@@ -145,7 +145,6 @@ public class ConfigurationReferencesResolver extends Visitor {
 
     protected void makeSureIsResolvedToSingleResource(String resolvedResourceName, List<Resource> resultingResources) {
         if (resultingResources.size() > 1) {
-            LOGGER.debug(Messages.MULTIPLE_CONFIGURATION_ENTRIES, resolvedResourceName, resultingResources);
             throw new ContentException(format(Messages.MULTIPLE_CONFIGURATION_ENTRIES_WERE_FOUND, resolvedResourceName));
         } else if (resultingResources.isEmpty()) {
             throw new ContentException(format(Messages.NO_CONFIGURATION_ENTRIES_WERE_FOUND, resolvedResourceName));

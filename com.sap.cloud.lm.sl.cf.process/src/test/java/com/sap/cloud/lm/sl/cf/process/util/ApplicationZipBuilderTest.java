@@ -33,7 +33,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class ApplicationZipBuilderTest {
     private static final String SAMPLE_MTAR = "com.sap.mta.sample-1.2.1-beta.mtar";
     private static final String SAMPLE_FLAT_MTAR = "com.sap.mta.sample-1.2.1-beta-flat.mtar";
-    private static final long MAX_UPLOAD_FILE_SIZE = 1024 * 1024 * 1024l; // 1gb
+    private static final long MAX_UPLOAD_FILE_SIZE = 1024 * 1024 * 1024L; // 1gb
 
     @Mock
     private StepLogger logger;
@@ -108,7 +108,7 @@ public class ApplicationZipBuilderTest {
 
     private Set<String> relativizeUploadedFilesPaths(ApplicationZipBuilder zipBuilder, String fileName, Set<String> alreadyUploadedFiles) {
         Set<String> relativizedFilePaths = new HashSet<>();
-        alreadyUploadedFiles.stream()
+        alreadyUploadedFiles
                             .forEach(filePath -> relativizedFilePaths.add(FileUtils.getRelativePath(fileName, filePath)));
         return relativizedFilePaths;
     }

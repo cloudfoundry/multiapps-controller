@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -101,8 +102,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
                                        .collect(Collectors.toSet());
         }
 
-        return moduleNamesForDeployment.stream()
-                                       .collect(Collectors.toSet());
+        return new HashSet<>(moduleNamesForDeployment);
     }
 
     private List<String> findInvalidModulesSpecifiedForDeployment(DeploymentDescriptor descriptor, List<String> modulesForDeployment) {
