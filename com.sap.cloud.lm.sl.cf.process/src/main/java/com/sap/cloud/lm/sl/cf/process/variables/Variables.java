@@ -35,6 +35,7 @@ import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public interface Variables {
 
@@ -529,4 +530,12 @@ public interface Variables {
                                                                     .name("enableEnvDetection")
                                                                     .defaultValue(true)
                                                                     .build();
+    Variable<Map<Resource, Set<Resource>>> SERVICE_DEPENDENCIES = ImmutableJsonBinaryVariable.<Map<Resource, Set<Resource>>> builder()
+                                                                                             .name("serviceDependencies")
+                                                                                             .build();
+    Variable<List<CloudServiceInstanceExtended>> SERVICES_TO_PROCESS_IN_PARALLEL = ImmutableJsonBinaryListVariable.<CloudServiceInstanceExtended> builder()
+                                                                                                                  .name("servicesToIterateInParallel")
+                                                                                                                  .defaultValue(Collections.emptyList())
+                                                                                                                  .build();
+
 }
