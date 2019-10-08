@@ -21,14 +21,13 @@ public class ApplicationURITest {
     private static final String CUSTOM = "custom-";
 
     private static Stream<Arguments> testParameters() {
-        return Stream.of(Arguments.of("https://valid-host.valid-domain", "valid-host", "valid-domain", null),
-                         Arguments.of("https://valid-domain", "", "valid-domain", null),
-                         Arguments.of("valid-domain", "", "valid-domain", null),
+        return Stream.of(Arguments.of("https://valid-host.valid-domain", "valid-host", "valid-domain", ""),
+                         Arguments.of("https://valid-domain", "", "valid-domain", ""), Arguments.of("valid-domain", "", "valid-domain", ""),
                          Arguments.of("https://valid-domain/really/long/path", "", "valid-domain", "/really/long/path"),
                          Arguments.of("https://valid-host.valid-domain/really/long/path", "valid-host", "valid-domain",
                                       "/really/long/path"),
                          Arguments.of("deploy-service.cfapps.industrycloud-staging.siemens.com", "deploy-service",
-                                      "cfapps.industrycloud-staging.siemens.com", null));
+                                      "cfapps.industrycloud-staging.siemens.com", ""));
     }
 
     @ParameterizedTest
@@ -47,7 +46,7 @@ public class ApplicationURITest {
         Assertions.assertEquals(CUSTOM + "host", applicationURI.getHost());
         Assertions.assertEquals(CUSTOM + "domain", route.getDomain()
                                                         .getName());
-        Assertions.assertNull(applicationURI.getPath());
+        Assertions.assertEquals("", applicationURI.getPath());
     }
 
     @Test
@@ -66,7 +65,7 @@ public class ApplicationURITest {
         Map<String, Object> expectedParts = new HashMap<>();
         expectedParts.put(SupportedParameters.HOST, CUSTOM + "host");
         expectedParts.put(SupportedParameters.DOMAIN, CUSTOM + "domain");
-        expectedParts.put(SupportedParameters.ROUTE_PATH, null);
+        expectedParts.put(SupportedParameters.ROUTE_PATH, "");
         Assertions.assertEquals(expectedParts, applicationURI.getURIParts());
     }
 
