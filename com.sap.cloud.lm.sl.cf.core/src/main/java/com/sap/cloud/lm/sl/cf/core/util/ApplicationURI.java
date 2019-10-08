@@ -12,10 +12,10 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 
 public class ApplicationURI {
 
-    private String uri;
-    private String host;
-    private String domain;
-    private String path;
+    private String uri = "";
+    private String host = "";
+    private String domain = "";
+    private String path = "";
 
     public static String getDomainFromURI(String uri) {
         ApplicationURI parsedURI = new ApplicationURI(uri);
