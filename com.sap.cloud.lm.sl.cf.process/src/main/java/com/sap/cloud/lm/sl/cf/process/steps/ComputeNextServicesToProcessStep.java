@@ -18,7 +18,7 @@ import java.util.Set;
 
 @Named("computeNextServicesToProcess")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ComputeNextServicesToProcess extends SyncFlowableStep {
+public class ComputeNextServicesToProcessStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
