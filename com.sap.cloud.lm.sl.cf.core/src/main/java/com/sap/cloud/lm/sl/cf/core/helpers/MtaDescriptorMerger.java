@@ -44,7 +44,11 @@ public class MtaDescriptorMerger {
         handlerFactory.getPlatformMerger(platform)
                       .mergeInto(mergedDescriptor);
 
-        deploymentDescriptor = mergedDescriptor;
+        DeploymentDescriptor validatedDescriptor = handlerFactory.getDescriptorParametersCompatabilityValidator(mergedDescriptor,
+                                                                                                                userMessageLogger)
+                                                                 .validate();
+
+        deploymentDescriptor = validatedDescriptor;
         logDebug(Messages.MERGED_DESCRIPTOR, secureSerializer.toJson(deploymentDescriptor));
 
         return deploymentDescriptor;

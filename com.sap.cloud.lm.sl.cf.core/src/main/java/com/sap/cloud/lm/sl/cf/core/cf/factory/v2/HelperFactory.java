@@ -17,6 +17,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParametersCompatabilityValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParametersValidator;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
@@ -72,6 +73,12 @@ public class HelperFactory implements HelperFactoryConstructor {
                                                                           List<ParameterValidator> parameterValidators,
                                                                           boolean doNotCorrect) {
         return new DescriptorParametersValidator(descriptor, parameterValidators, doNotCorrect);
+    }
+
+    @Override
+    public DescriptorParametersCompatabilityValidator getDescriptorParametersCompatabilityValidator(DeploymentDescriptor descriptor,
+                                                                                                    UserMessageLogger userMessageLogger) {
+        return new DescriptorParametersCompatabilityValidator(descriptor, userMessageLogger);
     }
 
     @Override

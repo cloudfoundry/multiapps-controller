@@ -14,6 +14,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParametersCompatabilityValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParametersValidator;
 import com.sap.cloud.lm.sl.mta.mergers.PlatformMerger;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -41,6 +42,9 @@ public interface HelperFactoryConstructor {
 
     DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
                                                                    List<ParameterValidator> parameterValidators, boolean doNotCorrect);
+
+    DescriptorParametersCompatabilityValidator getDescriptorParametersCompatabilityValidator(DeploymentDescriptor descriptor,
+                                                                                             UserMessageLogger userMessageLogger);
 
     PlatformMerger getPlatformMerger(Platform platform);
 

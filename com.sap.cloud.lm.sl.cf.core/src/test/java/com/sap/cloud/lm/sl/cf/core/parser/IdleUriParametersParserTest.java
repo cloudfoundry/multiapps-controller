@@ -20,8 +20,8 @@ import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 public class IdleUriParametersParserTest {
 
-    private static final String DEFAULT_HOST = "test-host";
-    private static final String DEFAULT_DOMAIN = "default-domain.com";
+    private static final String DEFAULT_HOST = "default-host";
+    private static final String DEFAULT_DOMAIN = "default-domain";
 
     private final Tester tester = Tester.forClass(getClass());
 
@@ -30,8 +30,8 @@ public class IdleUriParametersParserTest {
         return Stream.of(
             Arguments.of(Arrays.asList("foo.bar.com"), Arrays.asList("foo-idle.bar.com"), new Expectation(Arrays.asList("foo-idle.bar.com").toString())),
             Arguments.of(Arrays.asList("foo-quux.test.com/abc", "bar-quux.test.com/def"), Arrays.asList("idle-route.test.com/test"), new Expectation(Arrays.asList("idle-route.test.com/test").toString())),
-            Arguments.of(Arrays.asList("foo-quux.test.com/abc", "bar-quux.test.com/def"), Collections.emptyList(), new Expectation(Arrays.asList("test-host.default-domain.com/abc", 
-                                                                                                                                                 "test-host.default-domain.com/def").toString()))
+            Arguments.of(Arrays.asList("foo-quux.test.com/abc", "bar-quux.test.com/def"), Collections.emptyList(), new Expectation(Arrays.asList("default-host.default-domain/abc", 
+                                                                                                                                                 "default-host.default-domain/def").toString()))
         // @formatter:on
         );
     }
@@ -62,7 +62,7 @@ public class IdleUriParametersParserTest {
         parametersMap.put(SupportedParameters.IDLE_DOMAINS, Arrays.asList("domain-1", "domain-2"));
 
         tester.test(() -> new IdleUriParametersParser(DEFAULT_HOST, DEFAULT_DOMAIN, null).parse(Arrays.asList(parametersMap)),
-                    new Expectation(Arrays.asList("test-host.default-domain.com/abc", "test-host.default-domain.com/def")
+                    new Expectation(Arrays.asList("default-host.default-domain/abc", "default-host.default-domain/def")
                                           .toString()));
     }
 
