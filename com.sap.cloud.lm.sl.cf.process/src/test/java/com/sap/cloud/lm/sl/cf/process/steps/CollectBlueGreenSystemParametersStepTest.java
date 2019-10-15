@@ -43,20 +43,25 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
 
         DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
         List<Module> modules = descriptor.getModules();
+        validateGlobalHostParameters(descriptor.getParameters());
         assertEquals(2, modules.size());
         for (Module module : modules) {
             validateIdleHostBasedModuleParameters(module);
         }
     }
 
+    private void validateGlobalHostParameters(Map<String, Object> parameters) {
+        assertEquals(DEFAULT_DOMAIN, parameters.get(SupportedParameters.DEFAULT_IDLE_DOMAIN));
+    }
+
     private void validateIdleHostBasedModuleParameters(Module module) {
         Map<String, Object> parameters = module.getParameters();
         String expectedIdleHost = String.format("%s-%s-%s-idle", ORG, SPACE, module.getName());
-        assertEquals(DEFAULT_DOMAIN, parameters.get(SupportedParameters.IDLE_DOMAIN));
+        assertEquals("${default-idle-domain}", parameters.get(SupportedParameters.IDLE_DOMAIN));
         assertEquals(expectedIdleHost, parameters.get(SupportedParameters.DEFAULT_IDLE_HOST));
-        assertEquals(expectedIdleHost, parameters.get(SupportedParameters.IDLE_HOST));
+        assertEquals("${default-idle-host}", parameters.get(SupportedParameters.IDLE_HOST));
         assertEquals(expectedIdleHost, parameters.get(SupportedParameters.DEFAULT_HOST));
-        assertEquals(expectedIdleHost, parameters.get(SupportedParameters.HOST));
+        assertEquals("${default-host}", parameters.get(SupportedParameters.HOST));
         assertEquals(SystemParameters.DEFAULT_HOST_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_IDLE_URI));
         assertEquals(SystemParameters.DEFAULT_HOST_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_URI));
         assertEquals(SystemParameters.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_IDLE_URL));

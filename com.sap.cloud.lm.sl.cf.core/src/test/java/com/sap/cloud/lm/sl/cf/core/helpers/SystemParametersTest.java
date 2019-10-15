@@ -147,7 +147,8 @@ public class SystemParametersTest {
     }
 
     private void verifyResourceParameters(String name, Map<String, Object> parameters, boolean b) {
-        assertEquals(name, parameters.get(SupportedParameters.SERVICE_NAME));
+        assertEquals("${default-service-name}", parameters.get(SupportedParameters.SERVICE_NAME));
+        assertEquals(name, parameters.get(SupportedParameters.DEFAULT_SERVICE_NAME));
         assertEquals(NameUtil.computeValidContainerName(ORGANIZATION_NAME, SPACE_NAME, name),
                      parameters.get(SupportedParameters.DEFAULT_CONTAINER_NAME));
         assertEquals(NameUtil.computeValidXsAppName(name), parameters.get(SupportedParameters.DEFAULT_XS_APP_NAME));
@@ -172,27 +173,29 @@ public class SystemParametersTest {
 
     private Map<String, Object> createParametersMap(List<String> fields) {
         Map<String, Object> customParameters = new HashMap<>();
-        fields
-              .forEach(field -> customParameters.put(field, DESCRIPTOR_DEFINED_VALUE));
+        fields.forEach(field -> customParameters.put(field, DESCRIPTOR_DEFINED_VALUE));
         return customParameters;
     }
 
     private void assertCustomValueMap(List<String> fields, Map<String, Object> parametersMap) {
-        fields
-              .forEach(field -> assertEquals(DESCRIPTOR_DEFINED_VALUE, parametersMap.get(field)));
+        fields.forEach(field -> assertEquals(DESCRIPTOR_DEFINED_VALUE, parametersMap.get(field)));
     }
 
     private void verifyModuleParameters(String moduleName, Map<String, Object> moduleParameters, Boolean reserveTemporaryRoutes) {
-        assertEquals(DEFAULT_DOMAIN, moduleParameters.get(SupportedParameters.DOMAIN));
+        assertFalse(moduleParameters.containsKey(SupportedParameters.DEFAULT_DOMAIN));
+        assertEquals("${default-domain}", moduleParameters.get(SupportedParameters.DOMAIN));
 
         if (reserveTemporaryRoutes) {
-            assertEquals(DEFAULT_DOMAIN, moduleParameters.get(SupportedParameters.IDLE_DOMAIN));
+            assertFalse(moduleParameters.containsKey(SupportedParameters.DEFAULT_IDLE_DOMAIN));
+            assertEquals("${default-idle-domain}", moduleParameters.get(SupportedParameters.IDLE_DOMAIN));
         } else {
             assertFalse(moduleParameters.containsKey(SupportedParameters.IDLE_DOMAIN));
         }
 
-        assertEquals(moduleName, moduleParameters.get(SupportedParameters.APP_NAME));
-        assertEquals(1, moduleParameters.get(SupportedParameters.INSTANCES));
+        assertEquals(moduleName, moduleParameters.get(SupportedParameters.DEFAULT_APP_NAME));
+        assertEquals("${default-app-name}", moduleParameters.get(SupportedParameters.APP_NAME));
+        assertEquals(1, moduleParameters.get(SupportedParameters.DEFAULT_INSTANCES));
+        assertEquals("${default-instances}", moduleParameters.get(SupportedParameters.INSTANCES));
         assertEquals(TIMESTAMP, moduleParameters.get(SupportedParameters.TIMESTAMP));
 
         assertEquals(PROTOCOL, moduleParameters.get(SupportedParameters.PROTOCOL));

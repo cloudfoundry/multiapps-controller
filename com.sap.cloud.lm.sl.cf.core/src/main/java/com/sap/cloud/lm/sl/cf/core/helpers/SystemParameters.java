@@ -90,12 +90,14 @@ public class SystemParameters {
         Map<String, Object> moduleSystemParameters = new HashMap<>();
 
         Map<String, Object> moduleParameters = Collections.unmodifiableMap(module.getParameters());
-        moduleSystemParameters.put(SupportedParameters.DOMAIN, defaultDomain);
+        moduleSystemParameters.put(SupportedParameters.DOMAIN, referenceToParameter(SupportedParameters.DEFAULT_DOMAIN));
         if (reserveTemporaryRoutes) {
-            moduleSystemParameters.put(SupportedParameters.IDLE_DOMAIN, defaultDomain);
+            moduleSystemParameters.put(SupportedParameters.IDLE_DOMAIN, referenceToParameter(SupportedParameters.DEFAULT_IDLE_DOMAIN));
         }
-        moduleSystemParameters.put(SupportedParameters.APP_NAME, module.getName());
-        moduleSystemParameters.put(SupportedParameters.INSTANCES, 1);
+        moduleSystemParameters.put(SupportedParameters.DEFAULT_APP_NAME, module.getName());
+        moduleSystemParameters.put(SupportedParameters.APP_NAME, referenceToParameter(SupportedParameters.DEFAULT_APP_NAME));
+        moduleSystemParameters.put(SupportedParameters.DEFAULT_INSTANCES, 1);
+        moduleSystemParameters.put(SupportedParameters.INSTANCES, referenceToParameter(SupportedParameters.DEFAULT_INSTANCES));
         moduleSystemParameters.put(SupportedParameters.TIMESTAMP, getDefaultTimestamp());
 
         putRoutingParameters(module, moduleParameters, moduleSystemParameters);
@@ -104,6 +106,10 @@ public class SystemParameters {
         moduleSystemParameters.put(SupportedParameters.GENERATED_PASSWORD, credentialsGenerator.next(GENERATED_CREDENTIALS_LENGTH));
 
         return moduleSystemParameters;
+    }
+
+    private String referenceToParameter(String parameter) {
+        return "${" + parameter + "}";
     }
 
     private String getDefaultTimestamp() {
@@ -136,11 +142,11 @@ public class SystemParameters {
         if (reserveTemporaryRoutes) {
             String idleHost = getDefaultHost(module.getName() + IDLE_HOST_SUFFIX);
             moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_HOST, idleHost);
-            moduleSystemParameters.put(SupportedParameters.IDLE_HOST, idleHost);
+            moduleSystemParameters.put(SupportedParameters.IDLE_HOST, referenceToParameter(SupportedParameters.DEFAULT_IDLE_HOST));
             defaultHost = idleHost;
         }
         moduleSystemParameters.put(SupportedParameters.DEFAULT_HOST, defaultHost);
-        moduleSystemParameters.put(SupportedParameters.HOST, defaultHost);
+        moduleSystemParameters.put(SupportedParameters.HOST, referenceToParameter(SupportedParameters.DEFAULT_HOST));
     }
 
     private String appendRoutePathIfPresent(String uri, Map<String, Object> moduleParameters) {
@@ -153,7 +159,8 @@ public class SystemParameters {
     private Map<String, Object> getResourceParameters(Resource resource) {
         Map<String, Object> resourceSystemParameters = new HashMap<>();
 
-        resourceSystemParameters.put(SupportedParameters.SERVICE_NAME, resource.getName());
+        resourceSystemParameters.put(SupportedParameters.DEFAULT_SERVICE_NAME, resource.getName());
+        resourceSystemParameters.put(SupportedParameters.SERVICE_NAME, referenceToParameter(SupportedParameters.DEFAULT_SERVICE_NAME));
         resourceSystemParameters.put(SupportedParameters.DEFAULT_CONTAINER_NAME,
                                      NameUtil.computeValidContainerName(organization, space, resource.getName()));
         resourceSystemParameters.put(SupportedParameters.DEFAULT_XS_APP_NAME, NameUtil.computeValidXsAppName(resource.getName()));

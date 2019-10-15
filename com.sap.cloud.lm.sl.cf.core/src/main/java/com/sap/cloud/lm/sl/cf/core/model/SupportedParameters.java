@@ -31,6 +31,7 @@ public class SupportedParameters {
 
     // Module / module type parameters:
     public static final String APP_NAME = "app-name";
+    public static final String DEFAULT_APP_NAME = "default-app-name";
     public static final String DOMAIN = "domain";
     public static final String DOMAINS = "domains";
     public static final String DEFAULT_HOST = "default-host";
@@ -51,6 +52,7 @@ public class SupportedParameters {
     public static final String DISK_QUOTA = "disk-quota";
     public static final String MEMORY = "memory";
     public static final String INSTANCES = "instances";
+    public static final String DEFAULT_INSTANCES = "default-instances";
     public static final String ENABLE_SSH = "enable-ssh";
     public static final String NO_HOSTNAME = "no-hostname";
     public static final String NO_ROUTE = "no-route";
@@ -98,6 +100,7 @@ public class SupportedParameters {
 
     // Resource / resource type parameters:
     public static final String SERVICE_NAME = "service-name";
+    public static final String DEFAULT_SERVICE_NAME = "default-service-name";
     public static final String SERVICE = "service";
     public static final String SERVICE_PLAN = "service-plan";
     public static final String SERVICE_ALTERNATIVES = "service-alternatives";
