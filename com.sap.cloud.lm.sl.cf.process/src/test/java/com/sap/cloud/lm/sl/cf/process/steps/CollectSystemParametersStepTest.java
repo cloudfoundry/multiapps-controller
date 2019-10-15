@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
@@ -52,10 +53,6 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         return new DeployedMta(metadata, deployedModules, Collections.emptySet());
     }
 
-    private DeployedMtaModule createDeployedMtaModule(String name, List<String> uris) {
-        return new DeployedMtaModule("foo", "foo", null, null, Collections.emptyList(), Collections.emptyList(), uris);
-    }
-
     @Test
     public void testWithHostBasedRouting() {
         prepareDescriptor("system-parameters/mtad.yaml");
@@ -94,10 +91,11 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         String expectedDefaultHost = computeExpectedDefaultHost(module);
         String expectedDefaultUri = computeExpectedDefaultUri(path);
         assertEquals(expectedDefaultHost, parameters.get(SupportedParameters.DEFAULT_HOST));
-        assertEquals(expectedDefaultHost, parameters.get(SupportedParameters.HOST));
+        assertEquals("${default-host}", parameters.get(SupportedParameters.HOST));
         assertEquals(expectedDefaultUri, parameters.get(SupportedParameters.DEFAULT_URI));
         assertEquals(SystemParameters.DEFAULT_URL, parameters.get(SupportedParameters.DEFAULT_URL));
-        assertEquals(DEFAULT_DOMAIN, parameters.get(SupportedParameters.DOMAIN));
+        assertFalse(parameters.containsKey(SupportedParameters.DEFAULT_DOMAIN));
+        assertEquals("${default-domain}", parameters.get(SupportedParameters.DOMAIN));
         assertEquals(DEFAULT_PROTOCOL, parameters.get(SupportedParameters.PROTOCOL));
     }
 
@@ -138,14 +136,16 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         assertEquals(DEFAULT_TIMESTAMP, parameters.get(SupportedParameters.TIMESTAMP));
         assertEquals(expectedGeneratedUsername, parameters.get(SupportedParameters.GENERATED_USER));
         assertEquals(expectedGeneratedPassword, parameters.get(SupportedParameters.GENERATED_PASSWORD));
-        assertEquals(module.getName(), parameters.get(SupportedParameters.APP_NAME));
+        assertEquals(module.getName(), parameters.get(SupportedParameters.DEFAULT_APP_NAME));
+        assertEquals("${default-app-name}", parameters.get(SupportedParameters.APP_NAME));
     }
 
     private void validateGeneralResourceParameters(Resource resource, String expectedGeneratedUsername, String expectedGeneratedPassword) {
         Map<String, Object> parameters = resource.getParameters();
         assertEquals(expectedGeneratedUsername, parameters.get(SupportedParameters.GENERATED_USER));
         assertEquals(expectedGeneratedPassword, parameters.get(SupportedParameters.GENERATED_PASSWORD));
-        assertEquals(resource.getName(), parameters.get(SupportedParameters.SERVICE_NAME));
+        assertEquals(resource.getName(), parameters.get(SupportedParameters.DEFAULT_SERVICE_NAME));
+        assertEquals("${default-service-name}", parameters.get(SupportedParameters.SERVICE_NAME));
     }
 
     @Test(expected = ContentException.class)
