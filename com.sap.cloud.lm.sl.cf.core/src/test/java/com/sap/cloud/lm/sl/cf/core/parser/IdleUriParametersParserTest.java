@@ -31,7 +31,9 @@ public class IdleUriParametersParserTest {
             Arguments.of(Arrays.asList("foo.bar.com"), Arrays.asList("foo-idle.bar.com"), new Expectation(Arrays.asList("foo-idle.bar.com").toString())),
             Arguments.of(Arrays.asList("foo-quux.test.com/abc", "bar-quux.test.com/def"), Arrays.asList("idle-route.test.com/test"), new Expectation(Arrays.asList("idle-route.test.com/test").toString())),
             Arguments.of(Arrays.asList("foo-quux.test.com/abc", "bar-quux.test.com/def"), Collections.emptyList(), new Expectation(Arrays.asList("default-host.default-domain/abc", 
-                                                                                                                                                 "default-host.default-domain/def").toString()))
+                                                                                                                                                 "default-host.default-domain/def").toString())),
+            Arguments.of(Arrays.asList("foo.bar.com"), null, new Expectation(Arrays.asList("default-host.default-domain").toString())),
+            Arguments.of(null, Arrays.asList("https://bar-quux.test.com/def"), new Expectation(Arrays.asList("bar-quux.test.com/def").toString()))
         // @formatter:on
         );
     }
@@ -47,9 +49,10 @@ public class IdleUriParametersParserTest {
     }
 
     private List<Map<String, String>> constructRoutesParameter(List<String> routes, String mapKey) {
-        return routes.stream()
-                     .map(route -> MapUtil.asMap(mapKey, route))
-                     .collect(Collectors.toList());
+        return routes == null ? null
+            : routes.stream()
+                    .map(route -> MapUtil.asMap(mapKey, route))
+                    .collect(Collectors.toList());
     }
 
     @Test

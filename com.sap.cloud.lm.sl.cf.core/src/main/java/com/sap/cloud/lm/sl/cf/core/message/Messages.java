@@ -103,7 +103,7 @@ public final class Messages {
     public static final String ORG_NAME_NOT_SPECIFIED = "Org name is not specified in the environment.";
     public static final String DEPLOY_SERVICE_URL_NOT_SPECIFIED = "Deploy service URL is not specified in the environment.";
     public static final String INVALID_SUPPORT_COMPONENTS = "Invalid SUPPORT_COMPONENTS \"{0}\"";
-    public static final String INCOMPATIBLE_PARAMETERS = "Module \"{0}\" parameters {1} will be replaced by \"{2}\" due to incompatibility";
+    public static final String INCOMPATIBLE_PARAMETERS = "Module \"{0}\" has parameters {1} that will be replaced by \"{2}\" due to inconsistency";
 
     // Info messages
     public static final String XS_TYPE_NOT_SPECIFIED = "XS type is not specified in the environment. Using default: \"{0}\"";
