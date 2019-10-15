@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.validators.parameters.v2;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -43,7 +44,11 @@ public class ModuleParametersCompatabilityValidatorTest {
             Arguments.of(Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.DOMAINS, SupportedParameters.ROUTES), true, Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.DOMAINS)),
             Arguments.of(Arrays.asList(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOST), true, Arrays.asList(SupportedParameters.IDLE_HOST)),
             Arguments.of(Arrays.asList(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_DOMAINS), true, 
-                         Arrays.asList(SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_DOMAINS))
+                         Arrays.asList(SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_DOMAINS)),
+            Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES, SupportedParameters.BUILDPACKS), false, Collections.emptyList()),
+            Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES, "not-supported-parameter"), false, Collections.emptyList()),
+            Arguments.of(Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.ROUTES, SupportedParameters.ROUTE_PATH, SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_ROUTES), true, 
+                         Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.ROUTE_PATH, SupportedParameters.IDLE_HOSTS))
         // @formatter:on
         );
     }
@@ -78,7 +83,7 @@ public class ModuleParametersCompatabilityValidatorTest {
 
     private void verifyUserMessageLogger(boolean shouldWarnMessage) {
         if (shouldWarnMessage) {
-            verify(userMessageLogger).warn(anyString(), any());
+            verify(userMessageLogger, atLeastOnce()).warn(anyString(), any());
             return;
         }
         verify(userMessageLogger, never()).warn(anyString(), any());
