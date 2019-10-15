@@ -21,7 +21,7 @@ public class IdleRoutesCompatabilityValidator implements CompatabilityParameterV
     @Override
     public List<String> getIncompatibleParameters() {
         return Arrays.asList(SupportedParameters.IDLE_HOST, SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_DOMAIN,
-                             SupportedParameters.IDLE_DOMAINS);
+                             SupportedParameters.IDLE_DOMAINS, SupportedParameters.ROUTE_PATH);
     }
 
 }
