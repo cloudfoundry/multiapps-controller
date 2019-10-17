@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.function.Supplier;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -20,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ReadOnlyParametersChecker;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.DeploymentType;
@@ -31,6 +33,9 @@ import com.sap.cloud.lm.sl.mta.model.VersionRule;
 public class CollectSystemParametersStep extends SyncFlowableStep {
 
     private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+
+    @Inject
+    private ReadOnlyParametersChecker readOnlyParametersChecker;
 
     protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = CredentialsGenerator::new;
     protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance()
@@ -48,6 +53,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.DEFAULT_DOMAIN, defaultDomainName);
 
         DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
+        checkForOverwrittenReadOnlyParameters(descriptor);
         SystemParameters systemParameters = createSystemParameters(execution.getContext(), client, defaultDomainName,
                                                                    reserveTemporaryRoutes);
         systemParameters.injectInto(descriptor);
@@ -72,6 +78,12 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
             return defaultDomain.getName();
         }
         return null;
+    }
+
+    private void checkForOverwrittenReadOnlyParameters(DeploymentDescriptor descriptor) {
+        getStepLogger().debug(MessageFormat.format(Messages.CHECKING_FOR_OVERWRITING_READ_ONLY_PARAMETERS, descriptor.getId()));
+        readOnlyParametersChecker.check(descriptor);
+        getStepLogger().debug(Messages.NO_READ_ONLY_PARAMETERS_ARE_OVERWRITTEN);
     }
 
     private SystemParameters createSystemParameters(DelegateExecution context, CloudControllerClient client, String defaultDomain,

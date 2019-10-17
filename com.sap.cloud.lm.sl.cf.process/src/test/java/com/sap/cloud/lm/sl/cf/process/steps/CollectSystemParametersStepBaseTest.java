@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
 
+import com.sap.cloud.lm.sl.cf.process.util.ReadOnlyParametersChecker;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
@@ -37,6 +38,9 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
 
     @Mock
     protected CredentialsGenerator credentialsGenerator;
+
+    @Mock
+    protected ReadOnlyParametersChecker readOnlyParametersChecker;
 
     @Before
     public void setUp() throws MalformedURLException {

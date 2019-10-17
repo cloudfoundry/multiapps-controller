@@ -1,0 +1,11 @@
+_schema-version: "3.1"
+ID: com.sap.mta.sample.util
+version: 2.4.0
+
+modules:
+  - name: demo-app
+    type: javascript.nodejs
+    requires:
+      - name: demo-service
+    parameters:
+      default-domain: "some.default.domain"

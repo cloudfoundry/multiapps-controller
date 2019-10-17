@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.SystemParameters;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -61,6 +63,8 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         step.execute(context);
 
         DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        Mockito.verify(readOnlyParametersChecker)
+               .check(any());
         List<Module> modules = descriptor.getModules();
         assertEquals(2, modules.size());
         for (Module module : modules) {
