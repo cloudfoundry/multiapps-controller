@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
 
 public class FileSystemFileStorage implements FileStorage {
 
@@ -142,10 +143,10 @@ public class FileSystemFileStorage implements FileStorage {
     }
 
     private FileEntry createFileEntry(String space, String id) {
-        FileEntry fileEntry = new FileEntry();
-        fileEntry.setSpace(space);
-        fileEntry.setId(id);
-        return fileEntry;
+        return ImmutableFileEntry.builder()
+                                 .space(space)
+                                 .id(id)
+                                 .build();
     }
 
     private InputStream getFileContentStream(FileEntry fileEntry) throws IOException {

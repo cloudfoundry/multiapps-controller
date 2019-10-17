@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileInfo;
 
 public class FileUploader {
 
@@ -70,7 +71,12 @@ public class FileUploader {
             throw new FileStorageException(e);
         }
 
-        return new FileInfo(tempFile, size, getDigestString(digest.digest()), DIGEST_METHOD);
+        return ImmutableFileInfo.builder()
+                                .file(tempFile)
+                                .size(size)
+                                .digest(getDigestString(digest.digest()))
+                                .digestAlgorithm(DIGEST_METHOD)
+                                .build();
     }
 
     private static String getDigestString(byte[] digest) {

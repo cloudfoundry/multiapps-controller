@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.ByteArraySqlFileQueryProvider;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -96,10 +97,13 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
 
     private FileEntry createFileEntry(final String space, final String namespace, final String remoteLogName, File localLog)
         throws NoSuchAlgorithmException, IOException {
-        FileInfo localLogFileInfo = new FileInfo(localLog,
-                                                 BigInteger.valueOf(localLog.length()),
-                                                 DigestHelper.computeFileChecksum(localLog.toPath(), DIGEST_METHOD),
-                                                 DIGEST_METHOD);
+
+        FileInfo localLogFileInfo = ImmutableFileInfo.builder()
+                                                     .file(localLog)
+                                                     .size(BigInteger.valueOf(localLog.length()))
+                                                     .digest(DigestHelper.computeFileChecksum(localLog.toPath(), DIGEST_METHOD))
+                                                     .digestAlgorithm(DIGEST_METHOD)
+                                                     .build();
         return createFileEntry(space, namespace, remoteLogName, localLogFileInfo);
     }
 

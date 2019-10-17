@@ -29,6 +29,7 @@ import org.junit.Test;
 
 import com.google.common.net.MediaType;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
 import com.sap.cloud.lm.sl.common.util.DigestHelper;
 
 public class ObjectStoreFileStorageTest {
@@ -188,9 +189,10 @@ public class ObjectStoreFileStorageTest {
         String fileSpace = "not-existing-space-id";
         String fileDigest = DigestHelper.computeFileChecksum(Paths.get(TEST_FILE_LOCATION), DIGEST_METHOD)
                                         .toLowerCase();
-        FileEntry dummyFileEntry = new FileEntry();
-        dummyFileEntry.setId(fileId);
-        dummyFileEntry.setSpace(fileSpace);
+        FileEntry dummyFileEntry = ImmutableFileEntry.builder()
+                                                     .id(fileId)
+                                                     .space(fileSpace)
+                                                     .build();
         validateFileContent(dummyFileEntry, fileDigest);
     }
 
@@ -225,7 +227,7 @@ public class ObjectStoreFileStorageTest {
         Path testFilePath = Paths.get(pathString)
                                  .toAbsolutePath();
         FileEntry fileEntry = createFileEntry(space, namespace);
-        enrichFileEntry(fileEntry, testFilePath, date);
+        fileEntry = enrichFileEntry(fileEntry, testFilePath, date);
         fileStorage.addFile(fileEntry, testFilePath.toFile());
         return fileEntry;
     }
@@ -235,21 +237,24 @@ public class ObjectStoreFileStorageTest {
     }
 
     private FileEntry createFileEntry(String space, String namespace) {
-        FileEntry fileEntry = new FileEntry();
-        fileEntry.setId(UUID.randomUUID()
-                            .toString());
-        fileEntry.setSpace(space);
-        fileEntry.setNamespace(namespace);
-        return fileEntry;
+        return ImmutableFileEntry.builder()
+                                 .id(UUID.randomUUID()
+                                         .toString())
+                                 .space(space)
+                                 .namespace(namespace)
+                                 .build();
     }
 
-    private void enrichFileEntry(FileEntry fileEntry, Path path, Date date) {
+    private FileEntry enrichFileEntry(FileEntry fileEntry, Path path, Date date) {
         long sizeOfFile = FileUtils.sizeOf(path.toFile());
         BigInteger bigInteger = BigInteger.valueOf(sizeOfFile);
-        fileEntry.setSize(bigInteger);
-        fileEntry.setModified(date != null ? date : new Date(System.currentTimeMillis()));
-        fileEntry.setName(path.getFileName()
-                              .toString());
+        return ImmutableFileEntry.builder()
+                                 .from(fileEntry)
+                                 .size(bigInteger)
+                                 .modified(date != null ? date : new Date(System.currentTimeMillis()))
+                                 .name(path.getFileName()
+                                           .toString())
+                                 .build();
     }
 
     private void assertFileExists(boolean exceptedFileExist, FileEntry actualFile) {

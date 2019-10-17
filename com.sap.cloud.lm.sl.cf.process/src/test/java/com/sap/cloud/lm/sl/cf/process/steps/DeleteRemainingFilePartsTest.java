@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
@@ -48,16 +49,16 @@ public class DeleteRemainingFilePartsTest extends SyncFlowableStepTest<DeleteRem
     }
 
     private FileEntry createFileEntry(String id, String name, String space) {
-        FileEntry fileEntry = new FileEntry();
-        fileEntry.setId(id);
-        fileEntry.setSpace(space);
-        fileEntry.setName(name);
-        fileEntry.setDigest(DIGEST_ALGORITHM);
-        fileEntry.setModified(new Date());
-        fileEntry.setNamespace(NAMESPACE);
-        fileEntry.setSize(BigInteger.TEN);
-        fileEntry.setDigest(DIGEST);
-        return fileEntry;
+        return ImmutableFileEntry.builder()
+                                 .id(id)
+                                 .name(name)
+                                 .namespace(NAMESPACE)
+                                 .space(space)
+                                 .digest(DIGEST)
+                                 .digestAlgorithm(DIGEST_ALGORITHM)
+                                 .size(BigInteger.TEN)
+                                 .modified(new Date())
+                                 .build();
     }
 
     @Override
