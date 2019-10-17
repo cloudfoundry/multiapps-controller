@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
-import com.sap.cloud.lm.sl.cf.persistence.processors.FileUploadProcessor;
 
 public class FileUploader {
 
@@ -41,7 +40,7 @@ public class FileUploader {
      * @return uploaded file
      * @throws FileStorageException
      */
-    public static FileInfo uploadFile(InputStream is, FileUploadProcessor fileUploadProcessor) throws FileStorageException {
+    public static FileInfo uploadFile(InputStream is) throws FileStorageException {
         BigInteger size = BigInteger.valueOf(0);
         MessageDigest digest;
         try {
@@ -60,11 +59,11 @@ public class FileUploader {
         // store the passed input to the file system
         try (OutputStream outputFileStream = new FileOutputStream(tempFile)) {
             int read = 0;
-            byte[] buffer = new byte[getProcessingBufferSize(fileUploadProcessor)];
-            while ((read = is.read(buffer, 0, getProcessingBufferSize(fileUploadProcessor))) > -1) {
-                fileUploadProcessor.writeFileChunk(outputFileStream, buffer, read);
-                digest.update(buffer, 0, read); // original file digest
-                size = size.add(BigInteger.valueOf(read)); // original file size
+            byte[] buffer = new byte[Constants.BUFFER_SIZE];
+            while ((read = is.read(buffer, 0, Constants.BUFFER_SIZE)) > -1) {
+                outputFileStream.write(buffer, 0, read);
+                digest.update(buffer, 0, read);
+                size = size.add(BigInteger.valueOf(read));
             }
         } catch (IOException e) {
             FileUploader.deleteFile(tempFile);
@@ -72,14 +71,6 @@ public class FileUploader {
         }
 
         return new FileInfo(tempFile, size, getDigestString(digest.digest()), DIGEST_METHOD);
-    }
-
-    private static int getProcessingBufferSize(FileUploadProcessor fileUploadProcessor) {
-        int processingBufferSize = fileUploadProcessor.getProcessingBufferSize();
-        if (processingBufferSize <= 0) {
-            return Constants.DEFAULT_BUFFER_SIZE;
-        }
-        return processingBufferSize;
     }
 
     private static String getDigestString(byte[] digest) {

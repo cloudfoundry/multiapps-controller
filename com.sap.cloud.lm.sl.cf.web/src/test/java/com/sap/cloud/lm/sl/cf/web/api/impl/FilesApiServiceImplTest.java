@@ -28,10 +28,9 @@ import org.springframework.http.ResponseEntity;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.processors.FileUploadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.persistence.util.DefaultConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.cf.web.api.model.FileMetadata;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -52,7 +51,7 @@ public class FilesApiServiceImplTest {
     @Mock
     private ServletFileUpload servletFileUpload;
 
-    private static final long MAX_PERMITTED_SIZE = new DefaultConfiguration().getMaxUploadSize();
+    private static final long MAX_PERMITTED_SIZE = new Configuration().getMaxUploadSize();
 
     @InjectMocks
     private FilesApiServiceImpl testedClass = new FilesApiServiceImpl() {
@@ -113,19 +112,19 @@ public class FilesApiServiceImplTest {
                .thenReturn(Mockito.mock(InputStream.class));
         Mockito.when(fileItemStream.getName())
                .thenReturn(fileName);
-        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(fileName), (FileUploadProcessor) Mockito.any(), Mockito.any()))
+        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(fileName), Mockito.any()))
                .thenReturn(fileEntry);
 
         ResponseEntity<FileMetadata> response = testedClass.uploadFile(request, SPACE_GUID);
 
         Mockito.verify(servletFileUpload)
-               .setSizeMax(Mockito.eq(new DefaultConfiguration().getMaxUploadSize()));
+               .setSizeMax(Mockito.eq(new Configuration().getMaxUploadSize()));
         Mockito.verify(fileItemIterator, Mockito.times(3))
                .hasNext();
         Mockito.verify(fileItemStream)
                .openStream();
         Mockito.verify(fileService)
-               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(fileName), (FileUploadProcessor) Mockito.any(), Mockito.any());
+               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(fileName), Mockito.any());
 
         FileMetadata fileMetadata = response.getBody();
         assertMetadataMatches(fileEntry, fileMetadata);

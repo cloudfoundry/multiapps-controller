@@ -17,7 +17,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
-import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -81,16 +81,15 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
 
     private void prepareFileService(Map<String, String> fileIdToExtensionDescriptor) throws FileStorageException {
         Mockito.doAnswer((invocation) -> {
-            FileDownloadProcessor contentProcessor = (FileDownloadProcessor) invocation.getArguments()[0];
-            String fileId = contentProcessor.getFileEntry()
-                                            .getId();
+            String fileId = (String) invocation.getArgument(1);
+            FileContentProcessor contentProcessor = (FileContentProcessor) invocation.getArgument(2);
             String fileContent = fileIdToExtensionDescriptor.get(fileId);
 
-            contentProcessor.processContent(IOUtils.toInputStream(fileContent, StandardCharsets.UTF_8));
+            contentProcessor.processFileContent(IOUtils.toInputStream(fileContent, StandardCharsets.UTF_8));
             return null;
         })
                .when(fileService)
-               .processFileContent(Mockito.any());
+               .processFileContent(Mockito.anyString(), Mockito.anyString(), Mockito.any());
     }
 
     private Map<String, String> generateIds(List<String> extensionDescriptors) {

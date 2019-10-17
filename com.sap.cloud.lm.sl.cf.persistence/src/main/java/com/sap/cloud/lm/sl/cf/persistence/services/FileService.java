@@ -17,14 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
-import com.sap.cloud.lm.sl.cf.persistence.executors.SqlQueryExecutor;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
-import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
-import com.sap.cloud.lm.sl.cf.persistence.processors.FileUploadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.ExternalSqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.SqlFileQueryProvider;
+import com.sap.cloud.lm.sl.cf.persistence.util.SqlQueryExecutor;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.DigestHelper;
 
@@ -52,8 +50,8 @@ public class FileService {
         this.fileStorage = fileStorage;
     }
 
-    public FileEntry addFile(String space, String name, FileUploadProcessor fileInfoProcessor, InputStream is) throws FileStorageException {
-        return addFile(space, null, name, fileInfoProcessor, is);
+    public FileEntry addFile(String space, String name, InputStream inputStream) throws FileStorageException {
+        return addFile(space, null, name, inputStream);
     }
 
     /**
@@ -63,12 +61,11 @@ public class FileService {
      * @param namespace namespace where the file will be uploaded
      * @param name name of the uploaded file
      * @param fileUploadProcessor file processor
-     * @param is input stream to read the content from
+     * @param inputStream input stream to read the content from
      * @return an object representing the file upload
      * @throws FileStorageException
      */
-    public FileEntry addFile(String space, String namespace, String name, FileUploadProcessor fileUploadProcessor, InputStream is)
-        throws FileStorageException {
+    public FileEntry addFile(String space, String namespace, String name, InputStream inputStream) throws FileStorageException {
         // Stream the file to a temp location and get the size and MD5 digest
         // as an alternative we can pass the original stream to the database,
         // and decorate the blob stream to calculate digest and size, but this will still require
@@ -76,8 +73,8 @@ public class FileService {
         // size), which is probably inefficient
         FileInfo fileInfo = null;
         FileEntry fileEntry = null;
-        try (InputStream inputStream = is) {
-            fileInfo = FileUploader.uploadFile(inputStream, fileUploadProcessor);
+        try (InputStream autoClosedInputStream = inputStream) {
+            fileInfo = FileUploader.uploadFile(inputStream);
             fileEntry = addFile(space, namespace, name, fileInfo);
         } catch (IOException e) {
             logger.debug(e.getMessage(), e);
@@ -103,7 +100,7 @@ public class FileService {
         }
     }
 
-    public List<FileEntry> listFiles(final String space, final String namespace) throws FileStorageException {
+    public List<FileEntry> listFiles(String space, String namespace) throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesQuery(space, namespace));
         } catch (SQLException e) {
@@ -112,7 +109,7 @@ public class FileService {
         }
     }
 
-    public FileEntry getFile(final String space, final String id) throws FileStorageException {
+    public FileEntry getFile(String space, String id) throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getRetrieveFileQuery(space, id));
         } catch (SQLException e) {
@@ -126,16 +123,16 @@ public class FileService {
      * @param fileDownloadProcessor file processor
      * @throws FileStorageException
      */
-    public void processFileContent(final FileDownloadProcessor fileDownloadProcessor) throws FileStorageException {
-        fileStorage.processFileContent(fileDownloadProcessor);
+    public void processFileContent(String space, String id, FileContentProcessor fileContentProcessor) throws FileStorageException {
+        fileStorage.processFileContent(space, id, fileContentProcessor);
     }
 
-    public int deleteBySpaceAndNamespace(final String space, final String namespace) throws FileStorageException {
+    public int deleteBySpaceAndNamespace(String space, String namespace) throws FileStorageException {
         fileStorage.deleteFilesBySpaceAndNamespace(space, namespace);
         return deleteFileAttributesBySpaceAndNamespace(space, namespace);
     }
 
-    public int deleteBySpace(final String space) throws FileStorageException {
+    public int deleteBySpace(String space) throws FileStorageException {
         fileStorage.deleteFilesBySpace(space);
         return deleteFileAttributesBySpace(space);
     }
@@ -145,7 +142,7 @@ public class FileService {
         return deleteFileAttributesModifiedBefore(modificationTime) + deletedItems;
     }
 
-    public boolean deleteFile(final String space, final String id) throws FileStorageException {
+    public boolean deleteFile(String space, String id) throws FileStorageException {
         fileStorage.deleteFile(id, space);
         return deleteFileAttribute(space, id);
     }
@@ -165,7 +162,7 @@ public class FileService {
         storeFileAttributes(fileEntry);
     }
 
-    protected boolean deleteFileAttribute(final String space, final String id) throws FileStorageException {
+    protected boolean deleteFileAttribute(String space, String id) throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteFileEntryQuery(space, id));
         } catch (SQLException e) {
@@ -181,7 +178,7 @@ public class FileService {
         }
     }
 
-    protected int deleteFileAttributesBySpaceAndNamespace(final String space, final String namespace) throws FileStorageException {
+    protected int deleteFileAttributesBySpaceAndNamespace(String space, String namespace) throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteBySpaceAndNamespaceQuery(space, namespace));
         } catch (SQLException e) {
@@ -238,7 +235,7 @@ public class FileService {
                    .toString();
     }
 
-    private boolean storeFileAttributes(final FileEntry fileEntry) throws FileStorageException {
+    private boolean storeFileAttributes(FileEntry fileEntry) throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileAttributesQuery(fileEntry));
         } catch (SQLException e) {

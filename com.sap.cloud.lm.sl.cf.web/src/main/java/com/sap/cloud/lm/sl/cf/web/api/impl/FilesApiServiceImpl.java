@@ -27,7 +27,6 @@ import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
-import com.sap.cloud.lm.sl.cf.persistence.util.DefaultConfiguration;
 import com.sap.cloud.lm.sl.cf.web.api.FilesApiService;
 import com.sap.cloud.lm.sl.cf.web.api.model.FileMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableFileMetadata;
@@ -96,7 +95,7 @@ public class FilesApiServiceImpl implements FilesApiService {
             }
 
             try (InputStream in = item.openStream()) {
-                FileEntry entry = fileService.addFile(spaceGuid, item.getName(), getConfiguration().getFileUploadProcessor(), in);
+                FileEntry entry = fileService.addFile(spaceGuid, item.getName(), in);
                 uploadedFiles.add(entry);
             }
         }
@@ -108,7 +107,7 @@ public class FilesApiServiceImpl implements FilesApiService {
     }
 
     protected Configuration getConfiguration() {
-        return new DefaultConfiguration();
+        return new Configuration();
     }
 
     private FileMetadata parseFileEntry(FileEntry fileEntry) {

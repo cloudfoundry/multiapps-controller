@@ -9,7 +9,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
@@ -78,12 +77,8 @@ public class ArchiveMerger {
         FileContentProcessor archivePartProcessor = filePartsMerger::merge;
         for (FileEntry archivePart : sortedArchiveParts) {
             stepLogger.debug(Messages.MERGING_ARCHIVE_PART, archivePart.getId(), archivePart.getName());
-            fileService.processFileContent(createFileDownloadProcessor(archivePartProcessor, archivePart));
+            fileService.processFileContent(StepsUtil.getSpaceId(context), archivePart.getId(), archivePartProcessor);
         }
-    }
-
-    private DefaultFileDownloadProcessor createFileDownloadProcessor(FileContentProcessor archivePartProcessor, FileEntry archivePart) {
-        return new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), archivePart.getId(), archivePartProcessor);
     }
 
 }

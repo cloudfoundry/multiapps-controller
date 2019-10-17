@@ -27,7 +27,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveBuilder;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.GitRepoCloner;
@@ -142,14 +141,12 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
         getStepLogger().debug("uploading file " + mtarZip.toAbsolutePath()
                                                          .toString()
             + " to DB");
-        Configuration fileConfiguration = configuration.getFileConfiguration();
         String spaceId = StepsUtil.getSpaceId(context);
         try (InputStream mtarInputStream = Files.newInputStream(mtarZip)) {
             String serviceId = StepsUtil.getServiceId(context);
             String mtarName = mtarZip.getFileName()
                                      .toString();
-            FileEntry entry = fileService.addFile(spaceId, serviceId, mtarName, fileConfiguration.getFileUploadProcessor(),
-                                                  mtarInputStream);
+            FileEntry entry = fileService.addFile(spaceId, serviceId, mtarName, mtarInputStream);
             String uploadedMtarId = entry.getId();
             StepsUtil.setArchiveFileId(context, uploadedMtarId);
         }

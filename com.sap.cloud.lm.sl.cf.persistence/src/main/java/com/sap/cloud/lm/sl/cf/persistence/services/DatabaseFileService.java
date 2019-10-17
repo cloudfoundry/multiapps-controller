@@ -8,7 +8,6 @@ import java.util.Date;
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
-import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.BlobSqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.SqlFileQueryProvider;
 
@@ -27,21 +26,21 @@ public class DatabaseFileService extends FileService {
     }
 
     @Override
-    public void processFileContent(final FileDownloadProcessor fileDownloadProcessor) throws FileStorageException {
+    public void processFileContent(String space, String id, FileContentProcessor fileContentProcessor) throws FileStorageException {
         try {
-            getSqlQueryExecutor().execute(getSqlFileQueryProvider().getProcessFileWithContentQuery(fileDownloadProcessor));
+            getSqlQueryExecutor().execute(getSqlFileQueryProvider().getProcessFileWithContentQuery(space, id, fileContentProcessor));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
     }
 
     @Override
-    public int deleteBySpaceAndNamespace(final String space, final String namespace) throws FileStorageException {
+    public int deleteBySpaceAndNamespace(String space, String namespace) throws FileStorageException {
         return deleteFileAttributesBySpaceAndNamespace(space, namespace);
     }
 
     @Override
-    public int deleteBySpace(final String space) throws FileStorageException {
+    public int deleteBySpace(String space) throws FileStorageException {
         return deleteFileAttributesBySpace(space);
     }
 
@@ -51,7 +50,7 @@ public class DatabaseFileService extends FileService {
     }
 
     @Override
-    public boolean deleteFile(final String space, final String id) throws FileStorageException {
+    public boolean deleteFile(String space, String id) throws FileStorageException {
         return deleteFileAttribute(space, id);
     }
 

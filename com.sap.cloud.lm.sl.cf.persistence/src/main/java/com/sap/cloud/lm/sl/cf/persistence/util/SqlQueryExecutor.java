@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.persistence.executors;
+package com.sap.cloud.lm.sl.cf.persistence.util;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import com.sap.cloud.lm.sl.cf.persistence.query.SqlQuery;
-import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
 
 public class SqlQueryExecutor {
 

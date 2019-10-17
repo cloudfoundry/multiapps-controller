@@ -60,7 +60,7 @@ public class ArchiveMergerTest {
     public void testCreateArchiveFromPartsFileStorageExceptionThrown() throws FileStorageException {
         Mockito.doThrow(FileStorageException.class)
                .when(fileService)
-               .processFileContent(any());
+               .processFileContent(any(), any(), any());
         Assertions.assertThrows(SLException.class, () -> archiveMerger.createArchiveFromParts(createFileEntriesFromFile(FILE_ENTRIES)));
     }
 
@@ -97,7 +97,7 @@ public class ArchiveMergerTest {
         List<FileEntry> fileEntryWithoutParts = createFileEntriesFromFile(FILE_ENTRY_WITHOUT_PARTS);
         archiveMerger.createArchiveFromParts(fileEntryWithoutParts);
         Mockito.verify(fileService)
-               .processFileContent(any());
+               .processFileContent(any(), any(), any());
     }
 
     private List<String> getFileEntriesNames(List<FileEntry> fileEntries) {

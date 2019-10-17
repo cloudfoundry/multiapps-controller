@@ -27,7 +27,6 @@ import com.google.common.net.MediaType;
 import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 public class ObjectStoreFileStorage implements FileStorage {
@@ -100,8 +99,8 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     @Override
-    public void processFileContent(FileDownloadProcessor fileDownloadProcessor) throws FileStorageException {
-        FileEntry fileEntry = fileDownloadProcessor.getFileEntry();
+    public void processFileContent(String space, String id, FileContentProcessor fileContentProcessor) throws FileStorageException {
+        FileEntry fileEntry = createFileEntry(space, id);
         try {
             Blob blob = getBlobWithRetries(fileEntry, 3);
             if (blob == null) {
@@ -109,15 +108,22 @@ public class ObjectStoreFileStorage implements FileStorage {
                                                                     fileEntry.getSpace()));
             }
             Payload payload = blob.getPayload();
-            processContent(fileDownloadProcessor, payload);
+            processContent(fileContentProcessor, payload);
         } catch (Exception e) {
             throw new FileStorageException(e);
         }
     }
 
-    private void processContent(FileDownloadProcessor fileDownloadProcessor, Payload payload) throws FileStorageException {
+    private FileEntry createFileEntry(String space, String id) {
+        FileEntry fileEntry = new FileEntry();
+        fileEntry.setSpace(space);
+        fileEntry.setId(id);
+        return fileEntry;
+    }
+
+    private void processContent(FileContentProcessor fileContentProcessor, Payload payload) throws FileStorageException {
         try (InputStream fileContentStream = payload.openStream()) {
-            fileDownloadProcessor.processContent(fileContentStream);
+            fileContentProcessor.processFileContent(fileContentStream);
         } catch (Exception e) {
             throw new FileStorageException(e);
         }

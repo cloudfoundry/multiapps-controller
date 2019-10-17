@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 
 public class FileSystemFileStorage implements FileStorage {
 
@@ -129,17 +128,24 @@ public class FileSystemFileStorage implements FileStorage {
     }
 
     @Override
-    public void processFileContent(FileDownloadProcessor fileDownloadProcessor) throws FileStorageException {
-        FileEntry fileEntry = fileDownloadProcessor.getFileEntry();
+    public void processFileContent(String space, String id, FileContentProcessor fileContentProcessor) throws FileStorageException {
+        FileEntry fileEntry = createFileEntry(space, id);
         if (!hasContent(fileEntry)) {
             throw new FileStorageException(MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(),
                                                                 fileEntry.getSpace()));
         }
-        try (InputStream fileContentStream = getFileContentStream(fileDownloadProcessor.getFileEntry())) {
-            fileDownloadProcessor.processContent(fileContentStream);
+        try (InputStream fileContentStream = getFileContentStream(fileEntry)) {
+            fileContentProcessor.processFileContent(fileContentStream);
         } catch (Exception e) {
             throw new FileStorageException(e);
         }
+    }
+
+    private FileEntry createFileEntry(String space, String id) {
+        FileEntry fileEntry = new FileEntry();
+        fileEntry.setSpace(space);
+        fileEntry.setId(id);
+        return fileEntry;
     }
 
     private InputStream getFileContentStream(FileEntry fileEntry) throws IOException {
