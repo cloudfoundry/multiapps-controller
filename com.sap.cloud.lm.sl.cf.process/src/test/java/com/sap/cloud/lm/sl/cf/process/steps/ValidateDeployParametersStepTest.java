@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
+import java.io.File;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,7 +24,7 @@ import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.persistence.util.DefaultConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.JarSignatureOperations;
@@ -135,7 +136,8 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
                .thenReturn(createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024L + 1));
         Mockito.when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID))
                .thenReturn(null);
-        Mockito.when(fileService.addFile(Mockito.eq("space-id"), Mockito.eq("service-id"), Mockito.anyString(), any()))
+        Mockito.when(fileService.addFile(Mockito.eq("space-id"), Mockito.eq("service-id"), Mockito.anyString(),
+                                         Mockito.any(File.class)))
                .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024L));
     }
 
@@ -157,7 +159,7 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
         Mockito.when(configuration.getMaxMtaDescriptorSize())
                .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
         Mockito.when(configuration.getFileConfiguration())
-               .thenReturn(new DefaultConfiguration(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE));
+               .thenReturn(new Configuration(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE));
     }
 
     private void validate() {

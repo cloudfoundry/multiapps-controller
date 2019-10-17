@@ -36,7 +36,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
@@ -184,11 +184,12 @@ public class UploadAppStepTest {
             doAnswer(new Answer<Void>() {
                 @Override
                 public Void answer(InvocationOnMock invocation) throws Exception {
-                    ((FileDownloadProcessor) invocation.getArguments()[0]).processContent(null);
+                    FileContentProcessor contentProcessor = invocation.getArgument(2);
+                    contentProcessor.processFileContent(null);
                     return null;
                 }
             }).when(fileService)
-              .processFileContent(any());
+              .processFileContent(Mockito.anyString(), Mockito.anyString(), Mockito.any());
         }
 
         private class UploadAppStepMock extends UploadAppStep {

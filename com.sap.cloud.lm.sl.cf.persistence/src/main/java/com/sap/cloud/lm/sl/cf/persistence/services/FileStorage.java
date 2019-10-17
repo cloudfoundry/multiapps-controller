@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 
 public interface FileStorage {
 
@@ -21,6 +20,6 @@ public interface FileStorage {
 
     int deleteFilesModifiedBefore(Date modificationTime) throws FileStorageException;
 
-    void processFileContent(FileDownloadProcessor fileDownloadProcessor) throws FileStorageException;
+    void processFileContent(String space, String id, FileContentProcessor fileContentProcessor) throws FileStorageException;
 
 }

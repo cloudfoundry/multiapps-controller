@@ -29,8 +29,6 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
-import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileUploadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
 import com.sap.cloud.lm.sl.common.util.DigestHelper;
 import com.sap.cloud.lm.sl.common.util.TestDataSourceProvider;
@@ -191,7 +189,7 @@ public class DatabaseFileServiceTest {
 
     protected FileEntry addFile(String space, String namespace, String fileName, String resourceName) throws Exception {
         InputStream resourceStream = getResource(resourceName);
-        FileEntry fileEntry = fileService.addFile(space, namespace, fileName, new DefaultFileUploadProcessor(), resourceStream);
+        FileEntry fileEntry = fileService.addFile(space, namespace, fileName, resourceStream);
         verifyFileEntry(fileEntry, space, namespace);
         return fileEntry;
     }
@@ -234,16 +232,16 @@ public class DatabaseFileServiceTest {
 
     private FileEntry addFileEntry(String spaceId) throws FileStorageException {
         InputStream resourceStream = getResource(PIC_RESOURCE_NAME);
-        return fileService.addFile(spaceId, NAMESPACE_1, PIC_STORAGE_NAME, new DefaultFileUploadProcessor(), resourceStream);
+        return fileService.addFile(spaceId, NAMESPACE_1, PIC_STORAGE_NAME, resourceStream);
     }
 
     private void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {
-        fileService.processFileContent(new DefaultFileDownloadProcessor(storedFile.getSpace(), storedFile.getId(), contentStream -> {
+        fileService.processFileContent(storedFile.getSpace(), storedFile.getId(), contentStream -> {
             // make a digest out of the content and compare it to the original
             final byte[] digest = calculateFileDigest(contentStream);
             assertEquals(expectedFileChecksum, DatatypeConverter.printHexBinary(digest)
                                                                 .toLowerCase());
-        }));
+        });
     }
 
     private byte[] calculateFileDigest(InputStream contentStream) throws NoSuchAlgorithmException, IOException {

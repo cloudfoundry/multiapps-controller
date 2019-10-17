@@ -19,8 +19,8 @@ import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.dialects.DataSourceDialect;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.query.SqlQuery;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
 
 public abstract class SqlFileQueryProvider {
@@ -94,7 +94,7 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
-    public SqlQuery<List<FileEntry>> getListFilesQuery(final String space, final String namespace) {
+    public SqlQuery<List<FileEntry>> getListFilesQuery(String space, String namespace) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
@@ -120,7 +120,7 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
-    public SqlQuery<List<FileEntry>> getListFilesQuery(final String space, final String namespace, final String fileName) {
+    public SqlQuery<List<FileEntry>> getListFilesQuery(String space, String namespace, String fileName) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
@@ -161,7 +161,7 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
-    public SqlQuery<FileEntry> getRetrieveFileQuery(final String space, final String id) {
+    public SqlQuery<FileEntry> getRetrieveFileQuery(String space, String id) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
@@ -181,22 +181,19 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
-    public SqlQuery<Void> getProcessFileWithContentQuery(final FileDownloadProcessor fileDownloadProcessor) {
+    public SqlQuery<Void> getProcessFileWithContentQuery(String space, String id, FileContentProcessor fileContentProcessor) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
             try {
                 statement = connection.prepareStatement(getSelectWithContentQuery());
-                statement.setString(1, fileDownloadProcessor.getFileEntry()
-                                                            .getId());
-                statement.setString(2, fileDownloadProcessor.getFileEntry()
-                                                            .getSpace());
+                statement.setString(1, id);
+                statement.setString(2, space);
                 resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    processFileContent(resultSet, fileDownloadProcessor);
+                    processFileContent(resultSet, fileContentProcessor);
                 } else {
-                    throw new SQLException(MessageFormat.format(Messages.FILE_NOT_FOUND, fileDownloadProcessor.getFileEntry()
-                                                                                                              .getId()));
+                    throw new SQLException(MessageFormat.format(Messages.FILE_NOT_FOUND, id));
                 }
             } finally {
                 JdbcUtil.closeQuietly(resultSet);
@@ -206,7 +203,7 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
-    public SqlQuery<Integer> getDeleteBySpaceAndNamespaceQuery(final String space, final String namespace) {
+    public SqlQuery<Integer> getDeleteBySpaceAndNamespaceQuery(String space, String namespace) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {
@@ -222,7 +219,7 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
-    public SqlQuery<Integer> getDeleteByNamespaceQuery(final String namespace) {
+    public SqlQuery<Integer> getDeleteByNamespaceQuery(String namespace) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {
@@ -236,7 +233,7 @@ public abstract class SqlFileQueryProvider {
 
     }
 
-    public SqlQuery<Integer> getDeleteBySpaceQuery(final String space) {
+    public SqlQuery<Integer> getDeleteBySpaceQuery(String space) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {
@@ -266,7 +263,7 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
-    public SqlQuery<Boolean> getDeleteFileEntryQuery(final String space, final String id) {
+    public SqlQuery<Boolean> getDeleteFileEntryQuery(String space, String id) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {
@@ -345,10 +342,10 @@ public abstract class SqlFileQueryProvider {
         return dataSourceDialect;
     }
 
-    private void processFileContent(ResultSet resultSet, final FileDownloadProcessor fileDownloadProcessor) throws SQLException {
+    private void processFileContent(ResultSet resultSet, FileContentProcessor fileContentProcessor) throws SQLException {
         InputStream fileStream = getContentBinaryStream(resultSet, getContentColumnName());
         try {
-            fileDownloadProcessor.processContent(fileStream);
+            fileContentProcessor.processFileContent(fileStream);
         } catch (Exception e) {
             throw new SQLException(e.getMessage(), e);
         } finally {

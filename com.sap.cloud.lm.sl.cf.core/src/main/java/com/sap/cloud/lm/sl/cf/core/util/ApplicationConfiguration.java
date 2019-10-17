@@ -29,7 +29,6 @@ import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
-import com.sap.cloud.lm.sl.cf.persistence.util.DefaultConfiguration;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -247,7 +246,7 @@ public class ApplicationConfiguration {
     }
 
     public Configuration getFileConfiguration() {
-        return new DefaultConfiguration(getMaxUploadSize());
+        return new Configuration(getMaxUploadSize());
     }
 
     public URL getControllerUrl() {

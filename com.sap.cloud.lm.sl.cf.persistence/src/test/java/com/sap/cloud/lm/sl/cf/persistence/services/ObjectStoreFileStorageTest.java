@@ -29,7 +29,6 @@ import org.junit.Test;
 
 import com.google.common.net.MediaType;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.common.util.DigestHelper;
 
 public class ObjectStoreFileStorageTest {
@@ -196,12 +195,12 @@ public class ObjectStoreFileStorageTest {
     }
 
     private void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {
-        fileStorage.processFileContent(new DefaultFileDownloadProcessor(storedFile.getSpace(), storedFile.getId(), contentStream -> {
+        fileStorage.processFileContent(storedFile.getSpace(), storedFile.getId(), contentStream -> {
             // make a digest out of the content and compare it to the original
             final byte[] digest = calculateFileDigest(contentStream);
             assertEquals(expectedFileChecksum, DatatypeConverter.printHexBinary(digest)
                                                                 .toLowerCase());
-        }));
+        });
     }
 
     private byte[] calculateFileDigest(InputStream contentStream) throws NoSuchAlgorithmException, IOException {

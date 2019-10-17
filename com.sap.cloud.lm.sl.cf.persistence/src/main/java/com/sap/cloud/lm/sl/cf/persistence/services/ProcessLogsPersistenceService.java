@@ -21,7 +21,6 @@ import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
-import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.ByteArraySqlFileQueryProvider;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -54,7 +53,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
 
         FileContentProcessor streamProcessor = is -> builder.append(IOUtils.toString(is, Charset.defaultCharset()));
         for (String logId : logIds) {
-            processFileContent(new DefaultFileDownloadProcessor(space, logId, streamProcessor));
+            processFileContent(space, logId, streamProcessor);
         }
         return builder.toString();
     }

@@ -15,8 +15,6 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
-import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
-import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -51,15 +49,10 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     }
 
     private void processApplicationArchive(final DelegateExecution context, String appArchiveId) throws FileStorageException {
-        FileDownloadProcessor deploymentDescriptorProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
-                                                                                               appArchiveId,
-                                                                                               createDeploymentDescriptorFileContentProcessor(context));
-        fileService.processFileContent(deploymentDescriptorProcessor);
-        FileDownloadProcessor manifestProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
-                                                                                   appArchiveId,
-                                                                                   createManifestFileContentProcessor(appArchiveId,
-                                                                                                                      context));
-        fileService.processFileContent(manifestProcessor);
+        fileService.processFileContent(StepsUtil.getSpaceId(context), appArchiveId,
+                                       createDeploymentDescriptorFileContentProcessor(context));
+        fileService.processFileContent(StepsUtil.getSpaceId(context), appArchiveId,
+                                       createManifestFileContentProcessor(appArchiveId, context));
     }
 
     private FileContentProcessor createDeploymentDescriptorFileContentProcessor(DelegateExecution context) {

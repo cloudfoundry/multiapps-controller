@@ -19,8 +19,6 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
-import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileUploadProcessor;
 
 public class FileServiceTest extends DatabaseFileServiceTest {
 
@@ -43,7 +41,7 @@ public class FileServiceTest extends DatabaseFileServiceTest {
         String space = SPACE_1;
         String namespace = NAMESPACE_1;
         try {
-            fileService.addFile(space, namespace, PIC_STORAGE_NAME, new DefaultFileUploadProcessor(), resourceStream);
+            fileService.addFile(space, namespace, PIC_STORAGE_NAME, resourceStream);
             fail("addFile should fail with exception");
         } catch (FileStorageException e) {
             Mockito.verify(fileStorage, Mockito.times(1))
@@ -55,12 +53,10 @@ public class FileServiceTest extends DatabaseFileServiceTest {
 
     @Test
     public void processFileContentTest() throws Exception {
-        DefaultFileDownloadProcessor downloadProcessor = new DefaultFileDownloadProcessor(SPACE_1,
-                                                                                          "1111-2222-3333-4444",
-                                                                                          Mockito.mock(FileContentProcessor.class));
-        fileService.processFileContent(downloadProcessor);
+        FileContentProcessor fileContentProcessor = Mockito.mock(FileContentProcessor.class);
+        fileService.processFileContent(SPACE_1, "1111-2222-3333-4444", fileContentProcessor);
         Mockito.verify(fileStorage, Mockito.times(1))
-               .processFileContent(Mockito.eq(downloadProcessor));
+               .processFileContent(SPACE_1, "1111-2222-3333-4444", fileContentProcessor);
     }
 
     @Test
