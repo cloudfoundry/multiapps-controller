@@ -19,6 +19,7 @@ import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.dialects.DataSourceDialect;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.query.SqlQuery;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
@@ -362,17 +363,17 @@ public abstract class SqlFileQueryProvider {
     protected abstract InputStream getContentBinaryStream(ResultSet resultSet, String columnName) throws SQLException;
 
     private FileEntry getFileEntry(ResultSet resultSet) throws SQLException {
-        FileEntry fileEntry = new FileEntry();
-        fileEntry.setId(resultSet.getString(Constants.FILE_ENTRY_ID));
-        fileEntry.setDigest(resultSet.getString(Constants.FILE_ENTRY_DIGEST));
-        fileEntry.setSpace(resultSet.getString(Constants.FILE_ENTRY_SPACE));
-        fileEntry.setName(resultSet.getString(Constants.FILE_ENTRY_NAME));
-        fileEntry.setNamespace(resultSet.getString(Constants.FILE_ENTRY_NAMESPACE));
-        fileEntry.setSize(getDataSourceDialect().getBigInteger(resultSet, Constants.FILE_ENTRY_SIZE));
-        fileEntry.setDigestAlgorithm(resultSet.getString(Constants.FILE_ENTRY_DIGEST_ALGORITHM));
         Timestamp modifiedAsTimestamp = resultSet.getTimestamp(Constants.FILE_ENTRY_MODIFIED);
-        fileEntry.setModified(new Date(modifiedAsTimestamp.getTime()));
-        return fileEntry;
+        return ImmutableFileEntry.builder()
+                                 .id(resultSet.getString(Constants.FILE_ENTRY_ID))
+                                 .digest(resultSet.getString(Constants.FILE_ENTRY_DIGEST))
+                                 .digestAlgorithm(resultSet.getString(Constants.FILE_ENTRY_DIGEST_ALGORITHM))
+                                 .name(resultSet.getString(Constants.FILE_ENTRY_NAME))
+                                 .namespace(resultSet.getString(Constants.FILE_ENTRY_NAMESPACE))
+                                 .space(resultSet.getString(Constants.FILE_ENTRY_SPACE))
+                                 .modified(new Date(modifiedAsTimestamp.getTime()))
+                                 .size(getDataSourceDialect().getBigInteger(resultSet, Constants.FILE_ENTRY_SIZE))
+                                 .build();
     }
 
     private void addFileEntriesAsBatches(PreparedStatement statement, List<FileEntry> entries) throws SQLException {

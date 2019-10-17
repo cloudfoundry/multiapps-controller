@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
 import com.sap.cloud.lm.sl.common.util.DigestHelper;
 
 public class FileServiceFileStorageTest {
@@ -147,9 +148,10 @@ public class FileServiceFileStorageTest {
         String fileSpace = "not-existing-space-id";
         String fileDigest = DigestHelper.computeFileChecksum(Paths.get(TEST_FILE_LOCATION), DIGEST_METHOD)
                                         .toLowerCase();
-        FileEntry dummyFileEntry = new FileEntry();
-        dummyFileEntry.setId(fileId);
-        dummyFileEntry.setSpace(fileSpace);
+        FileEntry dummyFileEntry = ImmutableFileEntry.builder()
+                                                     .id(fileId)
+                                                     .space(fileSpace)
+                                                     .build();
         validateFileContent(dummyFileEntry, fileDigest);
     }
 
@@ -189,12 +191,12 @@ public class FileServiceFileStorageTest {
     }
 
     private FileEntry createFileEntry(String space, String namespace) {
-        FileEntry fileEntry = new FileEntry();
-        fileEntry.setId(UUID.randomUUID()
-                            .toString());
-        fileEntry.setSpace(space);
-        fileEntry.setNamespace(namespace);
-        return fileEntry;
+        return ImmutableFileEntry.builder()
+                                 .id(UUID.randomUUID()
+                                         .toString())
+                                 .space(space)
+                                 .namespace(namespace)
+                                 .build();
     }
 
     private void assertFileExists(boolean exceptedFileExist, FileEntry actualFile) {

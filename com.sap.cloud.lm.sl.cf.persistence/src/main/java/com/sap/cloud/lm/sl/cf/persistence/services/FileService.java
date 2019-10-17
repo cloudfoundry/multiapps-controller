@@ -20,6 +20,8 @@ import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.ExternalSqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.SqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.util.SqlQueryExecutor;
@@ -195,16 +197,16 @@ public class FileService {
     }
 
     protected FileEntry createFileEntry(String space, String namespace, String name, FileInfo localFile) {
-        FileEntry fileEntry = new FileEntry();
-        fileEntry.setId(generateRandomId());
-        fileEntry.setSpace(space);
-        fileEntry.setName(name);
-        fileEntry.setNamespace(namespace);
-        fileEntry.setSize(localFile.getSize());
-        fileEntry.setDigest(localFile.getDigest());
-        fileEntry.setDigestAlgorithm(localFile.getDigestAlgorithm());
-        fileEntry.setModified(new Timestamp(System.currentTimeMillis()));
-        return fileEntry;
+        return ImmutableFileEntry.builder()
+                                 .id(generateRandomId())
+                                 .space(space)
+                                 .name(name)
+                                 .namespace(namespace)
+                                 .size(localFile.getSize())
+                                 .digest(localFile.getDigest())
+                                 .digestAlgorithm(localFile.getDigestAlgorithm())
+                                 .modified(new Timestamp(System.currentTimeMillis()))
+                                 .build();
     }
 
     protected SqlQueryExecutor getSqlQueryExecutor() {
@@ -216,10 +218,12 @@ public class FileService {
     }
 
     private FileInfo createFileInfo(File existingFile) throws NoSuchAlgorithmException, IOException {
-        return new FileInfo(existingFile,
-                            BigInteger.valueOf(existingFile.length()),
-                            DigestHelper.computeFileChecksum(existingFile.toPath(), FileUploader.DIGEST_METHOD),
-                            FileUploader.DIGEST_METHOD);
+        return ImmutableFileInfo.builder()
+                                .file(existingFile)
+                                .size(BigInteger.valueOf(existingFile.length()))
+                                .digest(DigestHelper.computeFileChecksum(existingFile.toPath(), FileUploader.DIGEST_METHOD))
+                                .digestAlgorithm(FileUploader.DIGEST_METHOD)
+                                .build();
     }
 
     private FileEntry addFile(String space, String namespace, String name, FileInfo fileInfo) throws FileStorageException {

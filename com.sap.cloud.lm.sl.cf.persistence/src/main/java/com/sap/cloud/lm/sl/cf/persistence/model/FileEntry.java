@@ -3,96 +3,40 @@ package com.sap.cloud.lm.sl.cf.persistence.model;
 import java.math.BigInteger;
 import java.util.Date;
 
-public class FileEntry {
+import javax.annotation.Nullable;
 
-    private String id;
+import org.immutables.value.Value;
 
-    private String name;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-    private String namespace;
+@Value.Immutable
+@JsonSerialize(as = ImmutableFileEntry.class)
+@JsonDeserialize(as = ImmutableFileEntry.class)
+public interface FileEntry {
 
-    private String space;
+    @Nullable
+    String getId();
 
-    private BigInteger size;
+    @Nullable
+    String getName();
 
-    private String digest;
+    @Nullable
+    String getNamespace();
 
-    private String digestAlgorithm;
+    @Nullable
+    String getSpace();
 
-    private Date modified;
+    @Nullable
+    BigInteger getSize();
 
-    public FileEntry() {
-        super();
-    }
+    @Nullable
+    String getDigest();
 
-    public String getId() {
-        return id;
-    }
+    @Nullable
+    String getDigestAlgorithm();
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNamespace() {
-        return namespace;
-    }
-
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
-    }
-
-    public String getSpace() {
-        return space;
-    }
-
-    public void setSpace(String space) {
-        this.space = space;
-    }
-
-    public BigInteger getSize() {
-        return size;
-    }
-
-    public void setSize(BigInteger size) {
-        this.size = size;
-    }
-
-    public String getDigestAlgorithm() {
-        return digestAlgorithm;
-    }
-
-    public void setDigestAlgorithm(String digestAlgorithm) {
-        this.digestAlgorithm = digestAlgorithm;
-    }
-
-    public String getDigest() {
-        return digest;
-    }
-
-    public void setDigest(String digest) {
-        this.digest = digest;
-    }
-
-    public Date getModified() {
-        return modified;
-    }
-
-    public void setModified(Date modified) {
-        this.modified = modified;
-    }
-
-    @Override
-    public String toString() {
-        return "FileEntry [id=" + id + ", name=" + name + ", namespace=" + namespace + ", space=" + space + ", digest=" + digest
-            + ", modified=" + modified + "]";
-    }
+    @Nullable
+    Date getModified();
 
 }

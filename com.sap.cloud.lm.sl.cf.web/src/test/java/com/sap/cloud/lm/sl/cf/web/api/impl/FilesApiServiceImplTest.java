@@ -28,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
@@ -147,16 +148,16 @@ public class FilesApiServiceImplTest {
     }
 
     private FileEntry createFileEntry(String name) {
-        FileEntry entry = new FileEntry();
-        entry.setId(UUID.randomUUID()
-                        .toString());
-        entry.setDigest(generateRandomDigest());
-        entry.setDigestAlgorithm("MD5");
-        entry.setName(name);
-        entry.setNamespace(NAMESPACE_GUID);
-        entry.setSize(BigInteger.valueOf(new Random().nextInt(1024 * 1024 * 10)));
-        entry.setSpace(SPACE_GUID);
-        return entry;
+        return ImmutableFileEntry.builder()
+                                 .id(UUID.randomUUID()
+                                         .toString())
+                                 .digest(generateRandomDigest())
+                                 .digestAlgorithm("MD5")
+                                 .name(name)
+                                 .namespace(NAMESPACE_GUID)
+                                 .size(BigInteger.valueOf(new Random().nextInt(1024 * 1024 * 10)))
+                                 .space(SPACE_GUID)
+                                 .build();
     }
 
     private String generateRandomDigest() {

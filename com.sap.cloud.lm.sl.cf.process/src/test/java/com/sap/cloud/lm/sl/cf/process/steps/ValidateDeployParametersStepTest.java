@@ -23,6 +23,7 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -136,17 +137,16 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
                .thenReturn(createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024L + 1));
         Mockito.when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID))
                .thenReturn(null);
-        Mockito.when(fileService.addFile(Mockito.eq("space-id"), Mockito.eq("service-id"), Mockito.anyString(),
-                                         Mockito.any(File.class)))
+        Mockito.when(fileService.addFile(Mockito.eq("space-id"), Mockito.eq("service-id"), Mockito.anyString(), Mockito.any(File.class)))
                .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024L));
     }
 
     private static FileEntry createFileEntry(String id, String name, long size) {
-        FileEntry fe = new FileEntry();
-        fe.setId(id);
-        fe.setName(name);
-        fe.setSize(BigInteger.valueOf(size));
-        return fe;
+        return ImmutableFileEntry.builder()
+                                 .id(id)
+                                 .name(name)
+                                 .size(BigInteger.valueOf(size))
+                                 .build();
     }
 
     private void prepareArchiveMerger() {
