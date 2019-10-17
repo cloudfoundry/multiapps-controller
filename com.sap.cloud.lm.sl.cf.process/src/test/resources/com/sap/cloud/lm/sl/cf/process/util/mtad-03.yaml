@@ -1,0 +1,18 @@
+_schema-version: "3.1"
+ID: com.sap.mta.sample.util
+version: 2.4.0
+
+modules:
+  - name: demo-app
+    type: javascript.nodejs
+    requires:
+      - name: demo-service
+    parameters:
+      domain: "custom-domain"
+
+resources:
+  - name: demo-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: postgresql
+      service-plan: v9.6-dev

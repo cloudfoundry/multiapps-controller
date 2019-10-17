@@ -1,0 +1,5 @@
+_schema-version: "3.1"
+ID: com.sap.mta.sample.util
+version: 2.4.0
+parameters:
+  default-domain: "some.default.domain"

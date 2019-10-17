@@ -67,7 +67,7 @@ public class Messages {
     public static final String THE_ARCHIVE_IS_NOT_SIGNED = "The archive is not signed";
     public static final String MERGED_FILE_NOT_DELETED = "Merged file not deleted";
     public static final String FAILED_TO_RETRIEVE_FILE_WITH_ID_0 = "Failed to retrieve file with id \"{0}\"";
-
+    public static final String PARAMETERS_HAVE_READ_ONLY_ELEMENTS = "\"{0}\" parameters have read-only elements \"{1}\"";
     // Audit log messages
 
     // ERROR log messages
@@ -459,6 +459,8 @@ public class Messages {
     public static final String APP_NOT_FOUND = "App not found: \"{0}\"";
     public static final String VERIFYING_ARCHIVE_0 = "Verifying archive: \"{0}\"";
     public static final String ARCHIVE_IS_VERIFIED = "Archive signature is verified";
+    public static final String CHECKING_FOR_OVERWRITING_READ_ONLY_PARAMETERS = "Checking for overwriting read-only parameters for mta with id: \"{0}\"";
+    public static final String NO_READ_ONLY_PARAMETERS_ARE_OVERWRITTEN = "No read-only parameters are overwritten";
 
     protected Messages() {
     }

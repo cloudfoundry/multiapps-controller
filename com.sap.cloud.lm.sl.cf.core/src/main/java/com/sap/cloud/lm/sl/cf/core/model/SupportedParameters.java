@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SupportedParameters {
 
@@ -26,7 +28,6 @@ public class SupportedParameters {
     public static final String GENERATED_USER = "generated-user";
     public static final String GENERATED_PASSWORD = "generated-password";
     public static final String DEFAULT_IDLE_DOMAIN = "default-idle-domain";
-    public static final String TIMESTAMP = "timestamp";
     public static final String ENABLE_PARALLEL_DEPLOYMENTS = "enable-parallel-deployments";
 
     // Module / module type parameters:
@@ -75,6 +76,7 @@ public class SupportedParameters {
     public static final String VCAP_SERVICES_ENV = "vcap-services";
     public static final String USER_PROVIDED_ENV = "user-provided";
     public static final String DOCKER = "docker";
+    public static final String TIMESTAMP = "timestamp";
 
     public static final String EXECUTE_APP = "execute-app";
     public static final String SUCCESS_MARKER = "success-marker";
@@ -173,6 +175,23 @@ public class SupportedParameters {
         prototype.put(BUILDPACK, BUILDPACKS);
         SINGULAR_PLURAL_MAPPING = Collections.unmodifiableMap(prototype);
     }
+
+    public static final Set<String> READ_ONLY_SYSTEM_PARAMETERS = Stream.of(AUTHORIZATION_URL, CONTROLLER_URL, DEFAULT_DOMAIN,
+                                                                            DEFAULT_IDLE_DOMAIN, ORG, SPACE, USER, XS_TYPE)
+                                                                        .collect(Collectors.collectingAndThen(Collectors.toSet(),
+                                                                                                              Collections::unmodifiableSet));
+
+    public static final Set<String> READ_ONLY_MODULE_PARAMETERS = Stream.of(DEFAULT_DOMAIN, DEFAULT_IDLE_DOMAIN, DEFAULT_HOST, PROTOCOL,
+                                                                            GENERATED_USER, GENERATED_PASSWORD, DEFAULT_URI, DEFAULT_URL,
+                                                                            DEFAULT_IDLE_HOST, DEFAULT_IDLE_URI, DEFAULT_IDLE_URL,
+                                                                            DEFAULT_APP_NAME, DEFAULT_INSTANCES, TIMESTAMP)
+                                                                        .collect(Collectors.collectingAndThen(Collectors.toSet(),
+                                                                                                              Collections::unmodifiableSet));
+
+    public static final Set<String> READ_ONLY_RESOURCE_PARAMETERS = Stream.of(DEFAULT_CONTAINER_NAME, DEFAULT_XS_APP_NAME, GENERATED_USER,
+                                                                              GENERATED_PASSWORD, DEFAULT_SERVICE_NAME)
+                                                                          .collect(Collectors.collectingAndThen(Collectors.toSet(),
+                                                                                                                Collections::unmodifiableSet));
 
     public enum RoutingParameterSet {
         // @formatter:off
