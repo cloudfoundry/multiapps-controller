@@ -96,10 +96,10 @@ public class ConfigurationSubscriptionQueryImpl extends AbstractQueryImpl<Config
     }
 
     private boolean matchesEntries(ConfigurationSubscription subscription) {
-        if (matchingEntries != null && !matchingEntries.isEmpty()) {
-            return subscription.matches(matchingEntries);
+        if (matchingEntries == null) {
+            return true;
         }
-        return true;
+        return subscription.matches(matchingEntries);
     }
 
     @Override
