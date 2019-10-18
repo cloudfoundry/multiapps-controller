@@ -44,15 +44,15 @@ public class TransformFilterColumnTest {
         retrievedData.put(3L, "{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":\"org test space sap\"}");
 
         Map<Long, String> transformedData = transformFilterColumn.transformData(retrievedData);
-        assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"organizationName\":\"org\",\"spaceName\":\"space\"}}",
+        assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"org\":\"org\",\"space\":\"space\"}}",
                      transformedData.get(1L));
 
         transformedData = transformFilterColumn.transformData(retrievedData);
-        assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"organizationName\":\"\",\"spaceName\":\"orgspace\"}}",
+        assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"org\":\"\",\"space\":\"orgspace\"}}",
                      transformedData.get(2L));
 
         transformedData = transformFilterColumn.transformData(retrievedData);
-        assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"organizationName\":\"org\",\"spaceName\":\"test space sap\"}}",
+        assertEquals("{\"requiredContent\":{\"type\":\"com.acme.plugin\"},\"targetSpace\":{\"org\":\"org\",\"space\":\"test space sap\"}}",
                      transformedData.get(3L));
     }
 

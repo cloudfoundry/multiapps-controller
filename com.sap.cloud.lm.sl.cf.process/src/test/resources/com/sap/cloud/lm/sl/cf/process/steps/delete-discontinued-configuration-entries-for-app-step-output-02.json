@@ -6,8 +6,8 @@
       "providerId": "com.sap.sample.mta:foo",
       "providerVersion": "0.1.0",
       "targetSpace": {
-         "spaceName": "SAP",
-         "organizationName": "myorg"
+         "space": "SAP",
+         "org": "myorg"
        }
     },
     {
@@ -16,8 +16,8 @@
       "providerId": "com.sap.sample.mta:bar",
       "providerVersion": "0.1.0",
       "targetSpace": {
-         "spaceName": "SAP",
-         "organizationName": "myorg"
+         "space": "SAP",
+         "org": "myorg"
        }
     }
   ]

@@ -4,8 +4,8 @@
         "providerId": "mta-2:provided-dependency-1",
         "providerNid": "mta",
         "targetSpace": {
-          "spaceName": "initial",
-          "organizationName": "initial"
+          "space": "initial",
+          "org": "initial"
         },
         "providerVersion": "2.0.0"
     },
@@ -16,8 +16,8 @@
         "providerId": "mta-2:provided-dependency-1",
         "providerVersion": "2.0.0",
         "targetSpace": {
-          "spaceName": "initial",
-          "organizationName": "initial"
+          "space": "initial",
+          "org": "initial"
         },
         "content":"{\"bar\": \"xyz\",\"foo\": \"best\"}"
       }

@@ -4,8 +4,8 @@
   "providerId": "com.sap.mta.test",
   "providerVersion": "10.0.0",
   "targetSpace": {
-      "spaceName": "sap",
-      "organizationName": "org"
+      "space": "sap",
+      "org": "org"
   },
   "content": "json"
 }
