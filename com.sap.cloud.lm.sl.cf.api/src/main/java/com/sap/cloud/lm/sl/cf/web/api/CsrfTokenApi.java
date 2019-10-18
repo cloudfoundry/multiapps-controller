@@ -15,7 +15,7 @@ import io.swagger.annotations.Authorization;
 
 @Api(description = "the csrf-token API")
 @RestController
-@RequestMapping("/api/v1/spaces/{spaceGuid}/csrf-token")
+@RequestMapping("/api/v1/csrf-token")
 public class CsrfTokenApi {
 
     @Inject
