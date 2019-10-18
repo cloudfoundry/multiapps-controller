@@ -7,13 +7,17 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @XmlRootElement(name = "target")
 @XmlAccessorType(value = XmlAccessType.FIELD)
 public class CloudTarget {
 
     @XmlElement(name = "org")
+    @JsonProperty("org")
     private String organizationName;
     @XmlElement(name = "space")
+    @JsonProperty("space")
     private String spaceName;
 
     public CloudTarget() {
