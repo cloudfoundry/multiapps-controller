@@ -36,14 +36,14 @@ public class SpaceGuidBasedAuthorizationFilterTest {
         dummyUriAuthorizationFilter.ensureUserIsAuthorized(request, response);
 
         Mockito.verify(authorizationChecker)
-               .ensureUserIsAuthorized(request, null, SPACE_GUID, null);
+               .ensureUserIsAuthorized(Mockito.eq(request), Mockito.any(), Mockito.eq(SPACE_GUID), Mockito.any());
     }
 
     @Test
     public void testWithException() throws IOException {
         Mockito.doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN))
                .when(authorizationChecker)
-               .ensureUserIsAuthorized(request, null, SPACE_GUID, null);
+               .ensureUserIsAuthorized(Mockito.eq(request), Mockito.any(), Mockito.eq(SPACE_GUID), Mockito.any());
 
         dummyUriAuthorizationFilter.ensureUserIsAuthorized(request, response);
 

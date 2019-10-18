@@ -7,8 +7,8 @@
       "requiredContent": {},
       "providerNid": "mta",
       "targetSpace": {
-        "spaceName": "SPACE",
-        "organizationName": "ORG"
+        "space": "SPACE",
+        "org": "ORG"
       },
       "providerVersion": "1.0.0"
     },
