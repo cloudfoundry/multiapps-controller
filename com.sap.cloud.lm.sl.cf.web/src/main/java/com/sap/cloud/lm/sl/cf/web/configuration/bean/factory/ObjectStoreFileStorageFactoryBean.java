@@ -1,10 +1,12 @@
 package com.sap.cloud.lm.sl.cf.web.configuration.bean.factory;
 
 import java.text.MessageFormat;
+import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jclouds.ContextBuilder;
 import org.jclouds.blobstore.BlobStoreContext;
+import org.jclouds.location.reference.LocationConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
@@ -44,8 +46,17 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         if (serviceInfo == null) {
             return null;
         }
-        blobStoreContext = ContextBuilder.newBuilder(serviceInfo.getProvider())
-                                         .credentials(serviceInfo.getIdentity(), serviceInfo.getCredential())
+        Properties overrides = new Properties();
+        overrides.put(LocationConstants.PROPERTY_REGION, serviceInfo.getRegion());
+        overrides.put(LocationConstants.ENDPOINT, "https://" + serviceInfo.getHost());
+        blobStoreContext = ContextBuilder.newBuilder(serviceInfo.getProvider()).endpoint("https://" + serviceInfo.getHost())
+                                         .credentials(serviceInfo.getIdentity(), serviceInfo.getCredential()).overrides(overrides)
+//
+//        blobStoreContext = ContextBuilder.newBuilder("aws-s3")
+//                                         .endpoint("https://" + serviceInfo.getHost())
+//                                         .credentials(serviceInfo.getAccessKeyId(), serviceInfo.getSecretAccessKey())
+//                                         .overrides(overrides)
+//>>>>>>> 14567d69... Fix objectstore
                                          .buildView(BlobStoreContext.class);
         return blobStoreContext;
     }

@@ -50,14 +50,26 @@ public class ObjectStoreServiceInfoCreator extends CloudFoundryServiceInfoCreato
         String accessKeyId = (String) credentials.get("access_key_id");
         String secretAccessKey = (String) credentials.get("secret_access_key");
         String bucket = (String) credentials.get("bucket");
-        return new ObjectStoreServiceInfo(OBJECT_STORE_INSTANCE_NAME, "aws-s3", accessKeyId, secretAccessKey, bucket);
+        String region = (String) credentials.get("region");
+        String host = (String) credentials.get("host");
+//<<<<<<< HEAD
+        return new ObjectStoreServiceInfo(OBJECT_STORE_INSTANCE_NAME, "aws-s3", accessKeyId, secretAccessKey, bucket, region, host);
     }
 
     private ObjectStoreServiceInfo createServiceInfoForAzure(Map<String, Object> credentials) {
         String accountName = (String) credentials.get("account_name");
         String sasToken = (String) credentials.get("sas_token");
         String containerName = (String) credentials.get("container_name");
-        return new ObjectStoreServiceInfo(OBJECT_STORE_INSTANCE_NAME, "azureblob", accountName, sasToken, containerName);
+        return new ObjectStoreServiceInfo(OBJECT_STORE_INSTANCE_NAME, "azureblob", accountName, sasToken, containerName, null, null);
+//=======
+//        String region = (String) credentials.get("region");
+//        String host = (String) credentials.get("host");
+//        return createServiceInfo(accessKeyId, secretAccessKey, bucket, region, host);
+//    }
+//
+//    private ObjectStoreServiceInfo createServiceInfo(String accessKeyId, String secretAccessKey, String bucket, String region, String host) {
+//        return new ObjectStoreServiceInfo(OBJECT_STORE_INSTANCE_NAME, accessKeyId, secretAccessKey, bucket, region, host);
+//>>>>>>> 14567d69... Fix objectstore
     }
 
 }
