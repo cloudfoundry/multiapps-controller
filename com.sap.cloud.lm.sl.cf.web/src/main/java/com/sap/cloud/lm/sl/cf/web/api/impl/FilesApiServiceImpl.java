@@ -16,6 +16,9 @@ import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang3.time.StopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -33,6 +36,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class FilesApiServiceImpl implements FilesApiService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FilesApiServiceImpl.class);
 
     @Inject
     @Named("fileService")
@@ -55,10 +60,15 @@ public class FilesApiServiceImpl implements FilesApiService {
     @Override
     public ResponseEntity<FileMetadata> uploadFile(HttpServletRequest request, String spaceGuid) {
         try {
+            StopWatch stopWatch = StopWatch.createStarted();
+            LOGGER.trace("Received upload request on URI: {}", request.getRequestURI());
             FileEntry fileEntry = uploadFiles(request, spaceGuid).get(0);
             FileMetadata file = parseFileEntry(fileEntry);
             AuditLoggingProvider.getFacade()
                                 .logConfigCreate(file);
+            stopWatch.stop();
+            LOGGER.trace("Uploaded file \"{}\" with name {}, size {} and digest {} (algorithm {}) for {} ms.", file.getId(), file.getName(),
+                         file.getSize(), file.getDigest(), file.getDigestAlgorithm(), stopWatch.getTime());
             return ResponseEntity.status(HttpStatus.CREATED)
                                  .body(file);
         } catch (FileUploadException | IOException | FileStorageException e) {
