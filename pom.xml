@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.cloud.lm.sl.cf</groupId>
     <artifactId>com.sap.cloud.lm.sl.cf.parent</artifactId>
-    <version>1.88.0-SNAPSHOT</version>
+    <version>1.89.0</version>
     <packaging>pom</packaging>
     <name>LM SL CF Parent</name>
     <description>Multi-Target Application (MTA) deployment service for Cloud Foundry</description>
