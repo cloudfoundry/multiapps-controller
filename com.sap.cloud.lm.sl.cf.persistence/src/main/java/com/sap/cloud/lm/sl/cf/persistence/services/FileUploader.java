@@ -83,7 +83,7 @@ public class FileUploader {
         return DatatypeConverter.printHexBinary(digest);
     }
 
-    public static void removeFile(FileInfo uploadedFile) {
+    public static void deleteFile(FileInfo uploadedFile) {
         File file = uploadedFile.getFile();
         deleteFile(file);
     }

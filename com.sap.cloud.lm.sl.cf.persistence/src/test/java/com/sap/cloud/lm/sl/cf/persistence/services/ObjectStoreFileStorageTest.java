@@ -228,7 +228,7 @@ public class ObjectStoreFileStorageTest {
                                  .toAbsolutePath();
         FileEntry fileEntry = createFileEntry(space, namespace);
         fileEntry = enrichFileEntry(fileEntry, testFilePath, date);
-        fileStorage.addFile(fileEntry, testFilePath.toFile());
+        fileStorage.addFile(fileEntry, new FileInputStream(testFilePath.toFile()));
         return fileEntry;
     }
 

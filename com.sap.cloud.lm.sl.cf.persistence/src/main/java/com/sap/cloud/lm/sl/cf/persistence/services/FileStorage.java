@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.persistence.services;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -8,7 +8,7 @@ import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 
 public interface FileStorage {
 
-    void addFile(FileEntry fileEntry, File file) throws FileStorageException;
+    void addFile(FileEntry fileEntry, InputStream inputStream) throws FileStorageException;
 
     List<FileEntry> getFileEntriesWithoutContent(List<FileEntry> fileEntries) throws FileStorageException;
 

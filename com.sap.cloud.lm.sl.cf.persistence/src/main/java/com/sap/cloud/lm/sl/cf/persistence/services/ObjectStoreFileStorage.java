@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.persistence.services;
 
-import java.io.File;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Date;
@@ -17,6 +16,7 @@ import org.jclouds.blobstore.ContainerNotFoundException;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.options.ListContainerOptions;
+import org.jclouds.blobstore.options.PutOptions;
 import org.jclouds.http.HttpResponseException;
 import org.jclouds.io.Payload;
 import org.slf4j.Logger;
@@ -27,6 +27,7 @@ import com.google.common.net.MediaType;
 import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
@@ -45,22 +46,22 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     @Override
-    public void addFile(FileEntry fileEntry, File file) throws FileStorageException {
-        String entryName = fileEntry.getId();
-        long fileSize = fileEntry.getSize()
-                                 .longValue();
-        Blob blob = blobStore.blobBuilder(entryName)
-                             .payload(file)
+    public void addFile(FileEntry fileEntry, InputStream inputStream) throws FileStorageException {
+        FileInfo tempFile = FileUploader.uploadFile(inputStream);
+        Blob blob = blobStore.blobBuilder(fileEntry.getId())
+                             .payload(tempFile.getFile())
                              .contentDisposition(fileEntry.getName())
                              .contentType(MediaType.OCTET_STREAM.toString())
                              .userMetadata(createFileEntryMetadata(fileEntry))
                              .build();
         try {
             putBlobWithRetries(blob, 3);
-            LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1_SUCCESSFULLY_2, fileEntry.getId(), fileSize));
+            LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_SUCCESSFULLY, fileEntry.getId()));
         } catch (ContainerNotFoundException e) {
             throw new FileStorageException(MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(),
                                                                 fileEntry.getNamespace()));
+        } finally {
+            FileUploader.deleteFile(tempFile);
         }
     }
 
@@ -133,7 +134,7 @@ public class ObjectStoreFileStorage implements FileStorage {
     private void putBlobWithRetries(Blob blob, int retries) {
         for (int i = 1; i <= retries; i++) {
             try {
-                blobStore.putBlob(container, blob);
+                blobStore.putBlob(container, blob, PutOptions.Builder.multipart());
                 return;
             } catch (HttpResponseException e) {
                 LOGGER.warn(MessageFormat.format(Messages.ATTEMPT_TO_UPLOAD_BLOB_FAILED, i, retries, e.getMessage()), e);

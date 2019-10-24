@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+    <changeSet author="sap.com" id="postgresql_unlink_large_objects_only_on_delete">
+        <preConditions onFail="MARK_RAN">
+            <dbms type="postgresql" />
+        </preConditions>
+        <sql>
+            <comment>Drop the previous versions of the triggers and functions.</comment>
+
+            DROP TRIGGER IF EXISTS delete_from_system_table_lm_sl_persistance_file
+            ON lm_sl_persistence_file;
+            DROP TRIGGER IF EXISTS delete_from_system_table_process_log
+            ON process_log;
+
+            CREATE TRIGGER delete_from_system_table_lm_sl_persistance_file AFTER DELETE
+            ON lm_sl_persistence_file
+            FOR EACH ROW EXECUTE PROCEDURE unlink_file_content();
+            CREATE TRIGGER delete_from_system_table_process_log AFTER DELETE
+            ON process_log
+            FOR EACH ROW EXECUTE PROCEDURE unlink_file_content();
+        </sql>
+        <rollback>
+            DROP TRIGGER IF EXISTS delete_from_system_table_lm_sl_persistance_file
+            ON lm_sl_persistence_file;
+            DROP TRIGGER IF EXISTS delete_from_system_table_process_log
+            ON process_log;
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

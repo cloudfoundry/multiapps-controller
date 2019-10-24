@@ -11,14 +11,18 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.NullOutputStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.stubbing.Answer;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
 
 public class FileServiceTest extends DatabaseFileServiceTest {
 
@@ -29,6 +33,18 @@ public class FileServiceTest extends DatabaseFileServiceTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         super.setUp();
+        Mockito.doAnswer(consumeStream())
+               .when(fileStorage)
+               .addFile(Mockito.any(), Mockito.any());
+
+    }
+
+    private Answer<Void> consumeStream() {
+        return invocation -> {
+            InputStream stream = invocation.getArgument(1);
+            IOUtils.copy(stream, new NullOutputStream());
+            return null;
+        };
     }
 
     @Test
@@ -138,9 +154,19 @@ public class FileServiceTest extends DatabaseFileServiceTest {
     @Override
     protected FileEntry addFile(String space, String namespace, String fileName, String resourceName) throws Exception {
         FileEntry fileEntry = super.addFile(space, namespace, fileName, resourceName);
-        Mockito.verify(fileStorage, Mockito.times(1))
-               .addFile(Mockito.eq(fileEntry), Mockito.any());
+        FileEntry expectedFileEntry = removeSizeAndDigest(fileEntry);
+        Mockito.verify(fileStorage)
+               .addFile(Mockito.eq(expectedFileEntry), Mockito.any());
         return fileEntry;
+    }
+
+    private ImmutableFileEntry removeSizeAndDigest(FileEntry fileEntry) {
+        return ImmutableFileEntry.builder()
+                                 .from(fileEntry)
+                                 .size(null)
+                                 .digest(null)
+                                 .digestAlgorithm(null)
+                                 .build();
     }
 
     @Override
@@ -150,7 +176,7 @@ public class FileServiceTest extends DatabaseFileServiceTest {
 
     @Override
     protected void verifyFileIsStored(FileEntry fileEntry) throws Exception {
-        Mockito.verify(fileStorage, Mockito.times(1))
-               .addFile(Mockito.eq(fileEntry), Mockito.any());
+        Mockito.verify(fileStorage)
+               .addFile(Mockito.eq(removeSizeAndDigest(fileEntry)), Mockito.any());
     }
 }

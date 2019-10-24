@@ -1,10 +1,12 @@
 package com.sap.cloud.lm.sl.cf.persistence.services;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -13,24 +15,24 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.ExternalSqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.SqlFileQueryProvider;
+import com.sap.cloud.lm.sl.cf.persistence.stream.AnalyzingInputStream;
 import com.sap.cloud.lm.sl.cf.persistence.util.SqlQueryExecutor;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.DigestHelper;
 
 public class FileService {
 
     protected static final String DEFAULT_TABLE_NAME = "LM_SL_PERSISTENCE_FILE";
+    public static final String DIGEST_METHOD = "MD5";
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -68,37 +70,22 @@ public class FileService {
      * @throws FileStorageException
      */
     public FileEntry addFile(String space, String namespace, String name, InputStream inputStream) throws FileStorageException {
-        // Stream the file to a temp location and get the size and MD5 digest
-        // as an alternative we can pass the original stream to the database,
-        // and decorate the blob stream to calculate digest and size, but this will still require
-        // two roundtrips to the database (insert of the content and then update with the digest and
-        // size), which is probably inefficient
-        FileInfo fileInfo = null;
-        FileEntry fileEntry = null;
         try (InputStream autoClosedInputStream = inputStream) {
-            fileInfo = FileUploader.uploadFile(inputStream);
-            fileEntry = addFile(space, namespace, name, fileInfo);
+            FileEntry fileEntry = createFileEntry(space, namespace, name);
+            fileEntry = storeFile(fileEntry, inputStream);
+            logger.debug(MessageFormat.format(Messages.STORED_FILE_0, fileEntry));
+            return fileEntry;
         } catch (IOException e) {
             logger.debug(e.getMessage(), e);
-        } finally {
-            if (fileInfo != null) {
-                FileUploader.removeFile(fileInfo);
-            }
+            return null;
         }
-        return fileEntry;
     }
 
     public FileEntry addFile(String space, String namespace, String name, File existingFile) throws FileStorageException {
         try {
-            FileInfo fileInfo = createFileInfo(existingFile);
-
-            return addFile(space, namespace, name, fileInfo);
-        } catch (NoSuchAlgorithmException e) {
-            throw new SLException(Messages.ERROR_CALCULATING_FILE_DIGEST, existingFile.getName(), e);
+            return addFile(space, namespace, name, new FileInputStream(existingFile));
         } catch (FileNotFoundException e) {
             throw new FileStorageException(MessageFormat.format(Messages.ERROR_FINDING_FILE_TO_UPLOAD, existingFile.getName()), e);
-        } catch (IOException e) {
-            throw new FileStorageException(MessageFormat.format(Messages.ERROR_READING_FILE_CONTENT, existingFile.getName()), e);
         }
     }
 
@@ -159,9 +146,29 @@ public class FileService {
         }
     }
 
-    protected void storeFile(FileEntry fileEntry, FileInfo fileInfo) throws FileStorageException {
-        fileStorage.addFile(fileEntry, fileInfo.getFile());
-        storeFileAttributes(fileEntry);
+    private FileEntry storeFile(FileEntry fileEntry, InputStream inputStream) throws FileStorageException, IOException {
+        try (AnalyzingInputStream analyzingInputStream = new AnalyzingInputStream(inputStream, MessageDigest.getInstance(DIGEST_METHOD))) {
+            return storeFile(fileEntry, analyzingInputStream);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(MessageFormat.format(Messages.COULD_NOT_COMPUTE_DIGEST_OF_STREAM, e.getMessage()), e);
+        }
+    }
+
+    protected FileEntry storeFile(FileEntry fileEntry, AnalyzingInputStream inputStream) throws FileStorageException {
+        fileStorage.addFile(fileEntry, inputStream);
+        FileEntry updatedFileEntry = updateFileEntry(fileEntry, inputStream);
+        storeFileAttributes(updatedFileEntry);
+        return updatedFileEntry;
+    }
+
+    protected ImmutableFileEntry updateFileEntry(FileEntry fileEntry, AnalyzingInputStream analyzingInputStream) {
+        return ImmutableFileEntry.builder()
+                                 .from(fileEntry)
+                                 .size(BigInteger.valueOf(analyzingInputStream.getByteCount()))
+                                 .digest(DatatypeConverter.printHexBinary(analyzingInputStream.getMessageDigest()
+                                                                                              .digest()))
+                                 .digestAlgorithm(DIGEST_METHOD)
+                                 .build();
     }
 
     protected boolean deleteFileAttribute(String space, String id) throws FileStorageException {
@@ -196,15 +203,12 @@ public class FileService {
         }
     }
 
-    protected FileEntry createFileEntry(String space, String namespace, String name, FileInfo localFile) {
+    protected FileEntry createFileEntry(String space, String namespace, String name) {
         return ImmutableFileEntry.builder()
                                  .id(generateRandomId())
                                  .space(space)
                                  .name(name)
                                  .namespace(namespace)
-                                 .size(localFile.getSize())
-                                 .digest(localFile.getDigest())
-                                 .digestAlgorithm(localFile.getDigestAlgorithm())
                                  .modified(new Timestamp(System.currentTimeMillis()))
                                  .build();
     }
@@ -217,31 +221,14 @@ public class FileService {
         return sqlFileQueryProvider;
     }
 
-    private FileInfo createFileInfo(File existingFile) throws NoSuchAlgorithmException, IOException {
-        return ImmutableFileInfo.builder()
-                                .file(existingFile)
-                                .size(BigInteger.valueOf(existingFile.length()))
-                                .digest(DigestHelper.computeFileChecksum(existingFile.toPath(), FileUploader.DIGEST_METHOD))
-                                .digestAlgorithm(FileUploader.DIGEST_METHOD)
-                                .build();
-    }
-
-    private FileEntry addFile(String space, String namespace, String name, FileInfo fileInfo) throws FileStorageException {
-
-        FileEntry fileEntry = createFileEntry(space, namespace, name, fileInfo);
-        storeFile(fileEntry, fileInfo);
-        logger.debug(MessageFormat.format(Messages.STORED_FILE_0, fileEntry));
-        return fileEntry;
-    }
-
-    private String generateRandomId() {
+    protected String generateRandomId() {
         return UUID.randomUUID()
                    .toString();
     }
 
     private boolean storeFileAttributes(FileEntry fileEntry) throws FileStorageException {
         try {
-            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileAttributesQuery(fileEntry));
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getInsertFileAttributesQuery(fileEntry));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }

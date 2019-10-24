@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+    <changeSet author="sap.com" id="alter_size_and_digest_columns">
+        <dropNotNullConstraint tableName="lm_sl_persistence_file" columnDataType="BIGINT"
+            columnName="file_size" />
+        <dropNotNullConstraint tableName="lm_sl_persistence_file" columnDataType="VARCHAR(255)"
+            columnName="digest" />
+        <dropNotNullConstraint tableName="lm_sl_persistence_file" columnDataType="VARCHAR(255)"
+            columnName="digest_algorithm" />
+        <dropNotNullConstraint tableName="process_log" columnDataType="BIGINT"
+            columnName="file_size" />
+        <dropNotNullConstraint tableName="process_log" columnDataType="VARCHAR(255)"
+            columnName="digest" />
+        <dropNotNullConstraint tableName="process_log" columnDataType="VARCHAR(255)"
+            columnName="digest_algorithm" />
+    </changeSet>
+</databaseChangeLog>

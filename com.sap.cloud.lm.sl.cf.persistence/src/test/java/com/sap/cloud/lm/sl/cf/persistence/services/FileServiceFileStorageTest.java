@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.persistence.services;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -182,7 +183,7 @@ public class FileServiceFileStorageTest {
         Path testFilePath = Paths.get(pathString)
                                  .toAbsolutePath();
         FileEntry fileEntry = createFileEntry(space, namespace);
-        fileStorage.addFile(fileEntry, testFilePath.toFile());
+        fileStorage.addFile(fileEntry, new FileInputStream(testFilePath.toFile()));
         return fileEntry;
     }
 

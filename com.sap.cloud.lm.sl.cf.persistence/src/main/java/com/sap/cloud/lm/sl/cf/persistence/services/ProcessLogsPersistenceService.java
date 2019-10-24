@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.Comparator;
 import java.util.List;
@@ -21,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
+import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.ByteArraySqlFileQueryProvider;
 import com.sap.cloud.lm.sl.common.NotFoundException;
@@ -81,7 +83,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         try {
             storeLogFile(space, namespace, remoteLogName, localLog);
         } catch (FileStorageException e) {
-            logger.warn(MessageFormat.format(Messages.COULD_NOT_PERSIST_LOGS_FILE, localLog.getName()));
+            logger.warn(MessageFormat.format(Messages.COULD_NOT_PERSIST_LOGS_FILE, localLog.getName()), e);
         }
     }
 
@@ -89,7 +91,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         throws FileStorageException {
         try (InputStream inputStream = new FileInputStream(localLog)) {
             FileEntry localLogFileEntry = createFileEntry(space, namespace, remoteLogName, localLog);
-            getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileQuery(localLogFileEntry, inputStream));
+            getSqlQueryExecutor().execute(getSqlFileQueryProvider().getInsertFileWithAttributesQuery(localLogFileEntry, inputStream));
         } catch (SQLException | IOException | NoSuchAlgorithmException e) {
             throw new FileStorageException(MessageFormat.format(Messages.ERROR_STORING_LOG_FILE, localLog.getName()), e);
         }
@@ -105,6 +107,19 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
                                                      .digestAlgorithm(DIGEST_METHOD)
                                                      .build();
         return createFileEntry(space, namespace, remoteLogName, localLogFileInfo);
+    }
+
+    protected FileEntry createFileEntry(String space, String namespace, String name, FileInfo localFile) {
+        return ImmutableFileEntry.builder()
+                                 .id(generateRandomId())
+                                 .space(space)
+                                 .name(name)
+                                 .namespace(namespace)
+                                 .size(localFile.getSize())
+                                 .digest(localFile.getDigest())
+                                 .digestAlgorithm(localFile.getDigestAlgorithm())
+                                 .modified(new Timestamp(System.currentTimeMillis()))
+                                 .build();
     }
 
     public int deleteByNamespace(final String namespace) {

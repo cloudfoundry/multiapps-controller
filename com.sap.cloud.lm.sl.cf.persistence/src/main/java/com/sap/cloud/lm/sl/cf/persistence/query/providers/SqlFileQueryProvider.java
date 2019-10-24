@@ -26,8 +26,10 @@ import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
 
 public abstract class SqlFileQueryProvider {
 
+    private static final String INSERT_FILE_CONTENT = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, MODIFIED, %s) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String INSERT_FILE_ATTRIBUTES = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String UPDATE_FILE_ATTRIBUTES = "UPDATE %s SET FILE_SIZE=?, DIGEST=?, DIGEST_ALGORITHM=? WHERE FILE_ID=? AND SPACE=?";
     private static final String SELECT_ALL_FILES = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s";
     private static final String SELECT_FILES_BY_NAMESPACE_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE NAMESPACE=? AND SPACE=?";
     private static final String SELECT_FILES_BY_NAMESPACE_SPACE_AND_NAME = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE NAMESPACE=? AND SPACE=? AND FILE_NAME=?";
@@ -50,11 +52,30 @@ public abstract class SqlFileQueryProvider {
         this.dataSourceDialect = dataSourceDialect;
     }
 
-    public SqlQuery<Boolean> getStoreFileQuery(FileEntry fileEntry, InputStream content) {
+    public SqlQuery<Boolean> getInsertFileQuery(FileEntry fileEntry, InputStream content) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {
-                statement = connection.prepareStatement(getInsertWithContentQuery());
+                statement = connection.prepareStatement(getInsertFileContentQuery());
+                statement.setString(1, fileEntry.getId());
+                statement.setString(2, fileEntry.getSpace());
+                statement.setString(3, fileEntry.getName());
+                setOrNull(statement, 4, fileEntry.getNamespace());
+                statement.setTimestamp(5, new Timestamp(fileEntry.getModified()
+                                                                 .getTime()));
+                setContentBinaryStream(statement, 6, content);
+                return statement.executeUpdate() > 0;
+            } finally {
+                JdbcUtil.closeQuietly(statement);
+            }
+        };
+    }
+
+    public SqlQuery<Boolean> getInsertFileWithAttributesQuery(FileEntry fileEntry, InputStream content) {
+        return (Connection connection) -> {
+            PreparedStatement statement = null;
+            try {
+                statement = connection.prepareStatement(getInsertFileAttributesWithContentQuery());
                 statement.setString(1, fileEntry.getId());
                 statement.setString(2, fileEntry.getSpace());
                 statement.setString(3, fileEntry.getName());
@@ -74,7 +95,7 @@ public abstract class SqlFileQueryProvider {
 
     protected abstract void setContentBinaryStream(PreparedStatement statement, int index, InputStream content) throws SQLException;
 
-    public SqlQuery<Boolean> getStoreFileAttributesQuery(FileEntry fileEntry) {
+    public SqlQuery<Boolean> getInsertFileAttributesQuery(FileEntry fileEntry) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {
@@ -88,6 +109,23 @@ public abstract class SqlFileQueryProvider {
                 statement.setString(7, fileEntry.getDigestAlgorithm());
                 statement.setTimestamp(8, new Timestamp(fileEntry.getModified()
                                                                  .getTime()));
+                return statement.executeUpdate() > 0;
+            } finally {
+                JdbcUtil.closeQuietly(statement);
+            }
+        };
+    }
+
+    public SqlQuery<Boolean> getUpdateFileAttributesQuery(FileEntry fileEntry) {
+        return (Connection connection) -> {
+            PreparedStatement statement = null;
+            try {
+                statement = connection.prepareStatement(getQuery(UPDATE_FILE_ATTRIBUTES));
+                getDataSourceDialect().setBigInteger(statement, 1, fileEntry.getSize());
+                statement.setString(2, fileEntry.getDigest());
+                statement.setString(3, fileEntry.getDigestAlgorithm());
+                statement.setString(4, fileEntry.getId());
+                statement.setString(5, fileEntry.getSpace());
                 return statement.executeUpdate() > 0;
             } finally {
                 JdbcUtil.closeQuietly(statement);
@@ -187,7 +225,7 @@ public abstract class SqlFileQueryProvider {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
             try {
-                statement = connection.prepareStatement(getSelectWithContentQuery());
+                statement = connection.prepareStatement(getSelectFileWithContentQuery());
                 statement.setString(1, id);
                 statement.setString(2, space);
                 resultSet = statement.executeQuery();
@@ -319,11 +357,15 @@ public abstract class SqlFileQueryProvider {
         return String.format(statementTemplate, tableName);
     }
 
-    private String getInsertWithContentQuery() {
+    private String getInsertFileContentQuery() {
+        return String.format(INSERT_FILE_CONTENT, tableName, getContentColumnName());
+    }
+
+    private String getInsertFileAttributesWithContentQuery() {
         return String.format(INSERT_FILE_ATTRIBUTES_AND_CONTENT, tableName, getContentColumnName());
     }
 
-    private String getSelectWithContentQuery() {
+    private String getSelectFileWithContentQuery() {
         return String.format(SELECT_FILE_WITH_CONTENT_BY_ID_AND_SPACE, getContentColumnName(), tableName);
     }
 

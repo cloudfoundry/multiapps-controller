@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
 
-import com.sap.cloud.lm.sl.cf.persistence.services.FileUploader;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 
 public class ApplicationArchiveContext {
     private final ZipInputStream zipInputStream;
@@ -21,7 +21,7 @@ public class ApplicationArchiveContext {
         this.zipInputStream = new ZipInputStream(inputStream);
         this.moduleFileName = moduleFileName;
         this.maxSizeInBytes = maxSizeInBytes;
-        createDigestCalculator(FileUploader.DIGEST_METHOD);
+        createDigestCalculator(FileService.DIGEST_METHOD);
     }
 
     private void createDigestCalculator(String algorithm) {

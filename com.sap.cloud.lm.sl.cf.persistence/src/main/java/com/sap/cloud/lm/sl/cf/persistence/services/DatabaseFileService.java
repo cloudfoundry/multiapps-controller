@@ -1,15 +1,14 @@
 package com.sap.cloud.lm.sl.cf.persistence.services;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Date;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
+import com.sap.cloud.lm.sl.cf.persistence.query.SqlQuery;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.BlobSqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.SqlFileQueryProvider;
+import com.sap.cloud.lm.sl.cf.persistence.stream.AnalyzingInputStream;
 
 public class DatabaseFileService extends FileService {
 
@@ -64,20 +63,23 @@ public class DatabaseFileService extends FileService {
     }
 
     @Override
-    protected void storeFile(FileEntry fileEntry, FileInfo fileinfo) throws FileStorageException {
-        try (InputStream fileStream = fileinfo.getInputStream()) {
-            storeFileWithContent(fileEntry, fileStream);
-        } catch (IOException e) {
-            logger.debug(e.getMessage(), e);
-        }
-    }
-
-    private boolean storeFileWithContent(FileEntry fileEntry, InputStream fileStream) throws FileStorageException {
+    protected FileEntry storeFile(FileEntry fileEntry, AnalyzingInputStream inputStream) throws FileStorageException {
         try {
-            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileQuery(fileEntry, fileStream));
+            return getSqlQueryExecutor().execute(getStoreFileSqlQuery(fileEntry, inputStream));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
+    }
+
+    private SqlQuery<FileEntry> getStoreFileSqlQuery(FileEntry fileEntry, AnalyzingInputStream inputStream) {
+        return connection -> {
+            getSqlFileQueryProvider().getInsertFileQuery(fileEntry, inputStream)
+                                     .execute(connection);
+            FileEntry updatedFileEntry = updateFileEntry(fileEntry, inputStream);
+            getSqlFileQueryProvider().getUpdateFileAttributesQuery(updatedFileEntry)
+                                     .execute(connection);
+            return updatedFileEntry;
+        };
     }
 
 }

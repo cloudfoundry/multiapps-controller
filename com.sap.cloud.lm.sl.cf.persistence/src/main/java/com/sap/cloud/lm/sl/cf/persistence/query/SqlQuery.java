@@ -7,4 +7,5 @@ import java.sql.SQLException;
 public interface SqlQuery<R> {
 
     R execute(Connection connection) throws SQLException;
+
 }
