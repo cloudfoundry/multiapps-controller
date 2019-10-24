@@ -13,7 +13,9 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.PackageState;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -86,6 +88,19 @@ public class PollStageAppStatusExecutionTest {
         AsyncExecutionState executionState = step.execute(executionWrapper);
 
         assertEquals(expectedExecutionState, executionState);
+    }
+
+    @Test
+    public void testPollingErrorMessage() {
+        StepsUtil.setApp(executionWrapper.getContext(), createCloudApplication("anatz"));
+        String pollingErrorMessage = step.getPollingErrorMessage(executionWrapper);
+        Assertions.assertEquals("Error staging application \"anatz\"", pollingErrorMessage);
+    }
+
+    private CloudApplicationExtended createCloudApplication(String appName) {
+        return ImmutableCloudApplicationExtended.builder()
+                                                .name(appName)
+                                                .build();
     }
 
     private CloudApplicationExtended buildApplication() {

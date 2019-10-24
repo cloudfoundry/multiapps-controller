@@ -214,7 +214,7 @@ public class ApplicationStagerTest {
                            .getDropletInfo()
                            .getGuid())
                .thenReturn(DROPLET_GUID);
-        applicationStager.bindDropletToApp(execution.getContext(), APP_GUID);
+        applicationStager.bindDropletToApplication(execution.getContext(), APP_GUID);
         Mockito.verify(client)
                .bindDropletToApp(DROPLET_GUID, APP_GUID);
     }
