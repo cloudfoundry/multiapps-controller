@@ -278,11 +278,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public String getStagingLogs(StartingInfo info, int offset) {
-        return executeWithRetry(() -> delegate.getStagingLogs(info, offset), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
     public void rename(String applicationName, String newName) {
         executeWithRetry(() -> delegate.rename(applicationName, newName));
     }

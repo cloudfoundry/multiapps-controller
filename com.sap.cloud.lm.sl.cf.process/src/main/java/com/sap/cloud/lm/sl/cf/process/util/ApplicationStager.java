@@ -117,7 +117,7 @@ public class ApplicationStager {
         stepLogger.debug(Messages.LAST_BUILD, JsonUtil.convertToJson(cloudBuild));
     }
 
-    public void bindDropletToApp(DelegateExecution context, UUID appGuid) {
+    public void bindDropletToApplication(DelegateExecution context, UUID appGuid) {
         UUID buildGuid = (UUID) context.getVariable(Constants.VAR_BUILD_GUID);
         client.bindDropletToApp(client.getBuild(buildGuid)
                                       .getDropletInfo()
