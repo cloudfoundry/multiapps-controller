@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.model;
 import java.text.MessageFormat;
 
 public enum HookPhase {
-    APPLICATION_BEFORE_STOP_LIVE, APPLICATION_BEFORE_STOP_IDLE, APPLICATION_AFTER_STOP_LIVE, APPLICATION_AFTER_STOP_IDLE, NONE;
+    APPLICATION_BEFORE_STOP_LIVE, APPLICATION_BEFORE_STOP_IDLE, APPLICATION_AFTER_STOP_LIVE, APPLICATION_AFTER_STOP_IDLE, APPLICATION_BEFORE_UNMAP_ROUTES, NONE;
 
     public static HookPhase fromString(String hookPhase) {
         if (hookPhase.equals("application.after-stop.idle")) {
@@ -20,6 +20,10 @@ public enum HookPhase {
 
         if (hookPhase.equals("application.before-stop.live")) {
             return HookPhase.APPLICATION_BEFORE_STOP_LIVE;
+        }
+
+        if (hookPhase.equals("application.before-unmap-routes")) {
+            return HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES;
         }
 
         throw new IllegalStateException(MessageFormat.format("Unsupported hook phase \"{0}\"", hookPhase));

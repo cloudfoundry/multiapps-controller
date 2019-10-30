@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
+import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.NotFoundException;
@@ -69,6 +70,11 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep {
         getStepLogger().info(Messages.DELETING_ROUTE, uri);
         new ClientHelper(client).deleteRoute(uri);
         getStepLogger().debug(Messages.ROUTE_DELETED, uri);
+    }
+
+    @Override
+    protected HookPhase getHookPhaseBeforeStep(DelegateExecution context) {
+        return HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES;
     }
 
 }
