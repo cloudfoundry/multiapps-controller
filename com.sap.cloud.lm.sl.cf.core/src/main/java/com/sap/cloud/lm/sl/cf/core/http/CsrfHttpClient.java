@@ -104,7 +104,7 @@ public class CsrfHttpClient implements HttpClient, Closeable {
         }
         HttpResponse response = (HttpResponse) result;
         if (isRetryNeeded(request, response)) {
-            executeWithCsrfTokenSetting(request, executionSupplier);
+            result = executeWithCsrfTokenSetting(request, executionSupplier);
         }
         return result;
     }
