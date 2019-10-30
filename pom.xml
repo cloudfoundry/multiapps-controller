@@ -49,8 +49,8 @@
         <spring.cloud.version>1.2.3.RELEASE</spring.cloud.version>
         <hana.cloud.version>1.0.4.RELEASE</hana.cloud.version>
         <quartz.version>2.2.1</quartz.version>
-        <jackson.version>2.10.0.pr1</jackson.version>
-        <jackson-databind.version>2.9.10</jackson-databind.version>
+        <jackson.version>2.10.0</jackson.version>
+        <jackson-databind.version>2.10.0</jackson-databind.version>
         <jackson-asl.version>1.9.13</jackson-asl.version>
         <netty-codec-http.version>4.1.36.Final</netty-codec-http.version>
         <liquibase.version>3.4.1</liquibase.version>
