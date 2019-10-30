@@ -8,6 +8,7 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -63,6 +64,9 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
         if (fileName == null) {
             getStepLogger().debug(Messages.NO_CONTENT_TO_UPLOAD);
+            if (app.getDockerInfo() != null) {
+                createDockerPackage(execution, app, client);
+            }
             return StepPhase.DONE;
         }
 
@@ -72,8 +76,16 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         detectApplicationFileDigestChanges(execution, app, client, newApplicationDigest);
         UploadToken uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
         getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
-        StepsUtil.setUploadToken(uploadToken, execution.getContext());
+        setUploadToken(execution, uploadToken);
         return StepPhase.POLL;
+    }
+
+    private void createDockerPackage(ExecutionWrapper execution, CloudApplicationExtended app, CloudControllerClient client) {
+        UUID applicationGuid = client.getApplication(app.getName())
+                                     .getMetadata()
+                                     .getGuid();
+        UploadToken dockerToken = client.createDockerPackage(applicationGuid, app.getDockerInfo());
+        setUploadToken(execution, dockerToken);
     }
 
     @Override
@@ -183,6 +195,10 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         } catch (IOException e) {
             getStepLogger().warn(Messages.ERROR_DELETING_APP_TEMP_FILE, filePath.toAbsolutePath());
         }
+    }
+
+    private void setUploadToken(ExecutionWrapper execution, UploadToken uploadToken) {
+        StepsUtil.setUploadToken(uploadToken, execution.getContext());
     }
 
     @Override

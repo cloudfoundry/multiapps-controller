@@ -169,8 +169,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                          .info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, app.getName(), app.getDockerInfo()
                                                                                           .getImage());
             }
-            client.createApplication(app.getName(), app.getStaging(), diskQuota, memory, uris, Collections.emptyList(),
-                                     app.getDockerInfo());
+            client.createApplication(app.getName(), app.getStaging(), diskQuota, memory, uris, Collections.emptyList());
             StepsUtil.setVcapAppPropertiesChanged(execution.getContext(), true);
         }
 
