@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
-import com.sap.cloud.lm.sl.cf.core.shutdown.model.ApplicationShutdown;
-import com.sap.cloud.lm.sl.cf.core.shutdown.model.ImmutableApplicationShutdown;
+import com.sap.cloud.lm.sl.cf.core.model.ApplicationShutdown;
+import com.sap.cloud.lm.sl.cf.core.model.ImmutableApplicationShutdown;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 
 @RestController
