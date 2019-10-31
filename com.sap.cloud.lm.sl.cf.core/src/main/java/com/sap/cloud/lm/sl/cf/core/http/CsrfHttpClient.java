@@ -153,6 +153,7 @@ public class CsrfHttpClient implements HttpClient, Closeable {
 
         HttpGet fetchTokenRequest = new HttpGet(csrfGetTokenUrl);
         fetchTokenRequest.addHeader(CSRF_TOKEN_HEADER_NAME, CSRF_TOKEN_HEADER_FETCH_VALUE);
+        setHttpRequestHeaders(fetchTokenRequest);
         HttpResponse response = delegate.execute(fetchTokenRequest);
         EntityUtils.consume(response.getEntity());
         if (response.containsHeader(CSRF_TOKEN_HEADER_NAME)) {
