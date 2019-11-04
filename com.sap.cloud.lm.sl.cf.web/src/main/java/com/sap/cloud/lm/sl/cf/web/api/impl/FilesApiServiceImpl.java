@@ -29,6 +29,7 @@ import com.sap.cloud.lm.sl.cf.web.api.FilesApiService;
 import com.sap.cloud.lm.sl.cf.web.api.model.FileMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableFileMetadata;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
+import com.sap.cloud.lm.sl.cf.web.util.ServletUtils;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Named

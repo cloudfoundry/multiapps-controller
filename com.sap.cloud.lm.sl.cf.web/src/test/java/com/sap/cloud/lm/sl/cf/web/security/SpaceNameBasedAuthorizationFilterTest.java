@@ -31,6 +31,8 @@ public class SpaceNameBasedAuthorizationFilterTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        Mockito.when(request.getRequestURI())
+               .thenReturn("");
         dummyUriAuthorizationFilter = new DummyUriAuthorizationFilter(authorizationChecker);
     }
 
@@ -39,14 +41,16 @@ public class SpaceNameBasedAuthorizationFilterTest {
         dummyUriAuthorizationFilter.ensureUserIsAuthorized(request, response);
 
         Mockito.verify(authorizationChecker)
-               .ensureUserIsAuthorized(Mockito.eq(request), Mockito.any(), Mockito.eq(new CloudTarget(ORGANIZATION_NAME, SPACE_NAME)), Mockito.any());
+               .ensureUserIsAuthorized(Mockito.eq(request), Mockito.any(), Mockito.eq(new CloudTarget(ORGANIZATION_NAME, SPACE_NAME)),
+                                       Mockito.any());
     }
 
     @Test
     public void testWithException() throws IOException {
         Mockito.doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN))
                .when(authorizationChecker)
-               .ensureUserIsAuthorized(Mockito.eq(request), Mockito.any(), Mockito.eq(new CloudTarget(ORGANIZATION_NAME, SPACE_NAME)), Mockito.any());
+               .ensureUserIsAuthorized(Mockito.eq(request), Mockito.any(), Mockito.eq(new CloudTarget(ORGANIZATION_NAME, SPACE_NAME)),
+                                       Mockito.any());
 
         dummyUriAuthorizationFilter.ensureUserIsAuthorized(request, response);
 
