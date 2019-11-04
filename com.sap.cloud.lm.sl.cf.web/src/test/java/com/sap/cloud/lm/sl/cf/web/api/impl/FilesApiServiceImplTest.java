@@ -71,6 +71,8 @@ public class FilesApiServiceImplTest {
     @Before
     public void initialize() {
         MockitoAnnotations.initMocks(this);
+        Mockito.when(request.getRequestURI())
+               .thenReturn("");
         AuditLoggingProvider.setFacade(Mockito.mock(AuditLoggingFacade.class));
     }
 

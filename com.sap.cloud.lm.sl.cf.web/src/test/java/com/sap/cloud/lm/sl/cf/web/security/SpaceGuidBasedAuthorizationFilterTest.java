@@ -28,6 +28,8 @@ public class SpaceGuidBasedAuthorizationFilterTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        Mockito.when(request.getRequestURI())
+               .thenReturn("");
         dummyUriAuthorizationFilter = new DummyUriAuthorizationFilter(authorizationChecker);
     }
 
