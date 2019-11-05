@@ -8,6 +8,7 @@ import javax.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.core.model.CachedObject;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileSystemFileStorage;
 
@@ -22,11 +23,14 @@ public class Metrics implements MetricsMBean {
 
     private final FssMonitor fssMonitor;
 
+    private final CachedObject<FlowableThreadInformation> cachedThreadMonitor;
+
     @Inject
     public Metrics(ApplicationConfiguration appConfigurations, FssMonitor fssMonitor, FileSystemFileStorage fss) {
         this.appConfigurations = appConfigurations;
         this.fssMonitor = fssMonitor;
         this.fileSystemStorage = fss;
+        this.cachedThreadMonitor = new CachedObject<>(appConfigurations.getThreadMonitorCacheUpdateInSeconds());
         if (fss == null) {
             LOGGER.info("No metrics for file system service will be collected - no such service found.");
         }
@@ -60,5 +64,29 @@ public class Metrics implements MetricsMBean {
                                 .getParent()
                                 .toString();
         return fssMonitor.calculateUsedSpace(parentDir);
+    }
+
+    @Override
+    public int getRunningJobExecutorThreads() {
+        return getFlowableThreadInformation().getRunningJobExecutorThreads();
+    }
+
+    @Override
+    public int getTotalJobExecutorThreads() {
+        return getFlowableThreadInformation().getTotalJobExecutorThreads();
+    }
+
+    @Override
+    public int getRunningAsyncExecutorThreads() {
+        return getFlowableThreadInformation().getRunningAsyncExecutorThreads();
+    }
+
+    @Override
+    public int getTotalAsyncExecutorThreads() {
+        return getFlowableThreadInformation().getTotalAsyncExecutorThreads();
+    }
+
+    private FlowableThreadInformation getFlowableThreadInformation() {
+        return cachedThreadMonitor.get(() -> FlowableThreadInformation.get());
     }
 }

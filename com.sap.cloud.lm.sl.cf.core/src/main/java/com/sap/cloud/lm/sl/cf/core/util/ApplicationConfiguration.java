@@ -80,6 +80,7 @@ public class ApplicationConfiguration {
     static final String CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS = "FLOWABLE_JOB_EXECUTOR_MAX_THREADS";
     static final String CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY = "FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY";
     static final String CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = "FSS_CACHE_UPDATE_TIMEOUT_MINUTES";
+    static final String CFG_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS = "THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS";
     static final String CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = "SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS";
     static final String CFG_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = "CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS";
     static final String CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = "CONTROLLER_CLIENT_CONNECTION_POOL_SIZE";
@@ -123,6 +124,7 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_FLOWABLE_JOB_EXECUTOR_MAX_THREADS = 32;
     public static final Integer DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY = 16;
     public static final Integer DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = 30;
+    public static final Integer DEFAULT_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS = 1;
     public static final Integer DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = 20;
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = 5;
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 75;
@@ -168,6 +170,7 @@ public class ApplicationConfiguration {
     private Integer flowableJobExecutorMaxThreads;
     private Integer flowableJobExecutorQueueCapacity;
     private Integer fssCacheUpdateTimeoutMinutes;
+    private Integer threadMonitorCacheUpdateInSeconds;
     private Integer spaceDeveloperCacheTimeInSeconds;
     private Platform platform;
     private Duration controllerClientConnectTimeout;
@@ -506,6 +509,13 @@ public class ApplicationConfiguration {
             fssCacheUpdateTimeoutMinutes = getFssCacheUpdateTimeoutMinutesFromEnvironment();
         }
         return fssCacheUpdateTimeoutMinutes;
+    }
+
+    public Integer getThreadMonitorCacheUpdateInSeconds() {
+        if (threadMonitorCacheUpdateInSeconds == null) {
+            threadMonitorCacheUpdateInSeconds = getThreadMonitorCacheUpdateInSecondsFromEnvironment();
+        }
+        return threadMonitorCacheUpdateInSeconds;
     }
 
     public Integer getSpaceDeveloperCacheExpirationInSeconds() {
@@ -854,6 +864,13 @@ public class ApplicationConfiguration {
     private Integer getFssCacheUpdateTimeoutMinutesFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES, DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES);
         LOGGER.info(format(Messages.FSS_CACHE_UPDATE_TIMEOUT, value));
+        return value;
+    }
+
+    private Integer getThreadMonitorCacheUpdateInSecondsFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS,
+                                                       DEFAULT_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS);
+        LOGGER.info(format(Messages.THREAD_MONITOR_CACHE_TIMEOUT, value));
         return value;
     }
 
