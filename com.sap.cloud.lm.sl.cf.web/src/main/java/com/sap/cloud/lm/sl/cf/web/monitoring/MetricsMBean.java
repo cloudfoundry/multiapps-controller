@@ -6,4 +6,12 @@ public interface MetricsMBean {
 
     long getUsedContainerSpace();
 
+    int getRunningJobExecutorThreads();
+
+    int getTotalJobExecutorThreads();
+
+    int getRunningAsyncExecutorThreads();
+
+    int getTotalAsyncExecutorThreads();
+
 }
