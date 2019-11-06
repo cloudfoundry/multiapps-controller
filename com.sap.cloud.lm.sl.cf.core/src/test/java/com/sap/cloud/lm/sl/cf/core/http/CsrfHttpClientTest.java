@@ -5,7 +5,6 @@ import java.util.Collections;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -14,181 +13,133 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.core.util.HttpClientMockBuilder;
-import com.sap.cloud.lm.sl.cf.core.util.HttpClientRequestMockBuilder;
-import com.sap.cloud.lm.sl.cf.core.util.HttpClientResponseMockBuilder;
+import com.sap.cloud.lm.sl.cf.core.util.HttpMocks;
 
 public class CsrfHttpClientTest {
 
-    private static final String DUMMY_TOKEN_2 = "dummy-token-2";
-    private static final String DUMMY_TOKEN = "dummy-token";
+    private static final String BODY = "body";
+    private static final String FOO_TOKEN = "foo";
+    private static final String BAR_TOKEN = "bar";
+    private static final String RESPONSE_HANDLER_RETURN_VALUE = "baz";
+
+    private static final HttpResponse OK_RESPONSE = HttpMocks.mockResponse(builder -> builder.body(BODY)
+                                                                                             .statusCode(200));
+    private static final HttpResponse OK_RESPONSE_WITH_FOO_TOKEN = HttpMocks.mockResponse(builder -> builder.body(BODY)
+                                                                                                            .statusCode(200)
+                                                                                                            .putHeader(CsrfHttpClient.CSRF_TOKEN_HEADER_NAME,
+                                                                                                                       FOO_TOKEN));
+    private static final HttpResponse OK_RESPONSE_WITH_BAR_TOKEN = HttpMocks.mockResponse(builder -> builder.body(BODY)
+                                                                                                            .statusCode(200)
+                                                                                                            .putHeader(CsrfHttpClient.CSRF_TOKEN_HEADER_NAME,
+                                                                                                                       BAR_TOKEN));
+    private static final HttpResponse FORBIDDEN_RESPONSE = HttpMocks.mockResponse(b -> b.statusCode(403)
+                                                                                        .body(BODY)
+                                                                                        .putHeader(CsrfHttpClient.CSRF_TOKEN_HEADER_NAME,
+                                                                                                   "Required"));
 
     @Test
     public void testExecuteRequestWithNoProtectionNeeded() throws IOException {
-        HttpClient mockHttpClient = HttpClientMockBuilder.builder()
-                                                         .response(HttpClientResponseMockBuilder.builder()
-                                                                                                .response("dummy-response")
-                                                                                                .statusCodes(200)
-                                                                                                .build())
-                                                         .build();
-        HttpRequest mockRequest = HttpClientRequestMockBuilder.builder()
-                                                              .method(HttpGet.METHOD_NAME)
-                                                              .build();
-        HttpResponse result = getResultFromExecution(mockHttpClient, mockRequest, (client) -> client.execute(null, mockRequest));
+        HttpClient httpClient = HttpMocks.mockClient(builder -> builder.addResponse(OK_RESPONSE));
+        HttpRequest request = Mockito.spy(new HttpGet());
 
-        Mockito.verify(mockRequest, Mockito.times(0))
+        HttpResponse response = getResultFromExecution(httpClient, client -> client.execute(null, request));
+
+        Mockito.verify(request, Mockito.never())
                .setHeader(Mockito.anyString(), Mockito.anyString());
-
-        Assertions.assertEquals(200, result.getStatusLine()
-                                           .getStatusCode());
+        Assertions.assertEquals(200, response.getStatusLine()
+                                             .getStatusCode());
     }
 
     @Test
     public void testExecuteSimpleRequestWithNoRetryShouldReturnTheResponse() throws IOException {
-        HttpClient mockHttpClient = HttpClientMockBuilder.builder()
-                                                         .response(HttpClientResponseMockBuilder.builder()
-                                                                                                .response("dummy-response")
-                                                                                                .statusCodes(200)
-                                                                                                .firstHeader(CsrfHttpClient.CSRF_TOKEN_HEADER_NAME,
-                                                                                                             DUMMY_TOKEN)
-                                                                                                .build())
-                                                         .build();
+        HttpClient httpClient = HttpMocks.mockClient(builder -> builder.addResponse(OK_RESPONSE_WITH_FOO_TOKEN));
+        HttpRequest request = Mockito.spy(new HttpPost());
 
-        HttpRequest mockRequest = HttpClientRequestMockBuilder.builder()
-                                                              .method(HttpPost.METHOD_NAME)
-                                                              .build();
+        HttpResponse response = getResultFromExecution(httpClient, "dummy", client -> client.execute(null, request));
 
-        HttpResponse result = getResultFromExecution(mockHttpClient, "dummy", mockRequest, (client) -> client.execute(null, mockRequest));
+        Mockito.verify(request)
+               .setHeader(CsrfHttpClient.CSRF_TOKEN_HEADER_NAME, FOO_TOKEN);
 
-        Mockito.verify(mockRequest)
-               .setHeader(CsrfHttpClient.CSRF_TOKEN_HEADER_NAME, DUMMY_TOKEN);
-
-        Assertions.assertEquals(200, result.getStatusLine()
-                                           .getStatusCode());
+        Assertions.assertEquals(200, response.getStatusLine()
+                                             .getStatusCode());
     }
 
     @Test
     public void testExecuteSimpleRequestWithRetryNeeded() throws IOException {
-        HttpClient mockHttpClient = HttpClientMockBuilder.builder()
-                                                         .response(HttpClientResponseMockBuilder.builder()
-                                                                                                .response("dummy-response")
-                                                                                                .statusCodes(403, 200)
-                                                                                                .firstHeader(CsrfHttpClient.CSRF_TOKEN_HEADER_NAME,
-                                                                                                             DUMMY_TOKEN, "Required",
-                                                                                                             DUMMY_TOKEN_2)
-                                                                                                .build())
-                                                         .build();
+        HttpClient httpClient = HttpMocks.mockClient(builder -> builder.addResponse(OK_RESPONSE_WITH_FOO_TOKEN)
+                                                                       .addResponse(FORBIDDEN_RESPONSE)
+                                                                       .addResponse(OK_RESPONSE_WITH_BAR_TOKEN));
+        HttpRequest request = Mockito.spy(new HttpPost());
 
-        HttpRequest mockRequest = HttpClientRequestMockBuilder.builder()
-                                                              .method(HttpPost.METHOD_NAME)
-                                                              .build();
+        HttpResponse response = getResultFromExecution(httpClient, "dummy", client -> client.execute(null, request));
 
-        HttpResponse result = getResultFromExecution(mockHttpClient, "dummy", mockRequest, (client) -> client.execute(null, mockRequest));
+        Mockito.verify(request)
+               .setHeader(CsrfHttpClient.CSRF_TOKEN_HEADER_NAME, FOO_TOKEN);
 
-        Mockito.verify(mockRequest)
-               .setHeader(CsrfHttpClient.CSRF_TOKEN_HEADER_NAME, DUMMY_TOKEN);
+        Mockito.verify(request)
+               .setHeader(CsrfHttpClient.CSRF_TOKEN_HEADER_NAME, BAR_TOKEN);
 
-        Mockito.verify(mockRequest)
-               .setHeader(CsrfHttpClient.CSRF_TOKEN_HEADER_NAME, DUMMY_TOKEN_2);
-
-        Assertions.assertEquals(200, result.getStatusLine()
-                                           .getStatusCode());
+        Assertions.assertEquals(200, response.getStatusLine()
+                                             .getStatusCode());
     }
 
     @Test
     public void testExecuteWithContext() throws IOException {
-        HttpClient mockHttpClient = HttpClientMockBuilder.builder()
-                                                         .response(HttpClientResponseMockBuilder.builder()
-                                                                                                .response("dummy-response")
-                                                                                                .statusCodes(200)
-                                                                                                .build())
-                                                         .build();
+        HttpClient httpClient = HttpMocks.mockClient(builder -> builder.addResponse(OK_RESPONSE));
+        HttpRequest request = Mockito.spy(new HttpGet());
 
-        HttpRequest mockRequest = HttpClientRequestMockBuilder.builder()
-                                                              .method(HttpGet.METHOD_NAME)
-                                                              .build();
+        HttpResponse response = getResultFromExecution(httpClient, "dummy", client -> client.execute(null, request, (HttpContext) null));
 
-        HttpResponse result = getResultFromExecution(mockHttpClient, "dummy", mockRequest,
-                                                     (client) -> client.execute(null, mockRequest, (HttpContext) null));
-
-        Mockito.verify(mockRequest, Mockito.times(0))
+        Mockito.verify(request, Mockito.never())
                .setHeader(Mockito.anyString(), Mockito.anyString());
 
-        Assertions.assertEquals(200, result.getStatusLine()
-                                           .getStatusCode());
+        Assertions.assertEquals(200, response.getStatusLine()
+                                             .getStatusCode());
     }
 
     @Test
     public void testExecuteWithTarget() throws IOException {
-        HttpClient mockHttpClient = HttpClientMockBuilder.builder()
-                                                         .response(HttpClientResponseMockBuilder.builder()
-                                                                                                .response("dummy-response")
-                                                                                                .statusCodes(200)
-                                                                                                .build())
-                                                         .build();
+        HttpClient httpClient = HttpMocks.mockClient(builder -> builder.addResponse(OK_RESPONSE));
+        HttpRequest request = Mockito.spy(new HttpGet());
 
-        HttpRequest mockRequest = HttpClientRequestMockBuilder.builder()
-                                                              .method(HttpGet.METHOD_NAME)
-                                                              .build();
+        HttpResponse response = getResultFromExecution(httpClient, "dummy", client -> client.execute(null, request, (HttpContext) null));
 
-        HttpResponse result = getResultFromExecution(mockHttpClient, "dummy", mockRequest,
-                                                     (client) -> client.execute(null, mockRequest, (HttpContext) null));
-
-        Mockito.verify(mockRequest, Mockito.times(0))
+        Mockito.verify(request, Mockito.never())
                .setHeader(Mockito.anyString(), Mockito.anyString());
 
-        Assertions.assertEquals(200, result.getStatusLine()
-                                           .getStatusCode());
+        Assertions.assertEquals(200, response.getStatusLine()
+                                             .getStatusCode());
     }
 
     @Test
     public void testExecuteWithResponseHandler() throws IOException {
-        HttpClient mockHttpClient = HttpClientMockBuilder.builder()
-                                                         .response(HttpClientResponseMockBuilder.builder()
-                                                                                                .response("dummy-response")
-                                                                                                .statusCodes(200)
-                                                                                                .build(),
-                                                                   "this-is-test")
-                                                         .build();
+        HttpClient httpClient = HttpMocks.mockClient(builder -> builder.addResponse(OK_RESPONSE)
+                                                                       .responseHandlerReturnValue(RESPONSE_HANDLER_RETURN_VALUE));
+        HttpRequest request = Mockito.spy(new HttpGet());
 
-        HttpRequest mockRequest = HttpClientRequestMockBuilder.builder()
-                                                              .method(HttpGet.METHOD_NAME)
-                                                              .build();
+        String result = getResultFromExecution(httpClient, client -> client.execute(null, request, response -> null));
 
-        String result = getResultFromExecution(mockHttpClient, mockRequest,
-                                               (client) -> client.execute(null, mockRequest, HttpResponse -> null));
-
-        Assertions.assertEquals("this-is-test", result);
+        Assertions.assertEquals(RESPONSE_HANDLER_RETURN_VALUE, result);
     }
 
     @Test
     public void testWithNoUrlSet() throws IOException {
-        HttpClient mockHttpClient = HttpClientMockBuilder.builder()
-                                                         .response(HttpClientResponseMockBuilder.builder()
-                                                                                                .response("dummy-response")
-                                                                                                .statusCodes(200)
-                                                                                                .build())
-                                                         .build();
+        HttpClient httpClient = HttpMocks.mockClient(builder -> builder.addResponse(OK_RESPONSE));
+        HttpRequest request = Mockito.spy(new HttpPost());
 
-        HttpRequest mockRequest = HttpClientRequestMockBuilder.builder()
-                                                              .method(HttpPost.METHOD_NAME)
-                                                              .build();
+        HttpResponse response = getResultFromExecution(httpClient, client -> client.execute(null, request));
 
-        HttpResponse result = getResultFromExecution(mockHttpClient, mockRequest, (client) -> client.execute(null, mockRequest));
+        Assertions.assertNotNull(response);
 
-        Assertions.assertNotNull(result);
-
-        Mockito.verify(mockRequest, Mockito.times(0))
+        Mockito.verify(request, Mockito.never())
                .setHeader(Mockito.anyString(), Mockito.anyString());
     }
 
-    private <T> T getResultFromExecution(HttpClient mockHttpClient, HttpRequest mockRequest, TestHttpExecutor<T> executor)
-        throws IOException, ClientProtocolException {
-        return getResultFromExecution(mockHttpClient, null, mockRequest, executor);
+    private <T> T getResultFromExecution(HttpClient mockHttpClient, TestHttpExecutor<T> executor) throws IOException {
+        return getResultFromExecution(mockHttpClient, null, executor);
     }
 
-    private <T> T getResultFromExecution(HttpClient mockHttpClient, String csrfUrl, HttpRequest mockRequest, TestHttpExecutor<T> executor)
-        throws IOException, ClientProtocolException {
+    private <T> T getResultFromExecution(HttpClient mockHttpClient, String csrfUrl, TestHttpExecutor<T> executor) throws IOException {
         try (CsrfHttpClient client = new CsrfHttpClient(mockHttpClient, csrfUrl, Collections.emptyMap())) {
             return executor.execute(client);
         }
