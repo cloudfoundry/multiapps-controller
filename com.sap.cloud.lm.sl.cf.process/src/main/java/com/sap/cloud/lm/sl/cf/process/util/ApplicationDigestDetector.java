@@ -1,22 +1,18 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
 
 public class ApplicationDigestDetector {
     private final CloudApplication app;
-    private final CloudControllerClient client;
 
-    public ApplicationDigestDetector(CloudApplication app, CloudControllerClient client) {
+    public ApplicationDigestDetector(CloudApplication app) {
         this.app = app;
-        this.client = client;
     }
 
     public String getExistingApplicationDigest() {
-        CloudApplication existingApp = client.getApplication(app.getName());
-        ApplicationFileDigestDetector applicationFileDigestDetector = new ApplicationFileDigestDetector(existingApp.getEnv());
+        ApplicationFileDigestDetector applicationFileDigestDetector = new ApplicationFileDigestDetector(app.getEnv());
         return applicationFileDigestDetector.detectCurrentAppFileDigest();
     }
 

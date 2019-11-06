@@ -69,7 +69,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, fileName, app.getName());
 
         String newApplicationDigest = getNewApplicationDigest(execution, appArchiveId, fileName);
-        detectApplicationFileDigestChanges(execution, app, client, newApplicationDigest);
+        detectApplicationFileDigestChanges(execution, app.getName(), client, newApplicationDigest);
         UploadToken uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
         getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
         StepsUtil.setUploadToken(uploadToken, execution.getContext());
@@ -141,13 +141,14 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         uploadToken.setToken(currentUploadToken.getToken());
     }
 
-    private void detectApplicationFileDigestChanges(ExecutionWrapper execution, CloudApplication app, CloudControllerClient client,
+    private void detectApplicationFileDigestChanges(ExecutionWrapper execution, String appName, CloudControllerClient client,
                                                     String newApplicationDigest) {
-        ApplicationDigestDetector digestDetector = new ApplicationDigestDetector(app, client);
+        CloudApplication appWithUpdatedEnvironment = client.getApplication(appName);
+        ApplicationDigestDetector digestDetector = new ApplicationDigestDetector(appWithUpdatedEnvironment);
         String currentApplicationDigest = digestDetector.getExistingApplicationDigest();
         boolean contentChanged = digestDetector.hasApplicationContentDigestChanged(newApplicationDigest, currentApplicationDigest);
         if (contentChanged) {
-            attemptToUpdateApplicationDigest(client, app, newApplicationDigest);
+            attemptToUpdateApplicationDigest(client, appWithUpdatedEnvironment, newApplicationDigest);
         }
         setAppContentChanged(execution, contentChanged);
     }
