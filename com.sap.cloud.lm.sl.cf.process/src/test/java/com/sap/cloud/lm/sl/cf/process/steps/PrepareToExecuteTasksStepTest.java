@@ -44,6 +44,8 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
 
         // When:
         step.execute(context);
+
+        assertStepFinishedSuccessfully();
     }
 
     private CloudApplicationExtended createDummyApplicationWithTasks(int numberOfTasks) {
