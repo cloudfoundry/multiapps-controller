@@ -33,9 +33,7 @@ public class ApplicationStager {
     public StagingState getStagingState(DelegateExecution context) {
         UUID buildGuid = (UUID) context.getVariable(Constants.VAR_BUILD_GUID);
         if (buildGuid == null) {
-            return ImmutableStagingState.builder()
-                                        .state(PackageState.STAGED)
-                                        .build();
+            return new StagingState(PackageState.STAGED, null);
         }
         CloudBuild build = getBuild(context, buildGuid);
         return getStagingState(build);
@@ -59,25 +57,21 @@ public class ApplicationStager {
     }
 
     private StagingState getStagingState(CloudBuild build) {
-        PackageState packageState = getBuildState(build);
-        ImmutableStagingState.Builder builder = ImmutableStagingState.builder()
-                                                                     .state(packageState);
-        if (packageState == PackageState.FAILED) {
-            builder.error(build.getError());
-        }
-        return builder.build();
-    }
-
-    private PackageState getBuildState(CloudBuild build) {
+        PackageState packageState = null;
+        String stagingError = null;
         switch (build.getState()) {
             case FAILED:
-                return PackageState.FAILED;
+                packageState = PackageState.FAILED;
+                stagingError = build.getError();
+                break;
             case STAGED:
-                return PackageState.STAGED;
+                packageState = PackageState.STAGED;
+                break;
             case STAGING:
-                return PackageState.PENDING;
+                packageState = PackageState.PENDING;
+                break;
         }
-        throw new IllegalArgumentException("Invalid build state");
+        return new StagingState(packageState, stagingError);
     }
 
     public boolean isApplicationStagedCorrectly(StepLogger stepLogger, CloudApplication cloudApplication) {

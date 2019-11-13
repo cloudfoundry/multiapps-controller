@@ -193,12 +193,14 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public List<ApplicationLog> getRecentLogs(String applicationName) {
-        return executeWithRetry(() -> delegate.getRecentLogs(applicationName), HttpStatus.NOT_FOUND);
+        // TODO: Call delegate.getRecentLogs(applicationName) after the direct memory leak caused by it is fixed.
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<ApplicationLog> getRecentLogs(UUID applicationGuid) {
-        return executeWithRetry(() -> delegate.getRecentLogs(applicationGuid), HttpStatus.NOT_FOUND);
+        // TODO: Call delegate.getRecentLogs(applicationGuid) after the direct memory leak caused by it is fixed.
+        throw new UnsupportedOperationException();
     }
 
     @Override

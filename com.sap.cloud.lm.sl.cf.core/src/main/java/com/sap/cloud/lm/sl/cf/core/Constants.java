@@ -30,7 +30,6 @@ public class Constants {
     public static final String ATTR_CORRELATION_ID = "correlation_id";
     public static final String EXCHANGED_TOKEN = "exchangedToken";
     public static final String RESTRICTED_UAA_CLIENTS = "restricted-uaa-clients";
-    public static final String LOGS_OFFSET = "logsOffset";
 
     // Numeric constants
     public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024L;

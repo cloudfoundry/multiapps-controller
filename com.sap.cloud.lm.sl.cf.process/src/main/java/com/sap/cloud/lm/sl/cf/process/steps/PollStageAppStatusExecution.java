@@ -75,5 +75,4 @@ public class PollStageAppStatusExecution implements AsyncExecution {
                            .getGuid();
         applicationStager.bindDropletToApplication(context, appId);
     }
-    
 }
