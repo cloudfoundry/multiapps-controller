@@ -26,12 +26,12 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
 import com.sap.cloud.lm.sl.cf.process.util.StagingState;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.process.util.ImmutableStagingState;
 
 public class PollStageAppStatusExecutionTest {
 
@@ -46,8 +46,6 @@ public class PollStageAppStatusExecutionTest {
     private ApplicationStager applicationStager;
     @Mock
     private StepLogger stepLogger;
-    @Mock
-    private ProcessLoggerProvider processLoggerProvider;
     @Mock
     private CloudControllerClientProvider clientProvider;
     @Mock
@@ -128,7 +126,9 @@ public class PollStageAppStatusExecutionTest {
     }
 
     private StagingState buildStagingState(PackageState applicationStageState) {
-        return new StagingState(applicationStageState, "");
+        return ImmutableStagingState.builder()
+                                    .state(applicationStageState)
+                                    .build();
     }
 
     private void prepareApplicationStager(StagingState stagingState) {

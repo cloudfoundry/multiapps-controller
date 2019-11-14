@@ -55,8 +55,6 @@ public final class Messages {
     public static final String FAILED_TO_LIST_MULTI_TARGET_APP_DIRECTORY_0 = "Failed to list multi-target app directory \"{0}\"";
     public static final String CANNOT_SHORTEN_NAME_TO_N_CHARACTERS = "Cannot shorten name \"{0}\" to {1} characters";
     public static final String ERROR_GETTING_APPLICATIONS = "Error getting Cloud Foundry applications";
-    public static final String ERROR_RETRIEVING_RECENT_LOGS = "Error retrieving recent logs";
-    public static final String ERROR_READING_PROTOCOL_BUFFER_LOGS = "Error reading protocol buffer logs";
     public static final String ERROR_COMPUTING_CHECKSUM_OF_FILE = "Error computing checksum of file {0} for application {1}";
     public static final String COULD_NOT_PARSE_ATTRIBUTES_OF_APP_0 = "Could not parse attributes of application \"{0}\"";
     public static final String ATTRIBUTE_0_OF_APP_1_IS_OF_TYPE_2_INSTEAD_OF_3 = "Attribute \"{0}\" of application \"{1}\" is of type {2} instead of {3}!";

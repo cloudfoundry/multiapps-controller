@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -81,41 +82,41 @@ public class PollExecuteAppStatusExecutionTest {
         return Stream.of(
         //@formatter:off
                         // (1) Application is in running state
-                        Arguments.of(createApplicationLog("testMessage", MessageType.STDOUT),
+                        Arguments.of(createAppLog( "testMessage",  MessageType.STDOUT, APP_SOURCE ),
                                      null, null, false, AsyncExecutionState.RUNNING),
                         // (2) Application finished execution and should be stopped
-                        Arguments.of(createApplicationLog("SUCCESS", MessageType.STDOUT),
+                        Arguments.of(createAppLog( "SUCCESS",  MessageType.STDOUT, APP_SOURCE ),
                                      null, null, true, AsyncExecutionState.FINISHED),
                         // (3) Application finished execution and should be left to run
-                        Arguments.of(createApplicationLog("SUCCESS", MessageType.STDOUT),
+                        Arguments.of(createAppLog( "SUCCESS",  MessageType.STDOUT, APP_SOURCE ),
                                      null, null, false, AsyncExecutionState.FINISHED),
                         // (4) Application with Custom success marker
-                        Arguments.of(createApplicationLog("SUCCESS", MessageType.STDOUT),
+                        Arguments.of(createAppLog( "SUCCESS",  MessageType.STDOUT, APP_SOURCE ),
                                      "executed", null, false, AsyncExecutionState.RUNNING),
                         // (5) Application in failed state
-                        Arguments.of(createApplicationLog("FAILURE", MessageType.STDERR),
+                        Arguments.of(createAppLog( "FAILURE",  MessageType.STDERR, APP_SOURCE ),
                                      null, null, false, AsyncExecutionState.ERROR),
                         // (6) Application in failed state and should be stopped
-                        Arguments.of(createApplicationLog("FAILURE", MessageType.STDERR),
+                        Arguments.of(createAppLog( "FAILURE",  MessageType.STDERR, APP_SOURCE ),
                                      null, null, true, AsyncExecutionState.ERROR),
                         // (7) Application with Custom failure marker
-                        Arguments.of(createApplicationLog("FAILURE", MessageType.STDOUT),
+                        Arguments.of(createAppLog( "FAILURE",  MessageType.STDERR, APP_SOURCE ),
                                      null, "execution failure", false, AsyncExecutionState.RUNNING),
                         // (8) Log message with non APP Source
-                        Arguments.of(createApplicationLog("info service", MessageType.STDOUT),
+                        Arguments.of(createAppLog( "info service",  MessageType.STDOUT, "service" ),
                                      null, null, false, AsyncExecutionState.RUNNING)
             );
         //@formatter:on
     }
 
-    private static ApplicationLog createApplicationLog(String message, MessageType messageType) {
+    private static ApplicationLog createAppLog(String message, MessageType messageType, String sourceName) {
         return ImmutableApplicationLog.builder()
-                                      .applicationGuid(APPLICATION_GUID)
+                                      .applicationGuid(PollExecuteAppStatusExecutionTest.APPLICATION_GUID)
                                       .message(message)
+                                      .timestamp(PollExecuteAppStatusExecutionTest.LOG_TIMESTAMP)
                                       .messageType(messageType)
-                                      .timestamp(LOG_TIMESTAMP)
-                                      .sourceId(SOURCE_ID)
-                                      .sourceName(APP_SOURCE)
+                                      .sourceId(PollExecuteAppStatusExecutionTest.SOURCE_ID)
+                                      .sourceName(sourceName)
                                       .build();
     }
 
@@ -165,7 +166,7 @@ public class PollExecuteAppStatusExecutionTest {
     }
 
     private void prepareRecentLogsRetriever(ApplicationLog applicationLog) {
-        when(recentLogsRetriever.getRecentLogs(any(), anyString())).thenReturn(Collections.singletonList(applicationLog));
+        when(recentLogsRetriever.getRecentLogs(any(), any(), any())).thenReturn(Arrays.asList(applicationLog));
     }
 
     private void prepareStepLogger() {

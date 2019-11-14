@@ -16,9 +16,10 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.sap.cloud.lm.sl.cf.core.util.ImmutableLogsOffset;
+import com.sap.cloud.lm.sl.cf.core.util.LogsOffset;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.StartingInfo;
-import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
@@ -648,13 +649,29 @@ public class StepsUtil {
 
     static void saveAppLogs(DelegateExecution context, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
                             CloudApplication app, Logger logger, ProcessLoggerProvider processLoggerProvider) {
-        List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogsSafely(client, app.getName());
-        recentLogs.forEach(log -> appLog(context, app.getName(), log.toString(), logger, processLoggerProvider));
+        LogsOffset offset = getLogOffset(context);
+        List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogsSafely(client, app.getName(), offset);
+        if (!recentLogs.isEmpty()) {
+            recentLogs.forEach(log -> appLog(context, app.getName(), log.toString(), logger, processLoggerProvider));
+            setLogOffset(recentLogs.get(recentLogs.size() - 1), context);
+        }
     }
 
     static void appLog(DelegateExecution context, String appName, String message, Logger logger,
                        ProcessLoggerProvider processLoggerProvider) {
         getLogger(context, appName, processLoggerProvider).debug(getLoggerPrefix(logger) + "[" + appName + "] " + message);
+    }
+
+    static LogsOffset getLogOffset(DelegateExecution context) {
+        return (LogsOffset) context.getVariable(com.sap.cloud.lm.sl.cf.core.Constants.LOGS_OFFSET);
+    }
+
+    static void setLogOffset(ApplicationLog lastLog, DelegateExecution context) {
+        LogsOffset newOffset = ImmutableLogsOffset.builder()
+                                                  .timestamp(lastLog.getTimestamp())
+                                                  .message(lastLog.getMessage())
+                                                  .build();
+        context.setVariable(com.sap.cloud.lm.sl.cf.core.Constants.LOGS_OFFSET, newOffset);
     }
 
     public static StartingInfo getStartingInfo(VariableScope scope) {
@@ -677,14 +694,6 @@ public class StepsUtil {
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    static StreamingLogToken getStreamingLogsToken(VariableScope scope) {
-        return getFromJsonBinary(scope, Constants.VAR_STREAMING_LOGS_TOKEN, StreamingLogToken.class);
-    }
-
-    static void setStreamingLogsToken(VariableScope scope, StreamingLogToken streamingLogToken) {
-        setAsJsonBinary(scope, Constants.VAR_STREAMING_LOGS_TOKEN, streamingLogToken);
     }
 
     static void setMtaArchiveModules(VariableScope scope, Set<String> mtaArchiveModules) {
