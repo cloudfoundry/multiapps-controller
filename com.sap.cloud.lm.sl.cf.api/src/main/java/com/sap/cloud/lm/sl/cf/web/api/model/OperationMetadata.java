@@ -19,11 +19,6 @@ public interface OperationMetadata {
     @Nullable
     String getDiagramId();
 
-    /**
-     * Can be used to ensure backwards compatibility when trying to find processes started with an older version of the application.
-     */
-    List<String> getPreviousDiagramIds();
-
     List<String> getVersions();
 
 }

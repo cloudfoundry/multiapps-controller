@@ -37,27 +37,4 @@ public class ProcessTypeToOperationMetadataMapperTest {
         Assertions.assertEquals(Constants.CTS_DEPLOY_SERVICE_ID, processTypeToOperationMetadataMapper.getDiagramId(ProcessType.CTS_DEPLOY));
     }
 
-    @Test
-    public void testGetPreviousDiagramIdsDeployProcessType() {
-        Assertions.assertEquals(0, processTypeToOperationMetadataMapper.getPreviousDiagramIds(ProcessType.DEPLOY)
-                                                                       .size());
-    }
-
-    @Test
-    public void testGetPreviousDiagramIdsBlueGreenDeployProcessType() {
-        Assertions.assertEquals(0, processTypeToOperationMetadataMapper.getPreviousDiagramIds(ProcessType.BLUE_GREEN_DEPLOY)
-                                                                       .size());
-    }
-
-    @Test
-    public void testGetPreviousDiagramIdsUndeployProcessType() {
-        Assertions.assertEquals(0, processTypeToOperationMetadataMapper.getPreviousDiagramIds(ProcessType.UNDEPLOY)
-                                                                       .size());
-    }
-
-    @Test
-    public void testGetPreviousDiagramIdsCtsDeployProcessType() {
-        Assertions.assertEquals(0, processTypeToOperationMetadataMapper.getPreviousDiagramIds(ProcessType.CTS_DEPLOY)
-                                                                       .size());
-    }
 }

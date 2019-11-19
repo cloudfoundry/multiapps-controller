@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.metadata;
 
-import java.util.List;
-
 import javax.inject.Named;
 
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -30,10 +28,6 @@ public class ProcessTypeToOperationMetadataMapper {
 
     public String getDiagramId(ProcessType processType) {
         return getOperationMetadata(processType).getDiagramId();
-    }
-
-    public List<String> getPreviousDiagramIds(ProcessType processType) {
-        return getOperationMetadata(processType).getPreviousDiagramIds();
     }
 
 }
