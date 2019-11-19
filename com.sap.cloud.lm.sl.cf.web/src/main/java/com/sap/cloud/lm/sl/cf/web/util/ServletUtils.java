@@ -13,6 +13,10 @@ public class ServletUtils {
 
     public static String getDecodedURI(HttpServletRequest request) {
         String uri = request.getRequestURI();
+        return decode(uri);
+    }
+
+    public static String decode(String uri) {
         try {
             return URLDecoder.decode(uri, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
