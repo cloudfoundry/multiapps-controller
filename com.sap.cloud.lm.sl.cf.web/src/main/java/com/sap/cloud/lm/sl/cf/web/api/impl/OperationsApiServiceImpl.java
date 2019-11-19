@@ -197,7 +197,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                           .collect(Collectors.toList());
     }
 
-    private List<Operation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<Operation.State> statusList, String spaceGuid) {
+    private List<Operation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<Operation.State> statusList,
+                                                    String spaceGuid) {
         OperationQuery operationQuery = operationService.createQuery()
                                                         .orderByStartTime(OrderDirection.ASCENDING)
                                                         .spaceId(spaceGuid);
@@ -226,8 +227,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private List<String> getAvailableActions(Operation operation) {
-        Operation.State operationState = operation.getState() != null ? operation.getState() : operationsHelper.computeState(operation);
-        switch (operationState) {
+        operation = operationsHelper.addState(operation);
+        switch (operation.getState()) {
             case FINISHED:
             case ABORTED:
                 return Collections.emptyList();
@@ -238,7 +239,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             case ACTION_REQUIRED:
                 return new ArrayList<>(Arrays.asList(AbortProcessAction.ACTION_ID_ABORT, ResumeProcessAction.ACTION_ID_RESUME));
         }
-        throw new IllegalStateException("State " + operationState.name() + " not recognised!");
+        throw new IllegalStateException(MessageFormat.format("State \"{0}\" not recognized!", operation.getState()));
     }
 
     private Operation addServiceParameters(Operation operation, String spaceGuid, String user) {

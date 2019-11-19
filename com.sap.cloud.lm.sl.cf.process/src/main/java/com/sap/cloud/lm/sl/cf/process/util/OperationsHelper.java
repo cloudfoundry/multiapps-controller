@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,46 +21,23 @@ import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMap
 import com.sap.cloud.lm.sl.cf.web.api.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 
 @Named
 public class OperationsHelper {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsHelper.class);
+
     @Inject
     private OperationService operationService;
-
     @Inject
     private ProcessTypeToOperationMetadataMapper metadataMapper;
-
     @Inject
     private FlowableFacade flowableFacade;
-
     @Inject
     private HistoricOperationEventService historicOperationEventService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsHelper.class);
-
-    public List<Operation> findOperations(List<Operation> operations, List<Operation.State> statusList) {
-        operations = addOngoingOperationsState(operations);
-        return filterBasedOnStates(operations, statusList);
-    }
-
     public String getProcessDefinitionKey(Operation operation) {
         return metadataMapper.getDiagramId(operation.getProcessType());
-    }
-
-    public List<String> getAllProcessDefinitionKeys(Operation operation) {
-        List<String> processDefinitionKeys = new ArrayList<>();
-        ProcessType processType = operation.getProcessType();
-        processDefinitionKeys.add(metadataMapper.getDiagramId(processType));
-        processDefinitionKeys.addAll(metadataMapper.getPreviousDiagramIds(processType));
-        return processDefinitionKeys;
-    }
-
-    private List<Operation> addOngoingOperationsState(List<Operation> existingOngoingOperations) {
-        return existingOngoingOperations.stream()
-                                        .map(this::addState)
-                                        .collect(Collectors.toList());
     }
 
     public Operation addErrorType(Operation operation) {
@@ -72,7 +48,7 @@ public class OperationsHelper {
         return operation;
     }
 
-    public ErrorType getErrorType(Operation operation) {
+    private ErrorType getErrorType(Operation operation) {
         List<HistoricOperationEvent> historicEvents = historicOperationEventService.createQuery()
                                                                                    .processId(operation.getProcessId())
                                                                                    .list();
@@ -84,7 +60,7 @@ public class OperationsHelper {
         return toErrorType(lastEventType);
     }
 
-    public ErrorType toErrorType(EventType historicType) {
+    private ErrorType toErrorType(EventType historicType) {
         if (historicType == EventType.FAILED_BY_CONTENT_ERROR) {
             return ErrorType.CONTENT;
         }
@@ -112,10 +88,21 @@ public class OperationsHelper {
                                  .withState(state);
     }
 
-    public Operation.State computeState(Operation ongoingOperation) {
+    private Operation.State computeState(Operation ongoingOperation) {
         LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
                                           ongoingOperation.getProcessId()));
         return flowableFacade.getProcessInstanceState(ongoingOperation.getProcessId());
+    }
+
+    public List<Operation> findOperations(List<Operation> operations, List<Operation.State> statusList) {
+        operations = addOngoingOperationsState(operations);
+        return filterBasedOnStates(operations, statusList);
+    }
+
+    private List<Operation> addOngoingOperationsState(List<Operation> existingOngoingOperations) {
+        return existingOngoingOperations.stream()
+                                        .map(this::addState)
+                                        .collect(Collectors.toList());
     }
 
     private List<Operation> filterBasedOnStates(List<Operation> operations, List<Operation.State> statusList) {
