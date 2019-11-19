@@ -22,12 +22,6 @@ public final class Messages {
 
     // ERROR log messages
     public static final String MTA_NOT_FOUND = "MTA with id \"{0}\" does not exist";
-
-    public static final String ERROR_STORING_OAUTH_TOKEN_IN_SECURE_STORE = "Error storing OAuth access token with id \"{0}\" in token store. Entry with this id already exists";
-    public static final String ERROR_COMPRESSING_OAUTH_TOKEN = "Error compressing OAuth access token";
-    public static final String ERROR_DECOMPRESSING_OAUTH_TOKEN = "Error decompressing OAuth access token";
-    public static final String TOKEN_NOT_FOUND_IN_SECURE_STORE = "Token not found in secure store";
-    public static final String TOKEN_KEY_FORMAT_NOT_VALID = "Token key format not valid";
     public static final String COULD_NOT_PARSE_CONTENT_PARAMETER_AS_JSON = "Could not parse content query parameter as JSON: {0}";
     public static final String COULD_NOT_PARSE_CONTENT_PARAMETER_AS_LIST = "Could not parse content query parameter as list: {0}";
     public static final String ORG_AND_SPACE_MUST_BE_SPECIFIED = "Org and space must be specified!";
@@ -45,7 +39,7 @@ public final class Messages {
     public static final String STORING_TOKEN_FOR_USER_0_WITH_EXPIRATION_TIME_1 = "Storing token for user \"{0}\" with expiration time: {1} seconds";
     public static final String REGISTERED_0_AS_LIQUIBASE_LOCK_SERVICE = "Registered {0} as a Liquibase lock service.";
     public static final String FILE_SERVICE_DELETED_FILES = "FileService: Deleted {0} files without content.";
-    
+
     // DEBUG log messages
     public static final String ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION = "Cannot store access token due to data integrity violation. The exception is ignored as the token and authentication are persisted by another client";
 
