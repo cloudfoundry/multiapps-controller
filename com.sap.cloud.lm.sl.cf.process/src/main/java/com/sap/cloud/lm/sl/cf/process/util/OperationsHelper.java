@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.flowable.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,10 +89,32 @@ public class OperationsHelper {
                                  .withState(state);
     }
 
-    private Operation.State computeState(Operation ongoingOperation) {
-        LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
-                                          ongoingOperation.getProcessId()));
-        return flowableFacade.getProcessInstanceState(ongoingOperation.getProcessId());
+    public Operation.State computeState(Operation operation) {
+        LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, operation.getProcessType(), operation.getProcessId()));
+        return computeState(operation.getProcessId());
+    }
+
+    public Operation.State computeState(String processId) {
+        ProcessInstance processInstance = flowableFacade.getProcessInstance(processId);
+        if (processInstance != null) {
+            return computeNonFinalState(processInstance);
+        }
+        return computeFinalState(processId);
+    }
+
+    private Operation.State computeNonFinalState(ProcessInstance processInstance) {
+        String processInstanceId = processInstance.getProcessInstanceId();
+        if (flowableFacade.isProcessInstanceAtReceiveTask(processInstanceId)) {
+            return Operation.State.ACTION_REQUIRED;
+        }
+        if (flowableFacade.hasDeadLetterJobs(processInstanceId)) {
+            return Operation.State.ERROR;
+        }
+        return Operation.State.RUNNING;
+    }
+
+    private Operation.State computeFinalState(String processId) {
+        return flowableFacade.hasDeleteReason(processId) ? Operation.State.ABORTED : Operation.State.FINISHED;
     }
 
     public List<Operation> findOperations(List<Operation> operations, List<Operation.State> statusList) {

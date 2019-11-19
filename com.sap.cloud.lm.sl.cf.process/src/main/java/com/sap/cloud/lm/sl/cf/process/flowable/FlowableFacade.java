@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.Constants;
-import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 @Named
 public class FlowableFacade {
@@ -82,37 +81,7 @@ public class FlowableFacade {
         return (String) historicVariableInstance.getValue();
     }
 
-    public Operation.State getProcessInstanceState(String processInstanceId) {
-        ProcessInstance processInstance = getProcessInstance(processInstanceId);
-        if (processInstance != null) {
-            return getActiveProcessState(processInstance);
-        }
-
-        return getInactiveProcessState(processInstanceId);
-    }
-
-    private Operation.State getInactiveProcessState(String processInstanceId) {
-        if (hasDeleteReason(processInstanceId)) {
-            return Operation.State.ABORTED;
-        }
-
-        return Operation.State.FINISHED;
-    }
-
-    private Operation.State getActiveProcessState(ProcessInstance processInstance) {
-        String processInstanceId = processInstance.getProcessInstanceId();
-        if (isProcessInstanceAtReceiveTask(processInstanceId)) {
-            return Operation.State.ACTION_REQUIRED;
-        }
-
-        if (hasDeadLetterJobs(processInstanceId)) {
-            return Operation.State.ERROR;
-        }
-
-        return Operation.State.RUNNING;
-    }
-
-    private boolean hasDeleteReason(String processId) {
+    public boolean hasDeleteReason(String processId) {
         HistoricProcessInstance historicProcessInstance = processEngine.getHistoryService()
                                                                        .createHistoricProcessInstanceQuery()
                                                                        .processInstanceId(processId)
@@ -140,7 +109,7 @@ public class FlowableFacade {
                        .anyMatch(this::processHierarchyHasDeleteReason);
     }
 
-    private boolean hasDeadLetterJobs(String processId) {
+    public boolean hasDeadLetterJobs(String processId) {
         return !getDeadLetterJobs(processId).isEmpty();
     }
 
