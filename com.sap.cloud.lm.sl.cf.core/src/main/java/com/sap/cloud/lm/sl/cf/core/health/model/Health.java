@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 public class Health {
 
@@ -38,7 +37,7 @@ public class Health {
 
     private static boolean containsOnlyFinishedOperations(List<HealthCheckOperation> operations) {
         return operations.stream()
-                         .allMatch(operation -> operation.getState() == State.FINISHED);
+                         .allMatch(operation -> operation.getState() == Operation.State.FINISHED);
     }
 
 }

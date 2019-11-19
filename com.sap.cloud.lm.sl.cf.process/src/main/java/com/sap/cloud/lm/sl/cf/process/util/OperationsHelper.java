@@ -23,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 @Named
 public class OperationsHelper {
@@ -42,7 +41,7 @@ public class OperationsHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsHelper.class);
 
-    public List<Operation> findOperations(List<Operation> operations, List<State> statusList) {
+    public List<Operation> findOperations(List<Operation> operations, List<Operation.State> statusList) {
         operations = addOngoingOperationsState(operations);
         return filterBasedOnStates(operations, statusList);
     }
@@ -66,7 +65,7 @@ public class OperationsHelper {
     }
 
     public Operation addErrorType(Operation operation) {
-        if (operation.getState() == State.ERROR) {
+        if (operation.getState() == Operation.State.ERROR) {
             return ImmutableOperation.copyOf(operation)
                                      .withErrorType(getErrorType(operation));
         }
@@ -99,9 +98,9 @@ public class OperationsHelper {
         if (ongoingOperation.getState() != null) {
             return ongoingOperation;
         }
-        State state = computeState(ongoingOperation);
+        Operation.State state = computeState(ongoingOperation);
         // Fixes bug XSBUG-2035: Inconsistency in 'operation', 'act_hi_procinst' and 'act_ru_execution' tables
-        if (ongoingOperation.hasAcquiredLock() && (state.equals(State.ABORTED) || state.equals(State.FINISHED))) {
+        if (ongoingOperation.hasAcquiredLock() && (state.equals(Operation.State.ABORTED) || state.equals(Operation.State.FINISHED))) {
             ongoingOperation = ImmutableOperation.builder()
                                                  .from(ongoingOperation)
                                                  .hasAcquiredLock(false)
@@ -113,13 +112,13 @@ public class OperationsHelper {
                                  .withState(state);
     }
 
-    public State computeState(Operation ongoingOperation) {
+    public Operation.State computeState(Operation ongoingOperation) {
         LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
                                           ongoingOperation.getProcessId()));
         return flowableFacade.getProcessInstanceState(ongoingOperation.getProcessId());
     }
 
-    private List<Operation> filterBasedOnStates(List<Operation> operations, List<State> statusList) {
+    private List<Operation> filterBasedOnStates(List<Operation> operations, List<Operation.State> statusList) {
         if (CollectionUtils.isEmpty(statusList)) {
             return operations;
         }

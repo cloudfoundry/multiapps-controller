@@ -22,7 +22,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService.Operatio
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.ConflictException;
 
 public class OperationServiceTest {
@@ -103,9 +102,9 @@ public class OperationServiceTest {
     @Test
     public void testQueryByState() {
         Operation operation1 = ImmutableOperation.copyOf(OPERATION_1)
-                                                 .withState(State.ERROR);
+                                                 .withState(Operation.State.ERROR);
         Operation operation2 = ImmutableOperation.copyOf(OPERATION_2)
-                                                 .withState(State.RUNNING);
+                                                 .withState(Operation.State.RUNNING);
         testQueryByCriteria((query, operation) -> query.state(operation.getState()), operation1, operation2);
     }
 
@@ -124,23 +123,23 @@ public class OperationServiceTest {
     @Test
     public void testQueryWithStateAnyOf() {
         Operation operation1 = ImmutableOperation.copyOf(OPERATION_1)
-                                                 .withState(State.ERROR);
+                                                 .withState(Operation.State.ERROR);
         Operation operation2 = ImmutableOperation.copyOf(OPERATION_2)
-                                                 .withState(State.RUNNING);
-        testQueryByCriteria((query, operation) -> query.withStateAnyOf(Collections.singletonList(State.ERROR)), operation1, operation2);
+                                                 .withState(Operation.State.RUNNING);
+        testQueryByCriteria((query, operation) -> query.withStateAnyOf(Collections.singletonList(Operation.State.ERROR)), operation1, operation2);
     }
 
     @Test
     public void testQueryInNonFinalState() {
         Operation operation2 = ImmutableOperation.copyOf(OPERATION_2)
-                                                 .withState(State.ABORTED);
+                                                 .withState(Operation.State.ABORTED);
         testQueryByCriteria((query, operation) -> query.inNonFinalState(), OPERATION_1, operation2);
     }
 
     @Test
     public void testQueryInFinalState() {
         Operation operation1 = ImmutableOperation.copyOf(OPERATION_1)
-                                                 .withState(State.FINISHED);
+                                                 .withState(Operation.State.FINISHED);
         testQueryByCriteria((query, operation) -> query.inFinalState(), operation1, OPERATION_2);
     }
 

@@ -5,7 +5,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 @Named
 public class AbortProcessAction extends ProcessAction {
@@ -22,7 +22,7 @@ public class AbortProcessAction extends ProcessAction {
         if (flowableFacade.isProcessInstanceSuspended(superProcessInstanceId)) {
             flowableFacade.activateProcessInstance(superProcessInstanceId);
         }
-        flowableFacade.deleteProcessInstance(superProcessInstanceId, State.ABORTED.name());
+        flowableFacade.deleteProcessInstance(superProcessInstanceId, Operation.State.ABORTED.name());
     }
 
     @Override

@@ -16,7 +16,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.criteria.QueryCriteria;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService.OperationMapper;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 public class OperationQueryImpl extends AbstractQueryImpl<Operation, OperationQuery> implements OperationQuery {
 
@@ -89,7 +88,7 @@ public class OperationQueryImpl extends AbstractQueryImpl<Operation, OperationQu
     }
 
     @Override
-    public OperationQuery state(State finalState) {
+    public OperationQuery state(Operation.State finalState) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
                                                                        .attribute(AttributeNames.FINAL_STATE)
                                                                        .condition(getCriteriaBuilder()::equal)
@@ -139,8 +138,8 @@ public class OperationQueryImpl extends AbstractQueryImpl<Operation, OperationQu
     }
 
     @Override
-    public OperationQuery withStateAnyOf(List<State> states) {
-        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<List<State>> builder()
+    public OperationQuery withStateAnyOf(List<Operation.State> states) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<List<Operation.State>> builder()
                                                                        .attribute(AttributeNames.FINAL_STATE)
                                                                        .condition(Expression::in)
                                                                        .value(states)

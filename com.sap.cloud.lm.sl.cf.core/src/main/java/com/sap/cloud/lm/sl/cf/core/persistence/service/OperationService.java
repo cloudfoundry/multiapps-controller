@@ -15,7 +15,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.impl.OperationQueryImpl;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 
@@ -72,8 +71,8 @@ public class OperationService extends PersistenceService<Operation, OperationDto
             return processType == null ? null : ProcessType.fromString(processType);
         }
 
-        private State toState(String operationState) {
-            return operationState == null ? null : State.valueOf(operationState);
+        private Operation.State toState(String operationState) {
+            return operationState == null ? null : Operation.State.valueOf(operationState);
         }
 
         private ZonedDateTime toZonedDateTime(Date date) {
@@ -114,7 +113,7 @@ public class OperationService extends PersistenceService<Operation, OperationDto
             return processType == null ? null : processType.toString();
         }
 
-        private String toString(State operationState) {
+        private String toString(Operation.State operationState) {
             return operationState == null ? null : operationState.toString();
         }
 

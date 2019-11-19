@@ -33,7 +33,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
@@ -52,15 +51,15 @@ public class ApplicationColorDetectorTest {
     // @formatter:off
     private static Stream<Arguments> detectLiveApplicationColorMtaColorAndPhase() {
         return Stream.of(
-                Arguments.of("deployed-mta-01.json", GREEN, State.FINISHED, State.ABORTED, GREEN),
-                Arguments.of("deployed-mta-01.json", BLUE, State.FINISHED, State.ABORTED, BLUE),
-                Arguments.of("deployed-mta-02.json", GREEN, State.FINISHED, State.ABORTED, GREEN),
-                Arguments.of("deployed-mta-02.json", BLUE, State.FINISHED, State.ABORTED, BLUE),
-                Arguments.of("deployed-mta-02.json", GREEN, State.FINISHED, State.FINISHED, BLUE),
-                Arguments.of("deployed-mta-03.json", BLUE, State.FINISHED, State.ABORTED, BLUE),
-                Arguments.of("deployed-mta-03.json", GREEN, State.FINISHED, State.ABORTED, GREEN),
-                Arguments.of("deployed-mta-04.json", BLUE, State.FINISHED, State.ABORTED, BLUE),
-                Arguments.of("deployed-mta-04.json", GREEN, State.FINISHED, State.ABORTED, GREEN)
+                Arguments.of("deployed-mta-01.json", GREEN, Operation.State.FINISHED, Operation.State.ABORTED, GREEN),
+                Arguments.of("deployed-mta-01.json", BLUE, Operation.State.FINISHED, Operation.State.ABORTED, BLUE),
+                Arguments.of("deployed-mta-02.json", GREEN, Operation.State.FINISHED, Operation.State.ABORTED, GREEN),
+                Arguments.of("deployed-mta-02.json", BLUE, Operation.State.FINISHED, Operation.State.ABORTED, BLUE),
+                Arguments.of("deployed-mta-02.json", GREEN, Operation.State.FINISHED, Operation.State.FINISHED, BLUE),
+                Arguments.of("deployed-mta-03.json", BLUE, Operation.State.FINISHED, Operation.State.ABORTED, BLUE),
+                Arguments.of("deployed-mta-03.json", GREEN, Operation.State.FINISHED, Operation.State.ABORTED, GREEN),
+                Arguments.of("deployed-mta-04.json", BLUE, Operation.State.FINISHED, Operation.State.ABORTED, BLUE),
+                Arguments.of("deployed-mta-04.json", GREEN, Operation.State.FINISHED, Operation.State.ABORTED, GREEN)
                );
     }
     // @formatter:on
@@ -161,7 +160,7 @@ public class ApplicationColorDetectorTest {
     @ParameterizedTest
     @MethodSource
     public void detectLiveApplicationColor(String deployedMtaJsonLocation, Expectation expectations) {
-        mockOperationService(createFakeOperation(State.RUNNING), createFakeOperation(State.FINISHED));
+        mockOperationService(createFakeOperation(Operation.State.RUNNING), createFakeOperation(Operation.State.FINISHED));
         tester.test(() -> detectLiveApplicationColor(readResource(deployedMtaJsonLocation, DeployedMta.class)), expectations);
     }
 
@@ -173,7 +172,7 @@ public class ApplicationColorDetectorTest {
     @ParameterizedTest
     @MethodSource
     public void detectLiveApplicationColorMtaColorAndPhase(String deployedMtaJsonLocation, String expectedColor,
-                                                           State currentOperationState, State lastOperationState,
+                                                           Operation.State currentOperationState, Operation.State lastOperationState,
                                                            String lastDeployedColor) {
         Expectation expectation = new Expectation(expectedColor);
         mockOperationService(createFakeOperation(currentOperationState), createFakeOperation(lastOperationState));
@@ -187,7 +186,7 @@ public class ApplicationColorDetectorTest {
     @Test
     public void detectLiveApplicationColorPhaseNotFound() {
         Expectation expectation = new Expectation(GREEN);
-        mockOperationService(createFakeOperation(State.RUNNING), createFakeOperation(State.ABORTED));
+        mockOperationService(createFakeOperation(Operation.State.RUNNING), createFakeOperation(Operation.State.ABORTED));
         mockHistoricVariableInstanceColor(GREEN);
         tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
     }
@@ -195,7 +194,7 @@ public class ApplicationColorDetectorTest {
     @Test
     public void detectLiveApplicationColorMtaColoNotFound() {
         Expectation expectation = new Expectation(GREEN);
-        mockOperationService(createFakeOperation(State.RUNNING), createFakeOperation(State.ABORTED));
+        mockOperationService(createFakeOperation(Operation.State.RUNNING), createFakeOperation(Operation.State.ABORTED));
         mockHistoricVariableInstancePhase();
         tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
     }
@@ -203,7 +202,7 @@ public class ApplicationColorDetectorTest {
     @Test
     public void detectLiveApplicationColorNoOperations() {
         Expectation expectation = new Expectation(GREEN);
-        mockOperationServiceNoOtherOperations(createFakeOperation(State.RUNNING));
+        mockOperationServiceNoOtherOperations(createFakeOperation(Operation.State.RUNNING));
         tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
     }
 
@@ -271,7 +270,7 @@ public class ApplicationColorDetectorTest {
                                                           .list();
     }
 
-    private Operation createFakeOperation(State state) {
+    private Operation createFakeOperation(Operation.State state) {
         Operation operation = mock(Operation.class);
         when(operation.getState()).thenReturn(state);
         when(operation.getMtaId()).thenReturn(FAKE_MTA_ID);

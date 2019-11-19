@@ -22,7 +22,6 @@ import com.sap.cloud.lm.sl.cf.process.flowable.ProcessActionRegistry;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 @Named
 @Order(10)
@@ -109,7 +108,7 @@ public class OperationsCleaner implements Cleaner {
     private void abortOrphanedOperation(Operation operation) {
         Operation abortedOperation = ImmutableOperation.builder()
                                                        .from(operation)
-                                                       .state(State.ABORTED)
+                                                       .state(Operation.State.ABORTED)
                                                        .endedAt(ZonedDateTime.now())
                                                        .hasAcquiredLock(false)
                                                        .build();

@@ -6,7 +6,6 @@ import java.util.List;
 import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 public interface OperationQuery extends Query<Operation, OperationQuery> {
 
@@ -22,7 +21,7 @@ public interface OperationQuery extends Query<Operation, OperationQuery> {
 
     OperationQuery acquiredLock(Boolean acquiredLock);
 
-    OperationQuery state(State finalState);
+    OperationQuery state(Operation.State finalState);
 
     OperationQuery startedBefore(Date startedBefore);
 
@@ -32,7 +31,7 @@ public interface OperationQuery extends Query<Operation, OperationQuery> {
 
     OperationQuery inFinalState();
 
-    OperationQuery withStateAnyOf(List<State> states);
+    OperationQuery withStateAnyOf(List<Operation.State> states);
 
     OperationQuery orderByProcessId(OrderDirection orderDirection);
 

@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.Constants;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 @Named
 public class FlowableFacade {
@@ -82,7 +82,7 @@ public class FlowableFacade {
         return (String) historicVariableInstance.getValue();
     }
 
-    public State getProcessInstanceState(String processInstanceId) {
+    public Operation.State getProcessInstanceState(String processInstanceId) {
         ProcessInstance processInstance = getProcessInstance(processInstanceId);
         if (processInstance != null) {
             return getActiveProcessState(processInstance);
@@ -91,25 +91,25 @@ public class FlowableFacade {
         return getInactiveProcessState(processInstanceId);
     }
 
-    private State getInactiveProcessState(String processInstanceId) {
+    private Operation.State getInactiveProcessState(String processInstanceId) {
         if (hasDeleteReason(processInstanceId)) {
-            return State.ABORTED;
+            return Operation.State.ABORTED;
         }
 
-        return State.FINISHED;
+        return Operation.State.FINISHED;
     }
 
-    private State getActiveProcessState(ProcessInstance processInstance) {
+    private Operation.State getActiveProcessState(ProcessInstance processInstance) {
         String processInstanceId = processInstance.getProcessInstanceId();
         if (isProcessInstanceAtReceiveTask(processInstanceId)) {
-            return State.ACTION_REQUIRED;
+            return Operation.State.ACTION_REQUIRED;
         }
 
         if (hasDeadLetterJobs(processInstanceId)) {
-            return State.ERROR;
+            return Operation.State.ERROR;
         }
 
-        return State.RUNNING;
+        return Operation.State.RUNNING;
     }
 
     private boolean hasDeleteReason(String processId) {

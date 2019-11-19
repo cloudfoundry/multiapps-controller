@@ -57,7 +57,6 @@ import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 
@@ -107,10 +106,10 @@ public class OperationsApiServiceImplTest {
     public void initialize() {
         MockitoAnnotations.initMocks(this);
         operations = new LinkedList<>();
-        operations.add(createOperation(FINISHED_PROCESS, State.FINISHED));
-        operations.add(createOperation(RUNNING_PROCESS, State.RUNNING));
-        operations.add(createOperation(ERROR_PROCESS, State.ERROR));
-        operations.add(createOperation(ABORTED_PROCESS, State.ABORTED));
+        operations.add(createOperation(FINISHED_PROCESS, Operation.State.FINISHED));
+        operations.add(createOperation(RUNNING_PROCESS, Operation.State.RUNNING));
+        operations.add(createOperation(ERROR_PROCESS, Operation.State.ERROR));
+        operations.add(createOperation(ABORTED_PROCESS, Operation.State.ABORTED));
 
         AuditLoggingProvider.setFacade(Mockito.mock(AuditLoggingFacade.class));
         setupOperationServiceMock();
@@ -122,23 +121,23 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testGetOperations() {
-        ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID, Arrays.asList(State.FINISHED.toString(),
-                                                                                                       State.ABORTED.toString()),
+        ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID, Arrays.asList(Operation.State.FINISHED.toString(),
+                                                                                                       Operation.State.ABORTED.toString()),
                                                                              1);
 
         List<Operation> operations = response.getBody();
         assertEquals(2, operations.size());
-        assertEquals(State.FINISHED, operations.get(0)
-                                               .getState());
-        assertEquals(State.ABORTED, operations.get(1)
-                                              .getState());
+        assertEquals(Operation.State.FINISHED, operations.get(0)
+                                                         .getState());
+        assertEquals(Operation.State.ABORTED, operations.get(1)
+                                                        .getState());
 
     }
 
     @Test
     public void testGetOperationsNotFound() {
         ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID,
-                                                                             Collections.singletonList(State.ACTION_REQUIRED.toString()),
+                                                                             Collections.singletonList(Operation.State.ACTION_REQUIRED.toString()),
                                                                              1);
 
         List<Operation> operations = response.getBody();
@@ -152,7 +151,7 @@ public class OperationsApiServiceImplTest {
         ResponseEntity<Operation> response = testedClass.getOperation(SPACE_GUID, processId, null);
         Operation operation = response.getBody();
         assertEquals(processId, operation.getProcessId());
-        assertEquals(State.FINISHED, operation.getState());
+        assertEquals(Operation.State.FINISHED, operation.getState());
     }
 
     @Test
@@ -361,7 +360,7 @@ public class OperationsApiServiceImplTest {
 
                    @Override
                    public List<Operation> answer(InvocationOnMock invocation) {
-                       List<State> states = (List<State>) invocation.getArguments()[1];
+                       List<Operation.State> states = (List<Operation.State>) invocation.getArguments()[1];
                        return operations.stream()
                                         .filter(operation -> states.contains(operation.getState()))
                                         .collect(Collectors.toList());
@@ -373,7 +372,7 @@ public class OperationsApiServiceImplTest {
                .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
-    private Operation createOperation(String processId, State state) {
+    private Operation createOperation(String processId, Operation.State state) {
         return ImmutableOperation.builder()
                                  .state(state)
                                  .spaceId(SPACE_GUID)

@@ -57,7 +57,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.MessageType;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterTypeFactory;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
@@ -87,7 +86,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<List<Operation>> getOperations(String spaceGuid, List<String> stateStrings, Integer last) {
-        List<State> states = getStates(stateStrings);
+        List<Operation.State> states = getStates(stateStrings);
         List<Operation> operations = filterByQueryParameters(last, states, spaceGuid);
         return ResponseEntity.ok()
                              .body(operations);
@@ -191,14 +190,14 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                              .body(operation);
     }
 
-    private List<State> getStates(List<String> statusList) {
+    private List<Operation.State> getStates(List<String> statusList) {
         return ObjectUtils.defaultIfNull(statusList, Collections.<String> emptyList())
                           .stream()
-                          .map(State::valueOf)
+                          .map(Operation.State::valueOf)
                           .collect(Collectors.toList());
     }
 
-    private List<Operation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<State> statusList, String spaceGuid) {
+    private List<Operation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<Operation.State> statusList, String spaceGuid) {
         OperationQuery operationQuery = operationService.createQuery()
                                                         .orderByStartTime(OrderDirection.ASCENDING)
                                                         .spaceId(spaceGuid);
@@ -213,8 +212,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return operationsHelper.findOperations(operations, statusList);
     }
 
-    private boolean containsOnlyFinishedStates(List<State> statusList) {
-        return Collections.disjoint(statusList, State.getActiveStates());
+    private boolean containsOnlyFinishedStates(List<Operation.State> statusList) {
+        return Collections.disjoint(statusList, Operation.State.getNonFinalStates());
     }
 
     @Override
@@ -227,7 +226,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private List<String> getAvailableActions(Operation operation) {
-        State operationState = operation.getState() != null ? operation.getState() : operationsHelper.computeState(operation);
+        Operation.State operationState = operation.getState() != null ? operation.getState() : operationsHelper.computeState(operation);
         switch (operationState) {
             case FINISHED:
             case ABORTED:

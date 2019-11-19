@@ -21,7 +21,6 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.ConflictException;
 
 @Named("applicationColorDetector")
@@ -57,7 +56,7 @@ public class ApplicationColorDetector {
         }
 
         if (operations.get(0)
-                      .getState() != State.ABORTED) {
+                      .getState() != Operation.State.ABORTED) {
             return olderApplicationColor;
         }
         String xs2BlueGreenDeployHistoricProcessInstanceId = flowableFacade.findHistoricProcessInstanceIdByProcessDefinitionKey(operations.get(0)

@@ -9,7 +9,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessTypeDeserializer;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessTypeSerializer;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.cf.web.api.model.ZonedDateTimeDeserializer;
 import com.sap.cloud.lm.sl.cf.web.api.model.ZonedDateTimeSerializer;
 
@@ -26,7 +25,7 @@ public class HealthCheckOperation {
     @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
     private final ZonedDateTime endedAt;
     private final long durationInSeconds;
-    private final State state;
+    private final Operation.State state;
     private final String spaceId;
     private final String mtaId;
     private final String user;
@@ -63,7 +62,7 @@ public class HealthCheckOperation {
         return durationInSeconds;
     }
 
-    public State getState() {
+    public Operation.State getState() {
         return state;
     }
 
@@ -100,7 +99,7 @@ public class HealthCheckOperation {
         private ZonedDateTime startedAt;
         private ZonedDateTime endedAt;
         private long durationInSeconds;
-        private State state;
+        private Operation.State state;
         private String spaceId;
         private String mtaId;
         private String user;
@@ -130,7 +129,7 @@ public class HealthCheckOperation {
             return this;
         }
 
-        public Builder state(State state) {
+        public Builder state(Operation.State state) {
             this.state = state;
             return this;
         }

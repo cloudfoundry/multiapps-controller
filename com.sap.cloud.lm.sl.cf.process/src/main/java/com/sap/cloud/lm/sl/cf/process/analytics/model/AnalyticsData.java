@@ -9,8 +9,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.sap.cloud.lm.sl.cf.process.analytics.adapters.ProcessTypeXmlAdapter;
 import com.sap.cloud.lm.sl.cf.process.analytics.adapters.StateXmlAdapter;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 @XmlRootElement(name = "processItem")
 @XmlAccessorType(value = XmlAccessType.FIELD)
@@ -34,7 +34,7 @@ public class AnalyticsData {
 
     @XmlElement(name = "processFinalState")
     @XmlJavaTypeAdapter(StateXmlAdapter.class)
-    private State processFinalState;
+    private Operation.State processFinalState;
 
     @XmlElement(name = "mtaId")
     private String mtaId;
@@ -57,7 +57,7 @@ public class AnalyticsData {
     }
 
     public AnalyticsData(String processId, ProcessType processType, long startTime, long endTime, long processDurationInSeconds,
-                         State processFinalState, String mtaId, String org, String space, String controllerUrl,
+                         Operation.State processFinalState, String mtaId, String org, String space, String controllerUrl,
                          AbstractCommonProcessAttributes commonProcessVariables) {
         this.processId = processId;
         this.processType = processType;
@@ -112,11 +112,11 @@ public class AnalyticsData {
         this.processDurationInSeconds = processDuration;
     }
 
-    public State getProcessFinalState() {
+    public Operation.State getProcessFinalState() {
         return processFinalState;
     }
 
-    public void setProcessFinalState(State processFinalState) {
+    public void setProcessFinalState(Operation.State processFinalState) {
         this.processFinalState = processFinalState;
     }
 

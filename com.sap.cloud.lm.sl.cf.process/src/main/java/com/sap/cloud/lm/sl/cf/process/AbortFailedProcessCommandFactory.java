@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 public class AbortFailedProcessCommandFactory extends NoJobRetryCommandFactory {
 
@@ -26,7 +26,7 @@ public class AbortFailedProcessCommandFactory extends NoJobRetryCommandFactory {
     }
 
     protected String getAbortReason() {
-        return State.ABORTED.name();
+        return Operation.State.ABORTED.name();
     }
 
     protected static class AbortFailedProcessCommand implements Command<Object> {

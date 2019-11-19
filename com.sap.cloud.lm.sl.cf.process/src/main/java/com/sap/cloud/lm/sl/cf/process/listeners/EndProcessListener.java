@@ -26,7 +26,6 @@ import com.sap.cloud.lm.sl.cf.process.util.CollectedDataSender;
 import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 @Named("endProcessListener")
 public class EndProcessListener extends AbstractProcessExecutionListener {
@@ -72,7 +71,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
                                          operation.getMtaId(), operation.getSpaceId()));
         Operation finishedOperation = ImmutableOperation.builder()
                                                         .from(operation)
-                                                        .state(State.FINISHED)
+                                                        .state(Operation.State.FINISHED)
                                                         .endedAt(ZonedDateTime.now())
                                                         .hasAcquiredLock(false)
                                                         .build();
@@ -106,7 +105,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
 
     protected void sendStatistics(DelegateExecution context) {
         RestTemplate restTemplate = new RestUtil().createRestTemplate(null, false);
-        AnalyticsData collectedData = dataSender.collectAnalyticsData(context, State.FINISHED);
+        AnalyticsData collectedData = dataSender.collectAnalyticsData(context, Operation.State.FINISHED);
         dataSender.sendCollectedData(restTemplate, dataSender.convertCollectedAnalyticsDataToXml(context, collectedData));
     }
 

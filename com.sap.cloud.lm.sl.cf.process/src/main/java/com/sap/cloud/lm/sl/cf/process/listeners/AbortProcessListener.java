@@ -39,7 +39,6 @@ import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
 import com.sap.cloud.lm.sl.cf.process.util.HistoricOperationEventPersister;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.util.Runnable;
 
 @Named("abortProcessListener")
@@ -119,7 +118,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
                                          operation.getMtaId(), operation.getSpaceId()));
         Operation abortedOperation = ImmutableOperation.builder()
                                                        .from(operation)
-                                                       .state(State.ABORTED)
+                                                       .state(Operation.State.ABORTED)
                                                        .endedAt(ZonedDateTime.now())
                                                        .hasAcquiredLock(false)
                                                        .build();
@@ -148,7 +147,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
     protected void sendStatistics(FlowableEngineEvent event) {
         DelegateExecution context = new FlowableEngineEventToDelegateExecutionAdapter(event);
         RestTemplate restTemplate = new RestUtil().createRestTemplate(null, false);
-        AnalyticsData collectedData = dataSender.collectAnalyticsData(context, State.ABORTED);
+        AnalyticsData collectedData = dataSender.collectAnalyticsData(context, Operation.State.ABORTED);
         dataSender.sendCollectedData(restTemplate, dataSender.convertCollectedAnalyticsDataToXml(context, collectedData));
     }
 
