@@ -20,6 +20,7 @@ import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SSLUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
+import com.sap.cloud.lm.sl.cf.web.message.Messages;
 
 @Named
 public class CustomTokenServices implements ResourceServerTokenServices {
@@ -62,13 +63,12 @@ public class CustomTokenServices implements ResourceServerTokenServices {
             TokenProperties tokenProperties = TokenProperties.fromToken(token);
             auth = SecurityUtil.createAuthentication(tokenProperties.getClientId(), token.getScope(), SecurityUtil.getTokenUserInfo(token));
             try {
-                LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.web.message.Messages.TOKEN_LOADED_INTO_TOKEN_STORE,
-                                                 token.getExpiresIn(), tokenProperties.getUserName()));
+                LOGGER.info(MessageFormat.format(Messages.STORING_TOKEN_FOR_USER_0_WITH_EXPIRATION_TIME_1, tokenProperties.getUserName(),
+                                                 token.getExpiresIn()));
                 tokenStore.storeAccessToken(token, auth);
             } catch (DataIntegrityViolationException e) {
-                LOGGER.debug(com.sap.cloud.lm.sl.cf.core.message.Messages.ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION, e);
-                // Ignoring the exception as the token and authentication are already persisted
-                // by another client.
+                LOGGER.debug(Messages.ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION, e);
+                // Ignoring the exception as the token and authentication are already persisted by another client.
             }
         }
 

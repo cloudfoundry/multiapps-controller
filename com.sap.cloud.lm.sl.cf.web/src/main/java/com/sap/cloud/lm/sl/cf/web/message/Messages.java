@@ -42,9 +42,12 @@ public final class Messages {
     public static final String ALM_SERVICE_ENV_INITIALIZED = "Deploy service environment initialized";
     public static final String CANNOT_AUTHENTICATE_WITH_CLOUD_CONTROLLER = "Cannot authenticate with cloud controller";
     public static final String ASYNC_DATABASE_CHANGES_WILL_NOT_BE_EXECUTED_ON_THIS_INSTANCE = "Async database changes will not be executed on instance {0}.";
-    public static final String TOKEN_LOADED_INTO_TOKEN_STORE = "Token with expiration time: {0} for user {1} has been loaded into token store";
+    public static final String STORING_TOKEN_FOR_USER_0_WITH_EXPIRATION_TIME_1 = "Storing token for user \"{0}\" with expiration time: {1} seconds";
     public static final String REGISTERED_0_AS_LIQUIBASE_LOCK_SERVICE = "Registered {0} as a Liquibase lock service.";
     public static final String FILE_SERVICE_DELETED_FILES = "FileService: Deleted {0} files without content.";
+    
+    // DEBUG log messages
+    public static final String ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION = "Cannot store access token due to data integrity violation. The exception is ignored as the token and authentication are persisted by another client";
 
     // WARN log messages
     public static final String FILE_SYSTEM_SERVICE_NAME_IS_NOT_SPECIFIED = "Failed to detect file service storage path, because the service name is not specified in the configuration files!";

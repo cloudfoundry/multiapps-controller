@@ -99,9 +99,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         try {
             tokenStore.storeAccessToken(token, auth2);
         } catch (DataIntegrityViolationException e) {
-            LOGGER.debug(com.sap.cloud.lm.sl.cf.core.message.Messages.ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION, e);
-            // Ignoring the exception as the token and authentication are already persisted
-            // by another client.
+            LOGGER.debug(Messages.ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION, e);
+            // Ignoring the exception as the token and authentication are already persisted by another client.
         }
     }
 

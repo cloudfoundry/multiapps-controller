@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.client.util.TokenProperties;
 import com.sap.cloud.lm.sl.cf.core.cf.service.TokenService;
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
 
 public class OAuthClientExtended extends OAuthClient {
 
@@ -32,8 +33,8 @@ public class OAuthClientExtended extends OAuthClient {
         if (token.getExpiresIn() < 120) {
             TokenProperties tokenProperties = TokenProperties.fromToken(token);
             token = tokenService.getToken(tokenProperties.getUserName());
-            LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.RETRIEVED_USER_TOKEN,
-                                             tokenProperties.getUserName(), token.getExpiresIn()));
+            LOGGER.info(MessageFormat.format(Messages.RETRIEVED_TOKEN_FOR_USER_0_WITH_EXPIRATION_TIME_1, tokenProperties.getUserName(),
+                                             token.getExpiresIn()));
         }
 
         return token;
