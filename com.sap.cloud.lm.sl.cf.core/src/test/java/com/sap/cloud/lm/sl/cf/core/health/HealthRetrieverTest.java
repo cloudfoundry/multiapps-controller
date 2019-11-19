@@ -22,6 +22,7 @@ import org.mockito.MockitoAnnotations;
 import com.sap.cloud.lm.sl.cf.core.health.model.Health;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckOperation;
+import com.sap.cloud.lm.sl.cf.core.health.model.ImmutableHealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -59,11 +60,12 @@ public class HealthRetrieverTest {
 
     @Before
     public void prepareConfiguration() {
-        HealthCheckConfiguration healthCheckConfiguration = new HealthCheckConfiguration.Builder().mtaId(MTA_ID)
-                                                                                                  .spaceId(SPACE_ID)
-                                                                                                  .userName(USER_NAME)
-                                                                                                  .timeRangeInSeconds(TIME_RANGE_IN_SECONDS)
-                                                                                                  .build();
+        HealthCheckConfiguration healthCheckConfiguration = ImmutableHealthCheckConfiguration.builder()
+                                                                                             .mtaId(MTA_ID)
+                                                                                             .spaceId(SPACE_ID)
+                                                                                             .userName(USER_NAME)
+                                                                                             .timeRangeInSeconds(TIME_RANGE_IN_SECONDS)
+                                                                                             .build();
         Mockito.when(configuration.getHealthCheckConfiguration())
                .thenReturn(healthCheckConfiguration);
     }

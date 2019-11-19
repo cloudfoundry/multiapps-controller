@@ -27,6 +27,7 @@ import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
+import com.sap.cloud.lm.sl.cf.core.health.model.ImmutableHealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.common.ParsingException;
@@ -765,11 +766,12 @@ public class ApplicationConfiguration {
     }
 
     private HealthCheckConfiguration getHealthCheckConfigurationFromEnvironment() {
-        HealthCheckConfiguration healthCheckConfigurationFromEnvironment = new HealthCheckConfiguration.Builder().spaceId(getHealthCheckSpaceGuidFromEnvironment())
-                                                                                                                 .mtaId(getHealthCheckMtaIdFromEnvironment())
-                                                                                                                 .userName(getHealthCheckUserFromEnvironment())
-                                                                                                                 .timeRangeInSeconds(getHealthCheckTimeRangeFromEnvironment())
-                                                                                                                 .build();
+        HealthCheckConfiguration healthCheckConfigurationFromEnvironment = ImmutableHealthCheckConfiguration.builder()
+                                                                                                            .spaceId(getHealthCheckSpaceGuidFromEnvironment())
+                                                                                                            .mtaId(getHealthCheckMtaIdFromEnvironment())
+                                                                                                            .userName(getHealthCheckUserFromEnvironment())
+                                                                                                            .timeRangeInSeconds(getHealthCheckTimeRangeFromEnvironment())
+                                                                                                            .build();
         LOGGER.info(format(Messages.HEALTH_CHECK_CONFIGURATION, JsonUtil.toJson(healthCheckConfigurationFromEnvironment, true)));
         return healthCheckConfigurationFromEnvironment;
     }
