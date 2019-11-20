@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sap.cloud.lm.sl.cf.web.api.Constants.Resources;
 import com.sap.cloud.lm.sl.cf.web.api.model.Info;
 
 import io.swagger.annotations.Api;
@@ -18,7 +19,7 @@ import io.swagger.annotations.Authorization;
 
 @Api(description = "the info API")
 @RestController
-@RequestMapping("/api/v1/spaces/{spaceGuid}/info")
+@RequestMapping(Resources.INFO)
 public class InfoApi {
 
     @Inject
