@@ -11,7 +11,7 @@ import org.slf4j.MDC;
 import com.sap.cloud.lm.sl.cf.core.Constants;
 
 @Named
-public class CorrelationIdHandlerInterceptor implements CustomHandlerInterceptor {
+public class CorrelationIdSettingInterceptor implements CustomHandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {

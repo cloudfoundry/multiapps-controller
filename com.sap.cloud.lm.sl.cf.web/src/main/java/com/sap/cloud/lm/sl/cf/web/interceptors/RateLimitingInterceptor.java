@@ -19,12 +19,12 @@ import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter;
 import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter.AtomicRateLimiterMetrics;
 
 @Named
-public class RateLimiterHandlerInterceptor implements CustomHandlerInterceptor {
+public class RateLimitingInterceptor implements CustomHandlerInterceptor {
 
     private final RateLimiterProvider rateLimiterProvider;
 
     @Inject
-    public RateLimiterHandlerInterceptor(RateLimiterProvider rateLimiterProvider) {
+    public RateLimitingInterceptor(RateLimiterProvider rateLimiterProvider) {
         this.rateLimiterProvider = rateLimiterProvider;
     }
 
