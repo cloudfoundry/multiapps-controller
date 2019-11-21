@@ -71,21 +71,21 @@ public class OperationsHelper {
         return null;
     }
 
-    public Operation addState(Operation ongoingOperation) {
-        if (ongoingOperation.getState() != null) {
-            return ongoingOperation;
+    public Operation addState(Operation operation) {
+        if (operation.getState() != null) {
+            return operation;
         }
-        Operation.State state = computeState(ongoingOperation);
+        Operation.State state = computeState(operation);
         // Fixes bug XSBUG-2035: Inconsistency in 'operation', 'act_hi_procinst' and 'act_ru_execution' tables
-        if (ongoingOperation.hasAcquiredLock() && (state.equals(Operation.State.ABORTED) || state.equals(Operation.State.FINISHED))) {
-            ongoingOperation = ImmutableOperation.builder()
-                                                 .from(ongoingOperation)
-                                                 .hasAcquiredLock(false)
-                                                 .state(state)
-                                                 .build();
-            this.operationService.update(ongoingOperation.getProcessId(), ongoingOperation);
+        if (operation.hasAcquiredLock() && (state.equals(Operation.State.ABORTED) || state.equals(Operation.State.FINISHED))) {
+            operation = ImmutableOperation.builder()
+                                          .from(operation)
+                                          .hasAcquiredLock(false)
+                                          .state(state)
+                                          .build();
+            this.operationService.update(operation.getProcessId(), operation);
         }
-        return ImmutableOperation.copyOf(ongoingOperation)
+        return ImmutableOperation.copyOf(operation)
                                  .withState(state);
     }
 
@@ -118,14 +118,14 @@ public class OperationsHelper {
     }
 
     public List<Operation> findOperations(List<Operation> operations, List<Operation.State> statusList) {
-        operations = addOngoingOperationsState(operations);
+        operations = addState(operations);
         return filterBasedOnStates(operations, statusList);
     }
 
-    private List<Operation> addOngoingOperationsState(List<Operation> existingOngoingOperations) {
-        return existingOngoingOperations.stream()
-                                        .map(this::addState)
-                                        .collect(Collectors.toList());
+    private List<Operation> addState(List<Operation> operations) {
+        return operations.stream()
+                         .map(this::addState)
+                         .collect(Collectors.toList());
     }
 
     private List<Operation> filterBasedOnStates(List<Operation> operations, List<Operation.State> statusList) {
