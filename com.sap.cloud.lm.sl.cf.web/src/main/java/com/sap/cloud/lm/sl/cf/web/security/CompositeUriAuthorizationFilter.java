@@ -28,7 +28,7 @@ public class CompositeUriAuthorizationFilter extends AuthorizationFilter {
     @Override
     protected boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
-            String uri = ServletUtils.getDecodedURI(request);
+            String uri = ServletUtils.decodeUri(request);
             LOGGER.trace("Looking for a matching authorization filter for request to \"{}\"...", uri);
             LOGGER.trace("Registered authorization filters: {}", uriAuthorizationFilters);
             for (UriAuthorizationFilter uriAuthorizationFilter : uriAuthorizationFilters) {
@@ -47,7 +47,7 @@ public class CompositeUriAuthorizationFilter extends AuthorizationFilter {
     private boolean ensureUserIsAuthorized(UriAuthorizationFilter uriAuthorizationFilter, HttpServletRequest request,
                                            HttpServletResponse response)
         throws IOException {
-        LOGGER.debug("Using authorization filter {} for request to \"{}\".", uriAuthorizationFilter, ServletUtils.getDecodedURI(request));
+        LOGGER.debug("Using authorization filter {} for request to \"{}\".", uriAuthorizationFilter, ServletUtils.decodeUri(request));
         return uriAuthorizationFilter.ensureUserIsAuthorized(request, response);
     }
 

@@ -61,7 +61,7 @@ public class FilesApiServiceImpl implements FilesApiService {
     public ResponseEntity<FileMetadata> uploadFile(HttpServletRequest request, String spaceGuid) {
         try {
             StopWatch stopWatch = StopWatch.createStarted();
-            LOGGER.trace("Received upload request on URI: {}", ServletUtils.getDecodedURI(request));
+            LOGGER.trace("Received upload request on URI: {}", ServletUtils.decodeUri(request));
             FileEntry fileEntry = uploadFiles(request, spaceGuid).get(0);
             FileMetadata file = parseFileEntry(fileEntry);
             AuditLoggingProvider.getFacade()

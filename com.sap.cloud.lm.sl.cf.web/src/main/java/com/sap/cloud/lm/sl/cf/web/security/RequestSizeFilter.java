@@ -23,7 +23,7 @@ public class RequestSizeFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         long requestSize = request.getContentLengthLong();
-        String path = ServletUtils.getDecodedURI((HttpServletRequest) request);
+        String path = ServletUtils.decodeUri((HttpServletRequest) request);
         if (requestSize > MAX_REQUEST_SIZE_BYTES && !path.endsWith("/files")) {
             ((HttpServletResponse) response).sendError(HttpStatus.PAYLOAD_TOO_LARGE.value());
             return;

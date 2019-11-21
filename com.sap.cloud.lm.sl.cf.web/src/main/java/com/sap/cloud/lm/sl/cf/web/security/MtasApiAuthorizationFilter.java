@@ -29,7 +29,7 @@ public class MtasApiAuthorizationFilter extends SpaceGuidBasedAuthorizationFilte
 
     @Override
     protected String extractSpaceGuid(HttpServletRequest request) {
-        String uri = ServletUtils.getDecodedURI(request);
+        String uri = ServletUtils.decodeUri(request);
         return extractSpaceGuid(uri);
     }
 

@@ -4,23 +4,37 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.util.Map;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.web.servlet.HandlerMapping;
 
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 
 public class ServletUtils {
 
-    public static String getDecodedURI(HttpServletRequest request) {
+    @SuppressWarnings("unchecked")
+    public static Map<String, String> getPathVariables(ServletRequest request) {
+        return (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+    }
+
+    public static String getPathVariable(ServletRequest request, String pathVariableName) {
+        Map<String, String> pathVariables = getPathVariables(request);
+        return pathVariables.get(pathVariableName);
+    }
+
+    public static String decodeUri(HttpServletRequest request) {
         String uri = request.getRequestURI();
         return decode(uri);
     }
 
-    public static String decode(String uri) {
+    public static String decode(String string) {
         try {
-            return URLDecoder.decode(uri, StandardCharsets.UTF_8.name());
+            return URLDecoder.decode(string, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(MessageFormat.format(Messages.COULD_NOT_DECODE_URI_0, uri), e);
+            throw new IllegalStateException(MessageFormat.format(Messages.COULD_NOT_DECODE_STRING_0, string), e);
         }
     }
 

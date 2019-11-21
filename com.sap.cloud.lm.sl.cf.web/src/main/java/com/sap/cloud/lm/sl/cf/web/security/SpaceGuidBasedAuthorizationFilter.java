@@ -41,14 +41,14 @@ public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizat
 
     private String extractAndLogSpaceGuid(HttpServletRequest request) {
         String spaceGuid = extractSpaceGuid(request);
-        LOGGER.trace("Extracted space GUID \"{}\" from request to \"{}\".", spaceGuid, ServletUtils.getDecodedURI(request));
+        LOGGER.trace("Extracted space GUID \"{}\" from request to \"{}\".", spaceGuid, ServletUtils.decodeUri(request));
         return spaceGuid;
     }
 
     private void logUnauthorizedRequest(HttpServletRequest request, ResponseStatusException e) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("User \"%s\" is not authorized for request to \"%s\".", SecurityContextUtil.getUserName(),
-                                       ServletUtils.getDecodedURI(request)),
+                                       ServletUtils.decodeUri(request)),
                          e);
         }
     }

@@ -43,15 +43,14 @@ public abstract class SpaceNameBasedAuthorizationFilter implements UriAuthorizat
 
     private CloudTarget extractAndLogTarget(HttpServletRequest request) {
         CloudTarget target = extractTarget(request);
-        LOGGER.trace("Extracted target from request to \"{}\": {}", ServletUtils.getDecodedURI(request), target);
+        LOGGER.trace("Extracted target from request to \"{}\": {}", ServletUtils.decodeUri(request), target);
         return target;
     }
 
     private void logUnauthorizedRequest(HttpServletRequest request, ResponseStatusException e) {
         if (LOGGER.isDebugEnabled()) {
             String userName = SecurityContextUtil.getUserName();
-            LOGGER.debug(String.format("User \"%s\" is not authorized for request to \"%s\".", userName,
-                                       ServletUtils.getDecodedURI(request)),
+            LOGGER.debug(String.format("User \"%s\" is not authorized for request to \"%s\".", userName, ServletUtils.decodeUri(request)),
                          e);
         }
     }
