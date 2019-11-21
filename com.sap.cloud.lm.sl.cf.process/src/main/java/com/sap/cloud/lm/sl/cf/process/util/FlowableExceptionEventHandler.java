@@ -5,6 +5,8 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEvent;
@@ -32,6 +34,7 @@ public class FlowableExceptionEventHandler {
     private final FlowableFacade flowableFacade;
     private final HistoricOperationEventPersister historicOperationEventPersister;
 
+    @Inject
     public FlowableExceptionEventHandler(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
                                          HistoricOperationEventPersister historicOperationEventPersister) {
         this.progressMessageService = progressMessageService;
