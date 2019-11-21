@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
@@ -26,6 +27,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
+@Named
 public class FlowableExceptionEventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowableExceptionEventHandler.class);
