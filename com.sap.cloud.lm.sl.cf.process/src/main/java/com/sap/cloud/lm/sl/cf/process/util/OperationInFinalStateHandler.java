@@ -16,6 +16,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.LoggingUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SafeExecutor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
@@ -51,6 +52,10 @@ public class OperationInFinalStateHandler {
     private final SafeExecutor safeExecutor = new SafeExecutor();
 
     public void handle(DelegateExecution context, Operation.State state) {
+        LoggingUtil.logWithCorrelationId(StepsUtil.getCorrelationId(context), () -> handleInternal(context, state));
+    }
+
+    private void handleInternal(DelegateExecution context, Operation.State state) {
         safeExecutor.execute(() -> {
             if (configuration.shouldGatherUsageStatistics()) {
                 sendStatistics(context, state);
