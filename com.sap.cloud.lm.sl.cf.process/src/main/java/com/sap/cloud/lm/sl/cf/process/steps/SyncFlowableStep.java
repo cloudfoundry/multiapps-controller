@@ -14,12 +14,11 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
-import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.LoggingUtil;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
@@ -56,11 +55,14 @@ public abstract class SyncFlowableStep implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution context) {
+        LoggingUtil.logWithCorrelationId(StepsUtil.getCorrelationId(context), () -> executeInternal(context));
+    }
+
+    private void executeInternal(DelegateExecution context) {
         initializeStepLogger(context);
         ExecutionWrapper executionWrapper = createExecutionWrapper(context);
         StepPhase stepPhase = getInitialStepPhase(executionWrapper);
         try {
-            MDC.put(Constants.ATTR_CORRELATION_ID, StepsUtil.getCorrelationId(context));
             getStepHelper().preExecuteStep(context, stepPhase);
             stepPhase = executeStep(executionWrapper);
             if (stepPhase == StepPhase.RETRY) {
