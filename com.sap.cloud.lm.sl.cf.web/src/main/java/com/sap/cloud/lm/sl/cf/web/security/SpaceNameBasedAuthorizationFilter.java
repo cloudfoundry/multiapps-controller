@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
-import com.sap.cloud.lm.sl.cf.web.util.ServletUtils;
+import com.sap.cloud.lm.sl.cf.web.util.ServletUtil;
 
 public abstract class SpaceNameBasedAuthorizationFilter implements UriAuthorizationFilter {
 
@@ -43,14 +43,14 @@ public abstract class SpaceNameBasedAuthorizationFilter implements UriAuthorizat
 
     private CloudTarget extractAndLogTarget(HttpServletRequest request) {
         CloudTarget target = extractTarget(request);
-        LOGGER.trace("Extracted target from request to \"{}\": {}", ServletUtils.decodeUri(request), target);
+        LOGGER.trace("Extracted target from request to \"{}\": {}", ServletUtil.decodeUri(request), target);
         return target;
     }
 
     private void logUnauthorizedRequest(HttpServletRequest request, ResponseStatusException e) {
         if (LOGGER.isDebugEnabled()) {
             String userName = SecurityContextUtil.getUserName();
-            LOGGER.debug(String.format("User \"%s\" is not authorized for request to \"%s\".", userName, ServletUtils.decodeUri(request)),
+            LOGGER.debug(String.format("User \"%s\" is not authorized for request to \"%s\".", userName, ServletUtil.decodeUri(request)),
                          e);
         }
     }

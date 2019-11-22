@@ -13,7 +13,11 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 
-public class ServletUtils {
+public final class ServletUtil {
+
+    private ServletUtil() {
+
+    }
 
     @SuppressWarnings("unchecked")
     public static Map<String, String> getPathVariables(ServletRequest request) {

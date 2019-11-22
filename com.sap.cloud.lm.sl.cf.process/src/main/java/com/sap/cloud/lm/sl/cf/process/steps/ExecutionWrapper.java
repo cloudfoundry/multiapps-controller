@@ -26,11 +26,11 @@ public class ExecutionWrapper {
     }
 
     public CloudControllerClient getControllerClient() {
-        return StepsUtil.getControllerClient(context, clientProvider, stepLogger);
+        return StepsUtil.getControllerClient(context, clientProvider);
     }
 
     public CloudControllerClient getControllerClient(String org, String space) {
-        return StepsUtil.getControllerClient(context, clientProvider, stepLogger, org, space);
+        return StepsUtil.getControllerClient(context, clientProvider, org, space);
     }
 
 }

@@ -25,7 +25,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
-import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class StepsUtilTest {
@@ -39,12 +38,12 @@ public class StepsUtilTest {
     public void testDetermineCurrentUserWithSetUser() {
         Mockito.when(context.getVariable(Mockito.eq(Constants.VAR_USER)))
                .thenReturn(EXAMPLE_USER);
-        String determinedUser = StepsUtil.determineCurrentUser(context, Mockito.mock(StepLogger.class));
+        String determinedUser = StepsUtil.determineCurrentUser(context);
         assertEquals(EXAMPLE_USER, determinedUser);
     }
 
     public void testDetermineCurrentUserError() {
-        Assertions.assertThrows(SLException.class, () -> StepsUtil.determineCurrentUser(context, Mockito.mock(StepLogger.class)));
+        Assertions.assertThrows(SLException.class, () -> StepsUtil.determineCurrentUser(context));
     }
 
     @Test

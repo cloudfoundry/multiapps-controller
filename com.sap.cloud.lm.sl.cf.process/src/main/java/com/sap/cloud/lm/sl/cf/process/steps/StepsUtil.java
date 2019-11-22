@@ -61,7 +61,6 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.YamlUtil;
@@ -83,20 +82,19 @@ public class StepsUtil {
         return processLoggerProvider.getLogger(context, name);
     }
 
-    static CloudControllerClient getControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
-                                                     StepLogger stepLogger) {
-        String userName = determineCurrentUser(context, stepLogger);
+    static CloudControllerClient getControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider) {
+        String userName = determineCurrentUser(context);
         String spaceId = getSpaceId(context);
         return clientProvider.getControllerClient(userName, spaceId);
     }
 
-    static CloudControllerClient getControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
-                                                     StepLogger stepLogger, String org, String space) {
-        String userName = determineCurrentUser(context, stepLogger);
+    static CloudControllerClient getControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider, String org,
+                                                     String space) {
+        String userName = determineCurrentUser(context);
         return clientProvider.getControllerClient(userName, org, space, context.getProcessInstanceId());
     }
 
-    public static String determineCurrentUser(VariableScope scope, StepLogger stepLogger) {
+    public static String determineCurrentUser(VariableScope scope) {
         String user = (String) scope.getVariable(Constants.VAR_USER);
         if (user == null) {
             throw new SLException(Messages.CANT_DETERMINE_CURRENT_USER);
