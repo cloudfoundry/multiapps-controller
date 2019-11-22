@@ -17,6 +17,7 @@ import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.SafeExecutor;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @DisallowConcurrentExecution
@@ -29,6 +30,7 @@ public class CleanUpJob implements Job {
     ApplicationConfiguration configuration;
     @Inject
     List<Cleaner> cleaners;
+    private final SafeExecutor safeExecutor = new SafeExecutor(CleanUpJob::log);
 
     @Override
     public void execute(JobExecutionContext context) {
@@ -39,7 +41,7 @@ public class CleanUpJob implements Job {
         LOGGER.info(LOG_MARKER, format(Messages.WILL_CLEAN_UP_DATA_STORED_BEFORE_0, expirationTime));
         LOGGER.info(LOG_MARKER, format(Messages.REGISTERED_CLEANERS_IN_CLEAN_UP_JOB_0, cleaners));
         for (Cleaner cleaner : cleaners) {
-            executeSafely(() -> cleaner.execute(expirationTime));
+            safeExecutor.execute(() -> cleaner.execute(expirationTime));
         }
 
         LOGGER.info(LOG_MARKER, format(Messages.CLEAN_UP_JOB_FINISHED_AT_0, Instant.now()));
@@ -51,12 +53,8 @@ public class CleanUpJob implements Job {
                                 .minusSeconds(maxTtlForOldData));
     }
 
-    private void executeSafely(Runnable r) {
-        try {
-            r.run();
-        } catch (Exception e) {
-            LOGGER.error(LOG_MARKER, format(Messages.ERROR_DURING_CLEAN_UP_0, e.getMessage()), e);
-        }
+    private static void log(Exception e) {
+        LOGGER.error(LOG_MARKER, format(Messages.ERROR_DURING_CLEAN_UP_0, e.getMessage()), e);
     }
 
 }

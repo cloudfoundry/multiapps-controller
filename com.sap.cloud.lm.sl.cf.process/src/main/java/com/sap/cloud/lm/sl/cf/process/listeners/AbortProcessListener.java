@@ -27,6 +27,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.SafeExecutor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -39,7 +40,6 @@ import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
 import com.sap.cloud.lm.sl.cf.process.util.HistoricOperationEventPersister;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.common.util.Runnable;
 
 @Named("abortProcessListener")
 public class AbortProcessListener extends AbstractFlowableEventListener implements Serializable {
@@ -60,6 +60,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
     private CollectedDataSender dataSender;
     @Inject
     private HistoricOperationEventPersister historicOperationEventPersister;
+    private SafeExecutor safeExecutor = new SafeExecutor();
 
     @Override
     public boolean isFailOnException() {
@@ -77,19 +78,19 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
         String processInstanceId = engineEvent.getProcessInstanceId();
         String correlationId = getCorrelationId(engineEvent);
 
-        new SafeExecutor().executeSafely(() -> setOperationInAbortedState(correlationId));
+        safeExecutor.execute(() -> setOperationInAbortedState(correlationId));
 
-        new SafeExecutor().executeSafely(() -> historicOperationEventPersister.add(correlationId, EventType.ABORTED));
+        safeExecutor.execute(() -> historicOperationEventPersister.add(correlationId, EventType.ABORTED));
 
         HistoryService historyService = Context.getProcessEngineConfiguration()
                                                .getHistoryService();
 
-        new SafeExecutor().executeSafely(() -> deleteDeploymentFiles(historyService, processInstanceId));
+        safeExecutor.execute(() -> deleteDeploymentFiles(historyService, processInstanceId));
 
-        new SafeExecutor().executeSafely(() -> new ClientReleaser(clientProvider).releaseClientFor(historyService,
-                                                                                                   engineEvent.getProcessInstanceId()));
+        safeExecutor.execute(() -> new ClientReleaser(clientProvider).releaseClientFor(historyService,
+                                                                                               engineEvent.getProcessInstanceId()));
 
-        new SafeExecutor().executeSafely(() -> {
+        safeExecutor.execute(() -> {
             if (configuration.shouldGatherUsageStatistics()) {
                 sendStatistics(engineEvent);
             }
@@ -182,18 +183,6 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
 
         ExecutionEntity executionEntity = (ExecutionEntity) flowableEntityEvent.getEntity();
         return executionEntity.isProcessInstanceType() && Constants.PROCESS_ABORTED.equals(executionEntity.getDeleteReason());
-    }
-
-    private static class SafeExecutor {
-
-        private void executeSafely(Runnable runnable) {
-            try {
-                runnable.run();
-            } catch (Exception e) { // NOSONAR
-                LOGGER.warn(e.getMessage(), e);
-            }
-        }
-
     }
 
 }
