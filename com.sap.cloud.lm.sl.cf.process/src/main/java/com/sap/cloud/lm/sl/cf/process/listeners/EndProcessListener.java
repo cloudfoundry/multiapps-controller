@@ -81,7 +81,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     }
 
     private void removeClientForProcess(DelegateExecution context) {
-        String user = StepsUtil.determineCurrentUser(context, getStepLogger());
+        String user = StepsUtil.determineCurrentUser(context);
         String space = StepsUtil.getSpace(context);
         String org = StepsUtil.getOrg(context);
         String spaceID = StepsUtil.getSpaceId(context);

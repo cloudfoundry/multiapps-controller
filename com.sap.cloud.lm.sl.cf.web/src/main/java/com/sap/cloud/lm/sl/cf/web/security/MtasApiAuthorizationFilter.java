@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.web.util.ServletUtils;
+import com.sap.cloud.lm.sl.cf.web.util.ServletUtil;
 
 @Named
 public class MtasApiAuthorizationFilter extends SpaceGuidBasedAuthorizationFilter {
@@ -29,7 +29,7 @@ public class MtasApiAuthorizationFilter extends SpaceGuidBasedAuthorizationFilte
 
     @Override
     protected String extractSpaceGuid(HttpServletRequest request) {
-        String uri = ServletUtils.decodeUri(request);
+        String uri = ServletUtil.decodeUri(request);
         return extractSpaceGuid(uri);
     }
 

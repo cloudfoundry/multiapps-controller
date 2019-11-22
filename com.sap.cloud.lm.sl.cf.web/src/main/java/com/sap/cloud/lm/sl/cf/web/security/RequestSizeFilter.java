@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.GenericFilterBean;
 
-import com.sap.cloud.lm.sl.cf.web.util.ServletUtils;
+import com.sap.cloud.lm.sl.cf.web.util.ServletUtil;
 
 @Named("requestSizeFilter")
 public class RequestSizeFilter extends GenericFilterBean {
@@ -23,7 +23,7 @@ public class RequestSizeFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         long requestSize = request.getContentLengthLong();
-        String path = ServletUtils.decodeUri((HttpServletRequest) request);
+        String path = ServletUtil.decodeUri((HttpServletRequest) request);
         if (requestSize > MAX_REQUEST_SIZE_BYTES && !path.endsWith("/files")) {
             ((HttpServletResponse) response).sendError(HttpStatus.PAYLOAD_TOO_LARGE.value());
             return;

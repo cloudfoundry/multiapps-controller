@@ -10,7 +10,7 @@ import org.slf4j.MDC;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.web.api.Constants.PathVariables;
-import com.sap.cloud.lm.sl.cf.web.util.ServletUtils;
+import com.sap.cloud.lm.sl.cf.web.util.ServletUtil;
 
 @Named
 public class CorrelationIdSettingInterceptor implements CustomHandlerInterceptor {
@@ -23,7 +23,7 @@ public class CorrelationIdSettingInterceptor implements CustomHandlerInterceptor
     }
 
     private String getOrGenerateCorrelationId(HttpServletRequest request) {
-        String correlationId = ServletUtils.getPathVariable(request, PathVariables.OPERATION_ID);
+        String correlationId = ServletUtil.getPathVariable(request, PathVariables.OPERATION_ID);
         if (correlationId == null) {
             return generateCorrelationId();
         }

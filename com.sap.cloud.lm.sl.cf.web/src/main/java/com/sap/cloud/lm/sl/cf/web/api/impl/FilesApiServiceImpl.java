@@ -31,7 +31,7 @@ import com.sap.cloud.lm.sl.cf.web.api.FilesApiService;
 import com.sap.cloud.lm.sl.cf.web.api.model.FileMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableFileMetadata;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
-import com.sap.cloud.lm.sl.cf.web.util.ServletUtils;
+import com.sap.cloud.lm.sl.cf.web.util.ServletUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
@@ -61,7 +61,7 @@ public class FilesApiServiceImpl implements FilesApiService {
     public ResponseEntity<FileMetadata> uploadFile(HttpServletRequest request, String spaceGuid) {
         try {
             StopWatch stopWatch = StopWatch.createStarted();
-            LOGGER.trace("Received upload request on URI: {}", ServletUtils.decodeUri(request));
+            LOGGER.trace("Received upload request on URI: {}", ServletUtil.decodeUri(request));
             FileEntry fileEntry = uploadFiles(request, spaceGuid).get(0);
             FileMetadata file = parseFileEntry(fileEntry);
             AuditLoggingProvider.getFacade()

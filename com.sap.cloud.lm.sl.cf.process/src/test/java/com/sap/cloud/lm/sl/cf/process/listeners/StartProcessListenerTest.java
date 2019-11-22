@@ -151,7 +151,7 @@ public class StartProcessListenerTest {
     }
 
     private void verifyOperationInsertion() throws SLException {
-        String user = StepsUtil.determineCurrentUser(context, stepLogger);
+        String user = StepsUtil.determineCurrentUser(context);
         Operation operation = ImmutableOperation.builder()
                                                 .processId(processInstanceId)
                                                 .processType(processType)

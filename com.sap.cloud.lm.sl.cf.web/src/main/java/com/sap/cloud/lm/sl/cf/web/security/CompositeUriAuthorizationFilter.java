@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.web.util.ServletUtils;
+import com.sap.cloud.lm.sl.cf.web.util.ServletUtil;
 
 @Named("compositeUriAuthorizationFilter")
 public class CompositeUriAuthorizationFilter extends AuthorizationFilter {
@@ -28,7 +28,7 @@ public class CompositeUriAuthorizationFilter extends AuthorizationFilter {
     @Override
     protected boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
-            String uri = ServletUtils.decodeUri(request);
+            String uri = ServletUtil.decodeUri(request);
             LOGGER.trace("Looking for a matching authorization filter for request to \"{}\"...", uri);
             LOGGER.trace("Registered authorization filters: {}", uriAuthorizationFilters);
             for (UriAuthorizationFilter uriAuthorizationFilter : uriAuthorizationFilters) {
@@ -47,7 +47,7 @@ public class CompositeUriAuthorizationFilter extends AuthorizationFilter {
     private boolean ensureUserIsAuthorized(UriAuthorizationFilter uriAuthorizationFilter, HttpServletRequest request,
                                            HttpServletResponse response)
         throws IOException {
-        LOGGER.debug("Using authorization filter {} for request to \"{}\".", uriAuthorizationFilter, ServletUtils.decodeUri(request));
+        LOGGER.debug("Using authorization filter {} for request to \"{}\".", uriAuthorizationFilter, ServletUtil.decodeUri(request));
         return uriAuthorizationFilter.ensureUserIsAuthorized(request, response);
     }
 
