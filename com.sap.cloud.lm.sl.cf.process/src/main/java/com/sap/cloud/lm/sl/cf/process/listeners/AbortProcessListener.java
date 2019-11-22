@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
-import java.io.Serializable;
 import java.text.MessageFormat;
 
 import javax.inject.Inject;
@@ -21,9 +20,8 @@ import com.sap.cloud.lm.sl.cf.process.util.OperationInFinalStateHandler;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 @Named("abortProcessListener")
-public class AbortProcessListener extends AbstractFlowableEngineEventListener implements Serializable {
+public class AbortProcessListener extends AbstractFlowableEngineEventListener {
 
-    private static final long serialVersionUID = 3L;
     private static final Logger LOGGER = LoggerFactory.getLogger(AbortProcessListener.class);
 
     private final OperationInFinalStateHandler eventHandler;
