@@ -23,11 +23,14 @@ public class ErrorProcessListener extends AbstractFlowableEventListener {
 
     @Override
     public void onEvent(FlowableEvent event) {
-        flowableExceptionEventHandler.handle(event);
-
         if (event instanceof FlowableEngineEvent) {
-            releaseClient((FlowableEngineEvent) event);
+            handleEngineEvent((FlowableEngineEvent) event);
         }
+    }
+
+    private void handleEngineEvent(FlowableEngineEvent event) {
+        flowableExceptionEventHandler.handle(event);
+        releaseClient(event);
     }
 
     private void releaseClient(FlowableEngineEvent event) {

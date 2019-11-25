@@ -44,12 +44,12 @@ public class FlowableExceptionEventHandler {
         this.historicOperationEventPersister = historicOperationEventPersister;
     }
 
-    public void handle(FlowableEvent event) {
-        if (!(event instanceof FlowableExceptionEvent) && !(event instanceof FlowableEngineEvent)) {
+    public void handle(FlowableEngineEvent event) {
+        if (!(event instanceof FlowableExceptionEvent)) {
             return;
         }
 
-        FlowableExceptionEvent flowableExceptionEvent = getFlowableExceptionEvent(event);
+        FlowableExceptionEvent flowableExceptionEvent = (FlowableExceptionEvent) event;
         Throwable exception = flowableExceptionEvent.getCause();
         String flowableExceptionStackTrace = ExceptionUtils.getStackTrace(exception);
         LOGGER.error(flowableExceptionStackTrace);
@@ -58,8 +58,7 @@ public class FlowableExceptionEventHandler {
             return;
         }
 
-        FlowableEngineEvent engineEvent = (FlowableEngineEvent) event;
-        historicOperationEventPersister.add(flowableFacade.getProcessInstanceId(engineEvent.getExecutionId()), exception.getCause());
+        historicOperationEventPersister.add(flowableFacade.getProcessInstanceId(event.getExecutionId()), exception.getCause());
         preserveFlowableException(event, exception);
     }
 
@@ -69,10 +68,6 @@ public class FlowableExceptionEventHandler {
         } catch (SLException e) {
             LOGGER.warn(e.getMessage());
         }
-    }
-
-    protected FlowableExceptionEvent getFlowableExceptionEvent(FlowableEvent event) {
-        return (FlowableExceptionEvent) event;
     }
 
     private void tryToPreserveFlowableException(FlowableEvent event, String flowableExceptionMessage) {
@@ -125,8 +120,7 @@ public class FlowableExceptionEventHandler {
 
             // Based on the above comment, one of the executions will have null activityId(because it will be the monitoring one) and thus
             // should be excluded from the list of executions
-            return CommonUtil.isNullOrEmpty(currentExecutionsForProcess) ? null
-                : findCurrentExecution(currentExecutionsForProcess);
+            return CommonUtil.isNullOrEmpty(currentExecutionsForProcess) ? null : findCurrentExecution(currentExecutionsForProcess);
         } catch (Throwable e) {
             return null;
         }

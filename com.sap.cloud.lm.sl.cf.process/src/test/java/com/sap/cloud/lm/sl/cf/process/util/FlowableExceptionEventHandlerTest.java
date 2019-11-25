@@ -4,17 +4,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.flowable.common.engine.api.delegate.event.FlowableEngineEventType;
-import org.flowable.common.engine.api.delegate.event.FlowableEvent;
+import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableExceptionEvent;
-import org.flowable.common.engine.impl.event.FlowableEngineEventImpl;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ExecutionQuery;
-import org.flowable.idm.api.event.FlowableIdmEventType;
-import org.flowable.idm.engine.delegate.event.impl.FlowableIdmEventImpl;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,18 +47,19 @@ public class FlowableExceptionEventHandlerTest {
 
     @Test
     public void testWithEventWhichIsNotCorrectType() {
-        testSimpleWithEventAndExceptionEvent(new FlowableIdmEventImpl(FlowableIdmEventType.CUSTOM), null);
+        testSimpleWithEventAndExceptionEvent(Mockito.mock(FlowableEngineEvent.class));
 
         Mockito.verifyZeroInteractions(progressMessageServiceMock, flowableFacadeMock);
     }
 
     @Test
     public void testWithEmptyExceptionMessage() {
-        FlowableExceptionEvent mockedExceptionEvent = Mockito.mock(FlowableExceptionEvent.class);
-        Mockito.when(mockedExceptionEvent.getCause())
+        FlowableExceptionEvent event = Mockito.mock(FlowableExceptionEvent.class, Mockito.withSettings()
+                                                                                         .extraInterfaces(FlowableEngineEvent.class));
+        Mockito.when(event.getCause())
                .thenReturn(new Exception());
 
-        testSimpleWithEventAndExceptionEvent(new FlowableEngineEventImpl(FlowableEngineEventType.CUSTOM), mockedExceptionEvent);
+        testSimpleWithEventAndExceptionEvent((FlowableEngineEvent) event);
 
         Mockito.verifyZeroInteractions(progressMessageServiceMock, flowableFacadeMock);
     }
@@ -83,14 +80,14 @@ public class FlowableExceptionEventHandlerTest {
                                                                            .build()))
                .when(queryMock)
                .list();
-        FlowableExceptionEvent mockedExceptionEvent = Mockito.mock(FlowableExceptionEvent.class);
-        Mockito.when(mockedExceptionEvent.getCause())
+        FlowableExceptionEvent event = Mockito.mock(FlowableExceptionEvent.class, Mockito.withSettings()
+                                                                                         .extraInterfaces(FlowableEngineEvent.class));
+        Mockito.when(event.getCause())
                .thenReturn(new Exception("test-message"));
         FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageServiceMock,
                                                                                       flowableFacadeMock,
-                                                                                      historicOperationEventPersisterMock,
-                                                                                      mockedExceptionEvent);
-        handler.handle(new FlowableEngineEventImpl(FlowableEngineEventType.CUSTOM));
+                                                                                      historicOperationEventPersisterMock);
+        handler.handle((FlowableEngineEvent) event);
 
         Mockito.verify(progressMessageServiceMock, Mockito.never())
                .add(Mockito.any());
@@ -122,10 +119,17 @@ public class FlowableExceptionEventHandlerTest {
                .when(queryMock)
                .list();
 
-        FlowableExceptionEvent mockedExceptionEvent = Mockito.mock(FlowableExceptionEvent.class);
-
-        Mockito.when(mockedExceptionEvent.getCause())
+        FlowableExceptionEvent exceptionEvent = Mockito.mock(FlowableExceptionEvent.class, Mockito.withSettings()
+                                                                                                  .extraInterfaces(FlowableEngineEvent.class));
+        FlowableEngineEvent engineEvent = (FlowableEngineEvent) exceptionEvent;
+        Mockito.when(exceptionEvent.getCause())
                .thenReturn(new Exception("test-message"));
+        Mockito.when(engineEvent.getExecutionId())
+               .thenReturn("bar");
+        Mockito.when(engineEvent.getProcessInstanceId())
+               .thenReturn("foo");
+        Mockito.when(engineEvent.getProcessDefinitionId())
+               .thenReturn("testing");
 
         ProcessEngineConfiguration mockProcessEngineConfiguration = Mockito.mock(ProcessEngineConfiguration.class);
         RuntimeService runtimeServiceMock = Mockito.mock(RuntimeService.class);
@@ -146,10 +150,9 @@ public class FlowableExceptionEventHandlerTest {
 
         FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(progressMessageServiceMock,
                                                                                       flowableFacadeMock,
-                                                                                      historicOperationEventPersisterMock,
-                                                                                      mockedExceptionEvent).withProcessEngineConfiguration(mockProcessEngineConfiguration);
+                                                                                      historicOperationEventPersisterMock).withProcessEngineConfiguration(mockProcessEngineConfiguration);
 
-        handler.handle(new FlowableEngineEventImpl(FlowableEngineEventType.CUSTOM, "bar", "foo", "testing"));
+        handler.handle(engineEvent);
 
         Mockito.verify(progressMessageServiceMock, Mockito.times(1))
                .add(ImmutableProgressMessage.builder()
@@ -182,32 +185,24 @@ public class FlowableExceptionEventHandlerTest {
         return null;
     }
 
-    private void testSimpleWithEventAndExceptionEvent(FlowableEvent event, FlowableExceptionEvent exceptionEvent) {
-        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(null, null, null, exceptionEvent);
+    private void testSimpleWithEventAndExceptionEvent(FlowableEngineEvent event) {
+        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandlerMock(null, null, null);
         handler.handle(event);
     }
 
     private class FlowableExceptionEventHandlerMock extends FlowableExceptionEventHandler {
 
-        private final FlowableExceptionEvent flowableExceptionEvent;
         private ProcessEngineConfiguration processEngineConfiguration;
 
         public FlowableExceptionEventHandlerMock(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
 
-                                                 HistoricOperationEventPersister historicOperationEventPersister,
-                                                 FlowableExceptionEvent flowableExceptionEvent) {
+                                                 HistoricOperationEventPersister historicOperationEventPersister) {
             super(progressMessageService, flowableFacade, historicOperationEventPersister);
-            this.flowableExceptionEvent = flowableExceptionEvent;
         }
 
         public FlowableExceptionEventHandlerMock withProcessEngineConfiguration(ProcessEngineConfiguration processEngineConfiguration) {
             this.processEngineConfiguration = processEngineConfiguration;
             return this;
-        }
-
-        @Override
-        protected FlowableExceptionEvent getFlowableExceptionEvent(FlowableEvent event) {
-            return flowableExceptionEvent;
         }
 
         @Override
