@@ -3,7 +3,7 @@
   <message id="stopAppHookMessage" name="stopAppHookMessage"></message>
   <process id="deployAppSubProcess" name="Deploy App Sub Process" isExecutable="true">
     <extensionElements>
-  	  <flowable:eventListener events="JOB_EXECUTION_FAILURE" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+  	  <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
     </extensionElements>
     <startEvent id="startEvent" name="Start" flowable:initiator="initiator"></startEvent>
     <serviceTask id="stopAppTask" name="Stop App" flowable:async="true" flowable:delegateExpression="${stopAppStep}"></serviceTask>

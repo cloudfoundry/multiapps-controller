@@ -81,8 +81,6 @@ public class AbortProcessListenerTest {
 
     private static class AbortProcessListenerMock extends AbortProcessListener {
 
-        private static final long serialVersionUID = 1L;
-
         private final DelegateExecution context;
 
         private AbortProcessListenerMock(OperationInFinalStateHandler eventHandler, DelegateExecution context) {

@@ -6,7 +6,7 @@
   <message id="APPLICATION_AFTER_STOP_IDLE" name="APPLICATION_AFTER_STOP_IDLE"></message>
   <process id="executeTasksSubProcess" name="ExecuteTasks" isExecutable="true">
     <extensionElements>
-  	  <flowable:eventListener events="JOB_EXECUTION_FAILURE" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+  	  <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
     </extensionElements>
     <serviceTask id="executeTaskTask" name="Execute Task" flowable:async="true" flowable:delegateExpression="${executeTaskStep}"></serviceTask>
     <serviceTask id="incrementTaskIndexTask" name="Increment Task Index" flowable:async="true" flowable:delegateExpression="${incrementIndexStep}"></serviceTask>

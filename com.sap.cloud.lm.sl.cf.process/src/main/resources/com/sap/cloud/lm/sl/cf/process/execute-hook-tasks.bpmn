@@ -2,7 +2,7 @@
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/processdef">
   <process id="executeHookTasksSubProcess" name="Execute Hook Tasks SubProcess" isExecutable="true">
     <extensionElements>
-  	  <flowable:eventListener events="JOB_EXECUTION_FAILURE" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+  	  <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
     </extensionElements>
     <startEvent id="startEvent1"></startEvent>
     <callActivity id="executeTasksCallActivity" name="Execute Tasks Call Activity" flowable:async="true" calledElement="executeTasksSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
