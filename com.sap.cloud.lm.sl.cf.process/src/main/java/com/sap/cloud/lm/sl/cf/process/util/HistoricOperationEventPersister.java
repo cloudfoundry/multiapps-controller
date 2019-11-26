@@ -23,9 +23,4 @@ public class HistoricOperationEventPersister {
         configurationSubscriptionService.add(historicalOperationStateDetails);
     }
 
-    public void add(String operationId, Throwable exception) {
-        EventType type = (exception instanceof ContentException) ? EventType.FAILED_BY_CONTENT_ERROR
-            : EventType.FAILED_BY_INFRASTRUCTURE_ERROR;
-        add(operationId, type);
-    }
 }
