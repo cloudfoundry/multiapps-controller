@@ -30,6 +30,8 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.DETECTING_COMPONENTS_TO_UNDEPLOY);
         String mtaId = context.getRequiredVariable(Variables.MTA_ID);
+        String namespace = context.getVariable(Variables.MTA_NAMESPACE);
+
         context.setVariable(Variables.MTA_MODULES, getMtaModules(context));
         context.setVariable(Variables.PUBLISHED_ENTRIES, Collections.emptyList());
         context.setVariable(Variables.SERVICES_TO_CREATE, Collections.emptyList());
@@ -40,8 +42,8 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 2);
 
         conflictPreventerSupplier.apply(operationService)
-                                 .acquireLock(mtaId, context.getVariable(Variables.SPACE_GUID), context.getExecution()
-                                                                                                       .getProcessInstanceId());
+                                 .acquireLock(mtaId, namespace, context.getVariable(Variables.SPACE_GUID), context.getExecution()
+                                                                                                                  .getProcessInstanceId());
 
         getStepLogger().debug(Messages.COMPONENTS_TO_UNDEPLOY_DETECTED);
 

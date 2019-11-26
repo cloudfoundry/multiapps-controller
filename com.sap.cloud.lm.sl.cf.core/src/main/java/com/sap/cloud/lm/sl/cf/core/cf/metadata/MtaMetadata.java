@@ -21,4 +21,6 @@ public interface MtaMetadata {
     @Nullable
     Version getVersion();
 
+    @Nullable
+    String getNamespace();
 }

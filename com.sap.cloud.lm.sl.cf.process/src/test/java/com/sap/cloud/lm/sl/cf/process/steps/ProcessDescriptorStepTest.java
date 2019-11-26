@@ -45,8 +45,8 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, DEPLOYMENT_DESCRIPTOR);
 
         context.setVariable(Variables.SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
-        context.setVariable(Variables.USE_NAMESPACES, false);
-        context.setVariable(Variables.USE_NAMESPACES_FOR_SERVICES, false);
+        context.setVariable(Variables.MTA_NAMESPACE, null);
+        context.setVariable(Variables.APPLY_NAMESPACE, false);
 
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
     }

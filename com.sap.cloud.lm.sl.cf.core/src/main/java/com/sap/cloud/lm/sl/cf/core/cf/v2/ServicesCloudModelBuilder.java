@@ -30,9 +30,11 @@ public class ServicesCloudModelBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServicesCloudModelBuilder.class);
 
     protected final DeploymentDescriptor deploymentDescriptor;
+    protected final String namespace;
 
-    public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
+    public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, String namespace) {
         this.deploymentDescriptor = deploymentDescriptor;
+        this.namespace = namespace;
     }
 
     public List<CloudServiceInstanceExtended> build(List<Resource> resourcesToProcess) {
@@ -71,6 +73,7 @@ public class ServicesCloudModelBuilder {
                                                                 boolean shouldIgnoreUpdateErrors) {
         Map<String, Object> parameters = resource.getParameters();
         SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(serviceName, ResourceType.MANAGED_SERVICE, parameters);
+
         return ImmutableCloudServiceInstanceExtended.builder()
                                                     .name(serviceName)
                                                     .resourceName(resource.getName())
@@ -87,7 +90,7 @@ public class ServicesCloudModelBuilder {
                                                     .isOptional(isOptional)
                                                     .isManaged(true)
                                                     .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
-                                                    .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, resource))
+                                                    .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
 
@@ -118,7 +121,7 @@ public class ServicesCloudModelBuilder {
                                                     .resourceName(resource.getName())
                                                     .isOptional(isOptional)
                                                     .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
-                                                    .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, resource))
+                                                    .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
 

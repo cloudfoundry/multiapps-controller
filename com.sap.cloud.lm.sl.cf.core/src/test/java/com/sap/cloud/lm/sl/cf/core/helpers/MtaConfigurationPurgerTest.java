@@ -167,6 +167,7 @@ public class MtaConfigurationPurgerTest {
                                       ConfigurationEntriesUtil.PROVIDER_NID,
                                       providerId,
                                       Version.parseVersion("1.0.0"),
+                                      null,
                                       new CloudTarget(TARGET_ORG, TARGET_SPACE),
                                       null,
                                       null,

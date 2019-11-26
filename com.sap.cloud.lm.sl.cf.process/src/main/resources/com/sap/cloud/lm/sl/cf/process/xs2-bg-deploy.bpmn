@@ -148,6 +148,7 @@
         <flowable:in source="appArchiveId" target="appArchiveId"></flowable:in>
         <flowable:in source="orgId" target="orgId"></flowable:in>
         <flowable:in source="mtaId" target="mtaId"></flowable:in>
+        <flowable:in source="namespace" target="namespace"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>

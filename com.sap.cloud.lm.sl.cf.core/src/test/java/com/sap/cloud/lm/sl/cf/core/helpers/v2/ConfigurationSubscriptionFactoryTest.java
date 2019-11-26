@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -75,7 +76,7 @@ public class ConfigurationSubscriptionFactoryTest {
 
     private Map<String, ResolvedConfigurationReference> getResolvedConfigurationReferences(DeploymentDescriptor descriptor) {
         return configurationResources.stream()
-                                     .collect(Collectors.toMap(resource -> resource,
+                                     .collect(Collectors.toMap(Function.identity(),
                                                                resource -> getResolvedConfigurationReference(descriptor, resource)));
     }
 
@@ -87,7 +88,7 @@ public class ConfigurationSubscriptionFactoryTest {
     }
 
     private ConfigurationFilter createDummyFilter() {
-        return new ConfigurationFilter("mta", "com.sap.other.mta", "1.0.0", new CloudTarget("ORG", "SPACE"), Collections.emptyMap());
+        return new ConfigurationFilter("mta", "com.sap.other.mta", "1.0.0", null, new CloudTarget("ORG", "SPACE"), Collections.emptyMap());
     }
 
     protected DescriptorParser getDescriptorParser() {

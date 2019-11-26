@@ -24,11 +24,13 @@ public class ApplicationEnvironmentCloudModelBuilder {
 
     protected final DeploymentDescriptor deploymentDescriptor;
     protected final String deployId;
+    protected final String namespace;
     protected final boolean prettyPrinting;
 
-    public ApplicationEnvironmentCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, String deployId, boolean prettyPrinting) {
+    public ApplicationEnvironmentCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, String deployId, String namespace, boolean prettyPrinting) {
         this.deploymentDescriptor = deploymentDescriptor;
         this.deployId = deployId;
+        this.namespace = namespace;
         this.prettyPrinting = prettyPrinting;
     }
 
@@ -54,6 +56,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         Map<String, Object> mtaMetadata = new TreeMap<>();
         MapUtil.addNonNull(mtaMetadata, Constants.ATTR_ID, deploymentDescriptor.getId());
         MapUtil.addNonNull(mtaMetadata, Constants.ATTR_VERSION, deploymentDescriptor.getVersion());
+        MapUtil.addNonNull(mtaMetadata, Constants.ATTR_NAMESPACE, namespace);
         env.put(Constants.ENV_MTA_METADATA, mtaMetadata);
     }
 

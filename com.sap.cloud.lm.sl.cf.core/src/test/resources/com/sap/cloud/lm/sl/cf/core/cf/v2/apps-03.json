@@ -1,16 +1,18 @@
 [
   {
-    "name": "com.sap.sample.mta.application-1",
+    "name": "something-application-1",
     "v3Metadata": {
       "annotations": {
         "mta_id": "com.sap.sample.mta",
         "mta_version": "0.1.0",
         "mta_module": "{\"name\":\"module-1\"}",
         "mta_module_provided_dependencies": "[\"module-1\"]",
-        "mta_bound_services": "[]"
+        "mta_bound_services": "[]",
+        "mta_namespace" : "something"
       },
       "labels": {
-        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
+        "mta_namespace" : "437b930db84b8079c2dd804a71936b5f"
       }
     },
     "memory": 0,
@@ -26,7 +28,7 @@
     "services": [],
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"namespace\":\"something\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA": "{\"name\":\"module-1\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-1\"]",
       "MTA_SERVICES": "[]",
@@ -53,17 +55,19 @@
     }
   },
   {
-    "name": "com.sap.sample.mta.application-2",
+    "name": "something-application-2",
     "v3Metadata": {
       "annotations": {
         "mta_id": "com.sap.sample.mta",
         "mta_version": "0.1.0",
         "mta_module": "{\"name\":\"module-2\"}",
         "mta_module_provided_dependencies": "[\"module-2\"]",
-        "mta_bound_services": "[]"
+        "mta_bound_services": "[]",
+        "mta_namespace" : "something"
       },
       "labels": {
-        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
+        "mta_namespace" : "437b930db84b8079c2dd804a71936b5f"
       }
     },
     "memory": 0,
@@ -79,7 +83,7 @@
     "services": [],
     "env": {
       "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"namespace\":\"something\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA": "{\"name\":\"module-2\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-2\"]",
       "MTA_SERVICES": "[]",

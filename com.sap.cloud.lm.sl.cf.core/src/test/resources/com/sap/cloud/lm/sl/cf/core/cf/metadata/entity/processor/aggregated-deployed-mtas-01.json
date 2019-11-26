@@ -1,0 +1,199 @@
+[
+  {
+    "metadata": {
+      "id": "com.sap.sample.different.mta",
+      "version": "1.0.1"
+    },
+    "applications": [
+      {
+        "name": "baz",
+        "v3Metadata": {
+          "annotations": {
+            "mta_id": "com.sap.sample.different.mta",
+            "mta_version": "1.0.1",
+            "mta_module": "{\"name\":\"baz\"}",
+            "mta_module_provided_dependencies": "[\"baz\"]",
+            "mta_bound_services": "[]"
+          },
+          "labels": {
+            "mta_id": "something-different-here"
+          }
+        },
+        "memory": 0,
+        "diskQuota": 0,
+        "instances": 0,
+        "runningInstances": 0,
+        "staging": {
+          "buildpacks": [
+            "java_buildpack",
+            "staticfile_buildpack"
+          ]
+        },
+        "uris": [
+          "baz.cfapps.neo.ondemand.com"
+        ],
+        "services": [],
+        "env": {
+          "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+          "MTA_METADATA": "{\"id\":\"com.sap.sample.different.mta\",\"version\":\"1.0.1\"}",
+          "MTA_MODULE_METADATA": "{\"name\":\"baz\"}",
+          "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"baz\"]",
+          "MTA_SERVICES": "[]",
+          "TARGET_RUNTIME": "tomee"
+        },
+        "moduleName": "baz",
+        "boundMtaServices": [],
+        "providedDependencyNames": [
+          "baz"
+        ],
+        "productizationState": "LIVE"
+      }
+    ],
+    "services": []
+  },
+  {
+    "metadata": {
+      "id": "com.sap.sample.mta"
+    },
+    "applications": [
+      {
+        "name": "foo",
+        "v3Metadata": {
+          "annotations": {
+            "mta_id": "com.sap.sample.mta",
+            "mta_version": "1.0.0",
+            "mta_module": "{\"name\":\"foo\"}",
+            "mta_module_provided_dependencies": "[\"foo\"]",
+            "mta_bound_services": "[\"existing-service\", \"user-provided-service\", \"random-resource-named-service\"]"
+          },
+          "labels": {
+            "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+          }
+        },
+        "memory": 0,
+        "diskQuota": 0,
+        "instances": 0,
+        "runningInstances": 0,
+        "staging": {
+          "buildpacks": [
+            "java_buildpack",
+            "staticfile_buildpack"
+          ]
+        },
+        "uris": [
+          "foo.cfapps.neo.ondemand.com"
+        ],
+        "services": [],
+        "env": {
+          "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+          "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
+          "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
+          "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
+          "MTA_SERVICES": "[\"existing-service\", \"user-provided-service\", \"random-resource-named-service\"]",
+          "TARGET_RUNTIME": "tomee"
+        },
+        "moduleName": "foo",
+        "boundMtaServices": [
+          "existing-service",
+          "user-provided-service",
+          "random-resource-named-service"
+        ],
+        "providedDependencyNames": [
+          "foo"
+        ],
+        "productizationState": "LIVE"
+      },
+      {
+        "name": "bar",
+        "v3Metadata": {
+          "annotations": {
+            "mta_id": "com.sap.sample.mta",
+            "mta_version": "1.0.0",
+            "mta_module": "{\"name\":\"bar\"}",
+            "mta_module_provided_dependencies": "[\"bar\"]",
+            "mta_bound_services": "[]"
+          },
+          "labels": {
+            "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+          }
+        },
+        "memory": 0,
+        "diskQuota": 0,
+        "instances": 0,
+        "runningInstances": 0,
+        "staging": {
+          "buildpacks": [
+            "java_buildpack",
+            "staticfile_buildpack"
+          ]
+        },
+        "uris": [
+          "bar.cfapps.neo.ondemand.com"
+        ],
+        "services": [],
+        "env": {
+          "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+          "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
+          "MTA_MODULE_METADATA": "{\"name\":\"bar\"}",
+          "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"bar\"]",
+          "MTA_SERVICES": "[]",
+          "TARGET_RUNTIME": "tomee"
+        },
+        "moduleName": "bar",
+        "boundMtaServices": [],
+        "providedDependencyNames": [
+          "bar"
+        ],
+        "productizationState": "LIVE"
+      }
+    ],
+    "services": [
+      {
+        "name": "random-resource-named-service",
+        "v3Metadata": {
+          "annotations": {
+            "mta_id": "com.sap.sample.mta",
+            "mta_version": "0.1.0",
+            "mta_resource": "{\"name\":\"random-resource-named-service\"}"
+          },
+          "labels": {
+            "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+          }
+        },
+        "label": "xsuaa",
+        "plan": "space",
+        "credentials": {
+          
+        },
+        "tags": [],
+        "type": "managed_service_instance",
+        "resourceName": "random-resource-named-service"
+      },
+      {
+        "name": "existing-service",
+        "v3Metadata": {
+          "annotations": {
+            "mta_id": "com.sap.sample.mta",
+            "mta_version": "0.1.0",
+            "mta_resource": "{\"name\":\"es\"}"
+          },
+          "labels": {
+            "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+          }
+        },
+        "credentials": {
+          
+        },
+        "tags": [],
+        "resourceName": "es"
+      },
+      {
+        "name": "user-provided-service",
+        "credentials": {
+          
+        },
+        "tags": []
+      }
+    ]
+  }
+]

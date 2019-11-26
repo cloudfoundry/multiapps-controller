@@ -23,6 +23,8 @@ public class Constants {
         }
 
         public static final String MTA_ID = "mtaId";
+        public static final String NAMESPACE = "namespace";
+        public static final String MTA_NAME = "name";
     }
 
     public static class QueryVariables {
@@ -40,6 +42,7 @@ public class Constants {
         }
 
         private static final String ROOT = "/api/v1";
+        private static final String ROOT_V2 = "/api/v2";
 
         public static final String SPACE = ROOT + "/spaces/{" + PathVariables.SPACE_GUID + "}";
         public static final String OPERATIONS = SPACE + "/operations";
@@ -47,7 +50,9 @@ public class Constants {
         public static final String MTAS = SPACE + "/mtas";
         public static final String INFO = ROOT + "/info";
         public static final String CSRF = ROOT + "/csrf-token";
-
+        
+        public static final String SPACE_V2 = Resources.ROOT_V2 + "/spaces/{" + PathVariables.SPACE_GUID + "}";
+        public static final String MTAS_V2 = SPACE_V2 + "/mtas";
     }
 
     public static class Endpoints {

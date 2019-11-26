@@ -151,6 +151,7 @@ public class DataTerminationServiceTest {
             ? Collections.singletonList(new ConfigurationEntry("",
                                                                "",
                                                                Version.parseVersion("1"),
+                                                               "default",
                                                                new CloudTarget(),
                                                                "",
                                                                Collections.emptyList(),

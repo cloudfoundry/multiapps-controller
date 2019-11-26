@@ -1,0 +1,22 @@
+{
+  "deploymentNamespace": "namespace",
+  "cloudTarget": {
+    "space": "some-space",
+    "org": "some-org"
+  },
+  "isNewResourceType": true,
+  "resourceParameters": {
+    "provider-nid": "mta",
+    "provider-id": "test:foo",
+    "version": "0.1.0",
+    "provider-namespace": "different-namespace",
+    "target": {
+      "space": "some-different-space",
+      "org": "some-different-org"
+    },
+    "filter": {
+      "foo": "bar",
+      "baz": "cux"
+    }
+  }
+}

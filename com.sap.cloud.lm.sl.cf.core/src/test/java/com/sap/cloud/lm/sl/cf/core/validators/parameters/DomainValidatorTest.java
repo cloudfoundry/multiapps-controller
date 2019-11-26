@@ -53,7 +53,7 @@ public class DomainValidatorTest {
 
     @Test
     public void testValidate() {
-        assertEquals(isValid, validator.isValid(domain));
+        assertEquals(isValid, validator.isValid(domain, null));
     }
 
     @Test
@@ -63,7 +63,7 @@ public class DomainValidatorTest {
 
     @Test
     public void testAttemptToCorrect() {
-        tester.test(() -> validator.attemptToCorrect(domain), expectation);
+        tester.test(() -> validator.attemptToCorrect(domain, null), expectation);
     }
 
     @Test

@@ -90,7 +90,10 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         String organizationName = context.getVariable(Variables.ORGANIZATION_NAME);
         String spaceName = context.getVariable(Variables.SPACE_NAME);
         String spaceGuid = context.getVariable(Variables.SPACE_GUID);
-        return new ConfigurationEntriesCloudModelBuilder(organizationName, spaceName, spaceGuid);
+        String namespace = context.getVariable(Variables.MTA_NAMESPACE);
+        getStepLogger().infoWithoutProgressMessage("Building configuration entries for org {0}, space {1}, spaceId {2} and namespace {3}!",
+                                                   organizationName, spaceName, spaceGuid, namespace);
+        return new ConfigurationEntriesCloudModelBuilder(organizationName, spaceName, spaceGuid, namespace);
     }
 
 }

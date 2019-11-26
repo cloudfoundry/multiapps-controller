@@ -63,8 +63,8 @@ public class CloudModelBuilderTest {
     protected final String extensionDescriptorLocation;
     protected final String platformLocation;
     protected final String deployedMtaLocation;
-    protected final boolean useNamespaces;
-    protected final boolean useNamespacesForServices;
+    protected final String namespace;
+    protected final boolean applyNamespace;
     protected final Set<String> mtaArchiveModules;
     protected final Set<String> mtaModules;
     protected final Set<String> deployedApps;
@@ -83,7 +83,7 @@ public class CloudModelBuilderTest {
 // @formatter:off
             // (00) Full MTA:
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -92,25 +92,25 @@ public class CloudModelBuilderTest {
             },
             // (01)
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/xs2-config.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/xs2-services.json"),
                 new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/xs2-apps.json"),
             },
-            // (02) Full MTA with namespaces:
+            // (02) Full MTA with namespace:
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
-                true, true,
+                "namespace1", true,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-ns.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-ns-1.json"),
                 new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-1.json"),
             },
-            // (03) Full MTA with namespaces (w/o services):
+            // (03) Full MTA with long namespace:
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
-                true, false,
+                "namespace2-but-it-is-really-really-long", true,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -119,7 +119,7 @@ public class CloudModelBuilderTest {
             },
             // (04) Patch MTA (resolved inter-module dependencies):
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
@@ -128,7 +128,7 @@ public class CloudModelBuilderTest {
             },
             // (05) Patch MTA with namespaces (resolved inter-module dependencies):
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
-                true, true,
+                "namespace", true,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
@@ -137,7 +137,7 @@ public class CloudModelBuilderTest {
             },
             // (06) Patch MTA (unresolved inter-module dependencies):
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", }, // deployedApps
@@ -146,7 +146,7 @@ public class CloudModelBuilderTest {
             },
             // (07)
             { "/mta/shine/mtad.yaml", "/mta/shine/config.mtaext", "/mta/cf-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaArchiveModules
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -155,7 +155,7 @@ public class CloudModelBuilderTest {
             },
             // (08)
             { "/mta/sample/mtad.yaml", "/mta/sample/config.mtaext", "/mta/sample/platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaArchiveModules
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -164,7 +164,7 @@ public class CloudModelBuilderTest {
             },
             // (09)
             { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/config.mtaext", "/mta/cf-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -173,7 +173,7 @@ public class CloudModelBuilderTest {
             },
             // (10)
             { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config-1.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -182,7 +182,7 @@ public class CloudModelBuilderTest {
             },
             // (11)
             { "/mta/devxdi/mtad.yaml", "/mta/devxdi/config.mtaext", "/mta/cf-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -191,7 +191,7 @@ public class CloudModelBuilderTest {
             },
             // (12)
             { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config-1.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -200,7 +200,7 @@ public class CloudModelBuilderTest {
             },
             // (13)
             { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config-2.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -209,7 +209,7 @@ public class CloudModelBuilderTest {
             },
             // (14) Unknown typed resource parameters:
             { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config-2.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -218,7 +218,7 @@ public class CloudModelBuilderTest {
             },
             // (15) Service binding parameters in requires dependency:
             { "mtad-01.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "foo", }, // mtaArchiveModules
                 new String[] { "foo", }, // mtaModules
                 new String[] {}, // deployedApps
@@ -227,7 +227,7 @@ public class CloudModelBuilderTest {
             },
             // (16) Service binding parameters in requires dependency:
             { "mtad-02.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "foo", }, // mtaArchiveModules
                 new String[] { "foo", }, // mtaModules
                 new String[] {}, // deployedApps
@@ -237,7 +237,7 @@ public class CloudModelBuilderTest {
             // (17) Custom application names are used:
             {
                 "mtad-03.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -247,7 +247,7 @@ public class CloudModelBuilderTest {
             // (18) Custom application names are used:
             {
                 "mtad-03.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                true, true,
+                "something", true,
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -257,7 +257,7 @@ public class CloudModelBuilderTest {
             // (19) Temporary URIs are used:
             {
                 "mtad-05.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -267,7 +267,7 @@ public class CloudModelBuilderTest {
             // (20) Use list parameter:
             {
                 "mtad-06.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "framework" }, // mtaArchiveModules
                 new String[] { "framework" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -277,7 +277,7 @@ public class CloudModelBuilderTest {
             // (21) Use partial plugin:
             {
                 "mtad-07.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "framework" }, // mtaArchiveModules
                 new String[] { "framework" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -287,7 +287,7 @@ public class CloudModelBuilderTest {
             // (22) Overwrite service-name resource property in ext. descriptor:
             {
                 "mtad-08.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "module-1" }, // mtaArchiveModules
                 new String[] { "module-1" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -297,7 +297,7 @@ public class CloudModelBuilderTest {
             // (23) Test support for one-off tasks:
             {
                 "mtad-09.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "module-1", "module-2", "module-3", "module-4" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2", "module-3", "module-4" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -307,7 +307,7 @@ public class CloudModelBuilderTest {
             // (24) With 'health-check-type' set to 'port':
             { 
                 "mtad-health-check-type-port.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -317,7 +317,7 @@ public class CloudModelBuilderTest {
             // (25) With 'health-check-type' set to 'http' and a non-default 'health-check-http-endpoint':
             { 
                 "mtad-health-check-type-http-with-endpoint.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -327,7 +327,7 @@ public class CloudModelBuilderTest {
             // (26) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
             { 
                 "mtad-health-check-type-http-without-endpoint.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -337,7 +337,7 @@ public class CloudModelBuilderTest {
             // (27) Test inject service keys:
             {
                 "mtad-10.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "module-1" }, // mtaArchiveModules
                 new String[] { "module-1" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -347,7 +347,7 @@ public class CloudModelBuilderTest {
             // (28) With 'enable-ssh' set to true: 
             {
                 "mtad-ssh-enabled-true.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -357,7 +357,7 @@ public class CloudModelBuilderTest {
             // (29) With 'enable-ssh' set to false: 
             {
                 "mtad-ssh-enabled-false.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -366,7 +366,7 @@ public class CloudModelBuilderTest {
             },
             // (30) Do not restart on env change - bg-deploy
             { "mtad-restart-on-env-change.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                false, false, 
+                null, false, 
                 new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2", "module-3" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -376,7 +376,7 @@ public class CloudModelBuilderTest {
             // (31) With 'keep-existing-routes' set to true and no deployed MTA:
             {
                 "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -387,7 +387,7 @@ public class CloudModelBuilderTest {
             {
                 "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
                 "keep-existing-routes/deployed-mta-without-foo-module.json",
-                false, false,
+                null, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -398,7 +398,7 @@ public class CloudModelBuilderTest {
             {
                 "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
                 "keep-existing-routes/deployed-mta-without-uris.json",
-                false, false,
+                null, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -409,7 +409,7 @@ public class CloudModelBuilderTest {
             {
                 "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
                 "keep-existing-routes/deployed-mta.json",
-                false, false,
+                null, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -420,7 +420,7 @@ public class CloudModelBuilderTest {
             {
                 "keep-existing-routes/mtad-with-global-parameter.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
                 "keep-existing-routes/deployed-mta.json",
-                false, false,
+                null, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -430,7 +430,7 @@ public class CloudModelBuilderTest {
             // (36) With new parameter - 'route'
             {
                 "mtad-12.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "foo", }, // mtaArchiveModules
                 new String[] { "foo", }, // mtaModules
                 new String[] {}, // deployedApps
@@ -440,7 +440,7 @@ public class CloudModelBuilderTest {
             // (37) With new parameter - 'routes'
             {
                 "mtad-13.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "foo", }, // mtaArchiveModules
                 new String[] { "foo", }, // mtaModules
                 new String[] {}, // deployedApps
@@ -450,7 +450,7 @@ public class CloudModelBuilderTest {
             // (38) Test plural priority over singular for hosts and domains
             {
                 "mtad-14.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "foo", }, // mtaArchiveModules
                 new String[] { "foo", }, // mtaModules
                 new String[] {}, // deployedApps
@@ -460,27 +460,38 @@ public class CloudModelBuilderTest {
             // (39) Test multiple buildpacks functionality
             {
                 "mtad-15.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "foo", }, // mtaArchiveModules
                 new String[] { "foo", }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"), //services
                 new Expectation(Expectation.Type.JSON, "apps-15.json"),  //applications
             },
+            // (40) Full MTA with namespace, global apply flag set to false:
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
+                "namespace3", false,
+                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
+                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
+                new String[] {}, // deployedApps
+                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-ns-3.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-3.json"),
+            },
 // @formatter:on
         });
     }
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
-                                 String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices,
+                                 String deployedMtaLocation, String namespace, boolean applyNamespace,
                                  String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, Expectation expectedServices,
                                  Expectation expectedApps) {
         this.deploymentDescriptorLocation = deploymentDescriptorLocation;
         this.extensionDescriptorLocation = extensionDescriptorLocation;
         this.platformLocation = platformsLocation;
         this.deployedMtaLocation = deployedMtaLocation;
-        this.useNamespaces = useNamespaces;
-        this.useNamespacesForServices = useNamespacesForServices;
+        // TODO: this test needs refactoring
+        this.namespace = namespace;
+        this.applyNamespace = applyNamespace;
+        
         this.mtaArchiveModules = new HashSet<>(Arrays.asList(mtaArchiveModules));
         this.mtaModules = new HashSet<>(Arrays.asList(mtaModules));
         this.deployedApps = new HashSet<>(Arrays.asList(deployedApps));
@@ -505,7 +516,7 @@ public class CloudModelBuilderTest {
     }
 
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
-        return new ServicesCloudModelBuilder(deploymentDescriptor);
+        return new ServicesCloudModelBuilder(deploymentDescriptor, namespace);
     }
 
     protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
@@ -517,6 +528,7 @@ public class CloudModelBuilderTest {
                                                 prettyPrinting,
                                                 deployedMta,
                                                 DEPLOY_ID,
+                                                namespace,
                                                 Mockito.mock(UserMessageLogger.class));
     }
 
@@ -590,7 +602,7 @@ public class CloudModelBuilderTest {
 
     private void insertProperAppNames(DeploymentDescriptor descriptor) {
         for (Module module : descriptor.getModules()) {
-            String appName = computeAppName(descriptor, module);
+            String appName = computeAppName(module);
             Map<String, Object> parameters = new TreeMap<>(module.getParameters());
             parameters.put(SupportedParameters.APP_NAME, appName);
             module.setParameters(parameters);
@@ -606,16 +618,16 @@ public class CloudModelBuilderTest {
         }
     }
 
-    private String computeAppName(DeploymentDescriptor descriptor, Module module) {
+    private String computeAppName(Module module) {
         String appName = NameUtil.getApplicationName(module);
         appName = appName != null ? appName : module.getName();
-        return NameUtil.computeValidApplicationName(appName, descriptor.getId(), useNamespaces);
+        return NameUtil.computeValidApplicationName(appName, namespace, applyNamespace);
     }
 
     private String computeServiceName(DeploymentDescriptor descriptor, Resource resource) {
         String serviceName = NameUtil.getServiceName(resource);
         serviceName = serviceName != null ? serviceName : resource.getName();
-        return NameUtil.computeValidServiceName(serviceName, descriptor.getId(), useNamespaces, useNamespacesForServices);
+        return NameUtil.computeValidServiceName(serviceName, namespace, applyNamespace);
     }
 
     protected String getDefaultDomain(String targetName) {

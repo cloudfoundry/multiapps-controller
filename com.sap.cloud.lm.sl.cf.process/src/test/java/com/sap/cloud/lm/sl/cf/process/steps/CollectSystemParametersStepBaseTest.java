@@ -35,8 +35,8 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
     protected static final UUID DEFAULT_DOMAIN_GUID = UUID.fromString("7b5987e9-4325-4bb6-93e2-a0b1c562e60c");
     protected static final VersionRule VERSION_RULE = VersionRule.SAME_HIGHER;
 
-    protected static final boolean DEFAULT_USE_NAMESPACES = false;
-    protected static final boolean DEFAULT_USE_NAMESPACES_FOR_SERVICES = false;
+    protected static final String DEFAULT_NAMESPACE = null;
+    protected static final boolean DEFAULT_APPLY_NAMESPACE = Variables.APPLY_NAMESPACE.getDefaultValue();
 
     @Mock
     protected CredentialsGenerator credentialsGenerator;
@@ -55,8 +55,8 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
         context.setVariable(Variables.SPACE_NAME, SPACE_NAME);
         context.setVariable(Variables.SPACE_GUID, SPACE_GUID);
 
-        context.setVariable(Variables.USE_NAMESPACES, DEFAULT_USE_NAMESPACES);
-        context.setVariable(Variables.USE_NAMESPACES_FOR_SERVICES, DEFAULT_USE_NAMESPACES_FOR_SERVICES);
+        context.setVariable(Variables.MTA_NAMESPACE, DEFAULT_NAMESPACE);
+        context.setVariable(Variables.APPLY_NAMESPACE, DEFAULT_APPLY_NAMESPACE);
         context.setVariable(Variables.VERSION_RULE, VERSION_RULE);
 
         step.credentialsGeneratorSupplier = () -> credentialsGenerator;

@@ -19,6 +19,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Mta;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
@@ -37,8 +38,8 @@ public class MtasApi {
 
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Mta.class) })
-    public ResponseEntity<Mta> getMta(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                                      @PathVariable(RequestVariables.MTA_ID) String mtaId) {
+    public ResponseEntity<Mta> getMta(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
+                                      @ApiParam(value = "mtaID of requested mta") @PathVariable(RequestVariables.MTA_ID) String mtaId) {
         return delegate.getMta(spaceGuid, mtaId);
     }
 
@@ -48,7 +49,8 @@ public class MtasApi {
 
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Mta.class, responseContainer = "List") })
-    public ResponseEntity<List<Mta>> getMtas(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid) {
+    public ResponseEntity<List<Mta>>
+           getMtas(@ApiParam(value = "GUID of space with mtas") @PathVariable(PathVariables.SPACE_GUID) String spaceGuid) {
         return delegate.getMtas(spaceGuid);
     }
 

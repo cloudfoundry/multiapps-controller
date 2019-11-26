@@ -22,14 +22,14 @@ public class MtaMetadataValidator {
 
     public void validateHasCommonMetadata(CloudEntity entity) {
         validateLabelsArePresent(entity);
-        validateAnnotationsArePresent(entity, MtaMetadataUtil.MTA_METADATA_ANNOTATIONS);
+        validateAnnotationsArePresent(entity, MtaMetadataUtil.MTA_METADATA_MANDATORY_ANNOTATIONS);
     }
 
     private void validateLabelsArePresent(CloudEntity entity) {
         if (!entity.getV3Metadata()
                    .getLabels()
                    .keySet()
-                   .containsAll(MtaMetadataUtil.MTA_METADATA_LABELS)) {
+                   .containsAll(MtaMetadataUtil.MTA_METADATA_MANDATORY_LABELS)) {
             throw new ContentException(Messages.MTA_METADATA_FOR_0_IS_INCOMPLETE, entity.getName());
         }
     }

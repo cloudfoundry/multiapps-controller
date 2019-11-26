@@ -54,7 +54,7 @@ public class VisibilityValidatorTest {
     @Test
     public void testValidate() {
         Object visibleTargetsObject = JsonUtil.fromJson(visibleTargets, Object.class);
-        assertEquals(isValid, validator.isValid(visibleTargetsObject));
+        assertEquals(isValid, validator.isValid(visibleTargetsObject, null));
     }
 
     @Test

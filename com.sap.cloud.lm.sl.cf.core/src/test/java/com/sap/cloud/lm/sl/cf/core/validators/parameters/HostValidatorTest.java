@@ -51,7 +51,7 @@ public class HostValidatorTest {
 
     @Test
     public void testValidate() {
-        assertEquals(isValid, validator.isValid(host));
+        assertEquals(isValid, validator.isValid(host, null));
     }
 
     @Test
@@ -61,7 +61,7 @@ public class HostValidatorTest {
 
     @Test
     public void testAttemptToCorrect() {
-        tester.test(() -> validator.attemptToCorrect(host), expectation);
+        tester.test(() -> validator.attemptToCorrect(host, null), expectation);
     }
 
     @Test

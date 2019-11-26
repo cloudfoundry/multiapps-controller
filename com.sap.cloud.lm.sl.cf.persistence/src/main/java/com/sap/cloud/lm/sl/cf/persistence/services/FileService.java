@@ -52,10 +52,6 @@ public class FileService {
         this.fileStorage = fileStorage;
     }
 
-    public FileEntry addFile(String space, String name, InputStream inputStream) throws FileStorageException {
-        return addFile(space, null, name, inputStream);
-    }
-
     /**
      * Uploads a new file.
      *

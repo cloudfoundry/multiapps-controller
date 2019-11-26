@@ -1,0 +1,14 @@
+{
+  "providerId": "test:foo",
+  "requiredContent": {
+    "foo": "bar",
+    "baz": "cux"
+  },
+  "providerNid": "mta",
+  "targetSpace": {
+    "org": "some-different-org",
+    "space": "some-different-space"
+  },
+  "providerVersion": "0.1.0",
+  "providerNamespace": "different-namespace"
+}

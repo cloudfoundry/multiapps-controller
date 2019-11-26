@@ -7,11 +7,13 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.v3.Metadata;
 
+import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.ImmutableMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadata;
@@ -30,6 +32,21 @@ public class MtaMetadataParser extends BaseMtaMetadataParser {
     public MtaMetadataParser(MtaMetadataValidator mtaMetadataValidator) {
         this.mtaMetadataValidator = mtaMetadataValidator;
     }
+    
+    public String parseQualifiedMtaId(CloudEntity entity) {
+        mtaMetadataValidator.validateHasCommonMetadata(entity);
+        Metadata metadata = entity.getV3Metadata();
+        String mtaId = metadata.getAnnotations()
+                               .get(MtaMetadataAnnotations.MTA_ID);
+        String mtaNamespace = metadata.getAnnotations()
+            .get(MtaMetadataAnnotations.MTA_NAMESPACE);
+        
+        if (StringUtils.isEmpty(mtaNamespace)) {
+            return mtaId;
+        }
+        
+        return mtaNamespace + Constants.NAMESPACE_SEPARATOR + mtaId;
+    }
 
     public MtaMetadata parseMtaMetadata(CloudEntity entity) {
         mtaMetadataValidator.validateHasCommonMetadata(entity);
@@ -38,10 +55,13 @@ public class MtaMetadataParser extends BaseMtaMetadataParser {
                                .get(MtaMetadataAnnotations.MTA_ID);
         String mtaVersion = metadata.getAnnotations()
                                     .get(MtaMetadataAnnotations.MTA_VERSION);
+        String mtaNamespace = metadata.getAnnotations()
+                                      .get(MtaMetadataAnnotations.MTA_NAMESPACE);
         String messageOnParsingException = MessageFormat.format(Messages.CANT_PARSE_MTA_METADATA_VERSION_FOR_0, entity.getName());
         return ImmutableMtaMetadata.builder()
                                    .id(mtaId)
                                    .version(parseMtaVersion(mtaVersion, messageOnParsingException))
+                                   .namespace(mtaNamespace)
                                    .build();
     }
 

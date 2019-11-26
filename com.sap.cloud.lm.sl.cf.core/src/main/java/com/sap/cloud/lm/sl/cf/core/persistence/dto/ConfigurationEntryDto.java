@@ -24,7 +24,8 @@ import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableNames;
 @Access(AccessType.FIELD)
 @Table(name = TableNames.CONFIGURATION_ENTRY_TABLE, uniqueConstraints = {
     @UniqueConstraint(columnNames = { TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_NID, TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_ID,
-        TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_VERSION, TableColumnNames.CONFIGURATION_ENTRY_TARGET_SPACE }) })
+        TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_VERSION, TableColumnNames.CONFIGURATION_ENTRY_TARGET_SPACE,
+        TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_NAMESPACE }) })
 @SequenceGenerator(name = SequenceNames.CONFIGURATION_ENTRY_SEQUENCE, sequenceName = SequenceNames.CONFIGURATION_ENTRY_SEQUENCE, allocationSize = 1)
 @XmlRootElement(name = "configuration-entry")
 @XmlAccessorType(value = XmlAccessType.FIELD)
@@ -39,6 +40,7 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
         public static final String PROVIDER_ID = "providerId";
         public static final String PROVIDER_VERSION = "providerVersion";
         public static final String PROVIDER_NID = "providerNid";
+        public static final String PROVIDER_NAMESPACE = "providerNamespace";
         public static final String TARGET_ORG = "targetOrg";
         public static final String TARGET_SPACE = "targetSpace";
         public static final String SPACE_ID = "spaceId";
@@ -63,6 +65,10 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
     @XmlElement(name = "provider-version")
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_VERSION, nullable = false)
     private String providerVersion;
+
+    @XmlElement(name = "provider-namespace")
+    @Column(name = TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_NAMESPACE, nullable = true)
+    private String providerNamespace;
 
     @XmlElement(name = "target-org")
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_TARGET_ORG, nullable = false)
@@ -91,7 +97,7 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
     }
 
     private ConfigurationEntryDto(long id, String providerNid, String providerId, String providerVersion, String targetOrg,
-                                  String targetSpace, String content, String visibility, String spaceId) {
+                                  String targetSpace, String content, String visibility, String spaceId, String providerNamespace) {
         this.id = id;
         this.providerNid = providerNid;
         this.providerId = providerId;
@@ -101,6 +107,7 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
         this.content = content;
         this.visibility = visibility;
         this.spaceId = spaceId;
+        this.providerNamespace = providerNamespace;
     }
 
     @Override
@@ -132,6 +139,10 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
     public String getProviderVersion() {
         return providerVersion;
     }
+    
+    public String getProviderNamespace() {
+        return providerNamespace;
+    }
 
     public String getContent() {
         return content;
@@ -155,6 +166,7 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
         private String providerNid;
         private String providerId;
         private String providerVersion;
+        private String providerNamespace;
         private String targetOrg;
         private String targetSpace;
         private String spaceId;
@@ -178,6 +190,11 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
 
         public Builder providerVersion(String providerVersion) {
             this.providerVersion = providerVersion;
+            return this;
+        }
+
+        public Builder providerNamespace(String providerNamespace) {
+            this.providerNamespace = providerNamespace;
             return this;
         }
 
@@ -215,7 +232,8 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
                                              targetSpace,
                                              content,
                                              visibility,
-                                             spaceId);
+                                             spaceId,
+                                             providerNamespace);
         }
 
     }

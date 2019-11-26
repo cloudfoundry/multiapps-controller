@@ -81,9 +81,9 @@ public class FilesApiServiceImplTest {
     public void testGetMtaFiles() throws Exception {
         FileEntry entryOne = createFileEntry("test.mtar");
         FileEntry entryTwo = createFileEntry("extension.mtaet");
-        Mockito.when(fileService.listFiles(Mockito.eq(SPACE_GUID), Mockito.eq(null)))
+        Mockito.when(fileService.listFiles(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID)))
                .thenReturn(Arrays.asList(entryOne, entryTwo));
-        ResponseEntity<List<FileMetadata>> response = testedClass.getFiles(SPACE_GUID);
+        ResponseEntity<List<FileMetadata>> response = testedClass.getFiles(SPACE_GUID, NAMESPACE_GUID);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<FileMetadata> files = response.getBody();
         assertEquals(2, files.size());
@@ -96,7 +96,7 @@ public class FilesApiServiceImplTest {
     public void testGetMtaFilesError() throws Exception {
         Mockito.when(fileService.listFiles(Mockito.eq(SPACE_GUID), Mockito.eq(null)))
                .thenThrow(new FileStorageException("error"));
-        Assertions.assertThrows(SLException.class, () -> testedClass.getFiles(SPACE_GUID));
+        Assertions.assertThrows(SLException.class, () -> testedClass.getFiles(SPACE_GUID, null));
     }
 
     @Test
@@ -116,10 +116,10 @@ public class FilesApiServiceImplTest {
                .thenReturn(Mockito.mock(InputStream.class));
         Mockito.when(fileItemStream.getName())
                .thenReturn(fileName);
-        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(fileName), Mockito.any()))
+        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName), Mockito.any(InputStream.class)))
                .thenReturn(fileEntry);
 
-        ResponseEntity<FileMetadata> response = testedClass.uploadFile(request, SPACE_GUID);
+        ResponseEntity<FileMetadata> response = testedClass.uploadFile(request, SPACE_GUID, NAMESPACE_GUID);
 
         Mockito.verify(servletFileUpload)
                .setSizeMax(Mockito.eq(new Configuration().getMaxUploadSize()));
@@ -128,7 +128,7 @@ public class FilesApiServiceImplTest {
         Mockito.verify(fileItemStream)
                .openStream();
         Mockito.verify(fileService)
-               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(fileName), Mockito.any());
+               .addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName), Mockito.any(InputStream.class));
 
         FileMetadata fileMetadata = response.getBody();
         assertMetadataMatches(fileEntry, fileMetadata);
@@ -138,7 +138,7 @@ public class FilesApiServiceImplTest {
     public void testUploadMtaFileErrorSizeExceeded() throws Exception {
         Mockito.when(servletFileUpload.getItemIterator(Mockito.eq(request)))
                .thenThrow(new SizeLimitExceededException("size limit exceeded", MAX_PERMITTED_SIZE + 1024, MAX_PERMITTED_SIZE));
-        Assertions.assertThrows(SLException.class, () -> testedClass.uploadFile(request, SPACE_GUID));
+        Assertions.assertThrows(SLException.class, () -> testedClass.uploadFile(request, SPACE_GUID, null));
     }
 
     private void assertMetadataMatches(FileEntry expected, FileMetadata actual) {

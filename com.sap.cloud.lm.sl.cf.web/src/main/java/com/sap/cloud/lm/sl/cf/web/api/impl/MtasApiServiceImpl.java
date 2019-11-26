@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.web.api.impl;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,6 +27,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Metadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.Module;
 import com.sap.cloud.lm.sl.cf.web.api.model.Mta;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
+import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
@@ -40,7 +42,7 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     @Override
     public ResponseEntity<List<Mta>> getMtas(String spaceGuid) {
-        List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtas(getCloudFoundryClient(spaceGuid));
+        List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtasWithoutNamespace(getCloudFoundryClient(spaceGuid));
         List<Mta> mtas = getMtas(deployedMtas);
         return ResponseEntity.ok()
                              .body(mtas);
@@ -48,10 +50,73 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     @Override
     public ResponseEntity<Mta> getMta(String spaceGuid, String mtaId) {
-        Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMta(mtaId, getCloudFoundryClient(spaceGuid), true);
-        DeployedMta deployedMta = optionalDeployedMta.orElseThrow(() -> new NotFoundException(Messages.MTA_NOT_FOUND, mtaId));
+        List<DeployedMta> mtas = deployedMtaDetector.detectDeployedMtasByName(mtaId, getCloudFoundryClient(spaceGuid));
+
+        if (mtas.isEmpty()) {
+            throw new NotFoundException(Messages.MTA_NOT_FOUND, mtaId);
+        }
+
+        if (mtas.size() != 1) {
+            throw new ConflictException(Messages.MTA_SEARCH_NOT_UNIQUE_BY_NAME, mtaId);
+        }
+
         return ResponseEntity.ok()
-                             .body(getMta(deployedMta));
+                             .body(getMta(mtas.get(0)));
+    }
+
+    @Override
+    public ResponseEntity<List<Mta>> getMtas(String spaceGuid, String namespace, String name) {
+
+        if (name == null && namespace == null) {
+            return getAllMtas(spaceGuid);
+        }
+
+        if (namespace == null) {
+            return getMtasByName(spaceGuid, name);
+        }
+
+        if (name == null) {
+            return getMtasByNamespace(spaceGuid, namespace);
+        }
+
+        Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(name, namespace,
+                                                                                                            getCloudFoundryClient(spaceGuid),
+                                                                                                            true);
+        DeployedMta deployedMta = optionalDeployedMta.orElseThrow(() -> new NotFoundException(Messages.SPECIFIC_MTA_NOT_FOUND,
+                                                                                              name,
+                                                                                              namespace));
+
+        return ResponseEntity.ok()
+                             .body(Arrays.asList(getMta(deployedMta)));
+    }
+
+    protected ResponseEntity<List<Mta>> getAllMtas(String spaceGuid) {
+        List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtas(getCloudFoundryClient(spaceGuid));
+
+        return ResponseEntity.ok()
+                             .body(getMtas(deployedMtas));
+    }
+
+    protected ResponseEntity<List<Mta>> getMtasByNamespace(String spaceGuid, String namespace) {
+        List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtasByNamespace(namespace, getCloudFoundryClient(spaceGuid));
+
+        if (deployedMtas.isEmpty()) {
+            throw new NotFoundException(Messages.MTAS_NOT_FOUND_BY_NAMESPACE, namespace);
+        }
+
+        return ResponseEntity.ok()
+                             .body(getMtas(deployedMtas));
+    }
+
+    protected ResponseEntity<List<Mta>> getMtasByName(String spaceGuid, String name) {
+        List<DeployedMta> deployedMtas = deployedMtaDetector.detectDeployedMtasByName(name, getCloudFoundryClient(spaceGuid));
+
+        if (deployedMtas.isEmpty()) {
+            throw new NotFoundException(Messages.MTAS_NOT_FOUND_BY_NAME, name);
+        }
+
+        return ResponseEntity.ok()
+                             .body(getMtas(deployedMtas));
     }
 
     private CloudControllerClient getCloudFoundryClient(String spaceGuid) {
@@ -96,6 +161,7 @@ public class MtasApiServiceImpl implements MtasApiService {
         return ImmutableMetadata.builder()
                                 .id(metadata.getId())
                                 .version(getVersion(metadata.getVersion()))
+                                .namespace(metadata.getNamespace())
                                 .build();
     }
 

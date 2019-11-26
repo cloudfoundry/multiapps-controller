@@ -43,27 +43,6 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
         return Messages.ERROR_CREATING_SUBSCRIPTIONS;
     }
 
-    private ConfigurationSubscription detectSubscription(String mtaId, String applicationName, String spaceId, String resourceName) {
-        try {
-            return configurationSubscriptionService.createQuery()
-                                                   .appName(applicationName)
-                                                   .spaceId(spaceId)
-                                                   .resourceName(resourceName)
-                                                   .mtaId(mtaId)
-                                                   .singleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
-    private ConfigurationSubscription detectSubscription(ConfigurationSubscription subscription) {
-        ResourceDto resourceDto = subscription.getResourceDto();
-        if (resourceDto == null) {
-            return null;
-        }
-        return detectSubscription(subscription.getMtaId(), subscription.getAppName(), subscription.getSpaceId(), resourceDto.getName());
-    }
-
     protected void createSubscription(ConfigurationSubscription subscription) {
         infoSubscriptionCreation(subscription);
         ConfigurationSubscription existingSubscription = detectSubscription(subscription);
@@ -81,6 +60,27 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
                                                                   .getName(),
                                                       subscription.getResourceDto()
                                                                   .getName()));
+        }
+    }
+
+    private ConfigurationSubscription detectSubscription(ConfigurationSubscription subscription) {
+        ResourceDto resourceDto = subscription.getResourceDto();
+        if (resourceDto == null) {
+            return null;
+        }
+        return detectSubscription(subscription.getMtaId(), subscription.getAppName(), subscription.getSpaceId(), resourceDto.getName());
+    }
+
+    private ConfigurationSubscription detectSubscription(String mtaId, String applicationName, String spaceId, String resourceName) {
+        try {
+            return configurationSubscriptionService.createQuery()
+                                                   .appName(applicationName)
+                                                   .spaceId(spaceId)
+                                                   .resourceName(resourceName)
+                                                   .mtaId(mtaId)
+                                                   .singleResult();
+        } catch (NoResultException e) {
+            return null;
         }
     }
 

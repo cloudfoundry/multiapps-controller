@@ -24,6 +24,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.criteria.ImmutableQueryAttributeRestriction;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.criteria.QueryCriteria;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService.ConfigurationEntryMapper;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 
 public class ConfigurationEntryQueryImpl extends AbstractQueryImpl<ConfigurationEntry, ConfigurationEntryQuery>
     implements ConfigurationEntryQuery {
@@ -77,6 +78,31 @@ public class ConfigurationEntryQueryImpl extends AbstractQueryImpl<Configuration
                                                                            .value(providerId)
                                                                            .build());
         }
+        return this;
+    }
+
+    @Override
+    public ConfigurationEntryQuery providerNamespace(String providerNamespace, boolean considerNullAsEmpty) {
+        boolean shouldFilterForEmptyNamespace = ConfigurationEntriesUtil.providerNamespaceIsEmpty(providerNamespace, considerNullAsEmpty);
+
+        if (providerNamespace == null && !shouldFilterForEmptyNamespace) {
+            return this;
+        }
+
+        if (shouldFilterForEmptyNamespace) {
+            queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                           .attribute(AttributeNames.PROVIDER_NAMESPACE)
+                                                                           .condition(getCriteriaBuilder()::equal)
+                                                                           .value(null)
+                                                                           .build());
+        } else {
+            queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                           .attribute(AttributeNames.PROVIDER_NAMESPACE)
+                                                                           .condition(getCriteriaBuilder()::equal)
+                                                                           .value(providerNamespace)
+                                                                           .build());
+        }
+
         return this;
     }
 

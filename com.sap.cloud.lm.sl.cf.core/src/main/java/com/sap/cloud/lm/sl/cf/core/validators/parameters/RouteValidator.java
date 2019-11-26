@@ -19,7 +19,7 @@ public class RouteValidator implements ParameterValidator {
     }
 
     @Override
-    public String attemptToCorrect(Object route) {
+    public String attemptToCorrect(Object route, final Map<String, Object> context) {
         if (!(route instanceof String)) {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_ROUTE, route);
         }
@@ -36,7 +36,7 @@ public class RouteValidator implements ParameterValidator {
 
         String correctedRoute = uri.toString();
 
-        if (!isValid(correctedRoute)) {
+        if (!isValid(correctedRoute, null)) {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_ROUTE, route);
         }
 
@@ -51,14 +51,14 @@ public class RouteValidator implements ParameterValidator {
             return;
         }
 
-        if (partValidator.canCorrect() && !partValidator.isValid(part)) {
-            String correctedPart = (String) partValidator.attemptToCorrect(part);
+        if (partValidator.canCorrect() && !partValidator.isValid(part, null)) {
+            String correctedPart = (String) partValidator.attemptToCorrect(part, null);
             uri.setURIPart(uriPartName, correctedPart);
         }
     }
 
     @Override
-    public boolean isValid(Object route) {
+    public boolean isValid(Object route, final Map<String, Object> context) {
         if (!(route instanceof String)) {
             return false;
         }
@@ -78,7 +78,7 @@ public class RouteValidator implements ParameterValidator {
     }
 
     protected boolean partIsValid(ParameterValidator validator, Map<String, Object> uriParts) {
-        return !uriParts.containsKey(validator.getParameterName()) || validator.isValid(uriParts.get(validator.getParameterName()));
+        return !uriParts.containsKey(validator.getParameterName()) || validator.isValid(uriParts.get(validator.getParameterName()), null);
     }
 
     @Override

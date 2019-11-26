@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                 http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
-
+                
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_oauth_access_token_table.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_ongoing_operation_table.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_audit_log_table.xml" />
@@ -63,4 +63,8 @@
         file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-delete_task_startup_progress_messages.xml" />
    <include
         file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-update_configuration_registry_clean_up_leftovers.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_operation_table_add_namespace_column.xml" />
+	<include
+		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_namespace_column.xml" />
 </databaseChangeLog>

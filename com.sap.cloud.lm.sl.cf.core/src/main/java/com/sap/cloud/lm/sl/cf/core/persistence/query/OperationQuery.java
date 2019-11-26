@@ -17,6 +17,8 @@ public interface OperationQuery extends Query<Operation, OperationQuery> {
 
     OperationQuery mtaId(String mtaId);
 
+    OperationQuery namespace(String namespace);
+
     OperationQuery user(String user);
 
     OperationQuery acquiredLock(Boolean acquiredLock);

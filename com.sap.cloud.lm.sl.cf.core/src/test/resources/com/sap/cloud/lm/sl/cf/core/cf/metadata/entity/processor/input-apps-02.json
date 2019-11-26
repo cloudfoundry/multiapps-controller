@@ -1,0 +1,346 @@
+[
+  {
+    "name": "foo",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "1.0.0",
+        "mta_module": "{\"name\":\"foo\"}",
+        "mta_module_provided_dependencies": "[\"foo\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+      }
+    },
+    "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
+    "runningInstances": 0,
+    "staging": {
+      "buildpacks": [
+        "java_buildpack",
+        "staticfile_buildpack"
+      ]
+    },
+    "uris": [
+      "foo.cfapps.neo.ondemand.com"
+    ],
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
+      "MTA_SERVICES": "[]",
+      "TARGET_RUNTIME": "tomee"
+    },
+    "moduleName": "foo",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "bar",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "1.0.0",
+        "mta_module": "{\"name\":\"bar\"}",
+        "mta_module_provided_dependencies": "[\"bar\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+      }
+    },
+    "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
+    "runningInstances": 0,
+    "staging": {
+      "buildpacks": [
+        "java_buildpack",
+        "staticfile_buildpack"
+      ]
+    },
+    "uris": [
+      "bar.cfapps.neo.ondemand.com"
+    ],
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"bar\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"bar\"]",
+      "MTA_SERVICES": "[]",
+      "TARGET_RUNTIME": "tomee"
+    },
+    "moduleName": "bar",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
+  },
+    {
+    "name": "namespace-foo",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "1.0.0",
+        "mta_module": "{\"name\":\"foo\"}",
+        "mta_module_provided_dependencies": "[\"foo\"]",
+        "mta_bound_services": "[]",
+        "mta_namespace": "namespace"
+      },
+      "labels": {
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
+        "mta_namespace": "namespace-hashed"
+      }
+    },
+    "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
+    "runningInstances": 0,
+    "staging": {
+      "buildpacks": [
+        "java_buildpack",
+        "staticfile_buildpack"
+      ]
+    },
+    "uris": [
+      "namespace-foo.cfapps.neo.ondemand.com"
+    ],
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\",\"namespace\":\"namespace\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
+      "MTA_SERVICES": "[]",
+      "TARGET_RUNTIME": "tomee"
+    },
+    "moduleName": "foo",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "namespace-bar",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "1.0.0",
+        "mta_module": "{\"name\":\"bar\"}",
+        "mta_module_provided_dependencies": "[\"bar\"]",
+        "mta_bound_services": "[]",
+        "mta_namespace": "namespace"
+      },
+      "labels": {
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
+        "mta_namespace": "namespace-hashed"
+      }
+    },
+    "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
+    "runningInstances": 0,
+    "staging": {
+      "buildpacks": [
+        "java_buildpack",
+        "staticfile_buildpack"
+      ]
+    },
+    "uris": [
+      "namespace-bar.cfapps.neo.ondemand.com"
+    ],
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\",\"namespace\":\"namespace\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"bar\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"bar\"]",
+      "MTA_SERVICES": "[]",
+      "TARGET_RUNTIME": "tomee"
+    },
+    "moduleName": "bar",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
+  },
+    {
+    "name": "other-namespace-foo",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "1.0.0",
+        "mta_module": "{\"name\":\"foo\"}",
+        "mta_module_provided_dependencies": "[\"foo\"]",
+        "mta_bound_services": "[]",
+        "mta_namespace": "other-namespace"
+      },
+      "labels": {
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
+        "mta_namespace": "other-namespace-hashed"
+      }
+    },
+    "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
+    "runningInstances": 0,
+    "staging": {
+      "buildpacks": [
+        "java_buildpack",
+        "staticfile_buildpack"
+      ]
+    },
+    "uris": [
+      "other-namespace-foo.cfapps.neo.ondemand.com"
+    ],
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\",\"namespace\":\"other-namespace\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
+      "MTA_SERVICES": "[]",
+      "TARGET_RUNTIME": "tomee"
+    },
+    "moduleName": "foo",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "other-namespace-bar",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "1.0.0",
+        "mta_module": "{\"name\":\"bar\"}",
+        "mta_module_provided_dependencies": "[\"bar\"]",
+        "mta_bound_services": "[]",
+        "mta_namespace": "other-namespace"
+      },
+      "labels": {
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
+        "mta_namespace": "other-namespace-hashed"
+      }
+    },
+    "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
+    "runningInstances": 0,
+    "staging": {
+      "buildpacks": [
+        "java_buildpack",
+        "staticfile_buildpack"
+      ]
+    },
+    "uris": [
+      "other-namespace-bar.cfapps.neo.ondemand.com"
+    ],
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\",\"namespace\":\"other-namespace\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"bar\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"bar\"]",
+      "MTA_SERVICES": "[]",
+      "TARGET_RUNTIME": "tomee"
+    },
+    "moduleName": "bar",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
+  }
+]

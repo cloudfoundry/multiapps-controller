@@ -32,7 +32,7 @@ public class ConfigurationReferencesResolverTest extends com.sap.cloud.lm.sl.cf.
     @Override
     protected ConfigurationReferencesResolver getConfigurationResolver(DeploymentDescriptor deploymentDescriptor) {
         return new ConfigurationReferencesResolver(configurationEntryService,
-                                                   new ConfigurationFilterParser(getCloudTarget(), getPropertiesChainBuilder(descriptor)),
+                                                   new ConfigurationFilterParser(getCloudTarget(), getPropertiesChainBuilder(descriptor), null),
                                                    null,
                                                    configuration);
     }

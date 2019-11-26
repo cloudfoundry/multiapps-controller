@@ -1,22 +1,21 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil.NameRequirements;
 
 public class NameUtilTest {
-
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
 
     @Test
     public void testIsValidXsAppNameWhenNamesAreValid() {
@@ -46,16 +45,24 @@ public class NameUtilTest {
 
     private void testIsValidName(List<String> names, String namePattern, boolean expectedResult) {
         for (String name : names) {
-            assertEquals(name, expectedResult, NameUtil.isValidName(name, namePattern));
+            assertEquals(expectedResult, NameUtil.isValidName(name, namePattern));
         }
     }
 
-    @Test
-    public void testGetNameWithProperLength() {
-        assertEquals("foo", NameUtil.getNameWithProperLength("foo", 3));
-        assertEquals("foo", NameUtil.getNameWithProperLength("foo", 5));
+    public static Stream<Arguments> testGetNameWithProperLength() {
+        return Stream.of(
+        // @formatter:off
+                         Arguments.of("foo", 3, "foo"),
+                         Arguments.of("foo", 5, "foo"),
+                         Arguments.of("com.sap.cloud.lm.sl.xs2.core.test", 20, "com.sap.clou3726daf0")
+                         // @formatter:on
+        );
+    }
 
-        assertEquals("com.sap.clou3726daf0", NameUtil.getNameWithProperLength("com.sap.cloud.lm.sl.xs2.core.test", 20));
+    @ParameterizedTest
+    @MethodSource
+    public void testGetNameWithProperLength(String name, int maxLength, String expectedName) {
+        assertEquals(expectedName, NameUtil.getNameWithProperLength(name, maxLength));
     }
 
     @Test
@@ -66,19 +73,42 @@ public class NameUtilTest {
         assertTrue(NameUtil.isValidName(containerName, NameRequirements.CONTAINER_NAME_PATTERN));
     }
 
-    @Test
-    public void testCreateValidXsAppName() {
-        String xsAppName1 = NameUtil.computeValidXsAppName("sap_system_com.sap.cloud.lm.sl.xs2.deploy-service-database");
-        assertEquals("_com.sap.cloud.lm.sl.xs2.deploy-service-database", xsAppName1);
+    public static Stream<Arguments> testCreateValidXsAppName() {
+        return Stream.of(
+        // @formatter:off
+                         Arguments.of("sap_system_com.sap.cloud.lm.sl.xs2.deploy-service-database", "_com.sap.cloud.lm.sl.xs2.deploy-service-database"),
+                         Arguments.of("sap_system", "_"),
+                         Arguments.of("com.sap.cloud.lm.sl.xs@.deploy-service-database", "com.sap.cloud.lm.sl.xs_.deploy-service-database")
+                         // @formatter:on
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void testCreateValidXsAppName(String serviceName, String expectedName) {
+        String xsAppName1 = NameUtil.computeValidXsAppName(serviceName);
+        assertEquals(expectedName, xsAppName1);
         assertTrue(NameUtil.isValidName(xsAppName1, NameRequirements.XS_APP_NAME_PATTERN));
+    }
 
-        String xsAppName2 = NameUtil.computeValidXsAppName("sap_system");
-        assertEquals("_", xsAppName2);
-        assertTrue(NameUtil.isValidName(xsAppName2, NameRequirements.XS_APP_NAME_PATTERN));
+    public static Stream<Arguments> testComputeNamespacedNameWithLength() {
+        return Stream.of(
+        // @formatter:off
+                         Arguments.of("name", "namespace", true, 100, "namespace-name"),
+                         Arguments.of("name", "namespace", false, 100, "name"),
+                         Arguments.of("this-name-is-exactly-34-chars-long", "namespace", false, 34, "this-name-is-exactly-34-chars-long"),
+                         Arguments.of("this-name-is-exactly-34-chars-long", "namespace", true, 30, "namespace-this-name-is54080287"),
+                         Arguments.of("this-name-is-exactly-34-chars-long", "at-this-point-only-namespace-present", true, 40, "at-this-point-only-namespace-pre7548697a"),
+                         Arguments.of("this-name-is-exactly-34-chars-long", "same-length-namespace-but-less-limit", true, 30, "same-length-namespace-774ffaef")
+                         // @formatter:on
+        );
+    }
 
-        String xsAppName3 = NameUtil.computeValidXsAppName("com.sap.cloud.lm.sl.xs@.deploy-service-database");
-        assertEquals("com.sap.cloud.lm.sl.xs_.deploy-service-database", xsAppName3);
-        assertTrue(NameUtil.isValidName(xsAppName3, NameRequirements.XS_APP_NAME_PATTERN));
+    @ParameterizedTest
+    @MethodSource
+    public void testComputeNamespacedNameWithLength(String name, String namespace, boolean applyNamespace, int maxLength,
+                                                    String expectedName) {
+        assertEquals(expectedName, NameUtil.computeNamespacedNameWithLength(name, namespace, applyNamespace, maxLength));
     }
 
 }

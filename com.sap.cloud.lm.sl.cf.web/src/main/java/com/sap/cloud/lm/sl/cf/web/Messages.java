@@ -18,6 +18,10 @@ public final class Messages {
 
     // ERROR log messages
     public static final String MTA_NOT_FOUND = "MTA with id \"{0}\" does not exist";
+    public static final String MTAS_NOT_FOUND_BY_NAME = "MTAs with name \"{0}\" do not exist";
+    public static final String MTAS_NOT_FOUND_BY_NAMESPACE = "MTAs with namespace \"{0}\" do not exist";
+    public static final String SPECIFIC_MTA_NOT_FOUND = "MTA with name \"{0}\" and namespace \"{1}\" does not exist";
+    public static final String MTA_SEARCH_NOT_UNIQUE_BY_NAME = "There are multiple MTAs with name \"{0}\" found. Specify namespace";
     public static final String ORG_AND_SPACE_MUST_BE_SPECIFIED = "Org and space must be specified!";
     public static final String NOT_AUTHORIZED_TO_OPERATE_IN_ORGANIZATION_0_AND_SPACE_1 = "You are not authorized to perform operations in organization \"{0}\", space \"{0}\". You need the SpaceDeveloper role to operate in that space.";
     public static final String NOT_AUTHORIZED_TO_OPERATE_IN_SPACE_WITH_GUID_0 = "You are not authorized to perform operations in space with GUID \"{0}\". You need the SpaceDeveloper role to operate in that space.";

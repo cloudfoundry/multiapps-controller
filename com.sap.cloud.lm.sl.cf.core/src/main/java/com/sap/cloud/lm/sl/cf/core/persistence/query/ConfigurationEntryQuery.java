@@ -14,6 +14,8 @@ public interface ConfigurationEntryQuery extends Query<ConfigurationEntry, Confi
 
     ConfigurationEntryQuery providerId(String providerId);
 
+    ConfigurationEntryQuery providerNamespace(String providerNamespace, boolean ensureEmptyIfNull);
+
     ConfigurationEntryQuery target(CloudTarget targetOrg);
 
     ConfigurationEntryQuery requiredProperties(Map<String, Object> requiredProperties);

@@ -58,9 +58,11 @@ public class DetachServicesFromMtaStep extends SyncFlowableStep {
         return Metadata.builder()
                        .from(metadata)
                        .label(MtaMetadataLabels.MTA_ID, null)
+                       .label(MtaMetadataLabels.MTA_NAMESPACE, null)
                        .annotation(MtaMetadataAnnotations.MTA_ID, null)
                        .annotation(MtaMetadataAnnotations.MTA_VERSION, null)
                        .annotation(MtaMetadataAnnotations.MTA_RESOURCE, null)
+                       .annotation(MtaMetadataAnnotations.MTA_NAMESPACE, null)
                        .build();
     }
 

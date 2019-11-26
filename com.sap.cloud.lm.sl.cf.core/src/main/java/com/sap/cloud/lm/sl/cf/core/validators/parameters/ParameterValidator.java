@@ -1,8 +1,12 @@
 package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
 public interface ParameterValidator {
 
-    default boolean isValid(Object parameter) {
+    default boolean isValid(Object parameter, final Map<String, Object> relatedParameters) {
         return true;
     }
 
@@ -10,12 +14,15 @@ public interface ParameterValidator {
         return false;
     }
 
-    default Object attemptToCorrect(Object parameter) {
+    default Object attemptToCorrect(Object parameter, final Map<String, Object> relatedParameters) {
         throw new UnsupportedOperationException();
     }
 
-    Class<?> getContainerType();
+    default Set<String> getRelatedParameterNames() {
+        return Collections.emptySet();
+    }
 
     String getParameterName();
 
+    Class<?> getContainerType();
 }

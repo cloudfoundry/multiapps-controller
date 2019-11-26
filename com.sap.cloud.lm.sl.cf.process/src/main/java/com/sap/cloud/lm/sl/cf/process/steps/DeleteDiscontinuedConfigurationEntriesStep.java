@@ -31,12 +31,32 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.DELETING_PUBLISHED_DEPENDENCIES);
-        String mtaId = context.getVariable(Variables.MTA_ID);
-        String spaceId = context.getVariable(Variables.SPACE_GUID);
 
+        List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(context);
+        deleteConfigurationEntries(entriesToDelete, context);
+
+        getStepLogger().debug(Messages.PUBLISHED_DEPENDENCIES_DELETED);
+        return StepPhase.DONE;
+    }
+
+    @Override
+    protected String getStepErrorMessage(ProcessContext context) {
+        return Messages.ERROR_DELETING_PUBLISHED_DEPENDENCIES;
+    }
+
+    private List<ConfigurationEntry> getEntriesToDelete(ProcessContext context) {
         List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacade);
 
-        List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, spaceId, publishedEntries);
+        List<ConfigurationEntry> allEntriesForCurrentMta = getEntries(context);
+
+        List<Long> publishedEntryIds = getEntryIds(publishedEntries);
+
+        return allEntriesForCurrentMta.stream()
+                                      .filter(entry -> !publishedEntryIds.contains(entry.getId()))
+                                      .collect(Collectors.toList());
+    }
+
+    private void deleteConfigurationEntries(List<ConfigurationEntry> entriesToDelete, ProcessContext context) {        
         for (ConfigurationEntry entry : entriesToDelete) {
             getStepLogger().info(MessageFormat.format(Messages.DELETING_DISCONTINUED_DEPENDENCY_0, entry.getProviderId()));
             int deletedEntries = configurationEntryService.createQuery()
@@ -48,29 +68,18 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
         }
         getStepLogger().debug(Messages.DELETED_ENTRIES, SecureSerialization.toJson(entriesToDelete));
         context.setVariable(Variables.DELETED_ENTRIES, entriesToDelete);
-
-        getStepLogger().debug(Messages.PUBLISHED_DEPENDENCIES_DELETED);
-        return StepPhase.DONE;
     }
 
-    @Override
-    protected String getStepErrorMessage(ProcessContext context) {
-        return Messages.ERROR_DELETING_PUBLISHED_DEPENDENCIES;
-    }
+    private List<ConfigurationEntry> getEntries(ProcessContext context) {
+        String mtaId = context.getVariable(Variables.MTA_ID);
+        String spaceGuid =  context.getVariable(Variables.SPACE_GUID);
+        String namespace = context.getVariable(Variables.MTA_NAMESPACE);
 
-    private List<ConfigurationEntry> getEntriesToDelete(String mtaId, String spaceId, List<ConfigurationEntry> publishedEntries) {
-        List<ConfigurationEntry> allEntriesForCurrentMta = getEntries(mtaId, spaceId);
-        List<Long> publishedEntryIds = getEntryIds(publishedEntries);
-        return allEntriesForCurrentMta.stream()
-                                      .filter(entry -> !publishedEntryIds.contains(entry.getId()))
-                                      .collect(Collectors.toList());
-    }
-
-    private List<ConfigurationEntry> getEntries(String mtaId, String spaceId) {
         return configurationEntryService.createQuery()
                                         .providerNid(ConfigurationEntriesUtil.PROVIDER_NID)
-                                        .spaceId(spaceId)
+                                        .spaceId(spaceGuid)
                                         .mtaId(mtaId)
+                                        .providerNamespace(namespace, true)
                                         .list();
     }
 

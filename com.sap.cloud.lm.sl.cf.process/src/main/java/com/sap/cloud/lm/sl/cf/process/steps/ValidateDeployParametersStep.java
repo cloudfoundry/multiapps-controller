@@ -177,7 +177,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private FileEntry persistArchive(Path archivePath, ProcessContext context) {
         try {
-            return fileService.addFile(context.getVariable(Variables.SPACE_GUID), context.getVariable(Variables.SERVICE_ID),
+            return fileService.addFile(context.getVariable(Variables.SPACE_GUID), context.getVariable(Variables.MTA_NAMESPACE),
                                        archivePath.getFileName()
                                                   .toString(),
                                        archivePath.toFile());

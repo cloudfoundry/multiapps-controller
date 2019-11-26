@@ -14,6 +14,8 @@ import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataAnnotations;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataLabels;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class MtaMetadataUtil {
 
     public static final List<String> ENV_MTA_METADATA_FIELDS = Collections.unmodifiableList(Arrays.asList(Constants.ENV_MTA_METADATA,
@@ -21,9 +23,9 @@ public class MtaMetadataUtil {
                                                                                                           Constants.ENV_MTA_SERVICES,
                                                                                                           Constants.ENV_MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES));
 
-    public static final List<String> MTA_METADATA_LABELS = Collections.unmodifiableList(Arrays.asList(MtaMetadataLabels.MTA_ID));
-    public static final List<String> MTA_METADATA_ANNOTATIONS = Collections.unmodifiableList(Arrays.asList(MtaMetadataAnnotations.MTA_ID,
-                                                                                                           MtaMetadataAnnotations.MTA_VERSION));
+    public static final List<String> MTA_METADATA_MANDATORY_LABELS = Collections.unmodifiableList(Arrays.asList(MtaMetadataLabels.MTA_ID));
+    public static final List<String> MTA_METADATA_MANDATORY_ANNOTATIONS = Collections.unmodifiableList(Arrays.asList(MtaMetadataAnnotations.MTA_ID,
+                                                                                                                     MtaMetadataAnnotations.MTA_VERSION));
     public static final List<String> MTA_METADATA_APPLICATION_ANNOTATIONS = Collections.unmodifiableList(Arrays.asList(MtaMetadataAnnotations.MTA_MODULE,
                                                                                                                        MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
                                                                                                                        MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES));
@@ -45,11 +47,16 @@ public class MtaMetadataUtil {
                                              .keySet();
         Set<String> metadataAnnotations = metadata.getAnnotations()
                                                   .keySet();
-        return metadataLabels.containsAll(MTA_METADATA_LABELS) && metadataAnnotations.containsAll(MTA_METADATA_ANNOTATIONS);
+        return metadataLabels.containsAll(MTA_METADATA_MANDATORY_LABELS)
+            && metadataAnnotations.containsAll(MTA_METADATA_MANDATORY_ANNOTATIONS);
     }
 
-    public static String getHashedMtaId(String mtaId) {
-        return DigestUtils.md5DigestAsHex(mtaId.getBytes());
+    public static String getHashedLabel(String mtaLabel) {
+        if (StringUtils.isEmpty(mtaLabel)) {
+            return mtaLabel;
+        }
+
+        return DigestUtils.md5DigestAsHex(mtaLabel.getBytes());
     }
 
     private MtaMetadataUtil() {

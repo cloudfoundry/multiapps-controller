@@ -54,9 +54,11 @@ public class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachSe
     private static Metadata getMetadataWithoutMtaFields() {
         return Metadata.builder()
                        .label(MtaMetadataLabels.MTA_ID, null)
+                       .label(MtaMetadataLabels.MTA_NAMESPACE, null)
                        .annotation(MtaMetadataAnnotations.MTA_ID, null)
                        .annotation(MtaMetadataAnnotations.MTA_VERSION, null)
                        .annotation(MtaMetadataAnnotations.MTA_RESOURCE, null)
+                       .annotation(MtaMetadataLabels.MTA_NAMESPACE, null)
                        .build();
     }
 

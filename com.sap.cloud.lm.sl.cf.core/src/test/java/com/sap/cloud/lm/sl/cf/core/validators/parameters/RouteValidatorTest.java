@@ -48,7 +48,7 @@ public class RouteValidatorTest {
 
     @Test
     public void testValidate() {
-        assertEquals(isValid, validator.isValid(inputRoute));
+        assertEquals(isValid, validator.isValid(inputRoute, null));
     }
 
     @Test
@@ -62,7 +62,7 @@ public class RouteValidatorTest {
             return;
 
         try {
-            String result = validator.attemptToCorrect(inputRoute);
+            String result = validator.attemptToCorrect(inputRoute, null);
             assertEquals(correctedRoute, result);
         } catch (Exception e) {
             assertNotNull(e.getMessage(), expectedException);

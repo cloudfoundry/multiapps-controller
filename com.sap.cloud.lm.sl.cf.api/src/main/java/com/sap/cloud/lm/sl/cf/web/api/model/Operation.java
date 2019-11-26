@@ -21,6 +21,8 @@ import com.sap.cloud.lm.sl.common.Nullable;
 import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @Value.Immutable
 @JsonSerialize(as = ImmutableOperation.class)
 @JsonDeserialize(as = ImmutableOperation.class)
@@ -79,6 +81,9 @@ public abstract class Operation implements AuditableConfiguration {
     public abstract String getMtaId();
 
     @Nullable
+    public abstract String getNamespace();
+
+    @Nullable
     public abstract String getUser();
 
     @Nullable
@@ -97,16 +102,19 @@ public abstract class Operation implements AuditableConfiguration {
     public abstract Map<String, Object> getParameters();
 
     @Override
+    @ApiModelProperty(hidden = true)
     public String getConfigurationType() {
         return "MTA operation";
     }
 
     @Override
+    @ApiModelProperty(hidden = true)
     public String getConfigurationName() {
         return getProcessId();
     }
 
     @Override
+    @ApiModelProperty(hidden = true)
     public List<ConfigurationIdentifier> getConfigurationIdentifiers() {
         List<ConfigurationIdentifier> identifiersList = new ArrayList<>();
         identifiersList.add(new ConfigurationIdentifier("process type", Objects.toString(getProcessType())));

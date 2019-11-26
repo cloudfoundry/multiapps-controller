@@ -1,0 +1,13 @@
+{
+  "deploymentNamespace": "namespace",
+  "cloudTarget": {
+    "space": "some-space",
+    "org": "some-org"
+  },
+  "isNewResourceType": false,
+  "resourceParameters": {
+    "mta-id": "my-mta-id",
+    "mta-provides-dependency": "my-provides-section",
+    "mta-version": "0.1.0"
+  }
+}

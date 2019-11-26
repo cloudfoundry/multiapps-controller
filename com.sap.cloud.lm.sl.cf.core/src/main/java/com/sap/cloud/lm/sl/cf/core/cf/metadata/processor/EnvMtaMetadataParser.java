@@ -13,6 +13,7 @@ import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.ImmutableMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadata;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataAnnotations;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -34,12 +35,14 @@ public class EnvMtaMetadataParser extends BaseMtaMetadataParser {
                                                                                .get(Constants.ENV_MTA_METADATA));
         String mtaId = (String) mtaMetadata.get(Constants.ATTR_ID);
         String version = (String) mtaMetadata.get(Constants.ATTR_VERSION);
+        String namespace = (String) mtaMetadata.get(Constants.ATTR_NAMESPACE);
         String messageOnParsingException = MessageFormat.format(Messages.CANT_PARSE_MTA_ENV_METADATA_VERSION_FOR_APP_0,
                                                                 application.getName());
         Version mtaVersion = parseMtaVersion(version, messageOnParsingException);
         return ImmutableMtaMetadata.builder()
                                    .id(mtaId)
                                    .version(mtaVersion)
+                                   .namespace(namespace)
                                    .build();
     }
 

@@ -17,21 +17,32 @@ import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class ApplicationMetadataBuilder {
 
-    public static Metadata build(DeploymentDescriptor deploymentDescriptor, Module module, List<String> services) {
-        String hashedMtaId = MtaMetadataUtil.getHashedMtaId(deploymentDescriptor.getId());
+    public static Metadata build(DeploymentDescriptor deploymentDescriptor, String namespace, Module module, List<String> services) {
+        String hashedMtaId = MtaMetadataUtil.getHashedLabel(deploymentDescriptor.getId());
         String mtaModuleAnnotation = buildMtaModuleAnnotation(module);
         String mtaModuleProvidedDependenciesAnnotation = buildMtaModuleProvidedDependenciesAnnotation(module);
         String mtaServicesAnnotation = buildBoundMtaServicesAnnotation(services);
-        return Metadata.builder()
-                       .label(MtaMetadataLabels.MTA_ID, hashedMtaId)
-                       .annotation(MtaMetadataAnnotations.MTA_ID, deploymentDescriptor.getId())
-                       .annotation(MtaMetadataAnnotations.MTA_VERSION, deploymentDescriptor.getVersion())
-                       .annotation(MtaMetadataAnnotations.MTA_MODULE, mtaModuleAnnotation)
-                       .annotation(MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES, mtaModuleProvidedDependenciesAnnotation)
-                       .annotation(MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES, mtaServicesAnnotation)
-                       .build();
+
+        Metadata.Builder builder = Metadata.builder()
+                                           .label(MtaMetadataLabels.MTA_ID, hashedMtaId)
+                                           .annotation(MtaMetadataAnnotations.MTA_ID, deploymentDescriptor.getId())
+                                           .annotation(MtaMetadataAnnotations.MTA_VERSION, deploymentDescriptor.getVersion())
+                                           .annotation(MtaMetadataAnnotations.MTA_MODULE, mtaModuleAnnotation)
+                                           .annotation(MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
+                                                       mtaModuleProvidedDependenciesAnnotation)
+                                           .annotation(MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES, mtaServicesAnnotation);
+
+        if (StringUtils.isNotEmpty(namespace)) {
+            String hashedMtaNamespace = MtaMetadataUtil.getHashedLabel(namespace);
+            builder.label(MtaMetadataLabels.MTA_NAMESPACE, hashedMtaNamespace)
+                   .annotation(MtaMetadataAnnotations.MTA_NAMESPACE, namespace);
+        }
+
+        return builder.build();
     }
 
     private static String buildMtaModuleAnnotation(Module module) {

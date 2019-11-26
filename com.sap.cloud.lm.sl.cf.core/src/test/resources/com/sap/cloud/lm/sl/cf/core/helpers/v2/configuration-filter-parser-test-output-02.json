@@ -1,0 +1,9 @@
+{
+  "providerId": "my-mta-id:my-provides-section",
+  "providerNid": "mta",
+  "targetSpace": {
+    "space": "some-space",
+    "org": "some-org"
+  },
+  "providerVersion": "0.1.0"
+}

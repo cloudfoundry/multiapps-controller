@@ -53,6 +53,7 @@ public class ApplicationCloudModelBuilder {
 
     protected final DescriptorHandler handler;
     protected final DeploymentDescriptor deploymentDescriptor;
+    protected final String namespace;
     protected final boolean prettyPrinting;
     protected final ApplicationEnvironmentCloudModelBuilder applicationEnvCloudModelBuilder;
     protected final DeployedMta deployedMta;
@@ -61,12 +62,16 @@ public class ApplicationCloudModelBuilder {
     protected final ParametersChainBuilder parametersChainBuilder;
 
     public ApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
-                                        String deployId, UserMessageLogger stepLogger) {
+                                        String deployId, String namespace, UserMessageLogger stepLogger) {
         HandlerFactory handlerFactory = createHandlerFactory();
         this.handler = handlerFactory.getDescriptorHandler();
         this.deploymentDescriptor = deploymentDescriptor;
+        this.namespace = namespace;
         this.prettyPrinting = prettyPrinting;
-        this.applicationEnvCloudModelBuilder = new ApplicationEnvironmentCloudModelBuilder(deploymentDescriptor, deployId, prettyPrinting);
+        this.applicationEnvCloudModelBuilder = new ApplicationEnvironmentCloudModelBuilder(deploymentDescriptor,
+                                                                                           deployId,
+                                                                                           namespace,
+                                                                                           prettyPrinting);
         this.deployedMta = deployedMta;
         this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
         this.stepLogger = stepLogger;
@@ -108,7 +113,7 @@ public class ApplicationCloudModelBuilder {
                                                 .restartParameters(parseParameters(parametersList, new RestartParametersParser()))
                                                 .dockerInfo(parseParameters(parametersList, new DockerInfoParser()))
                                                 .attributesUpdateStrategy(getApplicationAttributesUpdateStrategy(parametersList))
-                                                .v3Metadata(ApplicationMetadataBuilder.build(deploymentDescriptor, module,
+                                                .v3Metadata(ApplicationMetadataBuilder.build(deploymentDescriptor, namespace, module,
                                                                                              getApplicationServices(module)))
                                                 .build();
     }

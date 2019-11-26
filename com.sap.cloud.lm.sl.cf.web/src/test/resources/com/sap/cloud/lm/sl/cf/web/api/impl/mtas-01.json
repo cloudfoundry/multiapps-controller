@@ -2,7 +2,8 @@
   {
     "metadata": {
       "id": "foo",
-      "version": "0.1.0"
+      "version": "0.1.0",
+      "namespace": "namespace"
     },
     "modules": [
       {

@@ -19,8 +19,8 @@ public class ApplicationCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf
     private static final int MTA_MAJOR_VERSION = 3;
 
     public ApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
-                                        String deployId, UserMessageLogger stepLogger) {
-        super(deploymentDescriptor, prettyPrinting, deployedMta, deployId, stepLogger);
+                                        String deployId, String namespace, UserMessageLogger stepLogger) {
+        super(deploymentDescriptor, prettyPrinting, deployedMta, deployId, namespace, stepLogger);
     }
 
     @Override

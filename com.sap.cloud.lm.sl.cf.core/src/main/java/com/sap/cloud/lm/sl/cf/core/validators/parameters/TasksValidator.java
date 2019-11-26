@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class TasksValidator implements ParameterValidator {
 
     @SuppressWarnings("unchecked")
     @Override
-    public boolean isValid(Object tasks) {
+    public boolean isValid(Object tasks, final Map<String, Object> context) {
         if (!(tasks instanceof List)) {
             return false;
         }
