@@ -36,6 +36,7 @@ public class FlowableConfiguration {
 
     private static final String DATABASE_SCHEMA_UPDATE = "true";
 
+    private static final int ASYNC_JOB_ACQUIRE_WAIT_TIME_IN_MILLIS = (int) TimeUnit.SECONDS.toMillis(3);
     private static final int JOB_EXECUTOR_LOCK_TIME_IN_MILLIS = (int) TimeUnit.MINUTES.toMillis(30);
     private static final String JOB_EXECUTOR_ID_TEMPLATE = "ds-%s/%d/%s";
 
@@ -95,6 +96,7 @@ public class FlowableConfiguration {
         jobExecutor.setLockOwner(jobExecutorId);
         jobExecutor.setUnlockOwnedJobs(true);
         jobExecutor.setTenantId(AbstractEngineConfiguration.NO_TENANT_ID);
+        jobExecutor.setDefaultAsyncJobAcquireWaitTimeInMillis(ASYNC_JOB_ACQUIRE_WAIT_TIME_IN_MILLIS);
         return jobExecutor;
     }
 
