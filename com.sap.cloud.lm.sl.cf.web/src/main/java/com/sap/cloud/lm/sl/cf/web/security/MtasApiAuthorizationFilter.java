@@ -13,7 +13,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 @Named
 public class MtasApiAuthorizationFilter extends SpaceGuidBasedAuthorizationFilter {
 
-    private static final String SPACE_GUID_CAPTURING_REGEX = "/api/v1/spaces/(.*?)/.*";
+    private static final String SPACE_GUID_CAPTURING_REGEX = "/api/v\\d+/spaces/(.*?)/.*";
 
     @Inject
     public MtasApiAuthorizationFilter(AuthorizationChecker authorizationChecker) {

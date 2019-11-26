@@ -21,9 +21,10 @@ import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 public class ProcessMtaArchiveStep extends SyncFlowableStep {
 
-    protected Function<OperationService, ProcessConflictPreventer> conflictPreventerSupplier = ProcessConflictPreventer::new;
     @Inject
     private OperationService operationService;
+
+    protected Function<OperationService, ProcessConflictPreventer> conflictPreventerSupplier = ProcessConflictPreventer::new;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws FileStorageException {
@@ -32,6 +33,8 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
         processApplicationArchive(context, appArchiveId);
         setMtaIdForProcess(context);
+        acquireOperationLock(context);
+
         getStepLogger().debug(Messages.MTA_ARCHIVE_PROCESSED);
         return StepPhase.DONE;
     }
@@ -103,9 +106,17 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     private void setMtaIdForProcess(ProcessContext context) {
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         String mtaId = deploymentDescriptor.getId();
+
         context.setVariable(Variables.MTA_ID, mtaId);
+    }
+
+    private void acquireOperationLock(ProcessContext context) {
+        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
+        String mtaId = deploymentDescriptor.getId();
+        String namespace = context.getVariable(Variables.MTA_NAMESPACE);
+
         conflictPreventerSupplier.apply(operationService)
-                                 .acquireLock(mtaId, context.getVariable(Variables.SPACE_GUID),
+                                 .acquireLock(mtaId, namespace, context.getVariable(Variables.SPACE_GUID),
                                               context.getVariable(Variables.CORRELATION_ID));
     }
 }

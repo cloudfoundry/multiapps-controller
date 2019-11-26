@@ -7,11 +7,13 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -26,30 +28,36 @@ public class ProcessConflictPreventer {
         this.operationService = operationService;
     }
 
-    public synchronized void acquireLock(String mtaId, String spaceId, String processId) {
+    public synchronized void acquireLock(String mtaId, String namespace, String spaceId, String processId) {
         LOGGER.info(format(Messages.ACQUIRING_LOCK, processId, mtaId));
 
-        validateNoConflictingOperationsExist(mtaId, spaceId);
+        validateNoConflictingOperationsExist(mtaId, namespace, spaceId);
         Operation currentOperation = getOperationByProcessId(processId);
-        Operation currentOperationWithAcquiredLock = ImmutableOperation.builder()
-                                                                       .from(currentOperation)
-                                                                       .mtaId(mtaId)
-                                                                       .hasAcquiredLock(true)
-                                                                       .build();
-        operationService.update(currentOperation.getProcessId(), currentOperationWithAcquiredLock);
+        ImmutableOperation.Builder currentOperationWithAcquiredLock = ImmutableOperation.builder()
+                                                                                        .from(currentOperation)
+                                                                                        .mtaId(mtaId)
+                                                                                        .hasAcquiredLock(true);
+        if (StringUtils.isNotEmpty(namespace)) {
+            currentOperationWithAcquiredLock.namespace(namespace);
+        }
 
-        LOGGER.info(format(Messages.ACQUIRED_LOCK, processId, mtaId));
+        operationService.update(currentOperation.getProcessId(), currentOperationWithAcquiredLock.build());
+
+        LOGGER.info(format(Messages.ACQUIRED_LOCK, processId, StepsUtil.getQualifiedMtaId(mtaId, namespace)));
+
     }
 
-    private void validateNoConflictingOperationsExist(String mtaId, String spaceId) {
-        List<Operation> conflictingOperations = findConflictingOperations(mtaId, spaceId);
+    private void validateNoConflictingOperationsExist(String mtaId, String namespace, String spaceId) {
+        List<Operation> conflictingOperations = findConflictingOperations(mtaId, namespace, spaceId);
+        String qualifiedMtaId = StepsUtil.getQualifiedMtaId(mtaId, namespace);
+
         if (conflictingOperations.size() == 1) {
             Operation conflictingOperation = conflictingOperations.get(0);
-            throw new SLException(Messages.CONFLICTING_PROCESS_FOUND, conflictingOperation.getProcessId(), mtaId);
+            throw new SLException(Messages.CONFLICTING_PROCESS_FOUND, conflictingOperation.getProcessId(), qualifiedMtaId);
         }
         if (conflictingOperations.size() >= 2) {
             List<String> operationIds = getOperationIds(conflictingOperations);
-            throw new SLException(Messages.MULTIPLE_OPERATIONS_WITH_LOCK_FOUND, mtaId, spaceId, operationIds);
+            throw new SLException(Messages.MULTIPLE_OPERATIONS_WITH_LOCK_FOUND, qualifiedMtaId, spaceId, operationIds);
         }
     }
 
@@ -59,9 +67,10 @@ public class ProcessConflictPreventer {
                          .collect(Collectors.toList());
     }
 
-    private List<Operation> findConflictingOperations(String mtaId, String spaceId) {
+    private List<Operation> findConflictingOperations(String mtaId, String namespace, String spaceId) {
         return operationService.createQuery()
                                .mtaId(mtaId)
+                               .namespace(namespace)
                                .spaceId(spaceId)
                                .acquiredLock(true)
                                .list();

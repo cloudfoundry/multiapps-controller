@@ -226,8 +226,9 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(ProcessContext context) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+        String namespace = context.getVariable(Variables.MTA_NAMESPACE);
 
-        return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor);
+        return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, namespace);
     }
 
     protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(ProcessContext context) {

@@ -1,0 +1,45 @@
+[
+  {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "random-resource-named-service",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0",
+        "mta_resource": "{\"name\":\"random-resource-named-service\"}"
+      },
+      "labels": {
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+      }
+    },
+    "label": "xsuaa",
+    "plan": "space",
+    "credentials": {},
+    "tags": [],
+    "type": "managed_service_instance",
+    "alternativeLabels": [],
+    "resourceName": "random-resource-named-service",
+    "shouldIgnoreUpdateErrors": false
+  },
+  {
+    "isOptional": false,
+    "isManaged": false,
+    "name": "existing-service",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0",
+        "mta_resource": "{\"name\":\"es\"}"
+      },
+      "labels": {
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
+      }
+    },
+    "credentials": {},
+    "tags": [],
+    "alternativeLabels": [],
+    "resourceName": "es",
+    "shouldIgnoreUpdateErrors": false
+  }
+]

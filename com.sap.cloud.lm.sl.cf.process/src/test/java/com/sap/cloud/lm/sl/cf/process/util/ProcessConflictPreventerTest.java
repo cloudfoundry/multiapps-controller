@@ -53,7 +53,7 @@ public class ProcessConflictPreventerTest {
                                                 .build();
         when(operationServiceMock.createQuery()
                                  .list()).thenReturn(Collections.singletonList(operation));
-        processConflictPreventerMock.acquireLock(testMtaId, testSpaceId, testProcessId);
+        processConflictPreventerMock.acquireLock(testMtaId, null, testSpaceId, testProcessId);
         Operation op = operationServiceMock.createQuery()
                                            .processId(testProcessId)
                                            .singleResult();
@@ -62,7 +62,7 @@ public class ProcessConflictPreventerTest {
 
     @Test
     public void testAcquireLockWithNoConflictingOperations() {
-        assertDoesNotThrow(() -> processConflictPreventerMock.acquireLock(testMtaId, testSpaceId, testProcessId));
+        assertDoesNotThrow(() -> processConflictPreventerMock.acquireLock(testMtaId, null, testSpaceId, testProcessId));
     }
 
     @Test

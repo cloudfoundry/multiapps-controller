@@ -10,8 +10,8 @@ import com.sap.cloud.lm.sl.cf.web.api.model.FileMetadata;
 
 public interface FilesApiService {
 
-    ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid);
+    ResponseEntity<List<FileMetadata>> getFiles(String spaceGuid, String namespace);
 
-    ResponseEntity<FileMetadata> uploadFile(HttpServletRequest request, String spaceGuid);
+    ResponseEntity<FileMetadata> uploadFile(HttpServletRequest request, String spaceGuid, String namespace);
 
 }

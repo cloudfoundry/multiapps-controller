@@ -40,6 +40,7 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_ENTRY_ID = "id";
         public static final String CONFIGURATION_ENTRY_PROVIDER_NID = "provider_nid";
         public static final String CONFIGURATION_ENTRY_PROVIDER_ID = "provider_id";
+        public static final String CONFIGURATION_ENTRY_PROVIDER_NAMESPACE = "provider_namespace";
         public static final String CONFIGURATION_ENTRY_PROVIDER_VERSION = "provider_version";
         public static final String CONFIGURATION_ENTRY_TARGET_ORG = "target_org";
         public static final String CONFIGURATION_ENTRY_TARGET_SPACE = "target_space";

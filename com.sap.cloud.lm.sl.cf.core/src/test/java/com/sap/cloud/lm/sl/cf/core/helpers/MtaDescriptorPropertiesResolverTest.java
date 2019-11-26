@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -68,8 +69,8 @@ public class MtaDescriptorPropertiesResolverTest {
                                                               .cloudTarget(new CloudTarget("", ""))
                                                               .currentSpaceId("")
                                                               .applicationConfiguration(configuration)
-                                                              .hasUseNamespaces(false)
-                                                              .hasUserNamespacesForServices(false)
+                                                              .namespace(null)
+                                                              .applyNamespace(false)
                                                               .shouldReserveTemporaryRoute(false)
                                                               .build();
     }

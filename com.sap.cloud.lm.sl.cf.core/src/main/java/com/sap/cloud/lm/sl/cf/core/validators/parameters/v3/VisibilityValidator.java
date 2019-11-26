@@ -12,7 +12,7 @@ import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 public class VisibilityValidator implements ParameterValidator {
 
     @Override
-    public boolean isValid(Object visibleTargets) {
+    public boolean isValid(Object visibleTargets, final Map<String, Object> context) {
         if (!(visibleTargets instanceof List)) {
             return false;
         }

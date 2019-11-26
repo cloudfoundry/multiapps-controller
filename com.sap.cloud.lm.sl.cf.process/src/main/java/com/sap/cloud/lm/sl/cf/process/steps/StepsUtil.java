@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -26,6 +27,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.ImmutableLogsOffset;
@@ -82,9 +84,22 @@ public class StepsUtil {
         return new HandlerFactory(majorSchemaVersion);
     }
 
+    public static String getQualifiedMtaId(String mtaId, String namespace) {
+        String qualifiedId;
+
+        if (StringUtils.isNotEmpty(namespace)) {
+            qualifiedId = namespace + com.sap.cloud.lm.sl.cf.core.Constants.NAMESPACE_SEPARATOR + mtaId;
+        } else {
+            qualifiedId = mtaId;
+        }
+
+        return qualifiedId;
+    }
+
     static CloudApplication getUpdatedServiceBrokerSubscriber(ProcessContext context) {
         List<CloudApplication> apps = context.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS);
         int index = context.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
+        
         return apps.get(index);
     }
 
@@ -191,13 +206,15 @@ public class StepsUtil {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
 
         String deployId = DEPLOY_ID_PREFIX + context.getVariable(Variables.CORRELATION_ID);
+        String namespace = context.getVariable(Variables.MTA_NAMESPACE);
 
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
 
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
 
-        return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, context.getStepLogger());
+        return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, namespace, context.getStepLogger());
     }
+
 
     static String getGitRepoRef(ProcessContext context) {
         Map<String, String> gitRepoConfigMap = context.getVariable(Variables.GIT_REPOSITORY_CONFIG_MAP);

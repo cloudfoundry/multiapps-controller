@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 
 import java.util.Locale;
+import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -15,7 +16,7 @@ public class HostValidator implements ParameterValidator {
     public static final int HOST_MAX_LENGTH = 63;
 
     @Override
-    public String attemptToCorrect(Object host) {
+    public String attemptToCorrect(Object host, final Map<String, Object> context) {
         if (!(host instanceof String)) {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_HOST, host);
         }
@@ -25,14 +26,15 @@ public class HostValidator implements ParameterValidator {
         result = result.replaceAll(HOST_ILLEGAL_CHARACTERS, "-");
         result = result.replaceAll("^(-*)", "");
         result = result.replaceAll("(-*)$", "");
-        if (!isValid(result)) {
+        if (!isValid(result, null)) {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_HOST, host);
         }
         return result;
     }
 
     @Override
-    public boolean isValid(Object host) {
+    public boolean isValid(Object host, final Map<String, Object> context) {
+
         if (!(host instanceof String)) {
             return false;
         }

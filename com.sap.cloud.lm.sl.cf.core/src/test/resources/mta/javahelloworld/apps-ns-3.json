@@ -1,0 +1,171 @@
+[
+  {
+    "name": "java-hello-world",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.xs2.samples.javahelloworld",
+        "mta_version": "0.1.0",
+        "mta_module": "{\"name\":\"java-hello-world\"}",
+        "mta_module_provided_dependencies": "[\"java-hello-world\"]",
+        "mta_bound_services": "[\"uaa\"]",
+        "mta_namespace" : "namespace3"
+      },
+      "labels": {
+        "mta_id": "c232c91455fc92b226129257682792b2",
+        "mta_namespace" : "597179610e593e09b3dd04d4dc6327fb"
+      }
+    },
+    "memory": 128,
+    "diskQuota": 0,
+    "instances": 0,
+    "runningInstances": 0,
+    "staging": {
+      "buildpacks": []
+    },
+    "uris": [
+      "i027947-java-hello-world.cfapps.neo.ondemand.com"
+    ],
+    "services": [ "uaa" ],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.xs2.samples.javahelloworld\",\"namespace\":\"namespace3\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"java-hello-world\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"java-hello-world\"]",
+      "MTA_SERVICES": "[\"uaa\"]",
+      "destinations": "[{\"name\":\"java\",\"url\":\"http://i027947-java-hello-world-backend.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
+    },
+    "moduleName": "java-hello-world",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "java-hello-world-backend",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.xs2.samples.javahelloworld",
+        "mta_version": "0.1.0",
+        "mta_module": "{\"name\":\"java-hello-world-backend\"}",
+        "mta_module_provided_dependencies": "[\"java\",\"java-hello-world-backend\"]",
+        "mta_bound_services": "[\"uaa\",\"java-hdi-container\"]",
+        "mta_namespace" : "namespace3"
+      },
+      "labels": {
+        "mta_id": "c232c91455fc92b226129257682792b2",
+        "mta_namespace" : "597179610e593e09b3dd04d4dc6327fb"
+      }
+    },
+    "memory": 512,
+    "diskQuota": 0,
+    "instances": 1,
+    "runningInstances": 0,
+    "staging": {
+      "buildpacks": [
+        "git://github.example.com/xs2-java/java-buildpack.git"
+      ]
+    },
+    "uris": [
+      "i027947-java-hello-world-backend.cfapps.neo.ondemand.com"
+    ],
+    "services": [ "uaa", "java-hdi-container" ],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.xs2.samples.javahelloworld\",\"namespace\":\"namespace3\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"java-hello-world-backend\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"java\",\"java-hello-world-backend\"]",
+      "MTA_SERVICES": "[\"uaa\",\"java-hdi-container\"]",
+      "TARGET_RUNTIME": "tomee"
+    },
+    "moduleName": "java-hello-world-backend",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "java-hello-world-db",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.xs2.samples.javahelloworld",
+        "mta_version": "0.1.0",
+        "mta_module": "{\"name\":\"java-hello-world-db\"}",
+        "mta_module_provided_dependencies": "[\"java-hello-world-db\"]",
+        "mta_bound_services": "[\"java-hdi-container\"]",
+        "mta_namespace" : "namespace3"
+      },
+      "labels": {
+        "mta_id": "c232c91455fc92b226129257682792b2",
+        "mta_namespace" : "597179610e593e09b3dd04d4dc6327fb"
+      }
+    },
+    "memory": 256,
+    "diskQuota": 0,
+    "instances": 0,
+    "runningInstances": 0,
+    "staging": {
+      "buildpacks": [
+        "git://github.example.com/xs2/hdi-deploy-buildpack.git"
+      ]
+    },
+    "uris": [],
+    "services": [
+      "java-hdi-container"
+    ],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"check-deploy-id\":true,\"dependency-type\":\"soft\",\"execute-app\":true,\"failure-marker\":\"STDERR:Deployment failed\",\"stop-app\":true,\"success-marker\":\"STDOUT:Deployment done\"}",
+      "DEPLOY_ID": "123",
+      "MTA_METADATA": "{\"id\":\"com.sap.xs2.samples.javahelloworld\",\"namespace\":\"namespace3\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"java-hello-world-db\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"java-hello-world-db\"]",
+      "MTA_SERVICES": "[\"java-hdi-container\"]"
+    },
+    "moduleName": "java-hello-world-db",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
+  }
+]

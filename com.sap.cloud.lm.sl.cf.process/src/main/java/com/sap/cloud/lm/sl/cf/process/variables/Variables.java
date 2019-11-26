@@ -76,6 +76,13 @@ public interface Variables {
     Variable<String> MTA_ID = ImmutableSimpleVariable.<String> builder()
                                                      .name("mtaId")
                                                      .build();
+    Variable<String> MTA_NAMESPACE = ImmutableSimpleVariable.<String> builder()
+                                                            .name("namespace")
+                                                            .build();
+    Variable<Boolean> APPLY_NAMESPACE = ImmutableSimpleVariable.<Boolean> builder()
+                                                               .name("applyNamespace")
+                                                               .defaultValue(false)
+                                                               .build();
     Variable<String> GIT_URI = ImmutableSimpleVariable.<String> builder()
                                                       .name("gitUri")
                                                       .build();
@@ -174,14 +181,6 @@ public interface Variables {
                                                              .name("useIdleUris")
                                                              .defaultValue(false)
                                                              .build();
-    Variable<Boolean> USE_NAMESPACES = ImmutableSimpleVariable.<Boolean> builder()
-                                                              .name("useNamespaces")
-                                                              .defaultValue(false)
-                                                              .build();
-    Variable<Boolean> USE_NAMESPACES_FOR_SERVICES = ImmutableSimpleVariable.<Boolean> builder()
-                                                                           .name("useNamespacesForServices")
-                                                                           .defaultValue(false)
-                                                                           .build();
     Variable<Boolean> IS_SERVICE_UPDATED = ImmutableSimpleVariable.<Boolean> builder()
                                                                   .name("isServiceUpdated")
                                                                   .defaultValue(false)

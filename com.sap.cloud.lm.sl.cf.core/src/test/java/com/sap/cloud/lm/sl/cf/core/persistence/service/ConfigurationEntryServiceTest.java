@@ -24,10 +24,14 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class ConfigurationEntryServiceTest {
 
-    private static final ConfigurationEntry CONFIGURATION_ENTRY_1 = createConfigurationEntry(1L, "providerNid", "providerId", "2.0", "org",
-                                                                                             "space", "content");
-    private static final ConfigurationEntry CONFIGURATION_ENTRY_2 = createConfigurationEntry(2L, "providerNid1", "providerId1", "3.1",
+    private static final ConfigurationEntry CONFIGURATION_ENTRY_1 = createConfigurationEntry(1L, "providerNid1", "providerId1", "2.0", null,
                                                                                              "org1", "space1", "content1");
+    private static final ConfigurationEntry CONFIGURATION_ENTRY_2 = createConfigurationEntry(2L, "providerNid2", "providerId2", "3.1", null,
+                                                                                             "org2", "space2", "content2");
+    private static final ConfigurationEntry CONFIGURATION_ENTRY_3 = createConfigurationEntry(3L, "providerNid3", "providerId3", "3.1",
+                                                                                             "namespace", "org3", "space3", "content3");
+    private static final List<ConfigurationEntry> ALL_ENTRIES = Arrays.asList(CONFIGURATION_ENTRY_1, CONFIGURATION_ENTRY_2,
+                                                                              CONFIGURATION_ENTRY_3);
     private final ConfigurationEntryService configurationEntryService = createConfigurationEntryService();
 
     @AfterEach
@@ -69,6 +73,7 @@ public class ConfigurationEntryServiceTest {
                                                                CONFIGURATION_ENTRY_1.getProviderId(),
                                                                CONFIGURATION_ENTRY_1.getProviderVersion()
                                                                                     .toString(),
+                                                               CONFIGURATION_ENTRY_1.getProviderNamespace(),
                                                                CONFIGURATION_ENTRY_1.getTargetSpace()
                                                                                     .getOrganizationName(),
                                                                CONFIGURATION_ENTRY_1.getTargetSpace()
@@ -112,14 +117,37 @@ public class ConfigurationEntryServiceTest {
                                                  .size());
     }
 
+    @Test
+    public void testQueryByProviderNamespace() {
+        addConfigurationEntries(ALL_ENTRIES);
+
+        ConfigurationEntryQuery allEntries = configurationEntryService.createQuery()
+                                                                      .providerNamespace(null, false);
+        assertEquals(3, allEntries.list()
+                                  .size());
+
+        ConfigurationEntryQuery allEntriesNoNamespace = configurationEntryService.createQuery()
+                                                                                 .providerNamespace(null, true);
+        assertEquals(2, allEntriesNoNamespace.list()
+                                             .size());
+
+        ConfigurationEntryQuery allEntriesNoNamespaceUsingKeyword = configurationEntryService.createQuery()
+                                                                                             .providerNamespace("default", false);
+        assertEquals(2, allEntriesNoNamespaceUsingKeyword.list()
+                                                         .size());
+
+        ConfigurationEntryQuery specificEntryByNamespace = configurationEntryService.createQuery()
+                                                                                    .providerNamespace("namespace", false);
+        assertEquals(1, specificEntryByNamespace.list()
+                                                .size());
+
+    }
+
     private void testQueryByCriteria(ConfigurationEntryQueryBuilder configurationEntryQueryBuilder) {
-        addConfigurationEntries(Arrays.asList(CONFIGURATION_ENTRY_1, CONFIGURATION_ENTRY_2));
-        assertEquals(1, configurationEntryQueryBuilder.build(configurationEntryService.createQuery(), CONFIGURATION_ENTRY_1)
-                                                      .list()
-                                                      .size());
-        assertEquals(1, configurationEntryQueryBuilder.build(configurationEntryService.createQuery(), CONFIGURATION_ENTRY_1)
-                                                      .delete());
-        assertConfigurationEntryExists(CONFIGURATION_ENTRY_2.getId());
+
+        addConfigurationEntries(ALL_ENTRIES);
+
+        assertThereAndDeleteEntries(ALL_ENTRIES, configurationEntryQueryBuilder);
     }
 
     private interface ConfigurationEntryQueryBuilder {
@@ -131,6 +159,18 @@ public class ConfigurationEntryServiceTest {
         entries.forEach(configurationEntryService::add);
     }
 
+    private void assertThereAndDeleteEntries(List<ConfigurationEntry> entries,
+                                             ConfigurationEntryQueryBuilder configurationEntryQueryBuilder) {
+        for (ConfigurationEntry entry : entries) {
+            assertConfigurationEntryExists(entry.getId());
+            assertEquals(1, configurationEntryQueryBuilder.build(configurationEntryService.createQuery(), entry)
+                                                          .list()
+                                                          .size());
+            assertEquals(1, configurationEntryQueryBuilder.build(configurationEntryService.createQuery(), entry)
+                                                          .delete());
+        }
+    }
+
     private void assertConfigurationEntryExists(Long id) {
         // If does not exist, will throw NoResultException
         configurationEntryService.createQuery()
@@ -138,12 +178,13 @@ public class ConfigurationEntryServiceTest {
                                  .singleResult();
     }
 
-    private static ConfigurationEntry createConfigurationEntry(long id, String providerNid, String providerId, String version, String org,
-                                                               String space, String content) {
+    private static ConfigurationEntry createConfigurationEntry(long id, String providerNid, String providerId, String version,
+                                                               String providerNamespace, String org, String space, String content) {
         return new ConfigurationEntry(id,
                                       providerNid,
                                       providerId,
                                       Version.parseVersion(version),
+                                      providerNamespace,
                                       new CloudTarget(org, space),
                                       content,
                                       Collections.emptyList(),

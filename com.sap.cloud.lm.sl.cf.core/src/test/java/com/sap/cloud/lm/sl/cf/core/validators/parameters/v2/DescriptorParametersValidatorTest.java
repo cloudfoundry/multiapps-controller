@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.validators.parameters.v2;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -105,7 +106,7 @@ public class DescriptorParametersValidatorTest {
     protected static class TestValidator implements ParameterValidator {
 
         @Override
-        public boolean isValid(Object parameter) {
+        public boolean isValid(Object parameter, final Map<String, Object> context) {
             return parameter.equals("test");
         }
 
@@ -120,7 +121,7 @@ public class DescriptorParametersValidatorTest {
         }
 
         @Override
-        public Object attemptToCorrect(Object parameter) {
+        public Object attemptToCorrect(Object parameter, final Map<String, Object> context) {
             return "test";
         }
 

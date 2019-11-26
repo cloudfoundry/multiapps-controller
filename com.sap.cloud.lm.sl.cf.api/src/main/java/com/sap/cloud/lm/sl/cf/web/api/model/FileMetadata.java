@@ -14,6 +14,7 @@ import com.sap.cloud.lm.sl.common.Nullable;
 import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @Value.Immutable
@@ -52,16 +53,24 @@ public abstract class FileMetadata implements AuditableConfiguration {
     public abstract String getSpace();
 
     @Override
+    @ApiModelProperty(hidden = true)
     public String getConfigurationType() {
         return "file metadata";
     }
 
     @Override
+    @ApiModelProperty(hidden = true)
     public String getConfigurationName() {
         return getName();
     }
 
+    @Nullable
+    @ApiModelProperty
+    @JsonProperty("namespace")
+    public abstract String getNamespace();
+
     @Override
+    @ApiModelProperty(hidden = true)
     public List<ConfigurationIdentifier> getConfigurationIdentifiers() {
         List<ConfigurationIdentifier> configurationIdentifiers = new ArrayList<>();
         configurationIdentifiers.add(new ConfigurationIdentifier("id", getId()));
@@ -69,6 +78,7 @@ public abstract class FileMetadata implements AuditableConfiguration {
         configurationIdentifiers.add(new ConfigurationIdentifier("digestAlgorithm", getDigestAlgorithm()));
         configurationIdentifiers.add(new ConfigurationIdentifier("space", getSpace()));
         configurationIdentifiers.add(new ConfigurationIdentifier("size", Objects.toString(getSize())));
+        configurationIdentifiers.add(new ConfigurationIdentifier("namespace", getNamespace()));
         return configurationIdentifiers;
     }
 }

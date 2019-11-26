@@ -13,7 +13,7 @@
     "name": "mta-1-application",
     "metadata": {},
     "env": {
-      "MTA_METADATA": "{\n        \"id\": \"foo\",\n        \"version\": \"0.1.0\"\n      }",
+      "MTA_METADATA": "{\n        \"id\": \"foo\",\n        \"namespace\": \"namespace\",\n        \"version\": \"0.1.0\"\n      }",
       "MTA_SERVICES": "[]",
       "MTA_MODULE_METADATA": "{\n        \"name\": \"mta-module-1\"\n      }",
       "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\n        \"mta-provided-dependency-1\",\n        \"mta-provided-dependency-2\"\n      ]"

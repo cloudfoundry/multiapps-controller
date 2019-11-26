@@ -180,8 +180,8 @@ public class SystemParameters {
     private String getDefaultHost(String moduleName) {
         String host = (targetName + " " + moduleName).replaceAll("\\s", "-")
                                                      .toLowerCase();
-        if (!HOST_VALIDATOR.isValid(host)) {
-            return HOST_VALIDATOR.attemptToCorrect(host);
+        if (!HOST_VALIDATOR.isValid(host, null)) {
+            return HOST_VALIDATOR.attemptToCorrect(host, null);
         }
         return host;
     }

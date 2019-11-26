@@ -8,9 +8,11 @@ public class Constants {
     public static final String UNIX_PATH_SEPARATOR = "/";
     public static final String MTA_ELEMENT_SEPARATOR = "/";
     public static final String MODULE_SEPARATOR = ",";
+    public static final String NAMESPACE_SEPARATOR = "-";
 
     // Metadata attributes:
     public static final String ATTR_ID = "id";
+    public static final String ATTR_NAMESPACE = "namespace";
     public static final String ATTR_NAME = "name";
     public static final String ATTR_VERSION = "version";
     public static final String ATTR_DESCRIPTION = "description";

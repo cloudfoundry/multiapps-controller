@@ -107,6 +107,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
                                                 .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
                                                 .user(StepsUtil.determineCurrentUser(execution))
                                                 .hasAcquiredLock(false)
+                                                .namespace(VariableHandling.get(execution, Variables.MTA_NAMESPACE))
                                                 .build();
         operationService.add(operation);
     }

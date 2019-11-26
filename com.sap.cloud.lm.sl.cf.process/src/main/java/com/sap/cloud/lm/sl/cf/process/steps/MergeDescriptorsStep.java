@@ -35,7 +35,7 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
                                                                                                  extensionDescriptors);
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
         getStepLogger().debug(Messages.DESCRIPTORS_MERGED);
-
+        
         return StepPhase.DONE;
     }
 

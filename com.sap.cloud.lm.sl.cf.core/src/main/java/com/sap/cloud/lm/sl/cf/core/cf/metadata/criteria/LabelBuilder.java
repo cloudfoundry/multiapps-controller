@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf.metadata.criteria;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class LabelBuilder {
     private MtaMetadataCriteriaBuilder mtaMetadataCriteriaBuilder;
     private String label;
@@ -13,7 +15,19 @@ public class LabelBuilder {
         return completeQuery(label);
     }
 
-    public FinalizingBuilder haveValue(String value) {
+    public FinalizingBuilder doesNotExist() {
+        return completeQuery("!" + label);
+    }
+
+    public FinalizingBuilder hasValueOrIsntPresent(String value) {
+        if (StringUtils.isEmpty(value)) {
+            return doesNotExist();
+        }
+        
+        return hasValue(value);
+    }
+
+    public FinalizingBuilder hasValue(String value) {        
         MtaMetadataCriteriaValidator.validateLabelValue(value);
         return completeQuery(label + "=" + value);
     }

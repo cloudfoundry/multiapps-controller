@@ -31,6 +31,8 @@ public class SupportedParameters {
     public static final String ORGANIZATION_GUID = "org-guid";
     public static final String SPACE_NAME = "space";
     public static final String SPACE_GUID = "space-guid";
+    public static final String NAMESPACE = "namespace";
+    public static final String APPLY_NAMESPACE = "apply-namespace";
 
     // Module / module type parameters:
     public static final String APP_NAME = "app-name";
@@ -128,6 +130,7 @@ public class SupportedParameters {
     public static final String PROVIDER_NID = "provider-nid";
     public static final String VERSION = "version";
     public static final String PROVIDER_ID = "provider-id";
+    public static final String PROVIDER_NAMESPACE = "provider-namespace";
     public static final String TARGET = "target";
     public static final String FILTER = "filter";
     public static final String VISIBILITY = "visibility";
@@ -138,7 +141,7 @@ public class SupportedParameters {
     public static final String MTA_PROVIDES_DEPENDENCY = "mta-provides-dependency";
 
     public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Stream.of(PROVIDER_NID, PROVIDER_ID, TARGET, VERSION, MTA_ID,
-                                                                                   MTA_VERSION, MTA_PROVIDES_DEPENDENCY)
+                                                                                   MTA_VERSION, MTA_PROVIDES_DEPENDENCY, NAMESPACE)
                                                                                .collect(Collectors.collectingAndThen(Collectors.toSet(),
                                                                                                                      Collections::unmodifiableSet));
 
@@ -148,7 +151,7 @@ public class SupportedParameters {
                                                                SERVICE_BROKER_USERNAME, SERVICE_BROKER_PASSWORD, SERVICE_BROKER_URL,
                                                                SERVICE_BROKER_SPACE_SCOPED, DEPENDENCY_TYPE, NO_START, UPLOAD_TIMEOUT)
                                                            .collect(Collectors.collectingAndThen(Collectors.toSet(),
-                                                                                                 Collections::unmodifiableSet));;
+                                                                                                 Collections::unmodifiableSet));
 
     public static final Map<String, String> SINGULAR_PLURAL_MAPPING;
 

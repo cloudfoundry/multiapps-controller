@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.common.Nullable;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableMtaDescriptorPropertiesResolverContext.class)
@@ -23,9 +24,10 @@ public interface MtaDescriptorPropertiesResolverContext {
 
     ApplicationConfiguration getApplicationConfiguration();
 
-    boolean hasUseNamespaces();
+    @Nullable
+    String getNamespace();
 
-    boolean hasUserNamespacesForServices();
+    boolean applyNamespace();
 
     boolean shouldReserveTemporaryRoute();
 }

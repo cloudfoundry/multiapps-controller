@@ -68,11 +68,40 @@ public class ParametersValidatorHelperTest {
                     put("domains", Arrays.asList("one.correct.domain", "and-one-with-special--characters"));
                 }}
             },
+            // [4]
+            {new TreeMap<String, Object>() {{
+                    put("app-name", "app1");
+                    put("apply-namespace", Boolean.TRUE);
+                }},
+                new TreeMap<String, Object>() {{
+                    put("app-name", "namespace-app1");
+                    put("apply-namespace", Boolean.TRUE);
+                }}
+            },
+            // [5]
+            {new TreeMap<String, Object>() {{
+                    put("app-name", "app2");
+                    put("apply-namespace", Boolean.FALSE);
+                }},
+                new TreeMap<String, Object>() {{
+                    put("app-name", "app2");
+                    put("apply-namespace", Boolean.FALSE);
+                }}
+            },
+            // [4]
+            {new TreeMap<String, Object>() {{
+                    put("app-name", "app3");
+                }},
+                new TreeMap<String, Object>() {{
+                    put("app-name", "namespace-app3");
+                }}
+            },
 // @formatter:on
         });
     }
 
-    private final List<ParameterValidator> validators = Arrays.asList(new HostValidator(), new DomainValidator(), new RoutesValidator());
+    private final List<ParameterValidator> validators = Arrays.asList(new HostValidator(), new DomainValidator(), new RoutesValidator(),
+                                                                      new ApplicationNameValidator("namespace", true));
     private final ParametersValidatorHelper validatorHelper = new ParametersValidatorHelper(validators, false);
     private final Module container = Module.createV2();
 

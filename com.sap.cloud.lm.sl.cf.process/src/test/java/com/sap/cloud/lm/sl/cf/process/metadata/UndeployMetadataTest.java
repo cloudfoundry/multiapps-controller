@@ -29,6 +29,7 @@ public class UndeployMetadataTest extends MetadataBaseTest {
                 Variables.DELETE_SERVICE_KEYS.getName(),
                 Variables.DELETE_SERVICE_BROKERS.getName(),
                 Variables.MTA_ID.getName(),
+                Variables.MTA_NAMESPACE.getName(),
                 Variables.NO_RESTART_SUBSCRIBED_APPS.getName(),
                 Variables.NO_FAIL_ON_MISSING_PERMISSIONS.getName(),
                 Variables.ABORT_ON_ERROR.getName(),

@@ -1,0 +1,45 @@
+[
+  {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "java-hdi-container",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.xs2.samples.javahelloworld",
+        "mta_version": "0.1.0",
+        "mta_resource": "{\"name\":\"java-hdi-container\"}",
+        "mta_namespace" : "namespace3"
+      },
+      "labels": {
+        "mta_id": "c232c91455fc92b226129257682792b2",
+        "mta_namespace" : "597179610e593e09b3dd04d4dc6327fb"
+      }
+    },
+    "label": "hana",
+    "plan": "hdi-shared",
+    "credentials": {},
+    "tags": [],
+    "type" : "managed_service_instance",
+    "alternativeLabels": [],
+    "resourceName": "java-hdi-container",
+    "shouldIgnoreUpdateErrors": false
+  },
+  {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "uaa",
+    "credentials": {
+      "clientid": "xs2.java",
+      "clientsecret": "javaclientsecret",
+      "tags": [
+        "xsuaa"
+      ],
+      "url": "http://sap-login.cfapps.neo.ondemand.com"
+    },
+    "tags" : [],
+    "type" : "user_provided_service_instance",
+    "alternativeLabels": [],
+    "resourceName": "uaa",
+    "shouldIgnoreUpdateErrors": false
+  }
+]

@@ -118,6 +118,7 @@ public class ConfigurationSubscriptionServiceTest {
                                                                  .onSelectMatching(Collections.singletonList(new ConfigurationEntry(null,
                                                                                                                                     null,
                                                                                                                                     Version.parseVersion("3.1"),
+                                                                                                                                    "default",
                                                                                                                                     null,
                                                                                                                                     null,
                                                                                                                                     null,
@@ -151,7 +152,7 @@ public class ConfigurationSubscriptionServiceTest {
     }
 
     private static ConfigurationFilter createConfigurationFilter(String providerVersion) {
-        return new ConfigurationFilter(null, null, providerVersion, null, null);
+        return new ConfigurationFilter(null, null, providerVersion, null, null, null);
     }
 
     private static ModuleDto createModuleDto(String name) {

@@ -69,7 +69,7 @@ public class TasksValidatorTest {
     public void testValidate() {
         String tasksJson = TestUtil.getResourceAsString(locationOfFileContainingTasks, getClass());
         Object tasks = JsonUtil.fromJson(tasksJson, Object.class);
-        assertEquals(expectedResult, new TasksValidator().isValid(tasks));
+        assertEquals(expectedResult, new TasksValidator().isValid(tasks, null));
     }
 
     @Test

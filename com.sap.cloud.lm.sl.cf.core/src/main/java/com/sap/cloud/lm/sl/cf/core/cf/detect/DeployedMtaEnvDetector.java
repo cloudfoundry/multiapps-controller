@@ -9,9 +9,11 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
+import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.ImmutableMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
@@ -41,7 +43,7 @@ public class DeployedMtaEnvDetector {
 
     public List<DeployedMta> detectDeployedMtas(CloudControllerClient client) {
         Map<String, List<CloudApplication>> applicationsByMtaId = getApplicationsWithEnvMetadata(client).stream()
-                                                                                                        .collect(Collectors.groupingBy(this::getMtaId));
+                                                                                                        .collect(Collectors.groupingBy(this::getQualifiedMtaId));
         return applicationsByMtaId.entrySet()
                                   .stream()
                                   .map(entry -> toDeployedMta(entry.getKey(), entry.getValue()))
@@ -55,14 +57,18 @@ public class DeployedMtaEnvDetector {
                      .collect(Collectors.toList());
     }
 
-    private String getMtaId(CloudApplication application) {
-        return envMtaMetadataParser.parseMtaMetadata(application)
-                                   .getId();
+    private String getQualifiedMtaId(CloudApplication application) {
+        MtaMetadata metadata = envMtaMetadataParser.parseMtaMetadata(application);
+
+        if (StringUtils.isEmpty(metadata.getNamespace())) {
+            return metadata.getId();
+        }
+
+        return metadata.getNamespace() + Constants.NAMESPACE_SEPARATOR + metadata.getId();
     }
 
     private DeployedMta toDeployedMta(String mtaId, List<CloudApplication> applications) {
-        Version mtaVersion = getMtaVersion(applications);
-        MtaMetadata mtaMetadata = getMtaMetadata(mtaId, mtaVersion);
+        MtaMetadata mtaMetadata = getMtaMetadata(applications);
         List<DeployedMtaApplication> apps = new ArrayList<>();
         List<DeployedMtaService> services = new ArrayList<>();
         for (CloudApplication application : applications) {
@@ -77,23 +83,29 @@ public class DeployedMtaEnvDetector {
                                    .build();
     }
 
-    private Version getMtaVersion(List<CloudApplication> applications) {
-        Version currentVersion = null;
+    private MtaMetadata getMtaMetadata(List<CloudApplication> applications) {
+        String mtaId = null;
+        String mtaNamespace = null;
+        Version mtaVersion = null;
+
         for (CloudApplication application : applications) {
-            Version version = envMtaMetadataParser.parseMtaMetadata(application)
-                                                  .getVersion();
-            if (currentVersion != null && !currentVersion.equals(version)) {
-                currentVersion = null;
+            MtaMetadata metadata = envMtaMetadataParser.parseMtaMetadata(application);
+            if (mtaId == null) {
+                mtaId = metadata.getId();
+                mtaNamespace = metadata.getNamespace();
+            }
+
+            Version currentVersion = metadata.getVersion();
+            if (mtaVersion != null && !mtaVersion.equals(currentVersion)) {
+                mtaVersion = null;
                 break;
             }
-            currentVersion = version;
+            mtaVersion = currentVersion;
         }
-        return currentVersion;
-    }
 
-    private MtaMetadata getMtaMetadata(String mtaId, Version mtaVersion) {
         return ImmutableMtaMetadata.builder()
                                    .id(mtaId)
+                                   .namespace(mtaNamespace)
                                    .version(mtaVersion)
                                    .build();
     }
@@ -118,11 +130,23 @@ public class DeployedMtaEnvDetector {
                                           .build();
     }
 
-    public Optional<DeployedMta> detectDeployedMta(String mtaId, CloudControllerClient client) {
+    public List<DeployedMta> detectDeployedMtaWithoutNamespace(String mtaId, CloudControllerClient client) {
         return detectDeployedMtas(client).stream()
-                                         .filter(mta -> mta.getMetadata()
-                                                           .getId()
-                                                           .equalsIgnoreCase(mtaId))
-                                         .findFirst();
+                                         .filter(mta -> mtaIdMatchesAndNoNamespace(mta, mtaId))
+                                         .collect(Collectors.toList());
+    }
+
+    private boolean mtaIdMatchesAndNoNamespace(DeployedMta mta, String mtaId) {
+        MtaMetadata metadataFromEnv = mta.getMetadata();
+        return metadataFromEnv.getId()
+                              .equalsIgnoreCase(mtaId)
+            && StringUtils.isEmpty(metadataFromEnv.getNamespace());
+    }
+
+    public List<DeployedMta> detectDeployedMtasWithoutNamespace(CloudControllerClient client) {
+        return detectDeployedMtas(client).stream()
+                                         .filter(mta -> StringUtils.isEmpty(mta.getMetadata()
+                                                                               .getNamespace()))
+                                         .collect(Collectors.toList());
     }
 }

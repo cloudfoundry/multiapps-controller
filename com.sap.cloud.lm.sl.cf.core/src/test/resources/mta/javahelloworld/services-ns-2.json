@@ -2,15 +2,17 @@
   {
     "isOptional": false,
     "isManaged": true,
-    "name": "java-hdi-container",
+    "name": "namespace2-but-it-is-really-really-long-ja4fcad984",
     "v3Metadata": {
       "annotations": {
         "mta_id": "com.sap.xs2.samples.javahelloworld",
         "mta_version": "0.1.0",
-        "mta_resource": "{\"name\":\"java-hdi-container\"}"
+        "mta_resource": "{\"name\":\"java-hdi-container\"}",
+		"mta_namespace" : "namespace2-but-it-is-really-really-long"
       },
       "labels": {
-        "mta_id": "c232c91455fc92b226129257682792b2"
+        "mta_id": "c232c91455fc92b226129257682792b2",
+		"mta_namespace" : "f2748a3f7a3ccdaa81947be34bd4464b"
       }
     },
     "label": "hana",
@@ -25,7 +27,7 @@
   {
     "isOptional": false,
     "isManaged": true,
-    "name": "uaa",
+    "name": "namespace2-but-it-is-really-really-long-uaa",
     "credentials": {
       "clientid": "xs2.java",
       "clientsecret": "javaclientsecret",

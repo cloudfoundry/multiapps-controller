@@ -141,13 +141,7 @@ public class MtaConfigurationPurger {
     }
 
     private ConfigurationEntry toConfigurationEntry(MtaMetadata metadata, String providedDependencyName) {
-        return new ConfigurationEntry(null,
-                                      computeProviderId(metadata, providedDependencyName),
-                                      metadata.getVersion(),
-                                      null,
-                                      null,
-                                      null,
-                                      null);
+        return new ConfigurationEntry(computeProviderId(metadata, providedDependencyName), metadata.getVersion());
     }
 
     private void purgeConfigurationEntry(ConfigurationEntry entry) {

@@ -78,6 +78,16 @@ public class OperationQueryImpl extends AbstractQueryImpl<Operation, OperationQu
     }
 
     @Override
+    public OperationQuery namespace(String namespace) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.NAMESPACE)
+                                                                       .condition(getCriteriaBuilder()::equal)
+                                                                       .value(namespace)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
     public OperationQuery acquiredLock(Boolean acquiredLock) {
         queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
                                                                        .attribute(AttributeNames.ACQUIRED_LOCK)

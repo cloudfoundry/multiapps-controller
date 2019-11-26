@@ -1,9 +1,12 @@
 package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
@@ -42,7 +45,7 @@ public class ParametersValidatorHelper {
 
         Object initialParameterValue = parameters.get(parameterName);
         Object correctParameterValue = validateAndCorrect(ValidatorUtil.getPrefixedName(prefix, parameterName), initialParameterValue,
-                                                          validator);
+                                                          validator, parameters);
         if (!Objects.equals(initialParameterValue, correctParameterValue)) {
             correctedParameters.put(parameterName, correctParameterValue);
         }
@@ -65,28 +68,45 @@ public class ParametersValidatorHelper {
         List<Object> correctedParameterValues = initialParameterValues.stream()
                                                                       .map(parameter -> validateAndCorrect(ValidatorUtil.getPrefixedName(prefix,
                                                                                                                                          validator.getParameterName()),
-                                                                                                           parameter, validator))
+                                                                                                           parameter, validator,
+                                                                                                           parameters))
                                                                       .collect(Collectors.toList());
         correctedParameters.put(parameterPluralName, correctedParameterValues);
     }
 
-    private Object validateAndCorrect(String parameterName, Object parameter, ParameterValidator validator) {
-        if (shouldCorrectParameter(parameter, validator)) {
-            return attemptToCorrect(parameterName, parameter, validator);
+    private Object validateAndCorrect(String parameterName, Object parameter, ParameterValidator validator,
+                                      Map<String, Object> parameters) {
+        Map<String, Object> relatedParameters = getRelatedParameters(validator, parameters);
+
+        if (shouldCorrectParameter(parameter, validator, relatedParameters)) {
+            return attemptToCorrect(parameterName, parameter, validator, relatedParameters);
         } else {
             return parameter;
         }
     }
 
-    private boolean shouldCorrectParameter(Object parameter, ParameterValidator validator) {
-        return parameter != null && !validator.isValid(parameter);
+    private Map<String, Object> getRelatedParameters(ParameterValidator validator, Map<String, Object> parameters) {
+        Set<String> relatedParameterNames = validator.getRelatedParameterNames();
+
+        if (relatedParameterNames.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        return relatedParameterNames.stream()
+                                    .filter(name -> parameters.get(name) != null)
+                                    .collect(Collectors.toMap(Function.identity(), parameters::get));
     }
 
-    private Object attemptToCorrect(String parameterName, Object parameter, ParameterValidator validator) {
+    private boolean shouldCorrectParameter(Object parameter, ParameterValidator validator, Map<String, Object> relatedParameters) {
+        return parameter != null && !validator.isValid(parameter, relatedParameters);
+    }
+
+    private Object attemptToCorrect(String parameterName, Object parameter, ParameterValidator validator,
+                                    Map<String, Object> relatedParameters) {
         if (!validator.canCorrect() || doNotCorrect) {
             throw new ContentException(Messages.CANNOT_CORRECT_PARAMETER, parameterName);
         }
-        return validator.attemptToCorrect(parameter);
+        return validator.attemptToCorrect(parameter, relatedParameters);
     }
 
 }

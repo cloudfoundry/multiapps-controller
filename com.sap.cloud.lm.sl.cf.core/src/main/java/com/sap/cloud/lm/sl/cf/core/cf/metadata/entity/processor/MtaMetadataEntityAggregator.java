@@ -35,24 +35,19 @@ public class MtaMetadataEntityAggregator {
 
     public List<DeployedMta> aggregate(List<CloudEntity> entities) {
         Map<String, List<CloudEntity>> entitiesByMtaId = entities.stream()
-                                                                 .collect(Collectors.groupingBy(this::getMtaId));
+                                                                 .collect(Collectors.groupingBy(mtaMetadataParser::parseQualifiedMtaId));
         return entitiesByMtaId.entrySet()
                               .stream()
-                              .map(entry -> toDeployedMta(entry.getKey(), entry.getValue()))
+                              .map(entry -> toDeployedMta(entry.getValue()))
                               .collect(Collectors.toList());
     }
 
-    private String getMtaId(CloudEntity entity) {
-        return mtaMetadataParser.parseMtaMetadata(entity)
-                                .getId();
-    }
-
-    private DeployedMta toDeployedMta(String mtaId, List<CloudEntity> entities) {
-        Version mtaVersion = getMtaVersion(entities);
-        MtaMetadata mtaMetadata = getMtaMetadata(mtaId, mtaVersion);
+    private DeployedMta toDeployedMta(List<CloudEntity> entities) {
+        MtaMetadata mtaMetadata = aggregateMetadata(entities);
         List<DeployedMtaApplication> applications = getApplications(entities);
         List<DeployedMtaService> services = getServices(entities);
         List<DeployedMtaService> userProvidedServices = getUserProvidedServices(applications, services);
+
         return ImmutableDeployedMta.builder()
                                    .metadata(mtaMetadata)
                                    .applications(applications)
@@ -60,24 +55,32 @@ public class MtaMetadataEntityAggregator {
                                    .build();
     }
 
-    private Version getMtaVersion(List<CloudEntity> entities) {
+    public MtaMetadata aggregateMetadata(List<CloudEntity> entities) {
+        String mtaId = null;
+        String mtaNamespace = null;
         Version currentVersion = null;
+
         for (CloudEntity entity : entities) {
-            Version version = mtaMetadataParser.parseMtaMetadata(entity)
-                                               .getVersion();
-            if (currentVersion != null && !currentVersion.equals(version)) {
+            MtaMetadata entityMetadata = mtaMetadataParser.parseMtaMetadata(entity);
+
+            if (mtaId == null) {
+                mtaId = entityMetadata.getId();
+                mtaNamespace = entityMetadata.getNamespace();
+            }
+
+            Version version = entityMetadata.getVersion();
+            if (currentVersion == null) {
+                currentVersion = version;
+            } else if (!currentVersion.equals(version)) {
                 currentVersion = null;
                 break;
             }
-            currentVersion = version;
         }
-        return currentVersion;
-    }
 
-    private MtaMetadata getMtaMetadata(String mtaId, Version version) {
         return ImmutableMtaMetadata.builder()
                                    .id(mtaId)
-                                   .version(version)
+                                   .namespace(mtaNamespace)
+                                   .version(currentVersion)
                                    .build();
     }
 

@@ -9,7 +9,7 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 public class RestartOnEnvChangeValidator implements ParameterValidator {
 
     @Override
-    public boolean isValid(Object restartParameters) {
+    public boolean isValid(Object restartParameters, final Map<String, Object> context) {
         if (!(restartParameters instanceof Map)) {
             return false;
         }

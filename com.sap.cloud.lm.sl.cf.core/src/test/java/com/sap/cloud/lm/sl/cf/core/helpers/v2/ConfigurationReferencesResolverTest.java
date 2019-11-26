@@ -145,7 +145,7 @@ public class ConfigurationReferencesResolverTest {
 
     protected ConfigurationReferencesResolver getConfigurationResolver(DeploymentDescriptor deploymentDescriptor) {
         return new ConfigurationReferencesResolver(configurationEntryService,
-                                                   new ConfigurationFilterParser(getCloudTarget(), getPropertiesChainBuilder(descriptor)),
+                                                   new ConfigurationFilterParser(getCloudTarget(), getPropertiesChainBuilder(descriptor), null),
                                                    null,
                                                    configuration);
     }

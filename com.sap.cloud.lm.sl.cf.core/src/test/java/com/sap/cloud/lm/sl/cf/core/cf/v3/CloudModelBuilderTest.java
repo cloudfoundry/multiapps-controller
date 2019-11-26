@@ -23,15 +23,15 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
     private UserMessageLogger userMessageLogger;
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
-                                 String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices,
+                                 String deployedMtaLocation, String namespace, boolean applyNamespace,
                                  String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, Expectation expectedServices,
                                  Expectation expectedApps) {
         super(deploymentDescriptorLocation,
               extensionDescriptorLocation,
               platformsLocation,
               deployedMtaLocation,
-              useNamespaces,
-              useNamespacesForServices,
+              namespace,
+              applyNamespace,
               mtaArchiveModules,
               mtaModules,
               deployedApps,
@@ -47,7 +47,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
             // (00) Test missing resource type definition:
             {
                 "mtad-missing-resource-type-definition.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                false, false,
+                null, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -65,7 +65,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
 
     @Override
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
-        return new ServicesCloudModelBuilder(deploymentDescriptor);
+        return new ServicesCloudModelBuilder(deploymentDescriptor, namespace);
     }
 
     @Override
@@ -78,6 +78,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
                                                                                   prettyPrinting,
                                                                                   deployedMta,
                                                                                   DEPLOY_ID,
+                                                                                  namespace,
                                                                                   Mockito.mock(UserMessageLogger.class));
     }
 

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaDetector;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -30,17 +31,22 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         CloudControllerClient client = context.getControllerClient();
 
         String mtaId = context.getVariable(Variables.MTA_ID);
+
+        String mtaNamespace = context.getVariable(Variables.MTA_NAMESPACE);
         boolean envDetectionEnabled = context.getVariable(Variables.ENABLE_ENV_DETECTION);
 
-        Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMta(mtaId, client, envDetectionEnabled);
+        getStepLogger().debug("Detecting MTA by id {0} and namespace {1}", mtaId, mtaNamespace);
+
+        Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(mtaId, mtaNamespace, client,
+                                                                                                            envDetectionEnabled);
         if (optionalDeployedMta.isPresent()) {
             DeployedMta deployedMta = optionalDeployedMta.get();
             context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
             getStepLogger().debug(Messages.DEPLOYED_MTA, SecureSerialization.toJson(deployedMta));
-            getStepLogger().info(MessageFormat.format(Messages.DEPLOYED_MTA_DETECTED_WITH_VERSION, deployedMta.getMetadata()
-                                                                                                              .getId(),
-                                                      deployedMta.getMetadata()
-                                                                 .getVersion()));
+
+            MtaMetadata metadata = deployedMta.getMetadata();
+            getStepLogger().info(MessageFormat.format(Messages.DEPLOYED_MTA_DETECTED_WITH_VERSION, metadata.getNamespace(),
+                                                      metadata.getId(), metadata.getVersion()));
         } else {
             getStepLogger().info(Messages.NO_DEPLOYED_MTA_DETECTED);
             context.setVariable(Variables.DEPLOYED_MTA, null);

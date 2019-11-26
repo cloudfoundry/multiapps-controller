@@ -26,6 +26,7 @@ public class OperationDto implements DtoWithPrimaryKey<String> {
         public static final String ENDED_AT = "endedAt";
         public static final String SPACE_ID = "spaceId";
         public static final String MTA_ID = "mtaId";
+        public static final String NAMESPACE = "namespace";
         public static final String USER = "user";
         public static final String ACQUIRED_LOCK = "acquiredLock";
         public static final String FINAL_STATE = "finalState";
@@ -53,6 +54,9 @@ public class OperationDto implements DtoWithPrimaryKey<String> {
     @Column(name = "mta_id")
     private String mtaId;
 
+    @Column(name = "namespace")
+    private String namespace;
+
     @Column(name = "userx")
     private String user;
 
@@ -66,7 +70,7 @@ public class OperationDto implements DtoWithPrimaryKey<String> {
         // Required by JPA
     }
 
-    private OperationDto(String processId, String processType, Date startedAt, Date endedAt, String spaceId, String mtaId, String user,
+    private OperationDto(String processId, String processType, Date startedAt, Date endedAt, String spaceId, String mtaId, String namespace, String user,
                          boolean acquiredLock, String finalState) {
         this.processId = processId;
         this.processType = processType;
@@ -74,6 +78,7 @@ public class OperationDto implements DtoWithPrimaryKey<String> {
         this.endedAt = endedAt;
         this.spaceId = spaceId;
         this.mtaId = mtaId;
+        this.namespace = namespace;
         this.user = user;
         this.acquiredLock = acquiredLock;
         this.finalState = finalState;
@@ -113,6 +118,10 @@ public class OperationDto implements DtoWithPrimaryKey<String> {
         return mtaId;
     }
 
+    public String getNamespace() {
+        return namespace;
+    }
+
     public String getUser() {
         return user;
     }
@@ -137,6 +146,7 @@ public class OperationDto implements DtoWithPrimaryKey<String> {
         private Date endedAt;
         private String spaceId;
         private String mtaId;
+        private String namespace;
         private String user;
         private boolean acquiredLock;
         private String finalState;
@@ -171,6 +181,11 @@ public class OperationDto implements DtoWithPrimaryKey<String> {
             return this;
         }
 
+        public Builder namespace(String namespace) {
+            this.namespace = namespace;
+            return this;
+        }
+
         public Builder user(String user) {
             this.user = user;
             return this;
@@ -187,7 +202,7 @@ public class OperationDto implements DtoWithPrimaryKey<String> {
         }
 
         public OperationDto build() {
-            return new OperationDto(processId, processType, startedAt, endedAt, spaceId, mtaId, user, acquiredLock, finalState);
+            return new OperationDto(processId, processType, startedAt, endedAt, spaceId, mtaId, namespace, user, acquiredLock, finalState);
         }
     }
 }

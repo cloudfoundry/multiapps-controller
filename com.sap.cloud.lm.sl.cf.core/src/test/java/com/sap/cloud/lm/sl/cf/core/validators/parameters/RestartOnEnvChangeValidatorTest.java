@@ -32,7 +32,7 @@ class RestartOnEnvChangeValidatorTest {
     @ParameterizedTest
     @MethodSource
     public void testValidate(Map<String, Boolean> restartParameters, boolean isValid) {
-        assertEquals(isValid, validator.isValid(restartParameters));
+        assertEquals(isValid, validator.isValid(restartParameters, null));
     }
 
     public static Stream<Arguments> testValidate() {

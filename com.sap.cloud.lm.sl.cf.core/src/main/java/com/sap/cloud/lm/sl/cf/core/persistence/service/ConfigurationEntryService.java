@@ -45,6 +45,7 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
         String targetOrg = ObjectUtils.firstNonNull(newEntry.getTargetOrg(), existingEntry.getTargetOrg());
         String targetSpace = ObjectUtils.firstNonNull(newEntry.getTargetSpace(), existingEntry.getTargetSpace());
         String providerVersion = ObjectUtils.firstNonNull(removeDefault(newEntry.getProviderVersion()), existingEntry.getProviderVersion());
+        String providerNamespace = ObjectUtils.firstNonNull(newEntry.getProviderNamespace(), existingEntry.getProviderNamespace());
         String content = ObjectUtils.firstNonNull(newEntry.getContent(), existingEntry.getContent());
         String visibility = ObjectUtils.firstNonNull(newEntry.getVisibility(), existingEntry.getVisibility());
         String spaceId = ObjectUtils.firstNonNull(newEntry.getSpaceId(), existingEntry.getSpaceId());
@@ -53,6 +54,7 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
                                     .providerNid(providerNid)
                                     .providerId(providerId)
                                     .providerVersion(providerVersion)
+                                    .providerNamespace(providerNamespace)
                                     .targetOrg(targetOrg)
                                     .targetSpace(targetSpace)
                                     .content(content)
@@ -77,6 +79,7 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
                                     entry.getProviderNid(),
                                     entry.getProviderId(),
                                     entry.getProviderVersion(),
+                                    entry.getProviderNamespace(),
                                     entry.getTargetOrg(),
                                     entry.getTargetSpace());
     }
@@ -94,12 +97,21 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
             Long id = dto.getPrimaryKey();
             String providerNid = getOriginal(dto.getProviderNid());
             String providerId = dto.getProviderId();
-            Version version = getParsedVersion(getOriginal(dto.getProviderVersion()));
+            Version providerVersion = getParsedVersion(getOriginal(dto.getProviderVersion()));
+            String providerNamespace = dto.getProviderNamespace();
             CloudTarget targetSpace = new CloudTarget(dto.getTargetOrg(), dto.getTargetSpace());
             String content = dto.getContent();
             List<CloudTarget> visibility = getParsedVisibility(dto.getVisibility());
             String spaceId = dto.getSpaceId();
-            return new ConfigurationEntry(id, providerNid, providerId, version, targetSpace, content, visibility, spaceId);
+            return new ConfigurationEntry(id,
+                                          providerNid,
+                                          providerId,
+                                          providerVersion,
+                                          providerNamespace,
+                                          targetSpace,
+                                          content,
+                                          visibility,
+                                          spaceId);
         }
 
         private String getOriginal(String source) {
@@ -121,6 +133,7 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
             String providerNid = getNotNull(entry.getProviderNid());
             String providerId = entry.getProviderId();
             String providerVersion = getNotNull(entry.getProviderVersion());
+            String providerNamespace = entry.getProviderNamespace();
             String targetOrg = entry.getTargetSpace() == null ? null
                 : entry.getTargetSpace()
                        .getOrganizationName();
@@ -135,6 +148,7 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
                                         .providerNid(providerNid)
                                         .providerId(providerId)
                                         .providerVersion(providerVersion)
+                                        .providerNamespace(providerNamespace)
                                         .targetOrg(targetOrg)
                                         .targetSpace(targetSpace)
                                         .content(content)

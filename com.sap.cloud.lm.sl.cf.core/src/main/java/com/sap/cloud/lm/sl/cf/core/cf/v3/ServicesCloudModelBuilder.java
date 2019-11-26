@@ -5,8 +5,8 @@ import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ServicesCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder {
 
-    public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
-        super(deploymentDescriptor);
+    public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, String namespace) {
+        super(deploymentDescriptor, namespace);
     }
 
     @Override

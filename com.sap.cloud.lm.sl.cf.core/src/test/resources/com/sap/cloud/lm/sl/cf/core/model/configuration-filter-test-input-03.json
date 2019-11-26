@@ -1,0 +1,35 @@
+{
+  "configurationEntry": {
+    "id": 0,
+    "providerNid": "mta",
+    "providerId": "test:foo",
+    "providerVersion": "0.1.0",
+    "providerNamespace": "namespace",
+    "targetSpace": {
+      "spaceName": "some-space",
+      "organizationName": "some-org"
+    },
+    "content": "{\"foo\":\"bar\",\"baz\":\"qux\"}",
+    "visibility": [
+      {
+        "spaceName": "*",
+        "organizationName": "some-org"
+      }
+    ],
+    "spaceId": ""
+  },
+  "configurationFilter": {
+    "providerId": "test:foo",
+    "requiredContent": {
+      "foo": "bar"
+    },
+    "providerNid": "mta",
+    "targetSpace": {
+      "spaceName": "some-space",
+      "organizationName": "some-org"
+    },
+    "providerVersion": "0.1.0",
+    "providerNamespace": "namespace"
+  },
+  "filterResult": true
+}

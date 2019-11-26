@@ -31,10 +31,9 @@ import com.sap.cloud.lm.sl.cf.core.cf.metadata.entity.processor.MtaMetadataAppli
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.entity.processor.MtaMetadataEntityAggregator;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.entity.processor.MtaMetadataEntityCollector;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.entity.processor.MtaMetadataServiceCollector;
-import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
-import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataValidator;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataValidator;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.util.MtaMetadataUtil;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -49,13 +48,8 @@ public class DeployedMtaDetectorTest {
 
     private MtaMetadataValidator mtaMetadataValidator = new MtaMetadataValidator();
 
-    private EnvMtaMetadataValidator envMtaMetadataValidator = new EnvMtaMetadataValidator();
-
     @Spy
     private MtaMetadataParser mtaMetadataParser = new MtaMetadataParser(mtaMetadataValidator);
-
-    @Spy
-    private EnvMtaMetadataParser envMtaMetadataParser = new EnvMtaMetadataParser(envMtaMetadataValidator);
 
     private MtaMetadataServiceCollector serviceCollector = new MtaMetadataServiceCollector();
 
@@ -65,8 +59,8 @@ public class DeployedMtaDetectorTest {
     @Spy
     private MtaMetadataEntityAggregator mtaMetadataEntityAggregator = new MtaMetadataEntityAggregator(mtaMetadataParser);
 
-    @Spy
-    private DeployedMtaEnvDetector mtaMetadataEnvDetector = new DeployedMtaEnvDetector(envMtaMetadataParser);
+    @Mock
+    private DeployedMtaEnvDetector mtaMetadataEnvDetector;
 
     @InjectMocks
     @Spy
@@ -85,7 +79,7 @@ public class DeployedMtaDetectorTest {
 
     public static Stream<Arguments> testGetAllDeployedMtas() {
         return Stream.of(
-// @formatter:off
+        // @formatter:off
             // (1) No MTA applications:
             Arguments.of("metadata/apps-01.json", null, new Expectation(Expectation.Type.JSON, "metadata/deployed-mtas-01.json")),
             // (2) Applications without module in metadata:
@@ -110,14 +104,116 @@ public class DeployedMtaDetectorTest {
         );
     }
 
+    public static Stream<Arguments> testGetAllDeployedMtasWithoutNamespace() {
+        return testGetAllDeployedMtas();
+    }
+
+    public static Stream<Arguments> testGetAllDeployedMtasByNamespace() {
+        return Stream.of(
+        // @formatter:off
+            // (1) 3 applications, 2 in one mta and 1 in the other:
+            Arguments.of("namespace", "metadata/apps-11.json", "metadata/services-11.json", new Expectation(Expectation.Type.JSON, "metadata/deployed-mtas-11.json")),
+            // (2) Two apps with one service each, seraching by default namespace
+            Arguments.of(null, "metadata/apps-09.json", "metadata/services-09.json", new Expectation(Expectation.Type.JSON, "metadata/deployed-mtas-09.json"))
+            // @formatter:on
+        );
+    }
+
+    public static Stream<Arguments> testGetAllDeployedMtasByName() {
+        return Stream.of(
+        // @formatter:off
+           // (1) 3 applications, 2 in one mta and 1 in the other:
+            Arguments.of("quux", "metadata/apps-11.json", "metadata/services-11.json", new Expectation(Expectation.Type.JSON, "metadata/deployed-mtas-11.json"))
+            // @formatter:on
+        );
+    }
+
+    public static Stream<Arguments> testGetAllDeployedMtaByNameAndNamespace() {
+        return Stream.of(
+        // @formatter:off
+            // (1) 3 applications, 2 in one mta and 1 in the other:
+            Arguments.of("quux", "namespace", "metadata/apps-13.json", "metadata/services-13.json", new Expectation(Expectation.Type.JSON, "metadata/deployed-mtas-13.json")),
+            // (2) Two apps with one service each, seraching by default namespace
+            Arguments.of("quux", null, "metadata/apps-09.json", "metadata/services-09.json", new Expectation(Expectation.Type.JSON, "metadata/deployed-mtas-12.json"))
+            // @formatter:on
+        );
+    }
+
     @ParameterizedTest
     @MethodSource
     public void testGetAllDeployedMtas(String appsResourceLocation, String servicesResourceLocation, Expectation expectation)
         throws IOException {
-        List<CloudApplication> apps = parseApps(appsResourceLocation);
-        List<CloudServiceInstance> services = parseServices(servicesResourceLocation);
-        prepareClient(apps, services);
+        prepareMocks(appsResourceLocation, servicesResourceLocation);
+
         tester.test(() -> deployedMtaDetector.detectDeployedMtas(client), expectation);
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void testGetAllDeployedMtasWithoutNamespace(String appsResourceLocation, String servicesResourceLocation,
+                                                       Expectation expectation)
+        throws IOException {
+        prepareMocks(appsResourceLocation, servicesResourceLocation);
+
+        tester.test(() -> deployedMtaDetector.detectDeployedMtasWithoutNamespace(client), expectation);
+        verifyNamespaceWasChecked(null);
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void testGetAllDeployedMtasByNamespace(String namespace, String appsResourceLocation, String servicesResourceLocation,
+                                                  Expectation expectation)
+        throws IOException {
+        prepareMocks(appsResourceLocation, servicesResourceLocation);
+
+        tester.test(() -> deployedMtaDetector.detectDeployedMtasByNamespace(namespace, client), expectation);
+        verifyNamespaceWasChecked(namespace);
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void testGetAllDeployedMtasByName(String name, String appsResourceLocation, String servicesResourceLocation,
+                                             Expectation expectation)
+        throws IOException {
+        prepareMocks(appsResourceLocation, servicesResourceLocation);
+
+        tester.test(() -> deployedMtaDetector.detectDeployedMtasByName(name, client), expectation);
+        verifyNameWasChecked(name);
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void testGetAllDeployedMtaByNameAndNamespace(String name, String namespace, String appsResourceLocation,
+                                                        String servicesResourceLocation, Expectation expectation)
+        throws IOException {
+        prepareMocks(appsResourceLocation, servicesResourceLocation);
+
+         tester.test(() -> deployedMtaDetector.detectDeployedMtaByNameAndNamespace(name, namespace, client, true), expectation);
+         verifyNameWasChecked(name);
+         verifyNamespaceWasChecked(namespace);
+    }
+
+    private void verifyNamespaceWasChecked(String namespace) {
+        if (namespace != null) {
+            Mockito.verify(client)
+                   .getApplicationsByMetadataLabelSelector(Mockito.contains("mta_namespace=" + MtaMetadataUtil.getHashedLabel(namespace)));
+            Mockito.verify(client)
+                   .getServiceInstancesByMetadataLabelSelector(Mockito.contains("mta_namespace="
+                       + MtaMetadataUtil.getHashedLabel(namespace)));
+
+        } else {
+            Mockito.verify(client)
+                   .getApplicationsByMetadataLabelSelector(Mockito.contains("!mta_namespace"));
+            Mockito.verify(client)
+                   .getServiceInstancesByMetadataLabelSelector(Mockito.contains("!mta_namespace"));
+        }
+    }
+    
+    private void verifyNameWasChecked(String name) {
+        Mockito.verify(client)
+               .getApplicationsByMetadataLabelSelector(Mockito.contains("mta_id=" + MtaMetadataUtil.getHashedLabel(name)));
+        Mockito.verify(client)
+               .getServiceInstancesByMetadataLabelSelector(Mockito.contains("mta_id=" + MtaMetadataUtil.getHashedLabel(name)));
     }
 
     private List<CloudApplication> parseApps(String appsResourceLocation) {
@@ -152,7 +248,13 @@ public class DeployedMtaDetectorTest {
                                  .collect(Collectors.toList());
     }
 
-    private void prepareClient(List<CloudApplication> apps, List<CloudServiceInstance> services) {
+    private void prepareMocks(String appsResourceLocation, String servicesResourceLocation) throws IOException {
+        List<CloudApplication> apps = parseApps(appsResourceLocation);
+        List<CloudServiceInstance> services = parseServices(servicesResourceLocation);
+        mockClientResults(apps, services);
+    }
+
+    private void mockClientResults(List<CloudApplication> apps, List<CloudServiceInstance> services) {
         Mockito.doReturn(apps)
                .when(client)
                .getApplicationsByMetadataLabelSelector(Matchers.anyString());

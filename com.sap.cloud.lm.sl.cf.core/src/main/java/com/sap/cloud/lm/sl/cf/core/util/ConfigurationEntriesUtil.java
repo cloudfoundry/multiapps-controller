@@ -26,9 +26,14 @@ public class ConfigurationEntriesUtil {
     public static final String PROVIDER_NID = "mta";
     private static final String PROVIDER_ID_DELIMITER = ":";
     public static final String TARGET_DELIMITER = " ";
+    public static final String PROVIDER_NAMESPACE_DEFAULT_VALUE = "default";
 
     public static String computeProviderId(String mtaId, String providedDependencyName) {
         return mtaId + PROVIDER_ID_DELIMITER + providedDependencyName;
+    }
+
+    public static boolean providerNamespaceIsEmpty(String providerNamespace, boolean considerNullAsEmpty) {
+        return (considerNullAsEmpty && providerNamespace == null) || PROVIDER_NAMESPACE_DEFAULT_VALUE.equals(providerNamespace);
     }
 
     public static List<ConfigurationEntry> findConfigurationEntries(ConfigurationEntryService configurationEntryService,
@@ -44,6 +49,7 @@ public class ConfigurationEntriesUtil {
         }
         String providerVersion = filter.getProviderVersion();
         String providerId = filter.getProviderId();
+        String providerNamespace = filter.getProviderNamespace();
 
         Map<String, Object> requiredContent = filter.getRequiredContent();
         LOGGER.debug("searching for configuration entries with provider nid {}, id {}, version {}, org {}, space {}, content {}, visibleTargets {}",
@@ -52,6 +58,7 @@ public class ConfigurationEntriesUtil {
                                                                    .providerNid(providerNid)
                                                                    .providerId(providerId)
                                                                    .version(providerVersion)
+                                                                   .providerNamespace(providerNamespace, false)
                                                                    .target(targetSpace)
                                                                    .requiredProperties(requiredContent)
                                                                    .visibilityTargets(cloudTargets)
@@ -63,13 +70,14 @@ public class ConfigurationEntriesUtil {
         if (filter.isStrictTargetSpace() || globalConfigTarget == null) {
             return Collections.emptyList();
         }
-        return findConfigurationEntriesInGlobalConfigurationSpace(configurationEntryService, providerNid, providerVersion, providerId,
-                                                                  requiredContent, cloudTargets, globalConfigTarget);
+        return findConfigurationEntriesInGlobalConfigurationSpace(configurationEntryService, providerNid, providerVersion,
+                                                                  providerNamespace, providerId, requiredContent, cloudTargets,
+                                                                  globalConfigTarget);
     }
 
     public static List<ConfigurationEntry>
            findConfigurationEntriesInGlobalConfigurationSpace(ConfigurationEntryService configurationEntryService, String providerNid,
-                                                              String providerVersion, String providerId,
+                                                              String providerVersion, String providerNamespace, String providerId,
                                                               Map<String, Object> requiredContent, List<CloudTarget> cloudTargets,
                                                               CloudTarget globalConfigTarget) {
         LOGGER.debug("searching for configuration entries with provider nid {}, id {}, version {}, global config space space {}, content {}, visibleTargets {}",
@@ -78,6 +86,7 @@ public class ConfigurationEntriesUtil {
                                         .providerNid(providerNid)
                                         .providerId(providerId)
                                         .version(providerVersion)
+                                        .providerNamespace(providerNamespace, true)
                                         .target(globalConfigTarget)
                                         .requiredProperties(requiredContent)
                                         .visibilityTargets(cloudTargets)

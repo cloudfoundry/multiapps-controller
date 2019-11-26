@@ -218,6 +218,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         ApplicationCloudModelBuilder applicationCloudModelBuilder = handlerFactory.getApplicationCloudModelBuilder(dummyDescriptor,
                                                                                                                    shouldUsePrettyPrinting(),
                                                                                                                    null, "",
+                                                                                                                   context.getVariable(Variables.MTA_NAMESPACE),
                                                                                                                    getStepLogger());
 
         Module module = dummyDescriptor.getModules()

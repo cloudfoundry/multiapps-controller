@@ -23,5 +23,10 @@ public interface Metadata {
     @ApiModelProperty
     @JsonProperty("version")
     String getVersion();
+    
+    @Nullable
+    @ApiModelProperty
+    @JsonProperty("namespace")
+    String getNamespace();
 
 }
