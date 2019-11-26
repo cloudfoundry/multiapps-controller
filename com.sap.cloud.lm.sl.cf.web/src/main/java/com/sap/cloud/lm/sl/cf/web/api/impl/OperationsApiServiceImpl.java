@@ -185,6 +185,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         if ("messages".equals(embed)) {
             operation = ImmutableOperation.copyOf(operation)
                                           .withMessages(getOperationMessages(operation));
+            if (operation.getState() == Operation.State.ERROR && !hasErrorMessage(operation)) {
+                LOGGER.error("MTA operation \"{}\" is in error state, but has no error messages.", operation.getProcessId());
+            }
         }
         return ResponseEntity.ok()
                              .body(operation);
@@ -344,4 +347,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private MessageType getMessageType(ProgressMessageType type) {
         return MessageType.fromValue(type.toString());
     }
+
+    private boolean hasErrorMessage(Operation operation) {
+        return operation.getMessages()
+                        .stream()
+                        .anyMatch(message -> message.getType() == MessageType.ERROR);
+    }
+
 }
