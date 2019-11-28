@@ -18,19 +18,18 @@ public class Metrics implements MetricsMBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(Metrics.class);
 
     private final ApplicationConfiguration appConfigurations;
-
     private final FileSystemFileStorage fileSystemStorage;
-
     private final FssMonitor fssMonitor;
-
-    private final CachedObject<FlowableThreadInformation> cachedThreadMonitor;
+    private final CachedObject<FlowableThreadInformation> cachedFlowableThreadMonitor;
+    private final CachedObject<CloudFoundryClientThreadInformation> cachedCloudFoundryClientThreadMonitor;
 
     @Inject
     public Metrics(ApplicationConfiguration appConfigurations, FssMonitor fssMonitor, FileSystemFileStorage fss) {
         this.appConfigurations = appConfigurations;
         this.fssMonitor = fssMonitor;
         this.fileSystemStorage = fss;
-        this.cachedThreadMonitor = new CachedObject<>(appConfigurations.getThreadMonitorCacheUpdateInSeconds());
+        this.cachedFlowableThreadMonitor = new CachedObject<>(appConfigurations.getThreadMonitorCacheUpdateInSeconds());
+        this.cachedCloudFoundryClientThreadMonitor = new CachedObject<>(appConfigurations.getThreadMonitorCacheUpdateInSeconds());
         if (fss == null) {
             LOGGER.info("No metrics for file system service will be collected - no such service found.");
         }
@@ -86,7 +85,22 @@ public class Metrics implements MetricsMBean {
         return getFlowableThreadInformation().getTotalAsyncExecutorThreads();
     }
 
-    private FlowableThreadInformation getFlowableThreadInformation() {
-        return cachedThreadMonitor.get(() -> FlowableThreadInformation.get());
+    @Override
+    public int getRunningCloudFoundryClientThreads() {
+        return getCloudFoundryThreadInformation().getRunningThreads();
     }
+
+    @Override
+    public int getTotalCloudFoundryClientThreads() {
+        return getCloudFoundryThreadInformation().getTotalThreads();
+    }
+
+    private FlowableThreadInformation getFlowableThreadInformation() {
+        return cachedFlowableThreadMonitor.get(() -> FlowableThreadInformation.get());
+    }
+
+    private CloudFoundryClientThreadInformation getCloudFoundryThreadInformation() {
+        return cachedCloudFoundryClientThreadMonitor.get(() -> CloudFoundryClientThreadInformation.get());
+    }
+
 }
