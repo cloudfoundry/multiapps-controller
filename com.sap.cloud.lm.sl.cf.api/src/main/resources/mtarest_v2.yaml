@@ -1,0 +1,114 @@
+---
+swagger: "2.0"
+info:
+  description: "This is the API of the Cloud Foundry MultiApps Controller"
+  version: "1.0.0"
+  title: "MTA REST API"
+  contact: {}
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+schemes:
+- "https"
+paths:
+  /api/v2/spaces/{spaceGuid}/mtas:
+    get:
+      summary: ""
+      description: "Retrieves all Multi-Target Applications in a space "
+      operationId: "getMtas"
+      produces:
+      - "application/json"
+      - "application/json;charset=UTF-8"
+      parameters:
+      - name: "spaceGuid"
+        in: "path"
+        description: "GUID of space with mtas"
+        required: true
+        type: "string"
+      - name: "namespace"
+        in: "query"
+        description: "Filter mtas by namespace"
+        required: false
+        type: "string"
+      - name: "name"
+        in: "query"
+        description: "Filter mtas by name"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Mta"
+      security:
+      - oauth2: []
+securityDefinitions:
+  oauth2:
+    type: "oauth2"
+    tokenUrl: "https://uaa.bosh-lite.com/oauth/token"
+    flow: "password"
+    scopes: {}
+definitions:
+  Metadata:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        readOnly: true
+      version:
+        type: "string"
+        readOnly: true
+      namespace:
+        type: "string"
+        readOnly: true
+  Module:
+    type: "object"
+    properties:
+      moduleName:
+        type: "string"
+        readOnly: true
+      appName:
+        type: "string"
+        readOnly: true
+      createdOn:
+        type: "string"
+        format: "date-time"
+        readOnly: true
+      updatedOn:
+        type: "string"
+        format: "date-time"
+        readOnly: true
+      providedDendencyNames:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      services:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+      uris:
+        type: "array"
+        readOnly: true
+        items:
+          type: "string"
+  Mta:
+    type: "object"
+    properties:
+      metadata:
+        readOnly: true
+        $ref: "#/definitions/Metadata"
+      modules:
+        type: "array"
+        readOnly: true
+        items:
+          $ref: "#/definitions/Module"
+      services:
+        type: "array"
+        readOnly: true
+        uniqueItems: true
+        items:
+          type: "string"
