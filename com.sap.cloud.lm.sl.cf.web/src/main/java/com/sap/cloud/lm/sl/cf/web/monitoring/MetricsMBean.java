@@ -14,4 +14,8 @@ public interface MetricsMBean {
 
     int getTotalAsyncExecutorThreads();
 
+    int getRunningCloudFoundryClientThreads();
+
+    int getTotalCloudFoundryClientThreads();
+
 }
