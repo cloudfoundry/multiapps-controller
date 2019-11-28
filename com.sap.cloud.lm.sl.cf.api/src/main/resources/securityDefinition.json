@@ -1,0 +1,8 @@
+{
+  "oauth2" : {
+    "type" : "oauth2",
+    "tokenUrl" : "https://uaa.bosh-lite.com/oauth/token",
+    "flow" : "password",
+    "scopes" : { }
+  }
+}
