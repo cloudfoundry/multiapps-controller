@@ -128,8 +128,8 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS = 1;
     public static final Integer DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = 20;
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = 5;
-    public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 75;
-    public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 75;
+    public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 128;
+    public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 128;
     public static final Boolean DEFAULT_SAP_INTERNAL_DELIVERY = false;
     protected final Environment environment;
 
