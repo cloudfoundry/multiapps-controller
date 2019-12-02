@@ -99,51 +99,9 @@
 
     <developers>
         <developer>
-            <id>nvvalchev</id>
-            <name>Nikolay Valchev</name>
-            <email>nikolay.valchev@sap.com</email>
-            <organization>${project.organization.name}</organization>
-            <organizationUrl>${project.organization.url}</organizationUrl>
-        </developer>
-        <developer>
-            <id>nictas</id>
-            <name>Alexander Tsvetkov</name>
-            <email>aleksandar.tsvetkov@sap.com</email>
-            <organization>${project.organization.name}</organization>
-            <organizationUrl>${project.organization.url}</organizationUrl>
-        </developer>
-        <developer>
-            <id>enchobelezirev</id>
-            <name>Encho Belezirev</name>
-            <email>encho.belezirev@sap.com</email>
-            <organization>${project.organization.name}</organization>
-            <organizationUrl>${project.organization.url}</organizationUrl>
-        </developer>
-        <developer>
             <id>ddonchev</id>
             <name>Dimitar Donchev</name>
             <email>dimitar.donchev@sap.com</email>
-            <organization>${project.organization.name}</organization>
-            <organizationUrl>${project.organization.url}</organizationUrl>
-        </developer>
-        <developer>
-            <id>DenitsaKostova</id>
-            <name>Denitsa Petrova</name>
-            <email>denitsa.petrova@sap.com</email>
-            <organization>${project.organization.name}</organization>
-            <organizationUrl>${project.organization.url}</organizationUrl>
-        </developer>
-        <developer>
-            <id>ttsokov</id>
-            <name>Tsvetan Tsokov</name>
-            <email>tsvetan.tsokov@sap.com</email>
-            <organization>${project.organization.name}</organization>
-            <organizationUrl>${project.organization.url}</organizationUrl>
-        </developer>
-        <developer>
-            <id>boyan-velinov</id>
-            <name>Boyan Velinov</name>
-            <email>boyan.velinov@sap.com</email>
             <organization>${project.organization.name}</organization>
             <organizationUrl>${project.organization.url}</organizationUrl>
         </developer>
