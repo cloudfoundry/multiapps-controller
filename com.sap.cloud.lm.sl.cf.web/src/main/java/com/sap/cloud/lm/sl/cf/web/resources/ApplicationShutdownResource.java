@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ImmutableApplicationShutdown;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 
 @RestController
-@RequestMapping("/admin/shutdown")
+@RequestMapping("/rest/admin/shutdown")
 public class ApplicationShutdownResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationShutdownResource.class);
