@@ -1,15 +1,13 @@
 package com.sap.cloud.lm.sl.cf.core.validators.parameters.v2;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,38 +37,27 @@ public class ModuleParametersCompatabilityValidatorTest {
     public static Stream<Arguments> testModuleParametersCompatability() {
         return Stream.of(
         // @formatter:off
-            Arguments.of(Arrays.asList(SupportedParameters.HOST, SupportedParameters.ROUTES), true, Arrays.asList(SupportedParameters.HOST)),
-            Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES), false, Collections.emptyList()),
-            Arguments.of(Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.DOMAINS, SupportedParameters.ROUTES), true, Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.DOMAINS)),
-            Arguments.of(Arrays.asList(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOST), true, Arrays.asList(SupportedParameters.IDLE_HOST)),
-            Arguments.of(Arrays.asList(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_DOMAINS), true, 
-                         Arrays.asList(SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_DOMAINS)),
-            Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES, SupportedParameters.BUILDPACKS), false, Collections.emptyList()),
-            Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES, "not-supported-parameter"), false, Collections.emptyList()),
-            Arguments.of(Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.ROUTES, SupportedParameters.ROUTE_PATH, SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_ROUTES), true, 
-                         Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.ROUTE_PATH, SupportedParameters.IDLE_HOSTS))
+            Arguments.of(Arrays.asList(SupportedParameters.HOST, SupportedParameters.ROUTES), true),
+            Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES), false),
+            Arguments.of(Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.DOMAINS, SupportedParameters.ROUTES), true),
+            Arguments.of(Arrays.asList(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOST), true),
+            Arguments.of(Arrays.asList(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_DOMAINS), true),
+            Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES, SupportedParameters.BUILDPACKS), false),
+            Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES, "not-supported-parameter"), false),
+            Arguments.of(Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.ROUTES, SupportedParameters.ROUTE_PATH, SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_ROUTES), true)
         // @formatter:on
         );
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testModuleParametersCompatability(List<String> moduleParameters, boolean shouldWarnMessage,
-                                                  List<String> expectedMissingModuleParameters) {
+    public void testModuleParametersCompatability(List<String> moduleParameters, boolean shouldWarnMessage) {
         Module module = buildModule(moduleParameters);
 
         Module validatedModule = new ModuleParametersCompatabilityValidator(module, userMessageLogger).validate();
 
-        assertMissingModuleParameters(expectedMissingModuleParameters, validatedModule.getParameters());
+        assertEquals(module.getParameters(), validatedModule.getParameters());
         verifyUserMessageLogger(shouldWarnMessage);
-    }
-
-    private void assertMissingModuleParameters(List<String> expectedMissingModuleParameters, Map<String, Object> parameters) {
-        if (expectedMissingModuleParameters.stream()
-                                           .anyMatch(expectedMissingParameter -> parameters.containsKey(expectedMissingParameter))) {
-            fail(MessageFormat.format("Expected to miss the following parameters: {0} but the result contains {1}",
-                                      expectedMissingModuleParameters, parameters.keySet()));
-        }
     }
 
     private Module buildModule(List<String> moduleParameters) {
