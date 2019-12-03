@@ -1,11 +1,9 @@
 package com.sap.cloud.lm.sl.cf.core.validators.parameters.v2;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
@@ -28,8 +26,7 @@ public class ModuleParametersCompatabilityValidator extends CompatabilityParamet
     @Override
     public Module validate() {
         List<CompatabilityParameterValidator> moduleValidators = getModuleValidators();
-        Map<String, Object> validModuleParameters = validateParameters(module.getParameters(), moduleValidators);
-        module.setParameters(validModuleParameters);
+        checkParametersCompatability(module.getParameters(), moduleValidators);
         return module;
     }
 
@@ -37,34 +34,24 @@ public class ModuleParametersCompatabilityValidator extends CompatabilityParamet
         return Arrays.asList(new RoutesCompatabilityValidator(), new IdleRoutesCompatabilityValidator());
     }
 
-    private Map<String, Object> validateParameters(Map<String, Object> parameters, List<CompatabilityParameterValidator> moduleValidators) {
-        List<String> allIncompatibleParameters = new ArrayList<>();
+    private void checkParametersCompatability(Map<String, Object> parameters, List<CompatabilityParameterValidator> moduleValidators) {
         for (CompatabilityParameterValidator validator : moduleValidators) {
             List<String> incompatibleParameters = getIncompatibleParameters(validator, parameters);
-            allIncompatibleParameters.addAll(incompatibleParameters);
+            if (!incompatibleParameters.isEmpty()) {
+                warnForIncompatibleParameters(validator.getParameterName(), incompatibleParameters);
+            }
         }
-
-        return parameters.entrySet()
-                         .stream()
-                         .filter(parameterKeyValue -> !allIncompatibleParameters.contains(parameterKeyValue.getKey()))
-                         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     }
 
     private List<String> getIncompatibleParameters(CompatabilityParameterValidator validator, Map<String, Object> parameters) {
         String parameterNameToValidate = validator.getParameterName();
-        List<String> incompatibleParameters = Collections.emptyList();
         if (parameters.containsKey(parameterNameToValidate)) {
-            incompatibleParameters = parameters.keySet()
-                                               .stream()
-                                               .filter(moduleParameter -> !validator.isCompatible(moduleParameter))
-                                               .collect(Collectors.toList());
+            return parameters.keySet()
+                             .stream()
+                             .filter(moduleParameter -> !validator.isCompatible(moduleParameter))
+                             .collect(Collectors.toList());
         }
-
-        if (!incompatibleParameters.isEmpty()) {
-            warnForIncompatibleParameters(parameterNameToValidate, incompatibleParameters);
-        }
-
-        return incompatibleParameters;
+        return Collections.emptyList();
     }
 
     private void warnForIncompatibleParameters(String parameterNameToValidate, List<String> incompatibleParameters) {
