@@ -759,6 +759,7 @@
                 <artifactId>com.sap.cloud.lm.sl.cf.shutdown.client</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 

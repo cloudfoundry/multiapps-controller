@@ -37,7 +37,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     @Inject
     private OperationService operationService;
     @Inject
-    private ProcessTypeParser processTypeParser;
+    protected ProcessTypeParser processTypeParser;
     @Autowired(required = false)
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
     @Inject

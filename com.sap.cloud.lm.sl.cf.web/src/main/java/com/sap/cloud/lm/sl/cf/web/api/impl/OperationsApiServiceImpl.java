@@ -250,12 +250,16 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         Map<String, Object> parameters = new HashMap<>(operation.getParameters());
         CloudControllerClient client = getCloudFoundryClient(spaceGuid);
         CloudSpace space = client.getSpace(UUID.fromString(spaceGuid));
+        parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_MTA_ID, parameters.get(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_MTA_ID));
         parameters.put(Constants.VARIABLE_NAME_SPACE_ID, spaceGuid);
         parameters.put(Constants.VARIABLE_NAME_SERVICE_ID, processDefinitionKey);
         parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_ORG, space.getOrganization()
                                                                               .getName());
         parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_SPACE, space.getName());
         parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_USER, user);
+        parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_ORG_ID, space.getOrganization()
+                                                                                 .getMetadata()
+                                                                                 .getGuid().toString());
         return ImmutableOperation.copyOf(operation)
                                  .withParameters(parameters);
     }

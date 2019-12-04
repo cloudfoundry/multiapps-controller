@@ -159,6 +159,10 @@ public class StepsUtil {
         return getString(scope, Constants.VAR_ORG);
     }
 
+    public static String getOrgId(VariableScope scope) {
+        return getString(scope, Constants.VAR_ORG_ID);
+    }
+
     public static String getSpaceId(VariableScope scope) {
         return getString(scope, com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID);
     }

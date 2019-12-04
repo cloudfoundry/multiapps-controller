@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
+import com.sap.cloud.lm.sl.cf.process.steps.ProcessMtaArchiveStep;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,6 +42,12 @@ public class ProcessStepsConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public BuildApplicationDeployModelStep buildApplicationDeployModelStep() {
         return new BuildApplicationDeployModelStep();
+    }
+
+    @Bean("processMtaArchiveStep")
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public ProcessMtaArchiveStep buildProcessMtaArchiveStep() {
+        return new ProcessMtaArchiveStep();
     }
 
     @Inject

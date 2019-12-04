@@ -6,11 +6,8 @@ import java.util.function.Function;
 import java.util.jar.Manifest;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
@@ -24,8 +21,6 @@ import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
-@Named("processMtaArchiveStep")
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessMtaArchiveStep extends SyncFlowableStep {
 
     protected Function<OperationService, ProcessConflictPreventer> conflictPreventerSupplier = ProcessConflictPreventer::new;

@@ -68,7 +68,6 @@ public class ErrorProcessListenerTest {
         Throwable t = new Throwable();
         Mockito.when(exceptionEvent.getCause())
                .thenReturn(t);
-
         errorProcessListener.jobExecutionFailure(engineEntityEvent);
         Mockito.verify(eventHandler)
                .handle(engineEntityEvent, t);

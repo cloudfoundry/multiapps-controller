@@ -3,18 +3,16 @@ package com.sap.cloud.lm.sl.cf.process.listeners;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.flowable.engine.delegate.DelegateExecution;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -40,17 +38,16 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 
-@RunWith(Parameterized.class)
 public class StartProcessListenerTest {
 
+    private static final String SPACE_ID = "9ba1dfc7-9c2c-40d5-8bf9-fd04fa7a1722";
     private static final String TASK_ID = "test-task-id";
     private static final String USER = "current-user";
-    private static final String SPACE_ID = "test-space-id";
     private static final ZonedDateTime START_TIME = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.of("UTC"));
 
-    private final String processInstanceId;
-    private final ProcessType processType;
-    private final String exceptionMessage;
+    private String processInstanceId;
+    private ProcessType processType;
+    private String exceptionMessage;
 
     private final DelegateExecution context = MockDelegateExecution.createSpyInstance();
 
@@ -83,30 +80,34 @@ public class StartProcessListenerTest {
     @InjectMocks
     private StartProcessListener listener = new StartProcessListener();
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> testVerify() {
+        return Stream.of(
 // @formatter:off
             // (0) Create Operation for process undeploy
-            {
-                "process-instance-id", ProcessType.UNDEPLOY, null
-            },
+            Arguments.of("process-instance-id", ProcessType.UNDEPLOY, null),
             // (1) Create Operation for process deploy
-            {
-                "process-instance-id", ProcessType.DEPLOY, null
-            },
+            Arguments.of("process-instance-id", ProcessType.DEPLOY, null)
 // @formatter:on
-        });
+        );
     }
 
-    public StartProcessListenerTest(String processInstanceId, ProcessType processType, String exceptionMessage) {
+    public StartProcessListenerTest() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void testVerify(String processInstanceId, ProcessType processType, String exceptionMessage) {
         this.processType = processType;
         this.processInstanceId = processInstanceId;
         this.exceptionMessage = exceptionMessage;
+        prepare();
+        listener.notify(context);
+
+        verifyOperationInsertion();
     }
 
-    @Before
-    public void setUp() {
+    private void prepare() {
         MockitoAnnotations.initMocks(this);
         loadParameters();
         prepareContext();
@@ -120,13 +121,6 @@ public class StartProcessListenerTest {
         Mockito.doReturn(null)
                .when(operationQuery)
                .singleResult();
-    }
-
-    @Test
-    public void testVerify() {
-        listener.notify(context);
-
-        verifyOperationInsertion();
     }
 
     private void prepareContext() {

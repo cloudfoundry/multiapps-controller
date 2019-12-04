@@ -55,8 +55,8 @@ public class ErrorProcessListener extends AbstractFlowableEngineEventListener {
             LOGGER.error("Dead letter job detected for process \"{}\" (definition: \"{}\"), but it does not contain an exception.",
                          event.getProcessInstanceId(), event.getProcessDefinitionId());
         } else {
-            LOGGER.error("Dead letter job detected for process \"{}\" (definition: \"{}\"): {}", //
-                         event.getProcessInstanceId(), event.getProcessDefinitionId(), entity.getExceptionStacktrace());
+            LOGGER.error("Dead letter job detected for process \"{}\" (definition: \"{}\"): {}", event.getProcessInstanceId(),
+                         event.getProcessDefinitionId(), entity.getExceptionStacktrace());
             eventHandler.handle(event, entity.getExceptionMessage());
         }
     }
@@ -74,10 +74,9 @@ public class ErrorProcessListener extends AbstractFlowableEngineEventListener {
             LOGGER.error("Job execution failure detected for process \"{}\" (definition: \"{}\"), but the exception event does not contain an exception.",
                          event.getProcessInstanceId(), event.getProcessDefinitionId());
         } else {
-            LOGGER.error("Job execution failure detected for process \"{}\" (definition: \"{}\").", //
-                         event.getProcessInstanceId(), event.getProcessDefinitionId(), throwable);
+            LOGGER.error("Job execution failure detected for process \"{}\" (definition: \"{}\").", event.getProcessInstanceId(),
+                         event.getProcessDefinitionId(), throwable);
             eventHandler.handle(event, throwable);
         }
     }
-
 }
