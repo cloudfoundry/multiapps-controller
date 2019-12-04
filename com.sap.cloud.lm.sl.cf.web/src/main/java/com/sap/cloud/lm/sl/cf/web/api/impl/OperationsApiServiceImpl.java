@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.web.api.impl;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -227,11 +226,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             case ABORTED:
                 return Collections.emptyList();
             case ERROR:
-                return new ArrayList<>(Arrays.asList(AbortProcessAction.ACTION_ID_ABORT, RetryProcessAction.ACTION_ID_RETRY));
+                return Arrays.asList(AbortProcessAction.ACTION_ID_ABORT, RetryProcessAction.ACTION_ID_RETRY);
             case RUNNING:
-                return new ArrayList<>(Collections.singletonList(AbortProcessAction.ACTION_ID_ABORT));
+                return Collections.singletonList(AbortProcessAction.ACTION_ID_ABORT);
             case ACTION_REQUIRED:
-                return new ArrayList<>(Arrays.asList(AbortProcessAction.ACTION_ID_ABORT, ResumeProcessAction.ACTION_ID_RESUME));
+                return Arrays.asList(AbortProcessAction.ACTION_ID_ABORT, ResumeProcessAction.ACTION_ID_RESUME);
         }
         throw new IllegalStateException(MessageFormat.format("State \"{0}\" not recognized!", operation.getState()));
     }

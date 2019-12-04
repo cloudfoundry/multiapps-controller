@@ -50,6 +50,7 @@ public class Constants {
     public static final String PARAM_MODULES_FOR_DEPLOYMENT = "modulesForDeployment";
     public static final String PARAM_RESOURCES_FOR_DEPLOYMENT = "resourcesForDeployment";
     public static final String PARAM_VERIFY_ARCHIVE_SIGNATURE = "verifyArchiveSignature";
+    public static final String PARAM_KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY = "keepOriginalAppNamesAfterDeploy";
 
     public static final String VAR_USER = "user";
 
@@ -166,6 +167,7 @@ public class Constants {
     public static final String VAR_HOOKS_FOR_EXECUTION = "hooksForExecution";
     public static final String VAR_HOOK_FOR_EXECUTION = "hookForExecution";
     public static final String VAR_FILE_ENTRIES = "fileEntries";
+    public static final String VAR_APPS_TO_RENAME = "appsToRename";
 
     public static final String TOOL_TYPE = "tool_type";
     public static final String FEEDBACK_MAIL = "feedback_form";

@@ -1186,4 +1186,18 @@ public class StepsUtil {
         scope.setVariable(variableName, value);
     }
 
+    public static List<String> getAppsToRename(VariableScope scope) {
+        TypeReference<List<String>> type = new TypeReference<List<String>>() {
+        };
+        return getFromJsonBinary(scope, Constants.VAR_APPS_TO_RENAME, type);
+    }
+
+    public static void setAppsToRename(VariableScope scope, List<String> appsToRename) {
+        setAsJsonBinary(scope, Constants.VAR_APPS_TO_RENAME, appsToRename);
+    }
+
+    public static boolean getKeepOriginalAppNamesAfterDeploy(VariableScope scope) {
+        return (boolean) scope.getVariable(Constants.PARAM_KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY);
+    }
+
 }
