@@ -73,6 +73,7 @@ public class Constants {
     public static final String VAR_DEPLOYED_MTA = "deployedMta";
     public static final String VAR_SYSTEM_PARAMETERS = "systemParameters";
     public static final String VAR_ORG = "org";
+    public static final String VAR_ORG_ID = "orgId";
     public static final String VAR_SPACE = "space";
     public static final String VAR_CUSTOM_DOMAINS = "customDomains";
     public static final String VAR_DEPLOYED_APPS = "deployedApps";
