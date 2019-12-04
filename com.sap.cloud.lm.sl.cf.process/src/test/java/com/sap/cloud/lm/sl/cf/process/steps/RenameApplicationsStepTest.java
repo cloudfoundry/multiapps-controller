@@ -1,15 +1,14 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import com.sap.cloud.lm.sl.cf.core.model.BlueGreenApplicationNameSuffix;
+import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
@@ -23,21 +22,21 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
+import org.mockito.Mockito;
 
-public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenameStep> {
+import java.util.Collections;
+
+public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameApplicationsStep> {
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
-
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private ApplicationColorDetector applicationColorDetector;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() {
         prepareContext();
-        step.applicationColorDetector = applicationColorDetector;
+        context.setVariable(Constants.PARAM_KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, false);
     }
 
     private void prepareContext() {
@@ -47,6 +46,24 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
         StepsUtil.setDeploymentDescriptor(context, DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass()));
+    }
+
+    @Test
+    public void testOldNewSuffixRenaming() {
+        context.setVariable(Constants.PARAM_KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
+        StepsUtil.setAppsToRename(context, Collections.singletonList("a"));
+
+        step.execute(context);
+        assertStepFinishedSuccessfully();
+
+        Mockito.verify(client)
+               .rename("a", "a-old");
+
+        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(context);
+        Assertions.assertTrue(descriptor.getModules()
+                                        .stream()
+                                        .map(NameUtil::getApplicationName)
+                                        .allMatch(name -> name.endsWith(BlueGreenApplicationNameSuffix.NEW.asSuffix())));
     }
 
     @Test
@@ -86,18 +103,16 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
     }
 
     @Test
-    public void testExceptionIsThrow() {
+    public void testExceptionIsThrown() {
         when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(new SLException(com.sap.cloud.lm.sl.cf.process.message.Messages.ERROR_RENAMING_APPLICATIONS));
         when(applicationColorDetector.detectLiveApplicationColor(any(), any())).thenReturn(ApplicationColor.GREEN);
-        expectedException.expect(SLException.class);
-        expectedException.expectMessage(com.sap.cloud.lm.sl.cf.process.message.Messages.ERROR_RENAMING_APPLICATIONS);
-        step.execute(context);
-        verify(context, never()).setVariable(anyString(), any());
+        Assertions.assertThrows(SLException.class, () -> step.execute(context),
+                                com.sap.cloud.lm.sl.cf.process.message.Messages.ERROR_RENAMING_APPLICATIONS);
     }
 
     @Override
-    protected BlueGreenRenameStep createStep() {
-        return new BlueGreenRenameStep();
+    protected RenameApplicationsStep createStep() {
+        return new RenameApplicationsStep();
     }
 
 }

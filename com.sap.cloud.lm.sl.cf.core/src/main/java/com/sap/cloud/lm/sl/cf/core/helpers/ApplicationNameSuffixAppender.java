@@ -9,16 +9,12 @@ import com.sap.cloud.lm.sl.mta.model.ElementContext;
 import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.Visitor;
 
-public class ApplicationColorAppender extends Visitor {
+public class ApplicationNameSuffixAppender extends Visitor {
 
-    protected static final String RESOURCE_IS_NOT_FOUND_ERROR = "Resource \"{0}\" is not found";
+    private final String suffix;
 
-    protected final ApplicationColor applicationColor;
-    protected final ApplicationColor deployedMtaColor;
-
-    public ApplicationColorAppender(ApplicationColor deployedMtaColor, ApplicationColor applicationColor) {
-        this.applicationColor = applicationColor;
-        this.deployedMtaColor = deployedMtaColor;
+    public ApplicationNameSuffixAppender(String suffix) {
+        this.suffix = suffix;
     }
 
     @Override
@@ -35,7 +31,7 @@ public class ApplicationColorAppender extends Visitor {
     }
 
     protected String getAppName(Map<String, Object> moduleProperties, String moduleName) {
-        return moduleProperties.getOrDefault(SupportedParameters.APP_NAME, moduleName) + applicationColor.asSuffix();
+        return moduleProperties.getOrDefault(SupportedParameters.APP_NAME, moduleName) + suffix;
     }
 
 }

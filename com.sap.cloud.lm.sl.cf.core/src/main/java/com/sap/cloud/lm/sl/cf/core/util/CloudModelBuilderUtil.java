@@ -27,6 +27,12 @@ public class CloudModelBuilderUtil {
                                    .collect(Collectors.toCollection(TreeSet::new));
     }
 
+    public static Set<String> getDeployedApplicationNames(List<DeployedMtaApplication> deployedApplications) {
+        return deployedApplications.stream()
+                                   .map(DeployedMtaApplication::getName)
+                                   .collect(Collectors.toCollection(TreeSet::new));
+    }
+
     public static boolean isService(Resource resource) {
         Set<ResourceType> resourceTypes = ResourceType.getServiceTypes();
         ResourceType resourceType = getResourceType(resource);

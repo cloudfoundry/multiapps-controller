@@ -131,6 +131,8 @@ public class Messages {
     public static final String ERROR_UPDATING_OPTIONAL_SERVICE = "Error updating optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_MONITORING_OPERATIONS_OVER_SERVICES = "Error monitoring operations over services";
     public static final String ERROR_DELETING_REMAINING_FILE_PARTS = "Error deleting remaining file parts";
+    public static final String ERROR_DETECTING_APPLICATIONS_TO_RENAME = "Error detecting applications to rename";
+    public static final String ERROR_RENAMING_NEW_APPLICATIONS = "Error renaming new applications";
 
     public static final String ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES = "Error monitoring creation or update of services";
     public static final String ERROR_MONITORING_DELETION_OF_SERVICES = "Error monitoring deletion of services";
@@ -420,6 +422,10 @@ public class Messages {
     public static final String CHECKING_FOR_OVERWRITING_READ_ONLY_PARAMETERS = "Checking for overwriting read-only parameters for mta with id: \"{0}\"";
     public static final String NO_READ_ONLY_PARAMETERS_ARE_OVERWRITTEN = "No read-only parameters are overwritten";
     public static final String MODULE_WITH_APPLICATION_NAME_WAS_MARKED_AS_IDLE = "Module \"{0}\" with application name \"{1}\" was marked as idle";
+    public static final String UPDATING_APP_NAMES_WITH_NEW_SUFFIX = "Updating application names in deployment descriptor with 'new' suffix";
+    public static final String RENAMING_NEW_APPLICATIONS = "Renaming new applications...";
+    public static final String RENAMING_OLD_APPLICATIONS = "Renaming old applications...";
+    public static final String RENAMING_APPLICATION = "Renaming application {0}";
 
     protected Messages() {
     }
