@@ -9,15 +9,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import org.cloudfoundry.client.lib.ApplicationLogListener;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
-import org.cloudfoundry.client.lib.ClientHttpResponseCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerClientImpl;
 import org.cloudfoundry.client.lib.CloudCredentials;
 import org.cloudfoundry.client.lib.RestLogCallback;
 import org.cloudfoundry.client.lib.StartingInfo;
-import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.UploadStatusCallback;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -38,7 +35,6 @@ import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.domain.CloudStack;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.CloudUser;
-import org.cloudfoundry.client.lib.domain.CrashesInfo;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
@@ -294,11 +290,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public void stopApplication(String applicationName) {
         executeWithRetry(() -> delegate.stopApplication(applicationName));
-    }
-
-    @Override
-    public StreamingLogToken streamLogs(String applicationName, ApplicationLogListener listener) {
-        return executeWithRetry(() -> delegate.streamLogs(applicationName, listener), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -564,11 +555,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CrashesInfo getCrashes(String applicationName) {
-        return executeWithRetry(() -> delegate.getCrashes(applicationName), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
     public List<CloudEvent> getEvents() {
         return executeWithRetry(delegate::getEvents, HttpStatus.NOT_FOUND);
     }
@@ -746,12 +732,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public void logout() {
         executeWithRetry(delegate::logout);
-    }
-
-    @Override
-    public void openFile(String applicationName, int instanceIndex, String filePath,
-                         ClientHttpResponseCallback clientHttpResponseCallback) {
-        executeWithRetry(() -> delegate.openFile(applicationName, instanceIndex, filePath, clientHttpResponseCallback));
     }
 
     @Override

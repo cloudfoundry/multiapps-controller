@@ -12,7 +12,6 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudBuild;
 import org.cloudfoundry.client.lib.domain.PackageState;
 import org.cloudfoundry.client.lib.domain.UploadToken;
-import org.cloudfoundry.client.lib.util.JsonUtil;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.http.HttpStatus;
 
@@ -21,6 +20,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class ApplicationStager {
 
@@ -80,24 +80,24 @@ public class ApplicationStager {
         throw new IllegalArgumentException("Invalid build state");
     }
 
-    public boolean isApplicationStagedCorrectly(StepLogger stepLogger, CloudApplication cloudApplication) {
+    public boolean isApplicationStagedCorrectly(StepLogger stepLogger, CloudApplication app) {
         // TODO Remove the null filtering.
         // We are not sure if the controller is returning null for created_at or not, so after the proper v3 client adoption,
         // we should decide what to do with this filtering.
-        List<CloudBuild> buildsForApplication = client.getBuildsForApplication(cloudApplication.getMetadata()
-                                                                                               .getGuid());
+        List<CloudBuild> buildsForApplication = client.getBuildsForApplication(app.getMetadata()
+                                                                                  .getGuid());
         if (containsNullMetadata(buildsForApplication)) {
             return false;
         }
-        CloudBuild cloudBuild = getLastBuild(buildsForApplication);
-        if (cloudBuild == null) {
-            stepLogger.debug(Messages.NO_BUILD_FOUND_FOR_APPLICATION, cloudApplication.getName());
+        CloudBuild build = getLastBuild(buildsForApplication);
+        if (build == null) {
+            stepLogger.debug(Messages.NO_BUILD_FOUND_FOR_APPLICATION, app.getName());
             return false;
         }
-        if (isCloudBuildStagedCorrectly(cloudBuild)) {
+        if (isBuildStagedCorrectly(build)) {
             return true;
         }
-        logMessages(stepLogger, cloudApplication, cloudBuild);
+        logMessages(stepLogger, app, build);
         return false;
     }
 
@@ -107,20 +107,20 @@ public class ApplicationStager {
                                                                                           .getCreatedAt() == null);
     }
 
-    private CloudBuild getLastBuild(List<CloudBuild> cloudBuilds) {
-        return cloudBuilds.stream()
-                          .max(Comparator.comparing(build -> build.getMetadata()
-                                                                  .getCreatedAt()))
-                          .orElse(null);
+    private CloudBuild getLastBuild(List<CloudBuild> builds) {
+        return builds.stream()
+                     .max(Comparator.comparing(build -> build.getMetadata()
+                                                             .getCreatedAt()))
+                     .orElse(null);
     }
 
-    private boolean isCloudBuildStagedCorrectly(CloudBuild cloudBuild) {
-        return cloudBuild.getState() == CloudBuild.State.STAGED && cloudBuild.getDropletInfo() != null && cloudBuild.getError() == null;
+    private boolean isBuildStagedCorrectly(CloudBuild build) {
+        return build.getState() == CloudBuild.State.STAGED && build.getDropletInfo() != null && build.getError() == null;
     }
 
-    private void logMessages(StepLogger stepLogger, CloudApplication cloudApplication, CloudBuild cloudBuild) {
-        stepLogger.info(Messages.APPLICATION_NOT_STAGED_CORRECTLY, cloudApplication.getName());
-        stepLogger.debug(Messages.LAST_BUILD, JsonUtil.convertToJson(cloudBuild));
+    private void logMessages(StepLogger stepLogger, CloudApplication app, CloudBuild build) {
+        stepLogger.info(Messages.APPLICATION_NOT_STAGED_CORRECTLY, app.getName());
+        stepLogger.debug(Messages.LAST_BUILD, JsonUtil.toJson(build));
     }
 
     public void bindDropletToApplication(DelegateExecution context, UUID appGuid) {
