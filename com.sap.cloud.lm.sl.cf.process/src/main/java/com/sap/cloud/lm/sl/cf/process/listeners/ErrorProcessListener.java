@@ -38,21 +38,21 @@ public class ErrorProcessListener extends AbstractFlowableEngineEventListener {
         }
     }
 
+    private void reportError(FlowableEngineEvent event, DeadLetterJobEntity entity) {
+        if (entity.getExceptionMessage() == null) {
+            LOGGER.error("Dead letter job detected for process \"{}\" (definition: \"{}\"), but it does not contain an exception.",
+                         event.getProcessInstanceId(), event.getProcessDefinitionId());
+        } else {
+            LOGGER.error("Dead letter job detected for process \"{}\" (definition: \"{}\"): {}", //
+                         event.getProcessInstanceId(), event.getProcessDefinitionId(), entity.getExceptionStacktrace());
+            eventHandler.handle(event, entity.getExceptionMessage());
+        }
+    }
+
     @Override
     protected void jobExecutionFailure(FlowableEngineEntityEvent event) {
         if (event instanceof FlowableExceptionEvent) {
             reportError(event, (FlowableExceptionEvent) event);
-        }
-    }
-
-    private void reportError(FlowableEngineEvent event, DeadLetterJobEntity entity) {
-        if (entity.getExceptionMessage() == null) {
-            LOGGER.error("Job execution failure detected for process \"{}\" (definition: \"{}\"), but the dead letter job does not contain an exception.",
-                         event.getProcessInstanceId(), event.getProcessDefinitionId());
-        } else {
-            LOGGER.error("Job execution failure detected for process \"{}\" (definition: \"{}\"): {}", //
-                         event.getProcessInstanceId(), event.getProcessDefinitionId(), entity.getExceptionStacktrace());
-            eventHandler.handle(event, entity.getExceptionMessage());
         }
     }
 
