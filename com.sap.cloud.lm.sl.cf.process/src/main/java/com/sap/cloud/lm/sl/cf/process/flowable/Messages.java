@@ -20,10 +20,6 @@ public class Messages {
     // Debug messages
 
     public static final String SETTING_VARIABLE = "Setting variable \"{0}\" to \"{1}\"...";
-    public static final String WAITING_PROCESS_IS_READY_FOR_DELETION = "Waiting process \"{0}\" is ready for deletion";
-    public static final String DELETING_PROCESS = "Deleting process \"{0}\"...";
-    public static final String PROCESS_HAS_STATE = "Process \"{0}\" has reached on of states [\"{1}\"]";
-    public static final String PROCESS_AND_ALL_SUBPROCESSES_FAILED = "Process \"{0}\" and all its subproceses (CallActivities) failed";
     public static final String SET_SUCCESSFULLY = "Variable \"{0}\" set successfully";
     public static final String SETTING_SECONDS_TO_WAIT_BEFORE_FLOWABLE_JOB_EXECUTOR_SHUTDOWN = "Setting \"{0}\" seconds to wait before shutdown of Flowable job executor...";
     public static final String SHUTTING_DOWN_FLOWABLE_JOB_EXECUTOR = "Shutting down Flowable job executor...";

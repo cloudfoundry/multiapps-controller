@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.flowable;
 
 import static java.text.MessageFormat.format;
 
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,8 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.Constants;
-import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 @Named
 public class FlowableFacade {
@@ -122,16 +121,6 @@ public class FlowableFacade {
                                    .collect(Collectors.toList());
     }
 
-    private Set<String> getDeadLetterJobsIdsForProcess(String processId) {
-        return processEngine.getManagementService()
-                            .createDeadLetterJobQuery()
-                            .processInstanceId(processId)
-                            .list()
-                            .stream()
-                            .map(Job::getId)
-                            .collect(Collectors.toSet());
-    }
-
     private List<Job> getDeadLetterJobsForExecution(Execution execution) {
         return processEngine.getManagementService()
                             .createDeadLetterJobQuery()
@@ -208,7 +197,7 @@ public class FlowableFacade {
     public void executeJob(String processInstanceId) {
         List<Job> deadLetterJobs = getDeadLetterJobs(processInstanceId);
         if (deadLetterJobs.isEmpty()) {
-            LOGGER.info(format("No dead letter jobs found for process with id {0}", processInstanceId));
+            LOGGER.info(MessageFormat.format("No dead letter jobs found for process with id {0}", processInstanceId));
             return;
         }
         moveDeadLetterJobsToExecutableJobs(deadLetterJobs);
@@ -241,14 +230,6 @@ public class FlowableFacade {
                 // different if the process has parallel executions.
                 processEngine.getRuntimeService()
                              .setVariable(processInstanceId, Constants.PROCESS_ABORTED, Boolean.TRUE);
-                LOGGER.debug(format(Messages.WAITING_PROCESS_IS_READY_FOR_DELETION, processInstanceId));
-                while (true) {
-                    CommonUtil.sleep(1000);
-                    if (readyForDeletion(processInstanceId)) {
-                        break;
-                    }
-                }
-                LOGGER.debug(format(Messages.DELETING_PROCESS, processInstanceId));
                 processEngine.getRuntimeService()
                              .deleteProcessInstance(processInstanceId, deleteReason);
                 break;
@@ -259,44 +240,6 @@ public class FlowableFacade {
                 LOGGER.warn(format(Messages.RETRYING_PROCESS_ABORT, processInstanceId));
             }
         }
-    }
-
-    private boolean readyForDeletion(String processId) {
-        ProcessInstance processInstance = getProcessInstance(processId);
-        if (processInstance == null) {
-            LOGGER.debug(format(Messages.PROCESS_HAS_STATE, processId, Operation.State.getFinalStates()));
-            return false;
-        }
-        if (isProcessInstanceAtReceiveTask(processId)) {
-            LOGGER.debug(format(Messages.PROCESS_HAS_STATE, processId, Operation.State.ACTION_REQUIRED));
-            return false;
-        }
-        if (haveAllProcessesFailed(processId)) {
-            LOGGER.debug(format(Messages.PROCESS_AND_ALL_SUBPROCESSES_FAILED, processId));
-            return true;
-        }
-        LOGGER.debug(format(Messages.PROCESS_HAS_STATE, processId, Operation.State.RUNNING));
-        return false;
-    }
-
-    private boolean haveAllProcessesFailed(String processId) {
-        Set<String> processIds = getAllProcessExecutions(processId).stream()
-                                                                   .map(Execution::getProcessInstanceId)
-                                                                   .collect(Collectors.toSet());
-        Set<String> deadLetterJobIds = new HashSet<>();
-        for (String id : processIds) {
-            deadLetterJobIds.addAll(getDeadLetterJobsIdsForProcess(id));
-        }
-        // When root process is aborted, there is only one deadletter job for it
-        if (processIds.size() == 1) {
-            return deadLetterJobIds.size() == 1;
-        }
-
-        // When a subprocess (CallActivity) is aborted,
-        // there are deadletter jobs for all executions except for the execution of the root process.
-        // TODO This will not work when there are parallel executions running in the root process, not part of CallActivity (parallel
-        // gateway)
-        return (processIds.size() - 1) == deadLetterJobIds.size();
     }
 
     protected boolean isPastDeadline(long deadline) {

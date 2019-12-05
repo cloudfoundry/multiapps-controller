@@ -104,7 +104,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         ProcessAction action = processActionRegistry.getAction(actionId);
         action.execute(getAuthenticatedUser(request), operationId);
         AuditLoggingProvider.getFacade()
-                            .logAboutToStart(MessageFormat.format("{0} over operation with id {1}", action.getActionId(), operation.getProcessId()));
+                            .logAboutToStart(MessageFormat.format("{0} over operation with id {1}", action, operation.getProcessId()));
         return ResponseEntity.accepted()
                              .header("Location", getLocationHeader(operationId, spaceGuid))
                              .build();
