@@ -1,26 +1,55 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEntityEvent;
+import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableExceptionEvent;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.job.service.impl.persistence.entity.DeadLetterJobEntity;
 import org.flowable.job.service.impl.persistence.entity.JobEntity;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
+import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.OperationInErrorStateHandler;
 
 public class ErrorProcessListenerTest {
 
     private static final String ERROR_MESSAGE = "Error!";
 
-    private final OperationInErrorStateHandler eventHandler = Mockito.mock(OperationInErrorStateHandler.class);
-    private final ErrorProcessListener errorProcessListener = new ErrorProcessListener(eventHandler);
+    private static class ErrorProcessListenerMock extends ErrorProcessListener {
+
+        public ErrorProcessListenerMock(OperationInErrorStateHandler eventHandler) {
+            super(eventHandler);
+        }
+
+        protected DelegateExecution execution;
+
+        protected DelegateExecution getExecution(FlowableEngineEvent event) {
+            return execution;
+        }
+
+    }
+
+    @Mock
+    private OperationInErrorStateHandler eventHandler;
+    @InjectMocks
+    private ErrorProcessListenerMock errorProcessListener;
+
+    @BeforeEach
+    public void initMocks() {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test
     public void testJobExecutionFailureWithWrongEventClass() {
         FlowableEngineEntityEvent engineEntityEvent = Mockito.mock(FlowableEngineEntityEvent.class);
         errorProcessListener.jobExecutionFailure(engineEntityEvent);
-        Mockito.verifyZeroInteractions(eventHandler);
+        Mockito.verifyNoInteractions(eventHandler);
     }
 
     @Test
@@ -28,7 +57,7 @@ public class ErrorProcessListenerTest {
         FlowableEngineEntityEvent engineEntityEvent = Mockito.mock(FlowableEngineEntityEvent.class, Mockito.withSettings()
                                                                                                            .extraInterfaces(FlowableExceptionEvent.class));
         errorProcessListener.jobExecutionFailure(engineEntityEvent);
-        Mockito.verifyZeroInteractions(eventHandler);
+        Mockito.verifyNoInteractions(eventHandler);
     }
 
     @Test
@@ -43,7 +72,6 @@ public class ErrorProcessListenerTest {
         errorProcessListener.jobExecutionFailure(engineEntityEvent);
         Mockito.verify(eventHandler)
                .handle(engineEntityEvent, t);
-        Mockito.verifyZeroInteractions(eventHandler);
     }
 
     @Test
@@ -54,7 +82,7 @@ public class ErrorProcessListenerTest {
                .thenReturn(job);
 
         errorProcessListener.entityCreated(engineEntityEvent);
-        Mockito.verifyZeroInteractions(eventHandler);
+        Mockito.verifyNoInteractions(eventHandler);
     }
 
     @Test
@@ -65,7 +93,7 @@ public class ErrorProcessListenerTest {
                .thenReturn(job);
 
         errorProcessListener.entityCreated(engineEntityEvent);
-        Mockito.verifyZeroInteractions(eventHandler);
+        Mockito.verifyNoInteractions(eventHandler);
     }
 
     @Test
@@ -80,7 +108,20 @@ public class ErrorProcessListenerTest {
         errorProcessListener.entityCreated(engineEntityEvent);
         Mockito.verify(eventHandler)
                .handle(engineEntityEvent, ERROR_MESSAGE);
-        Mockito.verifyZeroInteractions(eventHandler);
+    }
+
+    @Test
+    public void testHandlingWithCorrelationId() {
+        errorProcessListener.execution = mockExecutionWithCorrelationId();
+        testEntityCreated();
+        testJobExecutionFailure();
+    }
+
+    private DelegateExecution mockExecutionWithCorrelationId() {
+        DelegateExecution execution = MockDelegateExecution.createSpyInstance();
+        Mockito.when(execution.getVariable(Constants.VAR_CORRELATION_ID))
+               .thenReturn("abc");
+        return execution;
     }
 
 }
