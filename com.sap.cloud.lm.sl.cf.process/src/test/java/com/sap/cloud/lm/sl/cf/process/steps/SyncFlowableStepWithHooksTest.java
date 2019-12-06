@@ -109,7 +109,7 @@ public class SyncFlowableStepWithHooksTest {
     public void testWithNoModuleToDeployAndNoDeploymentDescriptor() throws Exception {
         new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
 
-        Mockito.verifyZeroInteractions(moduleHooksAggregatorMock);
+        Mockito.verifyNoInteractions(moduleHooksAggregatorMock);
     }
 
     @Test
@@ -171,7 +171,7 @@ public class SyncFlowableStepWithHooksTest {
 
         new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
 
-        Mockito.verifyZeroInteractions(moduleHooksAggregatorMock);
+        Mockito.verifyNoInteractions(moduleHooksAggregatorMock);
     }
 
     @Test

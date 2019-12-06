@@ -15,7 +15,7 @@ public class SafeExecutorTest {
         SafeExecutor safeExecutor = new SafeExecutor(exceptionHandler);
         safeExecutor.execute(() -> {
         });
-        Mockito.verifyZeroInteractions(exceptionHandler);
+        Mockito.verifyNoInteractions(exceptionHandler);
     }
 
     @Test

@@ -41,7 +41,7 @@ public class HookProcessGetterTest {
         String result = getProcessDefinitionForHookWithType("task");
         Assertions.assertEquals("executeHookTasksSubProcess", result);
 
-        Mockito.verifyZeroInteractions(progressMessageService, flowableFacade, context);
+        Mockito.verifyNoInteractions(progressMessageService, flowableFacade, context);
     }
 
     @Test

@@ -27,7 +27,7 @@ public class AbortProcessListenerTest {
     @Test
     public void testWithWrongEventClass() {
         abortProcessListenerWithContext.onEvent(Mockito.mock(FlowableEvent.class));
-        Mockito.verifyZeroInteractions(eventHandler);
+        Mockito.verifyNoInteractions(eventHandler);
     }
 
     @Test
@@ -35,7 +35,7 @@ public class AbortProcessListenerTest {
         FlowableEngineEntityEvent entityCreatedEvent = mockFlowableEngineEvent(FlowableEngineEntityEvent.class,
                                                                                FlowableEngineEventType.ENTITY_CREATED);
         abortProcessListenerWithContext.onEvent(entityCreatedEvent);
-        Mockito.verifyZeroInteractions(eventHandler);
+        Mockito.verifyNoInteractions(eventHandler);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class AbortProcessListenerTest {
     @Test
     public void testWithoutContext() {
         abortProcessListener.onEvent(mockFlowableEngineEvent(FlowableCancelledEvent.class, FlowableEngineEventType.PROCESS_CANCELLED));
-        Mockito.verifyZeroInteractions(eventHandler);
+        Mockito.verifyNoInteractions(eventHandler);
     }
 
     private static <T extends FlowableEngineEvent> T mockFlowableEngineEvent(Class<T> classOfT, FlowableEventType type) {
