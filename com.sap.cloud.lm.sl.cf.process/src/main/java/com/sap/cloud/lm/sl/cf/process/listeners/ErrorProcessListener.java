@@ -6,11 +6,14 @@ import javax.inject.Named;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEntityEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableExceptionEvent;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.event.AbstractFlowableEngineEventListener;
 import org.flowable.job.service.impl.persistence.entity.DeadLetterJobEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.core.util.LoggingUtil;
+import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.OperationInErrorStateHandler;
 
 @Named("errorProcessListener")
@@ -34,11 +37,20 @@ public class ErrorProcessListener extends AbstractFlowableEngineEventListener {
     protected void entityCreated(FlowableEngineEntityEvent event) {
         Object entity = event.getEntity();
         if (entity instanceof DeadLetterJobEntity) {
-            reportError(event, (DeadLetterJobEntity) entity);
+            handleWithCorrelationId(event, () -> handle(event, (DeadLetterJobEntity) entity));
         }
     }
 
-    private void reportError(FlowableEngineEvent event, DeadLetterJobEntity entity) {
+    private void handleWithCorrelationId(FlowableEngineEvent event, Runnable handlerFunction) {
+        DelegateExecution context = getExecution(event);
+        if (context != null) {
+            LoggingUtil.logWithCorrelationId(StepsUtil.getCorrelationId(context), handlerFunction);
+            return;
+        }
+        handlerFunction.run();
+    }
+
+    private void handle(FlowableEngineEvent event, DeadLetterJobEntity entity) {
         if (entity.getExceptionMessage() == null) {
             LOGGER.error("Dead letter job detected for process \"{}\" (definition: \"{}\"), but it does not contain an exception.",
                          event.getProcessInstanceId(), event.getProcessDefinitionId());
@@ -52,11 +64,11 @@ public class ErrorProcessListener extends AbstractFlowableEngineEventListener {
     @Override
     protected void jobExecutionFailure(FlowableEngineEntityEvent event) {
         if (event instanceof FlowableExceptionEvent) {
-            reportError(event, (FlowableExceptionEvent) event);
+            handleWithCorrelationId(event, () -> handle(event, (FlowableExceptionEvent) event));
         }
     }
 
-    private void reportError(FlowableEngineEvent event, FlowableExceptionEvent exceptionEvent) {
+    private void handle(FlowableEngineEvent event, FlowableExceptionEvent exceptionEvent) {
         Throwable throwable = exceptionEvent.getCause();
         if (throwable == null) {
             LOGGER.error("Job execution failure detected for process \"{}\" (definition: \"{}\"), but the exception event does not contain an exception.",
