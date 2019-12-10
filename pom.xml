@@ -59,7 +59,7 @@
         <jgit.version>4.0.1.201506240215-r</jgit.version>
         <swagger.version>1.5.16</swagger.version>
         <jclouds.version>2.1.3</jclouds.version>
-        <guava.version>23.0</guava.version>
+        <guava.version>23.6.1-jre</guava.version>
         <jsr305.version>3.0.2</jsr305.version>
         <immutables.version>2.7.5</immutables.version>
         <com.sap.cloud.lm.sl.open.version>1.83.0</com.sap.cloud.lm.sl.open.version>
