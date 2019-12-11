@@ -127,7 +127,8 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = 30;
     public static final Integer DEFAULT_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS = 1;
     public static final Integer DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = 20;
-    public static final int DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = 5;
+    // We've experimented with much smaller values (5, 15 seconds), but these lead to connection timeouts.
+    public static final int DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(10);
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 192;
     public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 64;
     public static final Boolean DEFAULT_SAP_INTERNAL_DELIVERY = false;
