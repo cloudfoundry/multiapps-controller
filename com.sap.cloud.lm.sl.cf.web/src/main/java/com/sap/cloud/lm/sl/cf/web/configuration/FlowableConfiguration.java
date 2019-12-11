@@ -69,6 +69,7 @@ public class FlowableConfiguration {
         processEngineConfiguration.setDeploymentResources(getFlowableResources());
         processEngineConfiguration.setFailedJobCommandFactory(getFailedJobCommandFactory());
         processEngineConfiguration.setAsyncExecutor(jobExecutor);
+        // By default Flowable will retry failed jobs and we don't want that.
         processEngineConfiguration.setAsyncExecutorNumberOfRetries(0);
         processEngineConfiguration.setIdGenerator(new StrongUuidGenerator());
         return processEngineConfiguration;
@@ -83,7 +84,6 @@ public class FlowableConfiguration {
     }
 
     protected FailedJobCommandFactory getFailedJobCommandFactory() {
-        // By default Flowable will retry failed jobs. Disable this behavior.
         return new AbortFailedProcessCommandFactory();
     }
 

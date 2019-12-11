@@ -7,6 +7,7 @@ import org.flowable.common.engine.impl.interceptor.CommandContext;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.impl.context.Context;
+import org.flowable.engine.impl.jobexecutor.DefaultFailedJobCommandFactory;
 import org.flowable.engine.impl.util.CommandContextUtil;
 import org.flowable.job.service.impl.persistence.entity.JobEntity;
 import org.flowable.variable.api.history.HistoricVariableInstance;
@@ -16,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
-public class AbortFailedProcessCommandFactory extends NoJobRetryCommandFactory {
+public class AbortFailedProcessCommandFactory extends DefaultFailedJobCommandFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbortFailedProcessCommandFactory.class);
 
