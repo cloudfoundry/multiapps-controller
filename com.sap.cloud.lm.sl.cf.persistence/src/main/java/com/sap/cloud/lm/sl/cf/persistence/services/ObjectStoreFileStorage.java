@@ -17,6 +17,7 @@ import org.jclouds.blobstore.ContainerNotFoundException;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.options.ListContainerOptions;
+import org.jclouds.blobstore.options.PutOptions;
 import org.jclouds.http.HttpResponseException;
 import org.jclouds.io.Payload;
 import org.slf4j.Logger;
@@ -133,7 +134,7 @@ public class ObjectStoreFileStorage implements FileStorage {
     private void putBlobWithRetries(Blob blob, int retries) {
         for (int i = 1; i <= retries; i++) {
             try {
-                blobStore.putBlob(container, blob);
+                blobStore.putBlob(container, blob, PutOptions.Builder.multipart());
                 return;
             } catch (HttpResponseException e) {
                 LOGGER.warn(MessageFormat.format(Messages.ATTEMPT_TO_UPLOAD_BLOB_FAILED, i, retries, e.getMessage()), e);
