@@ -34,7 +34,8 @@ public class FlowableFacade {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowableFacade.class);
 
     private static final int DEFAULT_JOB_RETRIES = 0;
-    private static final int DEFAULT_ABORT_TIMEOUT_MS = 30000;
+    private static final int DEFAULT_ABORT_TIMEOUT_MS = 30 * 1000;
+    private static final int DEFAULT_ABORT_WAIT_TIMEOUT_MS = 2 * 60 * 1000;
 
     private final ProcessEngine processEngine;
 
@@ -111,6 +112,11 @@ public class FlowableFacade {
 
     public boolean hasDeadLetterJobs(String processId) {
         return !getDeadLetterJobs(processId).isEmpty();
+    }
+
+    private boolean allExecutionsHaveDeadLetterJobs(List<Execution> executions) {
+        return executions.stream()
+                         .allMatch(e -> !getDeadLetterJobsForExecution(e).isEmpty());
     }
 
     private List<Job> getDeadLetterJobs(String processId) {
@@ -220,7 +226,7 @@ public class FlowableFacade {
     }
 
     public void deleteProcessInstance(String processInstanceId, String deleteReason) {
-        long deadline = System.currentTimeMillis() + DEFAULT_ABORT_TIMEOUT_MS;
+        long overallAbortDeadline = System.currentTimeMillis() + DEFAULT_ABORT_WAIT_TIMEOUT_MS + DEFAULT_ABORT_TIMEOUT_MS;
         while (true) {
             try {
                 LOGGER.debug(format(Messages.SETTING_VARIABLE, Constants.PROCESS_ABORTED, Boolean.TRUE));
@@ -230,11 +236,20 @@ public class FlowableFacade {
                 // different if the process has parallel executions.
                 processEngine.getRuntimeService()
                              .setVariable(processInstanceId, Constants.PROCESS_ABORTED, Boolean.TRUE);
+                long allSubprocessesFinishedDeadline = System.currentTimeMillis() + DEFAULT_ABORT_WAIT_TIMEOUT_MS;
+                while (true) {
+                    List<Execution> subprocessExecutionsWithoutChildren = getAllSubprocessExecutionsWithoutChildren(processInstanceId);
+
+                    if (allExecutionsHaveDeadLetterJobs(subprocessExecutionsWithoutChildren)
+                        || isPastDeadline(allSubprocessesFinishedDeadline)) {
+                        break;
+                    }
+                }
                 processEngine.getRuntimeService()
                              .deleteProcessInstance(processInstanceId, deleteReason);
                 break;
             } catch (FlowableOptimisticLockingException e) {
-                if (isPastDeadline(deadline)) {
+                if (isPastDeadline(overallAbortDeadline)) {
                     throw new IllegalStateException(Messages.ABORT_OPERATION_TIMED_OUT, e);
                 }
                 LOGGER.warn(format(Messages.RETRYING_PROCESS_ABORT, processInstanceId));
@@ -266,6 +281,25 @@ public class FlowableFacade {
         return allProcessExecutions.stream()
                                    .filter(e -> e.getActivityId() != null)
                                    .collect(Collectors.toList());
+    }
+
+    private List<Execution> getAllSubprocessExecutionsWithoutChildren(String processInstanceId) {
+        List<Execution> allExecutions = getAllProcessExecutions(processInstanceId);
+        return allExecutions.stream()
+                            .filter(execution -> isNotParent(allExecutions, execution))
+                            .collect(Collectors.toList());
+    }
+
+    private boolean isNotParent(List<Execution> allExecutions, Execution execution) {
+        for (Execution exec : allExecutions) {
+            if (execution.getId()
+                         .equals(exec.getParentId())
+                || execution.getId()
+                            .equals(exec.getSuperExecutionId())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private List<Execution> getAllProcessExecutions(String processInstanceId) {
