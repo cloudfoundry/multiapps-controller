@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
@@ -44,7 +43,6 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private final StepInput stepInput;
     private final String expectedExceptionMessage;
-    private Map<CloudServiceExtended, CloudServiceInstance> existingServiceInstances;
     private final boolean shouldWarn;
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
@@ -161,8 +159,8 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     }
 
     private void prepareClient() throws Exception {
-        existingServiceInstances = createServiceInstances(stepInput);
-        prepareExistingServices();
+        Map<CloudServiceExtended, CloudServiceInstance> existingServiceInstances = createServiceInstances(stepInput);
+        existingServiceInstances.forEach(this::prepareServiceInstance);
     }
 
     private Map<CloudServiceExtended, CloudServiceInstance> createServiceInstances(StepInput stepInput) {
@@ -199,21 +197,8 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
                                            .build();
     }
 
-    private void prepareExistingServices() {
-        List<CloudService> existingServices = new ArrayList<>();
-        existingServices.addAll(stepInput.existingServices);
-        Mockito.when(client.getServices())
-               .thenReturn(existingServices);
-        prepareServiceInstances();
-
-    }
-
-    private void prepareServiceInstances() {
-        existingServiceInstances.forEach(this::prepareServiceInstance);
-    }
-
     private void prepareServiceInstance(CloudServiceExtended service, CloudServiceInstance instance) {
-        Mockito.when(client.getServiceInstance(service.getName()))
+        Mockito.when(client.getServiceInstance(service.getName(), false))
                .thenReturn(instance);
     }
 
