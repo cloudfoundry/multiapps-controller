@@ -17,7 +17,6 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -79,16 +78,16 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
     private void validateServicesToCreate(CloudControllerClient client, DelegateExecution context, DeployedMta deployedMta,
                                           List<CloudApplication> deployedApps) {
         List<CloudServiceExtended> servicesToCreate = StepsUtil.getServicesToCreate(context);
-        Map<String, CloudService> existingServicesMap = createExistingServicesMap(client.getServices());
         Set<String> servicesInDeployedMta = deployedMta != null ? deployedMta.getServices() : Collections.emptySet();
         for (CloudServiceExtended service : servicesToCreate) {
-            if (existingServicesMap.containsKey(service.getName())) {
-                validateExistingServiceAssociation(service, client, deployedApps, servicesInDeployedMta);
+            CloudServiceInstance existingServiceInstance = client.getServiceInstance(service.getName(), false);
+            if (existingServiceInstance != null) {
+                validateExistingServiceAssociation(service, existingServiceInstance, deployedApps, servicesInDeployedMta);
             }
         }
     }
 
-    private void validateExistingServiceAssociation(CloudServiceExtended serviceToCreate, CloudControllerClient client,
+    private void validateExistingServiceAssociation(CloudServiceExtended serviceToCreate, CloudServiceInstance existingServiceInstance,
                                                     List<CloudApplication> deployedApps, Set<String> servicesInDeployedMta) {
 
         getStepLogger().debug(Messages.VALIDATING_EXISTING_SERVICE_ASSOCIATION, serviceToCreate.getName());
@@ -96,7 +95,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
             return;
         }
 
-        List<CloudServiceBinding> bindings = getServiceBindings(client, serviceToCreate);
+        List<CloudServiceBinding> bindings = existingServiceInstance.getBindings();
         if (bindings.isEmpty()) {
             getStepLogger().warn(Messages.SERVICE_DOESNT_HAVE_BOUND_COMPONENTS, serviceToCreate.getName());
             return;
@@ -133,11 +132,6 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
     private boolean isServicePartOfMta(ApplicationMtaMetadata mtaMetadata, CloudServiceExtended service) {
         return mtaMetadata.getServices()
                           .contains(service.getName());
-    }
-
-    private List<CloudServiceBinding> getServiceBindings(CloudControllerClient client, CloudServiceExtended service) {
-        CloudServiceInstance serviceInstance = client.getServiceInstance(service.getName());
-        return serviceInstance.getBindings();
     }
 
     private void validateApplicationsToDeploy(DelegateExecution context, DeployedMta deployedMta, List<CloudApplication> deployedApps) {
@@ -193,12 +187,6 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         Map<String, CloudApplication> applicationsMap = new HashMap<>(existingApps.size());
         existingApps.forEach(app -> applicationsMap.put(app.getName(), app));
         return applicationsMap;
-    }
-
-    private Map<String, CloudService> createExistingServicesMap(List<CloudService> existingServices) {
-        Map<String, CloudService> servicesMap = new HashMap<>(existingServices.size());
-        existingServices.forEach(service -> servicesMap.put(service.getName(), service));
-        return servicesMap;
     }
 
     private Set<String> getApplicationsInDeployedMta(List<DeployedMtaModule> modules) {
