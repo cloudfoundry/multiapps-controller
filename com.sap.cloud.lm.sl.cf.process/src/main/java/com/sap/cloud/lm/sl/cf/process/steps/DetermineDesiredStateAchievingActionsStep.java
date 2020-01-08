@@ -8,6 +8,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -22,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.apps.ChangedApplicationActionCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.UnchangedApplicationActionCalculator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
 
 @Named("determineDesiredStateAchievingActionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -40,11 +40,11 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
         getStepLogger().debug(Messages.CURRENT_STATE, appName, currentState);
         ApplicationStartupState desiredState = computeDesiredState(execution.getContext(), app);
         getStepLogger().debug(Messages.DESIRED_STATE, appName, desiredState);
-        ApplicationStager applicationStager = new ApplicationStager(execution.getControllerClient());
+        UploadToken uploadToken = StepsUtil.getUploadToken(execution.getContext());
+        boolean appHasUnstagedContent = uploadToken != null;
         Set<ApplicationStateAction> actionsToExecute = getActionsCalculator(execution.getContext()).determineActionsToExecute(currentState,
                                                                                                                               desiredState,
-                                                                                                                              applicationStager.isApplicationStagedCorrectly(execution.getStepLogger(),
-                                                                                                                                                                             app));
+                                                                                                                              !appHasUnstagedContent);
         getStepLogger().debug(Messages.ACTIONS_TO_EXECUTE, appName, actionsToExecute);
 
         StepsUtil.setAppStateActionsToExecute(execution.getContext(), actionsToExecute);

@@ -433,6 +433,7 @@ public class Messages {
     public static final String MODULE_WITH_APPLICATION_NAME_WAS_MARKED_AS_IDLE = "Module \"{0}\" with application name \"{1}\" was marked as idle";
     public static final String UPDATING_APP_NAMES_WITH_NEW_SUFFIX = "Updating application names in deployment descriptor with 'new' suffix";
     public static final String UPDATING_CONFIGURATION_SUBSCRIPTION_0_WITH_NAME_1 = "Updating configuration subscription \"{0}\" with name \"{1}\"";
+    public static final String CONTENT_OF_APPLICATION_0_IS_NOT_CHANGED = "Content of application \"{0}\" is not changed - upload will be skipped.";
 
     protected Messages() {
     }

@@ -37,6 +37,7 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveContext;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveReader;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationDigestDetector;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationZipBuilder;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -54,8 +55,9 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     @Override
     public StepPhase executeAsyncStep(ExecutionWrapper execution) throws FileStorageException {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
+        String appName = app.getName();
 
-        getStepLogger().info(Messages.UPLOADING_APP, app.getName());
+        getStepLogger().info(Messages.UPLOADING_APP, appName);
         CloudControllerClient client = execution.getControllerClient();
 
         String appArchiveId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
@@ -67,14 +69,25 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             return StepPhase.DONE;
         }
 
-        getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, fileName, app.getName());
-
         String newApplicationDigest = getNewApplicationDigest(execution, appArchiveId, fileName);
-        detectApplicationFileDigestChanges(execution, app.getName(), client, newApplicationDigest);
+        CloudApplication cloudApp = client.getApplication(appName);
+        boolean contentChanged = detectApplicationFileDigestChanges(execution, cloudApp, client, newApplicationDigest);
+        if (!contentChanged && isAppStagedCorrectly(client, cloudApp)) {
+            getStepLogger().info(Messages.CONTENT_OF_APPLICATION_0_IS_NOT_CHANGED, appName);
+            return StepPhase.DONE;
+        }
+
+        getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, fileName, appName);
         UploadToken uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
-        getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
+
+        getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, appName);
         StepsUtil.setUploadToken(uploadToken, execution.getContext());
         return StepPhase.POLL;
+    }
+
+    private boolean isAppStagedCorrectly(CloudControllerClient client, CloudApplication cloudApp) {
+        ApplicationStager appStager = new ApplicationStager(client);
+        return appStager.isApplicationStagedCorrectly(getStepLogger(), cloudApp);
     }
 
     @Override
@@ -138,9 +151,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                                              getMonitorUploadStatusCallback(app, filePath.toFile(), execution.getContext()));
     }
 
-    private void detectApplicationFileDigestChanges(ExecutionWrapper execution, String appName, CloudControllerClient client,
-                                                    String newApplicationDigest) {
-        CloudApplication appWithUpdatedEnvironment = client.getApplication(appName);
+    private boolean detectApplicationFileDigestChanges(ExecutionWrapper execution, CloudApplication appWithUpdatedEnvironment,
+                                                       CloudControllerClient client, String newApplicationDigest) {
         ApplicationDigestDetector digestDetector = new ApplicationDigestDetector(appWithUpdatedEnvironment);
         String currentApplicationDigest = digestDetector.getExistingApplicationDigest();
         boolean contentChanged = digestDetector.hasApplicationContentDigestChanged(newApplicationDigest, currentApplicationDigest);
@@ -148,6 +160,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             attemptToUpdateApplicationDigest(client, appWithUpdatedEnvironment, newApplicationDigest);
         }
         setAppContentChanged(execution, contentChanged);
+        return contentChanged;
     }
 
     private void attemptToUpdateApplicationDigest(CloudControllerClient client, CloudApplication app, String newApplicationDigest) {

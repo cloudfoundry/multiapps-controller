@@ -12,11 +12,23 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.domain.CloudBuild;
+import org.cloudfoundry.client.lib.domain.CloudBuild.State;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudBuild;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudBuild.ImmutableDropletInfo;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.junit.After;
@@ -41,7 +53,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveContext;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveReader;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationZipBuilder;
@@ -65,6 +76,8 @@ public class UploadAppStepTest {
         private static final UploadToken UPLOAD_TOKEN = ImmutableUploadToken.builder()
                                                                             .packageGuid(UUID.randomUUID())
                                                                             .build();
+        private static final String MODULE_DIGEST = "439B99DFFD0583200D5D21F4CD1BF035";
+        private static final String DATE_PATTERN = "dd-MM-yyyy";
 
         public final TemporaryFolder tempDir = new TemporaryFolder();
         @Rule
@@ -76,15 +89,29 @@ public class UploadAppStepTest {
 // @formatter:off
                 // (00)
                 {
-                    null, null,
+                    null, null, true, null
                 },
                 // (01)
                 {
-                    format(Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, APP_FILE), null,
+                    format(Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, APP_FILE), null, true, null
                 },
                 // (02)
                 {
-                    null, createException(CO_EXCEPTION).getMessage(),
+                    null, createException(CO_EXCEPTION).getMessage(), true, null
+                },
+                // (03)
+                {
+                    null, null, true, Collections.emptyList()
+                },
+                // (04)
+                {
+                    null, null, true, Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), 
+                                                    createCloudBuild(State.FAILED, parseDate("21-03-2018"), null))
+                },
+                // (05)
+                {
+                    null, null, false, Arrays.asList(createCloudBuild(State.FAILED, parseDate("20-03-2018"), null), 
+                                                     createCloudBuild(State.STAGED, parseDate("21-03-2018"), null))
                 },
 // @formatter:on
             });
@@ -93,12 +120,17 @@ public class UploadAppStepTest {
         private final String expectedIOExceptionMessage;
         private final String expectedCFExceptionMessage;
         private final MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
+        private final List<CloudBuild> cloudBuilds;
+        private final boolean shouldUpload;
 
         private File appFile;
 
-        public UploadAppStepParameterizedTest(String expectedIOExceptionMessage, String expectedCFExceptionMessage) {
+        public UploadAppStepParameterizedTest(String expectedIOExceptionMessage, String expectedCFExceptionMessage, boolean shouldUpload,
+                                              List<CloudBuild> cloudBuilds) {
             this.expectedIOExceptionMessage = expectedIOExceptionMessage;
             this.expectedCFExceptionMessage = expectedCFExceptionMessage;
+            this.shouldUpload = shouldUpload;
+            this.cloudBuilds = cloudBuilds;
         }
 
         @Before
@@ -128,7 +160,8 @@ public class UploadAppStepTest {
         }
 
         private void assertCall(String variableName, String variableValue) {
-            Mockito.verify(context)
+            int numberOfCalls = shouldUpload ? 1 : 0;
+            Mockito.verify(context, Mockito.times(numberOfCalls))
                    .setVariable(variableName, variableValue);
         }
 
@@ -166,7 +199,49 @@ public class UploadAppStepTest {
             } else if (expectedCFExceptionMessage != null) {
                 when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(CO_EXCEPTION);
             }
-            when(client.getApplication(APP_NAME)).thenReturn(new SimpleApplication(APP_NAME, 2).toCloudApplication());
+
+            ImmutableCloudApplicationExtended application = createApplication(APP_NAME, 2, cloudBuilds == null ? null : MODULE_DIGEST);
+            when(client.getApplication(APP_NAME)).thenReturn(application);
+            when(client.getBuildsForApplication(application.getMetadata()
+                                                           .getGuid())).thenReturn(cloudBuilds);
+        }
+
+        private ImmutableCloudApplicationExtended createApplication(String appName, int instances, String digest) {
+            Map<String, Object> deployAttributes = new HashMap<>();
+            deployAttributes.put(com.sap.cloud.lm.sl.cf.core.Constants.ATTR_APP_CONTENT_DIGEST, digest);
+            return ImmutableCloudApplicationExtended.builder()
+                                                    .metadata(ImmutableCloudMetadata.builder()
+                                                                                    .guid(UUID.randomUUID())
+                                                                                    .build())
+                                                    .name(appName)
+                                                    .moduleName(appName)
+                                                    .putEnv(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES,
+                                                            JsonUtil.toJson(deployAttributes))
+                                                    .instances(instances)
+                                                    .build();
+        }
+
+        private static CloudBuild createCloudBuild(State state, Date createdAt, String error) {
+            return ImmutableCloudBuild.builder()
+                                      .metadata(ImmutableCloudMetadata.builder()
+                                                                      .guid(UUID.randomUUID())
+                                                                      .createdAt(createdAt)
+                                                                      .build())
+                                      .dropletInfo(ImmutableDropletInfo.builder()
+                                                                       .guid(UUID.randomUUID())
+                                                                       .build())
+                                      .state(state)
+                                      .error(error)
+                                      .build();
+        }
+
+        private static Date parseDate(String date) {
+            try {
+                return new SimpleDateFormat(DATE_PATTERN).parse(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Invalid Date!");
+            }
         }
 
         public void prepareFileService() throws Exception {
