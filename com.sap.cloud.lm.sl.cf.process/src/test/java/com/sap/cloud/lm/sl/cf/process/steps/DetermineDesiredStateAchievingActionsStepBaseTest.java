@@ -5,18 +5,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.domain.CloudBuild;
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudBuild;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudBuild.ImmutableDropletInfo;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -38,14 +32,13 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     protected static final String FAKE_ERROR = "Fake Error";
     protected static final UUID FAKE_UUID = UUID.fromString("3e31fdaa-4a4e-11e9-8646-d663bd873d93");
     protected static final String DUMMY = "dummy";
-    protected static final String DATE_PATTERN = "dd-MM-yyyy";
 
     protected final Set<ApplicationStateAction> expectedAppStateActions;
 
     private final ApplicationStartupState currentAppState;
     private final ApplicationStartupState desiredAppState;
     private final boolean hasAppChanged;
-    private final List<CloudBuild> cloudBuilds;
+    private final boolean hasUploadToken;
 
     @Mock
     protected ApplicationStartupStateCalculator appStateCalculator;
@@ -58,13 +51,12 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
 
     public DetermineDesiredStateAchievingActionsStepBaseTest(ApplicationStartupState currentAppState,
                                                              ApplicationStartupState desiredAppState, boolean hasAppChanged,
-                                                             Set<ApplicationStateAction> expectedAppStateActions,
-                                                             List<CloudBuild> cloudBuilds) {
+                                                             Set<ApplicationStateAction> expectedAppStateActions, boolean hasUploadToken) {
         this.currentAppState = currentAppState;
         this.desiredAppState = desiredAppState;
         this.hasAppChanged = hasAppChanged;
         this.expectedAppStateActions = expectedAppStateActions;
-        this.cloudBuilds = cloudBuilds;
+        this.hasUploadToken = hasUploadToken;
     }
 
     @Before
@@ -78,29 +70,6 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     @Override
     protected DetermineDesiredStateAchievingActionsStep createStep() {
         return new DetermineDesiredStateAchievingActionsStep();
-    }
-
-    protected static CloudBuild createCloudBuild(CloudBuild.State state, Date createdAt, String error) {
-        return ImmutableCloudBuild.builder()
-                                  .metadata(ImmutableCloudMetadata.builder()
-                                                                  .guid(FAKE_UUID)
-                                                                  .createdAt(createdAt)
-                                                                  .build())
-                                  .dropletInfo(ImmutableDropletInfo.builder()
-                                                                   .guid(FAKE_UUID)
-                                                                   .build())
-                                  .state(state)
-                                  .error(error)
-                                  .build();
-    }
-
-    protected static Date parseDate(String date) {
-        try {
-            return new SimpleDateFormat(DATE_PATTERN).parse(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Invalid Date!");
-        }
     }
 
     protected abstract RestartParameters getRestartParameters();
@@ -133,7 +102,10 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
                                                                         .build();
         context.setVariable(Constants.VAR_APP_TO_PROCESS, JsonUtil.toJson(app));
         when(client.getApplication(anyString())).thenReturn(app);
-        when(client.getBuildsForApplication(app.getMetadata()
-                                               .getGuid())).thenReturn(cloudBuilds);
+        if (hasUploadToken) {
+            context.setVariable(Constants.VAR_UPLOAD_TOKEN, JsonUtil.toJson(ImmutableUploadToken.builder()
+                                                                                                .packageGuid(FAKE_UUID)
+                                                                                                .build()));
+        }
     }
 }
