@@ -35,7 +35,7 @@ public class FlowableFacade {
 
     private static final int DEFAULT_JOB_RETRIES = 0;
     private static final int DEFAULT_ABORT_TIMEOUT_MS = 30 * 1000;
-    private static final int DEFAULT_ABORT_WAIT_TIMEOUT_MS = 2 * 60 * 1000;
+    private static final int DEFAULT_ABORT_WAIT_TIMEOUT_MS = 1 * 60 * 1000;
 
     private final ProcessEngine processEngine;
 
@@ -229,6 +229,12 @@ public class FlowableFacade {
         long overallAbortDeadline = System.currentTimeMillis() + DEFAULT_ABORT_WAIT_TIMEOUT_MS + DEFAULT_ABORT_TIMEOUT_MS;
         while (true) {
             try {
+                if (isProcessInstanceAtReceiveTask(processInstanceId)) {
+                    processEngine.getRuntimeService()
+                                 .deleteProcessInstance(processInstanceId, deleteReason);
+                    break;
+                }
+                
                 LOGGER.debug(format(Messages.SETTING_VARIABLE, Constants.PROCESS_ABORTED, Boolean.TRUE));
 
                 // TODO: Use execution ID instead of process instance ID, as
@@ -236,6 +242,7 @@ public class FlowableFacade {
                 // different if the process has parallel executions.
                 processEngine.getRuntimeService()
                              .setVariable(processInstanceId, Constants.PROCESS_ABORTED, Boolean.TRUE);
+
                 long allSubprocessesFinishedDeadline = System.currentTimeMillis() + DEFAULT_ABORT_WAIT_TIMEOUT_MS;
                 while (true) {
                     List<Execution> subprocessExecutionsWithoutChildren = getAllSubprocessExecutionsWithoutChildren(processInstanceId);
