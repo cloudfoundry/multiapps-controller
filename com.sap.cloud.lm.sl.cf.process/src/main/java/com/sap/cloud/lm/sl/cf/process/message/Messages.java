@@ -418,7 +418,9 @@ public class Messages {
     public static final String CHECKING_FOR_OVERWRITING_READ_ONLY_PARAMETERS = "Checking for overwriting read-only parameters for mta with id: \"{0}\"";
     public static final String NO_READ_ONLY_PARAMETERS_ARE_OVERWRITTEN = "No read-only parameters are overwritten";
     public static final String CONTENT_OF_APPLICATION_0_IS_NOT_CHANGED = "Content of application \"{0}\" is not changed - upload will be skipped.";
-    
+    public static final String UPLOAD_TOKEN_FOR_APPLICATION_0_1 = "Upload token for application \"{0}\": {1}";
+    public static final String LAST_PACKAGE_FOR_APPLICATION_0_1 = "Last package for application \"{0}\": {1}";
+
     protected Messages() {
     }
 }

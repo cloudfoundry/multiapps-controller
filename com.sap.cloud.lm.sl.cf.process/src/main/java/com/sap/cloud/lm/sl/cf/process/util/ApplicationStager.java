@@ -10,8 +10,11 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudBuild;
+import org.cloudfoundry.client.lib.domain.CloudPackage;
 import org.cloudfoundry.client.lib.domain.PackageState;
 import org.cloudfoundry.client.lib.domain.UploadToken;
+import org.cloudfoundry.client.lib.util.ImmutableOrderBy;
+import org.cloudfoundry.client.lib.util.OrderBy;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.http.HttpStatus;
 
@@ -133,11 +136,24 @@ public class ApplicationStager {
 
     public StepPhase stageApp(DelegateExecution context, CloudApplication app, StepLogger stepLogger) {
         UploadToken uploadToken = StepsUtil.getUploadToken(context);
-        if (uploadToken == null) {
-            return StepPhase.DONE;
+        if (uploadToken != null) {
+            stepLogger.debug(Messages.UPLOAD_TOKEN_FOR_APPLICATION_0_1, app.getName(), JsonUtil.toJson(uploadToken, true));
+            return stageApplication(context, app, stepLogger, uploadToken.getPackageGuid());
         }
+
+        CloudPackage lastApplicationPackage = getLastPackageForApplication(app);
+        if (lastApplicationPackage != null) {
+            stepLogger.debug(Messages.LAST_PACKAGE_FOR_APPLICATION_0_1, app.getName(), JsonUtil.toJson(lastApplicationPackage, true));
+            return stageApplication(context, app, stepLogger, lastApplicationPackage.getMetadata()
+                                                                                    .getGuid());
+        }
+
+        return StepPhase.DONE;
+    }
+
+    private StepPhase stageApplication(DelegateExecution context, CloudApplication app, StepLogger stepLogger, UUID packageGuid) {
         stepLogger.info(Messages.STAGING_APP, app.getName());
-        return createBuild(context, uploadToken.getPackageGuid(), stepLogger);
+        return createBuild(context, packageGuid, stepLogger);
     }
 
     private StepPhase createBuild(DelegateExecution context, UUID packageGuid, StepLogger stepLogger) {
@@ -169,5 +185,18 @@ public class ApplicationStager {
         }
         context.setVariable(Constants.VAR_BUILD_GUID, lastBuild.getMetadata()
                                                                .getGuid());
+    }
+
+    private CloudPackage getLastPackageForApplication(CloudApplication app) {
+        OrderBy orderBy = ImmutableOrderBy.builder()
+                                                 .value(OrderBy.Values.UPDATED_AT)
+                                                 .direction(OrderBy.Direction.DESCENDING)
+                                                 .build();
+        List<CloudPackage> applicationPackages = client.getPackagesForApplication(app.getMetadata()
+                                                                                     .getGuid(),
+                                                                                     orderBy);
+        return applicationPackages.stream()
+                                  .findFirst()
+                                  .orElse(null);
     }
 }
