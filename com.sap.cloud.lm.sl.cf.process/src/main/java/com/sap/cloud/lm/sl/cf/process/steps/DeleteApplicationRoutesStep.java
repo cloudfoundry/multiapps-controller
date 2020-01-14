@@ -49,7 +49,7 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep {
     private void deleteApplicationRoutes(CloudControllerClient client, CloudApplication cloudApplication) {
         getStepLogger().info(Messages.DELETING_APP_ROUTES, cloudApplication.getName());
         List<CloudRoute> cloudApplicationRoutes = applicationRoutesGetter.getRoutes(client, cloudApplication.getName());
-        getStepLogger().debug(Messages.ROUTES_FOR_APPLICATION, cloudApplication.getName(), JsonUtil.toJson(cloudApplicationRoutes));
+        getStepLogger().debug(Messages.ROUTES_FOR_APPLICATION, cloudApplication.getName(), JsonUtil.toJson(cloudApplicationRoutes, true));
         client.updateApplicationUris(cloudApplication.getName(), Collections.emptyList());
         for (String uri : cloudApplication.getUris()) {
             deleteApplicationRoutes(client, cloudApplicationRoutes, uri);
