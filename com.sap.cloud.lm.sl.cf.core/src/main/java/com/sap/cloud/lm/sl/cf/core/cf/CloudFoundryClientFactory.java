@@ -28,14 +28,19 @@ public class CloudFoundryClientFactory extends ClientFactory {
 
     @Inject
     public CloudFoundryClientFactory(ApplicationConfiguration configuration, OAuthClientFactory oAuthClientFactory) {
-        this.clientFactory = ImmutableCloudControllerRestClientFactory.builder()
-                                                                      .clientConnectTimeout(configuration.getControllerClientConnectTimeout())
-                                                                      .clientConnectionPoolSize(configuration.getControllerClientConnectionPoolSize())
-                                                                      .clientThreadPoolSize(configuration.getControllerClientThreadPoolSize())
-                                                                      .shouldTrustSelfSignedCertificates(configuration.shouldSkipSslValidation())
-                                                                      .build();
+        this.clientFactory = createClientFactory(configuration);
         this.configuration = configuration;
         this.oAuthClientFactory = oAuthClientFactory;
+    }
+
+    private ImmutableCloudControllerRestClientFactory createClientFactory(ApplicationConfiguration configuration) {
+        return ImmutableCloudControllerRestClientFactory.builder()
+                                                        .sslHandshakeTimeout(configuration.getControllerClientSslHandshakeTimeout())
+                                                        .connectTimeout(configuration.getControllerClientConnectTimeout())
+                                                        .connectionPoolSize(configuration.getControllerClientConnectionPoolSize())
+                                                        .threadPoolSize(configuration.getControllerClientThreadPoolSize())
+                                                        .shouldTrustSelfSignedCertificates(configuration.shouldSkipSslValidation())
+                                                        .build();
     }
 
     @Override

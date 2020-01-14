@@ -83,6 +83,7 @@ public class ApplicationConfiguration {
     static final String CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = "FSS_CACHE_UPDATE_TIMEOUT_MINUTES";
     static final String CFG_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS = "THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS";
     static final String CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = "SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS";
+    static final String CFG_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS = "CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS";
     static final String CFG_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = "CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS";
     static final String CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = "CONTROLLER_CLIENT_CONNECTION_POOL_SIZE";
     static final String CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE = "CONTROLLER_CLIENT_THREAD_POOL_SIZE";
@@ -127,6 +128,7 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = 30;
     public static final Integer DEFAULT_THREAD_MONITOR_CACHE_UPDATE_IN_SECONDS = 1;
     public static final Integer DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = 20;
+    public static final int DEFAULT_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS = 30;
     // We've experimented with much smaller values (5, 15 seconds), but these lead to connection timeouts.
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(2);
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 192;
@@ -175,6 +177,7 @@ public class ApplicationConfiguration {
     private Integer threadMonitorCacheUpdateInSeconds;
     private Integer spaceDeveloperCacheTimeInSeconds;
     private Platform platform;
+    private Duration controllerClientSslHandshakeTimeout;
     private Duration controllerClientConnectTimeout;
     private Integer controllerClientConnectionPoolSize;
     private Integer controllerClientThreadPoolSize;
@@ -525,6 +528,13 @@ public class ApplicationConfiguration {
             spaceDeveloperCacheTimeInSeconds = getSpaceDeveloperCacheTimeInSecondsFromEnvironment();
         }
         return spaceDeveloperCacheTimeInSeconds;
+    }
+
+    public Duration getControllerClientSslHandshakeTimeout() {
+        if (controllerClientSslHandshakeTimeout == null) {
+            controllerClientSslHandshakeTimeout = getControllerClientSslHandshakeTimeoutFromEnvironment();
+        }
+        return controllerClientSslHandshakeTimeout;
     }
 
     public Duration getControllerClientConnectTimeout() {
@@ -882,6 +892,13 @@ public class ApplicationConfiguration {
                                                        DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
         LOGGER.info(format(Messages.SPACE_DEVELOPERS_CACHE_TIME_IN_SECONDS, value));
         return value;
+    }
+
+    private Duration getControllerClientSslHandshakeTimeoutFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS,
+                                                       DEFAULT_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS);
+        LOGGER.info(format(Messages.CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS, value));
+        return Duration.ofSeconds(value);
     }
 
     private Duration getControllerClientConnectTimeoutFromEnvironment() {
