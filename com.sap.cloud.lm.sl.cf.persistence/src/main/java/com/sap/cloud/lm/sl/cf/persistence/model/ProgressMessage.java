@@ -32,6 +32,6 @@ public interface ProgressMessage {
     }
 
     enum ProgressMessageType {
-        ERROR, WARNING, INFO, EXT, TASK_STARTUP,
+        ERROR, WARNING, INFO, EXT,
     }
 }
