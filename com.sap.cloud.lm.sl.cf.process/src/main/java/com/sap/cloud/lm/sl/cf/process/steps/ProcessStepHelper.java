@@ -53,7 +53,7 @@ public class ProcessStepHelper {
         context.setVariable(Constants.TASK_ID, taskId);
 
         deletePreviousErrorType(context);
-        logTaskStartup(context, taskId);
+        stepLogger.logFlowableTask();
         StepsUtil.setStepPhase(context, initialPhase);
     }
 
@@ -65,18 +65,6 @@ public class ProcessStepHelper {
         }
         LOGGER.debug(MessageFormat.format(Messages.DELETING_ERROR_TYPE_O_FOR_PROCESS_1, errorType, processId));
         context.removeVariable(Constants.VAR_ERROR_TYPE);
-    }
-
-    private void logTaskStartup(DelegateExecution context, String taskId) {
-        stepLogger.logFlowableTask();
-        String message = MessageFormat.format(Messages.EXECUTING_TASK, context.getCurrentActivityId(), context.getProcessInstanceId());
-
-        progressMessageService.add(ImmutableProgressMessage.builder()
-                                                           .processId(StepsUtil.getCorrelationId(context))
-                                                           .taskId(taskId)
-                                                           .type(ProgressMessageType.TASK_STARTUP)
-                                                           .text(message)
-                                                           .build());
     }
 
     protected void logExceptionAndStoreProgressMessage(DelegateExecution context, Throwable t) {
