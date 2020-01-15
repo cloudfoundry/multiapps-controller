@@ -296,6 +296,14 @@ public class ApplicationConfigurationTest {
     }
 
     @Test
+    public void testGetControllerClientSslHandshakeTimeout() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS,
+                                                    ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_SSL_HANDSHAKE_TIMEOUT_IN_SECONDS))
+               .thenReturn(120);
+        assertEquals(Duration.ofSeconds(120), configuration.getControllerClientSslHandshakeTimeout());
+    }
+
+    @Test
     public void testGetControllerClientConnectTimeout() {
         Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS,
                                                     ApplicationConfiguration.DEFAULT_CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS))
