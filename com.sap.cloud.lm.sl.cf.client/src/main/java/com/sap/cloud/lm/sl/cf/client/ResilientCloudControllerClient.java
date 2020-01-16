@@ -387,13 +387,13 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<CloudPackage> getPackagesForApplication(UUID applicationGuid) {
-        return executeWithRetry(() -> delegate.getPackagesForApplication(applicationGuid));
+    public List<CloudPackage> getBitsPackagesForApplication(UUID applicationGuid) {
+        return executeWithRetry(() -> delegate.getBitsPackagesForApplication(applicationGuid));
     }
 
     @Override
-    public List<CloudPackage> getPackagesForApplication(UUID applicationGuid, OrderBy orderBy) {
-        return executeWithRetry(() -> delegate.getPackagesForApplication(applicationGuid, orderBy));
+    public List<CloudPackage> getBitsPackagesForApplication(UUID applicationGuid, OrderBy orderBy) {
+        return executeWithRetry(() -> delegate.getBitsPackagesForApplication(applicationGuid, orderBy));
     }
 
     @Override

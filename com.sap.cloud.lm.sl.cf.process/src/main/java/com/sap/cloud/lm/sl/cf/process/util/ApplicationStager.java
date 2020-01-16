@@ -192,7 +192,7 @@ public class ApplicationStager {
                                                  .value(OrderBy.Values.UPDATED_AT)
                                                  .direction(OrderBy.Direction.DESCENDING)
                                                  .build();
-        List<CloudPackage> applicationPackages = client.getPackagesForApplication(app.getMetadata()
+        List<CloudPackage> applicationPackages = client.getBitsPackagesForApplication(app.getMetadata()
                                                                                      .getGuid(),
                                                                                      orderBy);
         return applicationPackages.stream()
