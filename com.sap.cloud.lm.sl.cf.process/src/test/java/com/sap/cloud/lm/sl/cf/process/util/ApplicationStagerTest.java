@@ -228,7 +228,7 @@ public class ApplicationStagerTest {
                                                                                                     .build())
                                                                     .name("test-app")
                                                                     .build();
-        Mockito.when(client.getPackagesForApplication(Mockito.eq(testApplicationGuid), Mockito.any()))
+        Mockito.when(client.getBitsPackagesForApplication(Mockito.eq(testApplicationGuid), Mockito.any()))
                .thenReturn(Collections.emptyList());
 
         Mockito.verifyNoInteractions(stepLogger);
@@ -254,7 +254,7 @@ public class ApplicationStagerTest {
                                                                                                          .build())
                                                                          .build();
 
-        Mockito.when(client.getPackagesForApplication(Mockito.eq(testApplicationGuid), Mockito.any()))
+        Mockito.when(client.getBitsPackagesForApplication(Mockito.eq(testApplicationGuid), Mockito.any()))
                .thenReturn(Arrays.asList(applicationPackage));
 
         Mockito.when(client.createBuild(packageGuid))
