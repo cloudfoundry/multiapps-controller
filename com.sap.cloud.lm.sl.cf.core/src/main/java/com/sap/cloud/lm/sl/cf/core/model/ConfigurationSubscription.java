@@ -5,6 +5,7 @@ import static java.text.MessageFormat.format;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -297,4 +298,22 @@ public class ConfigurationSubscription implements AuditableConfiguration {
                              new ConfigurationIdentifier("space id", spaceId));
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ConfigurationSubscription that = (ConfigurationSubscription) o;
+        return id == that.id
+            && Objects.equals(mtaId, that.mtaId)
+            && Objects.equals(filter, that.filter)
+            && Objects.equals(spaceId, that.spaceId)
+            && Objects.equals(appName, that.appName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, mtaId, filter, spaceId, appName);
+    }
 }

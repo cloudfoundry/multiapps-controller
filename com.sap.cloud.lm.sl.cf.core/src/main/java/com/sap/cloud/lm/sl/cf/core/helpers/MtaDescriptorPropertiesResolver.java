@@ -131,8 +131,8 @@ public class MtaDescriptorPropertiesResolver {
     private List<ConfigurationSubscription> createSubscriptions(DeploymentDescriptor descriptorWithUnresolvedReferences,
                                                                 Map<String, ResolvedConfigurationReference> resolvedResources) {
         return context.getHandlerFactory()
-                      .getConfigurationSubscriptionFactory()
-                      .create(descriptorWithUnresolvedReferences, resolvedResources, context.getCurrentSpaceId());
+                      .getConfigurationSubscriptionFactory(descriptorWithUnresolvedReferences, resolvedResources)
+                      .create(context.getCurrentSpaceId());
     }
 
     public List<ConfigurationSubscription> getSubscriptions() {
