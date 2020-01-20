@@ -17,7 +17,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
-import com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters;
+import com.sap.cloud.lm.sl.cf.web.resources.ConfigurationEntriesResource;
 
 public class PurgeApiAuthorizationFilterTest {
 
@@ -47,23 +47,23 @@ public class PurgeApiAuthorizationFilterTest {
 
     @Test
     public void testExtractTarget() {
-        Mockito.when(request.getParameter(RequestParameters.ORGANIZATION))
+        Mockito.when(request.getParameter(ConfigurationEntriesResource.REQUEST_PARAM_ORGANIZATION))
                .thenReturn(ORGANIZATION_NAME);
-        Mockito.when(request.getParameter(RequestParameters.SPACE))
+        Mockito.when(request.getParameter(ConfigurationEntriesResource.REQUEST_PARAM_SPACE))
                .thenReturn(SPACE_NAME);
         assertEquals(new CloudTarget(ORGANIZATION_NAME, SPACE_NAME), purgeApiAuthorizationFilter.extractTarget(request));
     }
 
     @Test
     public void testExtractTargetWithMissingSpaceParameter() {
-        Mockito.when(request.getParameter(RequestParameters.ORGANIZATION))
+        Mockito.when(request.getParameter(ConfigurationEntriesResource.REQUEST_PARAM_ORGANIZATION))
                .thenReturn(ORGANIZATION_NAME);
         testExtractTargetWithMissingParameters();
     }
 
     @Test
     public void testExtractTargetWithMissingOrganizationParameter() {
-        Mockito.when(request.getParameter(RequestParameters.SPACE))
+        Mockito.when(request.getParameter(ConfigurationEntriesResource.REQUEST_PARAM_SPACE))
                .thenReturn(SPACE_NAME);
         testExtractTargetWithMissingParameters();
     }

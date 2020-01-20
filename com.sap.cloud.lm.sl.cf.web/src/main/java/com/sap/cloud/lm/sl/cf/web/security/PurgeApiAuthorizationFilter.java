@@ -8,8 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
-import com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
+import com.sap.cloud.lm.sl.cf.web.resources.ConfigurationEntriesResource;
 
 @Named
 public class PurgeApiAuthorizationFilter extends SpaceNameBasedAuthorizationFilter {
@@ -26,8 +26,8 @@ public class PurgeApiAuthorizationFilter extends SpaceNameBasedAuthorizationFilt
 
     @Override
     protected CloudTarget extractTarget(HttpServletRequest request) {
-        String organizationName = request.getParameter(RequestParameters.ORGANIZATION);
-        String spaceName = request.getParameter(RequestParameters.SPACE);
+        String organizationName = request.getParameter(ConfigurationEntriesResource.REQUEST_PARAM_ORGANIZATION);
+        String spaceName = request.getParameter(ConfigurationEntriesResource.REQUEST_PARAM_SPACE);
         if (StringUtils.isAnyEmpty(organizationName, spaceName)) {
             throw new AuthorizationException(HttpStatus.BAD_REQUEST.value(), Messages.ORG_AND_SPACE_MUST_BE_SPECIFIED);
         }
