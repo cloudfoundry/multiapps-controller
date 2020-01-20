@@ -6,11 +6,7 @@ package com.sap.cloud.lm.sl.cf.web.message;
 public final class Messages {
 
     // Exception messages
-    public static final String ORG_SPACE_NOT_SPECIFIED_2 = "Target does not contain 'org' and 'space' parameters";
     public static final String ERROR_EXECUTING_REST_API_CALL = "Error occurred while executing REST API call";
-    public static final String CONFIGURATION_ENTRY_ID_CANNOT_BE_UPDATED = "A configuration entry''s id cannot be updated";
-    public static final String PROPERTY_DOES_NOT_CONTAIN_KEY_VALUE_PAIR = "Property \"{0}\" does not contain a key value pair";
-    public static final String COULD_NOT_PARSE_CONTENT_PARAMETER = "Could not parse content query parameter as JSON or list";
     public static final String MAX_UPLOAD_SIZE_EXCEEDED = "Cannot upload file, size is bigger than the configured maximum upload size \"{0}\" bytes";
     public static final String COULD_NOT_GET_FILES_0 = "Could not get files: {0}";
     public static final String COULD_NOT_UPLOAD_FILE_0 = "Could not upload file: {0}";
@@ -22,8 +18,6 @@ public final class Messages {
 
     // ERROR log messages
     public static final String MTA_NOT_FOUND = "MTA with id \"{0}\" does not exist";
-    public static final String COULD_NOT_PARSE_CONTENT_PARAMETER_AS_JSON = "Could not parse content query parameter as JSON: {0}";
-    public static final String COULD_NOT_PARSE_CONTENT_PARAMETER_AS_LIST = "Could not parse content query parameter as list: {0}";
     public static final String ORG_AND_SPACE_MUST_BE_SPECIFIED = "Org and space must be specified!";
     public static final String NOT_AUTHORIZED_TO_OPERATE_IN_ORGANIZATION_0_AND_SPACE_1 = "You are not authorized to perform operations in organization \"{0}\", space \"{0}\". You need the SpaceDeveloper role to operate in that space.";
     public static final String NOT_AUTHORIZED_TO_OPERATE_IN_SPACE_WITH_GUID_0 = "You are not authorized to perform operations in space with GUID \"{0}\". You need the SpaceDeveloper role to operate in that space.";
