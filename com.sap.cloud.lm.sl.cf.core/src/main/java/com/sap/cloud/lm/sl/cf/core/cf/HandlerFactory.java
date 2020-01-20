@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf;
 
 import java.util.List;
+import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.cf.factory.HelperFactoryConstructor;
 import com.sap.cloud.lm.sl.cf.core.cf.factory.v2.HelperFactory;
@@ -12,6 +13,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
@@ -96,8 +98,10 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
     }
 
     @Override
-    public ConfigurationSubscriptionFactory getConfigurationSubscriptionFactory() {
-        return getHelperDelegate().getConfigurationSubscriptionFactory();
+    public ConfigurationSubscriptionFactory
+        getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
+                                            Map<String, ResolvedConfigurationReference> resolvedReferences) {
+        return getHelperDelegate().getConfigurationSubscriptionFactory(descriptor, resolvedReferences);
     }
 
     @Override

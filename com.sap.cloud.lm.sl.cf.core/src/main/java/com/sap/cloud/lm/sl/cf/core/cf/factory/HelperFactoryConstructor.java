@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf.factory;
 
 import java.util.List;
+import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
@@ -10,6 +11,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
@@ -48,6 +50,7 @@ public interface HelperFactoryConstructor {
 
     PlatformMerger getPlatformMerger(Platform platform);
 
-    ConfigurationSubscriptionFactory getConfigurationSubscriptionFactory();
+    ConfigurationSubscriptionFactory getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
+                                                                         Map<String, ResolvedConfigurationReference> resolvedReferences);
 
 }

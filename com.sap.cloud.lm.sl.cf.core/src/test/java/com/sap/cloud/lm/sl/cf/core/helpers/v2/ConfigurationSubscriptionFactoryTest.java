@@ -2,9 +2,9 @@ package com.sap.cloud.lm.sl.cf.core.helpers.v2;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,15 +70,13 @@ public class ConfigurationSubscriptionFactoryTest {
 
     protected void testCreate(DeploymentDescriptor mtad, Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId,
                               Expectation expectation) {
-        tester.test(() -> new ConfigurationSubscriptionFactory().create(mtad, resolvedResources, spaceId), expectation);
+        tester.test(() -> new ConfigurationSubscriptionFactory(mtad, resolvedResources).create(spaceId), expectation);
     }
 
     private Map<String, ResolvedConfigurationReference> getResolvedConfigurationReferences(DeploymentDescriptor descriptor) {
-        Map<String, ResolvedConfigurationReference> result = new HashMap<>();
-        for (String configurationResource : configurationResources) {
-            result.put(configurationResource, getResolvedConfigurationReference(descriptor, configurationResource));
-        }
-        return result;
+        return configurationResources.stream()
+                                     .collect(Collectors.toMap(resource -> resource,
+                                                               resource -> getResolvedConfigurationReference(descriptor, resource)));
     }
 
     private ResolvedConfigurationReference getResolvedConfigurationReference(DeploymentDescriptor descriptor,
