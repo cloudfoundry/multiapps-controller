@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -15,14 +14,11 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudBuild;
-import org.cloudfoundry.client.lib.domain.CloudPackage;
 import org.cloudfoundry.client.lib.domain.CloudBuild.DropletInfo;
-import org.cloudfoundry.client.lib.domain.CloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudBuild;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudBuild.ImmutableDropletInfo;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudPackage;
 import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.PackageState;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -218,49 +214,10 @@ public class ApplicationStagerTest {
     }
 
     @Test
-    public void testStageAppIfThereIsNoUploadTokenAndThereAreNoPackages() {
+    public void testStageAppIfThereIsNoUploadToken() {
         Mockito.when(context.getVariable(Constants.VAR_UPLOAD_TOKEN))
                .thenReturn(null);
-        UUID testApplicationGuid = UUID.randomUUID();
-        CloudApplication testApplication = ImmutableCloudApplication.builder()
-                                                                    .metadata(ImmutableCloudMetadata.builder()
-                                                                                                    .guid(testApplicationGuid)
-                                                                                                    .build())
-                                                                    .name("test-app")
-                                                                    .build();
-        Mockito.when(client.getPackagesForApplication(Mockito.eq(testApplicationGuid), Mockito.any()))
-               .thenReturn(Collections.emptyList());
-
-        Mockito.verifyNoInteractions(stepLogger);
-        assertEquals(StepPhase.DONE, applicationStager.stageApp(context, testApplication, stepLogger));
-    }
-
-    @Test
-    public void testStageAppIfThereIsNoUploadTokenAndThereIsOnlyOnePackage() {
-        Mockito.when(context.getVariable(Constants.VAR_UPLOAD_TOKEN))
-               .thenReturn(null);
-        UUID packageGuid = UUID.randomUUID();
-        UUID testApplicationGuid = UUID.randomUUID();
-        CloudApplication testApplication = ImmutableCloudApplication.builder()
-                                                                    .metadata(ImmutableCloudMetadata.builder()
-                                                                                                    .guid(testApplicationGuid)
-                                                                                                    .build())
-                                                                    .name("test-app")
-                                                                    .build();
-        CloudPackage applicationPackage = ImmutableCloudPackage.builder()
-                                                                         .metadata(ImmutableCloudMetadata.builder()
-                                                                                                         .guid(packageGuid)
-                                                                                                         .updatedAt(Date.from(Instant.now()))
-                                                                                                         .build())
-                                                                         .build();
-
-        Mockito.when(client.getPackagesForApplication(Mockito.eq(testApplicationGuid), Mockito.any()))
-               .thenReturn(Arrays.asList(applicationPackage));
-
-        Mockito.when(client.createBuild(packageGuid))
-               .thenReturn(createBuild());
-
-        assertEquals(StepPhase.POLL, applicationStager.stageApp(context, testApplication, stepLogger));
+        assertEquals(StepPhase.DONE, applicationStager.stageApp(context, null, null));
     }
 
     @Test

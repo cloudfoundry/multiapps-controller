@@ -39,15 +39,10 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
                                                                                                       .build();
         Mockito.when(context.getVariable(Constants.VAR_APP_TO_PROCESS))
                .thenReturn(JsonUtil.toJson(cloudApplicationExtended));
-
-        Mockito.when(client.getApplication(applicationName))
-               .thenReturn(cloudApplicationExtended);
     }
 
     private void mockUploadToken(UUID packageGuid) {
-        UploadToken uploadToken = ImmutableUploadToken.builder()
-                                                      .packageGuid(packageGuid)
-                                                      .build();
+        UploadToken uploadToken = ImmutableUploadToken.builder().packageGuid(packageGuid).build();
         Mockito.when(context.getVariable(Constants.VAR_UPLOAD_TOKEN))
                .thenReturn(JsonUtil.toJson(uploadToken));
     }
