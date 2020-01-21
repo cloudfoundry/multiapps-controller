@@ -70,13 +70,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, fileName, app.getName());
 
         String newApplicationDigest = getNewApplicationDigest(execution, appArchiveId, fileName);
-        boolean contentChanged = detectApplicationFileDigestChanges(execution, app.getName(), client, newApplicationDigest);
-        if (!contentChanged) {
-            getStepLogger().debug(Messages.CONTENT_OF_APPLICATION_0_IS_NOT_CHANGED, app.getName());
-            return StepPhase.DONE;
-        }
+        detectApplicationFileDigestChanges(execution, app.getName(), client, newApplicationDigest);
         UploadToken uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
-
         getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
         StepsUtil.setUploadToken(uploadToken, execution.getContext());
         return StepPhase.POLL;
@@ -143,8 +138,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                                              getMonitorUploadStatusCallback(app, filePath.toFile(), execution.getContext()));
     }
 
-    private boolean detectApplicationFileDigestChanges(ExecutionWrapper execution, String appName, CloudControllerClient client,
-                                                       String newApplicationDigest) {
+    private void detectApplicationFileDigestChanges(ExecutionWrapper execution, String appName, CloudControllerClient client,
+                                                    String newApplicationDigest) {
         CloudApplication appWithUpdatedEnvironment = client.getApplication(appName);
         ApplicationDigestDetector digestDetector = new ApplicationDigestDetector(appWithUpdatedEnvironment);
         String currentApplicationDigest = digestDetector.getExistingApplicationDigest();
@@ -153,7 +148,6 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             attemptToUpdateApplicationDigest(client, appWithUpdatedEnvironment, newApplicationDigest);
         }
         setAppContentChanged(execution, contentChanged);
-        return contentChanged;
     }
 
     private void attemptToUpdateApplicationDigest(CloudControllerClient client, CloudApplication app, String newApplicationDigest) {
