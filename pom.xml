@@ -17,7 +17,6 @@
         <junit.platform.version>1.5.2</junit.platform.version>
         <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <sonar.jacoco.reportPath>target/jacoco.exec</sonar.jacoco.reportPath>
         <mockito.version>3.2.0</mockito.version>
         <derby.version>10.12.1.1</derby.version>
         <hsqldb.version>2.3.2</hsqldb.version>
@@ -160,14 +159,19 @@
                 <version>0.8.5</version>
                 <executions>
                     <execution>
+                        <id>prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>report</id>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
                 </executions>
-                <configuration>
-                    <destFile>${sonar.jacoco.reportPath}</destFile>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
