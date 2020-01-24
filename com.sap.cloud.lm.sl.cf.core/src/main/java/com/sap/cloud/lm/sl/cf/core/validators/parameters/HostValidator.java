@@ -33,10 +33,6 @@ public class HostValidator implements ParameterValidator {
 
     @Override
     public boolean isValid(Object host) {
-        if (containsXsaPlaceholders(host)) {
-            return true;
-        }
-
         if (!(host instanceof String)) {
             return false;
         }

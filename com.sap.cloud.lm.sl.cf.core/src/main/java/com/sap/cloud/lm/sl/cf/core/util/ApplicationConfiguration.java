@@ -578,13 +578,9 @@ public class ApplicationConfiguration {
     }
 
     private String getControllerUrl(Map<String, Object> vcapApplication) {
-        String cfApi = (String) vcapApplication.get("cf_api");
-        if (cfApi != null) {
-            return cfApi;
-        }
-        String xsApi = (String) vcapApplication.get("xs_api");
-        if (xsApi != null) {
-            return xsApi;
+        String api = (String) vcapApplication.get("cf_api");
+        if (api != null) {
+            return api;
         }
         throw new IllegalArgumentException(Messages.CONTROLLER_URL_NOT_SPECIFIED);
     }

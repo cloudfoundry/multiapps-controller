@@ -30,10 +30,6 @@ public class DomainValidator implements ParameterValidator {
 
     @Override
     public boolean isValid(Object domain) {
-        if (containsXsaPlaceholders(domain)) {
-            return true;
-        }
-
         if (!(domain instanceof String)) {
             return false;
         }

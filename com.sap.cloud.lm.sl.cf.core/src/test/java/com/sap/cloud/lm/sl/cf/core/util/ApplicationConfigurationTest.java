@@ -56,16 +56,9 @@ public class ApplicationConfigurationTest {
     }
 
     @Test
-    public void testGetCfControllerUrl() throws Exception {
+    public void testGetControllerUrl() throws Exception {
         URL expectedControllerUrl = new URL("https://api.example.com");
         Map<String, String> vcapApplication = MapUtil.asMap("cf_api", expectedControllerUrl.toString());
-        assertEquals(expectedControllerUrl, getControllerUrlWithVcapApplication(vcapApplication));
-    }
-
-    @Test
-    public void testGetXsControllerUrl() throws Exception {
-        URL expectedControllerUrl = new URL("https://localhost:30030");
-        Map<String, String> vcapApplication = MapUtil.asMap("xs_api", expectedControllerUrl.toString());
         assertEquals(expectedControllerUrl, getControllerUrlWithVcapApplication(vcapApplication));
     }
 
