@@ -22,8 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
-import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
+import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
+import com.sap.cloud.lm.sl.cf.core.util.MethodExecution.ExecutionState;
 
 @Named
 public class ServiceUpdater extends CloudServiceOperator {

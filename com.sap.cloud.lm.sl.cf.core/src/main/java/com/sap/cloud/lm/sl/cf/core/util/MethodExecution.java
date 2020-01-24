@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.exec;
+package com.sap.cloud.lm.sl.cf.core.util;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -16,8 +16,8 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
-import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
-import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
+import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
+import com.sap.cloud.lm.sl.cf.core.util.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 

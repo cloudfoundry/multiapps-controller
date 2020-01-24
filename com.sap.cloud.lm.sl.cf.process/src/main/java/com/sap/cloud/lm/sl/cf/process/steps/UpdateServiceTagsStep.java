@@ -11,9 +11,9 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
-import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
+import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
+import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
+import com.sap.cloud.lm.sl.cf.core.util.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Named("updateServiceTagsStep")
