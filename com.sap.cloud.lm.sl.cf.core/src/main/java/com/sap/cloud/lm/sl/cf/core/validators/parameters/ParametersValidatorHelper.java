@@ -79,7 +79,7 @@ public class ParametersValidatorHelper {
     }
 
     private boolean shouldCorrectParameter(Object parameter, ParameterValidator validator) {
-        return parameter != null && !validator.containsXsaPlaceholders(parameter) && !validator.isValid(parameter);
+        return parameter != null && !validator.isValid(parameter);
     }
 
     private Object attemptToCorrect(String parameterName, Object parameter, ParameterValidator validator) {

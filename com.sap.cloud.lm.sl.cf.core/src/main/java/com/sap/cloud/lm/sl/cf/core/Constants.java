@@ -28,18 +28,11 @@ public class Constants {
 
     // Variables
     public static final String ATTR_CORRELATION_ID = "correlation_id";
-    public static final String EXCHANGED_TOKEN = "exchangedToken";
-    public static final String RESTRICTED_UAA_CLIENTS = "restricted-uaa-clients";
     public static final String LOGS_OFFSET = "logsOffset";
-
-    // Numeric constants
-    public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024L;
 
     public static final String SERVICE_INSTANCE_RESPONSE_RESOURCES = "resources";
     public static final String SERVICE_INSTANCE_RESPONSE_ENTITY = "entity";
     public static final String V2_QUERY_SEPARATOR = "&q=";
-
-    public static final String PARAMETER_CONTAINING_XSA_PLACEHOLDER_PATTERN = ".*?\\{xsa-placeholder-.*\\}.*?";
 
     protected Constants() {
     }

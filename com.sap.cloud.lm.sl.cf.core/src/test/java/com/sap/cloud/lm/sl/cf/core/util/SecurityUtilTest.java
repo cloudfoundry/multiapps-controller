@@ -4,47 +4,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 
 public class SecurityUtilTest {
 
-    @ParameterizedTest
-    @MethodSource
-    void testGetTokenUserInfo(String userId, String username, String tokenString, String exchangedTokenString, UserInfo expectedUserInfo) {
-        DefaultOAuth2AccessToken token = new DefaultOAuth2AccessToken(tokenString);
-        Map<String, Object> additionalInformation = setAdditionalInformation(userId, username, tokenString, exchangedTokenString);
+    private static final String USER_ID = "cf";
+    private static final String USER_NAME = "CF_USER";
+    private static final String TOKEN = "dUTjdafgtw3wRUMkt4XDu2IidcEHNPoh";
+
+    @Test
+    void testGetTokenUserInfo() {
+        DefaultOAuth2AccessToken token = new DefaultOAuth2AccessToken(TOKEN);
+        Map<String, Object> additionalInformation = asMap(USER_ID, USER_NAME);
         token.setAdditionalInformation(additionalInformation);
         UserInfo userInfo = SecurityUtil.getTokenUserInfo(token);
-        assertEquals(expectedUserInfo.getId(), userInfo.getId());
-        assertEquals(expectedUserInfo.getName(), userInfo.getName());
-        assertEquals(expectedUserInfo.getToken()
-                                     .getValue(),
-                     userInfo.getToken()
-                             .getValue());
+        assertEquals(USER_ID, userInfo.getId());
+        assertEquals(USER_NAME, userInfo.getName());
+        assertEquals(TOKEN, userInfo.getToken()
+                                    .getValue());
     }
 
-    public static Stream<Arguments> testGetTokenUserInfo() {
-        return Stream.of(
-        // @formatter:off
-            // (1) UserInfo with user token
-            Arguments.of("cf","CF_USER", "dUTjdafgtw3wRUMkt4XDu2IidcEHNPoh", null, new UserInfo("cf", "CF_USER", new DefaultOAuth2AccessToken("dUTjdafgtw3wRUMkt4XDu2IidcEHNPoh"))),
-            // (2) UserInfo with exchanged token
-            Arguments.of("cf","CF_USER", "dUTjdafgtw3wRUMkt4XDu2IidcEHNPoh", "Xk2s5nIQPqjzoZ9KPwL2uPUhuiuUsbm2", 
-                new UserInfo("cf", "CF_USER", new DefaultOAuth2AccessToken("Xk2s5nIQPqjzoZ9KPwL2uPUhuiuUsbm2")))
-        // @formatter:on
-        );
-    }
-
-    private Map<String, Object> setAdditionalInformation(String userid, String username, String tokenString, String exchangedTokenString) {
+    private Map<String, Object> asMap(String userId, String username) {
         Map<String, Object> additionalInformationMap = new HashMap<>();
         additionalInformationMap.put("user_name", username);
-        additionalInformationMap.put("user_id", userid);
-        additionalInformationMap.put("exchangedToken", exchangedTokenString);
+        additionalInformationMap.put("user_id", userId);
         return additionalInformationMap;
     }
 
