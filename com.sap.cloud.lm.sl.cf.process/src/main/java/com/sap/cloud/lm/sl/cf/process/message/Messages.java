@@ -170,6 +170,7 @@ public class Messages {
     public static final String APPLICATION_NOT_STAGED_CORRECTLY = "Application \"{0}\" was not staged correctly during the previous deployment";
     public static final String MISSING_SERVICE_OPERATION_STATE = "Stopping service operation polling of \"{0}\" due to missing operation state...";
     public static final String CANNOT_GET_CONTEXT_FOR_EVENT_0_AND_PROCESS_1 = "Could not get context for Flowable engine event (type: {0}, process ID: {1}).";
+    public static final String SERVICE_0_IS_IN_STATE_1_AND_MAY_NOT_BE_OPERATIONAL = "Service \"{0}\" is in state \"{1}\" and may not be operational. Actions like update of credentials and binding may fail! Consider recreating it by specifying the --delete-services option.";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";

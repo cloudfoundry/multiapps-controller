@@ -11,9 +11,13 @@ public class ServiceOperation {
     public static final String SERVICE_OPERATION_STATE = "state";
     public static final String SERVICE_OPERATION_DESCRIPTION = "description";
 
-    private final ServiceOperationType type;
-    private final String description;
-    private final ServiceOperationState state;
+    private ServiceOperationType type;
+    private String description;
+    private ServiceOperationState state;
+
+    ServiceOperation() {
+        // Required by Jackson.
+    }
 
     public ServiceOperation(ServiceOperationType type, String description, ServiceOperationState state) {
         this.type = type;
@@ -38,6 +42,11 @@ public class ServiceOperation {
         ServiceOperationState state = ServiceOperationState.fromString(MapUtils.getString(serviceOperation, SERVICE_OPERATION_STATE));
         String description = MapUtils.getString(serviceOperation, SERVICE_OPERATION_DESCRIPTION);
         return new ServiceOperation(type, description, state);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s %s", type, state);
     }
 
 }
