@@ -8,7 +8,7 @@ import javax.inject.Named;
 
 import org.flowable.engine.delegate.DelegateExecution;
 
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
@@ -59,11 +59,11 @@ public class DeployProcessAttributesCollector extends AbstractCommonProcessAttri
     }
  // @formatter:on
 
-    private Integer getCreatedServicesCount(Map<String, ServiceOperationType> triggeredServiceOperations) {
-        return getOperationsCount(triggeredServiceOperations, ServiceOperationType.CREATE);
+    private Integer getCreatedServicesCount(Map<String, ServiceOperation.Type> triggeredServiceOperations) {
+        return getOperationsCount(triggeredServiceOperations, ServiceOperation.Type.CREATE);
     }
 
-    private Integer getOperationsCount(Map<String, ServiceOperationType> serviceOperations, ServiceOperationType targetType) {
+    private Integer getOperationsCount(Map<String, ServiceOperation.Type> serviceOperations, ServiceOperation.Type targetType) {
         return (int) serviceOperations.values()
                                       .stream()
                                       .filter(operationType -> operationType == targetType)

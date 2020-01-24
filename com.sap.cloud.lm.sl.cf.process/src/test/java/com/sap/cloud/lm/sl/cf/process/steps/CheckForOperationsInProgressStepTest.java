@@ -19,8 +19,6 @@ import org.mockito.Mock;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 
@@ -37,11 +35,11 @@ public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<C
         return Stream.of(
         //@formatter:off
             // (1) Service exist and it is in progress state
-            Arguments.of("service-1", true, new ServiceOperation(ServiceOperationType.CREATE, "", ServiceOperationState.IN_PROGRESS), ServiceOperationType.CREATE, "POLL"),
+            Arguments.of("service-1", true, new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.IN_PROGRESS), ServiceOperation.Type.CREATE, "POLL"),
             // (2) Service does not exist
             Arguments.of("service-1", false, null, null, "DONE"),
             // (3) Service exist but it is not in progress state
-            Arguments.of("service-1", true, new ServiceOperation(ServiceOperationType.CREATE, "", ServiceOperationState.SUCCEEDED), null, "DONE"),
+            Arguments.of("service-1", true, new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.SUCCEEDED), null, "DONE"),
             // (4) Missing service operation for existing service
             Arguments.of("service-1", true, null, null, "DONE"),
             // (5) Missing type and state for last operation
@@ -53,7 +51,7 @@ public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<C
     @ParameterizedTest
     @MethodSource
     public void testExecute(String serviceName, boolean serviceExist, ServiceOperation serviceOperation,
-                            ServiceOperationType expectedTriggeredServiceOperation, String expectedStatus) {
+                            ServiceOperation.Type expectedTriggeredServiceOperation, String expectedStatus) {
         CloudServiceExtended service = ImmutableCloudServiceExtended.builder()
                                                                     .name(serviceName)
                                                                     .metadata(ImmutableCloudMetadata.builder()
@@ -85,9 +83,9 @@ public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<C
         }
     }
 
-    private void validateExecution(String serviceName, ServiceOperationType expectedTriggeredServiceOperation, String expectedStatus) {
-        Map<String, ServiceOperationType> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(context);
-        ServiceOperationType serviceOperationType = MapUtils.getObject(triggeredServiceOperations, serviceName);
+    private void validateExecution(String serviceName, ServiceOperation.Type expectedTriggeredServiceOperation, String expectedStatus) {
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(context);
+        ServiceOperation.Type serviceOperationType = MapUtils.getObject(triggeredServiceOperations, serviceName);
         assertEquals(serviceOperationType, expectedTriggeredServiceOperation);
         assertEquals(expectedStatus, getExecutionStatus());
     }

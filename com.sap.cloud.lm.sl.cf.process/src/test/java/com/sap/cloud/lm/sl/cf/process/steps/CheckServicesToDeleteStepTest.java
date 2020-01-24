@@ -27,8 +27,6 @@ import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 
@@ -39,21 +37,20 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
     @Mock
     private ServiceOperationGetter serviceOperationGetter;
 
-    @SuppressWarnings("unchecked")
     public static Stream<Arguments> testExecute() {
         return Stream.of(
         //@formatter:off
             // (1) Multiple services in progress
             Arguments.of(Arrays.asList("service-1","service-2","service-3"), Arrays.asList("service-1","service-2","service-3"), 
-                MapUtil.of(Pair.of("service-1", ServiceOperationState.IN_PROGRESS),Pair.of("service-2", ServiceOperationState.IN_PROGRESS),Pair.of("service-3", ServiceOperationState.IN_PROGRESS)),
+                MapUtil.of(Pair.of("service-1", ServiceOperation.State.IN_PROGRESS),Pair.of("service-2", ServiceOperation.State.IN_PROGRESS),Pair.of("service-3", ServiceOperation.State.IN_PROGRESS)),
                 Arrays.asList("service-1","service-2","service-3"), "POLL"),
             // (2) One service in progress
             Arguments.of(Arrays.asList("service-1","service-2","service-3"), Arrays.asList("service-2","service-3"), 
-                MapUtil.of(Pair.of("service-2", ServiceOperationState.SUCCEEDED),Pair.of("service-3", ServiceOperationState.IN_PROGRESS)),
+                MapUtil.of(Pair.of("service-2", ServiceOperation.State.SUCCEEDED),Pair.of("service-3", ServiceOperation.State.IN_PROGRESS)),
                     Collections.singletonList("service-3"), "POLL"),
             // (3) All services are not in progress state
             Arguments.of(Arrays.asList("service-1","service-2","service-3"), Arrays.asList("service-1","service-2"), 
-                MapUtil.of(Pair.of("service-1", ServiceOperationState.SUCCEEDED),Pair.of("service-2", ServiceOperationState.SUCCEEDED)),
+                MapUtil.of(Pair.of("service-1", ServiceOperation.State.SUCCEEDED),Pair.of("service-2", ServiceOperation.State.SUCCEEDED)),
                 Collections.emptyList(), "DONE")
         //@formatter:on
         );
@@ -62,7 +59,7 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
     @ParameterizedTest
     @MethodSource
     public void testExecute(List<String> serviceNames, List<String> existingServiceNames,
-                            Map<String, ServiceOperationState> servicesOperationState, List<String> expectedServicesOperations,
+                            Map<String, ServiceOperation.State> servicesOperationState, List<String> expectedServicesOperations,
                             String expectedStatus) {
         prepareContext(serviceNames);
         List<CloudService> services = getServices(existingServiceNames);
@@ -97,9 +94,9 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
         }
     }
 
-    private void prepareServiceOperationGetter(Map<String, ServiceOperationState> servicesOperationState) {
+    private void prepareServiceOperationGetter(Map<String, ServiceOperation.State> servicesOperationState) {
         for (String serviceName : servicesOperationState.keySet()) {
-            ServiceOperation serviceOperation = new ServiceOperation(ServiceOperationType.DELETE,
+            ServiceOperation serviceOperation = new ServiceOperation(ServiceOperation.Type.DELETE,
                                                                      "",
                                                                      servicesOperationState.get(serviceName));
             when(serviceOperationGetter.getLastServiceOperation(any(),
@@ -108,9 +105,9 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
     }
 
     private void validateExecution(List<String> expectedServicesOperations, String expectedStatus) {
-        Map<String, ServiceOperationType> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(context);
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(context);
         for (String serviceName : expectedServicesOperations) {
-            ServiceOperationType serviceOperationType = MapUtils.getObject(triggeredServiceOperations, serviceName);
+            ServiceOperation.Type serviceOperationType = MapUtils.getObject(triggeredServiceOperations, serviceName);
             assertNotNull(serviceOperationType);
         }
         assertEquals(expectedStatus, getExecutionStatus());

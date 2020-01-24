@@ -16,8 +16,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.lm.sl.cf.core.util.ImmutableLogsOffset;
-import com.sap.cloud.lm.sl.cf.core.util.LogsOffset;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
@@ -42,7 +40,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
@@ -55,6 +53,8 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.util.ImmutableLogsOffset;
+import com.sap.cloud.lm.sl.cf.core.util.LogsOffset;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -219,12 +219,12 @@ public class StepsUtil {
         return getFromJsonBinary(scope, Constants.VAR_SERVICES_TO_POLL, type);
     }
 
-    static void setTriggeredServiceOperations(VariableScope scope, Map<String, ServiceOperationType> triggeredServiceOperations) {
+    static void setTriggeredServiceOperations(VariableScope scope, Map<String, ServiceOperation.Type> triggeredServiceOperations) {
         setAsJsonBinary(scope, Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, triggeredServiceOperations);
     }
 
-    public static Map<String, ServiceOperationType> getTriggeredServiceOperations(VariableScope scope) {
-        TypeReference<Map<String, ServiceOperationType>> type = new TypeReference<Map<String, ServiceOperationType>>() {
+    public static Map<String, ServiceOperation.Type> getTriggeredServiceOperations(VariableScope scope) {
+        TypeReference<Map<String, ServiceOperation.Type>> type = new TypeReference<Map<String, ServiceOperation.Type>>() {
         };
         return getFromJsonBinary(scope, Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, type);
     }

@@ -13,7 +13,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -42,7 +42,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
             return StepPhase.DONE;
         }
 
-        Map<String, ServiceOperationType> serviceOperation = new HashMap<>();
+        Map<String, ServiceOperation.Type> serviceOperation = new HashMap<>();
         serviceOperation.put(serviceToProcess.getName(), getOperationType());
 
         execution.getStepLogger()
@@ -71,7 +71,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     protected abstract MethodExecution<String> executeOperation(DelegateExecution context, CloudControllerClient controllerClient,
                                                                 CloudServiceExtended service);
 
-    protected abstract ServiceOperationType getOperationType();
+    protected abstract ServiceOperation.Type getOperationType();
 
     protected ServiceUpdater getServiceUpdater() {
         return serviceUpdater;

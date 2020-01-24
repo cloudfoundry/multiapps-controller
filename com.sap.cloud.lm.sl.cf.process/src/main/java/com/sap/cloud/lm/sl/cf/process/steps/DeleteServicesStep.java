@@ -30,7 +30,7 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper;
@@ -78,7 +78,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         }
         StepsUtil.setServicesData(execution.getContext(), servicesData);
 
-        Map<String, ServiceOperationType> triggeredServiceOperations = deleteServices(execution.getContext(), client, servicesToDelete);
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = deleteServices(execution.getContext(), client, servicesToDelete);
 
         execution.getStepLogger()
                  .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
@@ -123,15 +123,15 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         return ListUtils.removeAll(servicesToDelete, servicesWithDataNames);
     }
 
-    private Map<String, ServiceOperationType> deleteServices(DelegateExecution context, CloudControllerClient client,
+    private Map<String, ServiceOperation.Type> deleteServices(DelegateExecution context, CloudControllerClient client,
                                                              List<String> serviceNames) {
-        Map<String, ServiceOperationType> triggeredServiceOperations = new HashMap<>();
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = new HashMap<>();
 
         for (String serviceName : serviceNames) {
             try {
                 prepareServicesToDelete(client, serviceName);
                 deleteService(client, serviceName);
-                triggeredServiceOperations.put(serviceName, ServiceOperationType.DELETE);
+                triggeredServiceOperations.put(serviceName, ServiceOperation.Type.DELETE);
             } catch (CloudException e) {
                 processException(context, e, client.getServiceInstance(serviceName), serviceName);
             }

@@ -18,7 +18,7 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceWithAlternativesCreator;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -102,8 +102,8 @@ public class CreateServiceStep extends ServiceStep {
     }
 
     @Override
-    protected ServiceOperationType getOperationType() {
-        return ServiceOperationType.CREATE;
+    protected ServiceOperation.Type getOperationType() {
+        return ServiceOperation.Type.CREATE;
     }
 
     @Override

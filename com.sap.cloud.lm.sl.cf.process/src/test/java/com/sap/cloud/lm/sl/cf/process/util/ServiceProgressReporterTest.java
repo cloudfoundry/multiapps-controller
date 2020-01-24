@@ -21,8 +21,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
 
 public class ServiceProgressReporterTest {
@@ -43,9 +41,9 @@ public class ServiceProgressReporterTest {
     public static Stream<Arguments> testServiceProgressReporter() {
         return Stream.of(
         // @formatter:off
-                      Arguments.of(Arrays.asList(new ServiceOperation(ServiceOperationType.CREATE, "", ServiceOperationState.IN_PROGRESS), 
-                                                 new ServiceOperation(ServiceOperationType.UPDATE, "", ServiceOperationState.IN_PROGRESS)), 2),
-                      Arguments.of(Collections.singletonList(new ServiceOperation(ServiceOperationType.UPDATE, "", ServiceOperationState.SUCCEEDED)), 0));
+                      Arguments.of(Arrays.asList(new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.IN_PROGRESS), 
+                                                 new ServiceOperation(ServiceOperation.Type.UPDATE, "", ServiceOperation.State.IN_PROGRESS)), 2),
+                      Arguments.of(Collections.singletonList(new ServiceOperation(ServiceOperation.Type.UPDATE, "", ServiceOperation.State.SUCCEEDED)), 0));
         // @formatter:on
     }
 
@@ -53,7 +51,7 @@ public class ServiceProgressReporterTest {
     @MethodSource
     public void testServiceProgressReporter(List<ServiceOperation> servicesOperations, int countTriggeredServiceOperations) {
         prepareExecution();
-        Map<String, ServiceOperationType> triggeredServiceOperations = getServicesOperationsInProgress(servicesOperations);
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = getServicesOperationsInProgress(servicesOperations);
 
         serviceProgressReporter.reportOverallProgress(execution, servicesOperations, triggeredServiceOperations);
 
@@ -68,11 +66,11 @@ public class ServiceProgressReporterTest {
         when(execution.getStepLogger()).thenReturn(stepLogger);
     }
 
-    private Map<String, ServiceOperationType> getServicesOperationsInProgress(List<ServiceOperation> servicesOperations) {
-        Map<String, ServiceOperationType> servicesOperationsInProgress = new HashMap<>();
+    private Map<String, ServiceOperation.Type> getServicesOperationsInProgress(List<ServiceOperation> servicesOperations) {
+        Map<String, ServiceOperation.Type> servicesOperationsInProgress = new HashMap<>();
         for (int index = 0; index < servicesOperations.size(); index++) {
             ServiceOperation serviceOperation = servicesOperations.get(index);
-            if (serviceOperation.getState() == ServiceOperationState.IN_PROGRESS) {
+            if (serviceOperation.getState() == ServiceOperation.State.IN_PROGRESS) {
                 servicesOperationsInProgress.put("service" + index, serviceOperation.getType());
             }
         }

@@ -15,7 +15,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -141,8 +141,8 @@ public class UpdateServiceKeysStep extends ServiceStep {
     }
 
     @Override
-    protected ServiceOperationType getOperationType() {
-        return ServiceOperationType.UPDATE;
+    protected ServiceOperation.Type getOperationType() {
+        return ServiceOperation.Type.UPDATE;
     }
 
     @Override
