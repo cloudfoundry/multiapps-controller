@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.cf.services.TypedServiceOperationState;
+import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
+import com.sap.cloud.lm.sl.cf.core.model.TypedServiceOperationState;
 import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
 
 @Named

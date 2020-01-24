@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.cf.services;
+package com.sap.cloud.lm.sl.cf.core.model;
 
 import java.text.MessageFormat;
 import java.util.Map;

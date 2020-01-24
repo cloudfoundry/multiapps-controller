@@ -18,7 +18,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
+import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
 
 @Named
 public class ServiceCreator extends CloudServiceOperator {
