@@ -30,8 +30,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -256,16 +254,16 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         if (lastOperation == null) {
             return false;
         }
-        return hasType(lastOperation, ServiceOperationType.CREATE, ServiceOperationType.DELETE) && hasFailed(lastOperation);
+        return hasType(lastOperation, ServiceOperation.Type.CREATE, ServiceOperation.Type.DELETE) && hasFailed(lastOperation);
     }
 
-    private boolean hasType(ServiceOperation serviceOperation, ServiceOperationType... types) {
+    private boolean hasType(ServiceOperation serviceOperation, ServiceOperation.Type... types) {
         return Arrays.stream(types)
                      .anyMatch(type -> serviceOperation.getType() == type);
     }
 
     private boolean hasFailed(ServiceOperation serviceOperation) {
-        return serviceOperation.getState() == ServiceOperationState.FAILED;
+        return serviceOperation.getState() == ServiceOperation.State.FAILED;
     }
 
     private boolean haveDifferentTypesOrLabels(CloudServiceExtended service, CloudService existingService) {

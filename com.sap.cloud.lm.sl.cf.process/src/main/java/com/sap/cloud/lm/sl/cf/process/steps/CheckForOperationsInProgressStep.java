@@ -20,8 +20,6 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
@@ -52,7 +50,7 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
 
         getStepLogger().info(Messages.WAITING_PREVIOUS_OPERATIONS_TO_FINISH);
 
-        Map<String, ServiceOperationType> servicesOperationTypes = getServicesOperationTypes(servicesInProgressState);
+        Map<String, ServiceOperation.Type> servicesOperationTypes = getServicesOperationTypes(servicesInProgressState);
         getStepLogger().debug(Messages.SERVICES_IN_PROGRESS, JsonUtil.toJson(servicesOperationTypes, true));
         StepsUtil.setTriggeredServiceOperations(execution.getContext(), servicesOperationTypes);
 
@@ -98,10 +96,10 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
     }
 
     private boolean isServiceOperationInProgress(ServiceOperation lastServiceOperation) {
-        return lastServiceOperation != null && lastServiceOperation.getState() == ServiceOperationState.IN_PROGRESS;
+        return lastServiceOperation != null && lastServiceOperation.getState() == ServiceOperation.State.IN_PROGRESS;
     }
 
-    private Map<String, ServiceOperationType>
+    private Map<String, ServiceOperation.Type>
             getServicesOperationTypes(Map<CloudServiceExtended, ServiceOperation> servicesInProgressState) {
         return servicesInProgressState.entrySet()
                                       .stream()

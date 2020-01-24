@@ -7,8 +7,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
@@ -29,13 +27,13 @@ public class PollServiceInProgressOperationsExecution extends PollServiceOperati
 
     @Override
     protected void reportServiceState(ExecutionWrapper execution, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
-        if (lastServiceOperation.getState() == ServiceOperationState.SUCCEEDED) {
+        if (lastServiceOperation.getState() == ServiceOperation.State.SUCCEEDED) {
             execution.getStepLogger()
                      .debug(getSuccessMessage(service, lastServiceOperation.getType()));
             return;
         }
 
-        if (lastServiceOperation.getState() == ServiceOperationState.FAILED) {
+        if (lastServiceOperation.getState() == ServiceOperation.State.FAILED) {
             throw new SLException(getFailureMessage(service, lastServiceOperation));
         }
     }
@@ -45,7 +43,7 @@ public class PollServiceInProgressOperationsExecution extends PollServiceOperati
         stepLogger.warnWithoutProgressMessage(Messages.MISSING_SERVICE_OPERATION_STATE, service.getName());
     }
 
-    private String getSuccessMessage(CloudServiceExtended service, ServiceOperationType type) {
+    private String getSuccessMessage(CloudServiceExtended service, ServiceOperation.Type type) {
         switch (type) {
             case CREATE:
                 return MessageFormat.format(Messages.SERVICE_CREATED, service.getName());

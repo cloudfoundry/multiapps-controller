@@ -8,8 +8,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
@@ -37,12 +35,12 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
                                                  CloudServiceExtended service) {
         lastServiceOperation = super.mapOperationState(stepLogger, lastServiceOperation, service);
         // Be fault tolerant on failure on update of service
-        if (lastServiceOperation.getType() == ServiceOperationType.UPDATE
-            && lastServiceOperation.getState() == ServiceOperationState.FAILED) {
+        if (lastServiceOperation.getType() == ServiceOperation.Type.UPDATE
+            && lastServiceOperation.getState() == ServiceOperation.State.FAILED) {
             stepLogger.warn(Messages.FAILED_SERVICE_UPDATE, service.getName(), lastServiceOperation.getDescription());
             return new ServiceOperation(lastServiceOperation.getType(),
                                         lastServiceOperation.getDescription(),
-                                        ServiceOperationState.SUCCEEDED);
+                                        ServiceOperation.State.SUCCEEDED);
         }
         return lastServiceOperation;
     }
@@ -60,18 +58,18 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
 
     @Override
     protected void reportServiceState(ExecutionWrapper execution, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
-        if (lastServiceOperation.getState() == ServiceOperationState.SUCCEEDED) {
+        if (lastServiceOperation.getState() == ServiceOperation.State.SUCCEEDED) {
             execution.getStepLogger()
                      .debug(getSuccessMessage(service, lastServiceOperation.getType()));
             return;
         }
 
-        if (lastServiceOperation.getState() == ServiceOperationState.FAILED) {
+        if (lastServiceOperation.getState() == ServiceOperation.State.FAILED) {
             handleFailedState(execution.getStepLogger(), service, lastServiceOperation);
         }
     }
 
-    private String getSuccessMessage(CloudServiceExtended service, ServiceOperationType type) {
+    private String getSuccessMessage(CloudServiceExtended service, ServiceOperation.Type type) {
         switch (type) {
             case CREATE:
                 return MessageFormat.format(Messages.SERVICE_CREATED, service.getName());

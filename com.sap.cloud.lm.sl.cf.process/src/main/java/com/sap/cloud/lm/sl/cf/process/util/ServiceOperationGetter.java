@@ -16,8 +16,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 
@@ -54,8 +52,8 @@ public class ServiceOperationGetter {
         }
         boolean isServiceDeleted = isServiceDeleted(execution, service.getMetadata()
                                                                       .getGuid());
-        ServiceOperationState operationState = isServiceDeleted ? ServiceOperationState.SUCCEEDED : ServiceOperationState.IN_PROGRESS;
-        return new ServiceOperation(ServiceOperationType.DELETE, ServiceOperationType.DELETE.name(), operationState);
+        ServiceOperation.State operationState = isServiceDeleted ? ServiceOperation.State.SUCCEEDED : ServiceOperation.State.IN_PROGRESS;
+        return new ServiceOperation(ServiceOperation.Type.DELETE, ServiceOperation.Type.DELETE.name(), operationState);
     }
 
     private boolean isServiceDeleted(ExecutionWrapper execution, UUID uuid) {

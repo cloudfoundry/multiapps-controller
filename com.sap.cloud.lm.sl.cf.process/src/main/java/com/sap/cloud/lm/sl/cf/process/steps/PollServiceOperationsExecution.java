@@ -17,8 +17,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
@@ -40,7 +38,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         execution.getStepLogger()
                  .debug(Messages.POLLING_SERVICE_OPERATIONS);
 
-        Map<String, ServiceOperationType> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(execution.getContext());
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(execution.getContext());
         List<CloudServiceExtended> servicesToPoll = getServiceOperationsToPoll(execution, triggeredServiceOperations);
         if (CollectionUtils.isEmpty(servicesToPoll)) {
             return AsyncExecutionState.FINISHED;
@@ -69,7 +67,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
     }
 
     protected List<CloudServiceExtended> getServiceOperationsToPoll(ExecutionWrapper execution,
-                                                                    Map<String, ServiceOperationType> triggeredServiceOperations) {
+                                                                    Map<String, ServiceOperation.Type> triggeredServiceOperations) {
         List<CloudServiceExtended> servicesToPoll = StepsUtil.getServicesToPoll(execution.getContext());
         if (CollectionUtils.isEmpty(servicesToPoll)) {
             return computeServicesToPoll(execution, triggeredServiceOperations);
@@ -78,14 +76,14 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
     }
 
     protected List<CloudServiceExtended> getServicesWithTriggeredOperations(Collection<CloudServiceExtended> services,
-                                                                            Map<String, ServiceOperationType> triggeredServiceOperations) {
+                                                                            Map<String, ServiceOperation.Type> triggeredServiceOperations) {
         return services.stream()
                        .filter(e -> triggeredServiceOperations.containsKey(e.getName()))
                        .collect(Collectors.toList());
     }
 
     protected List<CloudServiceExtended> computeServicesToPoll(ExecutionWrapper execution,
-                                                               Map<String, ServiceOperationType> triggeredServiceOperations) {
+                                                               Map<String, ServiceOperation.Type> triggeredServiceOperations) {
         List<CloudServiceExtended> servicesData = getServicesData(execution.getContext());
         return getServicesWithTriggeredOperations(servicesData, triggeredServiceOperations);
     }
@@ -110,7 +108,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
 
     protected ServiceOperation mapOperationState(StepLogger stepLogger, ServiceOperation lastServiceOperation,
                                                  CloudServiceExtended service) {
-        if (lastServiceOperation.getDescription() == null && lastServiceOperation.getState() == ServiceOperationState.FAILED) {
+        if (lastServiceOperation.getDescription() == null && lastServiceOperation.getState() == ServiceOperation.State.FAILED) {
             return new ServiceOperation(lastServiceOperation.getType(),
                                         Messages.DEFAULT_FAILED_OPERATION_DESCRIPTION,
                                         lastServiceOperation.getState());
@@ -126,7 +124,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
     }
 
     private void reportOverallProgress(ExecutionWrapper execution, List<ServiceOperation> lastServicesOperations,
-                                       Map<String, ServiceOperationType> triggeredServiceOperations) {
+                                       Map<String, ServiceOperation.Type> triggeredServiceOperations) {
         serviceProgressReporter.reportOverallProgress(execution, lastServicesOperations, triggeredServiceOperations);
     }
 
@@ -134,7 +132,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         return servicesWithLastOperation.entrySet()
                                         .stream()
                                         .filter(serviceWithLastOperation -> serviceWithLastOperation.getValue()
-                                                                                                    .getState() == ServiceOperationState.IN_PROGRESS)
+                                                                                                    .getState() == ServiceOperation.State.IN_PROGRESS)
                                         .map(Map.Entry::getKey)
                                         .collect(Collectors.toList());
     }

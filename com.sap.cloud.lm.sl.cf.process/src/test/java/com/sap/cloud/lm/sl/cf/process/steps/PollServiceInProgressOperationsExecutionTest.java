@@ -28,8 +28,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
@@ -49,58 +47,58 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
             // (0) With 2 services in progress:
             {
                 Arrays.asList("service1","service2", "service3"), 
-                Arrays.asList(ServiceOperationType.DELETE, ServiceOperationType.CREATE, ServiceOperationType.DELETE),
-                Arrays.asList(ServiceOperationState.IN_PROGRESS, ServiceOperationState.SUCCEEDED, ServiceOperationState.IN_PROGRESS), 
+                Arrays.asList(ServiceOperation.Type.DELETE, ServiceOperation.Type.CREATE, ServiceOperation.Type.DELETE),
+                Arrays.asList(ServiceOperation.State.IN_PROGRESS, ServiceOperation.State.SUCCEEDED, ServiceOperation.State.IN_PROGRESS), 
                 false, AsyncExecutionState.RUNNING, null
             },
             // (1) With 1 service in progress state and 1 successfully deleted
             {
                 Arrays.asList("service1","service2", "service3"), 
-                Arrays.asList(ServiceOperationType.DELETE, ServiceOperationType.CREATE, ServiceOperationType.DELETE),
-                Arrays.asList(null, ServiceOperationState.SUCCEEDED, ServiceOperationState.IN_PROGRESS), 
+                Arrays.asList(ServiceOperation.Type.DELETE, ServiceOperation.Type.CREATE, ServiceOperation.Type.DELETE),
+                Arrays.asList(null, ServiceOperation.State.SUCCEEDED, ServiceOperation.State.IN_PROGRESS), 
                 true, AsyncExecutionState.RUNNING, null
             },
             // (2) With 3 services finished operations successfully 
             {
                 Arrays.asList("service1","service2", "service3"), 
-                Arrays.asList(ServiceOperationType.UPDATE, ServiceOperationType.CREATE, ServiceOperationType.DELETE),
-                Arrays.asList(ServiceOperationState.SUCCEEDED, ServiceOperationState.SUCCEEDED, ServiceOperationState.SUCCEEDED), 
+                Arrays.asList(ServiceOperation.Type.UPDATE, ServiceOperation.Type.CREATE, ServiceOperation.Type.DELETE),
+                Arrays.asList(ServiceOperation.State.SUCCEEDED, ServiceOperation.State.SUCCEEDED, ServiceOperation.State.SUCCEEDED), 
                 false, AsyncExecutionState.FINISHED, null
             },
             // (3) Handle missing response for last service operation
             {
                 Arrays.asList("service1","service2", "service3"), 
-                Arrays.asList(null, ServiceOperationType.CREATE, null),
+                Arrays.asList(null, ServiceOperation.Type.CREATE, null),
                 Arrays.asList(null, null, null), 
                 false, AsyncExecutionState.FINISHED, null
             },
             // (4) Throw exception on create failed service state
             {
                 Arrays.asList("service1","service2", "service3"), 
-                Arrays.asList(null, ServiceOperationType.CREATE, null),
-                Arrays.asList(null, ServiceOperationState.FAILED, null), 
+                Arrays.asList(null, ServiceOperation.Type.CREATE, null),
+                Arrays.asList(null, ServiceOperation.State.FAILED, null), 
                 true, null, "Error creating service \"service2\" from offering \"null\" and plan \"testPlan\""
             },
             // (5) Throw exception on update failed service state
             {
                 Arrays.asList("service1","service2", "service3"), 
-                Arrays.asList(null, ServiceOperationType.UPDATE, null),
-                Arrays.asList(null, ServiceOperationState.FAILED, null), 
+                Arrays.asList(null, ServiceOperation.Type.UPDATE, null),
+                Arrays.asList(null, ServiceOperation.State.FAILED, null), 
                 true, null, "Error updating service \"service2\" from offering \"null\" and plan \"testPlan\""
             },
             // (5) Throw exception on delete failed service state
             {
                 Arrays.asList("service1","service2", "service3"), 
-                Arrays.asList(null, ServiceOperationType.DELETE, null),
-                Arrays.asList(null, ServiceOperationState.FAILED, null), 
+                Arrays.asList(null, ServiceOperation.Type.DELETE, null),
+                Arrays.asList(null, ServiceOperation.State.FAILED, null), 
                 true, null, "Error deleting service \"service2\" from offering \"null\" and plan \"testPlan\""
             },            
 // @formatter:on
         });
     }
 
-    public PollServiceInProgressOperationsExecutionTest(List<String> serviceNames, List<ServiceOperationType> servicesOperationTypes,
-                                                        List<ServiceOperationState> servicesOperationStates, boolean shouldVerifyStepLogger,
+    public PollServiceInProgressOperationsExecutionTest(List<String> serviceNames, List<ServiceOperation.Type> servicesOperationTypes,
+                                                        List<ServiceOperation.State> servicesOperationStates, boolean shouldVerifyStepLogger,
                                                         AsyncExecutionState expectedExecutionState, String expectedExceptionMessage) {
         this.serviceNames = serviceNames;
         this.servicesOperationTypes = servicesOperationTypes;
@@ -121,8 +119,8 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
     @Rule
     public final ExpectedException exception = ExpectedException.none();
     private final List<String> serviceNames;
-    private final List<ServiceOperationType> servicesOperationTypes;
-    private final List<ServiceOperationState> servicesOperationStates;
+    private final List<ServiceOperation.Type> servicesOperationTypes;
+    private final List<ServiceOperation.State> servicesOperationStates;
     private final boolean shouldVerifyStepLogger;
     private final AsyncExecutionState expectedExecutionState;
     private final String expectedExceptionMessage;
@@ -143,8 +141,8 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
     private void prepareServiceOperationGetter(List<CloudServiceExtended> services) {
         for (int i = 0; i < services.size(); i++) {
             CloudServiceExtended service = services.get(i);
-            ServiceOperationType serviceOperationType = servicesOperationTypes.get(i);
-            ServiceOperationState serviceOperationState = servicesOperationStates.get(i);
+            ServiceOperation.Type serviceOperationType = servicesOperationTypes.get(i);
+            ServiceOperation.State serviceOperationState = servicesOperationStates.get(i);
             if (serviceOperationType != null && serviceOperationState != null) {
                 when(serviceOperationGetter.getLastServiceOperation(any(),
                                                                     eq(service))).thenReturn(new ServiceOperation(serviceOperationType,
@@ -155,10 +153,10 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
     }
 
     private void prepareTriggeredServiceOperations() {
-        Map<String, ServiceOperationType> triggeredServiceOperations = new HashMap<>();
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = new HashMap<>();
         for (int index = 0; index < serviceNames.size(); index++) {
             String serviceName = serviceNames.get(index);
-            ServiceOperationType serviceOperationType = servicesOperationTypes.get(index);
+            ServiceOperation.Type serviceOperationType = servicesOperationTypes.get(index);
             if (serviceOperationType != null) {
                 triggeredServiceOperations.put(serviceName, serviceOperationType);
             }

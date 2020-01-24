@@ -27,7 +27,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
@@ -48,14 +48,14 @@ public class AnalyticsCollectorTest {
     protected static final String SPACE_NAME = "space";
     protected static final String CONTROLLER_URL = "http://example.com/";
     protected static final String TIME_ZONE = "Europe/Berlin";
-    protected static final Map<String, ServiceOperationType> TRIGGERED_SERVICE_OPERATIONS = new HashMap<>();
+    protected static final Map<String, ServiceOperation.Type> TRIGGERED_SERVICE_OPERATIONS = new HashMap<>();
     protected static final String MODULE_A = "module-a";
 
     static {
-        TRIGGERED_SERVICE_OPERATIONS.put("foo", ServiceOperationType.CREATE);
-        TRIGGERED_SERVICE_OPERATIONS.put("bar", ServiceOperationType.CREATE);
-        TRIGGERED_SERVICE_OPERATIONS.put("baz", ServiceOperationType.UPDATE);
-        TRIGGERED_SERVICE_OPERATIONS.put("qux", ServiceOperationType.CREATE);
+        TRIGGERED_SERVICE_OPERATIONS.put("foo", ServiceOperation.Type.CREATE);
+        TRIGGERED_SERVICE_OPERATIONS.put("bar", ServiceOperation.Type.CREATE);
+        TRIGGERED_SERVICE_OPERATIONS.put("baz", ServiceOperation.Type.UPDATE);
+        TRIGGERED_SERVICE_OPERATIONS.put("qux", ServiceOperation.Type.CREATE);
     }
 
     private final Tester tester = Tester.forClass(getClass());

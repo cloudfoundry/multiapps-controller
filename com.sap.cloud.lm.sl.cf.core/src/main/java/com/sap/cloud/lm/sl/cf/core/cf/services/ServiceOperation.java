@@ -1,8 +1,11 @@
 package com.sap.cloud.lm.sl.cf.core.cf.services;
 
+import java.text.MessageFormat;
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
+
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
 
 public class ServiceOperation {
 
@@ -11,21 +14,69 @@ public class ServiceOperation {
     public static final String SERVICE_OPERATION_STATE = "state";
     public static final String SERVICE_OPERATION_DESCRIPTION = "description";
 
-    private ServiceOperationType type;
+    public enum Type {
+
+        CREATE, UPDATE, DELETE;
+
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
+
+        public static Type fromString(String value) {
+            for (Type type : Type.values()) {
+                if (type.toString()
+                        .equals(value)) {
+                    return type;
+                }
+            }
+            throw new IllegalArgumentException(MessageFormat.format(Messages.ILLEGAL_SERVICE_OPERATION_TYPE, value));
+        }
+
+    }
+
+    public enum State {
+
+        SUCCEEDED("succeeded"), FAILED("failed"), IN_PROGRESS("in progress");
+
+        private final String name;
+
+        private State(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+
+        public static State fromString(String value) {
+            for (State state : State.values()) {
+                if (state.toString()
+                         .equals(value)) {
+                    return state;
+                }
+            }
+            throw new IllegalArgumentException(MessageFormat.format(Messages.ILLEGAL_SERVICE_OPERATION_STATE, value));
+        }
+
+    }
+
+    private Type type;
     private String description;
-    private ServiceOperationState state;
+    private State state;
 
     ServiceOperation() {
         // Required by Jackson.
     }
 
-    public ServiceOperation(ServiceOperationType type, String description, ServiceOperationState state) {
+    public ServiceOperation(Type type, String description, State state) {
         this.type = type;
         this.description = description;
         this.state = state;
     }
 
-    public ServiceOperationType getType() {
+    public Type getType() {
         return type;
     }
 
@@ -33,13 +84,13 @@ public class ServiceOperation {
         return description;
     }
 
-    public ServiceOperationState getState() {
+    public State getState() {
         return state;
     }
 
     public static ServiceOperation fromMap(Map<String, Object> serviceOperation) {
-        ServiceOperationType type = ServiceOperationType.fromString(MapUtils.getString(serviceOperation, SERVICE_OPERATION_TYPE));
-        ServiceOperationState state = ServiceOperationState.fromString(MapUtils.getString(serviceOperation, SERVICE_OPERATION_STATE));
+        Type type = Type.fromString(MapUtils.getString(serviceOperation, SERVICE_OPERATION_TYPE));
+        State state = State.fromString(MapUtils.getString(serviceOperation, SERVICE_OPERATION_STATE));
         String description = MapUtils.getString(serviceOperation, SERVICE_OPERATION_DESCRIPTION);
         return new ServiceOperation(type, description, state);
     }
