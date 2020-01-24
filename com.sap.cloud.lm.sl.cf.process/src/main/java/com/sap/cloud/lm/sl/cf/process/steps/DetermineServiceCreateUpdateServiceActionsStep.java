@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -123,12 +124,23 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
         getStepLogger().debug("Existing service: " + secureSerializer.toJson(existingService));
 
-        Map<String, Object> serviceInstanceEntity = serviceInstanceGetter.getServiceInstanceEntity(client, service.getName(), spaceId);
-        if (shouldRecreate(service, existingService, serviceInstanceEntity)) {
-            if (!StepsUtil.shouldDeleteServices(execution.getContext())) {
+        boolean shouldRecreate = false;
+        if (haveDifferentTypesOrLabels(service, existingService)) {
+            if (StepsUtil.shouldDeleteServices(execution.getContext())) {
+                shouldRecreate = true;
+            } else {
                 throw getServiceRecreationNeededException(service, existingService);
             }
-
+        }
+        ServiceOperation lastOperation = getLastOperation(client, spaceId, existingService.getName());
+        if (isInDangerousState(lastOperation)) {
+            if (StepsUtil.shouldDeleteServices(execution.getContext())) {
+                shouldRecreate = true;
+            } else {
+                getStepLogger().warn(Messages.SERVICE_0_IS_IN_STATE_1_AND_MAY_NOT_BE_OPERATIONAL, existingService.getName(), lastOperation);
+            }
+        }
+        if (shouldRecreate) {
             getStepLogger().debug("Service should be recreated");
             StepsUtil.setServicesToDelete(execution.getContext(), Collections.singletonList(service.getName()));
             actions.add(ServiceAction.RECREATE);
@@ -157,6 +169,14 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
 
         return actions;
+    }
+
+    private ServiceOperation getLastOperation(CloudControllerClient client, String spaceId, String serviceName) {
+        Map<String, Object> existingServiceInstanceEntity = serviceInstanceGetter.getServiceInstanceEntity(client, serviceName, spaceId);
+        if (existingServiceInstanceEntity != null) {
+            return getLastOperation(existingServiceInstanceEntity);
+        }
+        return null;
     }
 
     private SLException getServiceRecreationNeededException(CloudServiceExtended service, CloudService existingService) {
@@ -232,24 +252,23 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return !Objects.equals(service.getPlan(), existingService.getPlan());
     }
 
-    private boolean shouldRecreate(CloudServiceExtended service, CloudService existingService, Map<String, Object> serviceInstanceEntity) {
-        if (serviceInstanceEntity == null) {
+    private boolean isInDangerousState(ServiceOperation lastOperation) {
+        if (lastOperation == null) {
             return false;
         }
-        ServiceOperation lastOperation = getLastOperation(serviceInstanceEntity);
-        if (hasServiceFailedState(lastOperation, ServiceOperationType.CREATE)) {
-            return true;
-        }
-        return serviceHasDifferentTypeOrLabel(service, existingService)
-            || hasServiceFailedState(lastOperation, ServiceOperationType.DELETE);
+        return hasType(lastOperation, ServiceOperationType.CREATE, ServiceOperationType.DELETE) && hasFailed(lastOperation);
     }
 
-    private boolean hasServiceFailedState(ServiceOperation lastOperation, ServiceOperationType serviceOperationType) {
-        return lastOperation != null && lastOperation.getType() == serviceOperationType
-            && lastOperation.getState() == ServiceOperationState.FAILED;
+    private boolean hasType(ServiceOperation serviceOperation, ServiceOperationType... types) {
+        return Arrays.stream(types)
+                     .anyMatch(type -> serviceOperation.getType() == type);
     }
 
-    private boolean serviceHasDifferentTypeOrLabel(CloudServiceExtended service, CloudService existingService) {
+    private boolean hasFailed(ServiceOperation serviceOperation) {
+        return serviceOperation.getState() == ServiceOperationState.FAILED;
+    }
+
+    private boolean haveDifferentTypesOrLabels(CloudServiceExtended service, CloudService existingService) {
         boolean haveDifferentTypes = service.isUserProvided() ^ existingService.isUserProvided();
         if (existingService.isUserProvided()) {
             return haveDifferentTypes;

@@ -1,0 +1,22 @@
+{
+    "service": {
+        "resourceName": "my-db",
+        "name": "my-db",
+        "label": "postgresql",
+        "plan": "v9.4",
+        "tags": []
+    },
+    "existingService": {
+        "name": "my-db",
+        "label": "postgresql",
+        "plan": "v9.4",
+        "metadata": {"guid": "beeb5e8d-4ab9-46ee-9205-455a278743f0"},
+        "tags": []
+    },
+    "lastOperationForExistingService": {
+        "type": "DELETE",
+        "state": "FAILED"
+    },
+    "shouldRecreateService": false,
+    "shouldDeleteServices": false
+}

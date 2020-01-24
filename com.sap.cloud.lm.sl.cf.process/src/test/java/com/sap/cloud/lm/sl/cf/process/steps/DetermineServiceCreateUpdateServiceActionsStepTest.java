@@ -88,9 +88,15 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
             {
                 "determine-actions-create-or-update-services-step-input-10-update-credentials.json", null
             },
-                        {
+            {
                 "determine-actions-create-or-update-services-step-input-11-no-update-credentials.json", null
-            }
+            },
+            {
+                "determine-actions-create-or-update-services-step-input-12-last-operation-failed.json", null
+            },
+            {
+                "determine-actions-create-or-update-services-step-input-13-last-operation-failed-allow-deletion-of-services.json", null
+            },
          // @formatter:on
         });
     }
