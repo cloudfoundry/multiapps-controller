@@ -50,6 +50,13 @@ public class MtasApiAuthorizationFilterTest {
     }
 
     @Test
+    public void testExtractSpaceGuidWithDoubleForwardSlashes() {
+        Mockito.when(request.getRequestURI())
+               .thenReturn(String.format("/api/////v1/spaces/%s/mtas", SPACE_GUID));
+        assertEquals(SPACE_GUID, mtasApiAuthorizationFilter.extractSpaceGuid(request));
+    }
+
+    @Test
     public void testExtractSpaceGuidWithNonMatchingUri() {
         Mockito.when(request.getRequestURI())
                .thenReturn("/public/ping");

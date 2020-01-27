@@ -19,6 +19,9 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import com.sap.cloud.lm.sl.cf.web.security.TokenStoreFactory;
@@ -57,6 +60,13 @@ public class SecurityConfiguration {
         BasicAuthenticationEntryPoint basicAuthenticationEntryPoint = new BasicAuthenticationEntryPoint();
         basicAuthenticationEntryPoint.setRealmName(CF_DEPLOY_SERVICE);
         return basicAuthenticationEntryPoint;
+    }
+
+    @Bean("customHttpFirewall")
+    public HttpFirewall customHttpFirewall() {
+        DefaultHttpFirewall defaultHttpFirewall = new DefaultHttpFirewall();
+        defaultHttpFirewall.setAllowUrlEncodedSlash(true);
+        return defaultHttpFirewall;
     }
 
     @Inject

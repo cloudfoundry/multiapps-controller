@@ -22,6 +22,7 @@ public class CompositeUriAuthorizationFilterTest {
     private static final String FOO_REQUEST_URI = "/foo/qux";
     private static final String BAR_REQUEST_URI = "/bar/qux";
     private static final String BAZ_REQUEST_URI = "/baz/qux";
+    private static final String BAR_REQUEST_WITH_SLASHES_URI = "/////bar////qux";
 
     @Mock
     private HttpServletRequest request;
@@ -63,6 +64,19 @@ public class CompositeUriAuthorizationFilterTest {
         Mockito.verify(fooUriAuthorizationFilter, Mockito.never())
                .ensureUserIsAuthorized(request, response);
         Mockito.verify(barUriAuthorizationFilter, Mockito.never())
+               .ensureUserIsAuthorized(request, response);
+    }
+
+    @Test
+    public void testUriWhichContainsLotsOfForwardSlashes() throws IOException {
+        Mockito.when(request.getRequestURI())
+               .thenReturn(BAR_REQUEST_WITH_SLASHES_URI);
+
+        assertFalse(compositeUriAuthorizationFilter.ensureUserIsAuthorized(request, response));
+
+        Mockito.verify(fooUriAuthorizationFilter, Mockito.never())
+               .ensureUserIsAuthorized(request, response);
+        Mockito.verify(barUriAuthorizationFilter)
                .ensureUserIsAuthorized(request, response);
     }
 

@@ -15,6 +15,9 @@ import com.sap.cloud.lm.sl.cf.web.message.Messages;
 
 public final class ServletUtil {
 
+    private static final String SINGLE_FORWARD_SLASH = "/";
+    private static final String TWO_OR_MORE_FORWARD_SLASHES_REGEX = "\\/\\/+";
+
     private ServletUtil() {
 
     }
@@ -40,6 +43,10 @@ public final class ServletUtil {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(MessageFormat.format(Messages.COULD_NOT_DECODE_STRING_0, string), e);
         }
+    }
+
+    public static String removeInvalidForwardSlashes(String uri) {
+        return uri.replaceAll(TWO_OR_MORE_FORWARD_SLASHES_REGEX, SINGLE_FORWARD_SLASH);
     }
 
 }
