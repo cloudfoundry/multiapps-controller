@@ -29,10 +29,11 @@ public class CompositeUriAuthorizationFilter extends AuthorizationFilter {
     protected boolean ensureUserIsAuthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             String uri = ServletUtil.decodeUri(request);
+            String normalizedUri = ServletUtil.removeInvalidForwardSlashes(uri);
             LOGGER.trace("Looking for a matching authorization filter for request to \"{}\"...", uri);
             LOGGER.trace("Registered authorization filters: {}", uriAuthorizationFilters);
             for (UriAuthorizationFilter uriAuthorizationFilter : uriAuthorizationFilters) {
-                if (uri.matches(uriAuthorizationFilter.getUriRegex())) {
+                if (normalizedUri.matches(uriAuthorizationFilter.getUriRegex())) {
                     return ensureUserIsAuthorized(uriAuthorizationFilter, request, response);
                 }
             }
