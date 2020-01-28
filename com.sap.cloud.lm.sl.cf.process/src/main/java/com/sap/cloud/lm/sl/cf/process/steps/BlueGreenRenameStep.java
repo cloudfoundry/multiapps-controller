@@ -30,30 +30,27 @@ public class BlueGreenRenameStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.DETECTING_COLOR_OF_DEPLOYED_MTA);
         DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
         DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
-        ApplicationColor mtaColor;
-        ApplicationColor deployedMtaColor = null;
+        ApplicationColor idleMtaColor = DEFAULT_MTA_COLOR;
+        ApplicationColor liveMtaColor = null;
         try {
-            deployedMtaColor = applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta);
-            if (deployedMtaColor != null) {
-                getStepLogger().info(Messages.DEPLOYED_MTA_COLOR, deployedMtaColor);
-                mtaColor = deployedMtaColor.getAlternativeColor();
-            } else {
-                mtaColor = DEFAULT_MTA_COLOR;
+            liveMtaColor = applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta);
+            if (liveMtaColor != null) {
+                getStepLogger().info(Messages.DEPLOYED_MTA_COLOR, liveMtaColor);
+                idleMtaColor = liveMtaColor.getAlternativeColor();
             }
         } catch (ConflictException e) {
             getStepLogger().warn(e.getMessage());
-            ApplicationColor liveMtaColor = getLiveApplicationColor(deployedMta, execution);
-            ApplicationColor idleMtaColor = liveMtaColor.getAlternativeColor();
+            liveMtaColor = getLiveApplicationColor(deployedMta, execution);
+            idleMtaColor = liveMtaColor.getAlternativeColor();
             getStepLogger().info(Messages.ASSUMED_LIVE_AND_IDLE_COLORS, liveMtaColor, idleMtaColor);
-            mtaColor = idleMtaColor;
         }
 
-        StepsUtil.setDeployedMtaColor(execution.getContext(), deployedMtaColor);
-        StepsUtil.setMtaColor(execution.getContext(), mtaColor);
+        StepsUtil.setLiveMtaColor(execution.getContext(), liveMtaColor);
+        StepsUtil.setIdleMtaColor(execution.getContext(), idleMtaColor);
 
-        getStepLogger().info(Messages.NEW_MTA_COLOR, mtaColor);
+        getStepLogger().info(Messages.NEW_MTA_COLOR, idleMtaColor);
 
-        visit(execution, descriptor, mtaColor, deployedMtaColor);
+        visit(execution, descriptor, idleMtaColor, liveMtaColor);
 
         return StepPhase.DONE;
     }

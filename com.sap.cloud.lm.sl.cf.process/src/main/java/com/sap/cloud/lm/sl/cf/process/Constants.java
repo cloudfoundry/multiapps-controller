@@ -156,7 +156,9 @@ public class Constants {
     public static final String VAR_APP_CONTENT_CHANGED = "appContentChanged";
     public static final String VAR_STEP_START_TIME = "stepStartTime_";
     public static final String VAR_DEPLOYED_MTA_COLOR = "deployedMtaColor";
+    public static final String VAR_LIVE_MTA_COLOR = "liveMtaColor";
     public static final String VAR_MTA_COLOR = "mtaColor";
+    public static final String VAR_IDLE_MTA_COLOR = "idleMtaColor";
     public static final String VAR_BUILD_GUID = "buildGuid";
     public static final String VAR_MTA_ARCHIVE_ELEMENTS = "mtaArchiveElements";
     public static final String VAR_PHASE = "phase";
