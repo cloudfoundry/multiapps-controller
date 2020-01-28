@@ -156,7 +156,7 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testGetOperationMissing() {
-        Assertions.assertThrows(NoResultException.class, () -> testedClass.getOperation(SPACE_GUID, "notPresent", null));
+        Assertions.assertThrows(NotFoundException.class, () -> testedClass.getOperation(SPACE_GUID, "notPresent", null));
     }
 
     @Test
@@ -169,7 +169,7 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testExecuteOperationActionMissingProcess() {
-        Assertions.assertThrows(NoResultException.class,
+        Assertions.assertThrows(NotFoundException.class,
                                 () -> testedClass.executeOperationAction(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID,
                                                                          "notavalidpprocess", AbortProcessAction.ACTION_ID_ABORT));
     }
@@ -267,7 +267,7 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testGetOperationActionsOperationNotFound() {
-        Assertions.assertThrows(NoResultException.class, () -> testedClass.getOperationActions(SPACE_GUID, "notarealprocess"));
+        Assertions.assertThrows(NotFoundException.class, () -> testedClass.getOperationActions(SPACE_GUID, "notarealprocess"));
     }
 
     @Test
