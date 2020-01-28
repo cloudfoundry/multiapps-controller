@@ -93,9 +93,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     public ResponseEntity<Void> executeOperationAction(HttpServletRequest request, String spaceGuid, String operationId, String actionId) {
-        Operation operation = operationService.createQuery()
-                                              .processId(operationId)
-                                              .singleResult();
+        Operation operation = getOperation(operationId);
         List<String> availableOperations = getAvailableActions(operation);
         if (!availableOperations.contains(actionId)) {
             throw new IllegalArgumentException(MessageFormat.format(Messages.ACTION_0_CANNOT_BE_EXECUTED_OVER_OPERATION_1, actionId,
@@ -113,10 +111,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Override
     public ResponseEntity<List<Log>> getOperationLogs(String spaceGuid, String operationId) {
         try {
-            Operation operation = getMtaOperation(operationId);
-            if (operation == null) {
-                throw new NotFoundException(Messages.OPERATION_0_NOT_FOUND, operationId);
-            }
+            getOperation(operationId);
             List<String> logIds = logsService.getLogNames(spaceGuid, operationId);
             List<Log> logs = logIds.stream()
                                    .map(id -> ImmutableLog.builder()
@@ -127,16 +122,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                                  .body(logs);
         } catch (FileStorageException e) {
             throw new ContentException(e, e.getMessage());
-        }
-    }
-
-    private Operation getMtaOperation(String operationId) {
-        try {
-            return operationService.createQuery()
-                                   .processId(operationId)
-                                   .singleResult();
-        } catch (NoResultException e) {
-            return null;
         }
     }
 
@@ -171,9 +156,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<Operation> getOperation(String spaceGuid, String operationId, String embed) {
-        Operation operation = operationService.createQuery()
-                                              .processId(operationId)
-                                              .singleResult();
+        Operation operation = getOperation(operationId);
         if (!operation.getSpaceId()
                       .equals(spaceGuid)) {
             LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_SPACE_MISMATCH, operationId,
@@ -222,11 +205,19 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public ResponseEntity<List<String>> getOperationActions(String spaceGuid, String operationId) {
-        Operation operation = operationService.createQuery()
-                                              .processId(operationId)
-                                              .singleResult();
+        Operation operation = getOperation(operationId);
         return ResponseEntity.ok()
                              .body(getAvailableActions(operation));
+    }
+
+    private Operation getOperation(String operationId) {
+        try {
+            return operationService.createQuery()
+                                   .processId(operationId)
+                                   .singleResult();
+        } catch (NoResultException e) {
+            throw new NotFoundException(e, Messages.OPERATION_0_NOT_FOUND, operationId);
+        }
     }
 
     private List<String> getAvailableActions(Operation operation) {
