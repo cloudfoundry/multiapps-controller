@@ -126,20 +126,22 @@ public class StepsUtil {
         scope.setVariable(getModuleContentVariable(moduleName), moduleContent);
     }
 
-    public static ApplicationColor getDeployedMtaColor(VariableScope scope) {
-        return getEnum(scope, Constants.VAR_DEPLOYED_MTA_COLOR, ApplicationColor::valueOf);
+    public static ApplicationColor getLiveMtaColor(VariableScope scope) {
+        ApplicationColor liveMtaColor = getEnum(scope, Constants.VAR_LIVE_MTA_COLOR, ApplicationColor::valueOf);
+        return liveMtaColor != null ? liveMtaColor : getEnum(scope, Constants.VAR_DEPLOYED_MTA_COLOR, ApplicationColor::valueOf);
     }
 
-    public static void setDeployedMtaColor(VariableScope scope, ApplicationColor deployedMtaColor) {
-        setEnum(scope, Constants.VAR_DEPLOYED_MTA_COLOR, deployedMtaColor);
+    public static void setLiveMtaColor(VariableScope scope, ApplicationColor liveMtaColor) {
+        setEnum(scope, Constants.VAR_LIVE_MTA_COLOR, liveMtaColor);
     }
 
     public static ApplicationColor getMtaColor(VariableScope scope) {
-        return getEnum(scope, Constants.VAR_MTA_COLOR, ApplicationColor::valueOf);
+        ApplicationColor idleMtaColor = getEnum(scope, Constants.VAR_IDLE_MTA_COLOR, ApplicationColor::valueOf);
+        return idleMtaColor != null ? idleMtaColor : getEnum(scope, Constants.VAR_MTA_COLOR, ApplicationColor::valueOf);
     }
 
-    public static void setMtaColor(VariableScope scope, ApplicationColor mtaColor) {
-        setEnum(scope, Constants.VAR_MTA_COLOR, mtaColor);
+    public static void setIdleMtaColor(VariableScope scope, ApplicationColor mtaColor) {
+        setEnum(scope, Constants.VAR_IDLE_MTA_COLOR, mtaColor);
     }
 
     public static void setPhase(VariableScope scope, Phase phase) {

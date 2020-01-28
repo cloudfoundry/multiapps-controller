@@ -69,7 +69,7 @@ public class ApplicationColorDetector {
         if (latestDeployedColor == null) {
             return olderApplicationColor;
         }
-        return phase == Phase.UNDEPLOY ? latestDeployedColor : olderApplicationColor;
+        return phase == Phase.UNDEPLOY ? latestDeployedColor : latestDeployedColor.getAlternativeColor();
     }
 
     public ApplicationColor detectSingularDeployedApplicationColor(DeployedMta deployedMta) {
@@ -118,9 +118,13 @@ public class ApplicationColorDetector {
 
     private ApplicationColor getColorFromHistoricProcess(String processInstanceId) {
         HistoricVariableInstance colorVariableInstance = flowableFacade.getHistoricVariableInstance(processInstanceId,
-                                                                                                    Constants.VAR_MTA_COLOR);
+                                                                                                    Constants.VAR_IDLE_MTA_COLOR);
+
         if (colorVariableInstance == null) {
-            return null;
+            colorVariableInstance = flowableFacade.getHistoricVariableInstance(processInstanceId, Constants.VAR_MTA_COLOR);
+            if (colorVariableInstance == null) {
+                return null;
+            }
         }
 
         return ApplicationColor.valueOf((String) colorVariableInstance.getValue());
