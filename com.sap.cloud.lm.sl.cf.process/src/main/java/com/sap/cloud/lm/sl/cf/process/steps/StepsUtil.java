@@ -769,6 +769,7 @@ public class StepsUtil {
         String deployId = DEPLOY_ID_PREFIX + getCorrelationId(scope);
 
         DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(scope);
+
         DeployedMta deployedMta = StepsUtil.getDeployedMta(scope);
 
         return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, stepLogger);

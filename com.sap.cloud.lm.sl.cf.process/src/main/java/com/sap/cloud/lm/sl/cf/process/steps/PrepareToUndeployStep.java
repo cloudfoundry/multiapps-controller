@@ -13,7 +13,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -61,9 +61,9 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
             return Collections.emptySet();
         }
 
-        return deployedMta.getModules()
+        return deployedMta.getApplications()
                           .stream()
-                          .map(DeployedMtaModule::getModuleName)
+                          .map(DeployedMtaApplication::getModuleName)
                           .collect(Collectors.toSet());
     }
 

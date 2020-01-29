@@ -1,40 +1,29 @@
 {
-  "metadata": {
-    "id": "com.sap.xs2.samples.helloworld",
-    "version": "0.1.0"
+  "metadata" : {
+    "id" : "com.sap.xs2.samples.helloworld",
+    "version" : "0.1.0"
   },
-  "modules": [
-    {
-      "moduleName": "node-hello-world-db",
-      "appName": "node-hello-world-db",
-      "services": [
-        "node-hdi-container"
-      ],
-      "providedDependencyNames": [],
-      "uris": []
-    },
-    {
-      "moduleName": "node-hello-world-backend",
-      "appName": "node-hello-world-backend",
-      "services": [
-        "uaa",
-        "node-hdi-container"
-      ],
-      "providedDependencyNames": [],
-      "uris": []
-    },
-    {
-      "moduleName": "node-hello-world",
-      "appName": "node-hello-world",
-      "services": [
-        "uaa"
-      ],
-      "providedDependencyNames": [],
-      "uris": []
-    }
-  ],
-  "services": [
-    "node-hdi-container",
-    "uaa"
-  ]
+  "applications" : [ {
+    "moduleName" : "node-hello-world-db",
+    "appName" : "node-hello-world-db",
+    "services" : [ "node-hdi-container" ],
+    "providedDependencyNames" : [ ],
+    "uris" : [ ],
+    "productizationState" : "LIVE"
+  }, {
+    "moduleName" : "node-hello-world-backend",
+    "appName" : "node-hello-world-backend",
+    "services" : [ "uaa", "node-hdi-container" ],
+    "providedDependencyNames" : [ ],
+    "uris" : [ ],
+    "productizationState" : "LIVE"
+  }, {
+    "moduleName" : "node-hello-world",
+    "appName" : "node-hello-world",
+    "services" : [ "uaa" ],
+    "providedDependencyNames" : [ ],
+    "uris" : [ ],
+    "productizationState" : "LIVE"
+  } ],
+  "services" : [ "node-hdi-container", "uaa" ]
 }

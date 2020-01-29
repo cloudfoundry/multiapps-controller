@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.model;
 import java.util.Date;
 import java.util.List;
 
-public class DeployedMtaModule {
+public class DeployedMtaApplication {
 
     private String moduleName;
     private String appName;
@@ -12,12 +12,13 @@ public class DeployedMtaModule {
     private List<String> services;
     private List<String> providedDependencyNames;
     private List<String> uris;
+    private ProductizationState productizationState = ProductizationState.LIVE;
 
-    public DeployedMtaModule() {
+    public DeployedMtaApplication() {
     }
 
-    public DeployedMtaModule(String moduleName, String appName, Date createdOn, Date updatedOn, List<String> services,
-                             List<String> providedDependencyNames, List<String> uris) {
+    public DeployedMtaApplication(String moduleName, String appName, Date createdOn, Date updatedOn, List<String> services,
+                                  List<String> providedDependencyNames, List<String> uris) {
         this.moduleName = moduleName;
         this.appName = appName;
         this.createdOn = createdOn;
@@ -55,6 +56,10 @@ public class DeployedMtaModule {
         return uris;
     }
 
+    public ProductizationState getProductizationState() {
+        return productizationState;
+    }
+
     public void setAppName(String appName) {
         this.appName = appName;
     }
@@ -81,6 +86,14 @@ public class DeployedMtaModule {
 
     public void setUris(List<String> uris) {
         this.uris = uris;
+    }
+
+    public void setProductizationState(ProductizationState productizationState) {
+        this.productizationState = productizationState;
+    }
+
+    public enum ProductizationState {
+        LIVE, IDLE
     }
 
 }

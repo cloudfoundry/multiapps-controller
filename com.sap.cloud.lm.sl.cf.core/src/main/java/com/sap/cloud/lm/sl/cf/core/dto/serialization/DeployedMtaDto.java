@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "mta")
@@ -19,9 +19,9 @@ public class DeployedMtaDto {
 
     private DeployedMtaMetadataDto metadata;
 
-    @XmlElementWrapper(name = "modules")
-    @XmlElement(name = "module")
-    private List<DeployedMtaModuleDto> modules;
+    @XmlElementWrapper(name = "applications")
+    @XmlElement(name = "application")
+    private List<DeployedMtaApplicationDto> applications;
 
     @XmlElementWrapper(name = "services")
     @XmlElement(name = "service")
@@ -33,28 +33,28 @@ public class DeployedMtaDto {
 
     public DeployedMtaDto(DeployedMta mta) {
         this.metadata = new DeployedMtaMetadataDto(mta.getMetadata());
-        this.modules = toDtos(mta.getModules());
+        this.applications = toDtos(mta.getApplications());
         this.services = mta.getServices();
     }
 
-    private static List<DeployedMtaModuleDto> toDtos(List<DeployedMtaModule> modules) {
-        return modules.stream()
-                      .map(DeployedMtaModuleDto::new)
-                      .collect(Collectors.toList());
+    private static List<DeployedMtaApplicationDto> toDtos(List<DeployedMtaApplication> applications) {
+        return applications.stream()
+                           .map(DeployedMtaApplicationDto::new)
+                           .collect(Collectors.toList());
     }
 
-    private static List<DeployedMtaModule> toDeployedMtaModules(List<DeployedMtaModuleDto> modules) {
-        return modules.stream()
-                      .map(DeployedMtaModuleDto::toDeployedMtaModule)
-                      .collect(Collectors.toList());
+    private static List<DeployedMtaApplication> toDeployedMtaApplications(List<DeployedMtaApplicationDto> applications) {
+        return applications.stream()
+                           .map(DeployedMtaApplicationDto::toDeployedMtaApplication)
+                           .collect(Collectors.toList());
     }
 
     public DeployedMtaMetadataDto getMetadata() {
         return metadata;
     }
 
-    public List<DeployedMtaModuleDto> getModules() {
-        return modules;
+    public List<DeployedMtaApplicationDto> getApplications() {
+        return applications;
     }
 
     public Set<String> getServices() {
@@ -64,7 +64,7 @@ public class DeployedMtaDto {
     public DeployedMta toDeployedMta() {
         DeployedMta result = new DeployedMta();
         result.setMetadata(metadata.toDeployedMtaMetadata());
-        result.setModules(toDeployedMtaModules(modules));
+        result.setApplications(toDeployedMtaApplications(applications));
         result.setServices(services);
         return result;
     }

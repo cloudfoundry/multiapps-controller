@@ -3,7 +3,7 @@
     "id": "foo.mtar",
     "version": "1.0.0"
   },
-  "modules": [
+  "applications": [
     {
       "moduleName": "bar",
       "appName": "bar",

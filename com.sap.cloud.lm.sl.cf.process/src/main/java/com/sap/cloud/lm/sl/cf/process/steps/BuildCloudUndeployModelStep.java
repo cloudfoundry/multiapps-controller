@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -57,11 +57,11 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
 
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
-        List<DeployedMtaModule> modulesToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames,
-                                                                             deploymentDescriptorModules);
+        List<DeployedMtaApplication> modulesToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames,
+                                                                                  deploymentDescriptorModules);
         getStepLogger().debug(Messages.MODULES_TO_UNDEPLOY, secureSerializer.toJson(modulesToUndeploy));
 
-        List<DeployedMtaModule> modulesWithoutChange = computeModulesWithoutChange(modulesToUndeploy, mtaModules, deployedMta);
+        List<DeployedMtaApplication> modulesWithoutChange = computeModulesWithoutChange(modulesToUndeploy, mtaModules, deployedMta);
         getStepLogger().debug(Messages.MODULES_NOT_TO_BE_CHANGED, secureSerializer.toJson(modulesWithoutChange));
 
         List<ConfigurationSubscription> subscriptionsToDelete = computeSubscriptionsToDelete(subscriptionsToCreate, deployedMta,
@@ -113,23 +113,23 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         return servicesForApplications;
     }
 
-    private List<DeployedMtaModule> computeModulesWithoutChange(List<DeployedMtaModule> modulesToUndeploy, Set<String> mtaModules,
-                                                                DeployedMta deployedMta) {
-        return deployedMta.getModules()
+    private List<DeployedMtaApplication> computeModulesWithoutChange(List<DeployedMtaApplication> modulesToUndeploy, Set<String> mtaModules,
+                                                                     DeployedMta deployedMta) {
+        return deployedMta.getApplications()
                           .stream()
                           .filter(existingModule -> shouldNotUndeployModule(modulesToUndeploy, existingModule))
                           .filter(existingModule -> shouldNotDeployModule(mtaModules, existingModule))
                           .collect(Collectors.toList());
     }
 
-    private boolean shouldNotUndeployModule(List<DeployedMtaModule> modulesToUndeploy, DeployedMtaModule existingModule) {
+    private boolean shouldNotUndeployModule(List<DeployedMtaApplication> modulesToUndeploy, DeployedMtaApplication existingModule) {
         String existingModuleName = existingModule.getModuleName();
         return modulesToUndeploy.stream()
-                                .map(DeployedMtaModule::getModuleName)
+                                .map(DeployedMtaApplication::getModuleName)
                                 .noneMatch(existingModuleName::equals);
     }
 
-    private boolean shouldNotDeployModule(Set<String> mtaModules, DeployedMtaModule existingModule) {
+    private boolean shouldNotDeployModule(Set<String> mtaModules, DeployedMtaApplication existingModule) {
         String existingModuleName = existingModule.getModuleName();
         return mtaModules.stream()
                          .noneMatch(existingModuleName::equals);
@@ -142,7 +142,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         StepsUtil.setAppsToUndeploy(context, apps);
     }
 
-    private List<String> computeServicesToDelete(List<DeployedMtaModule> modulesWithoutChange, Set<String> existingServices,
+    private List<String> computeServicesToDelete(List<DeployedMtaApplication> modulesWithoutChange, Set<String> existingServices,
                                                  Set<String> servicesForApplications) {
         return existingServices.stream()
                                .filter(service -> shouldDeleteService(modulesWithoutChange, service, servicesForApplications))
@@ -150,40 +150,43 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                .collect(Collectors.toList());
     }
 
-    private boolean shouldDeleteService(List<DeployedMtaModule> modulesToKeep, String service, Set<String> servicesForApplications) {
+    private boolean shouldDeleteService(List<DeployedMtaApplication> modulesToKeep, String service, Set<String> servicesForApplications) {
         return modulesToKeep.stream()
-                            .map(DeployedMtaModule::getServices)
+                            .map(DeployedMtaApplication::getServices)
                             .noneMatch(moduleToKeepService -> moduleToKeepService.contains(service))
             && !servicesForApplications.contains(service);
     }
 
-    private List<DeployedMtaModule> computeModulesToUndeploy(DeployedMta deployedMta, Set<String> mtaModules, List<String> appsToDeploy,
-                                                             List<String> deploymentDescriptorModules) {
-        return deployedMta.getModules()
+    private List<DeployedMtaApplication> computeModulesToUndeploy(DeployedMta deployedMta, Set<String> mtaModules,
+                                                                  List<String> appsToDeploy, List<String> deploymentDescriptorModules) {
+        return deployedMta.getApplications()
                           .stream()
-                          .filter(deployedModule -> shouldBeCheckedForUndeployment(deployedModule, mtaModules, deploymentDescriptorModules))
-                          .filter(deployedModule -> shouldUndeployModule(deployedModule, appsToDeploy))
+                          .filter(deployedApplication -> shouldBeCheckedForUndeployment(deployedApplication, mtaModules,
+                                                                                        deploymentDescriptorModules))
+                          .filter(deployedApplication -> shouldUndeployModule(deployedApplication, appsToDeploy))
                           .collect(Collectors.toList());
     }
 
-    private boolean shouldBeCheckedForUndeployment(DeployedMtaModule deployedModule, Set<String> mtaModules,
+    private boolean shouldBeCheckedForUndeployment(DeployedMtaApplication deployedApplication, Set<String> mtaModules,
                                                    List<String> deploymentDescriptorModules) {
-        return mtaModules.contains(deployedModule.getModuleName()) || !deploymentDescriptorModules.contains(deployedModule.getModuleName());
+        return mtaModules.contains(deployedApplication.getModuleName())
+            || !deploymentDescriptorModules.contains(deployedApplication.getModuleName());
     }
 
-    private boolean shouldUndeployModule(DeployedMtaModule deployedModule, List<String> appsToDeploy) {
+    private boolean shouldUndeployModule(DeployedMtaApplication deployedApplication, List<String> appsToDeploy) {
         // The deployed module may be in the list of MTA modules, but the actual application that was created from it may have a
         // different name:
-        return !appsToDeploy.contains(deployedModule.getAppName());
+        return !appsToDeploy.contains(deployedApplication.getAppName());
     }
 
-    private List<CloudApplication> computeAppsToUndeploy(List<DeployedMtaModule> modulesToUndeploy, List<CloudApplication> deployedApps) {
+    private List<CloudApplication> computeAppsToUndeploy(List<DeployedMtaApplication> modulesToUndeploy,
+                                                         List<CloudApplication> deployedApps) {
         return deployedApps.stream()
                            .filter(app -> shouldUndeployApp(modulesToUndeploy, app))
                            .collect(Collectors.toList());
     }
 
-    private boolean shouldUndeployApp(List<DeployedMtaModule> modulesToUndeploy, CloudApplication app) {
+    private boolean shouldUndeployApp(List<DeployedMtaApplication> modulesToUndeploy, CloudApplication app) {
         return modulesToUndeploy.stream()
                                 .anyMatch(module -> module.getAppName()
                                                           .equals(app.getName()));
