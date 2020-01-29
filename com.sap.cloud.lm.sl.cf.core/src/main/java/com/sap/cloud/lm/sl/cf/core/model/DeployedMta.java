@@ -4,18 +4,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication.ProductizationState;
+
 public class DeployedMta {
 
     private DeployedMtaMetadata metadata;
-    private List<DeployedMtaModule> modules;
+    private List<DeployedMtaApplication> applications;
     private Set<String> services;
 
     public DeployedMta() {
     }
 
-    public DeployedMta(DeployedMtaMetadata metadata, List<DeployedMtaModule> modules, Set<String> services) {
+    public DeployedMta(DeployedMtaMetadata metadata, List<DeployedMtaApplication> applications, Set<String> services) {
         this.metadata = metadata;
-        this.modules = modules;
+        this.applications = applications;
         this.services = services;
     }
 
@@ -27,12 +29,12 @@ public class DeployedMta {
         this.metadata = metadata;
     }
 
-    public List<DeployedMtaModule> getModules() {
-        return modules;
+    public List<DeployedMtaApplication> getApplications() {
+        return applications;
     }
 
-    public void setModules(List<DeployedMtaModule> modules) {
-        this.modules = modules;
+    public void setApplications(List<DeployedMtaApplication> applications) {
+        this.applications = applications;
     }
 
     public Set<String> getServices() {
@@ -63,12 +65,21 @@ public class DeployedMta {
         return Objects.equals(metadata, other.metadata);
     }
 
-    public DeployedMtaModule findDeployedModule(String moduleName) {
-        return getModules().stream()
-                           .filter(module -> module.getModuleName()
-                                                   .equalsIgnoreCase(moduleName))
+    public DeployedMtaApplication findApplication(String moduleName, DeployedMtaApplication.ProductizationState state) {
+        return getApplications().stream()
+                           .filter(deployedApplication -> doesDeployedApplicationMatchModuleName(deployedApplication, moduleName))
+                           .filter(deployedApplication -> doesDeployedApplicationMatchProductizationState(deployedApplication, state))
                            .findFirst()
                            .orElse(null);
+    }
+
+    private boolean doesDeployedApplicationMatchModuleName(DeployedMtaApplication deployedApplication, String moduleName) {
+        return deployedApplication.getModuleName()
+                                  .equalsIgnoreCase(moduleName);
+    }
+
+    private boolean doesDeployedApplicationMatchProductizationState(DeployedMtaApplication deployedApplication, ProductizationState state) {
+        return deployedApplication.getProductizationState() == state;
     }
 
 }

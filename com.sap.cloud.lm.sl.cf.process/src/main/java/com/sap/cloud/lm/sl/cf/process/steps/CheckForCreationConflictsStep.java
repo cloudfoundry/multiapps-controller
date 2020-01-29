@@ -28,7 +28,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedComponentsDetector;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -137,8 +137,9 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
     private void validateApplicationsToDeploy(DelegateExecution context, DeployedMta deployedMta, List<CloudApplication> deployedApps) {
         List<String> appNames = StepsUtil.getAppsToDeploy(context);
         Map<String, CloudApplication> existingApplicationsMap = createExistingApplicationsMap(deployedApps);
-        List<DeployedMtaModule> deployedMtaModules = deployedMta != null ? deployedMta.getModules() : Collections.emptyList();
-        Set<String> applicationsInDeployedMta = getApplicationsInDeployedMta(deployedMtaModules);
+        List<DeployedMtaApplication> deployedMtaApplications = deployedMta != null ? deployedMta.getApplications()
+            : Collections.emptyList();
+        Set<String> applicationsInDeployedMta = getApplicationsInDeployedMta(deployedMtaApplications);
 
         for (String appName : appNames) {
             if (existingApplicationsMap.containsKey(appName)) {
@@ -177,10 +178,10 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
     }
 
     private boolean deployedMtaContainsApplication(DeployedMta deployedMta, String appName) {
-        return deployedMta != null && deployedMta.getModules()
+        return deployedMta != null && deployedMta.getApplications()
                                                  .stream()
-                                                 .anyMatch(module -> module.getAppName()
-                                                                           .equals(appName));
+                                                 .anyMatch(deployedApplication -> deployedApplication.getAppName()
+                                                                                                     .equals(appName));
     }
 
     private Map<String, CloudApplication> createExistingApplicationsMap(List<CloudApplication> existingApps) {
@@ -189,10 +190,10 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         return applicationsMap;
     }
 
-    private Set<String> getApplicationsInDeployedMta(List<DeployedMtaModule> modules) {
-        return modules.stream()
-                      .map(DeployedMtaModule::getAppName)
-                      .collect(Collectors.toSet());
+    private Set<String> getApplicationsInDeployedMta(List<DeployedMtaApplication> deployedMtaApplications) {
+        return deployedMtaApplications.stream()
+                                      .map(DeployedMtaApplication::getAppName)
+                                      .collect(Collectors.toSet());
     }
 
 }

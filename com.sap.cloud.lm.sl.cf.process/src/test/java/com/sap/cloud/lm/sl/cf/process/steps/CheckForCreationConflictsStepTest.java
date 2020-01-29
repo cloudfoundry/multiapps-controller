@@ -31,7 +31,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -127,13 +127,13 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     private void prepareDeployedMta() {
         DeployedMta deployedMta = new DeployedMta();
         prepareServices(deployedMta);
-        prepareModules(deployedMta);
+        prepareApplications(deployedMta);
         StepsUtil.setDeployedMta(context, deployedMta);
     }
 
-    private void prepareModules(DeployedMta deployedMta) {
-        List<DeployedMtaModule> deployedModules = simpleAppListToModuleList(stepInput.appsFromDeployedMta);
-        deployedMta.setModules(deployedModules);
+    private void prepareApplications(DeployedMta deployedMta) {
+        List<DeployedMtaApplication> applications = simpleAppListToApplicationList(stepInput.appsFromDeployedMta);
+        deployedMta.setApplications(applications);
     }
 
     private void prepareServices(DeployedMta deployedMta) {
@@ -152,10 +152,10 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
         StepsUtil.setDeployedApps(context, existingApps);
     }
 
-    private List<DeployedMtaModule> simpleAppListToModuleList(List<SimpleApplication> simpleApps) {
-        List<DeployedMtaModule> modulesList = new ArrayList<>();
-        simpleApps.forEach(app -> modulesList.add(new DeployedMtaModule(app.name, app.name, null, null, null, null, null)));
-        return modulesList;
+    private List<DeployedMtaApplication> simpleAppListToApplicationList(List<SimpleApplication> simpleApps) {
+        List<DeployedMtaApplication> applicationList = new ArrayList<>();
+        simpleApps.forEach(app -> applicationList.add(new DeployedMtaApplication(app.name, app.name, null, null, null, null, null)));
+        return applicationList;
     }
 
     private void prepareClient() throws Exception {

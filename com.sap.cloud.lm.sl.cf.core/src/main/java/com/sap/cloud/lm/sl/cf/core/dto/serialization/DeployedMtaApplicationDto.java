@@ -7,10 +7,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class DeployedMtaModuleDto {
+public class DeployedMtaApplicationDto {
 
     private String moduleName;
     private String appName;
@@ -21,15 +21,15 @@ public class DeployedMtaModuleDto {
     @XmlElement(name = "providedDependency")
     private List<String> providedDependencyNames;
 
-    protected DeployedMtaModuleDto() {
+    protected DeployedMtaApplicationDto() {
         // Required by JAXB
     }
 
-    public DeployedMtaModuleDto(DeployedMtaModule module) {
-        this.moduleName = module.getModuleName();
-        this.appName = module.getAppName();
-        this.services = module.getServices();
-        this.providedDependencyNames = module.getProvidedDependencyNames();
+    public DeployedMtaApplicationDto(DeployedMtaApplication deployedApplication) {
+        this.moduleName = deployedApplication.getModuleName();
+        this.appName = deployedApplication.getAppName();
+        this.services = deployedApplication.getServices();
+        this.providedDependencyNames = deployedApplication.getProvidedDependencyNames();
     }
 
     public String getModuleName() {
@@ -48,8 +48,8 @@ public class DeployedMtaModuleDto {
         return providedDependencyNames;
     }
 
-    public DeployedMtaModule toDeployedMtaModule() {
-        DeployedMtaModule result = new DeployedMtaModule();
+    public DeployedMtaApplication toDeployedMtaApplication() {
+        DeployedMtaApplication result = new DeployedMtaApplication();
         result.setModuleName(moduleName);
         result.setAppName(appName);
         result.setServices(services);

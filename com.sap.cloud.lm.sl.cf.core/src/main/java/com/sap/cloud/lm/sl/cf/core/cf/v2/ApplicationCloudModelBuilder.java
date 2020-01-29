@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.parser.ApplicationAttributeUpdateStrategyParser;
 import com.sap.cloud.lm.sl.cf.core.parser.DockerInfoParser;
@@ -128,16 +128,17 @@ public class ApplicationCloudModelBuilder {
 
     public List<String> getApplicationUris(Module module) {
         List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
-        DeployedMtaModule deployedModule = findDeployedModule(deployedMta, module);
-        return getApplicationUrisCloudModelBuilder(parametersList).getApplicationUris(module, parametersList, deployedModule);
+        DeployedMtaApplication deployedApplication = findDeployedApplication(module);
+        return getApplicationUrisCloudModelBuilder(parametersList).getApplicationUris(module, parametersList, deployedApplication);
+    }
+
+    private DeployedMtaApplication findDeployedApplication(Module module) {
+        return deployedMta == null ? null
+            : deployedMta.findApplication(module.getName(), DeployedMtaApplication.ProductizationState.LIVE);
     }
 
     protected <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {
         return parser.parse(parametersList);
-    }
-
-    protected DeployedMtaModule findDeployedModule(DeployedMta deployedMta, Module module) {
-        return deployedMta == null ? null : deployedMta.findDeployedModule(module.getName());
     }
 
     public List<String> getAllApplicationServices(Module module) {

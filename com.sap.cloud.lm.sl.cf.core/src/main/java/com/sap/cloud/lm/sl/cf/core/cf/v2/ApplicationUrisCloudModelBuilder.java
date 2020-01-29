@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters.RoutingParameterSet;
 import com.sap.cloud.lm.sl.cf.core.parser.IdleUriParametersParser;
@@ -27,10 +27,10 @@ public class ApplicationUrisCloudModelBuilder {
         this.applicationAttributeUpdateStrategy = applicationAttributeUpdateStrategy;
     }
 
-    public List<String> getApplicationUris(Module module, List<Map<String, Object>> propertiesList, DeployedMtaModule deployedModule) {
+    public List<String> getApplicationUris(Module module, List<Map<String, Object>> propertiesList, DeployedMtaApplication deployedApplication) {
         List<String> uris = getUriParametersParser(module).parse(propertiesList);
         if (shouldKeepExistingUris(propertiesList)) {
-            return appendExistingUris(uris, deployedModule);
+            return appendExistingUris(uris, deployedApplication);
         }
         return uris;
     }
@@ -44,10 +44,10 @@ public class ApplicationUrisCloudModelBuilder {
         return PropertiesUtil.getPropertyValue(propertiesList, propertyName, defaultValue);
     }
 
-    private List<String> appendExistingUris(List<String> uris, DeployedMtaModule deployedModule) {
+    private List<String> appendExistingUris(List<String> uris, DeployedMtaApplication deployedApplication) {
         Set<String> result = new HashSet<>(uris);
-        if (deployedModule != null) {
-            result.addAll(deployedModule.getUris());
+        if (deployedApplication != null) {
+            result.addAll(deployedApplication.getUris());
         }
         return new ArrayList<>(result);
     }

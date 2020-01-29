@@ -79,7 +79,7 @@ public class Messages {
     public static final String ERROR_DETECTING_MTA_MAJOR_SCHEMA_VERSION = "Error detecting MTA major schema version";
     public static final String ERROR_MERGING_DESCRIPTORS = "Error merging descriptors";
     public static final String ERROR_DETECTING_DEPLOYED_MTA = "Error detecting deployed MTA";
-    public static final String ERROR_RENAMING_MODULES = "Error renaming modules";
+    public static final String ERROR_RENAMING_APPLICATIONS = "Error renaming applications";
     public static final String ERROR_COLLECTING_SYSTEM_PARAMETERS = "Error collecting system parameters";
     public static final String ERROR_RESOLVING_DESCRIPTOR_PROPERTIES = "Error resolving merged descriptor properties and parameters";
     public static final String ERROR_CREATING_SUBSCRIPTIONS = "Error creating subscriptions";
@@ -418,6 +418,7 @@ public class Messages {
     public static final String ARCHIVE_IS_VERIFIED = "Archive signature is verified";
     public static final String CHECKING_FOR_OVERWRITING_READ_ONLY_PARAMETERS = "Checking for overwriting read-only parameters for mta with id: \"{0}\"";
     public static final String NO_READ_ONLY_PARAMETERS_ARE_OVERWRITTEN = "No read-only parameters are overwritten";
+    public static final String MODULE_WITH_APPLICATION_NAME_WAS_MARKED_AS_IDLE = "Module \"{0}\" with application name \"{1}\" was marked as idle";
 
     protected Messages() {
     }

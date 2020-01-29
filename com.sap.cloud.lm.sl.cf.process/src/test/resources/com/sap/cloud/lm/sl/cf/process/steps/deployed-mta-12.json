@@ -3,7 +3,7 @@
     "id": "com.sap.xs2.samples.helloworld",
     "version": "0.0.1"
   },
-  "modules": [
+  "applications": [
     {
       "moduleName": "node-hello-world-db",
       "appName": "node-hello-world-db",

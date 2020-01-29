@@ -17,7 +17,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedComponents;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 
 public class DeployedComponentsDetector {
 
@@ -27,7 +27,7 @@ public class DeployedComponentsDetector {
      */
     public DeployedComponents detectAllDeployedComponents(Collection<CloudApplication> apps) {
         Map<DeployedMtaMetadata, Set<String>> servicesMap = new HashMap<>();
-        Map<DeployedMtaMetadata, List<DeployedMtaModule>> modulesMap = new HashMap<>();
+        Map<DeployedMtaMetadata, List<DeployedMtaApplication>> applicationsMap = new HashMap<>();
         List<String> standaloneApps = new ArrayList<>();
 
         for (CloudApplication app : apps) {
@@ -45,20 +45,20 @@ public class DeployedComponentsDetector {
 
                 DeployedMtaMetadata mtaMetadata = appMetadata.getMtaMetadata();
 
-                List<DeployedMtaModule> modules = modulesMap.getOrDefault(mtaMetadata, new ArrayList<>());
+                List<DeployedMtaApplication> deployedMtaApplications = applicationsMap.getOrDefault(mtaMetadata, new ArrayList<>());
                 Date createdOn = app.getMetadata()
                                     .getCreatedAt();
                 Date updatedOn = app.getMetadata()
                                     .getUpdatedAt();
-                DeployedMtaModule module = new DeployedMtaModule(moduleName,
+                DeployedMtaApplication deployedMtaApplication = new DeployedMtaApplication(moduleName,
                                                                  appName,
                                                                  createdOn,
                                                                  updatedOn,
                                                                  appServices,
                                                                  providedDependencies,
                                                                  app.getUris());
-                modules.add(module);
-                modulesMap.put(mtaMetadata, modules);
+                deployedMtaApplications.add(deployedMtaApplication);
+                applicationsMap.put(mtaMetadata, deployedMtaApplications);
 
                 Set<String> services = servicesMap.getOrDefault(mtaMetadata, new HashSet<>());
                 services.addAll(appServices);
@@ -69,12 +69,12 @@ public class DeployedComponentsDetector {
             }
         }
 
-        return createComponents(modulesMap, servicesMap, standaloneApps);
+        return createComponents(applicationsMap, servicesMap, standaloneApps);
     }
 
-    private DeployedComponents createComponents(Map<DeployedMtaMetadata, List<DeployedMtaModule>> modulesMap,
+    private DeployedComponents createComponents(Map<DeployedMtaMetadata, List<DeployedMtaApplication>> applicationsMap,
                                                 Map<DeployedMtaMetadata, Set<String>> servicesMap, List<String> standaloneApps) {
-        List<DeployedMta> mtas = modulesMap.entrySet()
+        List<DeployedMta> mtas = applicationsMap.entrySet()
                                            .stream()
                                            .map(entry -> createDeployedMta(entry, servicesMap))
                                            .collect(Collectors.collectingAndThen(Collectors.toList(),
@@ -82,11 +82,11 @@ public class DeployedComponentsDetector {
         return new DeployedComponents(mtas, standaloneApps);
     }
 
-    private DeployedMta createDeployedMta(Entry<DeployedMtaMetadata, List<DeployedMtaModule>> entry,
+    private DeployedMta createDeployedMta(Entry<DeployedMtaMetadata, List<DeployedMtaApplication>> entry,
                                           Map<DeployedMtaMetadata, Set<String>> servicesMap) {
-        List<DeployedMtaModule> modules = entry.getValue();
+        List<DeployedMtaApplication> deployedMtaApplications = entry.getValue();
         DeployedMtaMetadata mtaId = entry.getKey();
-        return new DeployedMta(mtaId, modules, servicesMap.get(mtaId));
+        return new DeployedMta(mtaId, deployedMtaApplications, servicesMap.get(mtaId));
     }
 
     private List<DeployedMta> mergeDifferentVersionsOfMtasWithSameId(List<DeployedMta> mtas) {
@@ -119,13 +119,13 @@ public class DeployedComponentsDetector {
     }
 
     private DeployedMta mergeMtas(String mtaId, List<DeployedMta> mtas) {
-        List<DeployedMtaModule> modules = new ArrayList<>();
+        List<DeployedMtaApplication> deployedMtaApplications = new ArrayList<>();
         Set<String> services = new HashSet<>();
         for (DeployedMta mta : mtas) {
             services.addAll(mta.getServices());
-            modules.addAll(mta.getModules());
+            deployedMtaApplications.addAll(mta.getApplications());
         }
-        return new DeployedMta(new DeployedMtaMetadata(mtaId), modules, services);
+        return new DeployedMta(new DeployedMtaMetadata(mtaId), deployedMtaApplications, services);
     }
 
 }

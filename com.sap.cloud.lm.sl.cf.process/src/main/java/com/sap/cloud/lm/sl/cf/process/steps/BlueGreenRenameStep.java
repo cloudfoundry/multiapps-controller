@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -10,9 +12,11 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.helpers.ApplicationColorDetector;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationProductizationStateUpdaterBasedOnColor;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
@@ -45,6 +49,7 @@ public class BlueGreenRenameStep extends SyncFlowableStep {
             getStepLogger().info(Messages.ASSUMED_LIVE_AND_IDLE_COLORS, liveMtaColor, idleMtaColor);
         }
 
+        setIdleApplications(execution, deployedMta, liveMtaColor);
         StepsUtil.setLiveMtaColor(execution.getContext(), liveMtaColor);
         StepsUtil.setIdleMtaColor(execution.getContext(), idleMtaColor);
 
@@ -57,12 +62,21 @@ public class BlueGreenRenameStep extends SyncFlowableStep {
 
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
-        return Messages.ERROR_RENAMING_MODULES;
+        return Messages.ERROR_RENAMING_APPLICATIONS;
     }
 
     private ApplicationColor getLiveApplicationColor(DeployedMta deployedMta, ExecutionWrapper execution) {
         return applicationColorDetector.detectLiveApplicationColor(deployedMta, (String) execution.getContext()
                                                                                                   .getVariable(Constants.VAR_CORRELATION_ID));
+    }
+
+    private void setIdleApplications(ExecutionWrapper execution, DeployedMta deployedMta, ApplicationColor liveMtaColor) {
+        if (deployedMta != null && liveMtaColor != null) {
+            List<DeployedMtaApplication> updatedApplications = new ApplicationProductizationStateUpdaterBasedOnColor(getStepLogger(),
+                                                                                                                     liveMtaColor).updateApplicationsProductizationState(deployedMta.getApplications());
+            deployedMta.setApplications(updatedApplications);
+            StepsUtil.setDeployedMta(execution.getContext(), deployedMta);
+        }
     }
 
     protected void visit(ExecutionWrapper execution, DeploymentDescriptor descriptor, ApplicationColor mtaColor,

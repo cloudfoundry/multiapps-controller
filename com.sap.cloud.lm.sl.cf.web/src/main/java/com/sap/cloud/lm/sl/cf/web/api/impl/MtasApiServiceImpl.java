@@ -15,7 +15,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedComponentsDetector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedComponents;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.api.MtasApiService;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableMetadata;
@@ -71,24 +71,24 @@ public class MtasApiServiceImpl implements MtasApiService {
     private Mta getMta(DeployedMta mta) {
         return ImmutableMta.builder()
                            .metadata(getMetadata(mta.getMetadata()))
-                           .modules(getModules(mta.getModules()))
+                           .modules(getModules(mta.getApplications()))
                            .services(mta.getServices())
                            .build();
     }
 
-    private List<Module> getModules(List<DeployedMtaModule> modules) {
-        return modules.stream()
+    private List<Module> getModules(List<DeployedMtaApplication> deployedApplications) {
+        return deployedApplications.stream()
                       .map(this::getModule)
                       .collect(Collectors.toList());
     }
 
-    private Module getModule(DeployedMtaModule module) {
+    private Module getModule(DeployedMtaApplication deployedApplication) {
         return ImmutableModule.builder()
-                              .appName(module.getAppName())
-                              .moduleName(module.getModuleName())
-                              .providedDendencyNames(module.getProvidedDependencyNames())
-                              .uris(module.getUris())
-                              .services(module.getServices())
+                              .appName(deployedApplication.getAppName())
+                              .moduleName(deployedApplication.getModuleName())
+                              .providedDendencyNames(deployedApplication.getProvidedDependencyNames())
+                              .uris(deployedApplication.getUris())
+                              .services(deployedApplication.getServices())
                               .build();
     }
 

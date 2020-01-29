@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
@@ -54,10 +54,10 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
         // Get module sets:
         DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
-        List<DeployedMtaModule> deployedModules = (deployedMta != null) ? deployedMta.getModules() : Collections.emptyList();
+        List<DeployedMtaApplication> deployedApplications = (deployedMta != null) ? deployedMta.getApplications() : Collections.emptyList();
         Set<String> mtaArchiveModules = StepsUtil.getMtaArchiveModules(execution.getContext());
         getStepLogger().debug(Messages.MTA_ARCHIVE_MODULES, mtaArchiveModules);
-        Set<String> deployedModuleNames = CloudModelBuilderUtil.getDeployedModuleNames(deployedModules);
+        Set<String> deployedModuleNames = CloudModelBuilderUtil.getDeployedModuleNames(deployedApplications);
         getStepLogger().debug(Messages.DEPLOYED_MODULES, deployedModuleNames);
         Set<String> mtaModules = StepsUtil.getMtaModules(execution.getContext());
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);

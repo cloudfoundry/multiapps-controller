@@ -2,7 +2,7 @@
   "metadata": {
     "id": "com.sap.sample.mta.consumer"
   },
-  "modules": [
+  "applications": [
     {
       "moduleName": "app-1",
       "createdOn": "2016-10-15T10:55:00.000",

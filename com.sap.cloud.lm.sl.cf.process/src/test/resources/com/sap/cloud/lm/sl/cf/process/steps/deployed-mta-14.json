@@ -3,7 +3,7 @@
     "id": "mta-tcp",
     "version": "0.1.0"
   },
-  "modules": [
+  "applications": [
     {
       "moduleName": "module-1",
       "appName": "module-1",

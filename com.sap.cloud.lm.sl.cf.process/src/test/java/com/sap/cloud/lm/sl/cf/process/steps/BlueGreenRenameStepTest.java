@@ -87,10 +87,10 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
     @Test
     public void testExceptionIsThrow() {
-        when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(new SLException(com.sap.cloud.lm.sl.cf.process.message.Messages.ERROR_RENAMING_MODULES));
+        when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(new SLException(com.sap.cloud.lm.sl.cf.process.message.Messages.ERROR_RENAMING_APPLICATIONS));
         when(applicationColorDetector.detectLiveApplicationColor(any(), any())).thenReturn(ApplicationColor.GREEN);
         expectedException.expect(SLException.class);
-        expectedException.expectMessage(com.sap.cloud.lm.sl.cf.process.message.Messages.ERROR_RENAMING_MODULES);
+        expectedException.expectMessage(com.sap.cloud.lm.sl.cf.process.message.Messages.ERROR_RENAMING_APPLICATIONS);
         step.execute(context);
         verify(context, never()).setVariable(anyString(), any());
     }
