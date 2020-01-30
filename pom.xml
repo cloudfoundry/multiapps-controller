@@ -63,7 +63,7 @@
         <guava.version>23.6.1-jre</guava.version>
         <jsr305.version>3.0.2</jsr305.version>
         <immutables.version>2.7.5</immutables.version>
-        <com.sap.cloud.lm.sl.open.version>1.85.0</com.sap.cloud.lm.sl.open.version>
+        <com.sap.cloud.lm.sl.open.version>1.85.1</com.sap.cloud.lm.sl.open.version>
     </properties>
     <modules>
         <module>com.sap.cloud.lm.sl.cf.client</module>
