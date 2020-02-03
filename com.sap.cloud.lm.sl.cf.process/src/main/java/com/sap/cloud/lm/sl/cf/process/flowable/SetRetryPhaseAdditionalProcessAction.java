@@ -4,7 +4,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
-import org.flowable.engine.runtime.Execution;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
@@ -21,9 +20,9 @@ public class SetRetryPhaseAdditionalProcessAction implements AdditionalProcessAc
 
     @Override
     public void executeAdditionalProcessAction(String processInstanceId) {
-        flowableFacade.getActiveProcessExecutions(processInstanceId)
+        flowableFacade.getProcessExecutionsWhichExecuteCallActivity(processInstanceId)
                       .stream()
-                      .map(this::toExecutionEntityImpl)
+                      .map(FlowableFacade::toExecutionEntityImpl)
                       .filter(executionEntityImpl -> executionEntityImpl.getDeadLetterJobCount() > 0)
                       .map(ExecutionEntityImpl::getProcessInstanceId)
                       .forEach(executionProcessId -> flowableFacade.getProcessEngine()
@@ -31,11 +30,6 @@ public class SetRetryPhaseAdditionalProcessAction implements AdditionalProcessAc
                                                                    .setVariable(executionProcessId, Constants.VAR_STEP_PHASE,
                                                                                 StepPhase.RETRY.toString()));
     }
-    
-    private ExecutionEntityImpl toExecutionEntityImpl(Execution e) {
-        return (ExecutionEntityImpl)e;
-    }
-
 
     @Override
     public String getApplicableActionId() {

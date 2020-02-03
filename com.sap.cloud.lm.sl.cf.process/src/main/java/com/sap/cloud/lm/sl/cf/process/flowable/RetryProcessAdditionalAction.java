@@ -36,8 +36,7 @@ public class RetryProcessAdditionalAction implements AdditionalProcessAction {
     }
 
     private List<String> findFailedActivityIds(String superProcessInstanceId) {
-        List<Execution> executionsForProcess = flowableFacade.getActiveProcessExecutions(superProcessInstanceId);
-
+        List<Execution> executionsForProcess = flowableFacade.getProcessExecutionsWhichExecuteCallActivity(superProcessInstanceId);
         return executionsForProcess.stream()
                                    .map(Execution::getActivityId)
                                    .collect(Collectors.toList());

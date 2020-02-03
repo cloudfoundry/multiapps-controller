@@ -12,7 +12,7 @@
     <serviceTask id="incrementTaskIndexTask" name="Increment Task Index" flowable:async="true" flowable:delegateExpression="${incrementIndexStep}"></serviceTask>
     <exclusiveGateway id="sid-D1BA59BB-19D2-40A7-8C50-8DBD35AC6963" default="sid-3F51D90A-8256-4D3E-8BFB-66EEA61C0AB0"></exclusiveGateway>
     <exclusiveGateway id="sid-A72A16B0-7CD4-4C94-8A2D-75856CB783EE" default="taskNotExecutedFlow"></exclusiveGateway>
-    <intermediateCatchEvent id="sid-A55F319D-B571-4F5E-89C7-E2DCB340E71E">
+    <intermediateCatchEvent id="sid-A55F319D-B571-4F5E-89C7-E2DCB340E71E" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>

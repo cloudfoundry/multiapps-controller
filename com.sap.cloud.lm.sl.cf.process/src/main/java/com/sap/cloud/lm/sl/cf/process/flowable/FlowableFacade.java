@@ -1,13 +1,34 @@
 package com.sap.cloud.lm.sl.cf.process.flowable;
 
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.ABORT_OPERATION_FAILED;
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.ABORT_OPERATION_FOR_PROCESS_0_FAILED;
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.CURRENT_EXECUTION_WITHOUT_CHILDREN_0;
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.DEAD_LETTER_JOBS_FOR_PROCESS_0_1;
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.EXECUTION_0_DOES_NOT_HAVE_DEAD_LETTER_JOBS;
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.NEW_ACTIVE_EXECUTIONS_WITHOUT_CHILDREN_0_FOR_PROCESS_1;
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.NO_DEAD_LETTER_JOBS_FOUND_FOR_PROCESS_WITH_ID_0;
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.PARENT_EXECUTION_WILL_NOT_BE_WAITED_TO_FINISH;
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.PROCESS_0_HAS_ALREADY_BEEN_SUSPENDED;
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.PROCESS_0_HAS_BEEN_DELETED_SUCCESSFULLY;
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.PROCESS_0_HAS_BEEN_SUSPENDED_SUCCESSFULLY;
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.PROCESS_INSTANCE_0_IS_AT_RECEIVE_TASK;
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.PROCESS_WITH_ID_0_NOT_FOUND_WHILE_WAITING_FOR_EXECUTION_1_TO_FINISH;
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.TIMEOUT_OF_0_FOR_PROCESS_1_HAS_BEEN_REACHED;
+import static com.sap.cloud.lm.sl.cf.process.flowable.Messages.TIMER_EXECUTION_WILL_NOT_BE_WAITED_TO_FINISH;
 import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
+import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -17,6 +38,7 @@ import org.flowable.common.engine.api.FlowableOptimisticLockingException;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
+import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.job.api.Job;
@@ -27,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.Constants;
+import com.sap.cloud.lm.sl.common.NotFoundException;
 
 @Named
 public class FlowableFacade {
@@ -34,8 +57,7 @@ public class FlowableFacade {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowableFacade.class);
 
     private static final int DEFAULT_JOB_RETRIES = 0;
-    private static final int DEFAULT_ABORT_TIMEOUT_MS = 30 * 1000;
-    private static final int DEFAULT_ABORT_WAIT_TIMEOUT_MS = 1 * 60 * 1000;
+    private static final int DEFAULT_ABORT_WAIT_TIMEOUT_MS = 3 * 60 * 1000;
 
     private final ProcessEngine processEngine;
 
@@ -96,12 +118,12 @@ public class FlowableFacade {
     private List<Job> getDeadLetterJobs(String processId) {
         List<Execution> allProcessExecutions = getAllProcessExecutions(processId);
         return allProcessExecutions.stream()
-                                   .map(this::getDeadLetterJobsForExecution)
+                                   .map(this::getDeadLetterJobsByProcessInstanceId)
                                    .flatMap(List::stream)
                                    .collect(Collectors.toList());
     }
 
-    private List<Job> getDeadLetterJobsForExecution(Execution execution) {
+    private List<Job> getDeadLetterJobsByProcessInstanceId(Execution execution) {
         return processEngine.getManagementService()
                             .createDeadLetterJobQuery()
                             .processInstanceId(execution.getProcessInstanceId())
@@ -153,40 +175,22 @@ public class FlowableFacade {
                             .singleResult() == null;
     }
 
-    public String getActivityType(String processInstanceId, String executionId, String activityId) {
-        List<HistoricActivityInstance> historicInstancesList = processEngine.getHistoryService()
-                                                                            .createHistoricActivityInstanceQuery()
-                                                                            .processInstanceId(processInstanceId)
-                                                                            .activityId(activityId)
-                                                                            .executionId(executionId)
-                                                                            .orderByHistoricActivityInstanceEndTime()
-                                                                            .desc()
-                                                                            .list();
-        return !historicInstancesList.isEmpty() ? historicInstancesList.get(0)
-                                                                       .getActivityType()
-            : null;
-    }
-
-    public Execution getProcessExecution(String processInstanceId) {
-        return getExecutionsByProcessId(processInstanceId).stream()
-                                                          .filter(execution -> execution.getActivityId() != null)
-                                                          .findFirst()
-                                                          .orElse(null);
-    }
-
-    private List<Execution> getExecutionsByProcessId(String processInstanceId) {
-        return processEngine.getRuntimeService()
-                            .createExecutionQuery()
-                            .rootProcessInstanceId(processInstanceId)
-                            .list();
+    private Optional<Execution> getRootExecution(String processInstanceId) {
+        return Optional.ofNullable(processEngine.getRuntimeService()
+                                                .createExecutionQuery()
+                                                .processInstanceId(processInstanceId)
+                                                .executionId(processInstanceId)
+                                                .rootProcessInstanceId(processInstanceId)
+                                                .singleResult());
     }
 
     public void executeJob(String processInstanceId) {
         List<Job> deadLetterJobs = getDeadLetterJobs(processInstanceId);
         if (deadLetterJobs.isEmpty()) {
-            LOGGER.info(MessageFormat.format("No dead letter jobs found for process with id {0}", processInstanceId));
+            LOGGER.debug(MessageFormat.format(NO_DEAD_LETTER_JOBS_FOUND_FOR_PROCESS_WITH_ID_0, processInstanceId));
             return;
         }
+        LOGGER.debug(MessageFormat.format(DEAD_LETTER_JOBS_FOR_PROCESS_0_1, processInstanceId, deadLetterJobs));
         moveDeadLetterJobsToExecutableJobs(deadLetterJobs);
     }
 
@@ -207,19 +211,111 @@ public class FlowableFacade {
     }
 
     public void deleteProcessInstance(String processInstanceId, String deleteReason) {
-        long overallAbortDeadline = System.currentTimeMillis() + DEFAULT_ABORT_WAIT_TIMEOUT_MS + DEFAULT_ABORT_TIMEOUT_MS;
-        while (true) {
-            try {
-                processEngine.getRuntimeService()
-                             .deleteProcessInstance(processInstanceId, deleteReason);
-                break;
-            } catch (FlowableOptimisticLockingException e) {
-                if (isPastDeadline(overallAbortDeadline)) {
-                    throw new IllegalStateException(Messages.ABORT_OPERATION_TIMED_OUT, e);
-                }
-                LOGGER.warn(format(Messages.RETRYING_PROCESS_ABORT, processInstanceId));
-            }
+        if (isProcessInstanceAtReceiveTask(processInstanceId)) {
+            LOGGER.debug(format(PROCESS_INSTANCE_0_IS_AT_RECEIVE_TASK, processInstanceId));
+            abortProcessInstance(processInstanceId, deleteReason);
+            return;
         }
+        try {
+            abortProcessSafely(processInstanceId, deleteReason);
+        } catch (NotFoundException e) {
+            LOGGER.error(MessageFormat.format(ABORT_OPERATION_FAILED, e.getMessage()), e);
+        }
+    }
+
+    private void abortProcessSafely(String processInstanceId, String deleteReason) {
+        // Get all active leaf executions before aborting all running processes
+        List<Execution> allActiveExecutionsWithoutChildren = getLeafExecutionsByFilter(processInstanceId, ExecutionEntityImpl::isActive);
+        setAbortProcessVariableInContext(processInstanceId);
+        waitAllActiveExecutionsToFinish(processInstanceId, allActiveExecutionsWithoutChildren);
+        suspendProcessIfNotSuspended(processInstanceId);
+        abortProcessInstance(processInstanceId, deleteReason);
+    }
+
+    private void setAbortProcessVariableInContext(String processInstanceId) {
+        LOGGER.debug(format(Messages.SETTING_VARIABLE, Constants.PROCESS_ABORTED, Boolean.TRUE));
+        processEngine.getRuntimeService()
+                     .setVariable(processInstanceId, Constants.PROCESS_ABORTED, Boolean.TRUE);
+    }
+
+    private void suspendProcessIfNotSuspended(String processInstanceId) {
+        if (isProcessSuspended(processInstanceId)) {
+            LOGGER.debug(format(PROCESS_0_HAS_ALREADY_BEEN_SUSPENDED, processInstanceId));
+            return;
+        }
+        suspendProcessInstance(processInstanceId);
+    }
+
+    private boolean isProcessSuspended(String processInstanceId) {
+        Optional<Execution> rootProcessExecution = getRootExecution(processInstanceId);
+        return rootProcessExecution.isPresent() && rootProcessExecution.get()
+                                                                       .isSuspended();
+    }
+
+    private void waitAllActiveExecutionsToFinish(String processInstanceId, List<Execution> allActiveExecutionsWithoutChildren) {
+        Queue<Execution> activeLeafExecutions = new ArrayDeque<>(allActiveExecutionsWithoutChildren);
+        long allSubprocessesFinishedDeadline = System.currentTimeMillis() + DEFAULT_ABORT_WAIT_TIMEOUT_MS;
+        while (!activeLeafExecutions.isEmpty()) {
+            if (isPastDeadline(allSubprocessesFinishedDeadline)) {
+                LOGGER.debug(format(TIMEOUT_OF_0_FOR_PROCESS_1_HAS_BEEN_REACHED, DEFAULT_ABORT_WAIT_TIMEOUT_MS, processInstanceId));
+                return;
+            }
+            List<Execution> newActiveLeafExecutions = getNewActiveLeafExecutions(processInstanceId, activeLeafExecutions);
+            LOGGER.debug(format(NEW_ACTIVE_EXECUTIONS_WITHOUT_CHILDREN_0_FOR_PROCESS_1, newActiveLeafExecutions, processInstanceId));
+            Execution execution = activeLeafExecutions.poll();
+            activeLeafExecutions.addAll(newActiveLeafExecutions);
+            if (shouldSkipExecution(processInstanceId, execution)) {
+                continue;
+            }
+            if (!doesExecutionHaveDeadLetterJobs(execution)) {
+                LOGGER.debug(MessageFormat.format(EXECUTION_0_DOES_NOT_HAVE_DEAD_LETTER_JOBS, execution.getId()));
+                activeLeafExecutions.add(execution);
+            }
+            throwExceptionIfProcessNotFound(processInstanceId, activeLeafExecutions);
+        }
+    }
+
+    private List<Execution> getNewActiveLeafExecutions(String processInstanceId, Queue<Execution> executions) {
+        List<Execution> activeExecutionsWithoutChildren = getLeafExecutionsByFilter(processInstanceId, ExecutionEntityImpl::isActive);
+        List<String> executionIds = toExecutionIds(executions);
+        return activeExecutionsWithoutChildren.stream()
+                                              .filter(execution -> !executionIds.contains(execution.getId()))
+                                              .collect(Collectors.toList());
+    }
+
+    private List<String> toExecutionIds(Collection<Execution> executions) {
+        return executions.stream()
+                         .map(Execution::getId)
+                         .collect(Collectors.toList());
+    }
+
+    private boolean shouldSkipExecution(String processInstanceId, Execution execution) {
+        if (isParenExecution(processInstanceId, execution)) {
+            LOGGER.debug(MessageFormat.format(PARENT_EXECUTION_WILL_NOT_BE_WAITED_TO_FINISH, execution.getId()));
+            return true;
+        }
+        if (isTimerExecution(execution)) {
+            LOGGER.debug(MessageFormat.format(TIMER_EXECUTION_WILL_NOT_BE_WAITED_TO_FINISH, execution.getId()));
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isParenExecution(String processInstanceId, Execution execution) {
+        List<String> executionsWithoutChildrenIds = toExecutionIds(getAllExecutionsWithoutChildren(processInstanceId));
+        LOGGER.debug(MessageFormat.format(CURRENT_EXECUTION_WITHOUT_CHILDREN_0, executionsWithoutChildrenIds));
+        return !executionsWithoutChildrenIds.contains(execution.getId());
+    }
+
+    private boolean isTimerExecution(Execution execution) {
+        return getTimerJob(execution.getId()).isPresent();
+    }
+
+    private Optional<Job> getTimerJob(String executionId) {
+        return Optional.ofNullable(processEngine.getManagementService()
+                                                .createTimerJobQuery()
+                                                .executionId(executionId)
+                                                .singleResult());
     }
 
     public void setAbortVariable(String processInstanceId) {
@@ -231,26 +327,60 @@ public class FlowableFacade {
         return System.currentTimeMillis() >= deadline;
     }
 
+    private void throwExceptionIfProcessNotFound(String processInstanceId, Queue<Execution> activeLeafExecutions) {
+        if (getProcessInstance(processInstanceId) == null) {
+            throw new NotFoundException(PROCESS_WITH_ID_0_NOT_FOUND_WHILE_WAITING_FOR_EXECUTION_1_TO_FINISH,
+                                        processInstanceId,
+                                        activeLeafExecutions);
+        }
+    }
+
     public boolean isProcessInstanceAtReceiveTask(String processInstanceId) {
         List<Execution> executionsAtReceiveTask = findExecutionsAtReceiveTask(processInstanceId);
         return !executionsAtReceiveTask.isEmpty();
     }
 
     public List<Execution> findExecutionsAtReceiveTask(String processInstanceId) {
-        List<Execution> allProcessExecutions = getActiveProcessExecutions(processInstanceId);
-
+        List<Execution> allProcessExecutions = getProcessExecutionsWhichExecuteCallActivity(processInstanceId);
         return allProcessExecutions.stream()
                                    .filter(execution -> !findCurrentActivitiesAtReceiveTask(execution).isEmpty())
                                    .collect(Collectors.toList());
-
     }
 
-    public List<Execution> getActiveProcessExecutions(String processInstanceId) {
+    public List<Execution> getProcessExecutionsWhichExecuteCallActivity(String processInstanceId) {
         List<Execution> allProcessExecutions = getAllProcessExecutions(processInstanceId);
-
         return allProcessExecutions.stream()
                                    .filter(e -> e.getActivityId() != null)
                                    .collect(Collectors.toList());
+    }
+
+    public List<Execution> getLeafExecutionsByFilter(String processInstanceId, Predicate<? super ExecutionEntityImpl> executionFilter) {
+        List<Execution> allExecutions = getAllProcessExecutions(processInstanceId);
+        return allExecutions.stream()
+                            .filter(execution -> isNotParent(allExecutions, execution))
+                            .map(FlowableFacade::toExecutionEntityImpl)
+                            .filter(executionFilter)
+                            .collect(Collectors.toList());
+    }
+
+    private List<Execution> getAllExecutionsWithoutChildren(String processInstanceId) {
+        List<Execution> allExecutions = getAllProcessExecutions(processInstanceId);
+        return allExecutions.stream()
+                            .filter(execution -> isNotParent(allExecutions, execution))
+                            .collect(Collectors.toList());
+    }
+
+    private boolean doesExecutionHaveDeadLetterJobs(Execution execution) {
+        return !getDeadLetterJobsByProcessInstanceId(execution).isEmpty();
+    }
+
+    private boolean isNotParent(List<Execution> allExecutions, Execution execution) {
+        for (Execution exec : allExecutions) {
+            if (Objects.equals(execution.getId(), exec.getParentId()) || Objects.equals(execution.getId(), exec.getSuperExecutionId())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private List<Execution> getAllProcessExecutions(String processInstanceId) {
@@ -269,19 +399,21 @@ public class FlowableFacade {
                             .list();
     }
 
-    public void activateProcessInstance(String processInstanceId) {
-        processEngine.getRuntimeService()
-                     .activateProcessInstanceById(processInstanceId);
-    }
 
     public void suspendProcessInstance(String processInstanceId) {
         processEngine.getRuntimeService()
                      .suspendProcessInstanceById(processInstanceId);
+        LOGGER.debug(format(PROCESS_0_HAS_BEEN_SUSPENDED_SUCCESSFULLY, processInstanceId));
     }
 
-    public boolean isProcessInstanceSuspended(String processInstanceId) {
-        ProcessInstance processInstance = getProcessInstance(processInstanceId);
-        return processInstance != null && processInstance.isSuspended();
+    private void abortProcessInstance(String processInstanceId, String deleteReason) {
+        try {
+            processEngine.getRuntimeService()
+                         .deleteProcessInstance(processInstanceId, deleteReason);
+            LOGGER.debug(format(PROCESS_0_HAS_BEEN_DELETED_SUCCESSFULLY, processInstanceId));
+        } catch (FlowableOptimisticLockingException e) {
+            LOGGER.error(MessageFormat.format(ABORT_OPERATION_FOR_PROCESS_0_FAILED, processInstanceId), e);
+        }
     }
 
     public void shutdownJobExecutor() {
@@ -315,4 +447,7 @@ public class FlowableFacade {
                             .getId();
     }
 
+    public static ExecutionEntityImpl toExecutionEntityImpl(Execution execution) {
+        return (ExecutionEntityImpl) execution;
+    }
 }
