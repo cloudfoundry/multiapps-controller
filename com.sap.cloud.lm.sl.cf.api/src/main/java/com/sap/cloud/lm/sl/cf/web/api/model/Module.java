@@ -37,10 +37,9 @@ public interface Module {
     @JsonProperty("updatedOn")
     Date getUpdatedOn();
 
-    // FIXME: This name should be changed in the API as it contains a typo.
     @ApiModelProperty
-    @JsonProperty("providedDendencyNames")
-    List<String> getProvidedDendencyNames();
+    @JsonProperty("providedDependencyNames")
+    List<String> getProvidedDependencyNames();
 
     @ApiModelProperty
     @JsonProperty("services")

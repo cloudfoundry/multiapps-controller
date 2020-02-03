@@ -86,7 +86,7 @@ public class MtasApiServiceImpl implements MtasApiService {
         return ImmutableModule.builder()
                               .appName(deployedMtaApplication.getName())
                               .moduleName(deployedMtaApplication.getModuleName())
-                              .providedDendencyNames(deployedMtaApplication.getProvidedDependencyNames())
+                              .providedDependencyNames(deployedMtaApplication.getProvidedDependencyNames())
                               .uris(deployedMtaApplication.getUris())
                               .services(deployedMtaApplication.getBoundMtaServices())
                               .build();
