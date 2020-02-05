@@ -70,7 +70,7 @@ public class AnalyticsCollector {
 
     }
 
-    public AbstractCommonProcessAttributesCollector<?> getProcessType(ProcessType processType) {
+    public AbstractCommonProcessAttributesCollector getProcessType(ProcessType processType) {
         if (processType.equals(ProcessType.BLUE_GREEN_DEPLOY) || processType.equals(ProcessType.DEPLOY)) {
             return deployProcessAttributesCollector;
         }

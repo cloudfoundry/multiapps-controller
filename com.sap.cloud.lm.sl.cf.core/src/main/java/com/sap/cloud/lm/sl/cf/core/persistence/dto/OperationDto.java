@@ -81,7 +81,7 @@ public class OperationDto implements DtoWithPrimaryKey<String> {
 
     @Override
     public String getPrimaryKey() {
-        return processId;
+        return getProcessId();
     }
 
     @Override

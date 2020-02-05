@@ -16,6 +16,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
@@ -953,10 +954,10 @@ public class StepsUtil {
 
     private static List<String> getVariableWithCommaSeparator(VariableScope scope, String variableName) {
         String variableWithCommaSeparator = (String) scope.getVariable(variableName);
-        if (variableWithCommaSeparator == null) {
-            return null;
+        if (StringUtils.isEmpty(variableWithCommaSeparator)) {
+            return Collections.emptyList();
         }
-        return variableWithCommaSeparator.isEmpty() ? Collections.emptyList() : Arrays.asList(variableWithCommaSeparator.split(","));
+        return Arrays.asList(variableWithCommaSeparator.split(","));
     }
 
     public static void setUploadToken(UploadToken uploadToken, VariableScope scope) {

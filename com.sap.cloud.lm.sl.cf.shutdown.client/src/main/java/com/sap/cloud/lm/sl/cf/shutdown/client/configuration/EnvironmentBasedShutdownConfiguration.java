@@ -14,6 +14,8 @@ public class EnvironmentBasedShutdownConfiguration implements ShutdownConfigurat
     private static final String CFG_USERNAME = "SHUTDOWN_USERNAME";
     private static final String CFG_PASSWORD = "SHUTDOWN_PASSWORD";
 
+    private static final String ARG_0_IS_NOT_SPECIFIED_IN_APP_ENV = "{0} is not specified in the application's environment.";
+
     private final Environment environment;
 
     public EnvironmentBasedShutdownConfiguration() {
@@ -37,7 +39,7 @@ public class EnvironmentBasedShutdownConfiguration implements ShutdownConfigurat
     public String getApplicationUrl() {
         String multiappsControllerUrl = environment.getString(CFG_URL);
         if (multiappsControllerUrl == null) {
-            throw new IllegalStateException(MessageFormat.format("{0} is not specified in the application''s environment.", CFG_URL));
+            throw new IllegalStateException(MessageFormat.format(ARG_0_IS_NOT_SPECIFIED_IN_APP_ENV, CFG_URL));
         }
         return multiappsControllerUrl;
     }
@@ -55,7 +57,7 @@ public class EnvironmentBasedShutdownConfiguration implements ShutdownConfigurat
     public String getUsername() {
         String username = environment.getString(CFG_USERNAME);
         if (username == null) {
-            throw new IllegalStateException(MessageFormat.format("{0} is not specified in the application''s environment.", CFG_USERNAME));
+            throw new IllegalStateException(MessageFormat.format(ARG_0_IS_NOT_SPECIFIED_IN_APP_ENV, CFG_USERNAME));
         }
         return username;
     }
@@ -64,7 +66,7 @@ public class EnvironmentBasedShutdownConfiguration implements ShutdownConfigurat
     public String getPassword() {
         String password = environment.getString(CFG_PASSWORD);
         if (password == null) {
-            throw new IllegalStateException(MessageFormat.format("{0} is not specified in the application''s environment.", CFG_PASSWORD));
+            throw new IllegalStateException(MessageFormat.format(ARG_0_IS_NOT_SPECIFIED_IN_APP_ENV, CFG_PASSWORD));
         }
         return password;
     }

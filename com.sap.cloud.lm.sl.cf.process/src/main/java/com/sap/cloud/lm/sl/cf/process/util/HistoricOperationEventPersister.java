@@ -7,7 +7,6 @@ import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent;
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableHistoricOperationEvent;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.HistoricOperationEventService;
-import com.sap.cloud.lm.sl.common.ContentException;
 
 @Named
 public class HistoricOperationEventPersister {

@@ -95,7 +95,7 @@ public class BootstrapServlet extends HttpServlet {
         destroyExtras();
     }
 
-    protected void initExtras() throws NamingException, IOException {
+    protected void initExtras() throws NamingException {
         // Do nothing
     }
 

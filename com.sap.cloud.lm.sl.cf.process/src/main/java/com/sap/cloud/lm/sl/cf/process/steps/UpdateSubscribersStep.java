@@ -49,7 +49,6 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -96,8 +95,6 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     private ConfigurationEntryService configurationEntryService;
     @Inject
     private FlowableFacade flowableFacade;
-    @Inject
-    private ApplicationConfiguration configuration;
     @Inject
     private ModuleToDeployHelper moduleToDeployHelper;
 
@@ -190,12 +187,12 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     }
 
     private CloudApplication updateSubscriber(ExecutionWrapper execution, CloudTarget cloudTarget, ConfigurationSubscription subscription) {
-        String appName = subscription.getAppName();
-        String mtaId = subscription.getMtaId();
-        String subscriptionName = getRequiredDependency(subscription).getName();
         try {
             return attemptToUpdateSubscriber(execution.getContext(), getClient(execution, cloudTarget), subscription);
         } catch (CloudOperationException | SLException e) {
+            String appName = subscription.getAppName();
+            String mtaId = subscription.getMtaId();
+            String subscriptionName = getRequiredDependency(subscription).getName();
             getStepLogger().warn(e, Messages.COULD_NOT_UPDATE_SUBSCRIBER, appName, mtaId, subscriptionName);
             return null;
         }

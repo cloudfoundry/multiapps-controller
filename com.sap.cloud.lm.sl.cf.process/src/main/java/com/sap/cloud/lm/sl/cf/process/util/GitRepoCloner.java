@@ -24,12 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.cf.process.steps.ProcessGitSourceStep;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class GitRepoCloner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessGitSourceStep.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitRepoCloner.class);
 
     final CloneCommand cloneCommand;
     private String refName;
