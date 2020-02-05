@@ -41,6 +41,7 @@ import org.cloudfoundry.client.lib.domain.Staging;
 import org.cloudfoundry.client.lib.domain.Upload;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.cloudfoundry.client.lib.rest.CloudControllerRestClient;
+import org.cloudfoundry.client.v3.Metadata;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -904,6 +905,26 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
         executeWithRetry(() -> delegate.unbindService(applicationName, serviceName, applicationServicesUpdateCallback));
     }
 
+    @Override
+    public List<CloudApplication> getApplicationsByMetadataLabelSelector(String labelSelector) {
+        return executeWithRetry(() -> delegate.getApplicationsByMetadataLabelSelector(labelSelector));
+    }
+
+    @Override
+    public List<CloudService> getServicesByMetadataLabelSelector(String labelSelector) {
+        return executeWithRetry(() -> delegate.getServicesByMetadataLabelSelector(labelSelector));
+    }
+
+    @Override
+    public void updateApplicationMetadata(UUID guid, Metadata metadata) {
+        executeWithRetry(() -> delegate.updateApplicationMetadata(guid, metadata));
+    }
+
+    @Override
+    public void updateServiceMetadata(UUID guid, Metadata metadata) {
+        executeWithRetry(() -> delegate.updateServiceMetadata(guid, metadata));
+    }
+
     private void executeWithRetry(Runnable operation, HttpStatus... statusesToIgnore) {
         executeWithRetry(() -> {
             operation.run();
@@ -915,5 +936,4 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
         ResilientCloudOperationExecutor executor = new ResilientCloudOperationExecutor().withStatusesToIgnore(statusesToIgnore);
         return executor.execute(operation);
     }
-
 }
