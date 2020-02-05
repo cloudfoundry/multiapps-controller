@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -21,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaService;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -53,26 +55,25 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         List<ConfigurationSubscription> subscriptionsToCreate = StepsUtil.getSubscriptionsToCreate(execution.getContext());
         Set<String> mtaModules = StepsUtil.getMtaModules(execution.getContext());
         List<String> appNames = StepsUtil.getAppsToDeploy(execution.getContext());
-        List<CloudApplication> deployedApps = StepsUtil.getDeployedApps(execution.getContext());
 
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
-        List<DeployedMtaApplication> modulesToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames,
-                                                                                  deploymentDescriptorModules);
-        getStepLogger().debug(Messages.MODULES_TO_UNDEPLOY, secureSerializer.toJson(modulesToUndeploy));
+        List<DeployedMtaApplication> deployedAppsToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames,
+                                                                                       deploymentDescriptorModules);
+        getStepLogger().debug(Messages.MODULES_TO_UNDEPLOY, secureSerializer.toJson(deployedAppsToUndeploy));
 
-        List<DeployedMtaApplication> modulesWithoutChange = computeModulesWithoutChange(modulesToUndeploy, mtaModules, deployedMta);
-        getStepLogger().debug(Messages.MODULES_NOT_TO_BE_CHANGED, secureSerializer.toJson(modulesWithoutChange));
+        List<DeployedMtaApplication> appsWithoutChange = computeModulesWithoutChange(deployedAppsToUndeploy, mtaModules, deployedMta);
+        getStepLogger().debug(Messages.MODULES_NOT_TO_BE_CHANGED, secureSerializer.toJson(appsWithoutChange));
 
         List<ConfigurationSubscription> subscriptionsToDelete = computeSubscriptionsToDelete(subscriptionsToCreate, deployedMta,
                                                                                              StepsUtil.getSpaceId(execution.getContext()));
         getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, secureSerializer.toJson(subscriptionsToDelete));
 
         Set<String> servicesForApplications = getServicesForApplications(execution.getContext());
-        List<String> servicesToDelete = computeServicesToDelete(modulesWithoutChange, deployedMta.getServices(), servicesForApplications);
+        List<String> servicesToDelete = computeServicesToDelete(appsWithoutChange, deployedMta.getServices(), servicesForApplications);
         getStepLogger().debug(Messages.SERVICES_TO_DELETE, servicesToDelete);
 
-        List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(modulesToUndeploy, deployedApps);
+        List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(deployedAppsToUndeploy, execution.getControllerClient());
         getStepLogger().debug(Messages.APPS_TO_UNDEPLOY, secureSerializer.toJson(appsToUndeploy));
 
         setComponentsToUndeploy(execution.getContext(), servicesToDelete, appsToUndeploy, subscriptionsToDelete);
@@ -142,18 +143,20 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         StepsUtil.setAppsToUndeploy(context, apps);
     }
 
-    private List<String> computeServicesToDelete(List<DeployedMtaApplication> modulesWithoutChange, Set<String> existingServices,
-                                                 Set<String> servicesForApplications) {
-        return existingServices.stream()
-                               .filter(service -> shouldDeleteService(modulesWithoutChange, service, servicesForApplications))
-                               .sorted()
-                               .collect(Collectors.toList());
+    private List<String> computeServicesToDelete(List<DeployedMtaApplication> appsWithoutChange,
+                                                 List<DeployedMtaService> deployedMtaServices, Set<String> servicesForApplications) {
+        return deployedMtaServices.stream()
+                                  .map(DeployedMtaService::getName)
+                                  .filter(name -> shouldDeleteService(appsWithoutChange, name, servicesForApplications))
+                                  .sorted()
+                                  .collect(Collectors.toList());
     }
 
-    private boolean shouldDeleteService(List<DeployedMtaApplication> modulesToKeep, String service, Set<String> servicesForApplications) {
-        return modulesToKeep.stream()
-                            .map(DeployedMtaApplication::getServices)
-                            .noneMatch(moduleToKeepService -> moduleToKeepService.contains(service))
+    private boolean shouldDeleteService(List<DeployedMtaApplication> appsToKeep, String service, Set<String> servicesForApplications) {
+        return appsToKeep.stream()
+                         .flatMap(module -> module.getBoundMtaServices()
+                                                  .stream())
+                         .noneMatch(service::equalsIgnoreCase)
             && !servicesForApplications.contains(service);
     }
 
@@ -173,23 +176,17 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
             || !deploymentDescriptorModules.contains(deployedApplication.getModuleName());
     }
 
-    private boolean shouldUndeployModule(DeployedMtaApplication deployedApplication, List<String> appsToDeploy) {
+    private boolean shouldUndeployModule(DeployedMtaApplication deployedMtaApplication, List<String> appsToDeploy) {
         // The deployed module may be in the list of MTA modules, but the actual application that was created from it may have a
         // different name:
-        return !appsToDeploy.contains(deployedApplication.getAppName());
+        return !appsToDeploy.contains(deployedMtaApplication.getName());
     }
 
-    private List<CloudApplication> computeAppsToUndeploy(List<DeployedMtaApplication> modulesToUndeploy,
-                                                         List<CloudApplication> deployedApps) {
-        return deployedApps.stream()
-                           .filter(app -> shouldUndeployApp(modulesToUndeploy, app))
-                           .collect(Collectors.toList());
-    }
-
-    private boolean shouldUndeployApp(List<DeployedMtaApplication> modulesToUndeploy, CloudApplication app) {
+    private List<CloudApplication> computeAppsToUndeploy(List<DeployedMtaApplication> modulesToUndeploy, CloudControllerClient client) {
         return modulesToUndeploy.stream()
-                                .anyMatch(module -> module.getAppName()
-                                                          .equals(app.getName()));
+                                .map(appToUndeploy -> client.getApplication(appToUndeploy.getName(), false))
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
     }
 
     private List<ConfigurationSubscription> computeSubscriptionsToDelete(List<ConfigurationSubscription> subscriptionsToCreate,
@@ -211,7 +208,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                             .anyMatch(subscription -> areEqual(subscription, existingSubscription));
     }
 
-    protected boolean areEqual(ConfigurationSubscription subscription1, ConfigurationSubscription subscription2) {
+    private boolean areEqual(ConfigurationSubscription subscription1, ConfigurationSubscription subscription2) {
         return Objects.equals(subscription1.getAppName(), subscription2.getAppName())
             && Objects.equals(subscription1.getSpaceId(), subscription2.getSpaceId()) && Objects.equals(subscription1.getResourceDto()
                                                                                                                      .getName(),

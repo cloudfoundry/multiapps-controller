@@ -135,7 +135,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
             return DeploymentType.DEPLOYMENT;
         }
         if (deployedMta.getMetadata()
-                       .isVersionUnknown()) {
+                       .getVersion() == null) {
             getStepLogger().warn(Messages.IGNORING_VERSION_RULE);
             return DeploymentType.UPGRADE;
         }

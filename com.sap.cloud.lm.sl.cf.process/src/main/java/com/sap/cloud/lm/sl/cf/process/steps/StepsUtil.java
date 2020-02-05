@@ -241,16 +241,6 @@ public class StepsUtil {
         setAsJsonBinary(scope, Constants.VAR_SERVICE_KEYS_TO_CREATE, serviceKeys);
     }
 
-    static List<CloudApplication> getDeployedApps(VariableScope scope) {
-        TypeReference<List<CloudApplication>> type = new TypeReference<List<CloudApplication>>() {
-        };
-        return getFromJsonBinary(scope, Constants.VAR_DEPLOYED_APPS, type);
-    }
-
-    static void setDeployedApps(VariableScope scope, List<CloudApplication> apps) {
-        setAsJsonBinary(scope, Constants.VAR_DEPLOYED_APPS, apps);
-    }
-
     public static List<String> getAppsToDeploy(VariableScope scope) {
         TypeReference<List<String>> type = new TypeReference<List<String>>() {
         };

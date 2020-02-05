@@ -27,12 +27,6 @@ public class CloudModelBuilderUtil {
                                    .collect(Collectors.toCollection(TreeSet::new));
     }
 
-    public static Set<String> getDeployedAppNames(List<DeployedMtaApplication> deployedApplications) {
-        return deployedApplications.stream()
-                                   .map(DeployedMtaApplication::getAppName)
-                                   .collect(Collectors.toCollection(TreeSet::new));
-    }
-
     public static boolean isService(Resource resource) {
         Set<ResourceType> resourceTypes = ResourceType.getServiceTypes();
         ResourceType resourceType = getResourceType(resource);
@@ -57,7 +51,7 @@ public class CloudModelBuilderUtil {
 
     public static ApplicationColor getApplicationColor(DeployedMtaApplication deployedApplication) {
         return Arrays.stream(ApplicationColor.values())
-                     .filter(color -> deployedApplication.getAppName()
+                     .filter(color -> deployedApplication.getName()
                                                          .endsWith(color.asSuffix()))
                      .findFirst()
                      .orElse(COLOR_OF_APPLICATIONS_WITHOUT_SUFFIX);

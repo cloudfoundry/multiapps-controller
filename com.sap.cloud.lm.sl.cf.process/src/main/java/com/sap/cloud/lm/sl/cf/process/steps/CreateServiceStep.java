@@ -7,10 +7,13 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
+import org.cloudfoundry.client.lib.domain.CloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudService;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -25,6 +28,8 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper;
 import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("createServiceStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -76,9 +81,11 @@ public class CreateServiceStep extends ServiceStep {
     }
 
     private MethodExecution<String> createManagedService(DelegateExecution context, CloudControllerClient client,
-                                                         CloudServiceExtended service) {
-        return serviceCreatorFactory.createInstance(getStepLogger())
-                                    .createService(client, service, StepsUtil.getSpaceId(context));
+        CloudServiceExtended service) {
+        MethodExecution<String> createService = serviceCreatorFactory.createInstance(getStepLogger())
+            .createService(client, service, StepsUtil.getSpaceId(context));
+        updateServiceMetadata(service, client);
+        return createService;
     }
 
     private void processServiceCreationFailure(DelegateExecution context, CloudServiceExtended service, CloudOperationException e) {
@@ -93,6 +100,14 @@ public class CreateServiceStep extends ServiceStep {
         }
         getStepLogger().warn(MessageFormat.format(Messages.COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE, service.getName()), e,
                              ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, service.getLabel()));
+    }
+
+    private void updateServiceMetadata(CloudServiceExtended serviceToProcess, CloudControllerClient client) {
+        ImmutableCloudService serviceWithMetadata = ImmutableCloudService.copyOf(serviceToProcess);
+        CloudMetadata serviceMeta = client.getService(serviceWithMetadata.getName()).getMetadata();
+        serviceWithMetadata = serviceWithMetadata.withMetadata(serviceMeta);
+        client.updateServiceMetadata(serviceWithMetadata.getMetadata().getGuid(), serviceWithMetadata.getV3Metadata());
+        getStepLogger().debug("updated service metadata name: " + serviceWithMetadata + " metadata: " + JsonUtil.toJson(serviceWithMetadata.getV3Metadata(), true));
     }
 
     @Override
