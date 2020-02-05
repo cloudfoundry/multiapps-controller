@@ -27,7 +27,8 @@ public class ApplicationUrisCloudModelBuilder {
         this.applicationAttributeUpdateStrategy = applicationAttributeUpdateStrategy;
     }
 
-    public List<String> getApplicationUris(Module module, List<Map<String, Object>> propertiesList, DeployedMtaApplication deployedApplication) {
+    public List<String> getApplicationUris(Module module, List<Map<String, Object>> propertiesList,
+                                           DeployedMtaApplication deployedApplication) {
         List<String> uris = getUriParametersParser(module).parse(propertiesList);
         if (shouldKeepExistingUris(propertiesList)) {
             return appendExistingUris(uris, deployedApplication);
@@ -44,10 +45,10 @@ public class ApplicationUrisCloudModelBuilder {
         return PropertiesUtil.getPropertyValue(propertiesList, propertyName, defaultValue);
     }
 
-    private List<String> appendExistingUris(List<String> uris, DeployedMtaApplication deployedApplication) {
+    private List<String> appendExistingUris(List<String> uris, DeployedMtaApplication deployedMtaApplication) {
         Set<String> result = new HashSet<>(uris);
-        if (deployedApplication != null) {
-            result.addAll(deployedApplication.getUris());
+        if (deployedMtaApplication != null) {
+            result.addAll(deployedMtaApplication.getUris());
         }
         return new ArrayList<>(result);
     }

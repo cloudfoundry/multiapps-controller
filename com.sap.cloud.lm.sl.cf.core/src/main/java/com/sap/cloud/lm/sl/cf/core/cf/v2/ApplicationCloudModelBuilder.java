@@ -95,6 +95,7 @@ public class ApplicationCloudModelBuilder {
         ApplicationUrisCloudModelBuilder urisCloudModelBuilder = getApplicationUrisCloudModelBuilder(parametersList);
         List<String> uris = getApplicationUris(module);
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, parametersList);
+        List<ResourceAndResourceType> resourcesAndResourceTypes = getResourcesAndResourceTypesFromModule(module);
         return ImmutableCloudApplicationExtended.builder()
                                                 .name(NameUtil.getApplicationName(module))
                                                 .moduleName(module.getName())
@@ -115,7 +116,17 @@ public class ApplicationCloudModelBuilder {
                                                 .restartParameters(parseParameters(parametersList, new RestartParametersParser()))
                                                 .dockerInfo(parseParameters(parametersList, new DockerInfoParser()))
                                                 .attributesUpdateStrategy(getApplicationAttributesUpdateStrategy(parametersList))
+                                                .v3Metadata(ApplicationMetadataBuilder.build(deploymentDescriptor, module,
+                                                                                             resourcesAndResourceTypes))
                                                 .build();
+    }
+
+    private List<ResourceAndResourceType> getResourcesAndResourceTypesFromModule(Module module) {
+        return module.getRequiredDependencies()
+                     .stream()
+                     .map(dependency -> getResourceWithType(dependency.getName()))
+                     .filter(Objects::nonNull)
+                     .collect(Collectors.toList());
     }
 
     private AttributeUpdateStrategy getApplicationAttributesUpdateStrategy(List<Map<String, Object>> parametersList) {
@@ -134,7 +145,19 @@ public class ApplicationCloudModelBuilder {
 
     private DeployedMtaApplication findDeployedApplication(Module module) {
         return deployedMta == null ? null
-            : deployedMta.findApplication(module.getName(), DeployedMtaApplication.ProductizationState.LIVE);
+            : findDeployedApplication(module.getName(), deployedMta, DeployedMtaApplication.ProductizationState.LIVE);
+    }
+
+    private DeployedMtaApplication findDeployedApplication(String moduleName, DeployedMta deployedMta,
+                                                           DeployedMtaApplication.ProductizationState productizationState) {
+        return deployedMta.getApplications()
+                          .stream()
+                          .filter(application -> application.getModuleName()
+                                                            .equalsIgnoreCase(moduleName))
+                          .filter(application -> application.getProductizationState()
+                                                            .equals(productizationState))
+                          .findFirst()
+                          .orElse(null);
     }
 
     protected <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {
