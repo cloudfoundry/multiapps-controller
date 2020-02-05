@@ -16,7 +16,12 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataValidator;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataValidator;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
@@ -36,6 +41,12 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
     @Mock(answer = Answers.RETURNS_SELF)
     private ConfigurationEntryQuery configurationEntryQuery;
     private CloudTarget target;
+    private MtaMetadataValidator mtaMetadataValidator = new MtaMetadataValidator();
+    private EnvMtaMetadataValidator envMtaMetadataValidator = new EnvMtaMetadataValidator();
+    @Spy
+    private MtaMetadataParser mtaMetadataParser = new MtaMetadataParser(mtaMetadataValidator);
+    @Spy
+    private EnvMtaMetadataParser envMtaMetadataParser = new EnvMtaMetadataParser(envMtaMetadataValidator);
 
     private static class StepInput {
         String org;

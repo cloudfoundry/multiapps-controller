@@ -1,8 +1,44 @@
 [
   {
+    "name": "foo",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"foo\"}",
+        "mta_module_provided_dependencies": "[\"foo\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "1.0.0"
+      }
+    },
+    "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
+    "runningInstances": 0,
+    "staging": {
+      "buildpacks": [
+        "java_buildpack",
+        "staticfile_buildpack"
+      ]
+    },
+    "uris": [
+      "foo.cfapps.neo.ondemand.com"
+    ],
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
+      "MTA_SERVICES": "[]",
+      "TARGET_RUNTIME": "tomee"
+    },
     "moduleName": "foo",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "cfapps.neo.ondemand.com"
@@ -16,28 +52,6 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
-    },
-    "memory": 0,
-    "diskQuota": 0,
-    "instances": 0,
-    "runningInstances": 0,
-    "staging": {
-      "buildpacks": ["java_buildpack", "staticfile_buildpack"]
-    },
-    "uris": [
-       "foo.cfapps.neo.ondemand.com" 
-    ],
-    "services": [],
-    "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
-      "MTA_SERVICES": "[]",
-      "TARGET_RUNTIME": "tomee"
-    },
-    "name": "foo",
-    "bindingParameters" : {},
-    "routes": []
+    }
   }
 ]

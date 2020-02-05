@@ -5,21 +5,27 @@
   "applications": [
     {
       "moduleName": "app-1",
-      "createdOn": "2016-10-15T10:55:00.000",
-      "updatedOn": "2016-10-15T10:55:00.000",
-      "appName": "app-1-blue"
+      "name": "app-1-blue",
+      "metadata": {
+        "createdAt": "2016-10-15T10:55:00.000",
+        "updatedAt": "2016-10-15T10:55:00.000"
+      }
     },
     {
       "moduleName": "app-2",
-      "createdOn": "2016-10-10T11:05:00.000",
-      "updatedOn": "2016-10-10T11:05:00.000",
-      "appName": "app-2-green"
+      "name": "app-2-green",
+      "metadata": {
+        "createdAt": "2016-10-10T11:05:00.000",
+        "updatedAt": "2016-10-10T11:05:00.000"
+      }
     },
     {
       "moduleName": "app-3",
-      "createdOn": "2016-10-15T10:50:00.000",
-      "updatedOn": "2016-10-15T10:50:00.000",
-      "appName": "app-3-blue"
+      "name": "app-3-blue",
+      "metadata": {
+        "createdAt": "2016-10-15T10:50:00.000",
+        "updatedAt": "2016-10-15T10:50:00.000"
+      }
     }
   ]
 }

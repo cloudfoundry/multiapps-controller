@@ -13,8 +13,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.ImmutableMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
+import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
+import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
@@ -59,19 +62,23 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
     }
 
     private DeployedMta createDeployedMta() {
-        DeployedMta deployedMta = new DeployedMta();
-        deployedMta.setApplications(createDeployedMtaApplications());
-        return deployedMta;
+        return ImmutableDeployedMta.builder()
+                                   .metadata(ImmutableMtaMetadata.builder()
+                                                                 .id("test")
+                                                                 .build())
+                                   .applications(createDeployedMtaApplications())
+                                   .build();
     }
 
     private List<DeployedMtaApplication> createDeployedMtaApplications() {
-        return Arrays.asList(createModule("module_1"), createModule("module_2"));
+        return Arrays.asList(createDeployedMtaApplication("module_1"), createDeployedMtaApplication("module_2"));
     }
 
-    private DeployedMtaApplication createModule(String name) {
-        DeployedMtaApplication module = new DeployedMtaApplication();
-        module.setModuleName(name);
-        return module;
+    private DeployedMtaApplication createDeployedMtaApplication(String name) {
+        return ImmutableDeployedMtaApplication.builder()
+                                              .name(name)
+                                              .moduleName(name)
+                                              .build();
     }
 
     private Set<String> getMtaModulesNames(List<DeployedMtaApplication> deployedMtaApplications) {

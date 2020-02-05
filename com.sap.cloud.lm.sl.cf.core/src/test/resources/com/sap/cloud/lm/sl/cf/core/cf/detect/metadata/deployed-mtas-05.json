@@ -1,0 +1,69 @@
+[
+  {
+    "metadata": {
+      "id": "quux"
+    },
+    "applications": [
+      {
+        "name": "mta-application-1",
+        "metadata": {
+          "guid": "0c52770a-7cbf-3335-be8b-7087ee8f140c"
+        },
+        "v3Metadata": {
+          "annotations": {
+            "mta_module": "{\"name\":\"mta-module-1\"}",
+            "mta_module_provided_dependencies": "[\"mta-provided-dependency-1\", \"mta-provided-dependency-2\"]",
+            "mta_bound_services": "[]"
+          },
+          "labels": {
+            "mta_id": "quux",
+            "mta_version": "0.1.0"
+          }
+        },
+        "memory": 0,
+        "diskQuota": 0,
+        "instances": 1,
+        "runningInstances": 0,
+        "uris": [],
+        "services": [],
+        "env": {},
+        "moduleName": "mta-module-1",
+        "boundMtaServices": [],
+        "providedDependencyNames": [
+          "mta-provided-dependency-1",
+          "mta-provided-dependency-2"
+        ],
+        "productizationState": "LIVE"
+      },
+      {
+        "name": "mta-application-2",
+        "metadata": {
+          "guid": "17e25b21-55a9-33a1-b46b-eaed815951f1"
+        },
+        "v3Metadata": {
+          "annotations": {
+            "mta_module": "{\"name\":\"mta-module-2\"}",
+            "mta_module_provided_dependencies": "[]",
+            "mta_bound_services": "[]"
+          },
+          "labels": {
+            "mta_id": "quux",
+            "mta_version": "0.2.0"
+          }
+        },
+        "memory": 0,
+        "diskQuota": 0,
+        "instances": 1,
+        "runningInstances": 0,
+        "uris": [],
+        "services": [],
+        "env": {},
+        "moduleName": "mta-module-2",
+        "boundMtaServices": [],
+        "providedDependencyNames": [],
+        "productizationState": "LIVE"
+      }
+    ],
+    "services": []
+  }
+]

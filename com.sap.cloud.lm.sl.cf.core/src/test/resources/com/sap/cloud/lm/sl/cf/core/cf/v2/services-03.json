@@ -1,98 +1,152 @@
 [
   {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "user-provided-renamed",
     "alternativeLabels": [],
     "resourceName": "ups",
     "credentials": {},
     "tags": [],
-    "isOptional": false,
-    "isManaged": true,
-    "shouldIgnoreUpdateErrors": false,
-    "name": "user-provided-renamed"
+    "shouldIgnoreUpdateErrors": false
   },
   {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "user-provided-service",
     "alternativeLabels": [],
     "resourceName": "user-provided-service",
     "credentials": {},
     "tags": [],
-    "isOptional": false,
-    "isManaged": true,
-    "shouldIgnoreUpdateErrors": false,
-    "name": "user-provided-service"
+    "shouldIgnoreUpdateErrors": false
   },
   {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "user-provider-resource-named-service",
     "alternativeLabels": [],
     "resourceName": "user-provider-resource-named-service",
     "credentials": {},
     "tags": [],
-    "isOptional": false,
-    "isManaged": true,
-    "shouldIgnoreUpdateErrors": false,
-    "name": "user-provider-resource-named-service"
+    "shouldIgnoreUpdateErrors": false
   },
   {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "random-service-renamed",
+    "v3Metadata": {
+      "annotations": {
+        "mta_resource": "{\"name\":\"rs\"}"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0"
+      }
+    },
+    "label": "xsuaa",
+    "plan": "space",
     "alternativeLabels": [],
     "resourceName": "rs",
     "credentials": {},
     "tags": [],
-    "isOptional": false,
-    "isManaged": true,
-    "shouldIgnoreUpdateErrors": false,
-    "label": "xsuaa",
-    "plan": "space",
-    "name": "random-service-renamed"
+    "shouldIgnoreUpdateErrors": false
   },
   {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "random-service",
+    "v3Metadata": {
+      "annotations": {
+        "mta_resource": "{\"name\":\"random-service\"}"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0"
+      }
+    },
+    "label": "xsuaa",
+    "plan": "space",
     "alternativeLabels": [],
     "resourceName": "random-service",
     "credentials": {},
     "tags": [],
-    "isOptional": false,
-    "isManaged": true,
-    "shouldIgnoreUpdateErrors": false,
-    "label": "xsuaa",
-    "plan": "space",
-    "name": "random-service"
+    "shouldIgnoreUpdateErrors": false
   },
   {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "random-resource-named-service",
+    "v3Metadata": {
+      "annotations": {
+        "mta_resource": "{\"name\":\"random-resource-named-service\"}"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0"
+      }
+    },
+    "label": "xsuaa",
+    "plan": "space",
     "alternativeLabels": [],
     "resourceName": "random-resource-named-service",
     "credentials": {},
     "tags": [],
-    "isOptional": false,
-    "isManaged": true,
-    "shouldIgnoreUpdateErrors": false,
-    "label": "xsuaa",
-    "plan": "space",
-    "name": "random-resource-named-service"
+    "shouldIgnoreUpdateErrors": false
   },
   {
+    "isOptional": false,
+    "isManaged": false,
+    "name": "existing-service-renamed",
+    "v3Metadata": {
+      "annotations": {
+        "mta_resource": "{\"name\":\"es\"}"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0"
+      }
+    },
     "alternativeLabels": [],
     "resourceName": "es",
     "credentials": {},
     "tags": [],
-    "isOptional": false,
-    "isManaged": false,
-    "shouldIgnoreUpdateErrors": false,
-    "name": "existing-service-renamed"
+    "shouldIgnoreUpdateErrors": false
   },
   {
+    "isOptional": false,
+    "isManaged": false,
+    "name": "existing-service",
+    "v3Metadata": {
+      "annotations": {
+        "mta_resource": "{\"name\":\"existing-service\"}"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0"
+      }
+    },
     "alternativeLabels": [],
     "resourceName": "existing-service",
     "credentials": {},
     "tags": [],
-    "isOptional": false,
-    "isManaged": false,
-    "shouldIgnoreUpdateErrors": false,
-    "name": "existing-service"
+    "shouldIgnoreUpdateErrors": false
   },
   {
+    "isOptional": false,
+    "isManaged": false,
+    "name": "existing-resource-named-service",
+    "v3Metadata": {
+      "annotations": {
+        "mta_resource": "{\"name\":\"existing-resource-named-service\"}"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0"
+      }
+    },
     "alternativeLabels": [],
     "resourceName": "existing-resource-named-service",
     "credentials": {},
     "tags": [],
-    "isOptional": false,
-    "isManaged": false,
-    "shouldIgnoreUpdateErrors": false,
-    "name": "existing-resource-named-service"
+    "shouldIgnoreUpdateErrors": false
   }
 ]

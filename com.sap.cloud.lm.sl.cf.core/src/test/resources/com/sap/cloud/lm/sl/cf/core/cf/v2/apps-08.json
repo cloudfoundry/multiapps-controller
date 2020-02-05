@@ -1,21 +1,16 @@
 [
   {
-    "moduleName": "module-1",
-    "idleUris": [],
-    "tasks": [],
-    "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
-    "restartParameters": {
-      "shouldRestartOnVcapAppChange": true,
-      "shouldRestartOnVcapServicesChange": true,
-      "shouldRestartOnUserProvidedChange": true
-    },
-    "attributesUpdateStrategy": {
-      "shouldKeepExistingEnv": false,
-      "shouldKeepExistingServiceBindings": false,
-      "shouldKeepExistingRoutes": false
+    "name": "module-1",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"module-1\"}",
+        "mta_module_provided_dependencies": "[\"module-1\"]",
+        "mta_bound_services": "[\"user-provided-renamed\",\"user-provided-service\",\"user-provider-resource-named-service\",\"random-service-renamed\",\"random-service\",\"random-resource-named-service\",\"existing-service-renamed\",\"existing-service\",\"existing-resource-named-service\"]"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0"
+      }
     },
     "memory": 0,
     "diskQuota": 0,
@@ -46,8 +41,24 @@
       "MTA_SERVICES": "[\"user-provided-renamed\",\"user-provided-service\",\"user-provider-resource-named-service\",\"random-service-renamed\",\"random-service\",\"random-resource-named-service\"]",
       "TARGET_RUNTIME": "tomee"
     },
-    "name": "module-1",
-    "bindingParameters" : {},
-    "routes": []
+    "moduleName": "module-1",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "sofd60245639a"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
   }
 ]

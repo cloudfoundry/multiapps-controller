@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -22,6 +24,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
@@ -135,6 +138,8 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
     protected ModuleToDeployHelper moduleToDeployHelper;
     @Mock
     protected ApplicationCloudModelBuilder applicationCloudModelBuilder;
+    @Mock
+    private CloudControllerClient client;
 
     private final StepInput input;
     private final StepOutput output;
@@ -155,9 +160,19 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
     @Before
     public void setUp() throws Exception {
         loadParameters();
+        prepareClient();
         prepareDeploymentDescriptor();
         prepareContext();
         prepareSubscriptionService();
+    }
+
+    private void prepareClient() {
+        for (CloudApplicationExtended application : deployedApps) {
+            Mockito.when(client.getApplication(application.getName(), false))
+                   .thenReturn(application);
+        }
+        Mockito.when(clientProvider.getControllerClient(anyString(), anyString()))
+               .thenReturn(client);
     }
 
     private void prepareDeploymentDescriptor() {
@@ -210,7 +225,6 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         StepsUtil.setDeployedMta(context, deployedMta);
         StepsUtil.setModulesToDeploy(context, modulesToDeploy);
         StepsUtil.setAllModulesToDeploy(context, modulesToDeploy);
-        StepsUtil.setDeployedApps(context, ListUtil.upcastUnmodifiable(deployedApps));
         List<String> appNamesToDeploy = new ArrayList<>();
         appsToDeploy.forEach(app -> appNamesToDeploy.add(app.getName()));
         StepsUtil.setAppsToDeploy(context, ListUtil.upcastUnmodifiable(appNamesToDeploy));

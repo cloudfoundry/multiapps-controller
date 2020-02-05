@@ -1,8 +1,42 @@
 [
   {
+    "name": "foo",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"foo\"}",
+        "mta_module_provided_dependencies": "[\"foo\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "test",
+        "mta_version": "0.1.0"
+      }
+    },
+    "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
+    "runningInstances": 0,
+    "staging": {
+      "buildpacks": [],
+      "healthCheckType": "http",
+      "healthCheckHttpEndpoint": "/health"
+    },
+    "uris": [
+      "foo.sofd60245639a"
+    ],
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"test\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
+      "MTA_SERVICES": "[]"
+    },
     "moduleName": "foo",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "sofd60245639a"
@@ -16,29 +50,6 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
-    },
-    "memory": 0,
-    "diskQuota": 0,
-    "instances": 0,
-    "runningInstances": 0,
-    "staging": {
-      "healthCheckType": "http",
-      "healthCheckHttpEndpoint": "/health",
-      "buildpacks": []
-    },
-    "uris": [
-      "foo.sofd60245639a"
-    ],
-    "services": [],
-    "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"test\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
-      "MTA_SERVICES": "[]"
-    },
-    "name": "foo",
-    "bindingParameters" : {},
-    "routes": []
+    }
   }
 ]

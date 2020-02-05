@@ -1,0 +1,30 @@
+[
+  {
+    "name": "mta-application-blue",
+    "metadata": {
+      "labels": {
+        "mta_id": "quux",
+        "mta_version": "0.1.0"
+      },
+      "annotations": {
+        "mta_module": "{\"name\":\"mta-module\"}",
+        "mta_module_provided_dependencies": "[\"mta-provided-dependency-1\", \"mta-provided-dependency-2\"]",
+        "mta_bound_services": "[]"
+      }
+    }
+  },
+  {
+    "name": "mta-application-green",
+    "metadata": {
+      "labels": {
+        "mta_id": "quux",
+        "mta_version": "0.2.0"
+      },
+      "annotations": {
+        "mta_module": "{\"name\":\"mta-module\"}",
+        "mta_module_provided_dependencies": "[]",
+        "mta_bound_services": "[]"
+      }
+    }
+  }
+]

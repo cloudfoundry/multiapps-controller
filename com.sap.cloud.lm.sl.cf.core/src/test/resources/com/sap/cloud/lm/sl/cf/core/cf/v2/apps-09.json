@@ -1,35 +1,16 @@
 [
   {
-    "moduleName": "module-1",
-    "idleUris": [],
-    "tasks": [
-      {
-        "command": "echo 1",
-        "limits": {
-          "memory": 256,
-          "disk": 1024
-        },
-        "name": "task-1"
+    "name": "module-1",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"module-1\"}",
+        "mta_module_provided_dependencies": "[\"module-1\"]",
+        "mta_bound_services": "[]"
       },
-      {
-        "command": "echo 2",
-        "name": "task-2",
-        "limits": {}
+      "labels": {
+        "mta_id": "tasks-test",
+        "mta_version": "0.1.0"
       }
-    ],
-    "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
-    "restartParameters": {
-      "shouldRestartOnVcapAppChange": true,
-      "shouldRestartOnVcapServicesChange": true,
-      "shouldRestartOnUserProvidedChange": true
-    },
-    "attributesUpdateStrategy": {
-      "shouldKeepExistingEnv": false,
-      "shouldKeepExistingServiceBindings": false,
-      "shouldKeepExistingRoutes": false
     },
     "memory": 0,
     "diskQuota": 0,
@@ -49,14 +30,25 @@
       "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-1\"]",
       "MTA_SERVICES": "[]"
     },
-    "name": "module-1",
-    "bindingParameters" : {},
-    "routes": []
-  },
-  {
-    "moduleName": "module-2",
+    "moduleName": "module-1",
     "idleUris": [],
-    "tasks": [],
+    "bindingParameters": {},
+    "tasks": [
+      {
+        "name": "task-1",
+        "command": "echo 1",
+        "limits": {
+          "disk": 1024,
+          "memory": 256
+        }
+      },
+      {
+        "name": "task-2",
+        "command": "echo 2",
+        "limits": {}
+      }
+    ],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "sofd60245639a"
@@ -70,6 +62,20 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "module-2",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"module-2\"}",
+        "mta_module_provided_dependencies": "[\"module-2\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "tasks-test",
+        "mta_version": "0.1.0"
+      }
     },
     "memory": 0,
     "diskQuota": 0,
@@ -89,14 +95,11 @@
       "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-2\"]",
       "MTA_SERVICES": "[]"
     },
-    "name": "module-2",
-    "bindingParameters" : {},
-    "routes": []
-  },
-  {
-    "moduleName": "module-3",
+    "moduleName": "module-2",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "sofd60245639a"
@@ -110,6 +113,20 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "module-3",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"module-3\"}",
+        "mta_module_provided_dependencies": "[\"module-3\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "tasks-test",
+        "mta_version": "0.1.0"
+      }
     },
     "memory": 0,
     "diskQuota": 0,
@@ -129,14 +146,11 @@
       "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-3\"]",
       "MTA_SERVICES": "[]"
     },
-    "name": "module-3",
-    "bindingParameters" : {},
-    "routes": []
-  },
-  {
-    "moduleName": "module-4",
+    "moduleName": "module-3",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "sofd60245639a"
@@ -150,6 +164,20 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "module-4",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"module-4\"}",
+        "mta_module_provided_dependencies": "[\"module-4\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "tasks-test",
+        "mta_version": "0.1.0"
+      }
     },
     "memory": 0,
     "diskQuota": 0,
@@ -170,8 +198,24 @@
       "MTA_SERVICES": "[]",
       "tasks": "[{\"command\":\"echo 3\",\"memory\":\"256M\",\"name\":\"task-3\"},{\"command\":\"echo 4\",\"memory\":\"512M\",\"name\":\"task-4\"}]"
     },
-    "name": "module-4",
-    "bindingParameters" : {},
-    "routes": []
+    "moduleName": "module-4",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "sofd60245639a"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
   }
 ]

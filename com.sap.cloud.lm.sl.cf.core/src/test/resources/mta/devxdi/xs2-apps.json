@@ -1,21 +1,16 @@
 [
   {
-    "moduleName": "di-core",
-    "idleUris": [],
-    "tasks": [],
-    "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
-    "restartParameters": {
-      "shouldRestartOnVcapAppChange": true,
-      "shouldRestartOnVcapServicesChange": true,
-      "shouldRestartOnUserProvidedChange": true
-    },
-    "attributesUpdateStrategy": {
-      "shouldKeepExistingEnv": false,
-      "shouldKeepExistingServiceBindings": false,
-      "shouldKeepExistingRoutes": false
+    "name": "di-core",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"di-core\"}",
+        "mta_module_provided_dependencies": "[\"di-core-url\",\"di-core\"]",
+        "mta_bound_services": "[\"uaa\",\"di-core-hdi\"]"
+      },
+      "labels": {
+        "mta_id": "com.sap.devx.di",
+        "mta_version": "1.0.0"
+      }
     },
     "memory": 512,
     "diskQuota": 0,
@@ -45,14 +40,11 @@
       "TARGET_RUNTIME": "tomcat",
       "XS_PATH": "/usr/sap/xs2runtime/bin/xs"
     },
-    "name": "di-core",
-    "bindingParameters" : {},
-    "routes": []
-  },
-  {
-    "moduleName": "di-builder",
+    "moduleName": "di-core",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "sofd60245639a"
@@ -66,13 +58,29 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "di-builder",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"di-builder\"}",
+        "mta_module_provided_dependencies": "[\"di-builder\"]",
+        "mta_bound_services": "[\"uaa\"]"
+      },
+      "labels": {
+        "mta_id": "com.sap.devx.di",
+        "mta_version": "1.0.0"
+      }
     },
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
     "runningInstances": 0,
     "staging": {
-      "buildpacks": ["http://di-core.sofd60245639a/system/builderbp.git/"]
+      "buildpacks": [
+        "http://di-core.sofd60245639a/system/builderbp.git/"
+      ]
     },
     "uris": [
       "di-builder.sofd60245639a"
@@ -91,14 +99,11 @@
       "TARGET_RUNTIME": "tomcat",
       "XS_PATH": "/usr/sap/xs2runtime/bin/xs"
     },
-    "name": "di-builder",
-    "bindingParameters" : {},
-    "routes": []
-  },
-  {
-    "moduleName": "di-runner",
+    "moduleName": "di-builder",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "sofd60245639a"
@@ -112,6 +117,20 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "di-runner",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"di-runner\"}",
+        "mta_module_provided_dependencies": "[\"di-runner\"]",
+        "mta_bound_services": "[\"uaa\"]"
+      },
+      "labels": {
+        "mta_id": "com.sap.devx.di",
+        "mta_version": "1.0.0"
+      }
     },
     "memory": 512,
     "diskQuota": 0,
@@ -138,8 +157,24 @@
       "UI5_CONTENT_URL": "http://ui5.sofd60245639a",
       "XS_PATH": "/usr/sap/xs2runtime/bin/xs"
     },
-    "name": "di-runner",
-    "bindingParameters" : {},
-    "routes": []
+    "moduleName": "di-runner",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "sofd60245639a"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
   }
 ]

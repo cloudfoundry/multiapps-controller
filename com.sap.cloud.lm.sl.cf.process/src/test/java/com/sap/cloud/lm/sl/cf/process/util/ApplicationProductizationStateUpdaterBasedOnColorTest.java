@@ -18,6 +18,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
+import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
 
 public class ApplicationProductizationStateUpdaterBasedOnColorTest {
 
@@ -51,7 +52,7 @@ public class ApplicationProductizationStateUpdaterBasedOnColorTest {
     @MethodSource
     public void testUpdateApplicationsProductizationState(List<DeployedApplication> applications, ApplicationColor liveMtaColor,
                                                           DeployedApplication expectedDeployedApplication) {
-        List<DeployedMtaApplication> deployedApplications = buildDeployedApplications(applications);
+        List<DeployedMtaApplication> deployedApplications = createDeployedMtaApplications(applications);
 
         List<DeployedMtaApplication> updatedDeployedApplications = new ApplicationProductizationStateUpdaterBasedOnColor(stepLogger,
                                                                                                                          liveMtaColor).updateApplicationsProductizationState(deployedApplications);
@@ -74,30 +75,31 @@ public class ApplicationProductizationStateUpdaterBasedOnColorTest {
         assertTrue(updatedDeployedApplications.isEmpty(), "Updated Deployed Applications list should be empty but was not");
     }
 
-    private List<DeployedMtaApplication> buildDeployedApplications(List<DeployedApplication> applications) {
+    private List<DeployedMtaApplication> createDeployedMtaApplications(List<DeployedApplication> applications) {
         return applications.stream()
-                           .map(this::buildDeployedApplication)
+                           .map(this::createDeployedMtaApplication)
                            .collect(Collectors.toList());
     }
 
-    private DeployedMtaApplication buildDeployedApplication(DeployedApplication application) {
-        DeployedMtaApplication deployedApplication = new DeployedMtaApplication();
-        deployedApplication.setModuleName(application.moduleName);
-        deployedApplication.setAppName(application.appName);
-        return deployedApplication;
+    private DeployedMtaApplication createDeployedMtaApplication(DeployedApplication application) {
+        return ImmutableDeployedMtaApplication.builder()
+                                              .name(application.appName)
+                                              .moduleName(application.moduleName)
+                                              .build();
     }
 
-    private boolean doesItMatchToExpectedDeployedApplication(DeployedMtaApplication deployedApplication,
+    private boolean doesItMatchToExpectedDeployedApplication(DeployedMtaApplication deployedMtaApplication,
                                                              DeployedApplication expectedApplication) {
-        String moduleName = deployedApplication.getModuleName();
-        String appName = deployedApplication.getAppName();
+        String moduleName = deployedMtaApplication.getModuleName();
+        String appName = deployedMtaApplication.getName();
         return expectedApplication.moduleName.equals(moduleName) && expectedApplication.appName.equals(appName)
-            && deployedApplication.getProductizationState() == DeployedMtaApplication.ProductizationState.LIVE;
+            && deployedMtaApplication.getProductizationState() == DeployedMtaApplication.ProductizationState.LIVE;
     }
 
-    private boolean doesNotContainExpectedApplication(DeployedApplication expectedApplication, DeployedMtaApplication deployedApplication) {
-        return !deployedApplication.getAppName()
-                                   .equals(expectedApplication.appName);
+    private boolean doesNotContainExpectedApplication(DeployedApplication expectedApplication,
+                                                      DeployedMtaApplication deployedMtaApplication) {
+        return !deployedMtaApplication.getName()
+                                      .equals(expectedApplication.appName);
     }
 
     private static class DeployedApplication {

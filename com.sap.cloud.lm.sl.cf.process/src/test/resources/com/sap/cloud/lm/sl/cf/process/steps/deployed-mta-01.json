@@ -1,29 +1,60 @@
 {
-  "metadata" : {
-    "id" : "com.sap.xs2.samples.helloworld",
-    "version" : "0.1.0"
+  "metadata": {
+    "id": "com.sap.xs2.samples.helloworld",
+    "version": "0.1.0"
   },
-  "applications" : [ {
-    "moduleName" : "node-hello-world-db",
-    "appName" : "node-hello-world-db",
-    "services" : [ "node-hdi-container" ],
-    "providedDependencyNames" : [ ],
-    "uris" : [ ],
-    "productizationState" : "LIVE"
-  }, {
-    "moduleName" : "node-hello-world-backend",
-    "appName" : "node-hello-world-backend",
-    "services" : [ "uaa", "node-hdi-container" ],
-    "providedDependencyNames" : [ ],
-    "uris" : [ ],
-    "productizationState" : "LIVE"
-  }, {
-    "moduleName" : "node-hello-world",
-    "appName" : "node-hello-world",
-    "services" : [ "uaa" ],
-    "providedDependencyNames" : [ ],
-    "uris" : [ ],
-    "productizationState" : "LIVE"
-  } ],
-  "services" : [ "node-hdi-container", "uaa" ]
+  "applications": [
+    {
+      "name": "node-hello-world-db",
+      "memory": 0,
+      "diskQuota": 0,
+      "instances": 1,
+      "runningInstances": 0,
+      "uris": [],
+      "services": [],
+      "env": {},
+      "moduleName": "node-hello-world-db",
+      "boundMtaServices": [],
+      "providedDependencyNames": [],
+      "productizationState": "LIVE"
+    },
+    {
+      "name": "node-hello-world-backend",
+      "memory": 0,
+      "diskQuota": 0,
+      "instances": 1,
+      "runningInstances": 0,
+      "uris": [],
+      "services": [],
+      "env": {},
+      "moduleName": "node-hello-world-backend",
+      "boundMtaServices": [],
+      "providedDependencyNames": [],
+      "productizationState": "LIVE"
+    },
+    {
+      "name": "node-hello-world",
+      "memory": 0,
+      "diskQuota": 0,
+      "instances": 1,
+      "runningInstances": 0,
+      "uris": [],
+      "services": [],
+      "env": {},
+      "moduleName": "node-hello-world",
+      "boundMtaServices": [],
+      "providedDependencyNames": [],
+      "productizationState": "LIVE"
+    }
+  ],
+  "services": [
+    {
+      "name": "node-hdi-container",
+      "resourceName": "node-hdi-container"
+    },
+    {
+      "name": "uaa",
+      "resourceName": "uaa"
+    }
+  ]
 }

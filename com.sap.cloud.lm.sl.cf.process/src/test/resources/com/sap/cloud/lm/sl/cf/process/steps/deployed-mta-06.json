@@ -6,8 +6,8 @@
   "applications": [
     {
       "moduleName": "d",
-      "appName": "d",
-      "services": [
+      "name": "d",
+      "boundMtaServices": [
         "s-1",
         "s-2"
       ],
@@ -15,15 +15,21 @@
     },
     {
       "moduleName": "e",
-      "appName": "e",
-      "services": [
+      "name": "e",
+      "boundMtaServices": [
         "s-1"
       ],
       "providedDependencyNames": []
     }
   ],
   "services": [
-    "s-1",
-    "s-2"
+    {
+      "resourceName": "s-1",
+      "name": "s-1"
+    },
+    {
+      "resourceName": "s-2",
+      "name": "s-2"
+    }
   ]
 }

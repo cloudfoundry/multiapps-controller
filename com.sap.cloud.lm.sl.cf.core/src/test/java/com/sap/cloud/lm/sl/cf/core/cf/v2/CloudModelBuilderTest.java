@@ -118,7 +118,7 @@ public class CloudModelBuilderTest {
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-ns-2.json"),
                 new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-2.json"),
             },
             // (04) Patch MTA (resolved inter-module dependencies):

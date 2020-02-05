@@ -1,0 +1,42 @@
+[
+  {
+    "metadata": {
+      "id": "quux"
+    },
+    "applications": [],
+    "services": [
+      {
+        "name": "mta-service-1",
+        "metadata": {
+          "guid": "081ff10c-218a-3739-a81a-eabbbd1bc7eb"
+        },
+        "v3Metadata": {
+          "annotations": {
+            "mta_resource": "{\"name\":\"resource-name-1\"}"
+          },
+          "labels": {
+            "mta_id": "quux",
+            "mta_version": "0.1.0"
+          }
+        },
+        "resourceName": "resource-name-1"
+      },
+      {
+        "name": "mta-service-2",
+        "metadata": {
+          "guid": "ff43c13a-f795-3f30-8267-75caeac8dd31"
+        },
+        "v3Metadata": {
+          "annotations": {
+            "mta_resource": "{\"name\":\"resource-name-2\"}"
+          },
+          "labels": {
+            "mta_id": "quux",
+            "mta_version": "0.2.0"
+          }
+        },
+        "resourceName": "resource-name-2"
+      }
+    ]
+  }
+]

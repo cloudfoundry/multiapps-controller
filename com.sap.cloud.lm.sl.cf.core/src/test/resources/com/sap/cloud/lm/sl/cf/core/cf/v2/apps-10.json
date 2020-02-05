@@ -1,8 +1,40 @@
 [
   {
+    "name": "module-1",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"module-1\"}",
+        "mta_module_provided_dependencies": "[\"module-1\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "1.0.0"
+      }
+    },
+    "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
+    "runningInstances": 0,
+    "staging": {
+      "buildpacks": []
+    },
+    "uris": [
+      "module-1.sofd60245639a"
+    ],
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"module-1\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-1\"]",
+      "MTA_SERVICES": "[]"
+    },
     "moduleName": "module-1",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [
       {
         "envVarName": "service-key-1",
@@ -37,27 +69,6 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
-    },
-    "memory": 0,
-    "diskQuota": 0,
-    "instances": 0,
-    "runningInstances": 0,
-    "staging": {
-      "buildpacks": []
-    },
-    "uris": [
-      "module-1.sofd60245639a"
-    ],
-    "services": [],
-    "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"module-1\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-1\"]",
-      "MTA_SERVICES": "[]"
-    },
-    "name": "module-1",
-    "bindingParameters" : {},
-    "routes": []
+    }
   }
 ]

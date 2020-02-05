@@ -6,20 +6,20 @@
   "applications": [
     {
       "moduleName": "a",
-      "appName": "namespace.a",
-      "services": [],
+      "name": "namespace.a",
+      "boundMtaServices": [],
       "providedDependencyNames": []
     },
     {
       "moduleName": "b",
-      "appName": "namespace.b",
-      "services": [],
+      "name": "namespace.b",
+      "boundMtaServices": [],
       "providedDependencyNames": []
     },
     {
       "moduleName": "c",
-      "appName": "namespace.c",
-      "services": [],
+      "name": "namespace.c",
+      "boundMtaServices": [],
       "providedDependencyNames": []
     }
   ],

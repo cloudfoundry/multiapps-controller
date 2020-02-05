@@ -1,17 +1,29 @@
 [
   {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "com.sap.xs2.samples.javahelloworld.java-hd7ef77536",
+    "v3Metadata": {
+      "annotations": {
+        "mta_resource": "{\"name\":\"java-hdi-container\"}"
+      },
+      "labels": {
+        "mta_id": "com.sap.xs2.samples.javahelloworld",
+        "mta_version": "0.1.0"
+      }
+    },
+    "label": "hana",
+    "plan": "hdi-shared",
     "alternativeLabels": [],
     "resourceName": "java-hdi-container",
     "credentials": {},
     "tags": [],
-    "isOptional": false,
-    "isManaged": true,
-    "shouldIgnoreUpdateErrors": false,
-    "label": "hana",
-    "plan": "hdi-shared",
-    "name": "com.sap.xs2.samples.javahelloworld.java-hd7ef77536"
+    "shouldIgnoreUpdateErrors": false
   },
   {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "com.sap.xs2.samples.javahelloworld.uaa",
     "alternativeLabels": [],
     "resourceName": "uaa",
     "credentials": {
@@ -23,9 +35,6 @@
       "url": "http://sap-login.cfapps.neo.ondemand.com"
     },
     "tags": [],
-    "isOptional": false,
-    "isManaged": true,
-    "shouldIgnoreUpdateErrors": false,
-    "name": "com.sap.xs2.samples.javahelloworld.uaa"
+    "shouldIgnoreUpdateErrors": false
   }
 ]
