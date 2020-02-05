@@ -10,9 +10,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.helpers.expander.PropertiesExpander;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
@@ -30,8 +27,6 @@ import com.sap.cloud.lm.sl.mta.model.Resource;
 import com.sap.cloud.lm.sl.mta.model.Visitor;
 
 public class ConfigurationReferencesResolver extends Visitor {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationReferencesResolver.class);
 
     protected final ConfigurationReferenceResolver configurationResolver;
     protected final ConfigurationEntryService configurationEntryService;
@@ -65,7 +60,8 @@ public class ConfigurationReferencesResolver extends Visitor {
     protected List<Resource> getResolvedResources(DeploymentDescriptor descriptor) {
         return descriptor.getResources()
                          .stream()
-                         .flatMap(resource -> getResolvedResources(resource).stream())
+                         .map(this::getResolvedResources)
+                         .flatMap(List::stream)
                          .collect(Collectors.toList());
     }
 

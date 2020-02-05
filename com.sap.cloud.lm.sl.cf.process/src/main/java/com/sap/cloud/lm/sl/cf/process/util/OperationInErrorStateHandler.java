@@ -114,7 +114,7 @@ public class OperationInErrorStateHandler {
             // Based on the above comment, one of the executions will have null activityId(because it will be the monitoring one) and thus
             // should be excluded from the list of executions
             return CommonUtil.isNullOrEmpty(currentExecutionsForProcess) ? null : findCurrentExecution(currentExecutionsForProcess);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return null;
         }
     }

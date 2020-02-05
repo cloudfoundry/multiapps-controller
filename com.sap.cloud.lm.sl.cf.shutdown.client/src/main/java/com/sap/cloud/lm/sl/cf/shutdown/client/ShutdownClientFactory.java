@@ -27,13 +27,13 @@ public class ShutdownClientFactory {
     }
 
     private CsrfHttpClient createCsrfHttpClient(ShutdownClientConfiguration configuration, Map<String, String> defaultHttpHeaders) {
-        CloseableHttpClient httpClient = createHttpClient(configuration);
+        CloseableHttpClient httpClient = createHttpClient();
         String csrfTokenUrl = computeCsrfTokenUrl(configuration);
         Map<String, String> enrichedDefaultHttpHeaders = MapUtil.merge(computeHeaders(configuration), defaultHttpHeaders);
         return new CsrfHttpClient(httpClient, csrfTokenUrl, enrichedDefaultHttpHeaders);
     }
 
-    private CloseableHttpClient createHttpClient(ShutdownClientConfiguration configuration) {
+    private CloseableHttpClient createHttpClient() {
         return HttpClientBuilder.create()
                                 .setServiceUnavailableRetryStrategy(createServiceUnavailableRetryStrategy())
                                 .build();

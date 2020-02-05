@@ -98,7 +98,7 @@ public class ApplicationZipBuilderTest {
         ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader);
         appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext, logger);
         assertTrue(Files.exists(appPath));
-        Set<String> relativizedFilePaths = relativizeUploadedFilesPaths(zipBuilder, fileName, alreadyUploadedFiles);
+        Set<String> relativizedFilePaths = relativizeUploadedFilesPaths(fileName, alreadyUploadedFiles);
         try (InputStream zipStream = Files.newInputStream(appPath)) {
             Set<String> zipEntriesName = getZipEntriesName(zipStream);
             assertTrue(Collections.disjoint(relativizedFilePaths, zipEntriesName),
@@ -106,11 +106,10 @@ public class ApplicationZipBuilderTest {
         }
     }
 
-    private Set<String> relativizeUploadedFilesPaths(ApplicationZipBuilder zipBuilder, String fileName, Set<String> alreadyUploadedFiles) {
-        Set<String> relativizedFilePaths = new HashSet<>();
-        alreadyUploadedFiles
-                            .forEach(filePath -> relativizedFilePaths.add(FileUtils.getRelativePath(fileName, filePath)));
-        return relativizedFilePaths;
+    private Set<String> relativizeUploadedFilesPaths(String fileName, Set<String> alreadyUploadedFiles) {
+        return alreadyUploadedFiles.stream()
+                                   .map(filePath -> FileUtils.getRelativePath(fileName, filePath))
+                                   .collect(Collectors.toSet());
     }
 
     private Set<String> getZipEntriesName(InputStream inputStream) throws IOException {

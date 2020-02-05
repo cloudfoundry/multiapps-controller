@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationShutdown;
 import com.sap.cloud.lm.sl.cf.shutdown.client.configuration.ShutdownClientConfiguration;
 import com.sap.cloud.lm.sl.cf.shutdown.client.configuration.ShutdownConfiguration;
@@ -38,10 +39,10 @@ public class ApplicationInstanceShutdownExecutor {
     }
 
     private static void shutdown(ShutdownClient shutdownClient, UUID applicationGuid, int applicationInstanceIndex) {
-        for (ApplicationShutdown shutdown = shutdownClient.triggerShutdown(applicationGuid,
-                                                                           applicationInstanceIndex); !hasFinished(shutdown);) {
+        ApplicationShutdown shutdown = shutdownClient.triggerShutdown(applicationGuid, applicationInstanceIndex);
+        while (!hasFinished(shutdown)) {
             print(shutdown);
-            sleep(SHUTDOWN_POLLING_INTERVAL);
+            CommonUtil.sleep(SHUTDOWN_POLLING_INTERVAL);
             shutdown = shutdownClient.getStatus(applicationGuid, applicationInstanceIndex);
         }
     }
@@ -53,14 +54,6 @@ public class ApplicationInstanceShutdownExecutor {
     private static void print(ApplicationShutdown shutdown) {
         LOGGER.info("Shutdown status of application with GUID {}, instance {}: {}", shutdown.getApplicationId(),
                     shutdown.getApplicationInstanceIndex(), JsonUtil.toJson(shutdown, true));
-    }
-
-    private static void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
     }
 
 }

@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.util;
 
 import java.util.function.Consumer;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -33,9 +34,9 @@ public class SafeExecutorTest {
     public void testWithDefaultExceptionHandler() {
         SafeExecutor safeExecutor = new SafeExecutor();
         Exception e = new Exception();
-        safeExecutor.execute(() -> {
+        Assertions.assertDoesNotThrow(() -> safeExecutor.execute(() -> {
             throw e;
-        });
+        }));
     }
 
 }

@@ -2,7 +2,13 @@ package com.sap.cloud.lm.sl.cf.web.api;
 
 public class Constants {
 
+    private Constants() {
+    }
+
     public static class PathVariables {
+
+        private PathVariables() {
+        }
 
         public static final String OPERATION_ID = "operationId";
         public static final String ACTION_ID = "actionId";
@@ -13,6 +19,9 @@ public class Constants {
     }
 
     public static class Resources {
+
+        private Resources() {
+        }
 
         private static final String ROOT = "/api/v1";
 
@@ -26,6 +35,9 @@ public class Constants {
     }
 
     public static class Endpoints {
+
+        private Endpoints() {
+        }
 
         public static final String MTA = "/{" + PathVariables.MTA_ID + "}";
         public static final String OPERATION = "/{" + PathVariables.OPERATION_ID + "}";
