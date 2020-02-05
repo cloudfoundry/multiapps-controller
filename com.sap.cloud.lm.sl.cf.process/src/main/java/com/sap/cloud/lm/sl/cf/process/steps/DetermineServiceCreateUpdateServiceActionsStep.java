@@ -21,6 +21,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.cloudfoundry.client.v3.Metadata;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -166,6 +167,12 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             actions.add(ServiceAction.UPDATE_CREDENTIALS);
         }
 
+        if (shouldUpdateMetadata(service, existingService, client)) {
+            getStepLogger().debug("Service metadata should be updated");
+            getStepLogger().debug("New metadata: " + secureSerializer.toJson(service.getV3Metadata()));
+            actions.add(ServiceAction.UPDATE_METADATA);
+        }
+
         return actions;
     }
 
@@ -193,6 +200,15 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         String label = CommonUtil.isNullOrEmpty(service.getLabel()) ? "unknown label" : service.getLabel();
         String plan = CommonUtil.isNullOrEmpty(service.getPlan()) ? "unknown plan" : service.getPlan();
         return label + "/" + plan;
+    }
+
+    private boolean shouldUpdateMetadata(CloudServiceExtended service, CloudService existingService, CloudControllerClient client) {
+        Metadata existingMetadata = existingService.getV3Metadata();
+        Metadata newMetadata = service.getV3Metadata();
+        if (existingMetadata != null && newMetadata != null) {
+            return !existingMetadata.equals(newMetadata);
+        }
+        return newMetadata != null;
     }
 
     private CloudServiceExtended prepareServiceParameters(DelegateExecution context, CloudServiceExtended service)

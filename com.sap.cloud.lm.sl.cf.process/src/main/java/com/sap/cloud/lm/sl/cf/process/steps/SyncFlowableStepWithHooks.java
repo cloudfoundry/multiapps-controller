@@ -6,18 +6,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.commons.collections4.ListUtils;
+import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
+
+    @Inject
+    private MtaMetadataParser mtaMetadataParser;
+
+    @Inject
+    private EnvMtaMetadataParser envMtaMetadataParser;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
@@ -89,8 +100,14 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
     }
 
     protected String getModuleName(CloudApplicationExtended cloudApplication) {
-        return ApplicationMtaMetadataParser.parseAppMetadata(cloudApplication)
-                                           .getModuleName();
+        return getDeployedMtaApplication(cloudApplication).getModuleName();
+    }
+
+    private DeployedMtaApplication getDeployedMtaApplication(CloudApplication app) {
+        if (app.getV3Metadata() == null) {
+            return envMtaMetadataParser.parseDeployedMtaApplication(app);
+        }
+        return mtaMetadataParser.parseDeployedMtaApplication(app);
     }
 
     private Module findModuleByNameFromDeploymentDescriptor(HandlerFactory handlerFactory, DeploymentDescriptor deploymentDescriptor,

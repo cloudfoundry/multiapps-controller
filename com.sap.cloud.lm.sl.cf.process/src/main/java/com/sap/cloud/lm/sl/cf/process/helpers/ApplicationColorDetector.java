@@ -75,8 +75,8 @@ public class ApplicationColorDetector {
             return null;
         }
         ApplicationColor deployedApplicationColor = null;
-        for (DeployedMtaApplication application : deployedMta.getApplications()) {
-            ApplicationColor applicationColor = CloudModelBuilderUtil.getApplicationColor(application);
+        for (DeployedMtaApplication deployedMtaApplication : deployedMta.getApplications()) {
+            ApplicationColor applicationColor = CloudModelBuilderUtil.getApplicationColor(deployedMtaApplication);
             if (deployedApplicationColor == null) {
                 deployedApplicationColor = (applicationColor);
             }
@@ -92,7 +92,9 @@ public class ApplicationColorDetector {
     private ApplicationColor getOlderApplicationColor(DeployedMta deployedMta) {
         return deployedMta.getApplications()
                           .stream()
-                          .min(Comparator.comparing(DeployedMtaApplication::getCreatedOn))
+                          .filter(application -> application.getMetadata() != null)
+                          .min(Comparator.comparing(application -> application.getMetadata()
+                                                                              .getCreatedAt()))
                           .map(CloudModelBuilderUtil::getApplicationColor)
                           .orElse(null);
     }

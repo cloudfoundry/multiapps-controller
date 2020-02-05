@@ -14,8 +14,8 @@ public class ApplicationProductizationStateUpdaterBasedOnColor extends Applicati
     }
 
     @Override
-    protected boolean doesApplicationHasIdleLabel(DeployedMtaApplication application) {
-        return CloudModelBuilderUtil.getApplicationColor(application) != liveMtaColor;
+    protected boolean hasIdleLabel(DeployedMtaApplication deployedMtaApplication) {
+        return CloudModelBuilderUtil.getApplicationColor(deployedMtaApplication) != liveMtaColor;
     }
 
 }

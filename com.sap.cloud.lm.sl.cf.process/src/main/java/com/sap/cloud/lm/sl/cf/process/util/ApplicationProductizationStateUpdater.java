@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
+import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 public abstract class ApplicationProductizationStateUpdater {
@@ -20,15 +21,18 @@ public abstract class ApplicationProductizationStateUpdater {
                            .collect(Collectors.toList());
     }
 
-    private DeployedMtaApplication updateApplicationProductizationState(DeployedMtaApplication application) {
-        if (doesApplicationHasIdleLabel(application)) {
-            application.setProductizationState(DeployedMtaApplication.ProductizationState.IDLE);
-            stepLogger.debug(Messages.MODULE_WITH_APPLICATION_NAME_WAS_MARKED_AS_IDLE, application.getModuleName(),
-                             application.getAppName());
+    private DeployedMtaApplication updateApplicationProductizationState(DeployedMtaApplication deployedMtaApplication) {
+        if (hasIdleLabel(deployedMtaApplication)) {
+            stepLogger.debug(Messages.MODULE_WITH_APPLICATION_NAME_WAS_MARKED_AS_IDLE, deployedMtaApplication.getModuleName(),
+                             deployedMtaApplication.getName());
+            return ImmutableDeployedMtaApplication.builder()
+                                                  .from(deployedMtaApplication)
+                                                  .productizationState(DeployedMtaApplication.ProductizationState.IDLE)
+                                                  .build();
         }
-        return application;
+        return deployedMtaApplication;
     }
 
-    protected abstract boolean doesApplicationHasIdleLabel(DeployedMtaApplication application);
+    protected abstract boolean hasIdleLabel(DeployedMtaApplication application);
 
 }

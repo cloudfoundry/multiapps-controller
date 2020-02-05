@@ -13,6 +13,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
+import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.helpers.ApplicationColorDetector;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -74,8 +75,11 @@ public class BlueGreenRenameStep extends SyncFlowableStep {
         if (deployedMta != null && liveMtaColor != null) {
             List<DeployedMtaApplication> updatedApplications = new ApplicationProductizationStateUpdaterBasedOnColor(getStepLogger(),
                                                                                                                      liveMtaColor).updateApplicationsProductizationState(deployedMta.getApplications());
-            deployedMta.setApplications(updatedApplications);
-            StepsUtil.setDeployedMta(execution.getContext(), deployedMta);
+            DeployedMta mtaWithUpdatedApplications = ImmutableDeployedMta.builder()
+                                                                         .from(deployedMta)
+                                                                         .applications(updatedApplications)
+                                                                         .build();
+            StepsUtil.setDeployedMta(execution.getContext(), mtaWithUpdatedApplications);
         }
     }
 
