@@ -1,24 +1,42 @@
 [
   {
+    "isOptional": false,
+    "isManaged": false,
+    "name": "uaa",
+    "v3Metadata": {
+      "annotations": {
+        "mta_resource": "{\"name\":\"uaa\"}"
+      },
+      "labels": {
+        "mta_id": "com.sap.devx.di",
+        "mta_version": "1.0.0"
+      }
+    },
     "alternativeLabels": [],
     "resourceName": "uaa",
     "credentials": {},
     "tags": [],
-    "isOptional": false,
-    "isManaged": false,
-    "shouldIgnoreUpdateErrors": false,
-    "name": "uaa"
+    "shouldIgnoreUpdateErrors": false
   },
   {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "di-core-hdi",
+    "v3Metadata": {
+      "annotations": {
+        "mta_resource": "{\"name\":\"di-core-hdi\"}"
+      },
+      "labels": {
+        "mta_id": "com.sap.devx.di",
+        "mta_version": "1.0.0"
+      }
+    },
+    "label": "hana",
+    "plan": "hdi-shared",
     "alternativeLabels": [],
     "resourceName": "di-core-hdi",
     "credentials": {},
     "tags": [],
-    "isOptional": false,
-    "isManaged": true,
-    "shouldIgnoreUpdateErrors": false,
-    "label": "hana",
-    "plan": "hdi-shared",
-    "name": "di-core-hdi"
+    "shouldIgnoreUpdateErrors": false
   }
 ]

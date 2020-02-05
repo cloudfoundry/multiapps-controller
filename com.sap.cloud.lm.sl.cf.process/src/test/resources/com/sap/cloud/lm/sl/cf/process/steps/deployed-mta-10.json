@@ -6,8 +6,8 @@
   "applications": [
     {
       "moduleName": "a",
-      "appName": "a",
-      "services": [],
+      "name": "a",
+      "boundMtaServices": [],
       "providedDependencyNames": [
         "p-1",
         "p-2"
@@ -15,30 +15,30 @@
     },
     {
       "moduleName": "b",
-      "appName": "b",
-      "services": [],
+      "name": "b",
+      "boundMtaServices": [],
       "providedDependencyNames": [
         "p-3"
       ]
     },
     {
       "moduleName": "c",
-      "appName": "c",
-      "services": [],
+      "name": "c",
+      "boundMtaServices": [],
       "providedDependencyNames": [
         "p-4"
       ]
     },
     {
       "moduleName": "d",
-      "appName": "d",
-      "services": [],
+      "name": "d",
+      "boundMtaServices": [],
       "providedDependencyNames": []
     },
     {
       "moduleName": "e",
-      "appName": "e",
-      "services": [],
+      "name": "e",
+      "boundMtaServices": [],
       "providedDependencyNames": []
     }
   ],

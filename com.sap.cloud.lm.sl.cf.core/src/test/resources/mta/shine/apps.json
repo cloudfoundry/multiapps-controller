@@ -1,21 +1,16 @@
 [
   {
-    "moduleName": "shine",
-    "idleUris": [],
-    "tasks": [],
-    "serviceKeysToInject": [],
-    "domains": [
-      "cfapps.neo.ondemand.com"
-    ],
-    "restartParameters": {
-      "shouldRestartOnVcapAppChange": true,
-      "shouldRestartOnVcapServicesChange": true,
-      "shouldRestartOnUserProvidedChange": true
-    },
-    "attributesUpdateStrategy": {
-      "shouldKeepExistingEnv": false,
-      "shouldKeepExistingServiceBindings": false,
-      "shouldKeepExistingRoutes": false
+    "name": "shine",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"shine\"}",
+        "mta_module_provided_dependencies": "[\"shine\"]",
+        "mta_bound_services": "[\"uaa\"]"
+      },
+      "labels": {
+        "mta_id": "com.sap.xs2.samples.shine",
+        "mta_version": "0.1.0"
+      }
     },
     "memory": 128,
     "diskQuota": 0,
@@ -38,14 +33,11 @@
       "MTA_SERVICES": "[\"uaa\"]",
       "destinations": "[{\"name\":\"xsjs\",\"url\":\"http://i027947-shine-xsjs.cfapps.neo.ondemand.com\"},{\"name\":\"xsodata\",\"url\":\"http://i027947-shine-odata.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     },
-    "name": "shine",
-    "bindingParameters" : {},
-    "routes": []
-  },
-  {
-    "moduleName": "shine-xsjs",
+    "moduleName": "shine",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "cfapps.neo.ondemand.com"
@@ -59,6 +51,20 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "shine-xsjs",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"shine-xsjs\"}",
+        "mta_module_provided_dependencies": "[\"xsjs\",\"shine-xsjs\"]",
+        "mta_bound_services": "[\"uaa\",\"shine-database\"]"
+      },
+      "labels": {
+        "mta_id": "com.sap.xs2.samples.shine",
+        "mta_version": "0.1.0"
+      }
     },
     "memory": 256,
     "diskQuota": 0,
@@ -82,14 +88,11 @@
       "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"xsjs\",\"shine-xsjs\"]",
       "MTA_SERVICES": "[\"uaa\",\"shine-database\"]"
     },
-    "name": "shine-xsjs",
-    "bindingParameters" : {},
-    "routes": []
-  },
-  {
-    "moduleName": "shine-odata",
+    "moduleName": "shine-xsjs",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "cfapps.neo.ondemand.com"
@@ -103,13 +106,29 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "shine-odata",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"shine-odata\"}",
+        "mta_module_provided_dependencies": "[\"xsodata\",\"shine-odata\"]",
+        "mta_bound_services": "[\"uaa\",\"shine-database\"]"
+      },
+      "labels": {
+        "mta_id": "com.sap.xs2.samples.shine",
+        "mta_version": "0.1.0"
+      }
     },
     "memory": 256,
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
     "staging": {
-      "buildpacks": ["git://github.example.com/xs2-java/java-buildpack.git"]
+      "buildpacks": [
+        "git://github.example.com/xs2-java/java-buildpack.git"
+      ]
     },
     "uris": [
       "i027947-shine-odata.cfapps.neo.ondemand.com"
@@ -127,8 +146,24 @@
       "SERVICE_TO_JNDI_NAME_MAPPING": "{\"shine-database\":\"jdbc/DefaultDB\"}",
       "TARGET_RUNTIME": "tomcat"
     },
-    "name": "shine-odata",
-    "bindingParameters" : {},
-    "routes": []
+    "moduleName": "shine-odata",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
   }
 ]

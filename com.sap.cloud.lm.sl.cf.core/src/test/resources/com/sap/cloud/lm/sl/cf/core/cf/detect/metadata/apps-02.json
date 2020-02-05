@@ -1,0 +1,14 @@
+[
+  {
+    "name": "mta-application-1",
+    "metadata": {
+      "labels": {
+        "mta_id": "quux",
+        "mta_version": "0.1.0"
+      },
+      "annotations": {
+        "invalid": ""
+      }
+    }
+  }
+]

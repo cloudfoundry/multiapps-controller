@@ -6,14 +6,14 @@
   "applications": [
     {
       "moduleName": "d",
-      "appName": "d",
-      "services": [],
+      "name": "d",
+      "boundMtaServices": [],
       "providedDependencyNames": []
     },
     {
       "moduleName": "e",
-      "appName": "e",
-      "services": [],
+      "name": "e",
+      "boundMtaServices": [],
       "providedDependencyNames": []
     }
   ],

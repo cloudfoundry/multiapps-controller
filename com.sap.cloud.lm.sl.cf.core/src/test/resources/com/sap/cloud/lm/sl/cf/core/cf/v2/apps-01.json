@@ -1,27 +1,16 @@
 [
   {
-    "moduleName": "foo",
-    "idleUris": [],
-    "bindingParameters": {
-      "bar": {
-        "baz": "baz",
-        "qux": "qux"
+    "name": "foo",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"foo\"}",
+        "mta_module_provided_dependencies": "[\"foo\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "com.sap.xs2.test",
+        "mta_version": "0.1.0"
       }
-    },
-    "tasks": [],
-    "serviceKeysToInject": [],
-    "domains": [
-      "cfapps.neo.ondemand.com"
-    ],
-    "restartParameters": {
-      "shouldRestartOnVcapAppChange": true,
-      "shouldRestartOnVcapServicesChange": true,
-      "shouldRestartOnUserProvidedChange": true
-    },
-    "attributesUpdateStrategy": {
-      "shouldKeepExistingEnv": false,
-      "shouldKeepExistingServiceBindings": false,
-      "shouldKeepExistingRoutes": false
     },
     "memory": 0,
     "diskQuota": 0,
@@ -41,7 +30,29 @@
       "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
       "MTA_SERVICES": "[]"
     },
-    "name": "foo",
-    "routes": []
+    "moduleName": "foo",
+    "idleUris": [],
+    "bindingParameters": {
+      "bar": {
+        "baz": "baz",
+        "qux": "qux"
+      }
+    },
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
   }
 ]

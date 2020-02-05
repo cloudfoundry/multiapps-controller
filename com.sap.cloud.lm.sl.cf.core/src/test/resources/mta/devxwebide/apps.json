@@ -1,28 +1,23 @@
 [
   {
-    "moduleName": "webide",
-    "idleUris": [],
-    "tasks": [],
-    "serviceKeysToInject": [],
-    "domains": [
-      "cfapps.neo.ondemand.com"
-    ],
-    "restartParameters": {
-      "shouldRestartOnVcapAppChange": true,
-      "shouldRestartOnVcapServicesChange": true,
-      "shouldRestartOnUserProvidedChange": true
-    },
-    "attributesUpdateStrategy": {
-      "shouldKeepExistingEnv": false,
-      "shouldKeepExistingServiceBindings": false,
-      "shouldKeepExistingRoutes": false
+    "name": "webide",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"webide\"}",
+        "mta_module_provided_dependencies": "[\"webide\"]",
+        "mta_bound_services": "[\"uaa\"]"
+      },
+      "labels": {
+        "mta_id": "com.sap.devx.webide",
+        "mta_version": "1.0.0"
+      }
     },
     "memory": 128,
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
     "staging": {
-      "buildpacks": [] 
+      "buildpacks": []
     },
     "uris": [
       "i027947-webide.cfapps.neo.ondemand.com"
@@ -38,8 +33,24 @@
       "MTA_SERVICES": "[]",
       "destinations": "[{\"name\":\"sapui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"},{\"name\":\"che\",\"url\":\"http://i027947-di-core.cfapps.neo.ondemand.com\"}]"
     },
-    "name": "webide",
-    "bindingParameters" : {},
-    "routes": []
+    "moduleName": "webide",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
   }
 ]

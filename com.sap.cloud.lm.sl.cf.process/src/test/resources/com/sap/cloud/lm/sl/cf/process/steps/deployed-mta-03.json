@@ -6,32 +6,32 @@
   "applications": [
     {
       "moduleName": "a",
-      "appName": "a",
-      "services": [],
+      "name": "a",
+      "boundMtaServices": [],
       "providedDependencyNames": []
     },
     {
       "moduleName": "b",
-      "appName": "b",
-      "services": [],
+      "name": "b",
+      "boundMtaServices": [],
       "providedDependencyNames": []
     },
     {
       "moduleName": "c",
-      "appName": "c",
-      "services": [],
+      "name": "c",
+      "boundMtaServices": [],
       "providedDependencyNames": []
     },
     {
       "moduleName": "d",
-      "appName": "d",
-      "services": [],
+      "name": "d",
+      "boundMtaServices": [],
       "providedDependencyNames": []
     },
     {
       "moduleName": "e",
-      "appName": "e",
-      "services": [],
+      "name": "e",
+      "boundMtaServices": [],
       "providedDependencyNames": []
     }
   ],

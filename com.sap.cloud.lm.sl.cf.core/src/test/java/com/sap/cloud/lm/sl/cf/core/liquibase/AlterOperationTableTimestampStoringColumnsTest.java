@@ -116,9 +116,4 @@ public class AlterOperationTableTimestampStoringColumnsTest {
     private Long toEpochMillis(Timestamp timestamp) {
         return timestamp == null ? null : timestamp.getTime();
     }
-
-    public static void main(String[] args) {
-        System.out.println(DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now()));
-    }
-
 }

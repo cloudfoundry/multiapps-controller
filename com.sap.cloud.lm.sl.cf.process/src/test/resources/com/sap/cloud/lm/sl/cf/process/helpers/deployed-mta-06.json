@@ -6,20 +6,22 @@
   "applications": [
     {
       "moduleName": "consumer",
-      "createdOn": "2016-10-10T11:05:00.000",
-      "updatedOn": "2016-10-10T11:05:00.000",
-      "appName": "consumer-green",
-      "services": [],
+      "metadata": {
+        "createdAt": "2016-10-10T11:05:00.000",
+        "updatedAt": "2016-10-10T11:05:00.000"
+      },
+      "name": "consumer-green",
       "providedDependencyNames": [
         "consumer"
       ]
     },
     {
       "moduleName": "consumer",
-      "createdOn": "2016-10-15T10:45:00.000",
-      "updatedOn": "2016-10-15T10:45:00.000",
-      "appName": "consumer-blue",
-      "services": [],
+      "metadata": {
+        "createdAt": "2016-10-15T10:45:00.000",
+        "updatedAt": "2016-10-15T10:45:00.000"
+      },
+      "name": "consumer-blue",
       "providedDependencyNames": [
         "consumer"
       ]

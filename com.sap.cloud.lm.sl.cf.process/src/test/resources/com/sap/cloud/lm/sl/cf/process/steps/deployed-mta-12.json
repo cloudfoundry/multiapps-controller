@@ -6,16 +6,16 @@
   "applications": [
     {
       "moduleName": "node-hello-world-db",
-      "appName": "node-hello-world-db",
-      "services": [
+      "name": "node-hello-world-db",
+      "boundMtaService": [
         "node-hdi-container"
       ],
       "providedDependencyNames": []
     },
     {
       "moduleName": "node-hello-world-backend",
-      "appName": "node-hello-world-backend",
-      "services": [
+      "name": "node-hello-world-backend",
+      "boundMtaService": [
         "uaa",
         "node-hdi-container"
       ],
@@ -23,15 +23,19 @@
     },
     {
       "moduleName": "node-hello-world",
-      "appName": "node-hello-world",
-      "services": [
+      "name": "node-hello-world",
+      "boundMtaService": [
         "uaa"
       ],
       "providedDependencyNames": []
     }
   ],
   "services": [
-    "node-hdi-container",
-    "uaa"
+    {
+      "name": "node-hdi-container"
+    },
+    {
+      "name": "uaa"
+    }
   ]
 }

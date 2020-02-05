@@ -1,21 +1,16 @@
 [
   {
-    "moduleName": "module-1",
-    "idleUris": [],
-    "tasks": [],
-    "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
-    "restartParameters": {
-      "shouldRestartOnVcapAppChange": false,
-      "shouldRestartOnVcapServicesChange": true,
-      "shouldRestartOnUserProvidedChange": true
-    },
-    "attributesUpdateStrategy": {
-      "shouldKeepExistingEnv": false,
-      "shouldKeepExistingServiceBindings": false,
-      "shouldKeepExistingRoutes": false
+    "name": "module-1",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"module-1\"}",
+        "mta_module_provided_dependencies": "[\"module-1\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "1.0.0"
+      }
     },
     "memory": 0,
     "diskQuota": 0,
@@ -35,20 +30,17 @@
       "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-1\"]",
       "MTA_SERVICES": "[]"
     },
-    "name": "module-1",
-    "bindingParameters" : {},
-    "routes": []
-  },
-  {
-    "moduleName": "module-2",
+    "moduleName": "module-1",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "sofd60245639a"
     ],
     "restartParameters": {
-      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapAppChange": false,
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
@@ -56,6 +48,20 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "module-2",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"module-2\"}",
+        "mta_module_provided_dependencies": "[\"module-2\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "1.0.0"
+      }
     },
     "memory": 0,
     "diskQuota": 0,
@@ -75,27 +81,38 @@
       "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-2\"]",
       "MTA_SERVICES": "[]"
     },
-    "name": "module-2",
-    "bindingParameters" : {},
-    "routes": []
-  },
-  {
-    "moduleName": "module-3",
+    "moduleName": "module-2",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "sofd60245639a"
     ],
     "restartParameters": {
-      "shouldRestartOnVcapAppChange": false,
-      "shouldRestartOnVcapServicesChange": false,
-      "shouldRestartOnUserProvidedChange": false
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
     },
     "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "module-3",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"module-3\"}",
+        "mta_module_provided_dependencies": "[\"module-3\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "1.0.0"
+      }
     },
     "memory": 0,
     "diskQuota": 0,
@@ -115,8 +132,24 @@
       "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-3\"]",
       "MTA_SERVICES": "[]"
     },
-    "name": "module-3",
-    "bindingParameters" : {},
-    "routes": []
+    "moduleName": "module-3",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "sofd60245639a"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": false,
+      "shouldRestartOnVcapServicesChange": false,
+      "shouldRestartOnUserProvidedChange": false
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
   }
 ]

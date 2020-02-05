@@ -1,11 +1,49 @@
 [
   {
+    "name": "foo",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"foo\"}",
+        "mta_module_provided_dependencies": "[\"foo\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "1.0.0"
+      }
+    },
+    "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
+    "runningInstances": 0,
+    "staging": {
+      "buildpacks": [
+        "git://github.example.com/xs2-java/java-buildpack.git"
+      ]
+    },
+    "uris": [
+      "abc.cfapps.domain.com",
+      "cba.cfapps.domain.com",
+      "abc.cfapps.domain.moc",
+      "cba.cfapps.domain.moc"
+    ],
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
+      "MTA_SERVICES": "[]",
+      "TARGET_RUNTIME": "tomee"
+    },
     "moduleName": "foo",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
-      "cfapps.domain.com", 
+      "cfapps.domain.com",
       "cfapps.domain.moc"
     ],
     "restartParameters": {
@@ -17,31 +55,6 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
-    },
-    "memory": 0,
-    "diskQuota": 0,
-    "instances": 0,
-    "runningInstances": 0,
-    "staging": {
-      "buildpacks": ["git://github.example.com/xs2-java/java-buildpack.git"]
-    },
-    "uris": [
-       "abc.cfapps.domain.com", 
-       "cba.cfapps.domain.com", 
-       "abc.cfapps.domain.moc", 
-       "cba.cfapps.domain.moc" 
-    ],
-    "services": [],
-    "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
-      "MTA_SERVICES": "[]",
-      "TARGET_RUNTIME": "tomee"
-    },
-    "name": "foo",
-    "bindingParameters" : {},
-    "routes": []
+    }
   }
 ]

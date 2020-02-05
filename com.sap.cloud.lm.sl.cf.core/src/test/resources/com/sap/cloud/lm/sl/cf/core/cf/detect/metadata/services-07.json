@@ -1,0 +1,26 @@
+[
+  {
+    "name": "mta-service-1",
+    "metadata": {
+      "labels": {
+        "mta_id": "quux",
+        "mta_version": "0.1.0"
+      },
+      "annotations": {
+        "mta_resource": "{\"name\":\"resource-name-1\"}"
+      }
+    }
+  },
+  {
+    "name": "mta-service-2",
+    "metadata": {
+      "labels": {
+        "mta_id": "quux",
+        "mta_version": "0.1.0"
+      },
+      "annotations": {
+        "mta_resource": "{\"name\":\"resource-name-2\"}"
+      }
+    }
+  }
+]

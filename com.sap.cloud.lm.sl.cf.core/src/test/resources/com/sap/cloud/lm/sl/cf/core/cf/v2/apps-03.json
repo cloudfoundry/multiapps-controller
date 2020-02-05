@@ -1,21 +1,16 @@
 [
   {
-    "moduleName": "module-1",
-    "idleUris": [],
-    "tasks": [],
-    "serviceKeysToInject": [],
-    "domains": [
-      "sofd60245639a"
-    ],
-    "restartParameters": {
-      "shouldRestartOnVcapAppChange": true,
-      "shouldRestartOnVcapServicesChange": true,
-      "shouldRestartOnUserProvidedChange": true
-    },
-    "attributesUpdateStrategy": {
-      "shouldKeepExistingEnv": false,
-      "shouldKeepExistingServiceBindings": false,
-      "shouldKeepExistingRoutes": false
+    "name": "com.sap.sample.mta.application-1",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"module-1\"}",
+        "mta_module_provided_dependencies": "[\"module-1\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0"
+      }
     },
     "memory": 0,
     "diskQuota": 0,
@@ -36,14 +31,11 @@
       "MTA_SERVICES": "[]",
       "TARGET_RUNTIME": "tomee"
     },
-    "name": "com.sap.sample.mta.application-1",
-    "bindingParameters" : {},
-    "routes": []
-  },
-  {
-    "moduleName": "module-2",
+    "moduleName": "module-1",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "sofd60245639a"
@@ -57,6 +49,20 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "com.sap.sample.mta.application-2",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"module-2\"}",
+        "mta_module_provided_dependencies": "[\"module-2\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0"
+      }
     },
     "memory": 0,
     "diskQuota": 0,
@@ -77,8 +83,24 @@
       "MTA_SERVICES": "[]",
       "TARGET_RUNTIME": "tomee"
     },
-    "name": "com.sap.sample.mta.application-2",
-    "bindingParameters" : {},
-    "routes": []
+    "moduleName": "module-2",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "sofd60245639a"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
   }
 ]

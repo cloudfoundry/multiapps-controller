@@ -1,28 +1,25 @@
 [
   {
-    "moduleName": "di-core",
-    "idleUris": [],
-    "tasks": [],
-    "serviceKeysToInject": [],
-    "domains": [
-      "cfapps.neo.ondemand.com"
-    ],
-    "restartParameters": {
-      "shouldRestartOnVcapAppChange": true,
-      "shouldRestartOnVcapServicesChange": true,
-      "shouldRestartOnUserProvidedChange": true
-    },
-    "attributesUpdateStrategy": {
-      "shouldKeepExistingEnv": false,
-      "shouldKeepExistingServiceBindings": false,
-      "shouldKeepExistingRoutes": false
+    "name": "di-core",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"di-core\"}",
+        "mta_module_provided_dependencies": "[\"di-core-url\",\"di-core\"]",
+        "mta_bound_services": "[\"uaa\",\"di-core-hdi\"]"
+      },
+      "labels": {
+        "mta_id": "com.sap.devx.di",
+        "mta_version": "1.0.0"
+      }
     },
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
     "runningInstances": 0,
     "staging": {
-      "buildpacks": ["git://github.example.com/xs2-java/java-buildpack.git"]
+      "buildpacks": [
+        "git://github.example.com/xs2-java/java-buildpack.git"
+      ]
     },
     "uris": [
       "i027947-di-core.cfapps.neo.ondemand.com"
@@ -43,14 +40,11 @@
       "SERVICE_TO_JNDI_NAME_MAPPING": "{\"di-core-hdi\":\"jdbc/DefaultDB\"}\n",
       "TARGET_RUNTIME": "tomcat"
     },
-    "name": "di-core",
-    "bindingParameters" : {},
-    "routes": []
-  },
-  {
-    "moduleName": "di-builder",
+    "moduleName": "di-core",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "cfapps.neo.ondemand.com"
@@ -64,13 +58,29 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "di-builder",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"di-builder\"}",
+        "mta_module_provided_dependencies": "[\"di-builder\"]",
+        "mta_bound_services": "[\"uaa\"]"
+      },
+      "labels": {
+        "mta_id": "com.sap.devx.di",
+        "mta_version": "1.0.0"
+      }
     },
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
     "runningInstances": 0,
     "staging": {
-      "buildpacks": ["http://i027947-di-core.cfapps.neo.ondemand.com/system/builderbp.git/"]
+      "buildpacks": [
+        "http://i027947-di-core.cfapps.neo.ondemand.com/system/builderbp.git/"
+      ]
     },
     "uris": [
       "i027947-di-builder.cfapps.neo.ondemand.com"
@@ -88,14 +98,11 @@
       "MTA_SERVICES": "[]",
       "TARGET_RUNTIME": "tomcat"
     },
-    "name": "di-builder",
-    "bindingParameters" : {},
-    "routes": []
-  },
-  {
-    "moduleName": "di-runner",
+    "moduleName": "di-builder",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "cfapps.neo.ondemand.com"
@@ -109,13 +116,29 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "di-runner",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"di-runner\"}",
+        "mta_module_provided_dependencies": "[\"di-runner\"]",
+        "mta_bound_services": "[\"uaa\"]"
+      },
+      "labels": {
+        "mta_id": "com.sap.devx.di",
+        "mta_version": "1.0.0"
+      }
     },
     "memory": 512,
     "diskQuota": 0,
     "instances": 1,
     "runningInstances": 0,
     "staging": {
-      "buildpacks": ["git://github.example.com/xs2-java/java-buildpack.git"]
+      "buildpacks": [
+        "git://github.example.com/xs2-java/java-buildpack.git"
+      ]
     },
     "uris": [
       "i027947-di-runner.cfapps.neo.ondemand.com"
@@ -134,8 +157,24 @@
       "TARGET_RUNTIME": "tomcat",
       "UI5_CONTENT_URL": "http://i027947-ui5-content.cfapps.neo.ondemand.com"
     },
-    "name": "di-runner",
-    "bindingParameters" : {},
-    "routes": []
+    "moduleName": "di-runner",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
   }
 ]

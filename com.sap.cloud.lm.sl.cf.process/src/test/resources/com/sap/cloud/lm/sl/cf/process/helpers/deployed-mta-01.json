@@ -5,18 +5,24 @@
   "applications": [
     {
       "moduleName": "app-1",
-      "appName": "app-1-blue",
-      "createdOn": "2019-04-04"
+      "name": "app-1-blue",
+      "metadata": {
+        "createdAt": "2019-04-04"
+      }
     },
     {
       "moduleName": "app-2",
-      "appName": "app-2-blue",
-      "createdOn": "2019-04-05"
+      "name": "app-2-blue",
+      "metadata": {
+        "createdAt": "2019-04-05"
+      }
     },
     {
       "moduleName": "app-3",
-      "appName": "app-3-blue",
-      "createdOn": "2019-04-06"
+      "name": "app-3-blue",
+      "metadata": {
+        "createdAt": "2019-04-06"
+      }
     }
   ]
 }

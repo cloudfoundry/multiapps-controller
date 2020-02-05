@@ -1,30 +1,25 @@
 [
   {
-    "moduleName": "foo",
-    "idleUris": [
-      "foo-custom-route.test-domain"
-    ],
-    "tasks": [],
-    "serviceKeysToInject": [],
-    "domains": [
-      "test-domain"
-    ],
-    "restartParameters": {
-      "shouldRestartOnVcapAppChange": true,
-      "shouldRestartOnVcapServicesChange": true,
-      "shouldRestartOnUserProvidedChange": true
-    },
-    "attributesUpdateStrategy": {
-      "shouldKeepExistingEnv": false,
-      "shouldKeepExistingServiceBindings": false,
-      "shouldKeepExistingRoutes": false
+    "name": "foo",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"foo\"}",
+        "mta_module_provided_dependencies": "[\"foo\"]",
+        "mta_bound_services": "[]"
+      },
+      "labels": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "1.0.0"
+      }
     },
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
     "staging": {
-      "buildpacks": ["git://github.example.com/xs2-java/java-buildpack.git"]
+      "buildpacks": [
+        "git://github.example.com/xs2-java/java-buildpack.git"
+      ]
     },
     "uris": [
       "foo-custom-route.test-domain"
@@ -38,8 +33,26 @@
       "MTA_SERVICES": "[]",
       "TARGET_RUNTIME": "tomee"
     },
-    "name": "foo",
-    "bindingParameters" : {},
-    "routes": []
+    "moduleName": "foo",
+    "idleUris": [
+      "foo-custom-route.test-domain"
+    ],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "test-domain"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
   }
 ]

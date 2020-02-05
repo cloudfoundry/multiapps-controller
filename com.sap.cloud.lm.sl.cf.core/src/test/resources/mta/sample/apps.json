@@ -1,21 +1,16 @@
 [
   {
-    "moduleName": "web-server",
-    "idleUris": [],
-    "tasks": [],
-    "serviceKeysToInject": [],
-    "domains": [
-      "bestprice.sap.com"
-    ],
-    "restartParameters": {
-      "shouldRestartOnVcapAppChange": true,
-      "shouldRestartOnVcapServicesChange": true,
-      "shouldRestartOnUserProvidedChange": true
-    },
-    "attributesUpdateStrategy": {
-      "shouldKeepExistingEnv": false,
-      "shouldKeepExistingServiceBindings": false,
-      "shouldKeepExistingRoutes": false
+    "name": "web-server",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"web-server\"}",
+        "mta_module_provided_dependencies": "[\"web-server\"]",
+        "mta_bound_services": "[\"internal-odata-service\"]"
+      },
+      "labels": {
+        "mta_id": "com.sap.mta.sample",
+        "mta_version": "1.2.1-beta+20150403144937853"
+      }
     },
     "memory": 0,
     "diskQuota": 0,
@@ -40,14 +35,11 @@
       "docu-url": "http://help.sap.com/saphelp_nw74/en/5c",
       "odata.svc_root": "odata/"
     },
-    "name": "web-server",
-    "bindingParameters" : {},
-    "routes": []
-  },
-  {
-    "moduleName": "pricing",
+    "moduleName": "web-server",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
       "bestprice.sap.com"
@@ -61,13 +53,29 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "pricing",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"pricing\"}",
+        "mta_module_provided_dependencies": "[\"internal-odata\",\"pricing\"]",
+        "mta_bound_services": "[\"pricing-db-service\"]"
+      },
+      "labels": {
+        "mta_id": "com.sap.mta.sample",
+        "mta_version": "1.2.1-beta+20150403144937853"
+      }
     },
     "memory": 0,
     "diskQuota": 0,
     "instances": 0,
     "runningInstances": 0,
     "staging": {
-      "buildpacks": ["nodejs-test"]
+      "buildpacks": [
+        "nodejs-test"
+      ]
     },
     "uris": [
       "api.bestprice.sap.com"
@@ -87,17 +95,14 @@
       "secret-key": "cd171f7c-560d-4a62-8d65-16b87419a58c",
       "url": "https://marketwatch.il/v2/"
     },
-    "name": "pricing",
-    "bindingParameters" : {},
-    "routes": []
-  },
-  {
-    "moduleName": "pricing-db",
+    "moduleName": "pricing",
     "idleUris": [],
+    "bindingParameters": {},
     "tasks": [],
+    "routes": [],
     "serviceKeysToInject": [],
     "domains": [
-      "cfapps.neo.ondemand.com"
+      "bestprice.sap.com"
     ],
     "restartParameters": {
       "shouldRestartOnVcapAppChange": true,
@@ -108,6 +113,20 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
+    }
+  },
+  {
+    "name": "pricing-db",
+    "v3Metadata": {
+      "annotations": {
+        "mta_module": "{\"name\":\"pricing-db\"}",
+        "mta_module_provided_dependencies": "[\"pricing-db\"]",
+        "mta_bound_services": "[\"pricing-db-service\"]"
+      },
+      "labels": {
+        "mta_id": "com.sap.mta.sample",
+        "mta_version": "1.2.1-beta+20150403144937853"
+      }
     },
     "memory": 0,
     "diskQuota": 0,
@@ -130,8 +149,24 @@
       "MTA_SERVICES": "[\"pricing-db-service\"]",
       "default-locale": "zho"
     },
-    "name": "pricing-db",
-    "bindingParameters" : {},
-    "routes": []
+    "moduleName": "pricing-db",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
   }
 ]
