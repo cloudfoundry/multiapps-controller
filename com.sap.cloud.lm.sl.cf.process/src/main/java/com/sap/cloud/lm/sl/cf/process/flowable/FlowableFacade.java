@@ -234,7 +234,7 @@ public class FlowableFacade {
                                  .deleteProcessInstance(processInstanceId, deleteReason);
                     break;
                 }
-                
+
                 LOGGER.debug(format(Messages.SETTING_VARIABLE, Constants.PROCESS_ABORTED, Boolean.TRUE));
 
                 // TODO: Use execution ID instead of process instance ID, as
