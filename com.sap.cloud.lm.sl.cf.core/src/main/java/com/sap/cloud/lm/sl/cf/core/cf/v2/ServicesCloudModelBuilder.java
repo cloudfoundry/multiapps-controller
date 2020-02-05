@@ -70,7 +70,6 @@ public class ServicesCloudModelBuilder {
                                                         boolean shouldIgnoreUpdateErrors) {
         Map<String, Object> parameters = resource.getParameters();
         SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(serviceName, ResourceType.MANAGED_SERVICE, parameters);
-
         return ImmutableCloudServiceExtended.builder()
                                             .name(serviceName)
                                             .resourceName(resource.getName())
@@ -86,6 +85,7 @@ public class ServicesCloudModelBuilder {
                                             .isOptional(isOptional)
                                             .isManaged(true)
                                             .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
+                                            .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, resource))
                                             .build();
     }
 
@@ -115,6 +115,7 @@ public class ServicesCloudModelBuilder {
                                             .resourceName(resource.getName())
                                             .isOptional(isOptional)
                                             .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
+                                            .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, resource))
                                             .build();
     }
 
