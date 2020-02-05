@@ -27,6 +27,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Mta;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.NotFoundException;
+import com.sap.cloud.lm.sl.mta.model.Version;
 
 @Named
 public class MtasApiServiceImpl implements MtasApiService {
@@ -94,9 +95,12 @@ public class MtasApiServiceImpl implements MtasApiService {
     private Metadata getMetadata(MtaMetadata metadata) {
         return ImmutableMetadata.builder()
                                 .id(metadata.getId())
-                                .version(metadata.getVersion()
-                                                 .toString())
+                                .version(getVersion(metadata.getVersion()))
                                 .build();
+    }
+
+    private String getVersion(Version version) {
+        return version != null ? version.toString() : null;
     }
 
 }
