@@ -219,6 +219,8 @@ public class Messages {
     public static final String DELETING_SERVICE = "Deleting service \"{0}\"...";
     public static final String SERVICE_DELETED = "Service \"{0}\" deleted";
     public static final String UPDATING_SERVICE = "Updating service \"{0}\"...";
+    public static final String UPDATING_SERVICE_METADATA = "Updating service metadata for service \"{0}\"...";
+    public static final String SERVICE_METADATA_UPDATED = "Service metadata for service \"{0}\" updated";
     public static final String PROCESSING_SERVICE = "Processing service \"{0}\"...";
     public static final String SERVICE_UPDATED = "Service \"{0}\" updated";
     public static final String UPDATING_SERVICE_TAGS = "Updating service tags for service \"{0}\"...";
@@ -359,7 +361,6 @@ public class Messages {
     public static final String MODULES_TO_DEPLOY = "Modules to deploy: {0}";
     public static final String CONFIGURATION_ENTRIES_TO_PUBLISH = "Configuration entries to publish: {0}";
     public static final String SERVICE_KEYS_TO_CREATE = "Service keys to create: {0}";
-    public static final String DEPLOYED_APPS = "Deployed apps: {0}";
     public static final String APP_WITH_UPDATED_ENVIRONMENT = "App with updated environment: {0}";
     public static final String VALIDATING_EXISTING_SERVICE_ASSOCIATION = "Trying to validate association of service \"{0}\"";
     public static final String VALIDATING_EXISTING_APPLICATION_ASSOCIATION = "Trying to validate association of application \"{0}\"";
