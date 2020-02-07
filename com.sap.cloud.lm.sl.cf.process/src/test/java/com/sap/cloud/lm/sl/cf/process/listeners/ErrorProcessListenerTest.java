@@ -16,6 +16,7 @@ import org.mockito.MockitoAnnotations;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.OperationInErrorStateHandler;
+import com.sap.cloud.lm.sl.cf.process.util.ProcessTimeCalculator;
 
 public class ErrorProcessListenerTest {
 
@@ -29,6 +30,7 @@ public class ErrorProcessListenerTest {
 
         protected DelegateExecution execution;
 
+        @Override
         protected DelegateExecution getExecution(FlowableEngineEvent event) {
             return execution;
         }
@@ -37,6 +39,10 @@ public class ErrorProcessListenerTest {
 
     @Mock
     private OperationInErrorStateHandler eventHandler;
+
+    @Mock
+    private ProcessTimeCalculator processTimeCalculator;
+
     @InjectMocks
     private ErrorProcessListenerMock errorProcessListener;
 

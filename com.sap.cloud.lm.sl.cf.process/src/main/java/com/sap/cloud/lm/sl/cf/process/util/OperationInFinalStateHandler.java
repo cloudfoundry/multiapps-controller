@@ -49,6 +49,8 @@ public class OperationInFinalStateHandler {
     private CollectedDataSender dataSender;
     @Inject
     private HistoricOperationEventPersister historicOperationEventPersister;
+    @Inject
+    private OperationTimeAggregator operationTimeAggregator;
     private final SafeExecutor safeExecutor = new SafeExecutor();
 
     public void handle(DelegateExecution context, Operation.State state) {
@@ -64,6 +66,7 @@ public class OperationInFinalStateHandler {
         safeExecutor.execute(() -> deleteDeploymentFiles(context));
         safeExecutor.execute(() -> deleteCloudControllerClientForProcess(context));
         safeExecutor.execute(() -> setOperationState(StepsUtil.getCorrelationId(context), state));
+        safeExecutor.execute(() -> aggregateOperationTime(context));
     }
 
     protected void sendStatistics(DelegateExecution context, Operation.State state) {
@@ -120,4 +123,7 @@ public class OperationInFinalStateHandler {
         return state == Operation.State.FINISHED ? EventType.FINISHED : EventType.ABORTED;
     }
 
+    private void aggregateOperationTime(DelegateExecution context) {
+        operationTimeAggregator.aggregateOperationTime(StepsUtil.getCorrelationId(context));
+    }
 }

@@ -16,6 +16,7 @@ import javax.inject.Named;
 import org.flowable.common.engine.api.FlowableOptimisticLockingException;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.history.HistoricActivityInstance;
+import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.job.api.Job;
@@ -117,6 +118,13 @@ public class FlowableFacade {
                                                               .map(HistoricVariableInstance::getProcessInstanceId)
                                                               .filter(id -> !id.equals(correlationId))
                                                               .collect(Collectors.toList());
+    }
+
+    public HistoricProcessInstance getHistoricProcessById(String processInstanceId) {
+        return processEngine.getHistoryService()
+                            .createHistoricProcessInstanceQuery()
+                            .processInstanceId(processInstanceId)
+                            .singleResult();
     }
 
     private List<HistoricVariableInstance> retrieveVariablesByCorrelationId(String correlationId) {

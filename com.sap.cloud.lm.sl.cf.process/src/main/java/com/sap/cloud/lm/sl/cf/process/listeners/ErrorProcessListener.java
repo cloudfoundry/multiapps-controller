@@ -59,6 +59,7 @@ public class ErrorProcessListener extends AbstractFlowableEngineEventListener {
                          event.getProcessDefinitionId(), entity.getExceptionStacktrace());
             eventHandler.handle(event, entity.getExceptionMessage());
         }
+
     }
 
     @Override
