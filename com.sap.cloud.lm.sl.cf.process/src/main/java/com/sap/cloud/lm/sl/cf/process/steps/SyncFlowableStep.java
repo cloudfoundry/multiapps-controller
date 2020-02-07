@@ -88,6 +88,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
 
     private void handleException(DelegateExecution context, Exception e) {
         try {
+            getStepLogger().error(e, e.getMessage());
             StepPhase stepPhase = StepsUtil.getStepPhase(context);
             if (stepPhase == StepPhase.POLL) {
                 throw e;
