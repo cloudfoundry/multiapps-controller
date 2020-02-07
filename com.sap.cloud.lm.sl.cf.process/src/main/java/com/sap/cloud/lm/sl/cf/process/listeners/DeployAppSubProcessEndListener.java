@@ -4,20 +4,18 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.flowable.engine.delegate.ExecutionListener;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 
 @Named("deployAppSubProcessEndListener")
-public class DeployAppSubProcessEndListener extends AbstractProcessExecutionListener {
+public class DeployAppSubProcessEndListener implements ExecutionListener {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeployAppSubProcessEndListener.class);
 
     @Override
-    protected void notifyInternal(DelegateExecution context) {
+    public void notify(DelegateExecution context) {
         CloudServiceBroker cloudServiceBrokerExtended = StepsUtil.getCreatedOrUpdatedServiceBroker(context);
 
         if (cloudServiceBrokerExtended != null) {
@@ -25,8 +23,4 @@ public class DeployAppSubProcessEndListener extends AbstractProcessExecutionList
         }
     }
 
-    @Override
-    protected Logger getLogger() {
-        return LOGGER;
-    }
 }

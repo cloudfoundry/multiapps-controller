@@ -26,7 +26,7 @@ public class ProcessConflictPreventer {
 
     public synchronized void acquireLock(String mtaId, String spaceId, String processId) {
         LOGGER.info(format(Messages.ACQUIRING_LOCK, processId, mtaId));
-
+        
         validateNoConflictingOperationsExist(mtaId, spaceId);
         Operation currentOperation = operationService.createQuery()
                                                      .processId(processId)
