@@ -8,8 +8,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.ImmutableMtaMetadata;
@@ -22,8 +20,6 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 
 @Named
 public class EnvMtaMetadataParser extends BaseMtaMetadataParser {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EnvMtaMetadataParser.class);
 
     private EnvMtaMetadataValidator envMtaMetadataValidator;
 

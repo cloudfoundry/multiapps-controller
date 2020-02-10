@@ -84,8 +84,7 @@ class MtaMetadataCriteriaValidator {
     private static void validateMaxLength(String value, String valueName, int maxLength) {
         int valueLength = StringUtils.length(value);
         if (valueLength > maxLength) {
-            throw new IllegalArgumentException(
-                MessageFormat.format(SHOULD_NOT_BE_LONGER_THAN, valueName, maxLength, valueLength, value));
+            throw new IllegalArgumentException(MessageFormat.format(SHOULD_NOT_BE_LONGER_THAN, valueName, maxLength, valueLength, value));
         }
     }
 
@@ -95,11 +94,13 @@ class MtaMetadataCriteriaValidator {
         }
     }
 
-    private static void validateCustomPatternMatches(String value, String valueName, String pattern,
-        String patternContentDesxcription) {
+    private static void validateCustomPatternMatches(String value, String valueName, String pattern, String patternContentDesxcription) {
         if (!value.matches(pattern)) {
-            throw new IllegalArgumentException(
-                MessageFormat.format(SHOULD_COMPLY_WITH_PATTERN, valueName, patternContentDesxcription, value));
+            throw new IllegalArgumentException(MessageFormat.format(SHOULD_COMPLY_WITH_PATTERN, valueName, patternContentDesxcription,
+                                                                    value));
         }
+    }
+
+    private MtaMetadataCriteriaValidator() {
     }
 }

@@ -40,16 +40,14 @@ public class LabelBuilder {
     }
 
     public FinalizingBuilder valueIn(List<String> values) {
-        String concatenatedValues = values.stream()
-                                          .peek(MtaMetadataCriteriaValidator::validateLabelValue)
-                                          .collect(Collectors.joining(","));
+        values.forEach(MtaMetadataCriteriaValidator::validateLabelValue);
+        String concatenatedValues = String.join(",", values);
         return completeQuery(buildLabel() + " in (" + concatenatedValues + ")");
     }
 
     public FinalizingBuilder valueNotIn(List<String> values) {
-        String concatenatedValues = values.stream()
-                                          .peek(MtaMetadataCriteriaValidator::validateLabelValue)
-                                          .collect(Collectors.joining(","));
+        values.forEach(MtaMetadataCriteriaValidator::validateLabelValue);
+        String concatenatedValues = String.join(",", values);
         return completeQuery(buildLabel() + " notin (" + concatenatedValues + ")");
     }
 

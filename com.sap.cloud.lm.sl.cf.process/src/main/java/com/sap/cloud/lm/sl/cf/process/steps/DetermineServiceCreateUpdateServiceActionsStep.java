@@ -167,7 +167,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             actions.add(ServiceAction.UPDATE_CREDENTIALS);
         }
 
-        if (shouldUpdateMetadata(service, existingService, client)) {
+        if (shouldUpdateMetadata(service, existingService)) {
             getStepLogger().debug("Service metadata should be updated");
             getStepLogger().debug("New metadata: " + secureSerializer.toJson(service.getV3Metadata()));
             actions.add(ServiceAction.UPDATE_METADATA);
@@ -202,7 +202,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return label + "/" + plan;
     }
 
-    private boolean shouldUpdateMetadata(CloudServiceExtended service, CloudService existingService, CloudControllerClient client) {
+    private boolean shouldUpdateMetadata(CloudServiceExtended service, CloudService existingService) {
         Metadata existingMetadata = existingService.getV3Metadata();
         Metadata newMetadata = service.getV3Metadata();
         if (existingMetadata != null && newMetadata != null) {

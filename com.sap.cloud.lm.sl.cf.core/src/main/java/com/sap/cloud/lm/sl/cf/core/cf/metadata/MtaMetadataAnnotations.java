@@ -8,4 +8,7 @@ public class MtaMetadataAnnotations {
 
     public static final String MTA_RESOURCE = "mta_resource";
 
+    private MtaMetadataAnnotations() {
+    }
+
 }
