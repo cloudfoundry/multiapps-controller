@@ -50,12 +50,19 @@ public class AbortFailedProcessCommandFactory extends DefaultFailedJobCommandFac
         }
 
         private void abortProcessIfRequested(CommandContext commandContext) {
-            abortProcessIfRequested(commandContext, findProcessInstanceId(commandContext));
+            String processInstanceId = findProcessInstanceId(commandContext);
+            if (processInstanceId == null) {
+                return;
+            }
+            abortProcessIfRequested(commandContext, processInstanceId);
         }
 
         private String findProcessInstanceId(CommandContext commandContext) {
             JobEntity job = CommandContextUtil.getJobService(commandContext)
                                               .findJobById(jobId);
+            if (job == null) {
+                return null;
+            }
             return job.getProcessInstanceId();
         }
 
