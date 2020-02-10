@@ -180,7 +180,7 @@ public class Messages {
     public static final String BINDING_APP_TO_SERVICE_WITH_PARAMETERS = "Binding application \"{0}\" to service \"{1}\" with parameters \"{2}\"";
     public static final String UNBINDING_APP_FROM_SERVICE = "Unbinding application \"{0}\" from service \"{1}\"...";
     public static final String POLLING_SERVICE_OPERATIONS = "Polling service operations...";
-    public static final String PROCESS_WILL_BE_AUTO_ABORTED = "Process \"{0}\" has an abortOnError parameter set to ''true'' and will be auto-aborted.";
+    public static final String AUTO_ABORTING_PROCESS_0 = "Auto-aborting process \"{0}\"...";
     public static final String SOME_INSTANCES_ARE_FLAPPING = "Some instances are flapping. Check the logs of your application for more information.";
     public static final String SOME_INSTANCES_HAVE_CRASHED = "Some instances have crashed. Check the logs of your application for more information.";
     public static final String CLEAN_UP_JOB_STARTED_BY_APPLICATION_INSTANCE_0_AT_1 = "Clean-up job started by application instance {0} at: {1}";

@@ -45,31 +45,35 @@ public class AbortFailedProcessCommandFactory extends DefaultFailedJobCommandFac
         @Override
         public Object execute(CommandContext commandContext) {
             Object result = delegate.execute(commandContext);
-            String processInstanceId = getProcessId();
+            abortProcessIfRequested(commandContext);
+            return result;
+        }
+
+        private void abortProcessIfRequested(CommandContext commandContext) {
+            abortProcessIfRequested(commandContext, findProcessInstanceId(commandContext));
+        }
+
+        private String findProcessInstanceId(CommandContext commandContext) {
+            JobEntity job = CommandContextUtil.getJobService(commandContext)
+                                              .findJobById(jobId);
+            return job.getProcessInstanceId();
+        }
+
+        private void abortProcessIfRequested(CommandContext commandContext, String processInstanceId) {
             String correlationId = HistoryUtil.getVariableValue(commandContext, processInstanceId, Constants.VAR_CORRELATION_ID);
             if (!processInstanceId.equals(correlationId)) {
-                return result;
+                return;
             }
-
             Boolean shouldAbortOnError = HistoryUtil.getVariableValue(commandContext, processInstanceId, Constants.PARAM_ABORT_ON_ERROR);
             if (BooleanUtils.toBoolean(shouldAbortOnError)) {
                 abortProcess(commandContext, processInstanceId);
             }
-
-            return result;
         }
 
-        private String getProcessId() {
-            JobEntity job = CommandContextUtil.getJobServiceConfiguration()
-                                              .getJobEntityManager()
-                                              .findById(jobId);
-            return job.getProcessInstanceId();
-        }
-
-        private void abortProcess(CommandContext commandContext, String processId) {
-            LOGGER.info(MessageFormat.format(Messages.PROCESS_WILL_BE_AUTO_ABORTED, processId));
+        private void abortProcess(CommandContext commandContext, String processInstanceId) {
+            LOGGER.info(MessageFormat.format(Messages.AUTO_ABORTING_PROCESS_0, processInstanceId));
             RuntimeService runtimeService = getRuntimeService(commandContext);
-            runtimeService.deleteProcessInstance(processId, abortReason);
+            runtimeService.deleteProcessInstance(processInstanceId, abortReason);
         }
 
         private RuntimeService getRuntimeService(CommandContext commandContext) {
