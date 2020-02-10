@@ -2,19 +2,19 @@ package com.sap.cloud.lm.sl.cf.process;
 
 import java.text.MessageFormat;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.flowable.common.engine.impl.interceptor.Command;
 import org.flowable.common.engine.impl.interceptor.CommandContext;
-import org.flowable.engine.HistoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.impl.context.Context;
 import org.flowable.engine.impl.jobexecutor.DefaultFailedJobCommandFactory;
 import org.flowable.engine.impl.util.CommandContextUtil;
 import org.flowable.job.service.impl.persistence.entity.JobEntity;
-import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.HistoryUtil;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 public class AbortFailedProcessCommandFactory extends DefaultFailedJobCommandFactory {
@@ -46,16 +46,13 @@ public class AbortFailedProcessCommandFactory extends DefaultFailedJobCommandFac
         public Object execute(CommandContext commandContext) {
             Object result = delegate.execute(commandContext);
             String processInstanceId = getProcessId();
-            HistoricVariableInstance correlationId = getHistoryService(commandContext).createHistoricVariableInstanceQuery()
-                                                                                      .processInstanceId(processInstanceId)
-                                                                                      .variableName(Constants.VAR_CORRELATION_ID)
-                                                                                      .singleResult();
-            if (!processInstanceId.equals(correlationId.getValue())) {
+            String correlationId = HistoryUtil.getVariableValue(commandContext, processInstanceId, Constants.VAR_CORRELATION_ID);
+            if (!processInstanceId.equals(correlationId)) {
                 return result;
             }
 
-            HistoricVariableInstance abortOnErrorVariable = getAbortOnErrorVariable(commandContext, processInstanceId);
-            if (shouldAbortProcess(abortOnErrorVariable)) {
+            Boolean shouldAbortOnError = HistoryUtil.getVariableValue(commandContext, processInstanceId, Constants.PARAM_ABORT_ON_ERROR);
+            if (BooleanUtils.toBoolean(shouldAbortOnError)) {
                 abortProcess(commandContext, processInstanceId);
             }
 
@@ -69,26 +66,10 @@ public class AbortFailedProcessCommandFactory extends DefaultFailedJobCommandFac
             return job.getProcessInstanceId();
         }
 
-        private HistoricVariableInstance getAbortOnErrorVariable(CommandContext commandContext, String processId) {
-            return getHistoryService(commandContext).createHistoricVariableInstanceQuery()
-                                                    .processInstanceId(processId)
-                                                    .variableName(Constants.PARAM_ABORT_ON_ERROR)
-                                                    .singleResult();
-        }
-
-        private boolean shouldAbortProcess(HistoricVariableInstance abortOnErrorVariable) {
-            return abortOnErrorVariable != null && Boolean.TRUE.equals(abortOnErrorVariable.getValue());
-        }
-
         private void abortProcess(CommandContext commandContext, String processId) {
             LOGGER.info(MessageFormat.format(Messages.PROCESS_WILL_BE_AUTO_ABORTED, processId));
             RuntimeService runtimeService = getRuntimeService(commandContext);
             runtimeService.deleteProcessInstance(processId, abortReason);
-        }
-
-        private HistoryService getHistoryService(CommandContext commandContext) {
-            return Context.getProcessEngineConfiguration(commandContext)
-                          .getHistoryService();
         }
 
         private RuntimeService getRuntimeService(CommandContext commandContext) {
