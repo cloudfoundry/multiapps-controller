@@ -24,15 +24,11 @@ public class ClientReleaser {
     }
 
     public void releaseClientFor(HistoryService historyService, String processInstanceId) {
-        String user = HistoricVariablesUtil.getCurrentUser(historyService, processInstanceId);
-        String spaceName = (String) HistoricVariablesUtil.getHistoricVarInstanceValue(historyService, processInstanceId,
-                                                                                      Constants.VAR_SPACE)
-                                                         .getValue();
-        String orgName = (String) HistoricVariablesUtil.getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_ORG)
-                                                       .getValue();
-        String spaceId = (String) HistoricVariablesUtil.getHistoricVarInstanceValue(historyService, processInstanceId,
-                                                                                    com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID)
-                                                       .getValue();
+        String user = HistoryUtil.getVariableValue(historyService, processInstanceId, Constants.VAR_USER);
+        String spaceName = HistoryUtil.getVariableValue(historyService, processInstanceId, Constants.VAR_SPACE);
+        String orgName = HistoryUtil.getVariableValue(historyService, processInstanceId, Constants.VAR_ORG);
+        String spaceId = HistoryUtil.getVariableValue(historyService, processInstanceId,
+                                                      com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID);
 
         try {
             clientProvider.releaseClient(user, orgName, spaceName);
