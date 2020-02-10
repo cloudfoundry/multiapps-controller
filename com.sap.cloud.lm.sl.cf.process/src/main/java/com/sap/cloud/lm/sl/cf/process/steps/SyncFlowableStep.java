@@ -38,7 +38,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     @Inject
     private StepLogger.Factory stepLoggerFactory;
     @Inject
-    private ProgressMessageService progressMessageService;
+    protected ProgressMessageService progressMessageService;
     @Inject
     @Named("fileService")
     protected FileService fileService;
