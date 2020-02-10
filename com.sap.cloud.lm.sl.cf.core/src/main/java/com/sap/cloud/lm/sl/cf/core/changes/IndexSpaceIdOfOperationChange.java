@@ -6,7 +6,7 @@ public class IndexSpaceIdOfOperationChange extends AbstractIndexSQLChange {
 
     @Override
     protected String getQuery() {
-        return "CREATE INDEX CONCURRENTLY IDX_OPERATION_SPACE_ID ON OPERATION(SPACE_ID)";
+        return "CREATE INDEX CONCURRENTLY IF NOT EXISTS IDX_OPERATION_SPACE_ID ON OPERATION(SPACE_ID)";
     }
 
     @Override

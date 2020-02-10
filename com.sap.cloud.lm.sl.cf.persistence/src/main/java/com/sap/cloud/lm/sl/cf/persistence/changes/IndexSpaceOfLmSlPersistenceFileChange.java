@@ -4,7 +4,7 @@ public class IndexSpaceOfLmSlPersistenceFileChange extends AbstractIndexSQLChang
 
     @Override
     protected String getQuery() {
-        return "CREATE INDEX CONCURRENTLY IDX_LM_SL_PERSISTENCE_SPACE ON LM_SL_PERSISTENCE_FILE(SPACE)";
+        return "CREATE INDEX CONCURRENTLY IF NOT EXISTS IDX_LM_SL_PERSISTENCE_SPACE ON LM_SL_PERSISTENCE_FILE(SPACE)";
     }
 
     @Override
