@@ -55,4 +55,7 @@ public class ApplicationMetadataBuilder {
         return JsonUtil.toJson(mtaServices);
     }
 
+    private ApplicationMetadataBuilder() {
+    }
+
 }

@@ -5,10 +5,8 @@ import static com.sap.cloud.lm.sl.cf.core.cf.metadata.util.MtaMetadataUtil.hasMt
 
 import java.text.MessageFormat;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -181,7 +179,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         if (application == null) {
             return;
         }
-        String owningMtaId = detectOwningMtaId(application, client);
+        String owningMtaId = detectOwningMtaId(application);
         if (StringUtils.isBlank(owningMtaId)) {
             getStepLogger().warn(Messages.APPLICATION_EXISTS_AS_STANDALONE, appName);
             return;
@@ -189,7 +187,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         throw new SLException(Messages.APPLICATION_ASSOCIATED_WITH_ANOTHER_MTA, appName, owningMtaId);
     }
 
-    private String detectOwningMtaId(CloudApplication application, CloudControllerClient client) {
+    private String detectOwningMtaId(CloudApplication application) {
         Metadata metadata = application.getV3Metadata();
         if (metadata != null) {
             return metadata.getLabels()
@@ -201,12 +199,6 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
                                        .getId();
         }
         return null;
-    }
-
-    private Map<String, CloudApplication> createExistingApplicationsMap(List<CloudApplication> existingApps) {
-        Map<String, CloudApplication> applicationsMap = new HashMap<>(existingApps.size());
-        existingApps.forEach(app -> applicationsMap.put(app.getName(), app));
-        return applicationsMap;
     }
 
     private Set<String> getApplicationNames(List<DeployedMtaApplication> deployedMtaApplications) {

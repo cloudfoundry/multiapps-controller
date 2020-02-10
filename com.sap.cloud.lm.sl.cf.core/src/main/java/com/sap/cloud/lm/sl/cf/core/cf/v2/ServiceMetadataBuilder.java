@@ -30,4 +30,7 @@ public class ServiceMetadataBuilder {
         return JsonUtil.toJson(mtaModule);
     }
 
+    private ServiceMetadataBuilder() {
+    }
+
 }
