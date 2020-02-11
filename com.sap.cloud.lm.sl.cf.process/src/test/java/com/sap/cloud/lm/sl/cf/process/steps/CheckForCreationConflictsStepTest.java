@@ -105,6 +105,10 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
             {
                 "check-for-creation-conflicts-step-input-9.json", null, false,
             },
+            // (9) Applications to deploy exist, not part of the deployed MTA because some entities have V3 Metadata, one application however has ENV metadata (mta ids match) -> should be OK:
+            {
+                "check-for-creation-conflicts-step-input-10.json", null, false
+            },
 // @formatter:on
         });
     }
@@ -144,7 +148,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private void prepareDeployedMta() {
         MtaMetadata mtaMetadata = ImmutableMtaMetadata.builder()
-                                                      .id("test")
+                                                      .id("com.sap.example.mta")
                                                       .build();
         DeployedMta deployedMta = ImmutableDeployedMta.builder()
                                                       .metadata(mtaMetadata)
