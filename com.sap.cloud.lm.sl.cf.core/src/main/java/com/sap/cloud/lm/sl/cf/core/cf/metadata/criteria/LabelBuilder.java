@@ -1,60 +1,21 @@
 package com.sap.cloud.lm.sl.cf.core.cf.metadata.criteria;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 public class LabelBuilder {
     private MtaMetadataCriteriaBuilder mtaMetadataCriteriaBuilder;
     private String label;
-    private String prefix;
 
     public LabelBuilder(MtaMetadataCriteriaBuilder mtaMetadataCriteriaBuilder, String label) {
         this.mtaMetadataCriteriaBuilder = mtaMetadataCriteriaBuilder;
         this.label = label;
     }
 
-    public LabelBuilder withPrefix(String prefix) {
-        MtaMetadataCriteriaValidator.validateLabelKeyPrefix(prefix);
-        this.prefix = prefix;
-        return this;
-    }
-
     public FinalizingBuilder exists() {
-        return completeQuery(buildLabel());
-    }
-
-    public FinalizingBuilder notExists() {
-        return completeQuery("!" + buildLabel());
+        return completeQuery(label);
     }
 
     public FinalizingBuilder haveValue(String value) {
         MtaMetadataCriteriaValidator.validateLabelValue(value);
-        return completeQuery(buildLabel() + "=" + value);
-    }
-
-    public FinalizingBuilder notHaveValue(String value) {
-        MtaMetadataCriteriaValidator.validateLabelValue(value);
-        return completeQuery(buildLabel() + "!=" + value);
-    }
-
-    public FinalizingBuilder valueIn(List<String> values) {
-        values.forEach(MtaMetadataCriteriaValidator::validateLabelValue);
-        String concatenatedValues = String.join(",", values);
-        return completeQuery(buildLabel() + " in (" + concatenatedValues + ")");
-    }
-
-    public FinalizingBuilder valueNotIn(List<String> values) {
-        values.forEach(MtaMetadataCriteriaValidator::validateLabelValue);
-        String concatenatedValues = String.join(",", values);
-        return completeQuery(buildLabel() + " notin (" + concatenatedValues + ")");
-    }
-
-    private String buildLabel() {
-        return Stream.of(prefix, label)
-                     .filter(Objects::nonNull)
-                     .collect(Collectors.joining(""));
+        return completeQuery(label + "=" + value);
     }
 
     private FinalizingBuilder completeQuery(String query) {
