@@ -13,21 +13,18 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
-import org.cloudfoundry.client.v3.Metadata;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadata;
-import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataLabels;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -192,30 +189,17 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         if (application == null) {
             return;
         }
-        String deployedMtaId = getDeployedMtaId(deployedMta);
-        String owningMtaId = detectOwningMtaId(application);
-        if (StringUtils.isBlank(owningMtaId)) {
+        MtaMetadata mtaMetadata = getMtaMetadata(application);
+        if (mtaMetadata == null) {
             getStepLogger().warn(Messages.APPLICATION_EXISTS_AS_STANDALONE, appName);
             return;
         }
+        String deployedMtaId = getDeployedMtaId(deployedMta);
+        String owningMtaId = mtaMetadata.getId();
         if (owningMtaId.equals(deployedMtaId)) {
             return;
         }
         throw new SLException(Messages.APPLICATION_ASSOCIATED_WITH_ANOTHER_MTA, appName, owningMtaId);
-    }
-
-    private String detectOwningMtaId(CloudApplication application) {
-        Metadata metadata = application.getV3Metadata();
-        if (metadata != null) {
-            return metadata.getLabels()
-                           .get(MtaMetadataLabels.MTA_ID);
-        }
-
-        if (hasEnvMtaMetadata(application)) {
-            return envMtaMetadataParser.parseMtaMetadata(application)
-                                       .getId();
-        }
-        return null;
     }
 
     private Set<String> getApplicationNames(List<DeployedMtaApplication> deployedMtaApplications) {
