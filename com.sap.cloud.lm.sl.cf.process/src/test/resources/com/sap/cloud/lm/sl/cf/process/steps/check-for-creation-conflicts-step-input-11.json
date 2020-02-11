@@ -1,0 +1,41 @@
+{
+  "servicesToDeploy": [
+    {
+      "name": "service-1"
+    }
+  ],
+  "appsToDeploy": [
+    {
+      "name": "application-1"
+    },
+    {
+      "name": "application-2"
+    }
+  ],
+  "existingApps": [
+    {
+      "name": "application-1",
+      "env": {
+        "MTA_METADATA": {
+          "id": "com.sap.example.mta",
+          "version": "1.0.0"
+        },
+        "MTA_SERVICES": [
+          "service-1"
+        ],
+        "MTA_MODULE_METADATA": {
+          "name": "application-1"
+        },
+        "MTA_MODULE_PROVIDED_DEPENDENCIES": []
+      }
+    },
+    {
+      "name": "application-2"
+    }
+  ],
+  "appsFromDeployedMta": [
+    {
+      "name": "application-2"
+    }
+  ]
+}
