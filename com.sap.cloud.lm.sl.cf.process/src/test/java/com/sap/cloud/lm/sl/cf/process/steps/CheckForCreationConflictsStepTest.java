@@ -71,27 +71,27 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 // @formatter:off
             // (0) Services to deploy don't exist; applications to deploy don't exist -> should be OK:
             {
-                "check-for-creation-conflicts-step-input-1.json", null, false,
+                "check-for-creation-conflicts-step-input-1.json", null, false
             },
             // (1) Services to deploy exist, not part of the deployed MTA, don't have bound applications -> should warn:
             {
-                "check-for-creation-conflicts-step-input-2.json", null, true,
+                "check-for-creation-conflicts-step-input-2.json", null, true
             },
             // (2) Services to deploy exist, not part of the deployed MTA, have bound applications -> expect exception:
             {
-                "check-for-creation-conflicts-step-input-3.json", null, true,
+                "check-for-creation-conflicts-step-input-3.json", null, true
             },
             // (3) Services to deploy exist, part of the deployed MTA, don't have bound applications -> should be OK:
             {
-                "check-for-creation-conflicts-step-input-4.json", null, false,
+                "check-for-creation-conflicts-step-input-4.json", null, false
             },
             // (4) Services to deploy exist, part of the deployed MTA, have bound applications -> should be OK:
             {
-                "check-for-creation-conflicts-step-input-5.json", null, false,
+                "check-for-creation-conflicts-step-input-5.json", null, false
             },
             // (5) Applications to deploy exist, not part of the deployed MTA, but stand-alone -> should warn:
             {
-                "check-for-creation-conflicts-step-input-6.json", null, true,
+                "check-for-creation-conflicts-step-input-6.json", null, true
             },
             // (6) Applications to deploy exist, part of the deployed MTA -> should be OK:
             {
@@ -99,16 +99,20 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
             },
             // (7) Services to deploy exist, not part of the deployed MTA, have bound applications from another MTA -> expect exception:
             {
-                "check-for-creation-conflicts-step-input-8.json", MessageFormat.format(Messages.SERVICE_ASSOCIATED_WITH_OTHER_MTAS, "service-1", "com.sap.example.mta-1, com.sap.example.mta-2"), false,
+                "check-for-creation-conflicts-step-input-8.json", MessageFormat.format(Messages.SERVICE_ASSOCIATED_WITH_OTHER_MTAS, "service-1", "com.sap.example.mta-1, com.sap.example.mta-2"), false
             },
             // (8) Services to deploy exist, not part of the deployed MTA, have bound applications from another MTA, but they do not claim to 'own' the service -> should be OK:
             {
-                "check-for-creation-conflicts-step-input-9.json", null, false,
+                "check-for-creation-conflicts-step-input-9.json", null, false
             },
             // (9) Applications to deploy exist, not part of the deployed MTA because some entities have V3 Metadata, one application however has ENV metadata (mta ids match) -> should be OK:
             {
                 "check-for-creation-conflicts-step-input-10.json", null, false
             },
+            // (10) Services to deploy exist, not part of the deployed MTA because some applications have V3 Metadata, the only bound application however has ENV metadata (mta ids match) -> should be OK:
+            {
+                "check-for-creation-conflicts-step-input-11.json", null, false
+            }
 // @formatter:on
         });
     }
