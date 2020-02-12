@@ -8,15 +8,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.flowable.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent;
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
-import com.sap.cloud.lm.sl.cf.core.persistence.service.HistoricOperationEventService;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
-import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.web.api.model.ErrorType;
@@ -28,14 +25,18 @@ public class OperationsHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsHelper.class);
 
+    private final OperationService operationService;
+    private final ProcessTypeToOperationMetadataMapper metadataMapper;
+    private final ProcessHelper processHelper;
+
     @Inject
-    private OperationService operationService;
-    @Inject
-    private ProcessTypeToOperationMetadataMapper metadataMapper;
-    @Inject
-    private FlowableFacade flowableFacade;
-    @Inject
-    private HistoricOperationEventService historicOperationEventService;
+    public OperationsHelper(OperationService operationService, ProcessTypeToOperationMetadataMapper metadataMapper,
+                            ProcessHelper processHelper) {
+        this.operationService = operationService;
+        this.metadataMapper = metadataMapper;
+        this.processHelper = processHelper;
+
+    }
 
     public String getProcessDefinitionKey(Operation operation) {
         return metadataMapper.getDiagramId(operation.getProcessType());
@@ -50,9 +51,7 @@ public class OperationsHelper {
     }
 
     private ErrorType getErrorType(Operation operation) {
-        List<HistoricOperationEvent> historicEvents = historicOperationEventService.createQuery()
-                                                                                   .processId(operation.getProcessId())
-                                                                                   .list();
+        List<HistoricOperationEvent> historicEvents = processHelper.getHistoricOperationEventByProcessId(operation.getProcessId());
         if (historicEvents.isEmpty()) {
             return null;
         }
@@ -83,7 +82,7 @@ public class OperationsHelper {
                                           .hasAcquiredLock(false)
                                           .state(state)
                                           .build();
-            this.operationService.update(operation.getProcessId(), operation);
+            operationService.update(operation.getProcessId(), operation);
         }
         return ImmutableOperation.copyOf(operation)
                                  .withState(state);
@@ -91,30 +90,21 @@ public class OperationsHelper {
 
     public Operation.State computeState(Operation operation) {
         LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, operation.getProcessType(), operation.getProcessId()));
-        return computeState(operation.getProcessId());
+        return computeProcessState(operation.getProcessId());
     }
 
-    public Operation.State computeState(String processId) {
-        ProcessInstance processInstance = flowableFacade.getProcessInstance(processId);
-        if (processInstance != null) {
-            return computeNonFinalState(processInstance);
+    public Operation.State computeProcessState(String processId) {
+        if (processHelper.isAborted(processId)) {
+            return Operation.State.ABORTED;
         }
-        return computeFinalState(processId);
-    }
-
-    private Operation.State computeNonFinalState(ProcessInstance processInstance) {
-        String processInstanceId = processInstance.getProcessInstanceId();
-        if (flowableFacade.isProcessInstanceAtReceiveTask(processInstanceId)) {
+        if (processHelper.isAtReceiveTask(processId)) {
             return Operation.State.ACTION_REQUIRED;
         }
-        if (flowableFacade.hasDeadLetterJobs(processInstanceId)) {
+        if (processHelper.isInErrorState(processId)) {
             return Operation.State.ERROR;
         }
-        return Operation.State.RUNNING;
-    }
-
-    private Operation.State computeFinalState(String processId) {
-        return flowableFacade.hasDeleteReason(processId) ? Operation.State.ABORTED : Operation.State.FINISHED;
+        return processHelper.findProcessInstanceById(processId)
+                            .isPresent() ? Operation.State.RUNNING : Operation.State.FINISHED;
     }
 
     public List<Operation> findOperations(List<Operation> operations, List<Operation.State> statusList) {
