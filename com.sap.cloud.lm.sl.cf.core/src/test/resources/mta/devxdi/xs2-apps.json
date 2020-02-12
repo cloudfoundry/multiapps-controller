@@ -5,7 +5,7 @@
       "annotations": {
         "mta_module": "{\"name\":\"di-core\"}",
         "mta_module_provided_dependencies": "[\"di-core-url\",\"di-core\"]",
-        "mta_bound_services": "[\"uaa\",\"di-core-hdi\"]"
+        "mta_bound_services": "[\"di-core-hdi\"]"
       },
       "labels": {
         "mta_id": "com.sap.devx.di",
@@ -66,7 +66,7 @@
       "annotations": {
         "mta_module": "{\"name\":\"di-builder\"}",
         "mta_module_provided_dependencies": "[\"di-builder\"]",
-        "mta_bound_services": "[\"uaa\"]"
+        "mta_bound_services": "[]"
       },
       "labels": {
         "mta_id": "com.sap.devx.di",
@@ -125,7 +125,7 @@
       "annotations": {
         "mta_module": "{\"name\":\"di-runner\"}",
         "mta_module_provided_dependencies": "[\"di-runner\"]",
-        "mta_bound_services": "[\"uaa\"]"
+        "mta_bound_services": "[]"
       },
       "labels": {
         "mta_id": "com.sap.devx.di",

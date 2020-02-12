@@ -5,7 +5,7 @@
       "annotations": {
         "mta_module": "{\"name\":\"webide\"}",
         "mta_module_provided_dependencies": "[\"webide\"]",
-        "mta_bound_services": "[\"uaa\"]"
+        "mta_bound_services": "[]"
       },
       "labels": {
         "mta_id": "com.sap.devx.webide",
