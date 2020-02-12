@@ -34,6 +34,7 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
 
         StepsUtil.setMtaModules(execution.getContext(), getMtaModules(execution.getContext()));
         StepsUtil.setPublishedEntries(execution.getContext(), Collections.emptyList());
+        StepsUtil.setServicesToCreate(execution.getContext(), Collections.emptyList());
         StepsUtil.setModulesToDeploy(execution.getContext(), Collections.emptyList());
         StepsUtil.setAppsToDeploy(execution.getContext(), Collections.emptyList());
         StepsUtil.setAllModulesToDeploy(execution.getContext(), Collections.emptyList());
