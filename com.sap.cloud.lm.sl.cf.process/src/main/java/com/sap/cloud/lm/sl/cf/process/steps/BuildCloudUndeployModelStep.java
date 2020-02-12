@@ -17,6 +17,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
@@ -55,6 +56,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         List<ConfigurationSubscription> subscriptionsToCreate = StepsUtil.getSubscriptionsToCreate(execution.getContext());
         Set<String> mtaModules = StepsUtil.getMtaModules(execution.getContext());
         List<String> appNames = StepsUtil.getAppsToDeploy(execution.getContext());
+        List<String> serviceNames = getServicesToCreate(execution.getContext());
 
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
@@ -70,7 +72,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, secureSerializer.toJson(subscriptionsToDelete));
 
         Set<String> servicesForApplications = getServicesForApplications(execution.getContext());
-        List<String> servicesToDelete = computeServicesToDelete(appsWithoutChange, deployedMta.getServices(), servicesForApplications);
+        List<String> servicesToDelete = computeServicesToDelete(appsWithoutChange, deployedMta.getServices(), servicesForApplications,
+                                                                serviceNames);
         getStepLogger().debug(Messages.SERVICES_TO_DELETE, servicesToDelete);
 
         List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(deployedAppsToUndeploy, execution.getControllerClient());
@@ -96,6 +99,13 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                    .stream()
                                    .map(Module::getName)
                                    .collect(Collectors.toList());
+    }
+
+    private List<String> getServicesToCreate(DelegateExecution context) {
+        return StepsUtil.getServicesToCreate(context)
+                        .stream()
+                        .map(CloudServiceExtended::getName)
+                        .collect(Collectors.toList());
     }
 
     private Set<String> getServicesForApplications(DelegateExecution context) {
@@ -144,20 +154,23 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     }
 
     private List<String> computeServicesToDelete(List<DeployedMtaApplication> appsWithoutChange,
-                                                 List<DeployedMtaService> deployedMtaServices, Set<String> servicesForApplications) {
+                                                 List<DeployedMtaService> deployedMtaServices, Set<String> servicesForApplications,
+                                                 List<String> servicesForCurrentDeployment) {
         return deployedMtaServices.stream()
                                   .map(DeployedMtaService::getName)
-                                  .filter(name -> shouldDeleteService(appsWithoutChange, name, servicesForApplications))
+                                  .filter(service -> shouldDeleteService(service, appsWithoutChange, servicesForApplications,
+                                                                         servicesForCurrentDeployment))
                                   .sorted()
                                   .collect(Collectors.toList());
     }
 
-    private boolean shouldDeleteService(List<DeployedMtaApplication> appsToKeep, String service, Set<String> servicesForApplications) {
+    private boolean shouldDeleteService(String service, List<DeployedMtaApplication> appsToKeep, Set<String> servicesForApplications,
+                                        List<String> servicesForCurrentDeployment) {
         return appsToKeep.stream()
                          .flatMap(module -> module.getBoundMtaServices()
                                                   .stream())
                          .noneMatch(service::equalsIgnoreCase)
-            && !servicesForApplications.contains(service);
+            && !servicesForApplications.contains(service) && !servicesForCurrentDeployment.contains(service);
     }
 
     private List<DeployedMtaApplication> computeModulesToUndeploy(DeployedMta deployedMta, Set<String> mtaModules,
