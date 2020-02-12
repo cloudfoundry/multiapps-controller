@@ -95,7 +95,6 @@ public class ApplicationCloudModelBuilder {
         ApplicationUrisCloudModelBuilder urisCloudModelBuilder = getApplicationUrisCloudModelBuilder(parametersList);
         List<String> uris = getApplicationUris(module);
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, parametersList);
-        List<ResourceAndResourceType> resourcesAndResourceTypes = getResourcesAndResourceTypesFromModule(module);
         return ImmutableCloudApplicationExtended.builder()
                                                 .name(NameUtil.getApplicationName(module))
                                                 .moduleName(module.getName())
@@ -117,16 +116,8 @@ public class ApplicationCloudModelBuilder {
                                                 .dockerInfo(parseParameters(parametersList, new DockerInfoParser()))
                                                 .attributesUpdateStrategy(getApplicationAttributesUpdateStrategy(parametersList))
                                                 .v3Metadata(ApplicationMetadataBuilder.build(deploymentDescriptor, module,
-                                                                                             resourcesAndResourceTypes))
+                                                                                             getApplicationServices(module)))
                                                 .build();
-    }
-
-    private List<ResourceAndResourceType> getResourcesAndResourceTypesFromModule(Module module) {
-        return module.getRequiredDependencies()
-                     .stream()
-                     .map(dependency -> getResourceWithType(dependency.getName()))
-                     .filter(Objects::nonNull)
-                     .collect(Collectors.toList());
     }
 
     private AttributeUpdateStrategy getApplicationAttributesUpdateStrategy(List<Map<String, Object>> parametersList) {

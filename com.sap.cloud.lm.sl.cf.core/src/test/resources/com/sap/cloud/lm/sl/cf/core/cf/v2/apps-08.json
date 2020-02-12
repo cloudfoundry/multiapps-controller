@@ -5,7 +5,7 @@
       "annotations": {
         "mta_module": "{\"name\":\"module-1\"}",
         "mta_module_provided_dependencies": "[\"module-1\"]",
-        "mta_bound_services": "[\"user-provided-renamed\",\"user-provided-service\",\"user-provider-resource-named-service\",\"random-service-renamed\",\"random-service\",\"random-resource-named-service\",\"existing-service-renamed\",\"existing-service\",\"existing-resource-named-service\"]"
+        "mta_bound_services": "[\"user-provided-renamed\",\"user-provided-service\",\"user-provider-resource-named-service\",\"random-service-renamed\",\"random-service\",\"random-resource-named-service\"]"
       },
       "labels": {
         "mta_id": "com.sap.sample.mta",

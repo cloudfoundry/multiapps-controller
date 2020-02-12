@@ -10,7 +10,6 @@ import org.cloudfoundry.client.v3.Metadata;
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataAnnotations;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataLabels;
-import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -19,10 +18,10 @@ import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 
 public class ApplicationMetadataBuilder {
 
-    public static Metadata build(DeploymentDescriptor deploymentDescriptor, Module module, List<ResourceAndResourceType> resources) {
+    public static Metadata build(DeploymentDescriptor deploymentDescriptor, Module module, List<String> services) {
         String mtaModuleAnnotation = buildMtaModuleAnnotation(module);
         String mtaModuleProvidedDependenciesAnnotation = buildMtaModuleProvidedDependenciesAnnotation(module);
-        String mtaServicesAnnotation = buildBoundMtaServicesAnnotation(resources);
+        String mtaServicesAnnotation = buildBoundMtaServicesAnnotation(services);
         return Metadata.builder()
                        .label(MtaMetadataLabels.MTA_ID, deploymentDescriptor.getId())
                        .label(MtaMetadataLabels.MTA_VERSION, deploymentDescriptor.getVersion())
@@ -47,12 +46,8 @@ public class ApplicationMetadataBuilder {
         return JsonUtil.toJson(providedDependencies);
     }
 
-    private static String buildBoundMtaServicesAnnotation(List<ResourceAndResourceType> resources) {
-        List<String> mtaServices = resources.stream()
-                                            .map(ResourceAndResourceType::getResource)
-                                            .map(NameUtil::getServiceName)
-                                            .collect(Collectors.toList());
-        return JsonUtil.toJson(mtaServices);
+    private static String buildBoundMtaServicesAnnotation(List<String> services) {
+        return JsonUtil.toJson(services);
     }
 
     private ApplicationMetadataBuilder() {
