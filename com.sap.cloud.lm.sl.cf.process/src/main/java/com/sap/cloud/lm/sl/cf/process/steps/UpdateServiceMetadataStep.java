@@ -2,12 +2,11 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudService;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -35,13 +34,10 @@ public class UpdateServiceMetadataStep extends ServiceStep {
     }
 
     private void updateServiceMetadata(CloudServiceExtended serviceToProcess, CloudControllerClient client) {
-        ImmutableCloudService serviceWithMetadata = ImmutableCloudService.copyOf(serviceToProcess);
-        CloudMetadata serviceMeta = client.getService(serviceWithMetadata.getName())
-                                          .getMetadata();
-        serviceWithMetadata = serviceWithMetadata.withMetadata(serviceMeta);
-        client.updateServiceMetadata(serviceWithMetadata.getMetadata()
-                                                        .getGuid(),
-                                     serviceWithMetadata.getV3Metadata());
+        UUID serviceGuid = client.getService(serviceToProcess.getName())
+                                 .getMetadata()
+                                 .getGuid();
+        client.updateServiceMetadata(serviceGuid, serviceToProcess.getV3Metadata());
     }
 
     @Override
