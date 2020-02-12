@@ -16,7 +16,6 @@ import javax.inject.Named;
 import org.flowable.common.engine.api.FlowableOptimisticLockingException;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.history.HistoricActivityInstance;
-import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.job.api.Job;
@@ -82,32 +81,11 @@ public class FlowableFacade {
         return (String) historicVariableInstance.getValue();
     }
 
-    public boolean hasDeleteReason(String processId) {
-        HistoricProcessInstance historicProcessInstance = processEngine.getHistoryService()
-                                                                       .createHistoricProcessInstanceQuery()
-                                                                       .processInstanceId(processId)
-                                                                       .singleResult();
-        return historicProcessInstance != null && processHierarchyHasDeleteReason(historicProcessInstance);
-    }
-
     public ProcessInstance getProcessInstance(String processId) {
         return processEngine.getRuntimeService()
                             .createProcessInstanceQuery()
                             .processInstanceId(processId)
                             .singleResult();
-    }
-
-    private boolean processHierarchyHasDeleteReason(HistoricProcessInstance historicProcessInstance) {
-        if (historicProcessInstance.getDeleteReason() != null) {
-            return true;
-        }
-
-        List<HistoricProcessInstance> children = processEngine.getHistoryService()
-                                                              .createHistoricProcessInstanceQuery()
-                                                              .superProcessInstanceId(historicProcessInstance.getId())
-                                                              .list();
-        return children.stream()
-                       .anyMatch(this::processHierarchyHasDeleteReason);
     }
 
     public boolean hasDeadLetterJobs(String processId) {
