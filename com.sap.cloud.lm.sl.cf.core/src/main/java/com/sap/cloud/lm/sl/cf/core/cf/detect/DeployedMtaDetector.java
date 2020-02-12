@@ -10,6 +10,8 @@ import javax.inject.Named;
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
+import org.cloudfoundry.client.v3.Metadata;
+import org.springframework.util.StringUtils;
 
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataLabels;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.criteria.MtaMetadataCriteria;
@@ -44,8 +46,19 @@ public class DeployedMtaDetector {
         List<CloudEntity> mtaMetadataEntities = mtaMetadataEntityCollectors.stream()
                                                                            .map(collector -> collector.collect(client, criteria))
                                                                            .flatMap(List::stream)
+                                                                           .filter(this::nonEmptyMtaId)
                                                                            .collect(Collectors.toList());
         return mtaMetadataEntityAggregator.aggregate(mtaMetadataEntities);
+    }
+
+    private boolean nonEmptyMtaId(CloudEntity entity) {
+        Metadata serviceMetadata = entity.getV3Metadata();
+        if (serviceMetadata == null || serviceMetadata.getLabels() == null) {
+            return false;
+        }
+        String mtaId = serviceMetadata.getLabels()
+                                      .get(MtaMetadataLabels.MTA_ID);
+        return !StringUtils.isEmpty(mtaId);
     }
 
     private List<DeployedMta> getDeployedMtasByEnv(CloudControllerClient client, List<DeployedMta> deployedMtas) {

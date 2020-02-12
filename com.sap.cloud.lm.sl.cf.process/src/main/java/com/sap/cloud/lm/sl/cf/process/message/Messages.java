@@ -119,6 +119,7 @@ public class Messages {
     public static final String ERROR_DELETING_IDLE_ROUTES = "Error deleting idle routes";
     public static final String ERROR_CREATING_SERVICE_BROKERS = "Error creating service brokers";
     public static final String ERROR_DELETING_SERVICE_BROKERS = "Error deleting service brokers";
+    public static final String ERROR_DETACHING_SERVICES_FROM_MTA = "Error detaching services from MTA";
     public static final String ERROR_UPDATING_SUBSCRIBERS = "Error updating subscribers";
     public static final String ERROR_RESTARTING_SUBSCRIBERS = "Error restarting subscribers";
     public static final String ERROR_DOWNLOADING_DEPLOYABLE_FROM_GIT = "Error downloading deployable from Git";
@@ -340,6 +341,9 @@ public class Messages {
     public static final String DELETING_SERVICE_BROKERS = "Deleting discontinued service brokers...";
     public static final String DELETED_SERVICE_BROKER = "Deleted service broker \"{0}\" for application \"{1}\"";
     public static final String SERVICE_BROKERS_DELETED = "Discontinued service brokers deleted";
+    public static final String DETACHING_SERVICES_FROM_MTA = "Detaching services from MTA...";
+    public static final String DETACHING_SERVICE_0_FROM_MTA = "Detaching service \"{0}\" from MTA...";
+    public static final String SERVICES_DETACHED_FROM_MTA = "Detached services from MTA";
     public static final String VALIDATING_SERVICES = "Validating services to create...";
     public static final String VALIDATING_APPLICATIONS = "Validating applications to deploy...";
     public static final String DOMAIN_ALREADY_EXISTS = "Domain \"{0}\" already exists";
