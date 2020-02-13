@@ -8,14 +8,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 import com.sap.cloud.lm.sl.mta.message.Messages;
 import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
@@ -24,27 +16,18 @@ import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.model.Resource;
 
-@XmlRootElement(name = "configuration-subscription")
-@XmlAccessorType(value = XmlAccessType.FIELD)
 public class ConfigurationSubscription implements AuditableConfiguration {
 
-    @XmlElement
     private long id;
-    @XmlElement(name = "mta-id")
     private String mtaId;
-    @XmlElement(name = "configuration-filter")
     private ConfigurationFilter filter;
-    @XmlElement(name = "space-id")
     private String spaceId;
-    @XmlElement(name = "app-name")
     private String appName;
-    @XmlElement(name = "module")
     private ModuleDto moduleDto;
-    @XmlElement(name = "resource")
     private ResourceDto resourceDto;
 
     public ConfigurationSubscription() {
-        // Required by JaxB
+        // Required by Jackson
     }
 
     public ConfigurationSubscription(long id, String mtaId, String spaceId, String appName, ConfigurationFilter filter, ModuleDto moduleDto,
@@ -100,20 +83,11 @@ public class ConfigurationSubscription implements AuditableConfiguration {
         throw new UnsupportedOperationException(format(Messages.UNSUPPORTED_VERSION, majorSchemaVersion));
     }
 
-    @XmlRootElement(name = "module")
-    @XmlAccessorType(XmlAccessType.FIELD)
     public static class ModuleDto {
 
-        @XmlElement
         private String name;
-        @XmlElement
-        @XmlJavaTypeAdapter(value = PropertiesAdapter.class)
         private Map<String, Object> properties;
-        @XmlElement(name = "provided-dependency")
-        @XmlElementWrapper(name = "provided-dependencies")
         private List<ProvidedDependencyDto> providedDependencies;
-        @XmlElement(name = "required-dependency")
-        @XmlElementWrapper(name = "required-dependencies")
         private List<RequiredDependencyDto> requiredDependencies;
 
         public ModuleDto() {
@@ -165,14 +139,9 @@ public class ConfigurationSubscription implements AuditableConfiguration {
 
     }
 
-    @XmlRootElement(name = "resource")
-    @XmlAccessorType(XmlAccessType.FIELD)
     public static class ResourceDto {
 
-        @XmlElement
         private String name;
-        @XmlElement
-        @XmlJavaTypeAdapter(value = PropertiesAdapter.class)
         private Map<String, Object> properties;
 
         public ResourceDto() {
@@ -198,16 +167,10 @@ public class ConfigurationSubscription implements AuditableConfiguration {
 
     }
 
-    @XmlRootElement(name = "required-dependency")
-    @XmlAccessorType(XmlAccessType.FIELD)
     public static class RequiredDependencyDto {
 
-        @XmlElement
         private String name;
-        @XmlElement
         private String list;
-        @XmlElement
-        @XmlJavaTypeAdapter(value = PropertiesAdapter.class)
         private Map<String, Object> properties;
 
         public RequiredDependencyDto() {
@@ -240,14 +203,9 @@ public class ConfigurationSubscription implements AuditableConfiguration {
 
     }
 
-    @XmlRootElement(name = "provided-dependency")
-    @XmlAccessorType(XmlAccessType.FIELD)
     public static class ProvidedDependencyDto {
 
-        @XmlElement
         private String name;
-        @XmlElement
-        @XmlJavaTypeAdapter(value = PropertiesAdapter.class)
         private Map<String, Object> properties;
 
         public ProvidedDependencyDto() {
