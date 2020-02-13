@@ -1,17 +1,17 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.function.Predicate;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.flowable.engine.runtime.ProcessInstance;
-
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent;
+import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.HistoricOperationEventService;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation.State;
 
 @Named
 public class ProcessHelper {
@@ -25,30 +25,53 @@ public class ProcessHelper {
         this.historicOperationEventService = historicOperationEventService;
     }
 
-    public boolean isAborted(String processId) {
-        List<HistoricOperationEvent> historicOperationEvents = getHistoricOperationEventByProcessId(processId);
-        return historicOperationEvents.stream()
-                                      .map(HistoricOperationEvent::getType)
-                                      .anyMatch(historicOperationEvent -> Objects.equals(historicOperationEvent,
-                                                                                         HistoricOperationEvent.EventType.ABORTED));
+    public Operation.State computeProcessState(String processId) {
+        if (isInReceiveTask(processId)) {
+            return State.ACTION_REQUIRED;
+        }
+
+        List<HistoricOperationEvent> operationEvents = getHistoricOperationEventByProcessId(processId);
+        if (isInAbortedState(operationEvents)) {
+            return State.ABORTED;
+        }
+
+        if (isInFinishedState(operationEvents)) {
+            return State.FINISHED;
+        }
+
+        if (isInErrorState(operationEvents)) {
+            return State.ERROR;
+        }
+
+        return State.RUNNING;
     }
 
-    public boolean isAtReceiveTask(String processId) {
+    private boolean isInReceiveTask(String processId) {
         return flowableFacade.isProcessInstanceAtReceiveTask(processId);
-    }
-
-    public boolean isInErrorState(String processId) {
-        return flowableFacade.hasDeadLetterJobs(processId);
-    }
-
-    public Optional<ProcessInstance> findProcessInstanceById(String processId) {
-        return Optional.ofNullable(flowableFacade.getProcessInstance(processId));
     }
 
     public List<HistoricOperationEvent> getHistoricOperationEventByProcessId(String processId) {
         return historicOperationEventService.createQuery()
                                             .processId(processId)
                                             .list();
+    }
+
+    private boolean isInAbortedState(List<HistoricOperationEvent> operationEvents) {
+        return isInState(operationEvents, event -> event.getType() == EventType.ABORTED);
+    }
+
+    private boolean isInFinishedState(List<HistoricOperationEvent> operationEvents) {
+        return isInState(operationEvents, event -> event.getType() == EventType.FINISHED);
+    }
+
+    private boolean isInErrorState(List<HistoricOperationEvent> operationEvents) {
+        return isInState(operationEvents, event -> event.getType() == EventType.FAILED_BY_CONTENT_ERROR
+            || event.getType() == EventType.FAILED_BY_INFRASTRUCTURE_ERROR);
+    }
+
+    private boolean isInState(List<HistoricOperationEvent> operationEvents, Predicate<? super HistoricOperationEvent> statePredicate) {
+        return operationEvents.stream()
+                              .anyMatch(statePredicate);
     }
 
 }

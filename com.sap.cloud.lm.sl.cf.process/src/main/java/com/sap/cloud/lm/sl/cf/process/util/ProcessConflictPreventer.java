@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.util;
 
 import static java.text.MessageFormat.format;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,9 +29,7 @@ public class ProcessConflictPreventer {
         LOGGER.info(format(Messages.ACQUIRING_LOCK, processId, mtaId));
         
         validateNoConflictingOperationsExist(mtaId, spaceId);
-        Operation currentOperation = operationService.createQuery()
-                                                     .processId(processId)
-                                                     .singleResult();
+        Operation currentOperation = getOperationByProcessId(processId);
         Operation currentOperationWithAcquiredLock = ImmutableOperation.builder()
                                                                        .from(currentOperation)
                                                                        .mtaId(mtaId)
@@ -67,4 +66,21 @@ public class ProcessConflictPreventer {
                                .list();
     }
 
+    public void releaseLock(String processInstanceId) {
+        Operation operation = getOperationByProcessId(processInstanceId);
+        LOGGER.info(MessageFormat.format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(),
+                                         operation.getMtaId(), operation.getSpaceId()));
+        operation = ImmutableOperation.builder()
+                                      .from(operation)
+                                      .hasAcquiredLock(false)
+                                      .build();
+        operationService.update(operation.getProcessId(), operation);
+        LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
+    }
+
+    private Operation getOperationByProcessId(String processId) {
+        return operationService.createQuery()
+                               .processId(processId)
+                               .singleResult();
+    }
 }
