@@ -22,10 +22,10 @@ import com.sap.cloud.lm.sl.cf.client.TokenProvider;
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.TokenProviderFactory;
-import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
+import com.sap.cloud.lm.sl.cf.core.security.token.parsers.TokenParserChain;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
-import com.sap.cloud.lm.sl.cf.web.message.Messages;
+import com.sap.cloud.lm.sl.cf.web.Messages;
 
 @Named("customAuthenticationProvider")
 public class CustomAuthenticationProvider implements AuthenticationProvider {

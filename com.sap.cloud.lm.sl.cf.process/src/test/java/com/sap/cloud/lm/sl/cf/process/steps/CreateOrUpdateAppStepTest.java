@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
@@ -28,13 +27,13 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
@@ -157,14 +156,14 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
     private void prepareClient() {
         for (CloudApplicationExtended cloudApplicationExtended : stepInput.applications) {
             Mockito.doReturn(ImmutableCloudApplication.builder()
-                    .metadata(ImmutableCloudMetadata.builder()
-                            .guid(UUID.randomUUID())
-                            .build())
-                    .build())
-                    .when(client)
-                    .getApplication(cloudApplicationExtended.getName());
+                                                      .metadata(ImmutableCloudMetadata.builder()
+                                                                                      .guid(UUID.randomUUID())
+                                                                                      .build())
+                                                      .build())
+                   .when(client)
+                   .getApplication(cloudApplicationExtended.getName());
         }
-        
+
         for (SimpleService simpleService : stepInput.services) {
             CloudServiceExtended service = simpleService.toCloudServiceExtended();
             if (!service.isOptional()) {
@@ -185,7 +184,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
         for (Map.Entry<String, List<CloudServiceKey>> entry : stepInput.existingServiceKeys.entrySet()) {
             List<CloudServiceKey> serviceKeys = entry.getValue();
             Mockito.when(client.getServiceKeys(eq(entry.getKey())))
-                   .thenReturn(ListUtil.upcast(serviceKeys));
+                   .thenReturn(serviceKeys);
         }
     }
 

@@ -33,11 +33,11 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper;
-import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper.CloudComponents;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
+import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 

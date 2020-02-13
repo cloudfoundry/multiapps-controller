@@ -5,7 +5,7 @@ import java.text.MessageFormat;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {

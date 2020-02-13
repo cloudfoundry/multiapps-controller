@@ -6,7 +6,7 @@ import java.util.Map;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 

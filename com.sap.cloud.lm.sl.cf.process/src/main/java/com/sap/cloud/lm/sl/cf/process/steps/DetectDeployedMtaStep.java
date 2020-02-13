@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaDetector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("detectDeployedMtaStep")

@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ChangedApplicationActionCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.UnchangedApplicationActionCalculator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
 
 @Named("determineDesiredStateAchievingActionsStep")

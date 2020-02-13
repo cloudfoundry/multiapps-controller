@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("deleteSubscriptionsStep")

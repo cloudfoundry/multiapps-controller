@@ -16,8 +16,8 @@ import java.util.List;
 import org.slf4j.Logger;
 
 import com.sap.cloud.lm.sl.cf.persistence.Constants;
+import com.sap.cloud.lm.sl.cf.persistence.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.dialects.DataSourceDialect;
-import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.query.SqlQuery;

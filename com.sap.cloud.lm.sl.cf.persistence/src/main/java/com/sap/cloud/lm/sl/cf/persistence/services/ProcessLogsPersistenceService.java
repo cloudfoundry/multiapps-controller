@@ -18,7 +18,7 @@ import javax.inject.Named;
 import org.apache.commons.io.IOUtils;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
-import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
+import com.sap.cloud.lm.sl.cf.persistence.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileInfo;

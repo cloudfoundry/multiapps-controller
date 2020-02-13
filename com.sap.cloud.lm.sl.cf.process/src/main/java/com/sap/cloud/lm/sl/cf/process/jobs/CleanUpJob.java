@@ -18,7 +18,7 @@ import org.slf4j.MarkerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SafeExecutor;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
 @DisallowConcurrentExecution
 public class CleanUpJob implements Job {

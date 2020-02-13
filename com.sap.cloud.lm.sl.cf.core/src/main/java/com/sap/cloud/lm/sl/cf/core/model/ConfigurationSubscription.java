@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.lm.sl.mta.message.Messages;
+import com.sap.cloud.lm.sl.mta.Messages;
 import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
 import com.sap.cloud.lm.sl.mta.model.Module;

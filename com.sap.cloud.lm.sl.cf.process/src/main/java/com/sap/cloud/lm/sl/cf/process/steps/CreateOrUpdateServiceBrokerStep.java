@@ -21,9 +21,9 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper;
-import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper.CloudComponents;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
+import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 

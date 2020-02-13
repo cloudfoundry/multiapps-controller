@@ -213,7 +213,7 @@ public class ApplicationCloudModelBuilder {
 
     protected String getInvalidServiceBindingConfigTypeErrorMessage(String moduleName, String dependencyName, Object bindingParameters) {
         String prefix = ValidatorUtil.getPrefixedName(moduleName, dependencyName);
-        return MessageFormat.format(com.sap.cloud.lm.sl.mta.message.Messages.INVALID_TYPE_FOR_KEY,
+        return MessageFormat.format(com.sap.cloud.lm.sl.mta.Messages.INVALID_TYPE_FOR_KEY,
                                     ValidatorUtil.getPrefixedName(prefix, SupportedParameters.SERVICE_BINDING_CONFIG),
                                     Map.class.getSimpleName(), bindingParameters.getClass()
                                                                                 .getSimpleName());

@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
-import com.sap.cloud.lm.sl.cf.web.message.Messages;
+import com.sap.cloud.lm.sl.cf.web.Messages;
 import com.sap.cloud.lm.sl.cf.web.resources.ConfigurationEntriesResource;
 
 @Named

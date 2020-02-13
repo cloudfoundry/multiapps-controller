@@ -14,7 +14,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
 @Named("deleteApplicationStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

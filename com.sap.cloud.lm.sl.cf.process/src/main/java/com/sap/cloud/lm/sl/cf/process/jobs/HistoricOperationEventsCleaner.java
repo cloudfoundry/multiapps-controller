@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 
 import com.sap.cloud.lm.sl.cf.core.persistence.service.HistoricOperationEventService;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
 @Named
 @Order(20)

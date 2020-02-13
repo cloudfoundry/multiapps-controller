@@ -15,11 +15,11 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;

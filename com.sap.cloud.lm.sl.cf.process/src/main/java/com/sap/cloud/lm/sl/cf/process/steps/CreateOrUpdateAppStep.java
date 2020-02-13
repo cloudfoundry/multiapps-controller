@@ -37,7 +37,7 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFac
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationAttributeUpdater.UpdateState;
 import com.sap.cloud.lm.sl.cf.process.util.DiskQuotaApplicationAttributeUpdater;

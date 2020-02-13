@@ -12,8 +12,8 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
-import com.sap.cloud.lm.sl.cf.core.cf.service.TokenService;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
+import com.sap.cloud.lm.sl.cf.core.security.token.TokenService;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Named

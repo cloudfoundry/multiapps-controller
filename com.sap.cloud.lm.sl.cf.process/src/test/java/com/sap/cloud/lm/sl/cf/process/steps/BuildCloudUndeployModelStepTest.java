@@ -37,7 +37,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQu
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
@@ -238,7 +237,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         StepsUtil.setAllModulesToDeploy(context, modulesToDeploy);
         List<String> appNamesToDeploy = new ArrayList<>();
         appsToDeploy.forEach(app -> appNamesToDeploy.add(app.getName()));
-        StepsUtil.setAppsToDeploy(context, ListUtil.upcastUnmodifiable(appNamesToDeploy));
+        StepsUtil.setAppsToDeploy(context, appNamesToDeploy);
         StepsUtil.setSubscriptionsToCreate(context, subscriptionsToCreate);
         StepsUtil.setSpaceId(context, SPACE_ID);
         StepsUtil.setMtaModules(context, input.mtaModules);

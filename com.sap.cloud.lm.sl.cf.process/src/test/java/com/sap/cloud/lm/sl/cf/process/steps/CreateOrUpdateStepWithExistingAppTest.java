@@ -38,7 +38,6 @@ import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
@@ -249,7 +248,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         for (String serviceName : input.existingServiceKeys.keySet()) {
             List<CloudServiceKey> serviceKeys = input.existingServiceKeys.get(serviceName);
             Mockito.when(client.getServiceKeys(eq(serviceName)))
-                   .thenReturn(ListUtil.upcast(serviceKeys));
+                   .thenReturn(serviceKeys);
         }
     }
 

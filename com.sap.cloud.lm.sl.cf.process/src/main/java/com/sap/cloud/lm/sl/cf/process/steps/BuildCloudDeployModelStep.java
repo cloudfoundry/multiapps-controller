@@ -33,7 +33,7 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFac
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;

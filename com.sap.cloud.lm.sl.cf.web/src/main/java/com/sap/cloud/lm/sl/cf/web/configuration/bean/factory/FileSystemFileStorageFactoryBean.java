@@ -12,8 +12,8 @@ import org.springframework.cloud.CloudException;
 import org.springframework.cloud.CloudFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.services.FileSystemFileStorage;
+import com.sap.cloud.lm.sl.cf.web.Messages;
 import com.sap.cloud.lm.sl.cf.web.configuration.service.FileSystemServiceInfo;
-import com.sap.cloud.lm.sl.cf.web.message.Messages;
 
 public class FileSystemFileStorageFactoryBean implements FactoryBean<FileSystemFileStorage>, InitializingBean {
 

@@ -10,7 +10,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.SchemaVersionDetector;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -33,7 +33,7 @@ public class DetectMtaSchemaVersionStep extends SyncFlowableStep {
         SchemaVersionDetector detector = detectorSupplier.get();
         Version schemaVersion = detector.detect(deploymentDescriptor, extensionDescriptors);
         if (!SupportedVersions.isSupported(schemaVersion)) {
-            throw new SLException(com.sap.cloud.lm.sl.mta.message.Messages.UNSUPPORTED_VERSION, schemaVersion);
+            throw new SLException(com.sap.cloud.lm.sl.mta.Messages.UNSUPPORTED_VERSION, schemaVersion);
         }
         if (!SupportedVersions.isFullySupported(schemaVersion)) {
             getStepLogger().warn(Messages.UNSUPPORTED_MINOR_VERSION, schemaVersion);

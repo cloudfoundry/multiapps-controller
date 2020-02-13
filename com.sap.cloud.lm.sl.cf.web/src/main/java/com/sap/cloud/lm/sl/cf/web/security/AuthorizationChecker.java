@@ -16,10 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CachedMap;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;

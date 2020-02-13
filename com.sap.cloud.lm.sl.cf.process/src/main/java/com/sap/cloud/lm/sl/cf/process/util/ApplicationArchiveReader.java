@@ -7,7 +7,7 @@ import java.util.zip.ZipInputStream;
 import javax.inject.Named;
 
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -39,7 +39,7 @@ public class ApplicationArchiveReader {
         String moduleFileName = applicationArchiveContext.getModuleFileName();
         ZipEntry zipEntry = getNextEntryByName(moduleFileName, applicationArchiveContext);
         if (zipEntry == null) {
-            throw new ContentException(com.sap.cloud.lm.sl.mta.message.Messages.CANNOT_FIND_ARCHIVE_ENTRY, moduleFileName);
+            throw new ContentException(com.sap.cloud.lm.sl.mta.Messages.CANNOT_FIND_ARCHIVE_ENTRY, moduleFileName);
         }
         return zipEntry;
     }

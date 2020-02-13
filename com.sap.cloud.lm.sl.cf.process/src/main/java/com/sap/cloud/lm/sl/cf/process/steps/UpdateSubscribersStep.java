@@ -50,8 +50,8 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.helpers.VisitableObject;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -206,7 +206,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         HandlerFactory handlerFactory = new HandlerFactory(MAJOR_SCHEMA_VERSION);
 
         DeploymentDescriptor dummyDescriptor = buildDummyDescriptor(subscription, handlerFactory);
-        getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.DEPLOYMENT_DESCRIPTOR, toJson(dummyDescriptor, true));
+        getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.Messages.DEPLOYMENT_DESCRIPTOR, toJson(dummyDescriptor, true));
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(configurationEntryService,
                                                                                                      new DummyConfigurationFilterParser(subscription.getFilter()),

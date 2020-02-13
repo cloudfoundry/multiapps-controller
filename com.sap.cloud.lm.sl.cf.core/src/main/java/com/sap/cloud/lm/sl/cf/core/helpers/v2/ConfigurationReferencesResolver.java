@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.helpers.expander.PropertiesExpander;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;

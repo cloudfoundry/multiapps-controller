@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SpecialResourceTypesRequiredParametersUtil;
@@ -132,7 +132,7 @@ public class ServicesCloudModelBuilder {
     }
 
     protected String getInvalidServiceConfigTypeErrorMessage(String serviceName, Object serviceParameters) {
-        return MessageFormat.format(com.sap.cloud.lm.sl.mta.message.Messages.INVALID_TYPE_FOR_KEY,
+        return MessageFormat.format(com.sap.cloud.lm.sl.mta.Messages.INVALID_TYPE_FOR_KEY,
                                     ValidatorUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_CONFIG),
                                     Map.class.getSimpleName(), serviceParameters.getClass()
                                                                                 .getSimpleName());

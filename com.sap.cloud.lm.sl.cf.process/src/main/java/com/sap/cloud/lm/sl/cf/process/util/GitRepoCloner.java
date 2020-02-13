@@ -23,7 +23,7 @@ import org.eclipse.jgit.util.SystemReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ProcessGitSourceStep;
 import com.sap.cloud.lm.sl.common.SLException;
 

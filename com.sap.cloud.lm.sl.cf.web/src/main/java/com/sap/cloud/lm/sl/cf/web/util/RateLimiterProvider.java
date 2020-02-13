@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.web.helpers;
+package com.sap.cloud.lm.sl.cf.web.util;
 
 import java.time.Duration;
 import java.util.Map;

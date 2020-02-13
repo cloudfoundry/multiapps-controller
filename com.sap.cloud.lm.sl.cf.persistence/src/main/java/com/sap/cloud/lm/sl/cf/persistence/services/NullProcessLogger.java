@@ -5,7 +5,7 @@ import java.text.MessageFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
+import com.sap.cloud.lm.sl.cf.persistence.Messages;
 
 public class NullProcessLogger extends ProcessLogger {
 

@@ -10,7 +10,7 @@ import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
 @Named
 public class ServiceOperationExecutor {

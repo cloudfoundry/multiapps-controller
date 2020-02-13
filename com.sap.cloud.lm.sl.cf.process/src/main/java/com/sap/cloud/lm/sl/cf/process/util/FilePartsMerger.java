@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.files;
+package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.io.Closeable;
 import java.io.File;

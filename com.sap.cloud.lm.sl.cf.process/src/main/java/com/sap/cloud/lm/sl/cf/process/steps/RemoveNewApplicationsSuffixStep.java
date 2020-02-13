@@ -4,7 +4,8 @@ import com.sap.cloud.lm.sl.cf.core.model.BlueGreenApplicationNameSuffix;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;

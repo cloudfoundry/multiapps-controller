@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.sap.cloud.lm.sl.cf.web.message.Messages;
+import com.sap.cloud.lm.sl.cf.web.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.cf.web.util.ServletUtil;
 

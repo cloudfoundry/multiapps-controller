@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.cf.auth;
+package com.sap.cloud.lm.sl.cf.core.cf;
 
 import java.net.URL;
 import java.text.MessageFormat;
@@ -10,8 +10,8 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.client.util.TokenProperties;
-import com.sap.cloud.lm.sl.cf.core.cf.service.TokenService;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
+import com.sap.cloud.lm.sl.cf.core.security.token.TokenService;
 
 public class OAuthClientExtended extends OAuthClient {
 

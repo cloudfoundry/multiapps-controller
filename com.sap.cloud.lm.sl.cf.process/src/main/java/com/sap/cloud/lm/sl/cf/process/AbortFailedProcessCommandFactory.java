@@ -13,7 +13,6 @@ import org.flowable.job.service.impl.persistence.entity.JobEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.HistoryUtil;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 

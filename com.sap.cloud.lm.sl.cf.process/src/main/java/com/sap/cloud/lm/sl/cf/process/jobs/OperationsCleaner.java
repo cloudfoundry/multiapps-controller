@@ -16,10 +16,10 @@ import org.springframework.core.annotation.Order;
 
 import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.AbortProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.ProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.ProcessActionRegistry;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 

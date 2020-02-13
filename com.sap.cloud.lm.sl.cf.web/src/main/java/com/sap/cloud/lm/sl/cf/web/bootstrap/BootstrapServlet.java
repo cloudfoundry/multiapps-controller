@@ -29,7 +29,7 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.changes.AsyncChange;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.web.message.Messages;
+import com.sap.cloud.lm.sl.cf.web.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 
 public class BootstrapServlet extends HttpServlet {
@@ -77,8 +77,8 @@ public class BootstrapServlet extends HttpServlet {
 
     private void initializeApplicationConfiguration() {
         configuration.load();
-        LOGGER.info(format(com.sap.cloud.lm.sl.cf.core.message.Messages.ORG_NAME, configuration.getOrgName()));
-        LOGGER.info(format(com.sap.cloud.lm.sl.cf.core.message.Messages.GLOBAL_CONFIG_SPACE, configuration.getGlobalConfigSpace()));
+        LOGGER.info(format(com.sap.cloud.lm.sl.cf.core.Messages.ORG_NAME, configuration.getOrgName()));
+        LOGGER.info(format(com.sap.cloud.lm.sl.cf.core.Messages.GLOBAL_CONFIG_SPACE, configuration.getGlobalConfigSpace()));
     }
 
     protected void initializeFileService() {

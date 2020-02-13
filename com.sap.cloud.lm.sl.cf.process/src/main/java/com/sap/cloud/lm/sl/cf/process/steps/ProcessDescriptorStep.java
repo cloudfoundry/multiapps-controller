@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ImmutableMtaDescriptorPropertiesResolve
 import com.sap.cloud.lm.sl.cf.core.model.MtaDescriptorPropertiesResolverContext;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 

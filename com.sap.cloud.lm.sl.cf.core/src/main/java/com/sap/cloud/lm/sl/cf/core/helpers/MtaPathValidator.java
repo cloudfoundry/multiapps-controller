@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import org.apache.commons.io.FilenameUtils;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 
 public class MtaPathValidator {

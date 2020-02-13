@@ -14,7 +14,7 @@ import javax.persistence.Persistence;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ProgressMessageQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService.ProgressMessageMapper;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;

@@ -17,7 +17,7 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.changes.liquibase.AbstractDataTransformationChange;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 

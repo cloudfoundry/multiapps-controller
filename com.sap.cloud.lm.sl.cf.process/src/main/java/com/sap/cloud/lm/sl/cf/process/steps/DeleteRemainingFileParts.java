@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
 @Named("deleteRemainingFileParts")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

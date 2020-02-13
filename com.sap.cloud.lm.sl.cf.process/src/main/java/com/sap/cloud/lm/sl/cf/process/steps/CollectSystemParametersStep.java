@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.SystemParameters;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ReadOnlyParametersChecker;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;

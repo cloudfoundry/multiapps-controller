@@ -72,7 +72,7 @@ public class ServiceKeysCloudModelBuilder {
     }
 
     protected String getInvalidServiceKeysErrorMessage(String serviceName, Object serviceConfig) {
-        return MessageFormat.format(com.sap.cloud.lm.sl.mta.message.Messages.INVALID_TYPE_FOR_KEY,
+        return MessageFormat.format(com.sap.cloud.lm.sl.mta.Messages.INVALID_TYPE_FOR_KEY,
                                     ValidatorUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_KEYS), Map.class.getSimpleName(),
                                     serviceConfig.getClass()
                                                  .getSimpleName());

@@ -11,12 +11,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.helpers.ApplicationColorDetector;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationColorDetector;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -104,10 +104,10 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
 
     @Test
     public void testExceptionIsThrown() {
-        when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(new SLException(com.sap.cloud.lm.sl.cf.process.message.Messages.ERROR_RENAMING_APPLICATIONS));
+        when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(new SLException(com.sap.cloud.lm.sl.cf.process.Messages.ERROR_RENAMING_APPLICATIONS));
         when(applicationColorDetector.detectLiveApplicationColor(any(), any())).thenReturn(ApplicationColor.GREEN);
         Assertions.assertThrows(SLException.class, () -> step.execute(context),
-                                com.sap.cloud.lm.sl.cf.process.message.Messages.ERROR_RENAMING_APPLICATIONS);
+                                com.sap.cloud.lm.sl.cf.process.Messages.ERROR_RENAMING_APPLICATIONS);
     }
 
     @Override

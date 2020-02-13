@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution.ExecutionState;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;

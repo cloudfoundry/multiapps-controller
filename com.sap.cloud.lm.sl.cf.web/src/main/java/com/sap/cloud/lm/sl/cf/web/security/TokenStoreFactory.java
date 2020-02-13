@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 
-import com.sap.cloud.lm.sl.cf.web.message.Messages;
+import com.sap.cloud.lm.sl.cf.web.Messages;
 
 public class TokenStoreFactory {
 

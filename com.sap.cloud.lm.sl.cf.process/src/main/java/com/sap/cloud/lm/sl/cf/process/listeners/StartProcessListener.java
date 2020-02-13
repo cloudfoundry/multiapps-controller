@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;

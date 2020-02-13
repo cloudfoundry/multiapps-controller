@@ -2,8 +2,8 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import java.util.List;
 
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorMerger;

@@ -22,10 +22,10 @@ import com.sap.cloud.lm.sl.cf.core.util.LoggingUtil;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
-import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper;
-import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper.CloudComponents;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 
 import com.sap.cloud.lm.sl.cf.core.security.data.termination.DataTerminationService;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
 @Named
 @Order(10)
