@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
+import com.sap.cloud.lm.sl.cf.persistence.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
 
 import liquibase.change.custom.CustomTaskChange;

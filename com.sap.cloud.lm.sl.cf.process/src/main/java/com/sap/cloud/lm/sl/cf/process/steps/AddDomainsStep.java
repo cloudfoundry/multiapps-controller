@@ -11,7 +11,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
 @Named("addDomainsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

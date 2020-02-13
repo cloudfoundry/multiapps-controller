@@ -24,7 +24,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -60,13 +60,13 @@ public class MtaArchiveBuilderTest {
              // (3) testNotNormalizedModulePath
              {
                 "src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/mta-dir5",
-                MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.PATH_SHOULD_BE_NORMALIZED, "../web/")
+                MessageFormat.format(com.sap.cloud.lm.sl.cf.core.Messages.PATH_SHOULD_BE_NORMALIZED, "../web/")
                 
              },
              // (4) testNotNormalizedResourceConfigPath
              { 
                 "src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/mta-dir6",
-                MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.PATH_SHOULD_BE_NORMALIZED, "../xs-security.json")
+                MessageFormat.format(com.sap.cloud.lm.sl.cf.core.Messages.PATH_SHOULD_BE_NORMALIZED, "../xs-security.json")
              },
              // (5) testNotExistingModulePath
              {
@@ -83,12 +83,12 @@ public class MtaArchiveBuilderTest {
              // (7) testWindowsPathSeparatorsInPathsIsInvalid
              {
                 "src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/mta-dir9",
-                MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.PATH_MUST_NOT_CONTAIN_WINDOWS_SEPARATORS, "web\\")
+                MessageFormat.format(com.sap.cloud.lm.sl.cf.core.Messages.PATH_MUST_NOT_CONTAIN_WINDOWS_SEPARATORS, "web\\")
              },
              // (8) testAbsolutePathIsInvalid
              { isWindows() ? "src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/mta-dir11/" :
                 "src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/mta-dir10",
-               MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.PATH_SHOULD_NOT_BE_ABSOLUTE, isWindows() ? "C:/web" : "/web/asd")
+               MessageFormat.format(com.sap.cloud.lm.sl.cf.core.Messages.PATH_SHOULD_NOT_BE_ABSOLUTE, isWindows() ? "C:/web" : "/web/asd")
              }, 
              // (9) working scenario
              { 

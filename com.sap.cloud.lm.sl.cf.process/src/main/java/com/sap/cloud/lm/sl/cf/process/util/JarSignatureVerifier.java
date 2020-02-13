@@ -26,7 +26,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import com.google.common.base.Splitter;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Named

@@ -4,7 +4,7 @@ import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 
 public class UnchangedApplicationActionCalculator implements ActionCalculator {
 

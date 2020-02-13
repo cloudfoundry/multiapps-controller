@@ -9,6 +9,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
+import com.sap.cloud.lm.sl.cf.core.security.token.parsers.DummyTokenParser;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 public class DummyTokenParserTest {

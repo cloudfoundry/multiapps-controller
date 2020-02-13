@@ -8,7 +8,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
@@ -76,7 +76,7 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
             case UPDATE:
                 return MessageFormat.format(Messages.SERVICE_UPDATED, service.getName());
             default:
-                throw new IllegalStateException(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                throw new IllegalStateException(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
                                                                      type));
         }
     }
@@ -101,7 +101,7 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
                 return MessageFormat.format(Messages.ERROR_UPDATING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
                                             operation.getDescription());
             default:
-                throw new IllegalStateException(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                throw new IllegalStateException(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
                                                                      operation.getType()));
         }
     }
@@ -115,7 +115,7 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
                 return MessageFormat.format(Messages.ERROR_UPDATING_OPTIONAL_SERVICE, service.getName(), service.getLabel(),
                                             service.getPlan(), operation.getDescription());
             default:
-                throw new IllegalStateException(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
+                throw new IllegalStateException(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.Messages.ILLEGAL_SERVICE_OPERATION_TYPE,
                                                                      operation.getType()));
         }
     }

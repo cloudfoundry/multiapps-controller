@@ -13,7 +13,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.util.Assert;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public abstract class AbstractServiceGetter extends CustomControllerClient {

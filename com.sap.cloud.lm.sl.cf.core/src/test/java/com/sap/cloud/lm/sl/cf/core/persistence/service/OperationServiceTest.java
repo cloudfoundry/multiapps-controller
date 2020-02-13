@@ -16,7 +16,7 @@ import javax.persistence.Persistence;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService.OperationMapper;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;

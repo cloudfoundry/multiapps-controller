@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.cf.service;
+package com.sap.cloud.lm.sl.cf.core.security.token;
 
 import java.util.Collection;
 

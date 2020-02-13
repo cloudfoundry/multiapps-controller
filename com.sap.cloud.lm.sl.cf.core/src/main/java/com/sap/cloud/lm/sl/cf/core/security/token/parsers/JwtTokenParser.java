@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.security.token;
+package com.sap.cloud.lm.sl.cf.core.security.token.parsers;
 
 import java.util.Map;
 

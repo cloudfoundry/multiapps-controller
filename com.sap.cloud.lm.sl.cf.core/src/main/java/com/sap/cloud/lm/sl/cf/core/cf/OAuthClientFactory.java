@@ -8,8 +8,7 @@ import org.cloudfoundry.client.lib.util.RestUtil;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.client.uaa.UAAClient;
-import com.sap.cloud.lm.sl.cf.core.cf.auth.OAuthClientExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.service.TokenService;
+import com.sap.cloud.lm.sl.cf.core.security.token.TokenService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 @Named

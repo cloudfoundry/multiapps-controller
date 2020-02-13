@@ -30,7 +30,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaService;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Named("checkForCreationConflictsStep")

@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.process.helpers;
+package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.util.Comparator;
 import java.util.List;
@@ -9,7 +9,7 @@ import javax.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;

@@ -11,11 +11,11 @@ import javax.persistence.NoResultException;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.filters.ContentFilter;
 import com.sap.cloud.lm.sl.cf.core.filters.TargetWildcardFilter;
 import com.sap.cloud.lm.sl.cf.core.filters.VersionFilter;
 import com.sap.cloud.lm.sl.cf.core.filters.VisibilityFilter;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.ConfigurationEntryDto;

@@ -9,7 +9,7 @@ import javax.persistence.EntityManagerFactory;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.context.annotation.Primary;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.ProgressMessageDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ProgressMessageQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.impl.ProgressMessageQueryImpl;

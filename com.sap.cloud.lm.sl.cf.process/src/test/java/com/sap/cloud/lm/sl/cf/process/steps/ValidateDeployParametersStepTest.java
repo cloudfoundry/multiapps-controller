@@ -20,14 +20,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.FilePartsMerger;
 import com.sap.cloud.lm.sl.cf.process.util.JarSignatureOperations;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
@@ -69,7 +69,7 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
 
                 // Max descriptor size exceeded
                 Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_BIGGER_FILE_ID, 1, VersionRule.HIGHER.toString(), false),
-                        MessageFormat.format(com.sap.cloud.lm.sl.mta.message.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
+                        MessageFormat.format(com.sap.cloud.lm.sl.mta.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
                                      "1048577", "extDescriptorFile", "1048576"), false, ""),
 
                 // Process chunked file

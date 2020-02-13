@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.process.helpers;
+package com.sap.cloud.lm.sl.cf.process.util;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -39,6 +39,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationColorDetector;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;

@@ -11,7 +11,7 @@ import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 
 public abstract class CloudServiceOperator extends CustomControllerClient {
 

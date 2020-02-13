@@ -18,7 +18,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
@@ -64,7 +64,7 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep {
                 return;
             }
         } catch (NotFoundException e) {
-            getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.ROUTE_NOT_FOUND, uri);
+            getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.Messages.ROUTE_NOT_FOUND, uri);
             return;
         }
         getStepLogger().info(Messages.DELETING_ROUTE, uri);

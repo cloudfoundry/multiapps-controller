@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.Module;
 

@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.web.servlet.HandlerMapping;
 
-import com.sap.cloud.lm.sl.cf.web.message.Messages;
+import com.sap.cloud.lm.sl.cf.web.Messages;
 
 public final class ServletUtil {
 

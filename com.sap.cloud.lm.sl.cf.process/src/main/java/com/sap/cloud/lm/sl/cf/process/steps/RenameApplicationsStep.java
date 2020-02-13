@@ -6,6 +6,8 @@ import javax.inject.Named;
 import com.sap.cloud.lm.sl.cf.core.model.BlueGreenApplicationNameSuffix;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
+import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationColorDetector;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationProductizationStateUpdater;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationProductizationStateUpdaterBasedOnAge;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationProductizationStateUpdaterBasedOnColor;
@@ -18,8 +20,6 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationNameSuffixAppender;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.process.helpers.ApplicationColorDetector;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 

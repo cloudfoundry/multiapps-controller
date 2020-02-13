@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.common.ContentException;

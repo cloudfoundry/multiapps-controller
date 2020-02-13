@@ -24,9 +24,9 @@ import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper;
-import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper.CloudComponents;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
+import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("createServiceStep")
@@ -60,7 +60,7 @@ public class CreateServiceStep extends ServiceStep {
                                                        CloudServiceExtended service) {
 
         if (serviceExists(service, client)) {
-            getStepLogger().info(com.sap.cloud.lm.sl.cf.core.message.Messages.SERVICE_ALREADY_EXISTS, service.getName());
+            getStepLogger().info(com.sap.cloud.lm.sl.cf.core.Messages.SERVICE_ALREADY_EXISTS, service.getName());
             return new MethodExecution<>(null, ExecutionState.FINISHED);
         }
         if (service.isUserProvided()) {

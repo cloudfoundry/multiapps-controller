@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.web.message;
+package com.sap.cloud.lm.sl.cf.web;
 
 /**
  * A collection of string constants used for exception and logging messages.

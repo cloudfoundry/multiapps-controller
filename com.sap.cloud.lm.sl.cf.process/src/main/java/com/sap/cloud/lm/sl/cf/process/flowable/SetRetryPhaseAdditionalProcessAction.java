@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.process.action;
+package com.sap.cloud.lm.sl.cf.process.flowable;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -7,9 +7,6 @@ import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.flowable.engine.runtime.Execution;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.flowable.AdditionalProcessAction;
-import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
-import com.sap.cloud.lm.sl.cf.process.flowable.RetryProcessAction;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 
 @Named

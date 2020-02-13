@@ -13,9 +13,9 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBroker;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper;
-import com.sap.cloud.lm.sl.cf.process.helpers.ExceptionMessageTailMapper.CloudComponents;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
+import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
 
 @Named("updateServiceBrokerSubscriberStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

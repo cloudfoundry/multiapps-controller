@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.process.helpers;
+package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.text.MessageFormat;
 import java.util.Map;
@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
 public class ExceptionMessageTailMapper {
 

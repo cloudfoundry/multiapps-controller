@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.persistence.message;
+package com.sap.cloud.lm.sl.cf.persistence;
 
 /**
  * A collection of string constants used for exception and logging messages.

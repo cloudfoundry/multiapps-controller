@@ -6,7 +6,7 @@ import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
 
 import com.sap.cloud.lm.sl.cf.core.parser.TaskParametersParser;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 
