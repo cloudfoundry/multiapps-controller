@@ -8,7 +8,7 @@
     <serviceTask id="DetermineServiceCreateUpdateActionsTask" name="Determine update actions" flowable:async="true" flowable:delegateExpression="${determineServiceCreateUpdateActionsStep}">
       <documentation>Creates List&lt;ServiceAction&gt; in DB (writes to the same variable because it will not be shared across processes)</documentation>
     </serviceTask>
-    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway" default="SkipCoUFlow"></exclusiveGateway>
     <serviceTask id="CreateServiceTask" name="Create" flowable:async="true" flowable:delegateExpression="${createServiceStep}"></serviceTask>
     <callActivity id="DeleteServiceCallActivity" name="Delete" flowable:async="true" calledElement="deleteServicesSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
     <serviceTask id="UpdateServicePlanTask" name="Update service plan" flowable:async="true" flowable:delegateExpression="${updateServicePlanStep}"></serviceTask>
