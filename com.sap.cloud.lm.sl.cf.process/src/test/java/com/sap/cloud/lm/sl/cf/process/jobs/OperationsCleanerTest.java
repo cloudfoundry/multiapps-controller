@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent;
@@ -27,9 +28,11 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.process.flowable.AbortProcessAction;
+import com.sap.cloud.lm.sl.cf.process.flowable.AdditionalProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.flowable.ProcessActionRegistry;
 import com.sap.cloud.lm.sl.cf.process.util.HistoricOperationEventPersister;
+import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
@@ -60,9 +63,11 @@ public class OperationsCleanerTest {
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
         cleaner.withPageSize(PAGE_SIZE);
-        when(registry.getAction("abort")).thenReturn(new AbortProcessAction(flowableFacade,
+
+        when(registry.getAction("abort")).thenReturn(new AbortProcessActionMock(flowableFacade,
                                                                             Collections.emptyList(),
-                                                                            historicOperationEventPersister));
+                                                                            historicOperationEventPersister,
+                                                                            operationService));
     }
 
     @Test
@@ -76,25 +81,12 @@ public class OperationsCleanerTest {
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
                                                  .build();
         List<Operation> operationsList = Arrays.asList(operation1, operation2);
-
         when(operationService.createQuery()).thenReturn(operationQuery);
         initQueryMockForPage(0, operationsList);
 
         cleaner.execute(EXPIRATION_TIME);
-        verify(flowableFacade).deleteProcessInstance(eq(OPERATION_ID_1), any());
-        verify(flowableFacade).deleteProcessInstance(eq(OPERATION_ID_2), any());
         verify(historicOperationEventPersister).add(OPERATION_ID_1, HistoricOperationEvent.EventType.ABORTED);
         verify(historicOperationEventPersister).add(OPERATION_ID_2, HistoricOperationEvent.EventType.ABORTED);
-    }
-
-    private void initQueryMockForPage(int pageIndex, List<Operation> result) {
-        OperationQuery queryMock = new MockBuilder<>(operationQuery).on(OperationQuery::inNonFinalState)
-                                                                    .on(query -> query.startedBefore(EXPIRATION_TIME))
-                                                                    .on(query -> query.offsetOnSelect(pageIndex * PAGE_SIZE))
-                                                                    .on(query -> query.limitOnSelect(PAGE_SIZE))
-                                                                    .on(query -> query.orderByProcessId(any()))
-                                                                    .build();
-        when(queryMock.list()).thenReturn(result);
     }
 
     @Test
@@ -115,8 +107,6 @@ public class OperationsCleanerTest {
                                                                            .deleteProcessInstance(eq(OPERATION_ID_1), any());
 
         cleaner.execute(EXPIRATION_TIME);
-        verify(flowableFacade).deleteProcessInstance(eq(OPERATION_ID_1), any());
-        verify(flowableFacade).deleteProcessInstance(eq(OPERATION_ID_2), any());
         verify(historicOperationEventPersister).add(OPERATION_ID_1, HistoricOperationEvent.EventType.ABORTED);
         verify(historicOperationEventPersister).add(OPERATION_ID_2, HistoricOperationEvent.EventType.ABORTED);
     }
@@ -143,12 +133,23 @@ public class OperationsCleanerTest {
         initQueryMockForPage(1, operationsPage2);
 
         cleaner.execute(EXPIRATION_TIME);
-        verify(flowableFacade).deleteProcessInstance(eq(OPERATION_ID_1), any());
-        verify(flowableFacade).deleteProcessInstance(eq(OPERATION_ID_2), any());
-        verify(flowableFacade).deleteProcessInstance(eq(OPERATION_ID_3), any());
         verify(historicOperationEventPersister).add(OPERATION_ID_1, HistoricOperationEvent.EventType.ABORTED);
         verify(historicOperationEventPersister).add(OPERATION_ID_2, HistoricOperationEvent.EventType.ABORTED);
         verify(historicOperationEventPersister).add(OPERATION_ID_3, HistoricOperationEvent.EventType.ABORTED);
+    }
+
+    private void initQueryMockForPage(int pageIndex, List<Operation> result) {
+        OperationQuery queryMock = createOperationQueryMock(pageIndex);
+        when(queryMock.list()).thenReturn(result);
+    }
+
+    private OperationQuery createOperationQueryMock(int pageIndex) {
+        return new MockBuilder<>(operationQuery).on(OperationQuery::inNonFinalState)
+                                                .on(query -> query.startedBefore(EXPIRATION_TIME))
+                                                .on(query -> query.offsetOnSelect(pageIndex * PAGE_SIZE))
+                                                .on(query -> query.limitOnSelect(PAGE_SIZE))
+                                                .on(query -> query.orderByProcessId(any()))
+                                                .build();
     }
 
     @Test
@@ -162,6 +163,19 @@ public class OperationsCleanerTest {
 
     private ZonedDateTime epochMillisToZonedDateTime(long epochMillis) {
         return ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), ZoneId.systemDefault());
+    }
+
+    private class AbortProcessActionMock extends AbortProcessAction {
+
+        public AbortProcessActionMock(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
+                                      HistoricOperationEventPersister historicEventPersister, OperationService operationService) {
+            super(flowableFacade, additionalProcessActions, historicEventPersister, operationService);
+        }
+
+        @Override
+        protected ProcessConflictPreventer getProcessConflictPreventer() {
+            return Mockito.mock(ProcessConflictPreventer.class);
+        }
     }
 
 }

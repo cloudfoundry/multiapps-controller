@@ -1,9 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 
-import org.flowable.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,10 +9,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent;
+import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
+import com.sap.cloud.lm.sl.cf.core.model.ImmutableHistoricOperationEvent;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.HistoricOperationEventQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.HistoricOperationEventService;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation.State;
 
 public class ProcessHelperTest {
 
@@ -48,52 +48,42 @@ public class ProcessHelperTest {
     public void testIsProcessAtReceiveTask() {
         Mockito.when(flowableFacade.isProcessInstanceAtReceiveTask(PROCESS_ID))
                .thenReturn(true);
-        Assertions.assertTrue(processHelper.isAtReceiveTask(PROCESS_ID));
+        Assertions.assertEquals(State.ACTION_REQUIRED, processHelper.computeProcessState(PROCESS_ID));
     }
 
     @Test
     public void testIsProcessInErrorState() {
-        Mockito.when(flowableFacade.hasDeadLetterJobs(PROCESS_ID))
-               .thenReturn(true);
-        Assertions.assertTrue(processHelper.isInErrorState(PROCESS_ID));
+        Mockito.when(historicOperationEventQuery.list())
+               .thenReturn(Arrays.asList(ImmutableHistoricOperationEvent.builder()
+                                                                        .type(EventType.FAILED_BY_CONTENT_ERROR)
+                                                                        .processId(PROCESS_ID)
+                                                                        .build()));
+        Assertions.assertEquals(State.ERROR, processHelper.computeProcessState(PROCESS_ID));
     }
 
     @Test
     public void testIsProcessAbortedWhenThereIsAbortedProcess() {
-        List<HistoricOperationEvent> mockedHistoricOperationEvents = getMockedHistoricOperationEventsWithEventType(HistoricOperationEvent.EventType.ABORTED);
         Mockito.when(historicOperationEventQuery.list())
-               .thenReturn(mockedHistoricOperationEvents);
-        Assertions.assertTrue(processHelper.isAborted(PROCESS_ID));
+               .thenReturn(Arrays.asList(ImmutableHistoricOperationEvent.builder()
+                                                                        .type(EventType.ABORTED)
+                                                                        .processId(PROCESS_ID)
+                                                                        .build()));
+        Assertions.assertEquals(State.ABORTED, processHelper.computeProcessState(PROCESS_ID));
     }
 
     @Test
     public void testIsProcessAbortedWhenThereIsNotAbortedProcess() {
-        List<HistoricOperationEvent> mockedHistoricOperationEvents = getMockedHistoricOperationEventsWithEventType(HistoricOperationEvent.EventType.FINISHED);
+        mockHistoricEventsWithTypes(EventType.FINISHED);
+        Assertions.assertEquals(State.FINISHED, processHelper.computeProcessState(PROCESS_ID));
+    }
+
+    private void mockHistoricEventsWithTypes(EventType type) {
         Mockito.when(historicOperationEventQuery.list())
-               .thenReturn(mockedHistoricOperationEvents);
-        Assertions.assertFalse(processHelper.isAborted(PROCESS_ID));
+               .thenReturn(Arrays.asList(ImmutableHistoricOperationEvent.builder()
+                                                                        .type(type)
+                                                                        .processId(PROCESS_ID)
+                                                                        .build()));
     }
 
-    @Test
-    public void testFindProcessInstanceByIdWithValidProcessInstanceId() {
-        ProcessInstance processInstance = Mockito.mock(ProcessInstance.class);
-        Mockito.when(flowableFacade.getProcessInstance(PROCESS_ID))
-               .thenReturn(processInstance);
-        Assertions.assertEquals(processInstance, processHelper.findProcessInstanceById(PROCESS_ID)
-                                                              .get());
-    }
-
-    @Test
-    public void testFindProcessInstanceByIdWithInvalidProcessInstanceId() {
-        Assertions.assertFalse(processHelper.findProcessInstanceById("invalid")
-                                            .isPresent());
-    }
-
-    private List<HistoricOperationEvent> getMockedHistoricOperationEventsWithEventType(HistoricOperationEvent.EventType eventType) {
-        HistoricOperationEvent historicOperationEvent = Mockito.mock(HistoricOperationEvent.class);
-        Mockito.when(historicOperationEvent.getType())
-               .thenReturn(eventType);
-        return Collections.singletonList(historicOperationEvent);
-    }
 
 }

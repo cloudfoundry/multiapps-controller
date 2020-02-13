@@ -94,17 +94,7 @@ public class OperationsHelper {
     }
 
     public Operation.State computeProcessState(String processId) {
-        if (processHelper.isAborted(processId)) {
-            return Operation.State.ABORTED;
-        }
-        if (processHelper.isAtReceiveTask(processId)) {
-            return Operation.State.ACTION_REQUIRED;
-        }
-        if (processHelper.isInErrorState(processId)) {
-            return Operation.State.ERROR;
-        }
-        return processHelper.findProcessInstanceById(processId)
-                            .isPresent() ? Operation.State.RUNNING : Operation.State.FINISHED;
+        return processHelper.computeProcessState(processId);
     }
 
     public List<Operation> findOperations(List<Operation> operations, List<Operation.State> statusList) {

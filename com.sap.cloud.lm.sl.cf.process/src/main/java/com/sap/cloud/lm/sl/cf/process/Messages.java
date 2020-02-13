@@ -203,6 +203,8 @@ public class Messages {
     public static final String CREATE_SUPPORT_TICKET_TO_DS_COMPONENT = "If you think the problem is in the deployment process, please create a support ticket to {0} component \"{1}\".";
     public static final String CREATE_SUPPORT_TICKET_TO_SERVICE_BROKER_COMPONENT = "If you think the problem is in the service broker, please create a support ticket to {0} component \"{1}\".";
     public static final String CREATE_SUPPORT_TICKET_TO_CC_COMPONENT = "If you think the problem is in the controller, please create a support ticket to {0} component \"{1}\".";
+    public static final String DELETING_OPERATION_WITH_ID = "Deleting operation with ID \"{0}\"";
+    public static final String ERROR_DELETING_OPERATION_WITH_ID = "Error deleting operation with ID \"{0}\"";
 
     // Progress messages
 

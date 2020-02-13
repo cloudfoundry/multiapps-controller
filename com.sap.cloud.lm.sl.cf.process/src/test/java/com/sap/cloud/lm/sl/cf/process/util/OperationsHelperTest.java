@@ -8,9 +8,7 @@ import static org.mockito.Mockito.never;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
-import org.flowable.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -23,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.web.api.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation.State;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 
 public class OperationsHelperTest {
@@ -101,8 +100,8 @@ public class OperationsHelperTest {
     @Test
     public void testAddStateWithAcquiredLockAndAbortedOperation() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, null);
-        Mockito.when(processHelper.isAborted(PROCESS_ID))
-               .thenReturn(true);
+        Mockito.when(processHelper.computeProcessState(PROCESS_ID))
+               .thenReturn(State.ABORTED);
         Mockito.when(mockedOperation.hasAcquiredLock())
                .thenReturn(true);
         Operation operation = operationsHelper.addState(mockedOperation);
@@ -117,6 +116,8 @@ public class OperationsHelperTest {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, null);
         Mockito.when(mockedOperation.hasAcquiredLock())
                .thenReturn(true);
+        Mockito.when(processHelper.computeProcessState(PROCESS_ID))
+               .thenReturn(State.FINISHED);
         Operation operation = operationsHelper.addState(mockedOperation);
         Assertions.assertEquals(Operation.State.FINISHED, operation.getState());
         Assertions.assertFalse(operation.hasAcquiredLock());
@@ -127,7 +128,8 @@ public class OperationsHelperTest {
     @Test
     public void testAddStateWithoutAcquiredLockAndRunningOperation() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, null);
-        mockProcessHelper();
+        Mockito.when(processHelper.computeProcessState(PROCESS_ID))
+               .thenReturn(State.RUNNING);
         Operation operation = operationsHelper.addState(mockedOperation);
         Assertions.assertEquals(Operation.State.RUNNING, operation.getState());
         Assertions.assertFalse(operation.hasAcquiredLock());
@@ -137,48 +139,48 @@ public class OperationsHelperTest {
 
     @Test
     public void testComputeOperationStateWhenProcessIsInNonFinalStateAndProcessIsAborted() {
-        Mockito.when(processHelper.isAborted(PROCESS_ID))
-               .thenReturn(true);
-        mockProcessHelper();
+        Mockito.when(processHelper.computeProcessState(PROCESS_ID))
+               .thenReturn(State.ABORTED);
         Operation.State state = operationsHelper.computeProcessState(PROCESS_ID);
         Assertions.assertEquals(Operation.State.ABORTED, state);
     }
 
     @Test
     public void testComputeOperationStateWhenProcessIsInNonFinalStateAndProcessIsAtReceiveTask() {
-        Mockito.when(processHelper.isAtReceiveTask(PROCESS_ID))
-               .thenReturn(true);
-        mockProcessHelper();
+        Mockito.when(processHelper.computeProcessState(PROCESS_ID))
+               .thenReturn(State.ACTION_REQUIRED);
         Operation.State state = operationsHelper.computeProcessState(PROCESS_ID);
         Assertions.assertEquals(Operation.State.ACTION_REQUIRED, state);
     }
 
     @Test
     public void testComputeOperationStateWhenProcessIsInNonFinalStateAndProcessIsInErrorState() {
-        Mockito.when(processHelper.isInErrorState(PROCESS_ID))
-               .thenReturn(true);
-        mockProcessHelper();
+        Mockito.when(processHelper.computeProcessState(PROCESS_ID))
+               .thenReturn(State.ERROR);
         Operation.State state = operationsHelper.computeProcessState(PROCESS_ID);
         Assertions.assertEquals(Operation.State.ERROR, state);
     }
 
     @Test
     public void testComputeOperationStateWhenProcessIsInNonFinalStateAndProcessIsRunning() {
-        mockProcessHelper();
+        Mockito.when(processHelper.computeProcessState(PROCESS_ID))
+               .thenReturn(State.RUNNING);
         Operation.State state = operationsHelper.computeProcessState(PROCESS_ID);
         Assertions.assertEquals(Operation.State.RUNNING, state);
     }
 
     @Test
     public void testComputeOperationStateWhenProcessIsInFinalStateAndProcessIsAborted() {
-        Mockito.when(processHelper.isAborted(PROCESS_ID))
-               .thenReturn(true);
+        Mockito.when(processHelper.computeProcessState(PROCESS_ID))
+               .thenReturn(State.ABORTED);
         Operation.State state = operationsHelper.computeProcessState(PROCESS_ID);
         Assertions.assertEquals(Operation.State.ABORTED, state);
     }
 
     @Test
     public void testComputeOperationStateWhenProcessIsInFinalStateAndProcessIsNotAborted() {
+        Mockito.when(processHelper.computeProcessState(PROCESS_ID))
+               .thenReturn(State.FINISHED);
         Operation.State state = operationsHelper.computeProcessState(PROCESS_ID);
         Assertions.assertEquals(Operation.State.FINISHED, state);
     }
@@ -207,12 +209,6 @@ public class OperationsHelperTest {
 
     }
 
-    private void mockProcessHelper() {
-        Optional<ProcessInstance> mockedProcessInstance = Optional.of(createMockedProcessInstance(PROCESS_ID));
-        Mockito.when(processHelper.findProcessInstanceById(PROCESS_ID))
-               .thenReturn(mockedProcessInstance);
-    }
-
     private Operation createMockedOperation(String processId, ProcessType processType, Operation.State state) {
         Operation operation = Mockito.mock(Operation.class);
         Mockito.when(operation.getProcessType())
@@ -231,10 +227,4 @@ public class OperationsHelperTest {
         return historicOperationEvent;
     }
 
-    private ProcessInstance createMockedProcessInstance(String processId) {
-        ProcessInstance processInstance = Mockito.mock(ProcessInstance.class);
-        Mockito.when(processInstance.getId())
-               .thenReturn(processId);
-        return processInstance;
-    }
 }

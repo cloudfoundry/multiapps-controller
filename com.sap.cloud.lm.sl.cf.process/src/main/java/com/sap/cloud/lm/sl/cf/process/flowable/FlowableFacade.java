@@ -93,11 +93,6 @@ public class FlowableFacade {
         return !getDeadLetterJobs(processId).isEmpty();
     }
 
-    private boolean allExecutionsHaveDeadLetterJobs(List<Execution> executions) {
-        return executions.stream()
-                         .allMatch(e -> !getDeadLetterJobsForExecution(e).isEmpty());
-    }
-
     private List<Job> getDeadLetterJobs(String processId) {
         List<Execution> allProcessExecutions = getAllProcessExecutions(processId);
         return allProcessExecutions.stream()
@@ -215,32 +210,8 @@ public class FlowableFacade {
         long overallAbortDeadline = System.currentTimeMillis() + DEFAULT_ABORT_WAIT_TIMEOUT_MS + DEFAULT_ABORT_TIMEOUT_MS;
         while (true) {
             try {
-                if (isProcessInstanceAtReceiveTask(processInstanceId)) {
-                    processEngine.getRuntimeService()
-                                 .deleteProcessInstance(processInstanceId, deleteReason);
-                    break;
-                }
-
-                LOGGER.debug(format(Messages.SETTING_VARIABLE, Constants.PROCESS_ABORTED, Boolean.TRUE));
-
-                // TODO: Use execution ID instead of process instance ID, as
-                // they can be
-                // different if the process has parallel executions.
-                processEngine.getRuntimeService()
-                             .setVariable(processInstanceId, Constants.PROCESS_ABORTED, Boolean.TRUE);
-
-                long allSubprocessesFinishedDeadline = System.currentTimeMillis() + DEFAULT_ABORT_WAIT_TIMEOUT_MS;
-                while (true) {
-                    List<Execution> subprocessExecutionsWithoutChildren = getAllSubprocessExecutionsWithoutChildren(processInstanceId);
-
-                    if (allExecutionsHaveDeadLetterJobs(subprocessExecutionsWithoutChildren)
-                        || isPastDeadline(allSubprocessesFinishedDeadline)) {
-                        break;
-                    }
-                }
                 processEngine.getRuntimeService()
                              .deleteProcessInstance(processInstanceId, deleteReason);
-                break;
             } catch (FlowableOptimisticLockingException e) {
                 if (isPastDeadline(overallAbortDeadline)) {
                     throw new IllegalStateException(Messages.ABORT_OPERATION_TIMED_OUT, e);
@@ -248,6 +219,11 @@ public class FlowableFacade {
                 LOGGER.warn(format(Messages.RETRYING_PROCESS_ABORT, processInstanceId));
             }
         }
+    }
+
+    public void setAbortVariable(String processInstanceId) {
+        processEngine.getRuntimeService()
+                     .setVariable(processInstanceId, Constants.PROCESS_ABORTED, Boolean.TRUE);
     }
 
     protected boolean isPastDeadline(long deadline) {

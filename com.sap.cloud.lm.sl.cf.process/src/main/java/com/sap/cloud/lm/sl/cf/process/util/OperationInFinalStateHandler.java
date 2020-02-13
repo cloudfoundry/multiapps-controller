@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 
 import javax.inject.Inject;
@@ -65,6 +64,7 @@ public class OperationInFinalStateHandler {
         });
         safeExecutor.execute(() -> deleteDeploymentFiles(context));
         safeExecutor.execute(() -> deleteCloudControllerClientForProcess(context));
+        safeExecutor.execute(() -> releaseOperationLock(StepsUtil.getCorrelationId(context)));
         safeExecutor.execute(() -> setOperationState(StepsUtil.getCorrelationId(context), state));
         safeExecutor.execute(() -> aggregateOperationTime(context));
     }
@@ -102,21 +102,22 @@ public class OperationInFinalStateHandler {
         clientProvider.releaseClient(user, spaceId);
     }
 
+    private void releaseOperationLock(String processInstanceId) {
+        ProcessConflictPreventer processConflictPreventer = new ProcessConflictPreventer(operationService);
+        processConflictPreventer.releaseLock(processInstanceId);
+    }
+
     protected void setOperationState(String processInstanceId, Operation.State state) {
         Operation operation = operationService.createQuery()
                                               .processId(processInstanceId)
                                               .singleResult();
-        LOGGER.info(MessageFormat.format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(),
-                                         operation.getMtaId(), operation.getSpaceId()));
         operation = ImmutableOperation.builder()
                                       .from(operation)
                                       .state(state)
                                       .endedAt(ZonedDateTime.now())
-                                      .hasAcquiredLock(false)
                                       .build();
         operationService.update(operation.getProcessId(), operation);
         historicOperationEventPersister.add(processInstanceId, toEventType(state));
-        LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
     }
 
     private EventType toEventType(State state) {
