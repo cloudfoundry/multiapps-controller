@@ -127,17 +127,15 @@ public class StepsUtil {
     }
 
     public static ApplicationColor getLiveMtaColor(VariableScope scope) {
-        ApplicationColor liveMtaColor = getEnum(scope, Constants.VAR_LIVE_MTA_COLOR, ApplicationColor::valueOf);
-        return liveMtaColor != null ? liveMtaColor : getEnum(scope, Constants.VAR_DEPLOYED_MTA_COLOR, ApplicationColor::valueOf);
+        return getEnum(scope, Constants.VAR_LIVE_MTA_COLOR, ApplicationColor::valueOf);
     }
 
     public static void setLiveMtaColor(VariableScope scope, ApplicationColor liveMtaColor) {
         setEnum(scope, Constants.VAR_LIVE_MTA_COLOR, liveMtaColor);
     }
 
-    public static ApplicationColor getMtaColor(VariableScope scope) {
-        ApplicationColor idleMtaColor = getEnum(scope, Constants.VAR_IDLE_MTA_COLOR, ApplicationColor::valueOf);
-        return idleMtaColor != null ? idleMtaColor : getEnum(scope, Constants.VAR_MTA_COLOR, ApplicationColor::valueOf);
+    public static ApplicationColor getIdleMtaColor(VariableScope scope) {
+        return getEnum(scope, Constants.VAR_IDLE_MTA_COLOR, ApplicationColor::valueOf);
     }
 
     public static void setIdleMtaColor(VariableScope scope, ApplicationColor mtaColor) {

@@ -39,7 +39,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
-import com.sap.cloud.lm.sl.cf.process.util.ApplicationColorDetector;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -277,7 +276,7 @@ public class ApplicationColorDetectorTest {
         HistoricVariableInstance historicVariableInstanceColor = mock(HistoricVariableInstance.class);
         when(historicVariableInstanceColor.getValue()).thenReturn(color);
         when(flowableFacade.getHistoricVariableInstance(FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID,
-                                                        Constants.VAR_MTA_COLOR)).thenReturn(historicVariableInstanceColor);
+                                                        Constants.VAR_IDLE_MTA_COLOR)).thenReturn(historicVariableInstanceColor);
     }
 
     private void mockOperationService(Operation currentOperation, Operation lastOperation) {

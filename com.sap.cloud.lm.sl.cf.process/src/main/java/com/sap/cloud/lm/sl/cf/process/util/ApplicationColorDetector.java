@@ -113,10 +113,7 @@ public class ApplicationColorDetector {
                                                                                                     Constants.VAR_IDLE_MTA_COLOR);
 
         if (colorVariableInstance == null) {
-            colorVariableInstance = flowableFacade.getHistoricVariableInstance(processInstanceId, Constants.VAR_MTA_COLOR);
-            if (colorVariableInstance == null) {
-                return null;
-            }
+            return null;
         }
 
         return ApplicationColor.valueOf((String) colorVariableInstance.getValue());
