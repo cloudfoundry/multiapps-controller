@@ -12,13 +12,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
+import org.cloudfoundry.client.lib.domain.*;
 import org.cloudfoundry.client.lib.domain.CloudApplication.State;
-import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
-import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
-import org.cloudfoundry.client.lib.domain.CloudServiceKey;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBinding;
-import org.cloudfoundry.client.lib.domain.ImmutableStaging;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Rule;
@@ -136,7 +131,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     }
 
     public CreateOrUpdateStepWithExistingAppTest(String input, String expectedExceptionMessage) {
-        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, CreateOrUpdateStepWithExistingAppTest.class), StepInput.class);
+        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, this.getClass()), StepInput.class);
         this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
@@ -188,12 +183,11 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     private void validateBindServices() {
         Map<String, Map<String, Object>> currentBindingParameters = input.application.toCloudApp()
                                                                                      .getBindingParameters();
-        Map<String, Map<String, Object>> test = new HashMap<>();
         for (String serviceToBind : expectedServicesToBind) {
-            test.put(mapToCloudService(serviceToBind).getName(), getBindingParametersForService(currentBindingParameters, serviceToBind));
+            Mockito.verify(client).bindService(input.application.toCloudApp().getName(), serviceToBind,
+                                               getBindingParametersForService(currentBindingParameters, serviceToBind),
+                                               step.getApplicationServicesUpdateCallback(context));
         }
-        Mockito.verify(client)
-               .updateApplicationServices(input.existingApplication.name, test, step.getApplicationServicesUpdateCallback(context));
     }
 
     private Map<String, Object> getBindingParametersForService(Map<String, Map<String, Object>> bindingParameters, String serviceName) {
@@ -201,9 +195,9 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     }
 
     private void validateUnbindServices() {
-        for (String notRquiredService : notRequiredServices) {
+        for (String notRequiredService : notRequiredServices) {
             Mockito.verify(client)
-                   .unbindService(input.existingApplication.name, notRquiredService);
+                   .unbindService(input.existingApplication.name, notRequiredService);
         }
     }
 
@@ -235,12 +229,21 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     private void prepareExistingServiceBindings() {
         for (String serviceName : input.existingServiceBindings.keySet()) {
             CloudServiceInstance cloudServiceInstance = Mockito.mock(CloudServiceInstance.class);
+            CloudService cloudService = Mockito.mock(CloudService.class);
             List<CloudServiceBinding> serviceBindings = new ArrayList<>();
             for (SimpleBinding simpleBinding : input.existingServiceBindings.get(serviceName)) {
                 serviceBindings.add(simpleBinding.toCloudServiceBinding());
             }
             Mockito.when(cloudServiceInstance.getBindings())
                    .thenReturn(serviceBindings);
+            Mockito.when(cloudServiceInstance.getService())
+                    .thenReturn(cloudService);
+            Mockito.when(cloudService.getName())
+                    .thenReturn(serviceName);
+            Mockito.when(cloudServiceInstance.getMetadata())
+                    .thenReturn(ImmutableCloudMetadata.builder()
+                                                      .guid(NameUtil.getUUID(serviceName))
+                                                      .build());
             Mockito.when(client.getServiceInstance(serviceName))
                    .thenReturn(cloudServiceInstance);
         }
@@ -281,6 +284,8 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     private void prepareContext() {
         Mockito.when(client.getApplication(eq(input.existingApplication.name), eq(false)))
                .thenReturn(input.existingApplication.toCloudApp());
+        Mockito.when(client.getApplication(eq(input.existingApplication.name)))
+                .thenReturn(input.existingApplication.toCloudApp());
         CloudApplicationExtended cloudApp = input.application.toCloudApp();
         // TODO
         StepsUtil.setAppsToDeploy(context, Collections.emptyList());
@@ -359,6 +364,9 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
                                                     .diskQuota(diskQuota)
                                                     .bindingParameters(bindingParameters)
                                                     .serviceKeysToInject(serviceKeysToInject)
+                                                    .metadata(ImmutableCloudMetadata.builder()
+                                                                                    .guid(NameUtil.getUUID(name))
+                                                                                    .build())
                                                     .build();
         }
 
