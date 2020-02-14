@@ -34,7 +34,7 @@ You can read how to build, configure and run the MultiApps Controller [here](htt
 Having the same style of formatting across the project helps a lot with readability.
 
 #### Eclipse
-Our team is developing on the [Eclipse](http://www.eclipse.org/) IDE and we have a handy formatter located at `/ide/eclipse-formatter.xml`. In Eclipse you can import the formatter from `Window > Preferences > Java > Code Style > Formatter`
+Our team is developing on the [Eclipse](http://www.eclipse.org/) IDE and we have a handy formatter located [here](https://github.com/cloudfoundry-incubator/multiapps/tree/master/ide). In Eclipse you can import the formatter from `Window > Preferences > Java > Code Style > Formatter`
 
 #### IntelliJ
 If you're using IntelliJ you can try the [EclipseCodeFormatter](https://github.com/krasa/EclipseCodeFormatter) plugin.
