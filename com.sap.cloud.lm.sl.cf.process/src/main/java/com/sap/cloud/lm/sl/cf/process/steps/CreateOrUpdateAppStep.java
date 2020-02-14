@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
+import com.sap.cloud.lm.sl.cf.process.helpers.ApplicationServicesUpdater;
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -386,8 +387,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                                                                    serviceName -> getBindingParametersForService(serviceName,
                                                                                                                                                                  bindingParameters)));
 
-            List<String> updatedServices = client.updateApplicationServices(applicationName, serviceNamesWithBindingParameters,
-                                                                            getApplicationServicesUpdateCallback(context));
+            ApplicationServicesUpdater applicationServicesUpdater = new ApplicationServicesUpdater(client, getStepLogger());
+            List<String> updatedServices = applicationServicesUpdater.updateApplicationServices(applicationName,
+                                                        serviceNamesWithBindingParameters, getApplicationServicesUpdateCallback(context));
 
             reportNonUpdatedServices(services, applicationName, updatedServices);
             return !updatedServices.isEmpty();
