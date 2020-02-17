@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import javax.inject.Named;
 
 import com.google.common.collect.Sets;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.NamedParametersContainer;

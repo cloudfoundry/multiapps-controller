@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
+import com.sap.cloud.lm.sl.cf.process.MonitoringException;
 import com.sap.cloud.lm.sl.common.ContentException;
 
 @RunWith(Parameterized.class)

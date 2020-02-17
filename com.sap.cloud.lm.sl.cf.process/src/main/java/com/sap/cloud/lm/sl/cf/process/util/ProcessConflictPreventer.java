@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -26,7 +26,7 @@ public class ProcessConflictPreventer {
 
     public synchronized void acquireLock(String mtaId, String spaceId, String processId) {
         LOGGER.info(format(Messages.ACQUIRING_LOCK, processId, mtaId));
-
+        
         validateNoConflictingOperationsExist(mtaId, spaceId);
         Operation currentOperation = operationService.createQuery()
                                                      .processId(processId)

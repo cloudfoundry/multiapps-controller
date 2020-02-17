@@ -82,32 +82,11 @@ public class FlowableFacade {
         return (String) historicVariableInstance.getValue();
     }
 
-    public boolean hasDeleteReason(String processId) {
-        HistoricProcessInstance historicProcessInstance = processEngine.getHistoryService()
-                                                                       .createHistoricProcessInstanceQuery()
-                                                                       .processInstanceId(processId)
-                                                                       .singleResult();
-        return historicProcessInstance != null && processHierarchyHasDeleteReason(historicProcessInstance);
-    }
-
     public ProcessInstance getProcessInstance(String processId) {
         return processEngine.getRuntimeService()
                             .createProcessInstanceQuery()
                             .processInstanceId(processId)
                             .singleResult();
-    }
-
-    private boolean processHierarchyHasDeleteReason(HistoricProcessInstance historicProcessInstance) {
-        if (historicProcessInstance.getDeleteReason() != null) {
-            return true;
-        }
-
-        List<HistoricProcessInstance> children = processEngine.getHistoryService()
-                                                              .createHistoricProcessInstanceQuery()
-                                                              .superProcessInstanceId(historicProcessInstance.getId())
-                                                              .list();
-        return children.stream()
-                       .anyMatch(this::processHierarchyHasDeleteReason);
     }
 
     public boolean hasDeadLetterJobs(String processId) {
@@ -139,6 +118,13 @@ public class FlowableFacade {
                                                               .map(HistoricVariableInstance::getProcessInstanceId)
                                                               .filter(id -> !id.equals(correlationId))
                                                               .collect(Collectors.toList());
+    }
+
+    public HistoricProcessInstance getHistoricProcessById(String processInstanceId) {
+        return processEngine.getHistoryService()
+                            .createHistoricProcessInstanceQuery()
+                            .processInstanceId(processInstanceId)
+                            .singleResult();
     }
 
     private List<HistoricVariableInstance> retrieveVariablesByCorrelationId(String correlationId) {

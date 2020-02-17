@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
 @Named("deleteIdleRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -67,7 +67,7 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
             return;
         }
         if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-            getStepLogger().info(com.sap.cloud.lm.sl.cf.core.message.Messages.ROUTE_NOT_FOUND, uri);
+            getStepLogger().info(com.sap.cloud.lm.sl.cf.core.Messages.ROUTE_NOT_FOUND, uri);
             return;
         }
         throw e;

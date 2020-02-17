@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.model;
 
 import java.text.MessageFormat;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 
 public enum TypedServiceOperationState {
 

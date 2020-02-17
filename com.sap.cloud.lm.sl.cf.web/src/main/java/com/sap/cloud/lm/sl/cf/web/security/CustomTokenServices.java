@@ -16,11 +16,11 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 
 import com.sap.cloud.lm.sl.cf.client.util.TokenProperties;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
-import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
+import com.sap.cloud.lm.sl.cf.core.security.token.parsers.TokenParserChain;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SSLUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
-import com.sap.cloud.lm.sl.cf.web.message.Messages;
+import com.sap.cloud.lm.sl.cf.web.Messages;
 
 @Named
 public class CustomTokenServices implements ResourceServerTokenServices {

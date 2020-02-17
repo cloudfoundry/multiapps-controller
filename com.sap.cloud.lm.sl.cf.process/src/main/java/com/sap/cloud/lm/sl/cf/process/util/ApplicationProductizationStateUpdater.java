@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
 public abstract class ApplicationProductizationStateUpdater {
 

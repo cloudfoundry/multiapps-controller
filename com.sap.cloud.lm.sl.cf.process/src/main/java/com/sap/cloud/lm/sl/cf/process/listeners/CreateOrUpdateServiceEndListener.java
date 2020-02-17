@@ -35,5 +35,6 @@ public class CreateOrUpdateServiceEndListener implements ExecutionListener {
         superExecutionId = superExecutionResult.getSuperExecutionId();
 
         runtimeService.setVariable(superExecutionId, exportedVariableName, isServiceUpdated);
+
     }
 }

@@ -1,8 +1,12 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataAnnotations;
-import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataLabels;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.inject.Named;
+
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
@@ -11,11 +15,9 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import javax.inject.Named;
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataAnnotations;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataLabels;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
 @Named("detachServicesFromMtaStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

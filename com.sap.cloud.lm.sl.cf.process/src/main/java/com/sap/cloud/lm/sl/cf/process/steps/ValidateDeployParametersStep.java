@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.cf.client.util.ResilientOperationExecutor;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ArchiveMerger;
 import com.sap.cloud.lm.sl.cf.process.util.JarSignatureOperations;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -104,7 +104,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         Long maxSizeLimit = configuration.getMaxMtaDescriptorSize();
         if (file.getSize()
                 .compareTo(BigInteger.valueOf(maxSizeLimit)) > 0) {
-            throw new SLException(com.sap.cloud.lm.sl.mta.message.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
+            throw new SLException(com.sap.cloud.lm.sl.mta.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
                                   file.getSize()
                                       .toString(),
                                   file.getName(),

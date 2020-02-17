@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.cloud.lm.sl.cf</groupId>
     <artifactId>com.sap.cloud.lm.sl.cf.parent</artifactId>
-    <version>1.97.0-SNAPSHOT</version>
+    <version>1.98.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>LM SL CF Parent</name>
     <description>Multi-Target Application (MTA) deployment service for Cloud Foundry</description>
@@ -63,7 +63,7 @@
         <guava.version>23.6.1-jre</guava.version>
         <jsr305.version>3.0.2</jsr305.version>
         <immutables.version>2.7.5</immutables.version>
-        <com.sap.cloud.lm.sl.open.version>1.86.0</com.sap.cloud.lm.sl.open.version>
+        <com.sap.cloud.lm.sl.open.version>1.87.0-SNAPSHOT</com.sap.cloud.lm.sl.open.version>
     </properties>
     <modules>
         <module>com.sap.cloud.lm.sl.cf.client</module>

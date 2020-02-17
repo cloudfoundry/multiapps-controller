@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.cf.util;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.mta.model.Resource;

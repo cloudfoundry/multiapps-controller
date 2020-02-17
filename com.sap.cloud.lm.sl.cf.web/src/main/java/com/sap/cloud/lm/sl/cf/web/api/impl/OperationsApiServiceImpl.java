@@ -46,6 +46,7 @@ import com.sap.cloud.lm.sl.cf.process.flowable.ResumeProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.RetryProcessAction;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
+import com.sap.cloud.lm.sl.cf.web.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.OperationsApiService;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableLog;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableMessage;
@@ -56,7 +57,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.MessageType;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterTypeFactory;
-import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
@@ -158,9 +158,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         Operation operation = getOperation(operationId);
         if (!operation.getSpaceId()
                       .equals(spaceGuid)) {
-            LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_SPACE_MISMATCH, operationId,
+            LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.Messages.OPERATION_SPACE_MISMATCH, operationId,
                                              operation.getSpaceId(), spaceGuid));
-            throw new NotFoundException(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_NOT_FOUND, operationId);
+            throw new NotFoundException(com.sap.cloud.lm.sl.cf.core.Messages.OPERATION_NOT_FOUND, operationId);
         }
         operation = operationsHelper.addState(operation);
         operation = operationsHelper.addErrorType(operation);

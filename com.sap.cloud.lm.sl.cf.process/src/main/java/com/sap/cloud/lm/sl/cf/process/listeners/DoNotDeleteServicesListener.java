@@ -6,7 +6,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
 @Named("doNotDeleteServicesListener")
 public class DoNotDeleteServicesListener extends AbstractProcessExecutionListener {

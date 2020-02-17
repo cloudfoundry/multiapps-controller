@@ -12,7 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.web.Constants;
-import com.sap.cloud.lm.sl.cf.web.helpers.RateLimiterProvider;
+import com.sap.cloud.lm.sl.cf.web.util.RateLimiterProvider;
 
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter;
