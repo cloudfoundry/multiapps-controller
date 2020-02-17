@@ -368,7 +368,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
         private void unbindService(String appName, String serviceName, CloudControllerClient client) {
-            getStepLogger().debug(Messages.UNBINDING_APP_FROM_SERVICE, appName, serviceName);
+            getStepLogger().debug(Messages.UNBINDING_SERVICE_FROM_APP, serviceName, appName);
             client.unbindService(appName, serviceName);
         }
 
