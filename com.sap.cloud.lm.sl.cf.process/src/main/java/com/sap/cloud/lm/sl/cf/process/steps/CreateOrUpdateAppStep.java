@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
+import com.sap.cloud.lm.sl.cf.process.util.*;
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -38,15 +39,8 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.cf.process.util.ApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationAttributeUpdater.UpdateState;
-import com.sap.cloud.lm.sl.cf.process.util.DiskQuotaApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateBehavior;
-import com.sap.cloud.lm.sl.cf.process.util.EnvironmentApplicationAttributeUpdater;
-import com.sap.cloud.lm.sl.cf.process.util.MemoryApplicationAttributeUpdater;
-import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationUtil;
-import com.sap.cloud.lm.sl.cf.process.util.StagingApplicationAttributeUpdater;
-import com.sap.cloud.lm.sl.cf.process.util.UrisApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -374,7 +368,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
         private void unbindService(String appName, String serviceName, CloudControllerClient client) {
-            getStepLogger().debug(Messages.UNBINDING_APP_FROM_SERVICE, appName, serviceName);
+            getStepLogger().debug(Messages.UNBINDING_SERVICE_FROM_APP, serviceName, appName);
             client.unbindService(appName, serviceName);
         }
 
@@ -385,9 +379,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                                          .collect(Collectors.toMap(String::toString,
                                                                                                                    serviceName -> getBindingParametersForService(serviceName,
                                                                                                                                                                  bindingParameters)));
-
-            List<String> updatedServices = client.updateApplicationServices(applicationName, serviceNamesWithBindingParameters,
-                                                                            getApplicationServicesUpdateCallback(context));
+            ApplicationServicesUpdater applicationServicesUpdater = new ApplicationServicesUpdater(client, getStepLogger());
+            List<String> updatedServices = applicationServicesUpdater.updateApplicationServices(applicationName,
+                                                        serviceNamesWithBindingParameters, getApplicationServicesUpdateCallback(context));
 
             reportNonUpdatedServices(services, applicationName, updatedServices);
             return !updatedServices.isEmpty();
