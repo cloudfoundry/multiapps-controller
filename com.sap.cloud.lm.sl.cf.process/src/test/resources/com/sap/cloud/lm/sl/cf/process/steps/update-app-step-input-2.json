@@ -30,7 +30,7 @@
 	"existingServiceBindings": {
 		"test-service-1" : [
 		 	{
-				"applicationName": "brum"
+				"applicationName": "test-app-1"
 			}
 		]
 	},

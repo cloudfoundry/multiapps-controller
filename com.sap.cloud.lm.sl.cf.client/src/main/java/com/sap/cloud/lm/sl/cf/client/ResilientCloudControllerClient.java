@@ -319,15 +319,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<String> updateApplicationServices(String applicationName,
-                                                  Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
-                                                  ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
-        return executeWithRetry(() -> delegate.updateApplicationServices(applicationName, serviceNamesWithBindingParameters,
-                                                                         applicationServicesUpdateCallback),
-                                HttpStatus.NOT_FOUND);
-    }
-
-    @Override
     public void updateApplicationStaging(String applicationName, Staging staging) {
         executeWithRetry(() -> delegate.updateApplicationStaging(applicationName, staging));
     }

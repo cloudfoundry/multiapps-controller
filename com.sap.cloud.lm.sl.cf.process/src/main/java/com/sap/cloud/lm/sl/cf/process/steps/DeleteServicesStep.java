@@ -157,7 +157,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
                 throw new IllegalStateException(MessageFormat.format(Messages.COULD_NOT_FIND_APPLICATION_WITH_GUID_0,
                                                                      binding.getApplicationGuid()));
             }
-            getStepLogger().info(Messages.UNBINDING_APP_FROM_SERVICE, application.getName(), serviceName);
+            getStepLogger().info(Messages.UNBINDING_SERVICE_FROM_APP, serviceName, application.getName());
             client.unbindService(application.getName(), serviceName);
         }
     }

@@ -65,6 +65,7 @@ public class Messages {
     public static final String MERGED_FILE_NOT_DELETED = "Merged file not deleted";
     public static final String FAILED_TO_RETRIEVE_FILE_WITH_ID_0 = "Failed to retrieve file with id \"{0}\"";
     public static final String PARAMETERS_HAVE_READ_ONLY_ELEMENTS = "\"{0}\" parameters have read-only elements \"{1}\"";
+    public static final String APPLICATION_UNBOUND_IN_PARALLEL = "Application {0} was bound to service {1} which was unbound in parallel";
 
     // Audit log messages
 
@@ -181,7 +182,7 @@ public class Messages {
     public static final String PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2 = "Process \"{0}\" releasing lock for MTA \"{1}\" in space \"{2}\"";
     public static final String PROCESS_0_RELEASED_LOCK = "Process \"{0}\" released lock successfully!";
     public static final String BINDING_APP_TO_SERVICE_WITH_PARAMETERS = "Binding application \"{0}\" to service \"{1}\" with parameters \"{2}\"";
-    public static final String UNBINDING_APP_FROM_SERVICE = "Unbinding application \"{0}\" from service \"{1}\"...";
+    public static final String UNBINDING_SERVICE_FROM_APP = "Unbinding service \"{0}\" from application \"{1}\"...";
     public static final String POLLING_SERVICE_OPERATIONS = "Polling service operations...";
     public static final String AUTO_ABORTING_PROCESS_0 = "Auto-aborting process \"{0}\"...";
     public static final String SOME_INSTANCES_ARE_FLAPPING = "Some instances are flapping. Check the logs of your application for more information.";
@@ -303,6 +304,7 @@ public class Messages {
     public static final String SERVICES_TO_CREATE = "Services to create: {0}";
     public static final String CREATED_SERVICE_KEY = "Service key \"{0}\" created";
     public static final String SERVICE_BINDINGS_EXISTS = "Service bindings \"{0}\" exists";
+    public static final String LOOKING_FOR_SERVICE_BINDINGS = "Looking for service binding between application \"{0}\" and service instance \"{1}\". Service bindings: {2}";
     public static final String PREPARING_MODULES_DEPLOYMENT = "Preparing modules deployment...";
     public static final String COMPUTING_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Computing modules for next parallel iteration...";
     public static final String COMPUTED_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Computed modules for next parallel iteration: {0}";
