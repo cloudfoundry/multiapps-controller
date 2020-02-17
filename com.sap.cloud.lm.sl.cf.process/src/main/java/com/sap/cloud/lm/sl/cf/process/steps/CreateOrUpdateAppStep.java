@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
-import com.sap.cloud.lm.sl.cf.process.helpers.ApplicationServicesUpdater;
+import com.sap.cloud.lm.sl.cf.process.util.*;
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -39,15 +39,8 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.cf.process.util.ApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationAttributeUpdater.UpdateState;
-import com.sap.cloud.lm.sl.cf.process.util.DiskQuotaApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateBehavior;
-import com.sap.cloud.lm.sl.cf.process.util.EnvironmentApplicationAttributeUpdater;
-import com.sap.cloud.lm.sl.cf.process.util.MemoryApplicationAttributeUpdater;
-import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationUtil;
-import com.sap.cloud.lm.sl.cf.process.util.StagingApplicationAttributeUpdater;
-import com.sap.cloud.lm.sl.cf.process.util.UrisApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;

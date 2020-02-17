@@ -1,6 +1,5 @@
-package com.sap.cloud.lm.sl.cf.process.helpers;
+package com.sap.cloud.lm.sl.cf.process.util;
 
-import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -13,7 +12,7 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
 public class ApplicationServicesUpdater {
 
