@@ -84,4 +84,9 @@ public class CloudTarget {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "CloudTarget [organizationName=" + org + ", spaceName=" + space + "]";
+    }
 }
