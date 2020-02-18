@@ -4,8 +4,8 @@ import java.util.stream.Stream;
 
 public class BlueGreenApplicationNameSuffix {
 
-    public static final BlueGreenApplicationNameSuffix OLD = new BlueGreenApplicationNameSuffix("old");
-    public static final BlueGreenApplicationNameSuffix NEW = new BlueGreenApplicationNameSuffix("new");
+    public static final BlueGreenApplicationNameSuffix LIVE = new BlueGreenApplicationNameSuffix("live");
+    public static final BlueGreenApplicationNameSuffix IDLE = new BlueGreenApplicationNameSuffix("idle");
     
     private final String value;
 
@@ -18,7 +18,7 @@ public class BlueGreenApplicationNameSuffix {
     }
 
     public static boolean isSuffixContainedIn(String name) {
-        return Stream.of(OLD, NEW)
+        return Stream.of(LIVE, IDLE)
                      .map(BlueGreenApplicationNameSuffix::asSuffix)
                      .anyMatch(name::endsWith);
     }

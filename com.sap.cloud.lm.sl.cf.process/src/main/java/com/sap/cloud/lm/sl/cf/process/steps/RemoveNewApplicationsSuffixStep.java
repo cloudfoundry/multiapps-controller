@@ -27,14 +27,14 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
         if (!StepsUtil.getKeepOriginalAppNamesAfterDeploy(execution.getContext())) {
             return StepPhase.DONE;
         }
-        getStepLogger().info(Messages.RENAMING_NEW_APPLICATIONS);
 
         List<String> appsToProcess = StepsUtil.getAppsToDeploy(execution.getContext());
         CloudControllerClient client = execution.getControllerClient();
 
         for (String appName : appsToProcess) {
-            getStepLogger().debug(Messages.RENAMING_APPLICATION, appName);
-            client.rename(appName, BlueGreenApplicationNameSuffix.removeSuffix(appName));
+            String newName = BlueGreenApplicationNameSuffix.removeSuffix(appName);
+            getStepLogger().info(Messages.RENAMING_APPLICATION_0_TO_1, appName, newName);
+            client.rename(appName, newName);
         }
 
         String mtaId = (String) execution.getContext()
@@ -50,20 +50,22 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
                                                                            .list();
         for (ConfigurationSubscription subscription : subscriptions) {
             if (appsToProcess.contains(subscription.getAppName())) {
-                updateConfigurationSubscription(subscription);
+                String newAppName = BlueGreenApplicationNameSuffix.removeSuffix(subscription.getAppName());
+                getStepLogger().debug(Messages.UPDATING_CONFIGURATION_SUBSCRIPTION_0_WITH_NAME_1, subscription.getAppName(), newAppName);
+                updateConfigurationSubscription(subscription, newAppName);
             }
         }
     }
 
-    private void updateConfigurationSubscription(ConfigurationSubscription subscription) {
-        subscriptionService.update(subscription.getId(), createNewSubscription(subscription));
+    private void updateConfigurationSubscription(ConfigurationSubscription subscription, String newAppName) {
+        subscriptionService.update(subscription.getId(), createNewSubscription(subscription, newAppName));
     }
 
-    private ConfigurationSubscription createNewSubscription(ConfigurationSubscription subscription) {
+    private ConfigurationSubscription createNewSubscription(ConfigurationSubscription subscription, String newAppName) {
         return new ConfigurationSubscription(subscription.getId(),
                                              subscription.getMtaId(),
                                              subscription.getSpaceId(),
-                                             BlueGreenApplicationNameSuffix.removeSuffix(subscription.getAppName()),
+                                             newAppName,
                                              subscription.getFilter(),
                                              subscription.getModuleDto(),
                                              subscription.getResourceDto());

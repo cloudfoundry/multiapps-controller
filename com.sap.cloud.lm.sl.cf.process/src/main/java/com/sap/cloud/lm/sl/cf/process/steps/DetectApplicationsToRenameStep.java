@@ -58,7 +58,7 @@ public class DetectApplicationsToRenameStep extends SyncFlowableStep {
 
     private List<String> computeLeftoverAppsToUndeploy(Set<String> appsToProcess) {
         return appsToProcess.stream()
-                            .filter(appName -> appName.endsWith(BlueGreenApplicationNameSuffix.OLD.asSuffix()))
+                            .filter(appName -> appName.endsWith(BlueGreenApplicationNameSuffix.LIVE.asSuffix()))
                             .filter(appName -> appsToProcess.contains(BlueGreenApplicationNameSuffix.removeSuffix(appName)))
                             .collect(Collectors.toList());
     }
@@ -89,7 +89,7 @@ public class DetectApplicationsToRenameStep extends SyncFlowableStep {
     private DeployedMtaApplication updateDeployedAppNameIfNeeded(DeployedMtaApplication app, List<String> appsToUpdate) {
         if (appsToUpdate.contains(app.getName())) {
             return ImmutableDeployedMtaApplication.copyOf(app)
-                                                  .withName(app.getName() + BlueGreenApplicationNameSuffix.OLD.asSuffix());
+                                                  .withName(app.getName() + BlueGreenApplicationNameSuffix.LIVE.asSuffix());
         }
         return app;
     }

@@ -57,13 +57,13 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
         assertStepFinishedSuccessfully();
 
         Mockito.verify(client)
-               .rename("a", "a-old");
+               .rename("a", "a-live");
 
         DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(context);
         Assertions.assertTrue(descriptor.getModules()
                                         .stream()
                                         .map(NameUtil::getApplicationName)
-                                        .allMatch(name -> name.endsWith(BlueGreenApplicationNameSuffix.NEW.asSuffix())));
+                                        .allMatch(name -> name.endsWith(BlueGreenApplicationNameSuffix.IDLE.asSuffix())));
     }
 
     @Test

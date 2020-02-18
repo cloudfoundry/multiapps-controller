@@ -44,7 +44,7 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
 
     @Test
     public void testExecuteRenamesApps() {
-        List<String> apps = Arrays.asList("a-new", "b-new");
+        List<String> apps = Arrays.asList("a-idle", "b-idle");
         StepsUtil.setAppsToDeploy(context, apps);
 
         step.execute(context);
@@ -62,11 +62,11 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
         Mockito.when(query.mtaId(""))
                .thenReturn(query);
         Mockito.when(query.list())
-               .thenReturn(Collections.singletonList(new ConfigurationSubscription(0, "", "", "a-new", null, null, null)));
+               .thenReturn(Collections.singletonList(new ConfigurationSubscription(0, "", "", "a-idle", null, null, null)));
         Mockito.when(subscriptionService.createQuery())
                .thenReturn(query);
 
-        StepsUtil.setAppsToDeploy(context, Collections.singletonList("a-new"));
+        StepsUtil.setAppsToDeploy(context, Collections.singletonList("a-idle"));
 
         step.execute(context);
         assertStepFinishedSuccessfully();

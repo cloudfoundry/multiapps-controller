@@ -72,15 +72,14 @@ public class RenameApplicationsStep extends SyncFlowableStep {
             }
 
             getStepLogger().debug(Messages.UPDATING_APP_NAMES_WITH_NEW_SUFFIX);
-            updateApplicationNamesInDescriptor(context, BlueGreenApplicationNameSuffix.NEW.asSuffix());
+            updateApplicationNamesInDescriptor(context, BlueGreenApplicationNameSuffix.IDLE.asSuffix());
         }
 
         private void renameOldApps(List<String> appsToRename, CloudControllerClient client) {
-            getStepLogger().info(Messages.RENAMING_OLD_APPLICATIONS);
-
             for (String appName : appsToRename) {
-                getStepLogger().debug(Messages.RENAMING_APPLICATION, appName);
-                client.rename(appName, appName + BlueGreenApplicationNameSuffix.OLD.asSuffix());
+                String newName = appName + BlueGreenApplicationNameSuffix.LIVE.asSuffix();
+                getStepLogger().info(Messages.RENAMING_APPLICATION_0_TO_1, appName, newName);
+                client.rename(appName, newName);
             }
         }
 
