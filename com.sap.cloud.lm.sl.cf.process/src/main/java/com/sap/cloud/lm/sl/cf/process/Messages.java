@@ -264,6 +264,7 @@ public class Messages {
     public static final String SERVICE_BROKER_DOES_NOT_EXIST = "Service broker with name \"{0}\" does not exist";
     public static final String EXECUTING_HOOK_0 = "Executing hook \"{0}\"";
     public static final String WAITING_PREVIOUS_OPERATIONS_TO_FINISH = "Waiting for previous service operations to finish...";
+    public static final String RENAMING_APPLICATION_0_TO_1 = "Renaming application \"{0}\" to \"{1}\"...";
 
     // DEBUG log messages
     public static final String PROCESS_ENVIRONMENT = "Process environment: {0}";
@@ -429,9 +430,7 @@ public class Messages {
     public static final String NO_READ_ONLY_PARAMETERS_ARE_OVERWRITTEN = "No read-only parameters are overwritten";
     public static final String MODULE_WITH_APPLICATION_NAME_WAS_MARKED_AS_IDLE = "Module \"{0}\" with application name \"{1}\" was marked as idle";
     public static final String UPDATING_APP_NAMES_WITH_NEW_SUFFIX = "Updating application names in deployment descriptor with 'new' suffix";
-    public static final String RENAMING_NEW_APPLICATIONS = "Renaming new applications...";
-    public static final String RENAMING_OLD_APPLICATIONS = "Renaming old applications...";
-    public static final String RENAMING_APPLICATION = "Renaming application {0}";
+    public static final String UPDATING_CONFIGURATION_SUBSCRIPTION_0_WITH_NAME_1 = "Updating configuration subscription \"{0}\" with name \"{1}\"";
 
     protected Messages() {
     }

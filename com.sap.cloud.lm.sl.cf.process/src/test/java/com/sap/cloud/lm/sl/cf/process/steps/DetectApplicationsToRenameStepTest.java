@@ -48,9 +48,9 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
     public static Stream<Arguments> testExecuteWithoutRenamingApps() {
         return Stream.of(
 // @formatter:off
-            Arguments.of("a-old", "b-old"),
-            Arguments.of("a-new", "b-new"),
-            Arguments.of("a-old", "b-new")
+            Arguments.of("a-live", "b-live"),
+            Arguments.of("a-idle", "b-idle"),
+            Arguments.of("a-live", "b-idle")
 // @formatter:on
         );
     }
@@ -90,19 +90,19 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
         Assertions.assertEquals(appsToUpdate, StepsUtil.getAppsToRename(context));
 
         List<String> appsToCheck = appsToUpdate.stream()
-                                               .map(name -> name + BlueGreenApplicationNameSuffix.OLD.asSuffix())
+                                               .map(name -> name + BlueGreenApplicationNameSuffix.LIVE.asSuffix())
                                                .collect(Collectors.toList());
         validateUpdatedDeployedMta(appsToCheck);
     }
 
     @Test
     public void testExecuteWithTwoVersionsOfAppDeletesOldAndRenamesNew() {
-        DeployedMta deployedMta = createDeployedMta("a-old", "a");
+        DeployedMta deployedMta = createDeployedMta("a-live", "a");
         StepsUtil.setDeployedMta(context, deployedMta);
 
         CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
-        Mockito.when(client.getApplication("a-old", false))
-               .thenReturn(createApplication("a-old"));
+        Mockito.when(client.getApplication("a-live", false))
+               .thenReturn(createApplication("a-live"));
         Mockito.when(execution.getControllerClient())
                .thenReturn(client);
 
@@ -110,17 +110,17 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
         assertStepFinishedSuccessfully();
 
         Assertions.assertTrue(StepsUtil.getAppsToUndeploy(context)
-                                       .contains(createApplication("a-old")));
+                                       .contains(createApplication("a-live")));
         Assertions.assertTrue(StepsUtil.getAppsToRename(context)
                                        .contains("a"));
 
-        List<String> appsToCheck = Collections.singletonList("a-old");
+        List<String> appsToCheck = Collections.singletonList("a-live");
         validateUpdatedDeployedMta(appsToCheck);
     }
 
     @Test
     public void testExecuteWithTwoVersionsOfAppRenamesOld() {
-        DeployedMta deployedMta = createDeployedMta("a-new", "a");
+        DeployedMta deployedMta = createDeployedMta("a-idle", "a");
         StepsUtil.setDeployedMta(context, deployedMta);
 
         step.execute(context);
@@ -131,13 +131,13 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
         Assertions.assertTrue(StepsUtil.getAppsToUndeploy(context)
                                        .isEmpty());
 
-        List<String> appsToCheck = Arrays.asList("a-new", "a-old");
+        List<String> appsToCheck = Arrays.asList("a-idle", "a-live");
         validateUpdatedDeployedMta(appsToCheck);
     }
 
     @Test
     public void testExecuteWithTwoVersionsOfAppDoesNothing() {
-        DeployedMta deployedMta = createDeployedMta("a-old", "a-new");
+        DeployedMta deployedMta = createDeployedMta("a-live", "a-idle");
         StepsUtil.setDeployedMta(context, deployedMta);
 
         step.execute(context);
@@ -148,7 +148,7 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
         Assertions.assertTrue(StepsUtil.getAppsToUndeploy(context)
                                        .isEmpty());
 
-        List<String> appsToCheck = Arrays.asList("a-new", "a-old");
+        List<String> appsToCheck = Arrays.asList("a-idle", "a-live");
         validateUpdatedDeployedMta(appsToCheck);
     }
 
