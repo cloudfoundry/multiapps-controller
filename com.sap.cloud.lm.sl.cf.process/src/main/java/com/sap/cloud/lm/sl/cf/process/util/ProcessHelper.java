@@ -1,10 +1,12 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.flowable.engine.runtime.ProcessInstance;
 
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent;
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
@@ -30,24 +32,28 @@ public class ProcessHelper {
             return State.ACTION_REQUIRED;
         }
 
-        List<HistoricOperationEvent> operationEvents = getHistoricOperationEventByProcessId(processId);
-        if (isInAbortedState(operationEvents)) {
+        if (isInAbortedState(processId)) {
             return State.ABORTED;
         }
 
-        if (isInFinishedState(operationEvents)) {
-            return State.FINISHED;
-        }
-
-        if (isInErrorState(operationEvents)) {
+        if (isInErrorState(processId)) {
             return State.ERROR;
         }
 
-        return State.RUNNING;
+        if (isInRunningState(processId)) {
+            return State.RUNNING;
+        }
+        return State.FINISHED;
     }
 
     private boolean isInReceiveTask(String processId) {
         return flowableFacade.isProcessInstanceAtReceiveTask(processId);
+    }
+
+    private boolean isInAbortedState(String processId) {
+        List<HistoricOperationEvent> historicOperationEvents = getHistoricOperationEventByProcessId(processId);
+        return historicOperationEvents.stream()
+                                      .anyMatch(event -> event.getType() == EventType.ABORTED);
     }
 
     public List<HistoricOperationEvent> getHistoricOperationEventByProcessId(String processId) {
@@ -56,22 +62,17 @@ public class ProcessHelper {
                                             .list();
     }
 
-    private boolean isInAbortedState(List<HistoricOperationEvent> operationEvents) {
-        return isInState(operationEvents, event -> event.getType() == EventType.ABORTED);
+    private boolean isInErrorState(String processId) {
+        return flowableFacade.hasDeadLetterJobs(processId);
     }
 
-    private boolean isInFinishedState(List<HistoricOperationEvent> operationEvents) {
-        return isInState(operationEvents, event -> event.getType() == EventType.FINISHED);
+    private boolean isInRunningState(String processId) {
+        Optional<ProcessInstance> processInstanceOptional = getProcessInstance(processId);
+        return processInstanceOptional.isPresent();
     }
 
-    private boolean isInErrorState(List<HistoricOperationEvent> operationEvents) {
-        return isInState(operationEvents, event -> event.getType() == EventType.FAILED_BY_CONTENT_ERROR
-            || event.getType() == EventType.FAILED_BY_INFRASTRUCTURE_ERROR);
-    }
-
-    private boolean isInState(List<HistoricOperationEvent> operationEvents, Predicate<? super HistoricOperationEvent> statePredicate) {
-        return operationEvents.stream()
-                              .anyMatch(statePredicate);
+    private Optional<ProcessInstance> getProcessInstance(String processId) {
+        return Optional.ofNullable(flowableFacade.getProcessInstance(processId));
     }
 
 }

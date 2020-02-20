@@ -53,11 +53,8 @@ public class ProcessHelperTest {
 
     @Test
     public void testIsProcessInErrorState() {
-        Mockito.when(historicOperationEventQuery.list())
-               .thenReturn(Arrays.asList(ImmutableHistoricOperationEvent.builder()
-                                                                        .type(EventType.FAILED_BY_CONTENT_ERROR)
-                                                                        .processId(PROCESS_ID)
-                                                                        .build()));
+        Mockito.when(flowableFacade.hasDeadLetterJobs(PROCESS_ID))
+               .thenReturn(true);
         Assertions.assertEquals(State.ERROR, processHelper.computeProcessState(PROCESS_ID));
     }
 
@@ -84,6 +81,5 @@ public class ProcessHelperTest {
                                                                         .processId(PROCESS_ID)
                                                                         .build()));
     }
-
 
 }
