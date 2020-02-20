@@ -5,6 +5,7 @@ target/
 .classpath
 .settings
 .bpmn
+.factorypath
 *.iml
 *.zip
 *.war
