@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
-import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.v3.Metadata;
@@ -51,18 +50,16 @@ public class DetachServicesFromMtaStep extends SyncFlowableStep {
             getStepLogger().info(MessageFormat.format(Messages.DETACHING_SERVICE_0_FROM_MTA, serviceToDetachFromMta.getName()));
             UUID serviceGuid = serviceToDetachFromMta.getMetadata()
                                                      .getGuid();
-            client.updateServiceMetadata(serviceGuid, getMetadataWithEmptyMtaFields(serviceMetadata));
+            client.updateServiceMetadata(serviceGuid, getMetadataWithoutMtaFields(serviceMetadata));
         }
     }
 
-    // FIXME Once the fix for deleting metadata is available in cf-java-client, the whole MTA metadata must be deleted instead of setting an
-    // empty MTA_ID value as a way to exclude entities from being queried
-    private Metadata getMetadataWithEmptyMtaFields(Metadata metadata) {
+    private Metadata getMetadataWithoutMtaFields(Metadata metadata) {
         return Metadata.builder()
                        .from(metadata)
-                       .label(MtaMetadataLabels.MTA_ID, StringUtils.EMPTY)
-                       .label(MtaMetadataLabels.MTA_VERSION, StringUtils.EMPTY)
-                       .annotation(MtaMetadataAnnotations.MTA_RESOURCE, StringUtils.EMPTY)
+                       .label(MtaMetadataLabels.MTA_ID, null)
+                       .label(MtaMetadataLabels.MTA_VERSION, null)
+                       .annotation(MtaMetadataAnnotations.MTA_RESOURCE, null)
                        .build();
     }
 

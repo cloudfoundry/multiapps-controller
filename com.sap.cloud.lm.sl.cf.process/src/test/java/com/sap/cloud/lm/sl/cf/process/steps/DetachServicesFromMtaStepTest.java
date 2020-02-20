@@ -1,19 +1,3 @@
-/*
- * Copyright 2013-2020 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
@@ -25,7 +9,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
@@ -63,15 +46,15 @@ public class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachSe
     private void validateServicesDetached(List<SimpleServiceInstance> servicesToDetach) {
         for (SimpleServiceInstance serviceToDetach : servicesToDetach) {
             Mockito.verify(client)
-                   .updateServiceMetadata(eq(serviceToDetach.guid), eq(getMetadataWithEmptyMtaFields()));
+                   .updateServiceMetadata(eq(serviceToDetach.guid), eq(getMetadataWithoutMtaFields()));
         }
     }
 
-    private static Metadata getMetadataWithEmptyMtaFields() {
+    private static Metadata getMetadataWithoutMtaFields() {
         return Metadata.builder()
-                       .label(MtaMetadataLabels.MTA_ID, StringUtils.EMPTY)
-                       .label(MtaMetadataLabels.MTA_VERSION, StringUtils.EMPTY)
-                       .annotation(MtaMetadataAnnotations.MTA_RESOURCE, StringUtils.EMPTY)
+                       .label(MtaMetadataLabels.MTA_ID, null)
+                       .label(MtaMetadataLabels.MTA_VERSION, null)
+                       .annotation(MtaMetadataAnnotations.MTA_RESOURCE, null)
                        .build();
     }
 
