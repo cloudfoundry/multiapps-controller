@@ -212,6 +212,7 @@ public class FlowableFacade {
             try {
                 processEngine.getRuntimeService()
                              .deleteProcessInstance(processInstanceId, deleteReason);
+                break;
             } catch (FlowableOptimisticLockingException e) {
                 if (isPastDeadline(overallAbortDeadline)) {
                     throw new IllegalStateException(Messages.ABORT_OPERATION_TIMED_OUT, e);
@@ -250,25 +251,6 @@ public class FlowableFacade {
         return allProcessExecutions.stream()
                                    .filter(e -> e.getActivityId() != null)
                                    .collect(Collectors.toList());
-    }
-
-    private List<Execution> getAllSubprocessExecutionsWithoutChildren(String processInstanceId) {
-        List<Execution> allExecutions = getAllProcessExecutions(processInstanceId);
-        return allExecutions.stream()
-                            .filter(execution -> isNotParent(allExecutions, execution))
-                            .collect(Collectors.toList());
-    }
-
-    private boolean isNotParent(List<Execution> allExecutions, Execution execution) {
-        for (Execution exec : allExecutions) {
-            if (execution.getId()
-                         .equals(exec.getParentId())
-                || execution.getId()
-                            .equals(exec.getSuperExecutionId())) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private List<Execution> getAllProcessExecutions(String processInstanceId) {
