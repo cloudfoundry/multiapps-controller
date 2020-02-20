@@ -105,9 +105,7 @@ public class DeployedMtaDetectorTest {
             // (9) Two apps with one service each
             Arguments.of("metadata/apps-09.json", "metadata/services-09.json", new Expectation(Expectation.Type.JSON, "metadata/deployed-mtas-09.json")),
             // (10) Two apps with one service and one user provided service each
-            Arguments.of("metadata/apps-10.json", "metadata/services-10.json", new Expectation(Expectation.Type.JSON, "metadata/deployed-mtas-10.json")),
-            // (11) Two applications, one with empty mta_id and two services, one with empty mta_id
-            Arguments.of("metadata/apps-11.json", "metadata/services-11.json", new Expectation(Expectation.Type.JSON, "metadata/deployed-mtas-11.json"))
+            Arguments.of("metadata/apps-10.json", "metadata/services-10.json", new Expectation(Expectation.Type.JSON, "metadata/deployed-mtas-10.json"))
             // @formatter:on
         );
     }
