@@ -38,7 +38,12 @@
     <serviceTask id="detectDeployedMtaTask" name="Detect Deployed MTA" flowable:async="true" flowable:delegateExpression="${detectDeployedMtaStep}"></serviceTask>
     <serviceTask id="renameApplicationsTask" name="Rename applications" flowable:async="true" flowable:delegateExpression="${renameApplicationsStep}"></serviceTask>
     <sequenceFlow id="flow9" sourceRef="renameApplicationsTask" targetRef="collectBlueGreenSystemParametersTask"></sequenceFlow>
-    <receiveTask id="continueDeploymentTask" name="Continue Deployment" flowable:async="true"></receiveTask>
+    <receiveTask id="continueDeploymentTask" name="Continue Deployment" flowable:async="true">
+      <extensionElements>
+        <flowable:executionListener event="start" delegateExpression="${enterTestingPhaseListener}"></flowable:executionListener>
+        <flowable:executionListener event="end" delegateExpression="${leaveTestingPhaseListener}"></flowable:executionListener>
+      </extensionElements>
+    </receiveTask>
     <sequenceFlow id="flow36" sourceRef="continueDeploymentTask" targetRef="collectSystemParametersTask"></sequenceFlow>
     <exclusiveGateway id="shouldAutoContinueDeploymentGateway" name="Should Auto Continue Deployment" default="doNotAutoContinueDeploymentFlow"></exclusiveGateway>
     <sequenceFlow id="doNotAutoContinueDeploymentFlow" sourceRef="shouldAutoContinueDeploymentGateway" targetRef="continueDeploymentTask"></sequenceFlow>

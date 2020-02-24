@@ -40,21 +40,12 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     @Override
     public void notify(DelegateExecution context) {
         try {
-            this.stepLogger = createStepLogger(context);
             String correlationId = StepsUtil.getCorrelationId(context);
             if (correlationId == null) {
                 correlationId = context.getProcessInstanceId();
-                context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.VAR_CORRELATION_ID, correlationId);
+                context.setVariable(Constants.VAR_CORRELATION_ID, correlationId);
             }
-
-            correlationId = StepsUtil.getCorrelationId(context);
-            String processInstanceId = context.getProcessInstanceId();
-
-            // Check if this is subprocess
-            if (!processInstanceId.equals(correlationId)) {
-                return;
-            }
-
+            this.stepLogger = createStepLogger(context);
             notifyInternal(context);
         } catch (Exception e) {
             logException(e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED);
@@ -74,11 +65,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     }
 
     protected void finalizeLogs(DelegateExecution context) {
-        processLogsPersister.persistLogs(getCorrelationId(context), getTaskId(context));
-    }
-
-    private String getCorrelationId(DelegateExecution context) {
-        return (String) context.getVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.CORRELATION_ID);
+        processLogsPersister.persistLogs(StepsUtil.getCorrelationId(context), getTaskId(context));
     }
 
     private String getTaskId(DelegateExecution context) {
@@ -99,6 +86,12 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
 
     private StepLogger createStepLogger(DelegateExecution context) {
         return stepLoggerFactory.create(context, progressMessageService, processLoggerProvider, getLogger());
+    }
+
+    protected boolean isRootProcess(DelegateExecution context) {
+        String correlationId = StepsUtil.getCorrelationId(context);
+        String processInstanceId = context.getProcessInstanceId();
+        return processInstanceId.equals(correlationId);
     }
 
     protected abstract void notifyInternal(DelegateExecution context) throws Exception;
