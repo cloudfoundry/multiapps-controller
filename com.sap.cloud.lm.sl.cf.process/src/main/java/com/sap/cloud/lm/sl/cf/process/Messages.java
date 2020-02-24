@@ -268,6 +268,8 @@ public class Messages {
     public static final String RENAMING_APPLICATION_0_TO_1 = "Renaming application \"{0}\" to \"{1}\"...";
 
     // DEBUG log messages
+    public static final String ENTERING_TESTING_PHASE = "Entering testing phase";
+    public static final String LEAVING_TESTING_PHASE = "Leaving testing phase";
     public static final String PROCESS_ENVIRONMENT = "Process environment: {0}";
     public static final String PROCESS_VARIABLES = "Process variables: {0}";
     public static final String CURRENT_USER = "Current user: {0}";

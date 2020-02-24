@@ -23,7 +23,9 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
 
     @Override
     protected void notifyInternal(DelegateExecution context) {
-        eventHandler.handle(context, Operation.State.FINISHED);
+        if (isRootProcess(context)) {
+            eventHandler.handle(context, Operation.State.FINISHED);
+        }
     }
 
     @Override

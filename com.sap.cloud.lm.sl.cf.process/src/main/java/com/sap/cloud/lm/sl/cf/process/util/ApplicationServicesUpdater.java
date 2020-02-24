@@ -106,7 +106,7 @@ public class ApplicationServicesUpdater {
         ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         for (String serviceName : addServices) {
             Map<String, Object> bindingParameters = serviceNamesWithBindingParameters.get(serviceName);
-            stepLogger.info(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, applicationName, serviceName, bindingParameters);
+            stepLogger.debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, applicationName, serviceName, bindingParameters);
             client.bindService(applicationName, serviceName, bindingParameters, applicationServicesUpdateCallback);
         }
     }
@@ -114,7 +114,7 @@ public class ApplicationServicesUpdater {
     private void unbindServices(List<String> deleteServices, String applicationName,
         ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         for (String serviceName : deleteServices) {
-            stepLogger.info(Messages.UNBINDING_SERVICE_FROM_APP, applicationName, serviceName);
+            stepLogger.debug(Messages.UNBINDING_SERVICE_FROM_APP, applicationName, serviceName);
             client.unbindService(applicationName, serviceName, applicationServicesUpdateCallback);
         }
     }
@@ -124,9 +124,9 @@ public class ApplicationServicesUpdater {
         ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         for (String serviceName : rebindServices) {
             Map<String, Object> bindingParameters = serviceNamesWithBindingParameters.get(serviceName);
-            stepLogger.info(Messages.UNBINDING_SERVICE_FROM_APP, applicationName, serviceName);
+            stepLogger.debug(Messages.UNBINDING_SERVICE_FROM_APP, applicationName, serviceName);
             client.unbindService(applicationName, serviceName, applicationServicesUpdateCallback);
-            stepLogger.info(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, applicationName, serviceName, bindingParameters);
+            stepLogger.debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, applicationName, serviceName, bindingParameters);
             client.bindService(applicationName, serviceName, bindingParameters, applicationServicesUpdateCallback);
         }
     }

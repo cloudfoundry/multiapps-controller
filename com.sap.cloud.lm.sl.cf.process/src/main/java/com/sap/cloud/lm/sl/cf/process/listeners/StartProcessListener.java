@@ -47,6 +47,9 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
 
     @Override
     protected void notifyInternal(DelegateExecution context) {
+        if (!isRootProcess(context)) {
+            return;
+        }
         String correlationId = StepsUtil.getCorrelationId(context);
         ProcessType processType = processTypeParser.getProcessType(context);
 
