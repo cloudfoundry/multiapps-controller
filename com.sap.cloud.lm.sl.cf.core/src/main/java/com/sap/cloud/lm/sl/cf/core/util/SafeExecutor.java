@@ -2,10 +2,9 @@ package com.sap.cloud.lm.sl.cf.core.util;
 
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.Functions.FailableRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sap.cloud.lm.sl.common.util.Runnable;
 
 public class SafeExecutor {
 
@@ -21,7 +20,7 @@ public class SafeExecutor {
         this.exceptionHandler = exceptionHandler;
     }
 
-    public void execute(Runnable runnable) {
+    public <E extends Exception> void execute(FailableRunnable<E> runnable) {
         try {
             runnable.run();
         } catch (Exception e) {

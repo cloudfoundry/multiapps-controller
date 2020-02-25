@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -18,7 +19,6 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.common.util.MiscUtil;
 
 @Named("publishProvidedDependenciesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -77,7 +77,7 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
     }
 
     private void infoConfigurationPublishment(ConfigurationEntry entry) {
-        if (!MiscUtil.isNullOrEmpty(entry.getContent())) {
+        if (!ObjectUtils.isEmpty(entry.getContent())) {
             getStepLogger().info(MessageFormat.format(Messages.PUBLISHING_PUBLIC_PROVIDED_DEPENDENCY, entry.getProviderId()));
         }
     }
