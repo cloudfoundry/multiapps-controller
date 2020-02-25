@@ -6,6 +6,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscription
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -18,13 +19,12 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
     @Mock
     private ConfigurationSubscriptionService subscriptionService;
 
+    @Mock(answer = Answers.RETURNS_SELF)
+    private ConfigurationSubscriptionQuery query;
+
     @BeforeEach
     public void setUp() {
         context.setVariable(Constants.PARAM_KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
-        context.setVariable(Constants.PARAM_MTA_ID, "");
-        ConfigurationSubscriptionQuery query = Mockito.mock(ConfigurationSubscriptionQuery.class);
-        Mockito.when(query.mtaId(""))
-               .thenReturn(query);
         Mockito.when(query.list())
                .thenReturn(Collections.emptyList());
         Mockito.when(subscriptionService.createQuery())
@@ -58,9 +58,6 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
 
     @Test
     public void testUpdatingOfConfigurationSubscriptions() {
-        ConfigurationSubscriptionQuery query = Mockito.mock(ConfigurationSubscriptionQuery.class);
-        Mockito.when(query.mtaId(""))
-               .thenReturn(query);
         Mockito.when(query.list())
                .thenReturn(Collections.singletonList(new ConfigurationSubscription(0, "", "", "a-idle", null, null, null)));
         Mockito.when(subscriptionService.createQuery())

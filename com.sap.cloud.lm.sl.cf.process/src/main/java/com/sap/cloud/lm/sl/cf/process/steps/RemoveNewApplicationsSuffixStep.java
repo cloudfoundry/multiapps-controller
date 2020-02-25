@@ -39,14 +39,16 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
 
         String mtaId = (String) execution.getContext()
                                          .getVariable(Constants.PARAM_MTA_ID);
-        updateConfigurationSubscribers(appsToProcess, mtaId);
+        String spaceId = StepsUtil.getSpaceId(execution.getContext());
+        updateConfigurationSubscribers(appsToProcess, mtaId, spaceId);
 
         return StepPhase.DONE;
     }
 
-    private void updateConfigurationSubscribers(List<String> appsToProcess, String mtaId) {
+    private void updateConfigurationSubscribers(List<String> appsToProcess, String mtaId, String spaceId) {
         List<ConfigurationSubscription> subscriptions = subscriptionService.createQuery()
                                                                            .mtaId(mtaId)
+                                                                           .spaceId(spaceId)
                                                                            .list();
         for (ConfigurationSubscription subscription : subscriptions) {
             if (appsToProcess.contains(subscription.getAppName())) {
