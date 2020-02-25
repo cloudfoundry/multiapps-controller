@@ -21,7 +21,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.util.ModulesCloudModelBuilderContentCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.util.ResourcesCloudModelBuilderContentCalculator;
@@ -31,7 +30,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.common.util.Callable;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
@@ -643,26 +641,20 @@ public class CloudModelBuilderTest {
 
     @Test
     public void testGetApplications() {
-        tester.test(new Callable<List<CloudApplicationExtended>>() {
-            @Override
-            public List<CloudApplicationExtended> call() {
-                List<CloudApplicationExtended> apps = new ArrayList<>();
-                List<Module> modulesToDeploy = modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules());
-                for (Module module : modulesToDeploy) {
-                    apps.add(appBuilder.build(module, moduleToDeployHelper));
-                }
-                return apps;
+        tester.test(() -> {
+            List<CloudApplicationExtended> apps = new ArrayList<>();
+            List<Module> modulesToDeploy = modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules());
+            for (Module module : modulesToDeploy) {
+                apps.add(appBuilder.build(module, moduleToDeployHelper));
             }
+            return apps;
         }, expectedApps);
     }
 
     @Test
     public void testGetServices() {
-        tester.test(new Callable<List<CloudServiceExtended>>() {
-            @Override
-            public List<CloudServiceExtended> call() {
-                return servicesBuilder.build(resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources()));
-            }
+        tester.test(() -> {
+            return servicesBuilder.build(resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources()));
         }, expectedServices);
     }
 

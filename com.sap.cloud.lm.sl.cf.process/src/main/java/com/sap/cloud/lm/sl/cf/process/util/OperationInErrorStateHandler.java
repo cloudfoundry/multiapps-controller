@@ -8,6 +8,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngineConfiguration;
@@ -22,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageT
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.util.MiscUtil;
 
 @Named
 public class OperationInErrorStateHandler {
@@ -113,7 +113,7 @@ public class OperationInErrorStateHandler {
 
             // Based on the above comment, one of the executions will have null activityId(because it will be the monitoring one) and thus
             // should be excluded from the list of executions
-            return MiscUtil.isNullOrEmpty(currentExecutionsForProcess) ? null : findCurrentExecution(currentExecutionsForProcess);
+            return ObjectUtils.isEmpty(currentExecutionsForProcess) ? null : findCurrentExecution(currentExecutionsForProcess);
         } catch (Exception e) {
             return null;
         }

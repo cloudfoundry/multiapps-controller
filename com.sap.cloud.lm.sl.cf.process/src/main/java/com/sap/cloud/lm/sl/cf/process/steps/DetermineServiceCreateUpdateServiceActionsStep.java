@@ -197,8 +197,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             return ResourceType.USER_PROVIDED_SERVICE.toString();
         }
 
-        String label = MiscUtil.isNullOrEmpty(service.getLabel()) ? "unknown label" : service.getLabel();
-        String plan = MiscUtil.isNullOrEmpty(service.getPlan()) ? "unknown plan" : service.getPlan();
+        String label = ObjectUtils.isEmpty(service.getLabel()) ? "unknown label" : service.getLabel();
+        String plan = ObjectUtils.isEmpty(service.getPlan()) ? "unknown plan" : service.getPlan();
         return label + "/" + plan;
     }
 
