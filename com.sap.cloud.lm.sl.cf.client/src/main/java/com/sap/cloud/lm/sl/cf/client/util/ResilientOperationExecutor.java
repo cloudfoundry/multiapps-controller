@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
+import com.sap.cloud.lm.sl.common.util.MiscUtil;
 
 public class ResilientOperationExecutor {
 
@@ -41,7 +41,7 @@ public class ResilientOperationExecutor {
                 return operation.get();
             } catch (RuntimeException e) {
                 handle(e);
-                CommonUtil.sleep(waitTimeBetweenRetriesInMillis);
+                MiscUtil.sleep(waitTimeBetweenRetriesInMillis);
             }
         }
         return operation.get();

@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.cf.factory.v2;
 
-import static com.sap.cloud.lm.sl.common.util.CommonUtil.cast;
-
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +19,7 @@ import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParametersCompatabilityValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParametersValidator;
+import com.sap.cloud.lm.sl.common.util.MiscUtil;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.mergers.PlatformMerger;
@@ -36,7 +35,7 @@ public class HelperFactory implements HelperFactoryConstructor {
     }
 
     protected DescriptorHandler getHandler() {
-        return cast(this.descriptorHandler);
+        return MiscUtil.cast(this.descriptorHandler);
     }
 
     @Override
@@ -61,7 +60,7 @@ public class HelperFactory implements HelperFactoryConstructor {
     public ConfigurationReferencesResolver
            getConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService, ConfigurationFilterParser filterParser,
                                               CloudTarget cloudTarget, ApplicationConfiguration configuration) {
-        return new ConfigurationReferencesResolver(configurationEntryService, cast(filterParser), cloudTarget, configuration);
+        return new ConfigurationReferencesResolver(configurationEntryService, MiscUtil.cast(filterParser), cloudTarget, configuration);
     }
 
     @Override

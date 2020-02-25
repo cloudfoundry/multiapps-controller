@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageT
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
+import com.sap.cloud.lm.sl.common.util.MiscUtil;
 
 @Named
 public class OperationInErrorStateHandler {
@@ -113,7 +113,7 @@ public class OperationInErrorStateHandler {
 
             // Based on the above comment, one of the executions will have null activityId(because it will be the monitoring one) and thus
             // should be excluded from the list of executions
-            return CommonUtil.isNullOrEmpty(currentExecutionsForProcess) ? null : findCurrentExecution(currentExecutionsForProcess);
+            return MiscUtil.isNullOrEmpty(currentExecutionsForProcess) ? null : findCurrentExecution(currentExecutionsForProcess);
         } catch (Exception e) {
             return null;
         }

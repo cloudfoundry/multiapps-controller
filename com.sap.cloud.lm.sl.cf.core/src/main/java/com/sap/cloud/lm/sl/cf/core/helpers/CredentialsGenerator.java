@@ -4,7 +4,7 @@ import java.security.SecureRandom;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
+import com.sap.cloud.lm.sl.common.util.MiscUtil;
 
 public class CredentialsGenerator {
 
@@ -30,9 +30,9 @@ public class CredentialsGenerator {
     }
 
     private static char[] getLegalCharacters() {
-        char[] digits = CommonUtil.getCharacterRange('0', '9');
-        char[] lowerCaseLetters = CommonUtil.getCharacterRange('a', 'z');
-        char[] upperCaseLetters = CommonUtil.getCharacterRange('A', 'Z');
+        char[] digits = MiscUtil.getCharacterRange('0', '9');
+        char[] lowerCaseLetters = MiscUtil.getCharacterRange('a', 'z');
+        char[] upperCaseLetters = MiscUtil.getCharacterRange('A', 'Z');
         char[] specialCharacters = new char[] { '_', '-', '@', '(', ')', '&', '#', '*', '[', ']', };
 
         char[] legalCharacters = ArrayUtils.addAll(lowerCaseLetters, upperCaseLetters);

@@ -18,7 +18,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
+import com.sap.cloud.lm.sl.common.util.MiscUtil;
 
 @Named("publishProvidedDependenciesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -77,7 +77,7 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
     }
 
     private void infoConfigurationPublishment(ConfigurationEntry entry) {
-        if (!CommonUtil.isNullOrEmpty(entry.getContent())) {
+        if (!MiscUtil.isNullOrEmpty(entry.getContent())) {
             getStepLogger().info(MessageFormat.format(Messages.PUBLISHING_PUBLIC_PROVIDED_DEPENDENCY, entry.getProviderId()));
         }
     }

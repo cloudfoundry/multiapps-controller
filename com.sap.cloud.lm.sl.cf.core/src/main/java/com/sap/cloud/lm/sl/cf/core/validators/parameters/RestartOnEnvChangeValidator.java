@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
+import com.sap.cloud.lm.sl.common.util.MiscUtil;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class RestartOnEnvChangeValidator implements ParameterValidator {
@@ -13,7 +13,7 @@ public class RestartOnEnvChangeValidator implements ParameterValidator {
         if (!(restartParameters instanceof Map)) {
             return false;
         }
-        Map<String, Object> parameters = CommonUtil.cast(restartParameters);
+        Map<String, Object> parameters = MiscUtil.cast(restartParameters);
         if (parameters.containsKey(SupportedParameters.VCAP_APPLICATION_ENV)
             && !isValidBooleanParameter(parameters.get(SupportedParameters.VCAP_APPLICATION_ENV))) {
             return false;

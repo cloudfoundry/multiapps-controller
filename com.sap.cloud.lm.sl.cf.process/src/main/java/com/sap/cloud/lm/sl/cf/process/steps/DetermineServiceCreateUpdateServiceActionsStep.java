@@ -40,8 +40,8 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.MiscUtil;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
@@ -197,8 +197,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             return ResourceType.USER_PROVIDED_SERVICE.toString();
         }
 
-        String label = CommonUtil.isNullOrEmpty(service.getLabel()) ? "unknown label" : service.getLabel();
-        String plan = CommonUtil.isNullOrEmpty(service.getPlan()) ? "unknown plan" : service.getPlan();
+        String label = MiscUtil.isNullOrEmpty(service.getLabel()) ? "unknown label" : service.getLabel();
+        String plan = MiscUtil.isNullOrEmpty(service.getPlan()) ? "unknown plan" : service.getPlan();
         return label + "/" + plan;
     }
 
@@ -255,7 +255,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             return serviceExtended.getTags();
         }
         Map<String, Object> serviceInstance = serviceInstanceGetter.getServiceInstanceEntity(client, service.getName(), spaceId);
-        return CommonUtil.cast(serviceInstance.get("tags"));
+        return MiscUtil.cast(serviceInstance.get("tags"));
     }
 
     private boolean shouldUpdateKeys(CloudServiceExtended service, List<CloudServiceKey> serviceKeys) {
