@@ -5,11 +5,11 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationShutdown;
 import com.sap.cloud.lm.sl.cf.shutdown.client.configuration.ShutdownClientConfiguration;
 import com.sap.cloud.lm.sl.cf.shutdown.client.configuration.ShutdownConfiguration;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.MiscUtil;
 
 public class ApplicationInstanceShutdownExecutor {
 
@@ -42,7 +42,7 @@ public class ApplicationInstanceShutdownExecutor {
         ApplicationShutdown shutdown = shutdownClient.triggerShutdown(applicationGuid, applicationInstanceIndex);
         while (!hasFinished(shutdown)) {
             print(shutdown);
-            CommonUtil.sleep(SHUTDOWN_POLLING_INTERVAL);
+            MiscUtil.sleep(SHUTDOWN_POLLING_INTERVAL);
             shutdown = shutdownClient.getStatus(applicationGuid, applicationInstanceIndex);
         }
     }

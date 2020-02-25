@@ -31,7 +31,6 @@ import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.health.model.ImmutableHealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MiscUtil;
 import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
@@ -688,7 +687,7 @@ public class ApplicationConfiguration {
 
     private List<String> getApplicationUris(Map<String, Object> vcapApplication) {
         for (String urisKey : VCAP_APPLICATION_URIS_KEYS) {
-            List<String> uris = CommonUtil.cast(vcapApplication.get(urisKey));
+            List<String> uris = MiscUtil.cast(vcapApplication.get(urisKey));
             if (!CollectionUtils.isEmpty(uris)) {
                 return uris;
             }

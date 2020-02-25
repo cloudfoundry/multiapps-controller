@@ -29,7 +29,7 @@ import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
+import com.sap.cloud.lm.sl.common.util.MiscUtil;
 
 public class ObjectStoreFileStorage implements FileStorage {
 
@@ -142,7 +142,7 @@ public class ObjectStoreFileStorage implements FileStorage {
                     throw e;
                 }
             }
-            CommonUtil.sleep(i * getRetryWaitTime());
+            MiscUtil.sleep(i * getRetryWaitTime());
         }
     }
 
@@ -156,7 +156,7 @@ public class ObjectStoreFileStorage implements FileStorage {
             if (i == retries) {
                 break;
             }
-            CommonUtil.sleep(i * getRetryWaitTime());
+            MiscUtil.sleep(i * getRetryWaitTime());
         }
         return null;
     }

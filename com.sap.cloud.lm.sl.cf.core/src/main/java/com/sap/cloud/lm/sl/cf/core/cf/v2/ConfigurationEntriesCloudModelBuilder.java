@@ -13,8 +13,8 @@ import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.MiscUtil;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
@@ -77,7 +77,7 @@ public class ConfigurationEntriesCloudModelBuilder {
     }
 
     protected List<Map<String, Object>> getVisibleTargets(ProvidedDependency providedDependency) {
-        return CommonUtil.cast(providedDependency.getParameters()
+        return MiscUtil.cast(providedDependency.getParameters()
                                                  .get(SupportedParameters.VISIBILITY));
     }
 

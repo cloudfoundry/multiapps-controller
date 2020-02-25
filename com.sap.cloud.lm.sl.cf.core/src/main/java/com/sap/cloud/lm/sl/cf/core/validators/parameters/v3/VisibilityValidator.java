@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
+import com.sap.cloud.lm.sl.common.util.MiscUtil;
 import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 
 public class VisibilityValidator implements ParameterValidator {
@@ -16,7 +16,7 @@ public class VisibilityValidator implements ParameterValidator {
         if (!(visibleTargets instanceof List)) {
             return false;
         }
-        List<Map<String, String>> targets = CommonUtil.cast(visibleTargets);
+        List<Map<String, String>> targets = MiscUtil.cast(visibleTargets);
         for (Map<String, String> target : targets) {
             if (!isValidTarget(target)) {
                 return false;

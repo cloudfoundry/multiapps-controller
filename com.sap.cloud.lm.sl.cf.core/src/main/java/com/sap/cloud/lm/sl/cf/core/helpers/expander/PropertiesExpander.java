@@ -1,13 +1,12 @@
 package com.sap.cloud.lm.sl.cf.core.helpers.expander;
 
-import static com.sap.cloud.lm.sl.common.util.CommonUtil.replaceAll;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.ReferencingPropertiesVisitor;
+import com.sap.cloud.lm.sl.common.util.MiscUtil;
 import com.sap.cloud.lm.sl.mta.helpers.VisitableObject;
 import com.sap.cloud.lm.sl.mta.resolvers.Reference;
 import com.sap.cloud.lm.sl.mta.resolvers.ReferencePattern;
@@ -50,7 +49,7 @@ public class PropertiesExpander extends ReferencingPropertiesVisitor implements 
                 String newDependencyName = newDependencyNames.get(i);
                 String oldReference = REFERENCE_PATTERN.toString(reference);
                 String newReference = REFERENCE_PATTERN.toString(new Reference(null, reference.getKey(), newDependencyName));
-                replaceAll(result.get(i), oldReference, newReference);
+                MiscUtil.replaceAll(result.get(i), oldReference, newReference);
             }
         }
         return result.stream()
