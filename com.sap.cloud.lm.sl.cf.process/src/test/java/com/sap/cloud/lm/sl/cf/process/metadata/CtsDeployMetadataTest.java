@@ -45,7 +45,6 @@ public class CtsDeployMetadataTest extends MetadataBaseTest {
                 Constants.PARAM_GIT_SKIP_SSL,
                 Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS,
                 Constants.PARAM_ABORT_ON_ERROR,
-                Constants.PARAM_SKIP_OWNERSHIP_VALIDATION,
                 Constants.PARAM_CTS_PROCESS_ID,
                 Constants.PARAM_FILE_LIST,
                 Constants.PARAM_DEPLOY_URI,

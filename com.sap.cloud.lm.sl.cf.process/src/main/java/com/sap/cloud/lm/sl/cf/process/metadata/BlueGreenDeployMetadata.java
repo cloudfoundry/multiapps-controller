@@ -116,11 +116,6 @@ public class BlueGreenDeployMetadata {
                                              .defaultValue(false)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_SKIP_OWNERSHIP_VALIDATION)
-                                             .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
-                                             .build());
-        PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Constants.PARAM_MODULES_FOR_DEPLOYMENT)
                                              .type(ParameterType.STRING)
                                              .build());

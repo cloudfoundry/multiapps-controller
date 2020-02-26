@@ -45,7 +45,6 @@ public class BlueGreenDeployMetadataTest extends MetadataBaseTest {
                 Constants.PARAM_GIT_SKIP_SSL,
                 Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS,
                 Constants.PARAM_ABORT_ON_ERROR,
-                Constants.PARAM_SKIP_OWNERSHIP_VALIDATION,
                 Constants.PARAM_MODULES_FOR_DEPLOYMENT,
                 Constants.PARAM_RESOURCES_FOR_DEPLOYMENT,
                 Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE,

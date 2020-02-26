@@ -26,12 +26,6 @@ public class Messages {
     public static final String MISSING_SERVICE_BROKER_USERNAME = "Missing service broker username for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_PASSWORD = "Missing service broker password for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_URL = "Missing service broker url for application \"{0}\"";
-    public static final String APPLICATION_ASSOCIATED_WITH_ANOTHER_MTA = "Application \"{0}\" already exists, but is associated with MTA \"{1}\"";
-    public static final String APPLICATION_EXISTS_AS_STANDALONE = "Application \"{0}\" already exists as standalone (not associated with an MTA)";
-    public static final String SERVICE_ASSOCIATED_WITH_OTHER_APPS = "Service \"{0}\" already exists, but is bound to standalone application(s): {1}";
-    public static final String SERVICE_ASSOCIATED_WITH_OTHER_MTAS = "Service \"{0}\" already exists, but is associated with MTA(s): {1}";
-    public static final String ERROR_VALIDATING_SERVICES = "Could not validate services";
-    public static final String ERROR_VALIDATING_APPLICATIONS = "Could not validate applications";
     public static final String COULD_NOT_CONFIGURE_GIT_TO_SKIP_SSL = "Could not configure Git to skip SSL";
     public static final String ERROR_MERGING_ARCHIVE_PARTS = "Error merging archive parts: {0}";
     public static final String BUILDING_ARCHIVE_FROM_PARTS = "Building archive from parts...";
@@ -163,7 +157,6 @@ public class Messages {
     public static final String UPDATE_OF_SERVICE_BROKERS_FAILED_403 = "Could not update service broker \"{0}\". Operation forbidden. Only admin users can manage service brokers!";
     public static final String CREATE_OF_SERVICE_BROKERS_FAILED_403 = "Could not create service broker \"{0}\". Operation forbidden. Only admin users can manage service brokers!";
     public static final String DELETE_OF_SERVICE_BROKERS_FAILED_403 = "Could not delete service broker \"{0}\". Operation forbidden. Only admin users can manage service brokers!";
-    public static final String SERVICE_DOESNT_HAVE_BOUND_COMPONENTS = "Service \"{0}\" exists but doesn't have any bound applications";
     public static final String WILL_NOT_DELETE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be deleted, as the option for deleting discontinued service keys is not specified!";
     public static final String WILL_NOT_UPDATE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be updated, as the option for deleting discontinued service keys is not specified!";
     public static final String IGNORING_VERSION_RULE = "Version rule will be ignored, as the deployed MTA is in inconsistent state";
@@ -354,8 +347,6 @@ public class Messages {
     public static final String DETACHING_SERVICES_FROM_MTA = "Detaching services from MTA...";
     public static final String DETACHING_SERVICE_0_FROM_MTA = "Detaching service \"{0}\" from MTA...";
     public static final String SERVICES_DETACHED_FROM_MTA = "Detached services from MTA";
-    public static final String VALIDATING_SERVICES = "Validating services to create...";
-    public static final String VALIDATING_APPLICATIONS = "Validating applications to deploy...";
     public static final String DOMAIN_ALREADY_EXISTS = "Domain \"{0}\" already exists";
     public static final String SETTING_SERVICE_PARAMETERS = "Setting service \"{0}\" parameters from \"{1}\"";
     public static final String BINDING_PARAMETERS_FOR_APPLICATION = "Binding parameters for application \"{0}\": {1}";
@@ -378,10 +369,6 @@ public class Messages {
     public static final String CONFIGURATION_ENTRIES_TO_PUBLISH = "Configuration entries to publish: {0}";
     public static final String SERVICE_KEYS_TO_CREATE = "Service keys to create: {0}";
     public static final String APP_WITH_UPDATED_ENVIRONMENT = "App with updated environment: {0}";
-    public static final String VALIDATING_EXISTING_SERVICE_ASSOCIATION = "Trying to validate association of service \"{0}\"";
-    public static final String VALIDATING_EXISTING_APPLICATION_ASSOCIATION = "Trying to validate association of application \"{0}\"";
-    public static final String SERVICES_VALIDATED = "Services to create successfully validated";
-    public static final String APPLICATIONS_VALIDATED = "Applications to deploy successfully validated";
     public static final String UPLOADING_MTAR = "Uploading MTAR...";
     public static final String MTAR_UPLOADED = "MTAR uploaded.";
     public static final String CLONING_REPOSITORY = "Cloning repository {0}";

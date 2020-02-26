@@ -108,11 +108,6 @@ public class CtsDeployMetadata {
                                              .defaultValue(true)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_SKIP_OWNERSHIP_VALIDATION)
-                                             .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
-                                             .build());
-        PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE)
                                              .type(ParameterType.BOOLEAN)
                                              .defaultValue(false)
