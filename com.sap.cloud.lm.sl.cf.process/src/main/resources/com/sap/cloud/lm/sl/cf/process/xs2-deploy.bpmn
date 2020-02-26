@@ -46,13 +46,7 @@
     <serviceTask id="processGitSourceTask" name="Process Git Source" flowable:async="true" flowable:delegateExpression="${processGitSourceStep}"></serviceTask>
     <sequenceFlow id="flowAfterGitProcessing" sourceRef="processGitSourceTask" targetRef="validateParametersTask"></sequenceFlow>
     <exclusiveGateway id="hasGitRepoUriGateway" name="Has Git Repo URI Parameter" default="noGitRepoUriFlow"></exclusiveGateway>
-    <sequenceFlow id="hasGitRepoUriFlow" name="Has Git repo URI" sourceRef="hasGitRepoUriGateway" targetRef="processGitSourceTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!(empty gitUri)}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="noGitRepoUriFlow" name="No Git repo URI" sourceRef="hasGitRepoUriGateway" targetRef="validateParametersTask"></sequenceFlow>
-    <serviceTask id="checkForCreationConflictsTask" name="Check For Creation Conflicts" flowable:async="true" flowable:delegateExpression="${checkForCreationConflictsStep}"></serviceTask>
-    <sequenceFlow id="flow48" sourceRef="buildUndeployModelTask" targetRef="shouldSkipOwnershipValidationGateway"></sequenceFlow>
-    <sequenceFlow id="flow49" sourceRef="checkForCreationConflictsTask" targetRef="addDomainsTask"></sequenceFlow>
     <sequenceFlow id="flow51" sourceRef="startEvent" targetRef="hasGitRepoUriGateway"></sequenceFlow>
     <sequenceFlow id="flow57" sourceRef="updateSubscribersTask" targetRef="shouldRestartSubscribersGateway"></sequenceFlow>
     <exclusiveGateway id="shouldRestartSubscribersGateway" name="Should Restart Subscribers" default="restartSubscribersFlow"></exclusiveGateway>
@@ -105,11 +99,6 @@
     <sequenceFlow id="flow120" sourceRef="deployModulesParallel" targetRef="hasParallelDeploymentCompletedGateway"></sequenceFlow>
     <sequenceFlow id="deployAppsParallelNextIterationFlow" sourceRef="hasParallelDeploymentCompletedGateway" targetRef="computeNextModulesToDeployInParallel"></sequenceFlow>
     <callActivity id="deleteServicesCallActivity" name="Delete Services Sub Process" flowable:async="true" calledElement="deleteServicesSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
-    <exclusiveGateway id="shouldSkipOwnershipValidationGateway" name="Should Skip Ownership Validation" default="doNotSkipOwnershipValidationFlow"></exclusiveGateway>
-    <sequenceFlow id="doNotSkipOwnershipValidationFlow" sourceRef="shouldSkipOwnershipValidationGateway" targetRef="checkForCreationConflictsTask"></sequenceFlow>
-    <sequenceFlow id="skipOwnershipValidationFlow" sourceRef="shouldSkipOwnershipValidationGateway" targetRef="addDomainsTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(skipOwnershipValidation)}]]></conditionExpression>
-    </sequenceFlow>
     <callActivity id="createOrUpdateServicesCallActivity" name="Create or update services" flowable:async="true" calledElement="createOrUpdateServicesSubProcess" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <extensionElements>
         <flowable:in source="user" target="user"></flowable:in>
@@ -156,6 +145,10 @@
     <sequenceFlow id="doNotDeleteDiscontinuedServiceBrokersFlow" name="Don't delete service brokers" sourceRef="shouldDeleteDiscontinuedServiceBrokersGateway" targetRef="updateSubscribersTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deleteServiceBrokers == false)}]]></conditionExpression>
     </sequenceFlow>
+    <sequenceFlow id="hasGitRepoUriFlow" name="Has Git repo URI" sourceRef="hasGitRepoUriGateway" targetRef="processGitSourceTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!(empty gitUri)}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow48" sourceRef="buildUndeployModelTask" targetRef="addDomainsTask"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_xs2-deploy">
     <bpmndi:BPMNPlane bpmnElement="xs2-deploy" id="BPMNPlane_xs2-deploy">
@@ -225,9 +218,6 @@
       <bpmndi:BPMNShape bpmnElement="hasGitRepoUriGateway" id="BPMNShape_hasGitRepoUriGateway">
         <omgdc:Bounds height="40.0" width="40.0" x="367.0" y="40.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="checkForCreationConflictsTask" id="BPMNShape_checkForCreationConflictsTask">
-        <omgdc:Bounds height="58.0" width="105.0" x="1176.0" y="212.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="shouldRestartSubscribersGateway" id="BPMNShape_shouldRestartSubscribersGateway">
         <omgdc:Bounds height="40.0" width="40.0" x="302.0" y="803.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -273,9 +263,6 @@
       <bpmndi:BPMNShape bpmnElement="deleteServicesCallActivity" id="BPMNShape_deleteServicesCallActivity">
         <omgdc:Bounds height="61.0" width="105.0" x="855.0" y="592.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="shouldSkipOwnershipValidationGateway" id="BPMNShape_shouldSkipOwnershipValidationGateway">
-        <omgdc:Bounds height="40.0" width="40.0" x="1339.0" y="221.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="createOrUpdateServicesCallActivity" id="BPMNShape_createOrUpdateServicesCallActivity">
         <omgdc:Bounds height="80.0" width="100.0" x="683.0" y="202.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -295,12 +282,9 @@
         <omgdi:waypoint x="755.9999999999934" y="141.3104693140794"></omgdi:waypoint>
         <omgdi:waypoint x="670.0" y="141.0"></omgdi:waypoint>
         <omgdi:waypoint x="670.0" y="184.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1359.0" y="184.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1359.0" y="221.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow49" id="BPMNEdge_flow49">
-        <omgdi:waypoint x="1175.9999999999964" y="241.38284671532847"></omgdi:waypoint>
-        <omgdi:waypoint x="1149.9499999999973" y="241.57299270072994"></omgdi:waypoint>
+        <omgdi:waypoint x="1367.9000244140625" y="184.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1367.9000244140625" y="242.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1149.9499999999614" y="242.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-25422585-0CF1-4EDA-A191-9FC317F996E6" id="BPMNEdge_sid-25422585-0CF1-4EDA-A191-9FC317F996E6">
         <omgdi:waypoint x="1109.95" y="419.0"></omgdi:waypoint>
@@ -311,12 +295,6 @@
         <omgdi:waypoint x="536.0" y="418.0"></omgdi:waypoint>
         <omgdi:waypoint x="536.0" y="349.0"></omgdi:waypoint>
         <omgdi:waypoint x="566.0" y="349.72727272727275"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="skipOwnershipValidationFlow" id="BPMNEdge_skipOwnershipValidationFlow">
-        <omgdi:waypoint x="1358.7058823529412" y="260.6566176470588"></omgdi:waypoint>
-        <omgdi:waypoint x="1358.0" y="308.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1091.0" y="308.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1091.280303030303" y="270.95"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-9E6B662C-0D39-4E93-A0DE-28C9133BAD4C" id="BPMNEdge_sid-9E6B662C-0D39-4E93-A0DE-28C9133BAD4C">
         <omgdi:waypoint x="682.9999999999974" y="241.746192893401"></omgdi:waypoint>
@@ -343,10 +321,6 @@
         <omgdi:waypoint x="386.0" y="5.0"></omgdi:waypoint>
         <omgdi:waypoint x="667.0" y="5.0"></omgdi:waypoint>
         <omgdi:waypoint x="667.2173913043479" y="30.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="doNotSkipOwnershipValidationFlow" id="BPMNEdge_doNotSkipOwnershipValidationFlow">
-        <omgdi:waypoint x="1339.0" y="241.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1280.9499999999593" y="241.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow121" id="BPMNEdge_flow121">
         <omgdi:waypoint x="855.0" y="622.3747016706444"></omgdi:waypoint>
