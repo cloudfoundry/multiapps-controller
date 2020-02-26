@@ -23,12 +23,18 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
+import com.sap.cp.security.credstore.client.CredentialStoreClientException;
+import com.sap.cp.security.credstore.client.CredentialStoreFactory;
+import com.sap.cp.security.credstore.client.CredentialStoreInstance;
+import com.sap.cp.security.credstore.client.CredentialStoreNamespaceInstance;
+import com.sap.cp.security.credstore.client.EnvCoordinates;
 
 @Named
 public class DataTerminationService {
@@ -135,6 +141,7 @@ public class DataTerminationService {
         configurationEntryService.createQuery()
                                  .spaceId(spaceId)
                                  .delete();
+        ConfigurationEntriesUtil.deleteAllCredentials(spaceId);
     }
 
     private void deleteUserOperationsOrphanData(String deleteEventSpaceId) {

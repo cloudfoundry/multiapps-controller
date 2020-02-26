@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import com.sap.cloud.lm.sl.cf.core.model.BlueGreenApplicationNameSuffix;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationSubscriptionsUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 
@@ -60,7 +61,10 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
     }
 
     private void updateConfigurationSubscription(ConfigurationSubscription subscription, String newAppName) {
-        subscriptionService.update(subscription.getId(), createNewSubscription(subscription, newAppName));
+        ConfigurationSubscription newSubscription = createNewSubscription(subscription, newAppName);
+        ConfigurationSubscriptionsUtil.deleteKeyCredential(subscription);
+        ConfigurationSubscriptionsUtil.addKeyCredential(subscription);
+        subscriptionService.update(subscription.getId(), newSubscription);
     }
 
     private ConfigurationSubscription createNewSubscription(ConfigurationSubscription subscription, String newAppName) {

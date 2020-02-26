@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sap.cloud.lm.sl.cf.core.filters.ContentFilter;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 
 public class ConfigurationFilter {
 
@@ -72,7 +73,7 @@ public class ConfigurationFilter {
                                                                                     .satisfies(providerVersion))) {
             return false;
         }
-        return new ContentFilter().test(entry.getContent(), requiredContent);
+        return new ContentFilter().test(ConfigurationEntriesUtil.getContent(entry), requiredContent);
     }
 
 }

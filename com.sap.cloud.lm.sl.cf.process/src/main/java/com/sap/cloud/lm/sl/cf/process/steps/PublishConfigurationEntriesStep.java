@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -18,7 +19,16 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cp.security.credstore.client.CredentialStorage;
+import com.sap.cp.security.credstore.client.CredentialStoreClientException;
+import com.sap.cp.security.credstore.client.CredentialStoreFactory;
+import com.sap.cp.security.credstore.client.CredentialStoreInstance;
+import com.sap.cp.security.credstore.client.CredentialStoreNamespaceInstance;
+import com.sap.cp.security.credstore.client.EnvCoordinates;
+import com.sap.cp.security.credstore.client.PasswordCredential;
 
 @Named("publishProvidedDependenciesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -43,7 +53,7 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
             return StepPhase.DONE;
         }
 
-        List<ConfigurationEntry> publishedEntries = publish(entriesToPublish);
+        List<ConfigurationEntry> publishedEntries = publish(entriesToPublish, execution.getContext());
 
         getStepLogger().debug(Messages.PUBLISHED_ENTRIES, secureSerializer.toJson(publishedEntries));
         StepsUtil.setPublishedEntries(execution.getContext(), publishedEntries);
@@ -57,21 +67,24 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
         return Messages.ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES;
     }
 
-    private List<ConfigurationEntry> publish(List<ConfigurationEntry> entriesToPublish) {
+    private List<ConfigurationEntry> publish(List<ConfigurationEntry> entriesToPublish, DelegateExecution context) {
         List<ConfigurationEntry> publishedEntries = new ArrayList<>();
         for (ConfigurationEntry entry : entriesToPublish) {
-            ConfigurationEntry publishedConfigurationEntry = publishConfigurationEntry(entry);
+            ConfigurationEntry publishedConfigurationEntry = publishConfigurationEntry(entry, context);
             publishedEntries.add(publishedConfigurationEntry);
         }
         return publishedEntries;
     }
 
-    private ConfigurationEntry publishConfigurationEntry(ConfigurationEntry entry) {
+    private ConfigurationEntry publishConfigurationEntry(ConfigurationEntry entry, DelegateExecution context) {
         infoConfigurationPublishment(entry);
         ConfigurationEntry currentEntry = getExistingEntry(entry);
         if (currentEntry == null) {
+            ConfigurationEntriesUtil.addPasswordCredential(entry);
             return configurationEntryService.add(entry);
         } else {
+            ConfigurationEntriesUtil.deletePasswordCredential(currentEntry);
+            ConfigurationEntriesUtil.addPasswordCredential(entry);
             return configurationEntryService.update(currentEntry.getId(), entry);
         }
     }

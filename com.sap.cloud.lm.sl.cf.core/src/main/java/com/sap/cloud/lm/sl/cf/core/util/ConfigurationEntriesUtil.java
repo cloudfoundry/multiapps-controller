@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.util;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,6 +16,14 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.common.ParsingException;
+import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cp.security.credstore.client.CredentialStorage;
+import com.sap.cp.security.credstore.client.CredentialStoreClientException;
+import com.sap.cp.security.credstore.client.CredentialStoreFactory;
+import com.sap.cp.security.credstore.client.CredentialStoreInstance;
+import com.sap.cp.security.credstore.client.CredentialStoreNamespaceInstance;
+import com.sap.cp.security.credstore.client.EnvCoordinates;
+import com.sap.cp.security.credstore.client.PasswordCredential;
 
 public class ConfigurationEntriesUtil {
 
@@ -82,6 +91,71 @@ public class ConfigurationEntriesUtil {
                                         .requiredProperties(requiredContent)
                                         .visibilityTargets(cloudTargets)
                                         .list();
+    }
+    
+    private static String getCredStoreId(ConfigurationEntry entry) {
+        return UUID.nameUUIDFromBytes(entry.getProviderId().getBytes()).toString();
+//        return String.valueOf(entry.getProviderId().hashCode());
+    }
+    
+    public static String getContent(ConfigurationEntry configurationEntry) {
+        CredentialStoreNamespaceInstance credentialStoreNamespaceInstance = getCredentialStoreNamespaceInstance(configurationEntry);
+        CredentialStorage<PasswordCredential> passwordStorage = credentialStoreNamespaceInstance.getPasswordCredentialStorage();
+        PasswordCredential password1;
+        String content = null;
+        try {
+            password1 = passwordStorage.read(getCredStoreId(configurationEntry));
+            content = String.valueOf(password1.getValue());
+        } catch (CredentialStoreClientException e) {
+            throw new SLException(e);
+        }
+        LOGGER.warn("Credstore return: " + getCredStoreId(configurationEntry) + ", value: " + content);
+        return content;
+    }
+
+    static CredentialStoreNamespaceInstance getCredentialStoreNamespaceInstance(ConfigurationEntry configurationEntry) {
+        CredentialStoreInstance credentialStore = CredentialStoreFactory.getInstance(EnvCoordinates.DEFAULT_ENVIRONMENT);
+        return credentialStore.getNamespaceInstance(configurationEntry.getSpaceId());
+    }
+    
+    static CredentialStoreNamespaceInstance getCredentialStoreNamespaceInstance(String spaceId) {
+        CredentialStoreInstance credentialStore = CredentialStoreFactory.getInstance(EnvCoordinates.DEFAULT_ENVIRONMENT);
+        return credentialStore.getNamespaceInstance(spaceId);
+    }
+    
+    public static void deleteAllCredentials(String spaceId) {
+        CredentialStoreNamespaceInstance credentialStoreNamespaceInstance = getCredentialStoreNamespaceInstance(spaceId);
+        try {
+            credentialStoreNamespaceInstance.deleteAllCredentials();
+        } catch (CredentialStoreClientException e) {
+            throw new SLException(e);
+        }
+        
+    }
+    
+    public static void deletePasswordCredential(ConfigurationEntry entry) {
+        CredentialStoreNamespaceInstance credentialStoreNamespaceInstance = getCredentialStoreNamespaceInstance(entry);
+        CredentialStorage<PasswordCredential> passwordStorage = credentialStoreNamespaceInstance.getPasswordCredentialStorage();
+        
+        try {
+            passwordStorage.delete(getCredStoreId(entry));
+        } catch (CredentialStoreClientException e) {
+            LOGGER.warn("fail to delete " + getCredStoreId(entry), e);
+            throw new SLException(e);
+        }
+    }
+    
+    public static void addPasswordCredential(ConfigurationEntry entry) {
+        CredentialStoreNamespaceInstance credentialStoreNamespaceInstance = getCredentialStoreNamespaceInstance(entry);
+        CredentialStorage<PasswordCredential> passwordStorage = credentialStoreNamespaceInstance.getPasswordCredentialStorage();
+        PasswordCredential password1 = PasswordCredential.builder(getCredStoreId(entry), entry.getContent().toCharArray())
+                                                         .build();
+        try {
+            passwordStorage.create(password1);
+        } catch (CredentialStoreClientException e) {
+            LOGGER.warn("fail to delete password credential " + getCredStoreId(entry), e);
+            throw new SLException(e);
+        }
     }
 
     public static CloudTarget getGlobalConfigTarget(ApplicationConfiguration configuration) {

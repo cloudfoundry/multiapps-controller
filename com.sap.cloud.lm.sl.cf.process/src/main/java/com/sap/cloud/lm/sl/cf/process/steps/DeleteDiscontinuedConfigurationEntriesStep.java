@@ -18,7 +18,15 @@ import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cp.security.credstore.client.CredentialStorage;
+import com.sap.cp.security.credstore.client.CredentialStoreClientException;
+import com.sap.cp.security.credstore.client.CredentialStoreFactory;
+import com.sap.cp.security.credstore.client.CredentialStoreInstance;
+import com.sap.cp.security.credstore.client.CredentialStoreNamespaceInstance;
+import com.sap.cp.security.credstore.client.EnvCoordinates;
+import com.sap.cp.security.credstore.client.PasswordCredential;
 
 @Named("deleteDiscontinuedConfigurationEntriesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -47,6 +55,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
             int deletedEntries = configurationEntryService.createQuery()
                                                           .id(entry.getId())
                                                           .delete();
+            ConfigurationEntriesUtil.deletePasswordCredential(entry);
             if (deletedEntries == 0) {
                 getStepLogger().warn(Messages.COULD_NOT_DELETE_PROVIDED_DEPENDENCY, entry.getProviderId());
             }
@@ -57,7 +66,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
         getStepLogger().debug(Messages.PUBLISHED_DEPENDENCIES_DELETED);
         return StepPhase.DONE;
     }
-
+    
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
         return Messages.ERROR_DELETING_PUBLISHED_DEPENDENCIES;

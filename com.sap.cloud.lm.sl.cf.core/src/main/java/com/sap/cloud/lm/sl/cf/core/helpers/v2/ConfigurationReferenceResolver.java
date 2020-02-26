@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.helpers.v2;
 
 import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.findConfigurationEntries;
+import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.getContent;
 import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.getGlobalConfigTarget;
 import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.getIndexedName;
 import static com.sap.cloud.lm.sl.common.util.MapUtil.merge;
@@ -75,6 +76,8 @@ public class ConfigurationReferenceResolver {
     }
 
     protected Map<String, Object> mergeProperties(Resource resource, ConfigurationEntry configurationEntry) {
-        return merge(JsonUtil.convertJsonToMap(configurationEntry.getContent()), resource.getProperties());
+        return merge(JsonUtil.convertJsonToMap(getContent(configurationEntry)), resource.getProperties());
     }
+    
+
 }

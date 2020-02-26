@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationSubscriptionsUtil;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 
 @Named("createSubscriptionsStep")
@@ -68,9 +69,13 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
         infoSubscriptionCreation(subscription);
         ConfigurationSubscription existingSubscription = detectSubscription(subscription);
         if (existingSubscription != null) {
+            getStepLogger().info("existing subscription is not null");
+            ConfigurationSubscriptionsUtil.deleteKeyCredential(existingSubscription);
+            ConfigurationSubscriptionsUtil.addKeyCredential(subscription);
             configurationSubscriptionService.update(existingSubscription.getId(), subscription);
             return;
         }
+        ConfigurationSubscriptionsUtil.addKeyCredential(subscription);
         configurationSubscriptionService.add(subscription);
     }
 

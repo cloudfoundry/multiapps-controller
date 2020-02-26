@@ -238,6 +238,7 @@ public class Messages {
     public static final String UPLOADING_APP = "Uploading application \"{0}\"...";
     public static final String SCALING_APP_0_TO_X_INSTANCES = "Scaling application \"{0}\" to \"{1}\" instances... ";
     public static final String PUBLISHING_PUBLIC_PROVIDED_DEPENDENCY = "Publishing publicly provided dependency \"{0}\"...";
+    public static final String FAIL_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCY = "Fail to publishing publicly provided dependency \"{0}\" in credstore";
     public static final String UPDATING_SUBSCRIBER = "Updating application \"{0}\" from MTA \"{1}\" for subscription \"{2}\"";
     public static final String DELETING_DISCONTINUED_SUBSCRIPTION_FROM_0_MODULE_TO_1_RESOURCE = "Deleting discontinued configuration change subscription from MTA module \"{0}\" to MTA resource \"{1}\"...";
     public static final String DELETING_DISCONTINUED_DEPENDENCY_0 = "Deleting discontinued publicly provided dependency \"{0}\"...";

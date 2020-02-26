@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,6 +71,13 @@ import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 import com.sap.cloud.lm.sl.mta.model.Module;
+import com.sap.cp.security.credstore.client.CredentialStorage;
+import com.sap.cp.security.credstore.client.CredentialStoreClientException;
+import com.sap.cp.security.credstore.client.CredentialStoreFactory;
+import com.sap.cp.security.credstore.client.CredentialStoreInstance;
+import com.sap.cp.security.credstore.client.CredentialStoreNamespaceInstance;
+import com.sap.cp.security.credstore.client.EnvCoordinates;
+import com.sap.cp.security.credstore.client.PasswordCredential;
 
 public class StepsUtil {
 

@@ -182,5 +182,9 @@
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
         </dependency>
+        <dependency>  
+          <groupId>com.sap.cp.security</groupId>  
+          <artifactId>credential-store-client-java</artifactId>  
+        </dependency>
     </dependencies>
 </project>

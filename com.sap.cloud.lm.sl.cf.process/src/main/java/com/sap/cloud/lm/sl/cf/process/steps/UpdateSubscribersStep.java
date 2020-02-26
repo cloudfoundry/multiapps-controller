@@ -49,6 +49,7 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationSubscriptionsUtil;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -259,8 +260,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
     private List<String> getPropertiesWithReferencesToConfigurationResource(ConfigurationSubscription subscription) {
         ReferenceDetector detector = new ReferenceDetector(getRequiredDependency(subscription).getName());
-        new VisitableObject(subscription.getModuleDto()
-                                        .getProperties()).accept(detector);
+        new VisitableObject(ConfigurationSubscriptionsUtil.getModuleDto(subscription)).accept(detector);
         return getFirstComponents(detector.getRelevantProperties());
     }
 
@@ -293,7 +293,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     }
 
     private RequiredDependencyDto getRequiredDependency(ConfigurationSubscription subscription) {
-        return subscription.getModuleDto()
+        return ConfigurationSubscriptionsUtil.getModuleDto(subscription)
                            .getRequiredDependencies()
                            .get(0);
     }
@@ -303,7 +303,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     }
 
     private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, HandlerFactory handlerFactory) {
-        ModuleDto moduleDto = subscription.getModuleDto();
+        
+        ModuleDto moduleDto = ConfigurationSubscriptionsUtil.getModuleDto(subscription);
         String resourceJson = toJson(subscription.getResourceDto());
         Map<String, Object> resourceMap = convertJsonToMap(resourceJson);
 

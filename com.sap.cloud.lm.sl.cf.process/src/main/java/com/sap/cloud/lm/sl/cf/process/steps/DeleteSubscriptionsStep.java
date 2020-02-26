@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationSubscriptionsUtil;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
@@ -34,6 +35,7 @@ public class DeleteSubscriptionsStep extends SyncFlowableStep {
             int removedSubscriptions = configurationSubscriptionService.createQuery()
                                                                        .id(subscription.getId())
                                                                        .delete();
+            ConfigurationSubscriptionsUtil.deleteKeyCredential(subscription);
             if (removedSubscriptions == 0) {
                 ResourceDto resourceDto = subscription.getResourceDto();
                 getStepLogger().warn(Messages.COULD_NOT_DELETE_SUBSCRIPTION, subscription.getAppName(), getName(resourceDto));

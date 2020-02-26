@@ -25,7 +25,15 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cp.security.credstore.client.CredentialStorage;
+import com.sap.cp.security.credstore.client.CredentialStoreClientException;
+import com.sap.cp.security.credstore.client.CredentialStoreFactory;
+import com.sap.cp.security.credstore.client.CredentialStoreInstance;
+import com.sap.cp.security.credstore.client.CredentialStoreNamespaceInstance;
+import com.sap.cp.security.credstore.client.EnvCoordinates;
+import com.sap.cp.security.credstore.client.PasswordCredential;
 
 @Named("deleteDiscontinuedConfigurationEntriesForAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -67,6 +75,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
             int deletedEntries = configurationEntryService.createQuery()
                                                           .id(entry.getId())
                                                           .delete();
+            ConfigurationEntriesUtil.deletePasswordCredential(entry);
             if (deletedEntries == 0) {
                 getStepLogger().warn(Messages.COULD_NOT_DELETE_PROVIDED_DEPENDENCY, entry.getProviderId());
             }
@@ -77,6 +86,8 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
         getStepLogger().debug(Messages.DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP_DELETED, existingApp.getName());
         return StepPhase.DONE;
     }
+    
+    
 
     private MtaMetadata getMtaMetadata(CloudApplication existingApp) {
         if (hasMtaMetadata(existingApp)) {
