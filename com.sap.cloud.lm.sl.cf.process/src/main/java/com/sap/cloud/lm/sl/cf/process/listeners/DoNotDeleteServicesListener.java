@@ -16,6 +16,9 @@ public class DoNotDeleteServicesListener extends AbstractProcessExecutionListene
 
     @Override
     protected void notifyInternal(DelegateExecution context) {
+        if (!isRootProcess(context)) {
+            return;
+        }
         getStepLogger().warn(Messages.SKIP_SERVICES_DELETION);
     }
 
