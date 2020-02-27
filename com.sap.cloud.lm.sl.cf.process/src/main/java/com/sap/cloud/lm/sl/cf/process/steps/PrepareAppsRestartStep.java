@@ -32,6 +32,8 @@ public class PrepareAppsRestartStep extends PrepareModulesDeploymentStep {
                  .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, false);
         execution.getContext()
                  .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
+        execution.getContext()
+                 .setVariable(Constants.VAR_SHOULD_SKIP_SERVICE_REBINDING, true);
         StepsUtil.setUseIdleUris(execution.getContext(), false);
         StepsUtil.setDeleteIdleUris(execution.getContext(), true);
         StepsUtil.setSkipUpdateConfigurationEntries(execution.getContext(), false);
