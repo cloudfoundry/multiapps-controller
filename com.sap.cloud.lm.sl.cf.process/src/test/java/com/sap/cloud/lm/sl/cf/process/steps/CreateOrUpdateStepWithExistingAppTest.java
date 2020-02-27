@@ -3,25 +3,24 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.mockito.ArgumentMatchers.eq;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.domain.*;
 import org.cloudfoundry.client.lib.domain.CloudApplication.State;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
@@ -35,118 +34,90 @@ import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
-@RunWith(Parameterized.class)
 public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateOrUpdateAppStep> {
 
     private static final ApplicationServicesUpdateCallback CALLBACK = ApplicationServicesUpdateCallback.DEFAULT_APPLICATION_SERVICES_UPDATE_CALLBACK;
 
-    private final StepInput input;
-    private final String expectedExceptionMessage;
+    private StepInput input;
 
-    private final List<String> notRequiredServices = new ArrayList<>();
-    private List<String> expectedServicesToBind = new ArrayList<>();
+    private List<String> notRequiredServices;
+    private List<String> expectedServicesToBind;
 
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
 // @formatter:off
-            {
-                "update-app-step-input-1.json", null,
-            },
-            {
-                "update-app-step-input-2.json", null,
-            },
-            {
-                "update-app-step-input-3.json", null,
-            },
-            {
-                "update-app-step-input-4.json", null,
-            },
-            {
-                "update-app-step-input-5.json", null,
-            },
-            {
-                "update-app-step-input-6.json", null,
-            },
-            {
-                "update-app-step-input-7.json", null,
-            },
-            {
-                "update-app-step-input-8.json", null,
-            },
-            {
-                "update-app-step-input-9.json", null,
-            },
-            {
-                "update-app-step-input-10.json", null,
-            },
-            {
-                "update-app-step-input-11.json", null,
-            },
+    private static Stream<Arguments> testExecute() {
+        return Stream.of(
+            Arguments.of("update-app-step-input-1.json", null),
+            Arguments.of("update-app-step-input-2.json", null),
+            Arguments.of("update-app-step-input-3.json", null),
+            Arguments.of("update-app-step-input-4.json", null),
+            Arguments.of("update-app-step-input-5.json", null),
+            Arguments.of("update-app-step-input-6.json", null),
+            Arguments.of("update-app-step-input-7.json", null),
+            Arguments.of("update-app-step-input-8.json", null),
+            Arguments.of("update-app-step-input-9.json", null),
+            Arguments.of("update-app-step-input-10.json", null),
+            Arguments.of("update-app-step-input-11.json", null),
             // Existing app has binding with null parameters and defined service binding is without parameters
-            {
-                "update-app-step-input-12.json", null,
-            },
+            Arguments.of("update-app-step-input-12.json", null),
             // Existing app has binding with empty parameters and defined service binding is without parameters
-            {
-                "update-app-step-input-13.json", null,
-            },
-            // Existing app has binding with parameters and defined service binding is without parameters
-            {
-                "update-app-step-input-14.json", null,
-            },
+            Arguments.of("update-app-step-input-13.json", null),
+             // Existing app has binding with parameters and defined service binding is without parameters
+            Arguments.of("update-app-step-input-14.json", null),
             // Existing app has binding with null parameters and defined service binding is with defined parameters
-            {
-                "update-app-step-input-15.json", null,
-            },
+            Arguments.of("update-app-step-input-15.json", null),
             // Service keys to inject are specified
-            {
-                "update-app-step-input-16.json", null,
-            },
+            Arguments.of("update-app-step-input-16.json", null),
             // Service keys to inject are specified but does not exist
-            {
-                "update-app-step-input-17.json", "Unable to retrieve required service key element \"expected-service-key\" for service \"existing-service-1\"",
-            },
+            Arguments.of("update-app-step-input-17.json", "Unable to retrieve required service key element \"expected-service-key\" for service \"existing-service-1\""),
             // Test enable-ssh parameter
-            {
-                "update-app-step-input-18.json", null,
-            },
+            Arguments.of("update-app-step-input-18.json", null),
             // Test if healthCheckType parameter is updated
-            {
-                "update-app-step-input-19.json", null,
-            },
+            Arguments.of("update-app-step-input-19.json", null),
             // Test if healthCheckHttpEndpoint parameter is updated
-            {
-                "update-app-step-input-20.json", null,
-            },
+            Arguments.of("update-app-step-input-20.json", null),
             // Test if healthCheckHttpEndpoint parameter is updated
-            {
-                "update-app-step-input-21.json", null,
-            }
+            Arguments.of("update-app-step-input-21.json", null)
+        );
+    }
 // @formatter:on
-        });
-    }
 
-    public CreateOrUpdateStepWithExistingAppTest(String input, String expectedExceptionMessage) {
-        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, this.getClass()), StepInput.class);
-        this.expectedExceptionMessage = expectedExceptionMessage;
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() {
-        if (expectedExceptionMessage != null) {
-            expectedException.expectMessage(expectedExceptionMessage);
-        }
-        prepareContext();
-        prepareClient();
+        notRequiredServices = new ArrayList<>();
+        expectedServicesToBind = new ArrayList<>();
     }
 
     @Test
-    public void testExecute() {
-        step.execute(context);
+    public void testSkipRebindOfServices() {
+        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString("update-app-step-input-1.json", getClass()), StepInput.class);
+        prepareContext();
+        context.setVariable(Constants.VAR_SHOULD_SKIP_SERVICE_REBINDING, true);
+        prepareClient();
+
+        Assertions.assertDoesNotThrow(() -> step.execute(context));
+
+        assertStepFinishedSuccessfully();
+        validateUpdateComponents();
+
+        Mockito.verify(client, Mockito.never())
+               .bindService(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap(), Mockito.any());
+        Mockito.verify(client, Mockito.never())
+               .unbindService(Mockito.anyString(), Mockito.anyString());
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void testExecute(String input, String expectedExceptionMessage) {
+        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, getClass()), StepInput.class);
+        prepareContext();
+        prepareClient();
+
+        if (expectedExceptionMessage != null) {
+            Assertions.assertThrows(Exception.class, () -> step.execute(context), expectedExceptionMessage);
+            return;
+        }
+
+        Assertions.assertDoesNotThrow(() -> step.execute(context));
 
         assertStepFinishedSuccessfully();
 
@@ -269,9 +240,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         if (input.application.shouldKeepServiceBindings) {
             return ListUtils.union(input.application.services, input.existingApplication.services);
         }
-
         return input.application.services;
-
     }
 
     private void prepareDiscontinuedServices() {

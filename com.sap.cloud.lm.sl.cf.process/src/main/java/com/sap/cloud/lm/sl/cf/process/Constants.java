@@ -166,6 +166,7 @@ public class Constants {
     public static final String VAR_HOOK_FOR_EXECUTION = "hookForExecution";
     public static final String VAR_FILE_ENTRIES = "fileEntries";
     public static final String VAR_APPS_TO_RENAME = "appsToRename";
+    public static final String VAR_SHOULD_SKIP_SERVICE_REBINDING = "shouldSkipServiceRebinding";
 
     public static final String TOOL_TYPE = "tool_type";
     public static final String FEEDBACK_MAIL = "feedback_form";

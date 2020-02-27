@@ -245,6 +245,10 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationServices() throws FileStorageException {
+            if (StepsUtil.getBoolean(execution.getContext(), Constants.VAR_SHOULD_SKIP_SERVICE_REBINDING, false)) {
+                return;
+            }
+
             List<String> services = app.getServices();
             boolean hasUnboundServices = unbindServicesIfNeeded(app, existingApp, client, services);
 
