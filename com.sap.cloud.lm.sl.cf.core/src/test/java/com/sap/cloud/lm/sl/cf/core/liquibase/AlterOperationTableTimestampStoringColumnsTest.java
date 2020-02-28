@@ -3,8 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.liquibase;
 import static org.junit.Assert.assertEquals;
 
 import java.sql.Timestamp;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;

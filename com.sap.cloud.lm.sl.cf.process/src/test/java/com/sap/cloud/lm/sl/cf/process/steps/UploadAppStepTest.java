@@ -247,13 +247,10 @@ public class UploadAppStepTest {
         public void prepareFileService() throws Exception {
             tempDir.create();
             appFile = tempDir.newFile(APP_FILE);
-            doAnswer(new Answer<Void>() {
-                @Override
-                public Void answer(InvocationOnMock invocation) throws Exception {
-                    FileContentProcessor contentProcessor = invocation.getArgument(2);
-                    contentProcessor.processFileContent(null);
-                    return null;
-                }
+            doAnswer((Answer<Void>) invocation -> {
+                FileContentProcessor contentProcessor = invocation.getArgument(2);
+                contentProcessor.processFileContent(null);
+                return null;
             }).when(fileService)
               .processFileContent(Mockito.anyString(), Mockito.anyString(), Mockito.any());
         }

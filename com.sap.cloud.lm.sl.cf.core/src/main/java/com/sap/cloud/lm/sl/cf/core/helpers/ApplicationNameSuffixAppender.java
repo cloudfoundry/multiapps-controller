@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.mta.model.ElementContext;
 import com.sap.cloud.lm.sl.mta.model.Module;

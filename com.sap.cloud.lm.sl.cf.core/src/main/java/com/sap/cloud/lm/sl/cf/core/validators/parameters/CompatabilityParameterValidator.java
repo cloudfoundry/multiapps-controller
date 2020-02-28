@@ -4,9 +4,9 @@ import java.util.List;
 
 public interface CompatabilityParameterValidator {
 
-    public boolean isCompatible(String parameter);
+    boolean isCompatible(String parameter);
 
-    public String getParameterName();
+    String getParameterName();
 
-    public List<String> getIncompatibleParameters();
+    List<String> getIncompatibleParameters();
 }

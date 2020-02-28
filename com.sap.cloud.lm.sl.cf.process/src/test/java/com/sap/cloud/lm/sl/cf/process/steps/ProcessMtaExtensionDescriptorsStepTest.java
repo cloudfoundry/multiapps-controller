@@ -81,8 +81,8 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
 
     private void prepareFileService(Map<String, String> fileIdToExtensionDescriptor) throws FileStorageException {
         Mockito.doAnswer((invocation) -> {
-            String fileId = (String) invocation.getArgument(1);
-            FileContentProcessor contentProcessor = (FileContentProcessor) invocation.getArgument(2);
+            String fileId = invocation.getArgument(1);
+            FileContentProcessor contentProcessor = invocation.getArgument(2);
             String fileContent = fileIdToExtensionDescriptor.get(fileId);
 
             contentProcessor.processFileContent(IOUtils.toInputStream(fileContent, StandardCharsets.UTF_8));

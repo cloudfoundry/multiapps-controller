@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.web.bootstrap;
 
 import static java.text.MessageFormat.format;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.List;

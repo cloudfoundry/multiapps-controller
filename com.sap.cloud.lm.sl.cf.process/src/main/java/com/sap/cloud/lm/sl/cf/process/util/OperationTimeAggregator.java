@@ -37,7 +37,6 @@ public class OperationTimeAggregator {
                                                                                    .collect(Collectors.toMap(processId -> processId,
                                                                                                              processTimeCalculator::calculate));
         processTimesForSubProcesses.entrySet()
-                                   .stream()
                                    .forEach(processTimeEntry -> logProcessTimeIndividually(processTimeEntry.getValue(), correlationId,
                                                                                            processTimeEntry.getKey()));
 

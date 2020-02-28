@@ -79,8 +79,7 @@ public class DescriptorParametersCompatabilityValidatorTest {
 
     private boolean isContainsParamerKey(Module expectedModule, String parameterKey) {
         return expectedModule.getParameters()
-                             .keySet()
-                             .contains(parameterKey);
+                             .containsKey(parameterKey);
     }
 
 }

@@ -13,7 +13,6 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableDockerCredentials;
 import org.cloudfoundry.client.lib.domain.ImmutableDockerInfo;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
@@ -30,14 +29,13 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
         String image = "cloudfoundry/test-app";
         String username = "someUser";
         String password = "somePassword";
-        DockerInfo dockerInfo = ImmutableDockerInfo.builder()
+        return ImmutableDockerInfo.builder()
             .image(image)
             .credentials(ImmutableDockerCredentials.builder()
                 .username(username)
                 .password(password)
                 .build())
             .build();
-        return dockerInfo;
     }
 
     @Test

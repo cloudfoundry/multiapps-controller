@@ -96,11 +96,11 @@ public class Metrics implements MetricsMBean {
     }
 
     private FlowableThreadInformation getFlowableThreadInformation() {
-        return cachedFlowableThreadMonitor.get(() -> FlowableThreadInformation.get());
+        return cachedFlowableThreadMonitor.get(FlowableThreadInformation::get);
     }
 
     private CloudFoundryClientThreadInformation getCloudFoundryThreadInformation() {
-        return cachedCloudFoundryClientThreadMonitor.get(() -> CloudFoundryClientThreadInformation.get());
+        return cachedCloudFoundryClientThreadMonitor.get(CloudFoundryClientThreadInformation::get);
     }
 
 }

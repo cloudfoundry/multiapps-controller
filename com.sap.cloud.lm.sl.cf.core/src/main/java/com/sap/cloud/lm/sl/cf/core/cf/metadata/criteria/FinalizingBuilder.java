@@ -14,9 +14,7 @@ public class FinalizingBuilder {
     }
 
     public MtaMetadataCriteria build() {
-        String query = mtaMetadataCriteriaBuilder.getQueries()
-                                                 .stream()
-                                                 .collect(Collectors.joining(","));
+        String query = String.join(",", mtaMetadataCriteriaBuilder.getQueries());
         return new MtaMetadataCriteria(query);
     }
 }

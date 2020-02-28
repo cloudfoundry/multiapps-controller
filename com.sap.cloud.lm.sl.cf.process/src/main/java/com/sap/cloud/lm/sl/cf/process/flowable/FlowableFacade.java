@@ -35,7 +35,7 @@ public class FlowableFacade {
 
     private static final int DEFAULT_JOB_RETRIES = 0;
     private static final int DEFAULT_ABORT_TIMEOUT_MS = 30 * 1000;
-    private static final int DEFAULT_ABORT_WAIT_TIMEOUT_MS = 1 * 60 * 1000;
+    private static final int DEFAULT_ABORT_WAIT_TIMEOUT_MS = 60 * 1000;
 
     private final ProcessEngine processEngine;
 

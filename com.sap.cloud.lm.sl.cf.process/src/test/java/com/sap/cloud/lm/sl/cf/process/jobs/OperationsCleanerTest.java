@@ -65,9 +65,9 @@ public class OperationsCleanerTest {
         cleaner.withPageSize(PAGE_SIZE);
 
         when(registry.getAction("abort")).thenReturn(new AbortProcessActionMock(flowableFacade,
-                                                                            Collections.emptyList(),
-                                                                            historicOperationEventPersister,
-                                                                            operationService));
+                                                                                Collections.emptyList(),
+                                                                                historicOperationEventPersister,
+                                                                                operationService));
     }
 
     @Test
@@ -165,7 +165,7 @@ public class OperationsCleanerTest {
         return ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), ZoneId.systemDefault());
     }
 
-    private class AbortProcessActionMock extends AbortProcessAction {
+    private static class AbortProcessActionMock extends AbortProcessAction {
 
         public AbortProcessActionMock(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
                                       HistoricOperationEventPersister historicEventPersister, OperationService operationService) {

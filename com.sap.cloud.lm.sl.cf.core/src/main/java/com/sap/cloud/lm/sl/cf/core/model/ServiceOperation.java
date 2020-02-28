@@ -41,7 +41,7 @@ public class ServiceOperation {
 
         private final String name;
 
-        private State(String name) {
+        State(String name) {
             this.name = name;
         }
 

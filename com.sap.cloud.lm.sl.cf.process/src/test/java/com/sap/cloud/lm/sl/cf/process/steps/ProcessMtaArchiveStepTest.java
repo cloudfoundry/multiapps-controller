@@ -73,7 +73,7 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
             @Override
             public Void answer(InvocationOnMock invocation) throws Exception {
                 String fileId = (String) invocation.getArguments()[1];
-                FileContentProcessor fileContentProcessor = (FileContentProcessor) invocation.getArgument(2);
+                FileContentProcessor fileContentProcessor = invocation.getArgument(2);
 
                 fileContentProcessor.processFileContent(getClass().getResourceAsStream(input.archiveFileLocations.get(Integer.parseInt(fileId))));
                 return null;

@@ -143,17 +143,14 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
 
     private void prepareClient() {
         Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false)))
-               .then(new Answer<CloudServiceBroker>() {
-                   @Override
-                   public CloudServiceBroker answer(InvocationOnMock invocation) {
-                       String serviceBrokerName = (String) invocation.getArguments()[0];
-                       if (input.existingServiceBrokers.contains(serviceBrokerName)) {
-                           return ImmutableCloudServiceBroker.builder()
-                                                             .name(serviceBrokerName)
-                                                             .build();
-                       }
-                       return null;
+               .then((Answer<CloudServiceBroker>) invocation -> {
+                   String serviceBrokerName = (String) invocation.getArguments()[0];
+                   if (input.existingServiceBrokers.contains(serviceBrokerName)) {
+                       return ImmutableCloudServiceBroker.builder()
+                                                         .name(serviceBrokerName)
+                                                         .build();
                    }
+                   return null;
                });
         if (deleteException != null) {
             Mockito.doThrow(deleteException)
