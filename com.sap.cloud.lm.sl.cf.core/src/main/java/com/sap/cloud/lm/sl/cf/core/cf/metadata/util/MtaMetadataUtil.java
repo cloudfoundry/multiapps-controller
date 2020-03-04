@@ -7,6 +7,7 @@ import java.util.List;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
 import org.cloudfoundry.client.v3.Metadata;
+import org.springframework.util.DigestUtils;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataAnnotations;
@@ -42,6 +43,10 @@ public class MtaMetadataUtil {
                      .keySet()
                      .stream()
                      .anyMatch(MTA_METADATA_LABELS::contains);
+    }
+
+    public static String getHashedMtaId(String mtaId) {
+        return DigestUtils.md5DigestAsHex(mtaId.getBytes());
     }
 
     private MtaMetadataUtil() {
