@@ -11,7 +11,7 @@
       },
       "labels": {
         "mta_id": "81530aa8411b2e488fa727eda264e137",
-        "mta_version": "1.0.0"
+        "mta_version": null
       }
     },
     "memory": 512,
@@ -74,7 +74,7 @@
       },
       "labels": {
         "mta_id": "81530aa8411b2e488fa727eda264e137",
-        "mta_version": "1.0.0"
+        "mta_version": null
       }
     },
     "memory": 512,
@@ -134,7 +134,7 @@
       },
       "labels": {
         "mta_id": "81530aa8411b2e488fa727eda264e137",
-        "mta_version": "1.0.0"
+        "mta_version": null
       }
     },
     "memory": 512,

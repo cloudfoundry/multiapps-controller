@@ -11,13 +11,13 @@
         },
         "v3Metadata": {
           "annotations": {
+            "mta_version": "0.1.0",
             "mta_module": "{\"name\":\"mta-module\"}",
             "mta_module_provided_dependencies": "[\"mta-provided-dependency-1\", \"mta-provided-dependency-2\"]",
             "mta_bound_services": "[]"
           },
           "labels": {
-            "mta_id": "quux",
-            "mta_version": "0.1.0"
+            "mta_id": "quux"
           }
         },
         "memory": 0,
@@ -42,13 +42,13 @@
         },
         "v3Metadata": {
           "annotations": {
+            "mta_version": "0.2.0",
             "mta_module": "{\"name\":\"mta-module\"}",
             "mta_module_provided_dependencies": "[]",
             "mta_bound_services": "[]"
           },
           "labels": {
-            "mta_id": "quux",
-            "mta_version": "0.2.0"
+            "mta_id": "quux"
           }
         },
         "memory": 0,

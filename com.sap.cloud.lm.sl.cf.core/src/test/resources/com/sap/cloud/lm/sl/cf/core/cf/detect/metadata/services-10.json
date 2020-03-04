@@ -3,10 +3,10 @@
     "name": "mta-service-3",
     "metadata": {
       "labels": {
-        "mta_id": "quux",
-        "mta_version": "0.1.0"
+        "mta_id": "quux"
       },
       "annotations": {
+        "mta_version": "0.1.0",
         "mta_resource": "{\"name\":\"resource-name-3\"}"
       }
     }
@@ -15,10 +15,10 @@
     "name": "mta-service-4",
     "metadata": {
       "labels": {
-        "mta_id": "quux",
-        "mta_version": "0.1.0"
+        "mta_id": "quux"
       },
       "annotations": {
+        "mta_version": "0.1.0",
         "mta_resource": "{\"name\":\"resource-name-4\"}"
       }
     }

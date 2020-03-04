@@ -13,11 +13,11 @@
         },
         "v3Metadata": {
           "annotations": {
+            "mta_version": "0.1.0",
             "mta_resource": "{\"name\":\"resource-name-1\"}"
           },
           "labels": {
-            "mta_id": "quux",
-            "mta_version": "0.1.0"
+            "mta_id": "quux"
           }
         },
         "resourceName": "resource-name-1"
@@ -29,11 +29,11 @@
         },
         "v3Metadata": {
           "annotations": {
+            "mta_version": "0.1.0",
             "mta_resource": "{\"name\":\"resource-name-2\"}"
           },
           "labels": {
-            "mta_id": "quux",
-            "mta_version": "0.1.0"
+            "mta_id": "quux"
           }
         },
         "resourceName": "resource-name-2"

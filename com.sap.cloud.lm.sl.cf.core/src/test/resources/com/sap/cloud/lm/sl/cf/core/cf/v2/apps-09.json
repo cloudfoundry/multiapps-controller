@@ -11,7 +11,7 @@
       },
       "labels": {
         "mta_id": "30a5c6eb633271c624fc7c1f2aec51c4",
-        "mta_version": "0.1.0"
+        "mta_version": null
       }
     },
     "memory": 0,
@@ -78,7 +78,7 @@
       },
       "labels": {
         "mta_id": "30a5c6eb633271c624fc7c1f2aec51c4",
-        "mta_version": "0.1.0"
+        "mta_version": null
       }
     },
     "memory": 0,
@@ -131,7 +131,7 @@
       },
       "labels": {
         "mta_id": "30a5c6eb633271c624fc7c1f2aec51c4",
-        "mta_version": "0.1.0"
+        "mta_version": null
       }
     },
     "memory": 0,
@@ -184,7 +184,7 @@
       },
       "labels": {
         "mta_id": "30a5c6eb633271c624fc7c1f2aec51c4",
-        "mta_version": "0.1.0"
+        "mta_version": null
       }
     },
     "memory": 0,

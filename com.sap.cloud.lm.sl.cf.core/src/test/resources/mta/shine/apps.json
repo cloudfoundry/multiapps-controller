@@ -11,7 +11,7 @@
       },
       "labels": {
         "mta_id": "be5ee71b7aaf0d059a831b9babd5547c",
-        "mta_version": "0.1.0"
+        "mta_version": null
       }
     },
     "memory": 128,
@@ -67,7 +67,7 @@
       },
       "labels": {
         "mta_id": "be5ee71b7aaf0d059a831b9babd5547c",
-        "mta_version": "0.1.0"
+        "mta_version": null
       }
     },
     "memory": 256,
@@ -124,7 +124,7 @@
       },
       "labels": {
         "mta_id": "be5ee71b7aaf0d059a831b9babd5547c",
-        "mta_version": "0.1.0"
+        "mta_version": null
       }
     },
     "memory": 256,
