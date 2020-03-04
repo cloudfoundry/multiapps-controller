@@ -3,12 +3,14 @@
     "name": "java-hello-world",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.xs2.samples.javahelloworld",
+        "mta_version": "0.1.0",
         "mta_module": "{\"name\":\"java-hello-world\"}",
         "mta_module_provided_dependencies": "[\"java-hello-world\"]",
         "mta_bound_services": "[\"uaa\"]"
       },
       "labels": {
-        "mta_id": "com.sap.xs2.samples.javahelloworld",
+        "mta_id": "c232c91455fc92b226129257682792b2",
         "mta_version": "0.1.0"
       }
     },
@@ -57,12 +59,14 @@
     "name": "java-hello-world-backend",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.xs2.samples.javahelloworld",
+        "mta_version": "0.1.0",
         "mta_module": "{\"name\":\"java-hello-world-backend\"}",
         "mta_module_provided_dependencies": "[\"java\",\"java-hello-world-backend\"]",
         "mta_bound_services": "[\"uaa\",\"java-hdi-container\"]"
       },
       "labels": {
-        "mta_id": "com.sap.xs2.samples.javahelloworld",
+        "mta_id": "c232c91455fc92b226129257682792b2",
         "mta_version": "0.1.0"
       }
     },
@@ -112,12 +116,14 @@
     "name": "java-hello-world-db",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.xs2.samples.javahelloworld",
+        "mta_version": "0.1.0",
         "mta_module": "{\"name\":\"java-hello-world-db\"}",
         "mta_module_provided_dependencies": "[\"java-hello-world-db\"]",
         "mta_bound_services": "[\"java-hdi-container\"]"
       },
       "labels": {
-        "mta_id": "com.sap.xs2.samples.javahelloworld",
+        "mta_id": "c232c91455fc92b226129257682792b2",
         "mta_version": "0.1.0"
       }
     },

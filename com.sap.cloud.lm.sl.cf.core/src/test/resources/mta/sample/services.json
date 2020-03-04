@@ -5,10 +5,12 @@
     "name": "pricing-db-service",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.mta.sample",
+        "mta_version": "1.2.1-beta+20150403144937853",
         "mta_resource": "{\"name\":\"pricing-db-service\"}"
       },
       "labels": {
-        "mta_id": "com.sap.mta.sample",
+        "mta_id": "57675a73021035bde9f4f77efa07dad8",
         "mta_version": "1.2.1-beta+20150403144937853"
       }
     },
