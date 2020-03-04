@@ -15,7 +15,7 @@ public interface OperationsApiService {
 
     ResponseEntity<Void> executeOperationAction(HttpServletRequest request, String spaceGuid, String operationId, String actionId);
 
-    ResponseEntity<List<Operation>> getOperations(String spaceGuid, List<String> states, Integer last);
+    ResponseEntity<List<Operation>> getOperations(String spaceGuid, String mtaId, List<String> states, Integer last);
 
     ResponseEntity<Operation> getOperation(String spaceGuid, String operationId, String embed);
 

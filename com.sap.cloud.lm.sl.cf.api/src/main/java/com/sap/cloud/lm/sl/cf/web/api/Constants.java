@@ -13,9 +13,25 @@ public class Constants {
         public static final String OPERATION_ID = "operationId";
         public static final String ACTION_ID = "actionId";
         public static final String LOG_ID = "logId";
-        public static final String MTA_ID = "mtaId";
         public static final String SPACE_GUID = "spaceGuid";
 
+    }
+
+    public static class RequestVariables {
+
+        private RequestVariables() {
+        }
+
+        public static final String MTA_ID = "mtaId";
+    }
+
+    public static class QueryVariables {
+
+        private QueryVariables() {
+        }
+
+        public static final String LAST = "last";
+        public static final String STATE = "state";
     }
 
     public static class Resources {
@@ -39,7 +55,7 @@ public class Constants {
         private Endpoints() {
         }
 
-        public static final String MTA = "/{" + PathVariables.MTA_ID + "}";
+        public static final String MTA = "/{" + RequestVariables.MTA_ID + "}";
         public static final String OPERATION = "/{" + PathVariables.OPERATION_ID + "}";
         public static final String OPERATION_LOGS = OPERATION + "/logs";
         public static final String OPERATION_LOG_CONTENT = OPERATION_LOGS + "/{" + PathVariables.LOG_ID + "}/content";

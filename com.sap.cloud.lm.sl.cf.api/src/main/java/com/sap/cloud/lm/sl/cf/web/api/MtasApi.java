@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sap.cloud.lm.sl.cf.web.api.Constants.Endpoints;
 import com.sap.cloud.lm.sl.cf.web.api.Constants.PathVariables;
+import com.sap.cloud.lm.sl.cf.web.api.Constants.RequestVariables;
 import com.sap.cloud.lm.sl.cf.web.api.Constants.Resources;
 import com.sap.cloud.lm.sl.cf.web.api.model.Mta;
 
@@ -37,7 +38,7 @@ public class MtasApi {
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Mta.class) })
     public ResponseEntity<Mta> getMta(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                                      @PathVariable(PathVariables.MTA_ID) String mtaId) {
+                                      @PathVariable(RequestVariables.MTA_ID) String mtaId) {
         return delegate.getMta(spaceGuid, mtaId);
     }
 

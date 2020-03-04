@@ -84,9 +84,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsApiServiceImpl.class);
 
     @Override
-    public ResponseEntity<List<Operation>> getOperations(String spaceGuid, List<String> stateStrings, Integer last) {
+    public ResponseEntity<List<Operation>> getOperations(String spaceGuid, String mtaId, List<String> stateStrings, Integer last) {
         List<Operation.State> states = getStates(stateStrings);
-        List<Operation> operations = filterByQueryParameters(last, states, spaceGuid);
+        List<Operation> operations = filterByQueryParameters(last, states, spaceGuid, mtaId);
         return ResponseEntity.ok()
                              .body(operations);
     }
@@ -183,10 +183,13 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private List<Operation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<Operation.State> statusList,
-                                                    String spaceGuid) {
+                                                    String spaceGuid, String mtaId) {
         OperationQuery operationQuery = operationService.createQuery()
                                                         .orderByStartTime(OrderDirection.ASCENDING)
                                                         .spaceId(spaceGuid);
+        if (mtaId != null) {
+            operationQuery.mtaId(mtaId);
+        }
         if (lastRequestedOperationsCount != null) {
             operationQuery.limitOnSelect(lastRequestedOperationsCount)
                           .orderByStartTime(OrderDirection.DESCENDING);
