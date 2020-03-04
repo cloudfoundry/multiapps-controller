@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sap.cloud.lm.sl.cf.web.api.Constants.Endpoints;
 import com.sap.cloud.lm.sl.cf.web.api.Constants.PathVariables;
+import com.sap.cloud.lm.sl.cf.web.api.Constants.RequestVariables;
+import com.sap.cloud.lm.sl.cf.web.api.Constants.QueryVariables;
 import com.sap.cloud.lm.sl.cf.web.api.Constants.Resources;
 import com.sap.cloud.lm.sl.cf.web.api.model.Log;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -91,9 +93,10 @@ public class OperationsApi {
         }) }, tags = {})
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Operation.class, responseContainer = "List") })
     public ResponseEntity<List<Operation>> getOperations(@PathVariable(PathVariables.SPACE_GUID) String spaceGuid,
-                                                         @RequestParam(name = "last", required = false) Integer last,
-                                                         @RequestParam(name = "state", required = false) List<String> states) {
-        return delegate.getOperations(spaceGuid, states, last);
+                                                         @RequestParam(name = RequestVariables.MTA_ID, required = false) String mtaId,
+                                                         @RequestParam(name = QueryVariables.LAST, required = false) Integer last,
+                                                         @RequestParam(name = QueryVariables.STATE, required = false) List<String> states) {
+        return delegate.getOperations(spaceGuid, mtaId, states, last);
     }
 
     @GetMapping(path = Endpoints.OPERATION_ACTIONS, produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })

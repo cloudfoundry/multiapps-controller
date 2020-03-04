@@ -88,6 +88,7 @@ public class OperationsApiServiceImplTest {
 
     private static final String SPACE_GUID = "896e6be9-8217-4a1c-b938-09b30966157a";
     private static final String ORG_GUID = "0a42c085-b772-4b1e-bf4d-75c463aab5f6";
+    private static final String MTA_ID = "testMta";
 
     private static final String ORG_NAME = "orgName";
     private static final String SPACE_NAME = "spaceName";
@@ -121,8 +122,9 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testGetOperations() {
-        ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID, Arrays.asList(Operation.State.FINISHED.toString(),
-                                                                                                       Operation.State.ABORTED.toString()),
+        ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID, null,
+                                                                             Arrays.asList(Operation.State.FINISHED.toString(),
+                                                                                           Operation.State.ABORTED.toString()),
                                                                              1);
 
         List<Operation> operations = response.getBody();
@@ -136,7 +138,7 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testGetOperationsNotFound() {
-        ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID,
+        ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID, MTA_ID,
                                                                              Collections.singletonList(Operation.State.ACTION_REQUIRED.toString()),
                                                                              1);
 
