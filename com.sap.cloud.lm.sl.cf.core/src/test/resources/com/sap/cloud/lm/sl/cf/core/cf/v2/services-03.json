@@ -35,10 +35,12 @@
     "name": "random-service-renamed",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0",
         "mta_resource": "{\"name\":\"rs\"}"
       },
       "labels": {
-        "mta_id": "com.sap.sample.mta",
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
         "mta_version": "0.1.0"
       }
     },
@@ -56,10 +58,12 @@
     "name": "random-service",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0",
         "mta_resource": "{\"name\":\"random-service\"}"
       },
       "labels": {
-        "mta_id": "com.sap.sample.mta",
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
         "mta_version": "0.1.0"
       }
     },
@@ -77,10 +81,12 @@
     "name": "random-resource-named-service",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0",
         "mta_resource": "{\"name\":\"random-resource-named-service\"}"
       },
       "labels": {
-        "mta_id": "com.sap.sample.mta",
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
         "mta_version": "0.1.0"
       }
     },
@@ -98,10 +104,12 @@
     "name": "existing-service-renamed",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0",
         "mta_resource": "{\"name\":\"es\"}"
       },
       "labels": {
-        "mta_id": "com.sap.sample.mta",
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
         "mta_version": "0.1.0"
       }
     },
@@ -117,10 +125,12 @@
     "name": "existing-service",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0",
         "mta_resource": "{\"name\":\"existing-service\"}"
       },
       "labels": {
-        "mta_id": "com.sap.sample.mta",
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
         "mta_version": "0.1.0"
       }
     },
@@ -136,10 +146,12 @@
     "name": "existing-resource-named-service",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.sample.mta",
+        "mta_version": "0.1.0",
         "mta_resource": "{\"name\":\"existing-resource-named-service\"}"
       },
       "labels": {
-        "mta_id": "com.sap.sample.mta",
+        "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba",
         "mta_version": "0.1.0"
       }
     },
