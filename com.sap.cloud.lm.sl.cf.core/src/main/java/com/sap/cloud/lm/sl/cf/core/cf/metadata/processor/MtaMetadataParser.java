@@ -33,15 +33,27 @@ public class MtaMetadataParser extends BaseMtaMetadataParser {
 
     public MtaMetadata parseMtaMetadata(CloudEntity entity) {
         mtaMetadataValidator.validate(entity);
-        Map<String, String> metadataLabels = entity.getV3Metadata()
-                                                   .getLabels();
-        String mtaId = metadataLabels.get(MtaMetadataLabels.MTA_ID);
-        String mtaVersion = metadataLabels.get(MtaMetadataLabels.MTA_VERSION);
+        String mtaId = entity.getV3Metadata()
+                             .getLabels()
+                             .get(MtaMetadataLabels.MTA_ID);
+        String mtaVersion = getMtaVersion(entity);
         String messageOnParsingException = MessageFormat.format(Messages.CANT_PARSE_MTA_METADATA_VERSION_FOR_0, entity.getName());
         return ImmutableMtaMetadata.builder()
                                    .id(mtaId)
                                    .version(parseMtaVersion(mtaVersion, messageOnParsingException))
                                    .build();
+    }
+
+    private String getMtaVersion(CloudEntity entity) {
+        String mtaVersionFromAnnotations = entity.getV3Metadata()
+                                                 .getAnnotations()
+                                                 .get(MtaMetadataAnnotations.MTA_VERSION);
+        if (mtaVersionFromAnnotations == null) {
+            return entity.getV3Metadata()
+                         .getLabels()
+                         .get(MtaMetadataLabels.MTA_VERSION);
+        }
+        return mtaVersionFromAnnotations;
     }
 
     public DeployedMtaApplication parseDeployedMtaApplication(CloudApplication application) {
