@@ -27,7 +27,7 @@
       "metadata": {
         "labels": {
           "mta_id": "com.sap.example.mta-1",
-          "mta_version": "1.0.0"
+          "mta_version": null
         },
         "annotations": {
           "mta_module": "{\"name\":\"application-1\"}",
@@ -58,7 +58,7 @@
       "metadata": {
         "labels": {
           "mta_id": "com.sap.example.mta-2",
-          "mta_version": "0.2.0"
+          "mta_version": null
         },
         "annotations": {
           "mta_module": "{\"name\":\"application-2\"}",
@@ -88,7 +88,7 @@
       "metadata": {
         "labels": {
           "mta_id": "com.sap.example.mta-1",
-          "mta_version": "1.0.0"
+          "mta_version": null
         },
         "annotations": {
           "mta_module": "{\"name\":\"application-3\"}",
@@ -119,7 +119,7 @@
       "metadata": {
         "labels": {
           "mta_id": "com.sap.example.mta-3",
-          "mta_version": "1.1.0"
+          "mta_version": null
         },
         "annotations": {
           "mta_module": "{\"name\":\"application-4\"}",
