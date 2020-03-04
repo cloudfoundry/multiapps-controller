@@ -21,7 +21,7 @@ public class ServiceMetadataBuilder {
         String hashedMtaId = MtaMetadataUtil.getHashedMtaId(deploymentDescriptor.getId());
         return Metadata.builder()
                        .label(MtaMetadataLabels.MTA_ID, hashedMtaId)
-                       .label(MtaMetadataLabels.MTA_VERSION, deploymentDescriptor.getVersion())
+                       .label(MtaMetadataLabels.MTA_VERSION, null)
                        .annotation(MtaMetadataAnnotations.MTA_ID, deploymentDescriptor.getId())
                        .annotation(MtaMetadataAnnotations.MTA_VERSION, deploymentDescriptor.getVersion())
                        .annotation(MtaMetadataAnnotations.MTA_RESOURCE, mtaResourceAnnotation)

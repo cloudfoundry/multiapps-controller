@@ -26,7 +26,7 @@ public class ApplicationMetadataBuilder {
         String mtaServicesAnnotation = buildBoundMtaServicesAnnotation(services);
         return Metadata.builder()
                        .label(MtaMetadataLabels.MTA_ID, hashedMtaId)
-                       .label(MtaMetadataLabels.MTA_VERSION, deploymentDescriptor.getVersion())
+                       .label(MtaMetadataLabels.MTA_VERSION, null)
                        .annotation(MtaMetadataAnnotations.MTA_ID, deploymentDescriptor.getId())
                        .annotation(MtaMetadataAnnotations.MTA_VERSION, deploymentDescriptor.getVersion())
                        .annotation(MtaMetadataAnnotations.MTA_MODULE, mtaModuleAnnotation)
