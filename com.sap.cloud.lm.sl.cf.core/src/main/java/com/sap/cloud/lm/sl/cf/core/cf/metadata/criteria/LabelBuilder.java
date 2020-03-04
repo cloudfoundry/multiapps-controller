@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf.metadata.criteria;
 
+import java.util.List;
+
 public class LabelBuilder {
     private MtaMetadataCriteriaBuilder mtaMetadataCriteriaBuilder;
     private String label;
@@ -16,6 +18,12 @@ public class LabelBuilder {
     public FinalizingBuilder haveValue(String value) {
         MtaMetadataCriteriaValidator.validateLabelValue(value);
         return completeQuery(label + "=" + value);
+    }
+
+    public FinalizingBuilder valueIn(List<String> values) {
+        values.forEach(MtaMetadataCriteriaValidator::validateLabelValue);
+        String concatenatedValues = String.join(",", values);
+        return completeQuery(label + " in (" + concatenatedValues + ")");
     }
 
     private FinalizingBuilder completeQuery(String query) {

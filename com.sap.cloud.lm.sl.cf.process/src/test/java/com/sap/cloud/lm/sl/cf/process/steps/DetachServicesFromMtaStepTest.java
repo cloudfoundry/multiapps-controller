@@ -54,6 +54,7 @@ public class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachSe
         return Metadata.builder()
                        .label(MtaMetadataLabels.MTA_ID, null)
                        .label(MtaMetadataLabels.MTA_VERSION, null)
+                       .annotation(MtaMetadataAnnotations.MTA_ID, null)
                        .annotation(MtaMetadataAnnotations.MTA_VERSION, null)
                        .annotation(MtaMetadataAnnotations.MTA_RESOURCE, null)
                        .build();
@@ -82,6 +83,7 @@ public class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachSe
         Metadata v3Metadata = Metadata.builder()
                                       .label(MtaMetadataLabels.MTA_ID, "test")
                                       .label(MtaMetadataLabels.MTA_VERSION, "1")
+                                      .annotation(MtaMetadataAnnotations.MTA_ID, "test")
                                       .annotation(MtaMetadataAnnotations.MTA_VERSION, "1")
                                       .annotation(MtaMetadataAnnotations.MTA_RESOURCE, "test")
                                       .build();
