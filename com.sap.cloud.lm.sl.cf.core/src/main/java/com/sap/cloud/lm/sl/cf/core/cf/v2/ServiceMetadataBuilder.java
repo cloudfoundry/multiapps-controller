@@ -20,6 +20,7 @@ public class ServiceMetadataBuilder {
         return Metadata.builder()
                        .label(MtaMetadataLabels.MTA_ID, deploymentDescriptor.getId())
                        .label(MtaMetadataLabels.MTA_VERSION, deploymentDescriptor.getVersion())
+                       .annotation(MtaMetadataAnnotations.MTA_VERSION, deploymentDescriptor.getVersion())
                        .annotation(MtaMetadataAnnotations.MTA_RESOURCE, mtaResourceAnnotation)
                        .build();
     }
