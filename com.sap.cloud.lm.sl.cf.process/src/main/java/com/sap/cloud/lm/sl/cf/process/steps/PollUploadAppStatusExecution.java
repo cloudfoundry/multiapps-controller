@@ -4,6 +4,7 @@ import static java.text.MessageFormat.format;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.ErrorDetails;
 import org.cloudfoundry.client.lib.domain.Upload;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 
@@ -25,11 +26,10 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
         switch (upload.getStatus()) {
             case FAILED:
             case EXPIRED:
+                ErrorDetails errorDetails = upload.getErrorDetails();
                 execution.getStepLogger()
-                         .debug(Messages.ERROR_UPLOADING_APP_WITH_DETAILS, app.getName(), upload.getStatus(), upload.getErrorDetails()
-                                                                                                                    .getDescription());
-                execution.getStepLogger()
-                         .error(Messages.ERROR_UPLOADING_APP, app.getName());
+                         .error(Messages.ERROR_UPLOADING_APP_0_STATUS_1_DESCRIPTION_2, app.getName(), upload.getStatus(),
+                                errorDetails.getDescription());
                 return AsyncExecutionState.ERROR;
             case READY:
                 execution.getStepLogger()

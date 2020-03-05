@@ -92,8 +92,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
-        return MessageFormat.format(Messages.ERROR_UPLOADING_APP, StepsUtil.getApp(context)
-                                                                           .getName());
+        return MessageFormat.format(Messages.ERROR_UPLOADING_APP_0, StepsUtil.getApp(context)
+                                                                             .getName());
     }
 
     private String getNewApplicationDigest(ExecutionWrapper execution, String appArchiveId, String fileName) throws FileStorageException {
@@ -254,13 +254,13 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
         @Override
         public void onError(Exception e) {
-            getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
+            getStepLogger().error(e, Messages.ERROR_UPLOADING_APP_0, app.getName());
             cleanUp(file.toPath());
         }
 
         @Override
         public void onError(String description) {
-            getStepLogger().error(Messages.ERROR_UPLOADING_APP_BECAUSE_OF, app.getName(), description);
+            getStepLogger().error(Messages.ERROR_UPLOADING_APP_0_STATUS_1_DESCRIPTION_2, app.getName(), Status.FAILED, description);
             cleanUp(file.toPath());
         }
 

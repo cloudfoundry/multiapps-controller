@@ -92,9 +92,8 @@ public class Messages {
     public static final String ERROR_DELETING_SUBSCRIPTIONS = "Error deleting discontinued subscriptions";
     public static final String ERROR_BUILDING_CLOUD_APP_MODEL = "Error building cloud application deploy model";
     public static final String ERROR_CREATING_OR_UPDATING_APP = "Error creating or updating application \"{0}\"";
-    public static final String ERROR_UPLOADING_APP = "Error uploading application \"{0}\"";
-    public static final String ERROR_UPLOADING_APP_WITH_DETAILS = "Error uploading application \"{0}\". [{1}] \"{2}\"";
-    public static final String ERROR_UPLOADING_APP_BECAUSE_OF = "Error uploading application \"{0}\": \"{1}\"";
+    public static final String ERROR_UPLOADING_APP_0 = "Error uploading application \"{0}\"";
+    public static final String ERROR_UPLOADING_APP_0_STATUS_1_DESCRIPTION_2 = "Error uploading application \"{0}\". Status: {1}, Description: {2}";
     public static final String ERROR_CHECKING_UPLOAD_APP_STATUS = "Error checking upload status of application \"{0}\"";
     public static final String ERROR_SCALING_APP = "Error scaling application \"{0}\"";
     public static final String ERROR_DELETING_APP_ROUTES = "Error deleting routes for application \"{0}\"";
