@@ -32,6 +32,8 @@ public class DeployedMtaDetector {
     @Inject
     private DeployedMtaEnvDetector deployedMtaEnvDetector;
 
+    private static final int MAX_LABEL_VALUE_LENGTH = 63;
+
     public List<DeployedMta> detectDeployedMtas(CloudControllerClient client) {
         MtaMetadataCriteria selectionCriteria = MtaMetadataCriteriaBuilder.builder()
                                                                           .label(MtaMetadataLabels.MTA_ID)
@@ -58,10 +60,9 @@ public class DeployedMtaDetector {
     }
 
     public Optional<DeployedMta> detectDeployedMta(String mtaId, CloudControllerClient client) {
-        String hashedMtaId = MtaMetadataUtil.getHashedMtaId(mtaId);
         MtaMetadataCriteria selectionCriteria = MtaMetadataCriteriaBuilder.builder()
                                                                           .label(MtaMetadataLabels.MTA_ID)
-                                                                          .valueIn(Arrays.asList(mtaId, hashedMtaId))
+                                                                          .valueIn(getMatchingMetadataMtaIds(mtaId))
                                                                           .build();
         List<DeployedMta> deployedMtasByMetadata = getDeployedMtasByMetadataSelectionCriteria(selectionCriteria, client);
         if (!deployedMtasByMetadata.isEmpty()) {
@@ -69,6 +70,14 @@ public class DeployedMtaDetector {
                                          .findFirst();
         }
         return deployedMtaEnvDetector.detectDeployedMta(mtaId, client);
+    }
+
+    private List<String> getMatchingMetadataMtaIds(String mtaId) {
+        String hashedMtaId = MtaMetadataUtil.getHashedMtaId(mtaId);
+        if (mtaId.length() > MAX_LABEL_VALUE_LENGTH) {
+            return Arrays.asList(hashedMtaId);
+        }
+        return Arrays.asList(mtaId, hashedMtaId);
     }
 
 }
