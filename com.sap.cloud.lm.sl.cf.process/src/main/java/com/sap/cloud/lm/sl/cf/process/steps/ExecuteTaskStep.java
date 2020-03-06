@@ -47,7 +47,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
     protected String getStepErrorMessage(DelegateExecution context) {
         CloudApplicationExtended app = StepsUtil.getApp(context);
         CloudTask taskToExecute = StepsUtil.getTask(context);
-        return MessageFormat.format(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
+        return MessageFormat.format(Messages.ERROR_EXECUTING_TASK_0_ON_APP_1, taskToExecute.getName(), app.getName());
     }
 
     @Override

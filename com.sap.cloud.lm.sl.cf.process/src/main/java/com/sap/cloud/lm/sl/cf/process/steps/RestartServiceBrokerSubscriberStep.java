@@ -19,7 +19,7 @@ public class RestartServiceBrokerSubscriberStep extends RestartAppStep {
 
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
-        return MessageFormat.format(Messages.ERROR_STARTING_APP_1, getAppToRestart(context).getName());
+        return MessageFormat.format(Messages.ERROR_STARTING_APP_0, getAppToRestart(context).getName());
     }
 
     @Override

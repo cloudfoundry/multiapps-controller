@@ -43,7 +43,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
-        return MessageFormat.format(Messages.ERROR_STARTING_APP_1, getAppToRestart(context).getName());
+        return MessageFormat.format(Messages.ERROR_STARTING_APP_0, getAppToRestart(context).getName());
     }
 
     protected CloudApplication getAppToRestart(DelegateExecution context) {

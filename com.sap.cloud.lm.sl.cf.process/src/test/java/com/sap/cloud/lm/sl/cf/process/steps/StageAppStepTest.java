@@ -62,7 +62,7 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
     public void testGetErrorMessage() {
         String applicationName = "another-app";
         mockApplication(applicationName);
-        Assertions.assertEquals(MessageFormat.format(Messages.ERROR_STAGING_APP_1, applicationName), step.getStepErrorMessage(context));
+        Assertions.assertEquals(MessageFormat.format(Messages.ERROR_STAGING_APP_0, applicationName), step.getStepErrorMessage(context));
     }
 
     @Test

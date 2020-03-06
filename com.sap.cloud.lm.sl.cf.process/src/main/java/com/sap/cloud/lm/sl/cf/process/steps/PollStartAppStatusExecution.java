@@ -56,12 +56,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
 
     public String getPollingErrorMessage(ExecutionWrapper execution) {
         String appToPoll = getAppToPoll(execution.getContext()).getName();
-        return format(Messages.ERROR_STARTING_APP_1, appToPoll);
-    }
-
-    protected void onError(ExecutionWrapper execution, String message) {
-        execution.getStepLogger()
-                 .error(message);
+        return format(Messages.ERROR_STARTING_APP_0, appToPoll);
     }
 
     protected CloudApplication getAppToPoll(DelegateExecution context) {
@@ -99,13 +94,15 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     }
 
     private AsyncExecutionState checkStartupStatus(ExecutionWrapper execution, CloudApplication app, StartupStatus status) {
-        if (status.equals(StartupStatus.CRASHED) || status.equals(StartupStatus.FLAPPING)) {
-            // Application failed to start
-            String message = format(Messages.ERROR_STARTING_APP_2, app.getName(), getMessageForStatus(status));
-            onError(execution, message);
+        if (status == StartupStatus.CRASHED) {
+            onError(execution, Messages.ERROR_STARTING_APP_0_DESCRIPTION_1, app.getName(), Messages.SOME_INSTANCES_HAVE_CRASHED);
             return AsyncExecutionState.ERROR;
-        } else if (status.equals(StartupStatus.STARTED)) {
-            // Application started successfully
+        }
+        if (status == StartupStatus.FLAPPING) {
+            onError(execution, Messages.ERROR_STARTING_APP_0_DESCRIPTION_1, app.getName(), Messages.SOME_INSTANCES_ARE_FLAPPING);
+            return AsyncExecutionState.ERROR;
+        }
+        if (status == StartupStatus.STARTED) {
             List<String> uris = app.getUris();
             if (uris.isEmpty()) {
                 execution.getStepLogger()
@@ -119,13 +116,9 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         return AsyncExecutionState.RUNNING;
     }
 
-    protected String getMessageForStatus(StartupStatus status) {
-        if (status.equals(StartupStatus.FLAPPING)) {
-            return Messages.SOME_INSTANCES_ARE_FLAPPING;
-        } else if (status.equals(StartupStatus.CRASHED)) {
-            return Messages.SOME_INSTANCES_HAVE_CRASHED;
-        }
-        return null;
+    protected void onError(ExecutionWrapper execution, String message, Object... arguments) {
+        execution.getStepLogger()
+                 .error(message, arguments);
     }
 
     private void showInstancesStatus(ExecutionWrapper execution, String appName, List<InstanceInfo> instances, long runningInstances,

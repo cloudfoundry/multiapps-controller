@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.text.MessageFormat;
 import java.util.UUID;
 
@@ -44,8 +42,7 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         ProcessLoggerProvider processLoggerProvider = stepLogger.getProcessLoggerProvider();
         StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, application, LOGGER, processLoggerProvider);
 
-        if (!state.getState()
-                  .equals(PackageState.STAGED)) {
+        if (state.getState() != PackageState.STAGED) {
             return checkStagingState(execution.getStepLogger(), application, state);
         }
         bindDropletToApplication(execution.getContext(), application, client);
@@ -55,25 +52,23 @@ public class PollStageAppStatusExecution implements AsyncExecution {
 
     @Override
     public String getPollingErrorMessage(ExecutionWrapper execution) {
-        CloudApplication app = StepsUtil.getApp(execution.getContext());
-        return MessageFormat.format(Messages.ERROR_STAGING_APP_1, app.getName());
+        CloudApplication application = StepsUtil.getApp(execution.getContext());
+        return MessageFormat.format(Messages.ERROR_STAGING_APP_0, application.getName());
     }
 
-    private AsyncExecutionState checkStagingState(StepLogger stepLogger, CloudApplication app, StagingState state) {
-        if (state.getState()
-                 .equals(PackageState.FAILED)) {
-            stepLogger.error(format(Messages.ERROR_STAGING_APP_2, app.getName()));
-            stepLogger.error(state.getError());
+    private AsyncExecutionState checkStagingState(StepLogger stepLogger, CloudApplication application, StagingState state) {
+        if (state.getState() == PackageState.FAILED) {
+            stepLogger.error(Messages.ERROR_STAGING_APP_0_DESCRIPTION_1, application.getName(), state.getError());
             return AsyncExecutionState.ERROR;
         }
         return AsyncExecutionState.RUNNING;
     }
 
     private void bindDropletToApplication(DelegateExecution context, CloudApplication application, CloudControllerClient client) {
-        UUID appId = client.getApplication(application.getName())
-                           .getMetadata()
-                           .getGuid();
-        applicationStager.bindDropletToApplication(context, appId);
+        UUID applicationGuid = client.getApplication(application.getName())
+                                     .getMetadata()
+                                     .getGuid();
+        applicationStager.bindDropletToApplication(context, applicationGuid);
     }
-    
+
 }
