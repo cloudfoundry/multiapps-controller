@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.util;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateStrategy;
 
 public class DiskQuotaApplicationAttributeUpdater extends ApplicationAttributeUpdater {
@@ -20,8 +21,12 @@ public class DiskQuotaApplicationAttributeUpdater extends ApplicationAttributeUp
 
     @Override
     protected void updateAttribute(CloudApplication existingApplication, CloudApplication application) {
-        getLogger().debug("Updating disk quota of application \"{0}\"...", application.getName());
-        getControllerClient().updateApplicationDiskQuota(application.getName(), application.getDiskQuota());
+        updateApplicationDiskQuota(application.getName(), application.getDiskQuota());
+    }
+
+    private void updateApplicationDiskQuota(String applicationName, int diskQuota) {
+        getLogger().debug(Messages.UPDATING_DISK_QUOTA_OF_APP_0_TO_1, applicationName, diskQuota);
+        getControllerClient().updateApplicationDiskQuota(applicationName, diskQuota);
     }
 
 }

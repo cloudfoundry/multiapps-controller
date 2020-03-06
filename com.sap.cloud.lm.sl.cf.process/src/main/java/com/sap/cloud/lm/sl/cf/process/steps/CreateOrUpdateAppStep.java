@@ -42,7 +42,6 @@ import com.sap.cloud.lm.sl.cf.process.util.ApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationAttributeUpdater.UpdateState;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationServicesUpdater;
 import com.sap.cloud.lm.sl.cf.process.util.ControllerClientFacade;
-import com.sap.cloud.lm.sl.cf.process.util.ControllerClientFacade.Context;
 import com.sap.cloud.lm.sl.cf.process.util.DiskQuotaApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateStrategy;
 import com.sap.cloud.lm.sl.cf.process.util.EnvironmentApplicationAttributeUpdater;
@@ -294,7 +293,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         private UpdateState
                 updateApplicationEnvironment(CloudApplicationExtended app, CloudApplication existingApp, CloudControllerClient client,
                                              CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
-            Context context = new ControllerClientFacade.Context(client, getStepLogger());
+            ControllerClientFacade.Context context = new ControllerClientFacade.Context(client, getStepLogger());
             return new EnvironmentApplicationAttributeUpdater(context,
                                                               getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingEnv())).update(existingApp,
                                                                                                                                                      app);
@@ -326,7 +325,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
         private List<ApplicationAttributeUpdater> getApplicationAttributeUpdaters() {
-            Context context = new ControllerClientFacade.Context(client, getStepLogger());
+            ControllerClientFacade.Context context = new ControllerClientFacade.Context(client, getStepLogger());
             return Arrays.asList(new StagingApplicationAttributeUpdater(context), new MemoryApplicationAttributeUpdater(context),
                                  new DiskQuotaApplicationAttributeUpdater(context),
                                  new UrisApplicationAttributeUpdater(context, UpdateStrategy.REPLACE));
@@ -392,7 +391,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                                          .collect(Collectors.toMap(String::toString,
                                                                                                                    serviceName -> getBindingParametersForService(serviceName,
                                                                                                                                                                  bindingParameters)));
-            ApplicationServicesUpdater applicationServicesUpdater = new ApplicationServicesUpdater(client, getStepLogger());
+            ApplicationServicesUpdater applicationServicesUpdater = new ApplicationServicesUpdater(new ControllerClientFacade.Context(client,
+                                                                                                                                      getStepLogger()));
             List<String> updatedServices = applicationServicesUpdater.updateApplicationServices(applicationName,
                                                                                                 serviceNamesWithBindingParameters,
                                                                                                 getApplicationServicesUpdateCallback(context));

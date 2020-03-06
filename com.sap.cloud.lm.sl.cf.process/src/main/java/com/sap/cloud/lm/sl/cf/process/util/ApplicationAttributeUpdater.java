@@ -10,11 +10,11 @@ public abstract class ApplicationAttributeUpdater extends ControllerClientFacade
         UPDATED, UNCHANGED
     }
 
-    protected final UpdateStrategy strategy;
+    protected final UpdateStrategy updateStrategy;
 
-    public ApplicationAttributeUpdater(Context context, UpdateStrategy strategy) {
+    public ApplicationAttributeUpdater(Context context, UpdateStrategy updateStrategy) {
         super(context);
-        this.strategy = strategy;
+        this.updateStrategy = updateStrategy;
     }
 
     public UpdateState update(CloudApplication existingApplication, CloudApplication application) {
@@ -30,7 +30,7 @@ public abstract class ApplicationAttributeUpdater extends ControllerClientFacade
     protected abstract void updateAttribute(CloudApplication existingApplication, CloudApplication application);
 
     protected final ElementUpdater getElementUpdater() {
-        return ElementUpdater.getUpdater(strategy);
+        return ElementUpdater.getUpdater(updateStrategy);
     }
 
 }

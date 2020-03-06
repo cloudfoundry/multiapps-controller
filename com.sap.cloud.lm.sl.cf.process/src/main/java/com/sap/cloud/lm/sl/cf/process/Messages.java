@@ -438,6 +438,16 @@ public class Messages {
     public static final String UPDATING_APP_NAMES_WITH_NEW_SUFFIX = "Updating application names in deployment descriptor with 'new' suffix";
     public static final String UPDATING_CONFIGURATION_SUBSCRIPTION_0_WITH_NAME_1 = "Updating configuration subscription \"{0}\" with name \"{1}\"";
     public static final String CONTENT_OF_APPLICATION_0_IS_NOT_CHANGED = "Content of application \"{0}\" is not changed - upload will be skipped.";
+    public static final String UPDATING_DISK_QUOTA_OF_APP_0_TO_1 = "Updating disk quota of application \"{0}\" to: {1}";
+    public static final String UPDATING_ENV_OF_APP_0_TO_1 = "Updating env of application \"{0}\" to: {1}";
+    public static final String UPDATING_MEMORY_OF_APP_0_TO_1 = "Updating memory of application \"{0}\" to: {1}";
+    public static final String UPDATING_STAGING_OF_APP_0_TO_1 = "Updating staging of application \"{0}\" to: {1}";
+    public static final String UPDATING_URIS_OF_APP_0_TO_1 = "Updating URIs of application \"{0}\" to: {1}";
+    public static final String EXISTING_ENV_0 = "Existing env: {0}";
+    public static final String EXISTING_URIS_0 = "Existing URIs: {0}";
+    public static final String APPLYING_UPDATE_STRATEGY_0_TO_ENV_1 = "Applying update strategy \"{0}\" to env: {1}";
+    public static final String APPLYING_UPDATE_STRATEGY_0_TO_URIS_1 = "Applying update strategy \"{0}\" to URIs: {1}";
+    public static final String RESULT_0 = "Result: {0}";
 
     protected Messages() {
     }

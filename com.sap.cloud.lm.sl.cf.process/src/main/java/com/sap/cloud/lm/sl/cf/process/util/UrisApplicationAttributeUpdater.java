@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateStrategy;
 
 public class UrisApplicationAttributeUpdater extends ApplicationAttributeUpdater {
@@ -23,9 +24,21 @@ public class UrisApplicationAttributeUpdater extends ApplicationAttributeUpdater
 
     @Override
     protected void updateAttribute(CloudApplication existingApplication, CloudApplication application) {
-        getLogger().debug("Updating URIs of application \"{0}\" to: {1}", application.getName(), application.getUris());
-        List<String> updatedUris = getElementUpdater().updateList(existingApplication.getUris(), application.getUris());
-        getControllerClient().updateApplicationUris(application.getName(), updatedUris);
+        List<String> uris = applyUpdateStrategy(existingApplication.getUris(), application.getUris());
+        updateApplicationUris(application.getName(), uris);
+    }
+
+    private List<String> applyUpdateStrategy(List<String> existingUris, List<String> uris) {
+        getLogger().debug(Messages.EXISTING_URIS_0, uris);
+        getLogger().debug(Messages.APPLYING_UPDATE_STRATEGY_0_TO_URIS_1, updateStrategy, uris);
+        List<String> result = getElementUpdater().updateList(existingUris, uris);
+        getLogger().debug(Messages.RESULT_0, result);
+        return result;
+    }
+
+    private void updateApplicationUris(String applicationName, List<String> uris) {
+        getLogger().debug(Messages.UPDATING_URIS_OF_APP_0_TO_1, applicationName, uris);
+        getControllerClient().updateApplicationUris(applicationName, uris);
     }
 
 }
