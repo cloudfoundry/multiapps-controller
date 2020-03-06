@@ -20,13 +20,12 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 @Named
 public class MtaMetadataValidator {
 
-    public void validate(CloudApplication application) {
-        validateMtaMetadataLabelsArePresent(application);
-        validateMtaMetadataAnnotationsArePresent(application, MtaMetadataUtil.MTA_METADATA_APPLICATION_ANNOTATIONS);
-        validateAttributeContainsName(application, MtaMetadataAnnotations.MTA_MODULE);
+    public void validateHasCommonMetadata(CloudEntity entity) {
+        validateLabelsArePresent(entity);
+        validateAnnotationsArePresent(entity, MtaMetadataUtil.MTA_METADATA_ANNOTATIONS);
     }
 
-    private void validateMtaMetadataLabelsArePresent(CloudEntity entity) {
+    private void validateLabelsArePresent(CloudEntity entity) {
         if (!entity.getV3Metadata()
                    .getLabels()
                    .keySet()
@@ -35,13 +34,19 @@ public class MtaMetadataValidator {
         }
     }
 
-    private void validateMtaMetadataAnnotationsArePresent(CloudEntity entity, List<String> metadataAnnotations) {
+    private void validateAnnotationsArePresent(CloudEntity entity, List<String> metadataAnnotations) {
         if (!entity.getV3Metadata()
                    .getAnnotations()
                    .keySet()
                    .containsAll(metadataAnnotations)) {
             throw new ContentException(Messages.MTA_METADATA_FOR_0_IS_INCOMPLETE, entity.getName());
         }
+    }
+
+    public void validate(CloudApplication application) {
+        validateHasCommonMetadata(application);
+        validateAnnotationsArePresent(application, MtaMetadataUtil.MTA_METADATA_APPLICATION_ANNOTATIONS);
+        validateAttributeContainsName(application, MtaMetadataAnnotations.MTA_MODULE);
     }
 
     private void validateAttributeContainsName(CloudEntity entity, String attributeKey) {
@@ -55,13 +60,9 @@ public class MtaMetadataValidator {
         }
     }
 
-    public void validate(CloudEntity entity) {
-        validateMtaMetadataLabelsArePresent(entity);
-    }
-
     public void validate(CloudService service) {
-        validateMtaMetadataLabelsArePresent(service);
-        validateMtaMetadataAnnotationsArePresent(service, MtaMetadataUtil.MTA_METADATA_SERVICE_ANNOTATIONS);
+        validateHasCommonMetadata(service);
+        validateAnnotationsArePresent(service, MtaMetadataUtil.MTA_METADATA_SERVICE_ANNOTATIONS);
         validateAttributeContainsName(service, MtaMetadataAnnotations.MTA_RESOURCE);
     }
 
