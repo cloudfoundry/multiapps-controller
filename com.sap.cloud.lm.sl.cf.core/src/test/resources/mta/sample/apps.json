@@ -3,13 +3,14 @@
     "name": "web-server",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.mta.sample",
+        "mta_version": "1.2.1-beta+20150403144937853",
         "mta_module": "{\"name\":\"web-server\"}",
         "mta_module_provided_dependencies": "[\"web-server\"]",
         "mta_bound_services": "[\"internal-odata-service\"]"
       },
       "labels": {
-        "mta_id": "com.sap.mta.sample",
-        "mta_version": "1.2.1-beta+20150403144937853"
+        "mta_id": "57675a73021035bde9f4f77efa07dad8"
       }
     },
     "memory": 0,
@@ -59,13 +60,14 @@
     "name": "pricing",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.mta.sample",
+        "mta_version": "1.2.1-beta+20150403144937853",
         "mta_module": "{\"name\":\"pricing\"}",
         "mta_module_provided_dependencies": "[\"internal-odata\",\"pricing\"]",
         "mta_bound_services": "[\"pricing-db-service\"]"
       },
       "labels": {
-        "mta_id": "com.sap.mta.sample",
-        "mta_version": "1.2.1-beta+20150403144937853"
+        "mta_id": "57675a73021035bde9f4f77efa07dad8"
       }
     },
     "memory": 0,
@@ -119,13 +121,14 @@
     "name": "pricing-db",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.mta.sample",
+        "mta_version": "1.2.1-beta+20150403144937853",
         "mta_module": "{\"name\":\"pricing-db\"}",
         "mta_module_provided_dependencies": "[\"pricing-db\"]",
         "mta_bound_services": "[\"pricing-db-service\"]"
       },
       "labels": {
-        "mta_id": "com.sap.mta.sample",
-        "mta_version": "1.2.1-beta+20150403144937853"
+        "mta_id": "57675a73021035bde9f4f77efa07dad8"
       }
     },
     "memory": 0,
