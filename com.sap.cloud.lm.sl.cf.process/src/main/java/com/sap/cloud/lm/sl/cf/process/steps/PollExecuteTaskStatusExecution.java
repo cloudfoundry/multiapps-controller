@@ -30,7 +30,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
     public String getPollingErrorMessage(ExecutionWrapper execution) {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
         CloudTask task = StepsUtil.getStartedTask(execution.getContext());
-        return MessageFormat.format(Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
+        return MessageFormat.format(Messages.ERROR_EXECUTING_TASK_0_ON_APP_1, task.getName(), app.getName());
     }
 
     public class PollExecuteTaskStatusDelegate {
@@ -86,7 +86,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         private AsyncExecutionState handleFinalState(CloudTask.State state) {
             if (state.equals(CloudTask.State.FAILED)) {
                 execution.getStepLogger()
-                         .error(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToPoll.getName(), app.getName());
+                         .error(Messages.ERROR_EXECUTING_TASK_0_ON_APP_1, taskToPoll.getName(), app.getName());
                 return AsyncExecutionState.ERROR;
             }
             return AsyncExecutionState.FINISHED;

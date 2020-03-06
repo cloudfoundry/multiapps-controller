@@ -105,16 +105,20 @@ public class Messages {
     public static final String ERROR_INCREMENT_INDEX = "Error incrementing index";
     public static final String ERROR_PREPARING_MODULES_DEPLOYMENT = "Error preparing modules deployment";
     public static final String ERROR_STOPPING_APP = "Error stopping application \"{0}\"";
-    public static final String ERROR_STAGING_APP_1 = "Error staging application \"{0}\"";
-    public static final String ERROR_STAGING_APP_2 = "Staging of application \"{0}\" failed. Download the application logs via the dmol command and check them for more information.";
+    public static final String DOWNLOAD_APP_LOGS_FOR_MORE_INFO = "Download the application logs via the dmol command and check them for more information.";
+    public static final String ERROR_STAGING_APP_0 = "Error staging application \"{0}\"";
+    public static final String ERROR_STAGING_APP_0_DESCRIPTION_1 = "Error staging application \"{0}\": {1}\n"
+        + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
     public static final String ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES = "Error publishing public provided dependencies";
-    public static final String ERROR_STARTING_APP_1 = "Error starting application \"{0}\"";
-    public static final String ERROR_STARTING_APP_2 = "Starting of application \"{0}\" failed. Download the application logs via the dmol command and check them for more information.";
+    public static final String ERROR_STARTING_APP_0 = "Error starting application \"{0}\"";
+    public static final String ERROR_STARTING_APP_0_DESCRIPTION_1 = "Error starting application \"{0}\": {1}\n"
+        + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
     public static final String ERROR_EXECUTING_APP_1 = "Error executing application \"{0}\"";
     public static final String ERROR_EXECUTING_APP_2 = "Error executing application \"{0}\": {1}";
     public static final String ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP = "Error preparing to execute tasks on application \"{0}\"";
     public static final String ERROR_PREPARING_TO_RESTART_SERVICE_BROKER_SUBSCRIBERS = "Error preparing to restart service broker subscribers";
-    public static final String ERROR_EXECUTING_TASK_ON_APP = "Execution of task \"{0}\" failed. Download the application logs \"{1}\", via the dmol command, and check them for more information.";
+    public static final String ERROR_EXECUTING_TASK_0_ON_APP_1 = "Execution of task \"{0}\" on application \"{1}\" failed.\n"
+        + DOWNLOAD_APP_LOGS_FOR_MORE_INFO;
     public static final String ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY = "Error detecting components to undeploy";
     public static final String ERROR_DELETING_IDLE_ROUTES = "Error deleting idle routes";
     public static final String ERROR_CREATING_SERVICE_BROKERS = "Error creating service brokers";
@@ -134,13 +138,13 @@ public class Messages {
     public static final String ERROR_DELETING_REMAINING_FILE_PARTS = "Error deleting remaining file parts";
     public static final String ERROR_DETECTING_APPLICATIONS_TO_RENAME = "Error detecting applications to rename";
     public static final String ERROR_RENAMING_NEW_APPLICATIONS = "Error renaming new applications";
-
     public static final String ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES = "Error monitoring creation or update of services";
     public static final String ERROR_MONITORING_DELETION_OF_SERVICES = "Error monitoring deletion of services";
     public static final String SERVICES_ARE_ALREADY_DELETED = "Services \"{0}\" are already deleted";
     public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE = "Error determining actions to execute on service \"{0}\"";
     public static final String ERROR_POLLING_OF_SERVICE = "Error polling last operation of service \"{0}\": {1}";
     public static final String ERROR_MERGING_ARCHIVE = "Error merging archive. Retrying...";
+    public static final String ERROR_DELETING_OPERATION_WITH_ID = "Error deleting operation with ID \"{0}\"";
 
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_PARAMETERS = "Cannot retrieve service parameters of service \"{0}\"";
@@ -204,7 +208,6 @@ public class Messages {
     public static final String CREATE_SUPPORT_TICKET_TO_SERVICE_BROKER_COMPONENT = "If you think the problem is in the service broker, please create a support ticket to {0} component \"{1}\".";
     public static final String CREATE_SUPPORT_TICKET_TO_CC_COMPONENT = "If you think the problem is in the controller, please create a support ticket to {0} component \"{1}\".";
     public static final String DELETING_OPERATION_WITH_ID = "Deleting operation with ID \"{0}\"";
-    public static final String ERROR_DELETING_OPERATION_WITH_ID = "Error deleting operation with ID \"{0}\"";
 
     // Progress messages
 

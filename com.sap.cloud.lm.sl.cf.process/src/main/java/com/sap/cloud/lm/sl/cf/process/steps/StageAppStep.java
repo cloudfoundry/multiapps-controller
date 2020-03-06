@@ -33,7 +33,7 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected String getStepErrorMessage(DelegateExecution context) {
-        return MessageFormat.format(Messages.ERROR_STAGING_APP_1, StepsUtil.getApp(context)
+        return MessageFormat.format(Messages.ERROR_STAGING_APP_0, StepsUtil.getApp(context)
                                                                            .getName());
     }
 
