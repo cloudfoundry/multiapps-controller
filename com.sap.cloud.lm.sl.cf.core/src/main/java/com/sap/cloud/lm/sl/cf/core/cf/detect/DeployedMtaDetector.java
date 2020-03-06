@@ -16,6 +16,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.metadata.criteria.MtaMetadataCriteria;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.criteria.MtaMetadataCriteriaBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.entity.processor.MtaMetadataEntityAggregator;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.entity.processor.MtaMetadataEntityCollector;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.util.MtaMetadataUtil;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 
 @Named
@@ -58,7 +59,7 @@ public class DeployedMtaDetector {
     public Optional<DeployedMta> detectDeployedMta(String mtaId, CloudControllerClient client) {
         MtaMetadataCriteria selectionCriteria = MtaMetadataCriteriaBuilder.builder()
                                                                           .label(MtaMetadataLabels.MTA_ID)
-                                                                          .haveValue(mtaId)
+                                                                          .haveValue(MtaMetadataUtil.getHashedMtaId(mtaId))
                                                                           .build();
         List<DeployedMta> deployedMtasByMetadata = getDeployedMtasByMetadataSelectionCriteria(selectionCriteria, client);
         if (!deployedMtasByMetadata.isEmpty()) {

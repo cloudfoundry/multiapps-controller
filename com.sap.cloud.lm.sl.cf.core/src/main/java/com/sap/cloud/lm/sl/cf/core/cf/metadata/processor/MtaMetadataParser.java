@@ -16,7 +16,6 @@ import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.ImmutableMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataAnnotations;
-import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataLabels;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaService;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
@@ -35,8 +34,8 @@ public class MtaMetadataParser extends BaseMtaMetadataParser {
     public MtaMetadata parseMtaMetadata(CloudEntity entity) {
         mtaMetadataValidator.validate(entity);
         Metadata metadata = entity.getV3Metadata();
-        String mtaId = metadata.getLabels()
-                               .get(MtaMetadataLabels.MTA_ID);
+        String mtaId = metadata.getAnnotations()
+                               .get(MtaMetadataAnnotations.MTA_ID);
         String mtaVersion = metadata.getAnnotations()
                                     .get(MtaMetadataAnnotations.MTA_VERSION);
         String messageOnParsingException = MessageFormat.format(Messages.CANT_PARSE_MTA_METADATA_VERSION_FOR_0, entity.getName());
