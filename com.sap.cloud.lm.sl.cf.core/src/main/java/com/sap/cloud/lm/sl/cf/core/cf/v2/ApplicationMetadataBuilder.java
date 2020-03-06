@@ -24,7 +24,7 @@ public class ApplicationMetadataBuilder {
         String mtaServicesAnnotation = buildBoundMtaServicesAnnotation(services);
         return Metadata.builder()
                        .label(MtaMetadataLabels.MTA_ID, deploymentDescriptor.getId())
-                       .label(MtaMetadataLabels.MTA_VERSION, deploymentDescriptor.getVersion())
+                       .annotation(MtaMetadataAnnotations.MTA_VERSION, deploymentDescriptor.getVersion())
                        .annotation(MtaMetadataAnnotations.MTA_MODULE, mtaModuleAnnotation)
                        .annotation(MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES, mtaModuleProvidedDependenciesAnnotation)
                        .annotation(MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES, mtaServicesAnnotation)
