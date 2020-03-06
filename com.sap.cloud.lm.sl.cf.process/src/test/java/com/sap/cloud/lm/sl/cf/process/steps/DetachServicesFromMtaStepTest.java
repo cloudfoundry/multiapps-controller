@@ -53,6 +53,7 @@ public class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachSe
     private static Metadata getMetadataWithoutMtaFields() {
         return Metadata.builder()
                        .label(MtaMetadataLabels.MTA_ID, null)
+                       .annotation(MtaMetadataAnnotations.MTA_ID, null)
                        .annotation(MtaMetadataAnnotations.MTA_VERSION, null)
                        .annotation(MtaMetadataAnnotations.MTA_RESOURCE, null)
                        .build();
@@ -79,7 +80,8 @@ public class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachSe
 
     private CloudServiceInstance createServiceInstance(SimpleServiceInstance serviceInstance) {
         Metadata v3Metadata = Metadata.builder()
-                                      .label(MtaMetadataLabels.MTA_ID, "test")
+                                      .label(MtaMetadataLabels.MTA_ID, "098f6bcd4621d373cade4e832627b4f6")
+                                      .annotation(MtaMetadataAnnotations.MTA_ID, "test")
                                       .annotation(MtaMetadataAnnotations.MTA_VERSION, "1")
                                       .annotation(MtaMetadataAnnotations.MTA_RESOURCE, "test")
                                       .build();
