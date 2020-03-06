@@ -32,7 +32,7 @@ public class MtaMetadataParser extends BaseMtaMetadataParser {
     }
 
     public MtaMetadata parseMtaMetadata(CloudEntity entity) {
-        mtaMetadataValidator.validate(entity);
+        mtaMetadataValidator.validateHasCommonMetadata(entity);
         Metadata metadata = entity.getV3Metadata();
         String mtaId = metadata.getAnnotations()
                                .get(MtaMetadataAnnotations.MTA_ID);

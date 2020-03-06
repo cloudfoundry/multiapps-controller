@@ -21,6 +21,8 @@ public class MtaMetadataUtil {
                                                                                                           Constants.ENV_MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES));
 
     public static final List<String> MTA_METADATA_LABELS = Collections.unmodifiableList(Arrays.asList(MtaMetadataLabels.MTA_ID));
+    public static final List<String> MTA_METADATA_ANNOTATIONS = Collections.unmodifiableList(Arrays.asList(MtaMetadataAnnotations.MTA_ID,
+                                                                                                           MtaMetadataAnnotations.MTA_VERSION));
     public static final List<String> MTA_METADATA_APPLICATION_ANNOTATIONS = Collections.unmodifiableList(Arrays.asList(MtaMetadataAnnotations.MTA_MODULE,
                                                                                                                        MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
                                                                                                                        MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES));
