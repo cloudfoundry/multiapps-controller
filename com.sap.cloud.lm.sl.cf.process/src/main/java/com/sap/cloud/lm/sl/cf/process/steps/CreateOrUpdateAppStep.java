@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
-import com.sap.cloud.lm.sl.cf.process.util.*;
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -39,8 +38,18 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationAttributeUpdater.UpdateState;
-import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateBehavior;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationServicesUpdater;
+import com.sap.cloud.lm.sl.cf.process.util.ControllerClientFacade;
+import com.sap.cloud.lm.sl.cf.process.util.ControllerClientFacade.Context;
+import com.sap.cloud.lm.sl.cf.process.util.DiskQuotaApplicationAttributeUpdater;
+import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateStrategy;
+import com.sap.cloud.lm.sl.cf.process.util.EnvironmentApplicationAttributeUpdater;
+import com.sap.cloud.lm.sl.cf.process.util.MemoryApplicationAttributeUpdater;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationUtil;
+import com.sap.cloud.lm.sl.cf.process.util.StagingApplicationAttributeUpdater;
+import com.sap.cloud.lm.sl.cf.process.util.UrisApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -230,10 +239,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationAttributes() {
-            List<UpdateState> updateStates = getApplicationAttributeUpdaters(existingApp).stream()
-                                                                                         .map(updater -> updater.updateApplication(client,
-                                                                                                                                   app))
-                                                                                         .collect(Collectors.toList());
+            List<UpdateState> updateStates = getApplicationAttributeUpdaters().stream()
+                                                                              .map(updater -> updater.update(existingApp, app))
+                                                                              .collect(Collectors.toList());
 
             boolean arePropertiesChanged = updateStates.stream()
                                                        .anyMatch(updateState -> updateState == UpdateState.UPDATED);
@@ -286,9 +294,10 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         private UpdateState
                 updateApplicationEnvironment(CloudApplicationExtended app, CloudApplication existingApp, CloudControllerClient client,
                                              CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
-            return new EnvironmentApplicationAttributeUpdater(existingApp,
-                                                              getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingEnv()),
-                                                              getStepLogger()).updateApplication(client, app);
+            Context context = new ControllerClientFacade.Context(client, getStepLogger());
+            return new EnvironmentApplicationAttributeUpdater(context,
+                                                              getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingEnv())).update(existingApp,
+                                                                                                                                                     app);
         }
 
         @Override
@@ -316,15 +325,15 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.APP_UPDATED, app.getName());
         }
 
-        private List<ApplicationAttributeUpdater> getApplicationAttributeUpdaters(CloudApplication existingApplication) {
-            return Arrays.asList(new StagingApplicationAttributeUpdater(existingApplication, getStepLogger()),
-                                 new MemoryApplicationAttributeUpdater(existingApplication, getStepLogger()),
-                                 new DiskQuotaApplicationAttributeUpdater(existingApplication, getStepLogger()),
-                                 new UrisApplicationAttributeUpdater(existingApplication, UpdateBehavior.REPLACE, getStepLogger()));
+        private List<ApplicationAttributeUpdater> getApplicationAttributeUpdaters() {
+            Context context = new ControllerClientFacade.Context(client, getStepLogger());
+            return Arrays.asList(new StagingApplicationAttributeUpdater(context), new MemoryApplicationAttributeUpdater(context),
+                                 new DiskQuotaApplicationAttributeUpdater(context),
+                                 new UrisApplicationAttributeUpdater(context, UpdateStrategy.REPLACE));
         }
 
-        private UpdateBehavior getUpdateStrategy(boolean shouldKeepAttributes) {
-            return shouldKeepAttributes ? UpdateBehavior.MERGE : UpdateBehavior.REPLACE;
+        private UpdateStrategy getUpdateStrategy(boolean shouldKeepAttributes) {
+            return shouldKeepAttributes ? UpdateStrategy.MERGE : UpdateStrategy.REPLACE;
         }
 
         private void updateAppDigest(Map<String, String> newAppEnv, Map<String, String> existingAppEnv) {
@@ -385,7 +394,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                                                                                                                  bindingParameters)));
             ApplicationServicesUpdater applicationServicesUpdater = new ApplicationServicesUpdater(client, getStepLogger());
             List<String> updatedServices = applicationServicesUpdater.updateApplicationServices(applicationName,
-                                                        serviceNamesWithBindingParameters, getApplicationServicesUpdateCallback(context));
+                                                                                                serviceNamesWithBindingParameters,
+                                                                                                getApplicationServicesUpdateCallback(context));
 
             reportNonUpdatedServices(services, applicationName, updatedServices);
             return !updatedServices.isEmpty();

@@ -2,21 +2,22 @@ package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.util.List;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
 
+import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateStrategy;
+
 public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpdater {
 
-    public StagingApplicationAttributeUpdater(CloudApplication existingApp, StepLogger stepLogger) {
-        super(existingApp, stepLogger);
+    public StagingApplicationAttributeUpdater(Context context) {
+        super(context, UpdateStrategy.REPLACE);
     }
 
     @Override
-    protected boolean shouldUpdateAttribute(CloudApplication app) {
-        Staging staging = app.getStaging();
-        Staging existingStaging = existingApp.getStaging();
+    protected boolean shouldUpdateAttribute(CloudApplication existingApplication, CloudApplication application) {
+        Staging staging = application.getStaging();
+        Staging existingStaging = existingApplication.getStaging();
         return hasStagingChanged(staging, existingStaging);
     }
 
@@ -44,10 +45,9 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
     }
 
     @Override
-    protected UpdateState updateApplicationAttribute(CloudControllerClient client, CloudApplication app) {
-        stepLogger.debug("Updating staging of application \"{0}\"", app.getName());
-        client.updateApplicationStaging(app.getName(), app.getStaging());
-        return UpdateState.UPDATED;
+    protected void updateAttribute(CloudApplication existingApplication, CloudApplication application) {
+        getLogger().debug("Updating staging of application \"{0}\"...", application.getName());
+        getControllerClient().updateApplicationStaging(application.getName(), application.getStaging());
     }
 
 }

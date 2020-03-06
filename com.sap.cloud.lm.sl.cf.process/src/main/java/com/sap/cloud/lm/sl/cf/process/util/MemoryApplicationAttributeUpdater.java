@@ -1,25 +1,27 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+
+import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateStrategy;
 
 public class MemoryApplicationAttributeUpdater extends ApplicationAttributeUpdater {
 
-    public MemoryApplicationAttributeUpdater(CloudApplication existingApp, StepLogger stepLogger) {
-        super(existingApp, stepLogger);
+    public MemoryApplicationAttributeUpdater(Context context) {
+        super(context, UpdateStrategy.REPLACE);
     }
 
     @Override
-    protected boolean shouldUpdateAttribute(CloudApplication app) {
-        Integer applicationMemory = (app.getMemory() != 0) ? app.getMemory() : null;
-        return applicationMemory != null && !applicationMemory.equals(existingApp.getMemory());
+    protected boolean shouldUpdateAttribute(CloudApplication existingApplication, CloudApplication application) {
+        if (application.getMemory() == 0) { // 0 means "not specified".
+            return false;
+        }
+        return existingApplication.getMemory() != application.getMemory();
     }
 
     @Override
-    protected UpdateState updateApplicationAttribute(CloudControllerClient client, CloudApplication app) {
-        stepLogger.debug("Updating memory of application \"{0}\"", app.getName());
-        client.updateApplicationMemory(app.getName(), app.getMemory());
-        return UpdateState.UPDATED;
+    protected void updateAttribute(CloudApplication existingApplication, CloudApplication application) {
+        getLogger().debug("Updating memory of application \"{0}\"...", application.getName());
+        getControllerClient().updateApplicationMemory(application.getName(), application.getMemory());
     }
 
 }

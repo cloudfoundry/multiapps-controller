@@ -41,15 +41,15 @@ public interface ElementUpdater {
 
     }
 
-    static ElementUpdater getUpdater(UpdateBehavior updateBehavior) {
-        if (updateBehavior == UpdateBehavior.REPLACE) {
+    static ElementUpdater getUpdater(UpdateStrategy updateStrategy) {
+        if (updateStrategy == UpdateStrategy.REPLACE) {
             return new AttributeReplacer();
         }
-
         return new AttributeMerger();
     }
 
-    enum UpdateBehavior {
+    enum UpdateStrategy {
         REPLACE, MERGE
     }
+
 }

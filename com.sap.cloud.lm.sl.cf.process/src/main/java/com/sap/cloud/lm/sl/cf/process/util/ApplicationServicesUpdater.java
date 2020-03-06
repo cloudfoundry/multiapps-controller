@@ -1,32 +1,33 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import com.sap.cloud.lm.sl.cf.process.Messages;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.util.JsonUtil;
 
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
-public class ApplicationServicesUpdater {
+public class ApplicationServicesUpdater extends ControllerClientFacade {
 
-    private CloudControllerClient client;
-    private StepLogger stepLogger;
-
-    public ApplicationServicesUpdater(CloudControllerClient client, StepLogger stepLogger) {
-        this.client = client;
-        this.stepLogger = stepLogger;
+    public ApplicationServicesUpdater(Context context) {
+        super(context);
     }
 
     public List<String> updateApplicationServices(String applicationName,
-        Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
-        ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
-        CloudApplication application = client.getApplication(applicationName);
+                                                  Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
+                                                  ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+        CloudApplication application = getControllerClient().getApplication(applicationName);
 
         List<String> addServices = calculateServicesToAdd(serviceNamesWithBindingParameters.keySet(), application);
         bindServices(addServices, applicationName, serviceNamesWithBindingParameters, applicationServicesUpdateCallback);
@@ -42,92 +43,92 @@ public class ApplicationServicesUpdater {
 
     private List<String> calculateServicesToAdd(Set<String> services, CloudApplication application) {
         return services.stream()
-            .filter(serviceName -> !application.getServices()
-                .contains(serviceName))
-            .collect(Collectors.toList());
+                       .filter(serviceName -> !application.getServices()
+                                                          .contains(serviceName))
+                       .collect(Collectors.toList());
     }
 
     private List<String> calculateServicesToDelete(Set<String> services, CloudApplication application) {
         return application.getServices()
-            .stream()
-            .filter(serviceName -> !services.contains(serviceName))
-            .collect(Collectors.toList());
+                          .stream()
+                          .filter(serviceName -> !services.contains(serviceName))
+                          .collect(Collectors.toList());
     }
 
     protected List<String> calculateServicesToRebind(Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
-        CloudApplication application) {
+                                                     CloudApplication application) {
         List<String> servicesToRebind = new ArrayList<>();
         for (String serviceName : serviceNamesWithBindingParameters.keySet()) {
             if (!application.getServices()
-                .contains(serviceName)) {
+                            .contains(serviceName)) {
                 continue;
             }
 
-            CloudServiceInstance serviceInstance = client.getServiceInstance(serviceName);
+            CloudServiceInstance serviceInstance = getControllerClient().getServiceInstance(serviceName);
             Map<String, Object> newServiceBindingParameters = getNewServiceBindingParameters(serviceNamesWithBindingParameters,
-                serviceInstance);
+                                                                                             serviceInstance);
             if (hasServiceBindingsChanged(application, serviceInstance, newServiceBindingParameters)) {
                 servicesToRebind.add(serviceInstance.getService()
-                    .getName());
+                                                    .getName());
             }
         }
         return servicesToRebind;
     }
 
     private Map<String, Object> getNewServiceBindingParameters(Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
-        CloudServiceInstance serviceInstance) {
+                                                               CloudServiceInstance serviceInstance) {
         return serviceNamesWithBindingParameters.get(serviceInstance.getService()
-            .getName());
+                                                                    .getName());
     }
 
     private boolean hasServiceBindingsChanged(CloudApplication application, CloudServiceInstance serviceInstance,
-        Map<String, Object> newServiceBindingParameters) {
+                                              Map<String, Object> newServiceBindingParameters) {
         CloudServiceBinding bindingForApplication = getServiceBindingForApplication(application, serviceInstance);
         return !Objects.equals(bindingForApplication.getBindingParameters(), newServiceBindingParameters);
     }
 
     private CloudServiceBinding getServiceBindingForApplication(CloudApplication application, CloudServiceInstance serviceInstance) {
-        stepLogger.debug(Messages.LOOKING_FOR_SERVICE_BINDINGS, getGuid(application), getGuid(serviceInstance),
-            JsonUtil.convertToJson(serviceInstance.getBindings(), true));
+        getLogger().debug(Messages.LOOKING_FOR_SERVICE_BINDINGS, getGuid(application), getGuid(serviceInstance),
+                          JsonUtil.convertToJson(serviceInstance.getBindings(), true));
         return serviceInstance.getBindings()
-            .stream()
-            .filter(serviceBinding -> application.getMetadata()
-                .getGuid()
-                .equals(serviceBinding.getApplicationGuid()))
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException(MessageFormat.format(Messages.APPLICATION_UNBOUND_IN_PARALLEL,
-                application.getName(),
-                serviceInstance.getService()
-                    .getName())));
+                              .stream()
+                              .filter(serviceBinding -> application.getMetadata()
+                                                                   .getGuid()
+                                                                   .equals(serviceBinding.getApplicationGuid()))
+                              .findFirst()
+                              .orElseThrow(() -> new IllegalStateException(MessageFormat.format(Messages.APPLICATION_UNBOUND_IN_PARALLEL,
+                                                                                                application.getName(),
+                                                                                                serviceInstance.getService()
+                                                                                                               .getName())));
     }
 
     private void bindServices(List<String> addServices, String applicationName,
-        Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
-        ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+                              Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
+                              ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         for (String serviceName : addServices) {
             Map<String, Object> bindingParameters = serviceNamesWithBindingParameters.get(serviceName);
-            stepLogger.debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, applicationName, serviceName, bindingParameters);
-            client.bindService(applicationName, serviceName, bindingParameters, applicationServicesUpdateCallback);
+            getLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, applicationName, serviceName, bindingParameters);
+            getControllerClient().bindService(applicationName, serviceName, bindingParameters, applicationServicesUpdateCallback);
         }
     }
 
     private void unbindServices(List<String> deleteServices, String applicationName,
-        ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+                                ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         for (String serviceName : deleteServices) {
-            stepLogger.debug(Messages.UNBINDING_SERVICE_FROM_APP, serviceName, applicationName);
-            client.unbindService(applicationName, serviceName, applicationServicesUpdateCallback);
+            getLogger().debug(Messages.UNBINDING_SERVICE_FROM_APP, serviceName, applicationName);
+            getControllerClient().unbindService(applicationName, serviceName, applicationServicesUpdateCallback);
         }
     }
 
     private void rebindServices(List<String> rebindServices, String applicationName,
-        Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
-        ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+                                Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
+                                ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         for (String serviceName : rebindServices) {
             Map<String, Object> bindingParameters = serviceNamesWithBindingParameters.get(serviceName);
-            stepLogger.debug(Messages.UNBINDING_SERVICE_FROM_APP, serviceName, applicationName);
-            client.unbindService(applicationName, serviceName, applicationServicesUpdateCallback);
-            stepLogger.debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, applicationName, serviceName, bindingParameters);
-            client.bindService(applicationName, serviceName, bindingParameters, applicationServicesUpdateCallback);
+            getLogger().debug(Messages.UNBINDING_SERVICE_FROM_APP, serviceName, applicationName);
+            getControllerClient().unbindService(applicationName, serviceName, applicationServicesUpdateCallback);
+            getLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, applicationName, serviceName, bindingParameters);
+            getControllerClient().bindService(applicationName, serviceName, bindingParameters, applicationServicesUpdateCallback);
         }
     }
 
@@ -141,6 +142,6 @@ public class ApplicationServicesUpdater {
 
     private UUID getGuid(CloudEntity entity) {
         return entity.getMetadata()
-            .getGuid();
+                     .getGuid();
     }
 }
