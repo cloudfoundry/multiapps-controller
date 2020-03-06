@@ -1,25 +1,27 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+
+import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateStrategy;
 
 public class DiskQuotaApplicationAttributeUpdater extends ApplicationAttributeUpdater {
 
-    public DiskQuotaApplicationAttributeUpdater(CloudApplication existingApp, StepLogger stepLogger) {
-        super(existingApp, stepLogger);
+    public DiskQuotaApplicationAttributeUpdater(Context context) {
+        super(context, UpdateStrategy.REPLACE);
     }
 
     @Override
-    protected boolean shouldUpdateAttribute(CloudApplication app) {
-        Integer diskQuota = (app.getDiskQuota() != 0) ? app.getDiskQuota() : null;
-        return diskQuota != null && !diskQuota.equals(existingApp.getDiskQuota());
+    protected boolean shouldUpdateAttribute(CloudApplication existingApplication, CloudApplication application) {
+        if (application.getDiskQuota() == 0) { // 0 means "not specified".
+            return false;
+        }
+        return existingApplication.getDiskQuota() != application.getDiskQuota();
     }
 
     @Override
-    protected UpdateState updateApplicationAttribute(CloudControllerClient client, CloudApplication app) {
-        stepLogger.debug("Updating disk quota of application \"{0}\"", app.getName());
-        client.updateApplicationDiskQuota(app.getName(), app.getDiskQuota());
-        return UpdateState.UPDATED;
+    protected void updateAttribute(CloudApplication existingApplication, CloudApplication application) {
+        getLogger().debug("Updating disk quota of application \"{0}\"...", application.getName());
+        getControllerClient().updateApplicationDiskQuota(application.getName(), application.getDiskQuota());
     }
 
 }

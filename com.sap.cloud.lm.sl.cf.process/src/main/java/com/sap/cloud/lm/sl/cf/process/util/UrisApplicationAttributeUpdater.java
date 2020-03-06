@@ -4,31 +4,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
-import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateBehavior;
+import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateStrategy;
 
 public class UrisApplicationAttributeUpdater extends ApplicationAttributeUpdater {
 
-    public UrisApplicationAttributeUpdater(CloudApplication existingApp, UpdateBehavior updateBehavior, StepLogger stepLogger) {
-        super(existingApp, updateBehavior, stepLogger);
+    public UrisApplicationAttributeUpdater(Context context, UpdateStrategy updateStrategy) {
+        super(context, updateStrategy);
     }
 
     @Override
-    protected boolean shouldUpdateAttribute(CloudApplication app) {
-        Set<String> urisSet = new HashSet<>(app.getUris());
-        Set<String> existingUrisSet = new HashSet<>(existingApp.getUris());
-        return !urisSet.equals(existingUrisSet);
+    protected boolean shouldUpdateAttribute(CloudApplication existingApplication, CloudApplication application) {
+        Set<String> uris = new HashSet<>(application.getUris());
+        Set<String> existingUris = new HashSet<>(existingApplication.getUris());
+        return !uris.equals(existingUris);
     }
 
     @Override
-    protected UpdateState updateApplicationAttribute(CloudControllerClient client, CloudApplication app) {
-        stepLogger.debug("Updating uris of application \"{0}\" with uri: {1}", app.getName(), app.getUris());
-        List<String> updatedUris = ElementUpdater.getUpdater(updateBehavior)
-                                                 .updateList(existingApp.getUris(), app.getUris());
-        client.updateApplicationUris(app.getName(), updatedUris);
-        return UpdateState.UPDATED;
+    protected void updateAttribute(CloudApplication existingApplication, CloudApplication application) {
+        getLogger().debug("Updating URIs of application \"{0}\" to: {1}", application.getName(), application.getUris());
+        List<String> updatedUris = getElementUpdater().updateList(existingApplication.getUris(), application.getUris());
+        getControllerClient().updateApplicationUris(application.getName(), updatedUris);
     }
 
 }
