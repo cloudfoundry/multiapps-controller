@@ -3,13 +3,14 @@
     "name": "shine",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.xs2.samples.shine",
+        "mta_version": "0.1.0",
         "mta_module": "{\"name\":\"shine\"}",
         "mta_module_provided_dependencies": "[\"shine\"]",
         "mta_bound_services": "[\"uaa\"]"
       },
       "labels": {
-        "mta_id": "com.sap.xs2.samples.shine",
-        "mta_version": "0.1.0"
+        "mta_id": "be5ee71b7aaf0d059a831b9babd5547c"
       }
     },
     "memory": 128,
@@ -57,13 +58,14 @@
     "name": "shine-xsjs",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.xs2.samples.shine",
+        "mta_version": "0.1.0",
         "mta_module": "{\"name\":\"shine-xsjs\"}",
         "mta_module_provided_dependencies": "[\"xsjs\",\"shine-xsjs\"]",
         "mta_bound_services": "[\"uaa\",\"shine-database\"]"
       },
       "labels": {
-        "mta_id": "com.sap.xs2.samples.shine",
-        "mta_version": "0.1.0"
+        "mta_id": "be5ee71b7aaf0d059a831b9babd5547c"
       }
     },
     "memory": 256,
@@ -112,13 +114,14 @@
     "name": "shine-odata",
     "v3Metadata": {
       "annotations": {
+        "mta_id": "com.sap.xs2.samples.shine",
+        "mta_version": "0.1.0",
         "mta_module": "{\"name\":\"shine-odata\"}",
         "mta_module_provided_dependencies": "[\"xsodata\",\"shine-odata\"]",
         "mta_bound_services": "[\"uaa\",\"shine-database\"]"
       },
       "labels": {
-        "mta_id": "com.sap.xs2.samples.shine",
-        "mta_version": "0.1.0"
+        "mta_id": "be5ee71b7aaf0d059a831b9babd5547c"
       }
     },
     "memory": 256,

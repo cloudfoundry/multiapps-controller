@@ -13,11 +13,12 @@
         },
         "v3Metadata": {
           "annotations": {
+            "mta_id": "quux",
+            "mta_version": "0.1.0",
             "mta_resource": "{\"name\":\"resource-name-1\"}"
           },
           "labels": {
-            "mta_id": "quux",
-            "mta_version": "0.1.0"
+            "mta_id": "9fb045bba26522b2a50bb3e7a06ae30d"
           }
         },
         "resourceName": "resource-name-1"
@@ -29,11 +30,12 @@
         },
         "v3Metadata": {
           "annotations": {
+            "mta_id": "quux",
+            "mta_version": "0.1.0",
             "mta_resource": "{\"name\":\"resource-name-2\"}"
           },
           "labels": {
-            "mta_id": "quux",
-            "mta_version": "0.1.0"
+            "mta_id": "9fb045bba26522b2a50bb3e7a06ae30d"
           }
         },
         "resourceName": "resource-name-2"

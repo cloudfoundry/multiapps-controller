@@ -26,10 +26,11 @@
       ],
       "metadata": {
         "labels": {
-          "mta_id": "com.sap.example.mta-1",
-          "mta_version": "1.0.0"
+          "mta_id": "ab38a4c294c7c3c6a8fe8bbdbc960312"
         },
         "annotations": {
+          "mta_id": "com.sap.example.mta-1",
+          "mta_version": "1.0.0",
           "mta_module": "{\"name\":\"application-1\"}",
           "mta_module_provided_dependencies": "[]",
           "mta_bound_services": "[\"service-1\", \"service-2\"]"
@@ -57,10 +58,11 @@
       ],
       "metadata": {
         "labels": {
-          "mta_id": "com.sap.example.mta-2",
-          "mta_version": "0.2.0"
+          "mta_id": "c55d40ae2002c27b3471559b64609d9d"
         },
         "annotations": {
+          "mta_id": "com.sap.example.mta-2",
+          "mta_version": "0.2.0",
           "mta_module": "{\"name\":\"application-2\"}",
           "mta_module_provided_dependencies": "[]",
           "mta_bound_services": "[\"service-1\"]"
@@ -87,10 +89,11 @@
       ],
       "metadata": {
         "labels": {
-          "mta_id": "com.sap.example.mta-1",
-          "mta_version": "1.0.0"
+          "mta_id": "ab38a4c294c7c3c6a8fe8bbdbc960312"
         },
         "annotations": {
+          "mta_id": "com.sap.example.mta-1",
+          "mta_version": "1.0.0",
           "mta_module": "{\"name\":\"application-3\"}",
           "mta_module_provided_dependencies": "[]",
           "mta_bound_services": "[\"service-1\", \"service-2\"]"
@@ -118,10 +121,11 @@
       ],
       "metadata": {
         "labels": {
-          "mta_id": "com.sap.example.mta-3",
-          "mta_version": "1.1.0"
+          "mta_id": "643dc74689714cd49523b71c8de6a053"
         },
         "annotations": {
+          "mta_id": "com.sap.example.mta-3",
+          "mta_version": "1.1.0",
           "mta_module": "{\"name\":\"application-4\"}",
           "mta_module_provided_dependencies": "[]",
           "mta_bound_services": "[\"service-4\"]"
