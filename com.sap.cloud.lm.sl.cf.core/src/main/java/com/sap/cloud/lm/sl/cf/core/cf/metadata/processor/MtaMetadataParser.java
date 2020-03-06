@@ -10,6 +10,7 @@ import javax.inject.Named;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
 import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.v3.Metadata;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.ImmutableMtaMetadata;
@@ -33,10 +34,11 @@ public class MtaMetadataParser extends BaseMtaMetadataParser {
 
     public MtaMetadata parseMtaMetadata(CloudEntity entity) {
         mtaMetadataValidator.validate(entity);
-        Map<String, String> metadataLabels = entity.getV3Metadata()
-                                                   .getLabels();
-        String mtaId = metadataLabels.get(MtaMetadataLabels.MTA_ID);
-        String mtaVersion = metadataLabels.get(MtaMetadataLabels.MTA_VERSION);
+        Metadata metadata = entity.getV3Metadata();
+        String mtaId = metadata.getLabels()
+                               .get(MtaMetadataLabels.MTA_ID);
+        String mtaVersion = metadata.getAnnotations()
+                                    .get(MtaMetadataAnnotations.MTA_VERSION);
         String messageOnParsingException = MessageFormat.format(Messages.CANT_PARSE_MTA_METADATA_VERSION_FOR_0, entity.getName());
         return ImmutableMtaMetadata.builder()
                                    .id(mtaId)
