@@ -219,8 +219,6 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         private void bindService(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
                                  Map<String, Object> bindingParameters) {
-
-            getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters);
             client.bindService(appName, serviceName, bindingParameters, getApplicationServicesUpdateCallback(execution.getContext()));
         }
 
@@ -375,13 +373,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                .stream()
                                                .filter(serviceName -> !requiredServices.contains(serviceName))
                                                .collect(Collectors.toList());
-            servicesToUnbind.forEach(serviceName -> unbindService(app.getName(), serviceName, client));
+            servicesToUnbind.forEach(serviceName -> client.unbindService(app.getName(), serviceName));
             return !servicesToUnbind.isEmpty();
-        }
-
-        private void unbindService(String appName, String serviceName, CloudControllerClient client) {
-            getStepLogger().debug(Messages.UNBINDING_SERVICE_FROM_APP, serviceName, appName);
-            client.unbindService(appName, serviceName);
         }
 
         private boolean updateServices(DelegateExecution context, String applicationName,

@@ -4,9 +4,11 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.process.client.LoggingCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 
 public class ExecutionWrapper {
+
     private final DelegateExecution context;
     private final StepLogger stepLogger;
     private final CloudControllerClientProvider clientProvider;
@@ -26,11 +28,13 @@ public class ExecutionWrapper {
     }
 
     public CloudControllerClient getControllerClient() {
-        return StepsUtil.getControllerClient(context, clientProvider);
+        CloudControllerClient delegate = StepsUtil.getControllerClient(context, clientProvider);
+        return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 
     public CloudControllerClient getControllerClient(String org, String space) {
-        return StepsUtil.getControllerClient(context, clientProvider, org, space);
+        CloudControllerClient delegate = StepsUtil.getControllerClient(context, clientProvider, org, space);
+        return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 
 }

@@ -267,9 +267,11 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
                                       events.add(deleteEvent);
                                       Collections.shuffle(events);
 
-                                      Mockito.when(eventsGetter.getEvents(UUID.fromString(service.guid), client))
+                                      Mockito.when(eventsGetter.getEvents(Mockito.eq(UUID.fromString(service.guid)),
+                                                                          Mockito.any(CloudControllerClient.class)))
                                              .thenReturn(events);
-                                      Mockito.when(eventsGetter.getLastEvent(UUID.fromString(service.guid), client))
+                                      Mockito.when(eventsGetter.getLastEvent(Mockito.eq(UUID.fromString(service.guid)),
+                                                                             Mockito.any(CloudControllerClient.class)))
                                              .thenReturn(deleteEvent);
                                   });
         Mockito.when(eventsGetter.isDeleteEvent(SERVICE_EVENT_TYPE_DELETE))

@@ -107,7 +107,6 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
                               ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         for (String serviceName : addServices) {
             Map<String, Object> bindingParameters = serviceNamesWithBindingParameters.get(serviceName);
-            getLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, applicationName, serviceName, bindingParameters);
             getControllerClient().bindService(applicationName, serviceName, bindingParameters, applicationServicesUpdateCallback);
         }
     }
@@ -115,7 +114,6 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
     private void unbindServices(List<String> deleteServices, String applicationName,
                                 ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         for (String serviceName : deleteServices) {
-            getLogger().debug(Messages.UNBINDING_SERVICE_FROM_APP, serviceName, applicationName);
             getControllerClient().unbindService(applicationName, serviceName, applicationServicesUpdateCallback);
         }
     }
@@ -125,9 +123,7 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
                                 ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         for (String serviceName : rebindServices) {
             Map<String, Object> bindingParameters = serviceNamesWithBindingParameters.get(serviceName);
-            getLogger().debug(Messages.UNBINDING_SERVICE_FROM_APP, serviceName, applicationName);
             getControllerClient().unbindService(applicationName, serviceName, applicationServicesUpdateCallback);
-            getLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, applicationName, serviceName, bindingParameters);
             getControllerClient().bindService(applicationName, serviceName, bindingParameters, applicationServicesUpdateCallback);
         }
     }

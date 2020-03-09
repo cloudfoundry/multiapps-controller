@@ -25,7 +25,7 @@ public class UrisApplicationAttributeUpdater extends ApplicationAttributeUpdater
     @Override
     protected void updateAttribute(CloudApplication existingApplication, CloudApplication application) {
         List<String> uris = applyUpdateStrategy(existingApplication.getUris(), application.getUris());
-        updateApplicationUris(application.getName(), uris);
+        getControllerClient().updateApplicationUris(application.getName(), uris);
     }
 
     private List<String> applyUpdateStrategy(List<String> existingUris, List<String> uris) {
@@ -34,11 +34,6 @@ public class UrisApplicationAttributeUpdater extends ApplicationAttributeUpdater
         List<String> result = getElementUpdater().updateList(existingUris, uris);
         getLogger().debug(Messages.RESULT_0, result);
         return result;
-    }
-
-    private void updateApplicationUris(String applicationName, List<String> uris) {
-        getLogger().debug(Messages.UPDATING_URIS_OF_APP_0_TO_1, applicationName, uris);
-        getControllerClient().updateApplicationUris(applicationName, uris);
     }
 
 }
