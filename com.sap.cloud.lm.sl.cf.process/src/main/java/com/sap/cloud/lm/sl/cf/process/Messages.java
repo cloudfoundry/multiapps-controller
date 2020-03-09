@@ -187,7 +187,6 @@ public class Messages {
     public static final String ACQUIRED_LOCK = "Process \"{0}\" acquired lock for operation on MTA \"{1}\"";
     public static final String PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2 = "Process \"{0}\" releasing lock for MTA \"{1}\" in space \"{2}\"";
     public static final String PROCESS_0_RELEASED_LOCK = "Process \"{0}\" released lock successfully!";
-    public static final String BINDING_APP_TO_SERVICE_WITH_PARAMETERS = "Binding application \"{0}\" to service \"{1}\" with parameters \"{2}\"";
     public static final String UNBINDING_SERVICE_FROM_APP = "Unbinding service \"{0}\" from application \"{1}\"...";
     public static final String POLLING_SERVICE_OPERATIONS = "Polling service operations...";
     public static final String AUTO_ABORTING_PROCESS_0 = "Auto-aborting process \"{0}\"...";
@@ -440,11 +439,6 @@ public class Messages {
     public static final String UPDATING_APP_NAMES_WITH_NEW_SUFFIX = "Updating application names in deployment descriptor with 'new' suffix";
     public static final String UPDATING_CONFIGURATION_SUBSCRIPTION_0_WITH_NAME_1 = "Updating configuration subscription \"{0}\" with name \"{1}\"";
     public static final String CONTENT_OF_APPLICATION_0_IS_NOT_CHANGED = "Content of application \"{0}\" is not changed - upload will be skipped.";
-    public static final String UPDATING_DISK_QUOTA_OF_APP_0_TO_1 = "Updating disk quota of application \"{0}\" to: {1}";
-    public static final String UPDATING_ENV_OF_APP_0_TO_1 = "Updating env of application \"{0}\" to: {1}";
-    public static final String UPDATING_MEMORY_OF_APP_0_TO_1 = "Updating memory of application \"{0}\" to: {1}";
-    public static final String UPDATING_STAGING_OF_APP_0_TO_1 = "Updating staging of application \"{0}\" to: {1}";
-    public static final String UPDATING_URIS_OF_APP_0_TO_1 = "Updating URIs of application \"{0}\" to: {1}";
     public static final String EXISTING_ENV_0 = "Existing env: {0}";
     public static final String EXISTING_URIS_0 = "Existing URIs: {0}";
     public static final String APPLYING_UPDATE_STRATEGY_0_TO_ENV_1 = "Applying update strategy \"{0}\" to env: {1}";
