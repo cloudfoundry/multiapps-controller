@@ -23,12 +23,6 @@ import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaService;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
-/**
- * Remains solely for backwards compatibility with the 'environment' approach of detecting MTAs. Once past the deprecation period this will
- * be deleted, allowing the 'metadata' {@link com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaDetector} to become the standard approach for
- * detecting MTAs.
- */
-@Deprecated
 @Named
 public class DeployedMtaEnvDetector {
 

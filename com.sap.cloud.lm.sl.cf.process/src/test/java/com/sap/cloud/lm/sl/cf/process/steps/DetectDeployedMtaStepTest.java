@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaDetector;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaEnvDetector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -25,7 +25,7 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
     private static final String DEPLOYED_MTA_LOCATION = "deployed-mta-01.json";
 
     @Mock
-    private DeployedMtaDetector deployedMtaDetector;
+    private DeployedMtaEnvDetector deployedMtaDetector;
 
     @Test
     public void testExecute3() {

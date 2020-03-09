@@ -6,12 +6,12 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaEnvDetector;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaDetector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class DetectDeployedMtaStep extends SyncFlowableStep {
 
     @Inject
-    private DeployedMtaDetector deployedMtaDetector;
+    private DeployedMtaEnvDetector deployedMtaDetector;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
