@@ -11,7 +11,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.http.ResponseEntity;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaDetector;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaEnvDetector;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
@@ -36,7 +36,7 @@ public class MtasApiServiceImpl implements MtasApiService {
     private CloudControllerClientProvider clientProvider;
 
     @Inject
-    private DeployedMtaDetector deployedMtaDetector;
+    private DeployedMtaEnvDetector deployedMtaDetector;
 
     @Override
     public ResponseEntity<List<Mta>> getMtas(String spaceGuid) {

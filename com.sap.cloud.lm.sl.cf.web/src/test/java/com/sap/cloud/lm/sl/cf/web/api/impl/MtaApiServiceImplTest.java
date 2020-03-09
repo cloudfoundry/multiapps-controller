@@ -24,7 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaDetector;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaEnvDetector;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.ImmutableMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -57,7 +57,7 @@ public class MtaApiServiceImplTest {
     private CloudControllerClient client;
 
     @Mock
-    private DeployedMtaDetector deployedMtaDetector;
+    private DeployedMtaEnvDetector deployedMtaDetector;
 
     @InjectMocks
     private MtasApiServiceImpl testedClass;
