@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.util;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
-import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateStrategy;
 
 public class MemoryApplicationAttributeUpdater extends ApplicationAttributeUpdater {
@@ -21,12 +20,7 @@ public class MemoryApplicationAttributeUpdater extends ApplicationAttributeUpdat
 
     @Override
     protected void updateAttribute(CloudApplication existingApplication, CloudApplication application) {
-        updateApplicationMemory(application.getName(), application.getMemory());
-    }
-
-    private void updateApplicationMemory(String applicationName, int memory) {
-        getLogger().debug(Messages.UPDATING_MEMORY_OF_APP_0_TO_1, applicationName, memory);
-        getControllerClient().updateApplicationMemory(applicationName, memory);
+        getControllerClient().updateApplicationMemory(application.getName(), application.getMemory());
     }
 
 }

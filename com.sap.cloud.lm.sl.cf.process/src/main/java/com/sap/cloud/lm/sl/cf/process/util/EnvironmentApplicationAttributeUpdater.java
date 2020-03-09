@@ -24,7 +24,7 @@ public class EnvironmentApplicationAttributeUpdater extends ApplicationAttribute
     @Override
     protected void updateAttribute(CloudApplication existingApplication, CloudApplication application) {
         Map<String, String> env = applyUpdateStrategy(existingApplication.getEnv(), application.getEnv());
-        updateApplicationEnv(application.getName(), env);
+        getControllerClient().updateApplicationEnv(application.getName(), env);
     }
 
     private Map<String, String> applyUpdateStrategy(Map<String, String> existingEnv, Map<String, String> env) {
@@ -33,11 +33,6 @@ public class EnvironmentApplicationAttributeUpdater extends ApplicationAttribute
         Map<String, String> result = getElementUpdater().updateMap(existingEnv, env);
         getLogger().debug(Messages.RESULT_0, JsonUtil.toJson(result, true));
         return result;
-    }
-
-    private void updateApplicationEnv(String applicationName, Map<String, String> env) {
-        getLogger().debug(Messages.UPDATING_ENV_OF_APP_0_TO_1, applicationName, JsonUtil.toJson(env, true));
-        getControllerClient().updateApplicationEnv(applicationName, env);
     }
 
 }

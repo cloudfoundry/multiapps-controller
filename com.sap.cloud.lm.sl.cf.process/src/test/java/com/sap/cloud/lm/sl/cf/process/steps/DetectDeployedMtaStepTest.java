@@ -8,9 +8,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaDetector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -34,8 +36,8 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
         DeployedMta deployedMta = JsonUtil.fromJson(TestUtil.getResourceAsString(DEPLOYED_MTA_LOCATION, getClass()), DeployedMta.class);
         List<DeployedMta> deployedComponents = Arrays.asList(deployedMta);
 
-        when(deployedMtaDetector.detectDeployedMtas(client)).thenReturn(deployedComponents);
-        when(deployedMtaDetector.detectDeployedMta(MTA_ID, client)).thenReturn(Optional.of(deployedMta));
+        when(deployedMtaDetector.detectDeployedMtas(Mockito.any(CloudControllerClient.class))).thenReturn(deployedComponents);
+        when(deployedMtaDetector.detectDeployedMta(Mockito.eq(MTA_ID), Mockito.any(CloudControllerClient.class))).thenReturn(Optional.of(deployedMta));
 
         step.execute(context);
 

@@ -6,9 +6,7 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
 
-import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateStrategy;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpdater {
 
@@ -48,12 +46,7 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
 
     @Override
     protected void updateAttribute(CloudApplication existingApplication, CloudApplication application) {
-        updateApplicationStaging(application.getName(), application.getStaging());
-    }
-
-    private void updateApplicationStaging(String applicationName, Staging staging) {
-        getLogger().debug(Messages.UPDATING_STAGING_OF_APP_0_TO_1, applicationName, JsonUtil.toJson(staging, true));
-        getControllerClient().updateApplicationStaging(applicationName, staging);
+        getControllerClient().updateApplicationStaging(application.getName(), application.getStaging());
     }
 
 }
