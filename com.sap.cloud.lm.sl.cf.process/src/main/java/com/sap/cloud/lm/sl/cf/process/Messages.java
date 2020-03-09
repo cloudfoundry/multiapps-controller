@@ -66,6 +66,8 @@ public class Messages {
     public static final String FAILED_TO_RETRIEVE_FILE_WITH_ID_0 = "Failed to retrieve file with id \"{0}\"";
     public static final String PARAMETERS_HAVE_READ_ONLY_ELEMENTS = "\"{0}\" parameters have read-only elements \"{1}\"";
     public static final String APPLICATION_UNBOUND_IN_PARALLEL = "Application {0} was bound to service {1} which was unbound in parallel";
+    public static final String ABORT_OPERATION_TIMED_OUT = "Abort operation timed out";
+    public static final String FLOWABLE_JOB_RETRY_FAILED = "Flowable job retry failed";
 
     // Audit log messages
 
@@ -178,6 +180,7 @@ public class Messages {
     public static final String MISSING_SERVICE_OPERATION_STATE = "Stopping service operation polling of \"{0}\" due to missing operation state...";
     public static final String CANNOT_GET_CONTEXT_FOR_EVENT_0_AND_PROCESS_1 = "Could not get context for Flowable engine event (type: {0}, process ID: {1}).";
     public static final String SERVICE_0_IS_IN_STATE_1_AND_MAY_NOT_BE_OPERATIONAL = "Service \"{0}\" is in state \"{1}\" and may not be operational. Actions like update of credentials and binding may fail! Consider recreating it by specifying the --delete-services option.";
+    public static final String RETRYING_PROCESS_ABORT = "Abort of process \"{0}\" failed due to an optimistic locking exception. Retrying abort...";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
@@ -448,6 +451,7 @@ public class Messages {
     public static final String APPLYING_UPDATE_STRATEGY_0_TO_ENV_1 = "Applying update strategy \"{0}\" to env: {1}";
     public static final String APPLYING_UPDATE_STRATEGY_0_TO_URIS_1 = "Applying update strategy \"{0}\" to URIs: {1}";
     public static final String RESULT_0 = "Result: {0}";
+    public static final String SHUTTING_DOWN_FLOWABLE_JOB_EXECUTOR = "Shutting down Flowable job executor...";
 
     protected Messages() {
     }
