@@ -22,7 +22,7 @@ public class ProcessLoggerProvider {
 
     private static final String LOG_LAYOUT = "#2.0#%d{yyyy MM dd HH:mm:ss.SSS}#%d{XXX}#%p#%c#%n%X{MsgCode}#%X{CSNComponent}#%X{DCComponent}##%X{DSRCorrelationId}#%X{Application}#%C#%X{User}#%X{Session}#%X{Transaction}#%X{DSRRootContextId}#%X{DSRTransaction}#%X{DSRConnection}#%X{DSRCounter}#%t##%X{ResourceBundle}#%n%m#%n%n";
     private static final String PARENT_LOGGER = "com.sap.cloud.lm.sl.xs2";
-    private static final String DEFAULT_LOG_NAME = "MAIN_LOG";
+    private static final String DEFAULT_LOG_NAME = "OPERATION";
     private static final String DEFAULT_LOG_DIR = "logs";
     private static final String LOG_FILE_EXTENSION = ".log";
 
@@ -41,11 +41,12 @@ public class ProcessLoggerProvider {
         String correlationId = getCorrelationId(context);
         String spaceId = getSpaceId(context);
         String activityId = getTaskId(context);
+        String logNameWithExtension = logName + LOG_FILE_EXTENSION;
         if (correlationId == null || activityId == null) {
             return new NullProcessLogger(spaceId, context.getProcessInstanceId(), activityId);
         }
         return loggersCache.computeIfAbsent(name, (String loggerName) -> createProcessLogger(spaceId, correlationId, activityId, loggerName,
-                                                                                             logName, layout));
+                                                                                             logNameWithExtension, layout));
     }
 
     private String getLoggerName(DelegateExecution context, String logName) {
