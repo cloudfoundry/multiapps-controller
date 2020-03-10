@@ -11,6 +11,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveContext;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveReader;
 import org.apache.commons.io.FileUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
@@ -45,6 +47,10 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     @Inject
     protected ApplicationConfiguration configuration;
+    @Inject
+    protected ApplicationArchiveReader applicationArchiveReader;
+    @Inject
+    protected ApplicationArchiveExtractor applicationArchiveExtractor;
 
     @Override
     public StepPhase executeAsyncStep(ExecutionWrapper execution) throws FileStorageException {
@@ -88,7 +94,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                 Path filePath = null;
                 long maxSize = configuration.getMaxResourceFileSize();
                 try {
-                    filePath = extractFromMtar(appArchiveStream, fileName, maxSize);
+                    ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(appArchiveStream, fileName, maxSize);
+                    filePath = extractFromMtar(applicationArchiveContext);
                     upload(execution, client, app, filePath, uploadToken);
                 } catch (IOException e) {
                     cleanUp(filePath);
@@ -100,22 +107,24 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             });
 
         fileService.processFileContent(uploadFileToControllerProcessor);
-
         return uploadToken;
     }
 
-    protected Path extractFromMtar(InputStream appArchiveStream, String fileName, long maxSize) {
-        ApplicationArchiveExtractor appExtractor = new ApplicationArchiveExtractor(appArchiveStream, fileName, maxSize, getStepLogger());
-        return appExtractor.extract();
+    protected ApplicationArchiveContext createApplicationArchiveContext(InputStream appArchiveStream, String fileName, long maxSize) {
+        return new ApplicationArchiveContext(appArchiveStream, fileName, maxSize);
+    }
+
+    protected Path extractFromMtar(ApplicationArchiveContext applicationArchiveContext) {
+        return applicationArchiveExtractor.extractApplicationInNewArchive(applicationArchiveContext, getStepLogger());
     }
 
     private void upload(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, Path filePath,
         UploadToken uploadToken) throws IOException {
         detectApplicationFileDigestChanges(execution, app, filePath.toFile(), client);
-        UploadToken currentUploadTokent = client.asyncUploadApplication(app.getName(), filePath.toFile(),
+        UploadToken currentUploadToken = client.asyncUploadApplication(app.getName(), filePath.toFile(),
             getMonitorUploadStatusCallback(app, filePath.toFile(), execution.getContext()));
-        uploadToken.setPackageGuid(currentUploadTokent.getPackageGuid());
-        uploadToken.setToken(currentUploadTokent.getToken());
+        uploadToken.setPackageGuid(currentUploadToken.getPackageGuid());
+        uploadToken.setToken(currentUploadToken.getToken());
     }
 
     private void detectApplicationFileDigestChanges(ExecutionWrapper execution, CloudApplication app, File applicationFile,
