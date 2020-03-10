@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static java.text.MessageFormat.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -12,9 +11,7 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
@@ -35,12 +32,14 @@ import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveContext;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveExtractor;
-import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveReader;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -68,36 +67,36 @@ public class UploadAppStepTest {
         public static Iterable<Object[]> getParameters() {
             return Arrays.asList(new Object[][] {
 // @formatter:off
-                // (00)
-                {
-                    null, null,
-                },
-                // (01)
-                {
-                    null, null,
-                },
-                // (02)
-                {
-                    format(Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, APP_FILE), null,
-                },
-                // (03)
-                {
-                    format(Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, APP_FILE), null,
-                },
-                // (04)
-                {
-                    null, createException(CO_EXCEPTION).getMessage(),
-                },
-                // (05)
-                {
-                    null, createException(CO_EXCEPTION).getMessage(),
-                },
+                    // (00)
+                    {
+                            null, null
+                    },
+                    // (01)
+                    {
+                            format(Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, APP_FILE), null
+                    },
+                    // (02)
+                    {
+                            null, createException(CO_EXCEPTION).getMessage()
+                    },
+                    // (03)
+                    {
+                            null, null
+                    },
+                    // (04)
+                    {
+                            null, null
+                    },
+                    // (05)
+                    {
+                            null, null
+                    },
 // @formatter:on
             });
         }
 
-        private String expectedIOExceptionMessage;
-        private String expectedCFExceptionMessage;
+        private final String expectedIOExceptionMessage;
+        private final String expectedCFExceptionMessage;
 
         private File appFile;
 
@@ -123,14 +122,14 @@ public class UploadAppStepTest {
                 assertFalse(appFile.exists());
                 throw e;
             }
-            
+
             String uploadTokenJson = JsonUtil.toJson(new UploadToken(TOKEN, null));
             assertCall(Constants.VAR_UPLOAD_TOKEN, uploadTokenJson);
         }
 
         private void assertCall(String variableName, String variableValue) {
             Mockito.verify(context)
-                .setVariable(variableName, variableValue);
+                   .setVariable(variableName, variableValue);
         }
 
         public void loadParameters() throws Exception {
@@ -153,6 +152,7 @@ public class UploadAppStepTest {
             context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
             StepsUtil.setModuleFileName(context, APP_NAME, APP_FILE);
             StepsUtil.setVcapAppPropertiesChanged(context, false);
+            when(configuration.getMaxResourceFileSize()).thenReturn(ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE);
         }
 
         public void prepareClients() throws Exception {
@@ -175,32 +175,31 @@ public class UploadAppStepTest {
                     return null;
                 }
             }).when(fileService)
-                .processFileContent(any());
+              .processFileContent(any());
         }
 
         private class UploadAppStepMock extends UploadAppStep {
 
-            @Override
-            protected Path extractFromMtar(InputStream appArchiveStream, String fileName, long maxSize) {
-                try {
-                    ApplicationArchiveExtractor extractor = getApplicationArchiveExtractor(appArchiveStream, fileName, maxSize, getStepLogger());
-                    InputStream stream = extractor.getNextEntryByName(fileName);
-                    assertNotNull(stream);
-                    Files.copy(stream, appFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    return appFile.toPath();
-                } catch (IOException e) {
-                    return null;
-                }
+            public UploadAppStepMock() {
+                applicationArchiveReader = getApplicationArchiveReader();
+                applicationArchiveExtractor = getApplicationZipBuilder(applicationArchiveReader);
             }
 
-            private ApplicationArchiveExtractor getApplicationArchiveExtractor(InputStream appArchiveStream, String fileName, long maxSize, StepLogger logger) throws SLException {
-                if (!fileName.equals(APP_FILE)) {
-                    return new ApplicationArchiveExtractor(appArchiveStream, fileName, maxSize, logger);
-                }
-                return new ApplicationArchiveExtractor(getClass().getResourceAsStream(APP_FILE), APP_FILE, maxSize, logger) {
+            @Override
+            protected ApplicationArchiveContext createApplicationArchiveContext(InputStream appArchiveStream, String fileName,
+                                                                                long maxSize) {
+                return super.createApplicationArchiveContext(getClass().getResourceAsStream(APP_ARCHIVE), fileName, maxSize);
+            }
+
+            private ApplicationArchiveReader getApplicationArchiveReader() {
+                return new ApplicationArchiveReader();
+            }
+
+            private ApplicationArchiveExtractor getApplicationZipBuilder(ApplicationArchiveReader applicationArchiveReader) {
+                return new ApplicationArchiveExtractor(applicationArchiveReader) {
                     @Override
-                    public InputStream getNextEntryByName(String name) throws IOException {
-                        return getClass().getResourceAsStream(APP_FILE);
+                    protected Path createTempFile() {
+                        return appFile.toPath();
                     }
                 };
             }
@@ -256,17 +255,17 @@ public class UploadAppStepTest {
         }
 
     }
-    
+
     public static class UploadAppStepWithoutFileNameTest extends SyncFlowableStepTest<UploadAppStep> {
         private static final String SPACE = "space";
         private static final String APP_NAME = "simple-app";
         private static final String APP_ARCHIVE = "sample-app.mtar";
-        
+
         @Before
         public void setUp() {
             prepareContext();
         }
-        
+
         private void prepareContext() {
             CloudApplicationExtended app = new CloudApplicationExtended(null, APP_NAME);
             // module name must be null
@@ -277,18 +276,18 @@ public class UploadAppStepTest {
             context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
             StepsUtil.setModuleFileName(context, APP_NAME, APP_NAME);
         }
-        
+
         @Test
         public void testWithMissingFileNameMustReturnDone() {
             step.execute(context);
             assertStepFinishedSuccessfully();
         }
-        
+
         @Override
         protected UploadAppStep createStep() {
             return new UploadAppStep();
         }
-        
+
     }
 
 }

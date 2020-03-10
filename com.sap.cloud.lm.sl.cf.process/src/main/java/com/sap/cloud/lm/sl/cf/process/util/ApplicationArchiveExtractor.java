@@ -6,7 +6,10 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -15,117 +18,99 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 
+@Named
 public class ApplicationArchiveExtractor {
 
     private static final int BUFFER_SIZE = 4 * 1024; // 4KB
-    private ZipInputStream inputStream;
-    private String zipEntryName;
-    private StepLogger logger;
-    private String moduleFileName;
-    private long maxSizeInBytes;
-    private long currentSizeInBytes;
+    private final ApplicationArchiveReader applicationArchiveReader;
 
-    public ApplicationArchiveExtractor(InputStream inputStream, String moduleFileName, long maxSizeInBytes, StepLogger logger) {
-        this.inputStream = new ZipInputStream(inputStream);
-        this.moduleFileName = moduleFileName;
-        this.maxSizeInBytes = maxSizeInBytes;
-        this.logger = logger;
+    @Inject
+    public ApplicationArchiveExtractor(ApplicationArchiveReader applicationArchiveReader) {
+        this.applicationArchiveReader = applicationArchiveReader;
     }
 
-    public Path extract() {
+    public Path extractApplicationInNewArchive(ApplicationArchiveContext applicationArchiveContext, StepLogger logger) {
         Path appPath = null;
         try {
-            moveStreamToApplicationEntry();
-
-            if (isFile(moduleFileName)) {
-                appPath = createTempFile();
-                saveEntry(appPath);
-                return appPath;
-            }
-
-            appPath = createTempDirectory();
-            saveAllEntries(appPath);
+            appPath = createTempFile();
+            saveAllEntries(appPath, applicationArchiveContext);
             return appPath;
         } catch (Exception e) {
-            cleanUp(appPath);
-            throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, moduleFileName);
+            cleanUp(appPath, logger);
+            throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, applicationArchiveContext.getModuleFileName());
         }
     }
 
-    private void moveStreamToApplicationEntry() throws IOException {
-        if (getNextEntryByName(moduleFileName) == null) {
-            throw new ContentException(com.sap.cloud.lm.sl.mta.message.Messages.CANNOT_FIND_ARCHIVE_ENTRY, moduleFileName);
-        }
-    }
-
-    private void saveEntry(Path filePath) throws IOException {
-        try (OutputStream outputStream = Files.newOutputStream(filePath)) {
-            copy(inputStream, outputStream);
-        }
-    }
-
-    private void saveAllEntries(Path dirPath) throws IOException {
-        do {
-            if (isFile(zipEntryName)) {
-                Path filePath = resolveEntryPath(dirPath);
-                Files.createDirectories(filePath.getParent());
-                filePath = Files.createFile(filePath);
-                saveEntry(filePath);
+    private void saveAllEntries(Path dirPath, ApplicationArchiveContext applicationArchiveContext) throws IOException {
+        try (OutputStream fileOutputStream = Files.newOutputStream(dirPath)) {
+            ZipEntry zipEntry = applicationArchiveReader.getFirstZipEntry(applicationArchiveContext);
+            if (zipEntry.isDirectory()) {
+                saveAsZip(fileOutputStream, applicationArchiveContext, zipEntry);
+            } else {
+                saveToFile(fileOutputStream, applicationArchiveContext, zipEntry);
             }
-        } while (getNextEntryByName(moduleFileName) != null);
+        }
     }
 
-    private void copy(InputStream input, OutputStream output) throws IOException {
+    private void saveAsZip(OutputStream fileOutputStream, ApplicationArchiveContext applicationArchiveContext, ZipEntry zipEntry)
+        throws IOException {
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
+            String moduleFileName = applicationArchiveContext.getModuleFileName();
+            do {
+                if (!isAlreadyUploaded(zipEntry.getName(), applicationArchiveContext) && !zipEntry.isDirectory()) {
+                    zipOutputStream.putNextEntry(createNewZipEntry(zipEntry.getName(), moduleFileName));
+                    copy(applicationArchiveContext.getZipInputStream(), zipOutputStream, applicationArchiveContext);
+                    zipOutputStream.closeEntry();
+                }
+            } while ((zipEntry = applicationArchiveReader.getNextEntryByName(moduleFileName, applicationArchiveContext)) != null);
+        }
+    }
+
+    private ZipEntry createNewZipEntry(String zipEntryName, String moduleFileName) {
+        return new UtcAdjustedZipEntry(FileUtils.getRelativePath(moduleFileName, zipEntryName));
+    }
+
+    private void saveToFile(OutputStream fileOutputStream, ApplicationArchiveContext applicationArchiveContext, ZipEntry zipEntry)
+        throws IOException {
+        String moduleFileName = applicationArchiveContext.getModuleFileName();
+        do {
+            if (!isAlreadyUploaded(zipEntry.getName(), applicationArchiveContext)) {
+                copy(applicationArchiveContext.getZipInputStream(), fileOutputStream, applicationArchiveContext);
+            }
+        } while ((zipEntry = applicationArchiveReader.getNextEntryByName(moduleFileName, applicationArchiveContext)) != null);
+    }
+
+    private boolean isAlreadyUploaded(String zipEntryName, ApplicationArchiveContext applicationArchiveContext) {
+        return applicationArchiveContext.getAlreadyUploadedFiles()
+                                        .contains(zipEntryName);
+    }
+
+    protected void copy(InputStream input, OutputStream output, ApplicationArchiveContext applicationArchiveContext) throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
         int numberOfReadBytes = 0;
+        long maxSizeInBytes = applicationArchiveContext.getMaxSizeInBytes();
         while ((numberOfReadBytes = input.read(buffer)) != -1) {
+            long currentSizeInBytes = applicationArchiveContext.getCurrentSizeInBytes();
             if (currentSizeInBytes + numberOfReadBytes > maxSizeInBytes) {
                 throw new ContentException(Messages.SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT, maxSizeInBytes);
             }
             output.write(buffer, 0, numberOfReadBytes);
-            currentSizeInBytes += numberOfReadBytes;
+            applicationArchiveContext.calculateCurrentSizeInBytes(numberOfReadBytes);
         }
     }
 
-    public InputStream getNextEntryByName(String name) throws IOException {
-        for (ZipEntry zipEntry; (zipEntry = inputStream.getNextEntry()) != null;) {
-            if (zipEntry.getName()
-                .startsWith(name)) {
-                validateEntry(zipEntry);
-                zipEntryName = zipEntry.getName();
-                return inputStream;
-            }
-        }
-        return null;
-    }
-
-    protected void validateEntry(ZipEntry entry) {
-        FileUtils.validatePath(entry.getName());
-    }
-
-    private Path resolveEntryPath(Path dirPath) {
-        return dirPath.resolve(zipEntryName.substring(moduleFileName.length()));
-    }
-
-    private Path createTempFile() throws IOException {
+    protected Path createTempFile() throws IOException {
         return Files.createTempFile(null, getFileExtension());
     }
 
-    private Path createTempDirectory() throws IOException {
-        return Files.createTempDirectory(null);
-    }
-
     private String getFileExtension() {
-        String extension = FilenameUtils.getExtension(moduleFileName);
-        return extension.isEmpty() ? extension : FilenameUtils.EXTENSION_SEPARATOR_STR + extension;
+        return FilenameUtils.EXTENSION_SEPARATOR_STR + "zip";
     }
 
-    private boolean isFile(String fileName) {
-        return !FileUtils.isDirectory(fileName);
-    }
-
-    protected void cleanUp(Path appPath) {
-        if (appPath == null || !Files.exists(appPath)) {
+    protected void cleanUp(Path appPath, StepLogger logger) {
+        // java 8 Files.exists() has poor performance
+        if (appPath == null || !appPath.toFile()
+                                       .exists()) {
             return;
         }
 
