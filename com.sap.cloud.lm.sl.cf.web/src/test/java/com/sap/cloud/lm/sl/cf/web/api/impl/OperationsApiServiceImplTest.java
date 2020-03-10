@@ -221,7 +221,7 @@ public class OperationsApiServiceImplTest {
     @Test
     public void testGetOperationLogContent() throws Exception {
         String processId = FINISHED_PROCESS;
-        String logName = "MAIN_LOG";
+        String logName = "OPERATION.log";
         String expectedLogContent = "somelogcontentstring\n1234";
         Mockito.when(logsService.getLogContent(Mockito.eq(SPACE_GUID), Mockito.eq(processId), Mockito.eq(logName)))
                .thenReturn(expectedLogContent);
@@ -233,7 +233,7 @@ public class OperationsApiServiceImplTest {
     @Test
     public void testGetOperationLogContentNotFound() throws Exception {
         String processId = FINISHED_PROCESS;
-        String logName = "MAIN_LOG";
+        String logName = "OPERATION.log";
         Mockito.when(logsService.getLogContent(Mockito.eq(SPACE_GUID), Mockito.eq(processId), Mockito.eq(logName)))
                .thenThrow(new NoResultException("log file not found"));
         Assertions.assertThrows(NoResultException.class, () -> testedClass.getOperationLogContent(SPACE_GUID, processId, logName));
