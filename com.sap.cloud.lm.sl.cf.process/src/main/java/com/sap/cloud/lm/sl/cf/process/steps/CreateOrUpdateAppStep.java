@@ -276,11 +276,6 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                                          app.getAttributesUpdateStrategy());
 
             StepsUtil.setUserPropertiesChanged(execution.getContext(), updateApplicationEnvironmentState == UpdateState.UPDATED);
-
-            // FIXME: The call client.getApplication(...) in UploadAppStep returns an outdated version of the application's environment.
-            // More specifically, it returns the environment as it was prior to the execution of this step. It's still unknown why this
-            // happens, but a restart solves the issue.
-            client.restartApplication(app.getName());
         }
 
         @Override
