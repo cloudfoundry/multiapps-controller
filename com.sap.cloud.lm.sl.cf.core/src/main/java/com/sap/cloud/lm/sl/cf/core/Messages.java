@@ -166,6 +166,8 @@ public final class Messages {
     public static final String CONTROLLER_CLIENT_CONNECT_TIMEOUT_IN_SECONDS = "Controller client connect timeout in seconds: {0}";
     public static final String CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = "Controller client connection pool size: {0}";
     public static final String CONTROLLER_CLIENT_THREAD_POOL_SIZE = "Controller client thread pool size: {0}";
+    public static final String MICROMETER_STEP_IN_SECONDS = "Micrometer step in seconds: {0}";
+    public static final String MICROMETER_BATCH_SIZE = "Micrometer batch size: {0}";
 
     // Debug messages
     public static final String DEPLOYMENT_DESCRIPTOR = "Deployment descriptor: {0}";

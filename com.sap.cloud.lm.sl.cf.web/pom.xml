@@ -184,5 +184,9 @@
             <groupId>com.sap.cloud.lm.sl.cf</groupId>
             <artifactId>com.sap.cloud.lm.sl.cf.shutdown.client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-dynatrace</artifactId>
+        </dependency>
     </dependencies>
 </project>
