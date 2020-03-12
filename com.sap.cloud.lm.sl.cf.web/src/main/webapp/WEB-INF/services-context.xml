@@ -3,7 +3,7 @@
 
     xsi:schemaLocation="
         http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="fileSystemFileStorage" class="com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.FileSystemFileStorageFactoryBean">
         <constructor-arg name="serviceName" value="deploy-service-fss" />
