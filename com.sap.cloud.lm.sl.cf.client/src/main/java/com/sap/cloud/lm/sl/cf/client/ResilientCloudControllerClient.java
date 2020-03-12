@@ -23,6 +23,7 @@ import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
+import org.cloudfoundry.client.lib.domain.CloudPackage;
 import org.cloudfoundry.client.lib.domain.CloudQuota;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.CloudSecurityGroup;
@@ -41,6 +42,7 @@ import org.cloudfoundry.client.lib.domain.Staging;
 import org.cloudfoundry.client.lib.domain.Upload;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.cloudfoundry.client.lib.rest.CloudControllerRestClient;
+import org.cloudfoundry.client.lib.util.OrderBy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -914,6 +916,16 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     private <T> T executeWithRetry(Supplier<T> operation, HttpStatus... statusesToIgnore) {
         ResilientCloudOperationExecutor executor = new ResilientCloudOperationExecutor().withStatusesToIgnore(statusesToIgnore);
         return executor.execute(operation);
+    }
+
+    @Override
+    public List<CloudPackage> getBitsPackagesForApplication(UUID applicationGuid) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<CloudPackage> getBitsPackagesForApplication(UUID applicationGuid, OrderBy orderBy) {
+        throw new UnsupportedOperationException();
     }
 
 }
