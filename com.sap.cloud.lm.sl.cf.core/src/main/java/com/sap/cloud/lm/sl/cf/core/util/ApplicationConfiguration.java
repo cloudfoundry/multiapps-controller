@@ -88,6 +88,8 @@ public class ApplicationConfiguration {
     static final String INTERNAL_SUPPORT_CHANNEL = "INTERNAL_SUPPORT_CHANNEL";
     static final String CFG_CF_INSTANCE_INDEX = "CF_INSTANCE_INDEX";
     static final String CFG_CERTIFICATE_CN = "CERTIFICATE_CN";
+    static final String CFG_MICROMETER_STEP_IN_SECONDS = "MICROMETER_STEP_IN_SECONDS";
+    static final String CFG_MICROMETER_BATCH_SIZE = "MICROMETER_BATCH_SIZE";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -173,6 +175,8 @@ public class ApplicationConfiguration {
     private Integer controllerClientConnectionPoolSize;
     private Integer controllerClientThreadPoolSize;
     private String certificateCN;
+    private Integer micrometerStepInSeconds;
+    private Integer micrometerBatchSize;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -531,6 +535,20 @@ public class ApplicationConfiguration {
         return certificateCN;
     }
 
+    public Integer getMicrometerStepInSeconds() {
+        if (micrometerStepInSeconds == null) {
+            micrometerStepInSeconds = getMicrometerStepInSecondsFromEnvironment();
+        }
+        return micrometerStepInSeconds;
+    }
+
+    public Integer getMicrometerBatchSize() {
+        if (micrometerBatchSize == null) {
+            micrometerBatchSize = getMicrometerBatchSizeFromEnvironment();
+        }
+        return micrometerBatchSize;
+    }
+
     private URL getControllerUrlFromEnvironment() {
         Map<String, Object> vcapApplicationMap = getVcapApplication();
         String controllerUrlString = getControllerUrl(vcapApplicationMap);
@@ -863,6 +881,18 @@ public class ApplicationConfiguration {
         Integer value = environment.getPositiveInteger(CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE);
         LOGGER.info(format(Messages.CONTROLLER_CLIENT_THREAD_POOL_SIZE, value));
         return value;
+    }
+
+    private Integer getMicrometerStepInSecondsFromEnvironment() {
+        Integer micrometerStepInSeconds = environment.getInteger(CFG_MICROMETER_STEP_IN_SECONDS, null);
+        LOGGER.info(format(Messages.MICROMETER_STEP_IN_SECONDS, micrometerStepInSeconds));
+        return micrometerStepInSeconds;
+    }
+
+    private Integer getMicrometerBatchSizeFromEnvironment() {
+        Integer micrometerBatchSize = environment.getInteger(CFG_MICROMETER_BATCH_SIZE, null);
+        LOGGER.info(format(Messages.MICROMETER_BATCH_SIZE, micrometerBatchSize));
+        return micrometerBatchSize;
     }
 
     public Boolean isInternalEnvironment() {

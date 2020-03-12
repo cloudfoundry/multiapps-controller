@@ -63,6 +63,7 @@
         <guava.version>23.6.1-jre</guava.version>
         <jsr305.version>3.0.2</jsr305.version>
         <immutables.version>2.8.3</immutables.version>
+        <io.micrometer.version>1.3.1</io.micrometer.version>
         <com.sap.cloud.lm.sl.open.version>1.90.0</com.sap.cloud.lm.sl.open.version>
     </properties>
     <modules>
@@ -255,6 +256,11 @@
     </dependencies>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-dynatrace</artifactId>
+                <version>${io.micrometer.version}</version>
+            </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
