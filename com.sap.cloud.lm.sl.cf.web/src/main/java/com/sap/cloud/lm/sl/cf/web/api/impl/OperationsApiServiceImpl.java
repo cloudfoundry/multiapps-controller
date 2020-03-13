@@ -91,12 +91,13 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                              .body(operations);
     }
 
+    @Override
     public ResponseEntity<Void> executeOperationAction(HttpServletRequest request, String spaceGuid, String operationId, String actionId) {
         Operation operation = getOperation(operationId);
         List<String> availableOperations = getAvailableActions(operation);
         if (!availableOperations.contains(actionId)) {
-            throw new IllegalArgumentException(MessageFormat.format(Messages.ACTION_0_CANNOT_BE_EXECUTED_OVER_OPERATION_1, actionId,
-                                                                    operationId));
+            throw new IllegalArgumentException(MessageFormat.format(Messages.ACTION_0_CANNOT_BE_EXECUTED_OVER_OPERATION_1_IN_STATE_2,
+                                                                    actionId, operationId, operation.getState()));
         }
         ProcessAction action = processActionRegistry.getAction(actionId);
         action.execute(getAuthenticatedUser(request), operationId);
@@ -162,8 +163,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                                              operation.getSpaceId(), spaceGuid));
             throw new NotFoundException(com.sap.cloud.lm.sl.cf.core.Messages.OPERATION_NOT_FOUND, operationId);
         }
-        operation = operationsHelper.addState(operation);
-        operation = operationsHelper.addErrorType(operation);
         if ("messages".equals(embed)) {
             operation = ImmutableOperation.copyOf(operation)
                                           .withMessages(getOperationMessages(operation));
@@ -214,16 +213,18 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private Operation getOperation(String operationId) {
         try {
-            return operationService.createQuery()
-                                   .processId(operationId)
-                                   .singleResult();
+            Operation operation = operationService.createQuery()
+                                                  .processId(operationId)
+                                                  .singleResult();
+            operation = operationsHelper.addState(operation);
+            operation = operationsHelper.addErrorType(operation);
+            return operation;
         } catch (NoResultException e) {
             throw new NotFoundException(e, Messages.OPERATION_0_NOT_FOUND, operationId);
         }
     }
 
     private List<String> getAvailableActions(Operation operation) {
-        operation = operationsHelper.addState(operation);
         switch (operation.getState()) {
             case FINISHED:
             case ABORTED:
