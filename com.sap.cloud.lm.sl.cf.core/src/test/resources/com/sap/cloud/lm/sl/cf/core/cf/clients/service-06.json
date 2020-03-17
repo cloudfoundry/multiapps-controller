@@ -1,16 +1,18 @@
 {
-  "service": {
+  "actualService": {
     "metadata": {
       
     },
     "name": "foo",
-    "label": "mongodb",
+    "label": "postgresql",
+    "alternativeLabels": [
+      "postgresql-trial"
+    ],
     "tags": [],
     "credentials": {
-      "username": "FsiGRKTK1[@nJLmI",
-      "password": "Xw]*Pw11&dnT(mL[",
-      "admin": true
+      
     },
-    "plan": "v3.4-extra-large"
-  }
+    "plan": "v9.6-large"
+  },
+  "errorStatusCode": 401
 }

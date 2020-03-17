@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -24,20 +23,20 @@ import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.SLException;
+import org.springframework.util.Assert;
 
 public class ServiceWithAlternativesCreator {
 
-    private final ServiceCreator serviceCreator;
     private final UserMessageLogger userMessageLogger;
 
-    public ServiceWithAlternativesCreator(ServiceCreator serviceCreator, UserMessageLogger userMessageLogger) {
-        this.serviceCreator = serviceCreator;
+    public ServiceWithAlternativesCreator(UserMessageLogger userMessageLogger) {
         this.userMessageLogger = userMessageLogger;
     }
 
-    public MethodExecution<String> createService(CloudControllerClient client, CloudServiceExtended service, String spaceId) {
+    public MethodExecution<String> createService(CloudControllerClient client, CloudServiceExtended service) {
+        assertServiceAttributes(service);
         if (CollectionUtils.isEmpty(service.getAlternativeLabels())) {
-            return serviceCreator.createService(client, service, spaceId);
+            return createServiceInternal(client, service);
         }
         userMessageLogger.debug("Service \"{0}\" has defined service offering alternatives \"{1}\" for default service offering \"{2}\"",
                                 service.getName(), service.getAlternativeLabels(), service.getLabel());
@@ -61,7 +60,7 @@ public class ServiceWithAlternativesCreator {
                                   service.getPlan());
         }
 
-        return attemptToFindServiceOfferingAndCreateService(client, service, spaceId, validServiceOfferings);
+        return attemptToFindServiceOfferingAndCreateService(client, service, validServiceOfferings);
     }
 
     private List<CloudServicePlan> retrievePlanListFromServicePlan(CloudServiceExtended service, List<CloudServicePlan>... listOfPlans) {
@@ -110,12 +109,12 @@ public class ServiceWithAlternativesCreator {
     }
 
     private MethodExecution<String> attemptToFindServiceOfferingAndCreateService(CloudControllerClient client, CloudServiceExtended service,
-                                                                                 String spaceId, List<String> validServiceOfferings) {
+                                                                                 List<String> validServiceOfferings) {
         for (String validServiceOffering : validServiceOfferings) {
             try {
                 CloudServiceExtended serviceWithCorrectLabel = ImmutableCloudServiceExtended.copyOf(service)
                                                                                             .withLabel(validServiceOffering);
-                return serviceCreator.createService(client, serviceWithCorrectLabel, spaceId);
+                return createServiceInternal(client, serviceWithCorrectLabel);
             } catch (CloudOperationException e) {
                 if (!shouldIgnoreException(e)) {
                     throw e;
@@ -127,23 +126,28 @@ public class ServiceWithAlternativesCreator {
         throw new SLException(Messages.CANT_CREATE_SERVICE, service.getName(), validServiceOfferings);
     }
 
+    private MethodExecution<String> createServiceInternal(CloudControllerClient client, CloudServiceExtended service) {
+        client.createService(service);
+        return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
+    }
+
     private boolean shouldIgnoreException(CloudOperationException e) {
         return e.getStatusCode()
                 .equals(HttpStatus.FORBIDDEN);
     }
 
+    private void assertServiceAttributes(CloudServiceExtended service) {
+        Assert.notNull(service, "Service must not be null");
+        Assert.notNull(service.getName(), "Service name must not be null");
+        Assert.notNull(service.getLabel(), "Service label must not be null");
+        Assert.notNull(service.getPlan(), "Service plan must not be null");
+    }
+
     @Named
     public static class Factory {
 
-        private final ServiceCreator serviceCreator;
-
-        @Inject
-        public Factory(ServiceCreator serviceCreator) {
-            this.serviceCreator = serviceCreator;
-        }
-
         public ServiceWithAlternativesCreator createInstance(UserMessageLogger userMessageLogger) {
-            return new ServiceWithAlternativesCreator(serviceCreator, userMessageLogger);
+            return new ServiceWithAlternativesCreator(userMessageLogger);
         }
 
     }

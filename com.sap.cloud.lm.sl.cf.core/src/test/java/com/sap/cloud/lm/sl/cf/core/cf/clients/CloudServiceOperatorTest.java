@@ -2,11 +2,9 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
@@ -22,7 +20,6 @@ public abstract class CloudServiceOperatorTest {
 
     private static final String CONTROLLER_URL = "https://api.cf.sap.hana.ondemand.com";
     private static final String SERVICE_OFFERINGS_RESPONSE_PATH = "service-offerings.json";
-    private static final String SERVICE_FILE_NAME = "service.json";
 
     @Mock
     private RestTemplate restTemplate;
@@ -55,20 +52,11 @@ public abstract class CloudServiceOperatorTest {
         List<CloudServiceOffering> serviceOfferings = loadServiceOfferingsFromFile(SERVICE_OFFERINGS_RESPONSE_PATH);
         Mockito.when(client.getServiceOfferings())
                .thenReturn(serviceOfferings);
-        CloudService cloudService = loadServiceFromFile(SERVICE_FILE_NAME);
-        Mockito.when(client.getServices())
-               .thenReturn(Collections.singletonList(cloudService));
     }
 
     private List<CloudServiceOffering> loadServiceOfferingsFromFile(String filePath) {
         String serviceOfferingsJson = TestUtil.getResourceAsString(filePath, getClass());
         return JsonUtil.fromJson(serviceOfferingsJson, new TypeReference<List<CloudServiceOffering>>() {
-        });
-    }
-
-    private CloudService loadServiceFromFile(String filePath) {
-        String cloudServiceJson = TestUtil.getResourceAsString(filePath, getClass());
-        return JsonUtil.fromJson(cloudServiceJson, new TypeReference<CloudService>() {
         });
     }
 

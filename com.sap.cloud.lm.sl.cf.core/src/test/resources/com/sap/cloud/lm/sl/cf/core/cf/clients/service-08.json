@@ -1,5 +1,5 @@
 {
-  "service": {
+  "actualService": {
     "metadata": {
       
     },
@@ -14,17 +14,19 @@
     },
     "plan": "v9.4-large"
   },
-  "expectedExchanges": [
-    {
-      "requestBody": {
-        "space_guid": "TEST_SPACE",
-        "name": "foo",
-        "service_plan_guid": "edce0629-89d6-4503-aff1-158824f80fab",
-        "parameters": {
-          
-        },
-        "tags": []
-      }
-    }
-  ]
+  "expectedService": {
+    "metadata": {
+
+    },
+    "name": "foo",
+    "label": "postgresql",
+    "alternativeLabels": [
+      "postgresql-trial"
+    ],
+    "tags": [],
+    "credentials": {
+
+    },
+    "plan": "v9.4-large"
+  }
 }
