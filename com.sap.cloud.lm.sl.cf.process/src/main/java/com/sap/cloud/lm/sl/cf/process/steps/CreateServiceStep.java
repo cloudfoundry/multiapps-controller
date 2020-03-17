@@ -81,7 +81,7 @@ public class CreateServiceStep extends ServiceStep {
     private MethodExecution<String> createManagedService(DelegateExecution context, CloudControllerClient client,
                                                          CloudServiceExtended service) {
         MethodExecution<String> createService = serviceCreatorFactory.createInstance(getStepLogger())
-                                                                     .createService(client, service, StepsUtil.getSpaceId(context));
+                                                                     .createService(client, service);
         updateServiceMetadata(service, client);
         return createService;
     }

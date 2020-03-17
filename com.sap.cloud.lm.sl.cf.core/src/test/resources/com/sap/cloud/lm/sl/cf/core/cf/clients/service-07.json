@@ -1,16 +1,16 @@
 {
-  "service": {
+  "actualService": {
     "metadata": {
-      
     },
-    "name": "foo",
-    "label": "hana",
+    "name": "fake-service",
+    "label": "mongodb",
     "tags": [],
     "credentials": {
       "username": "FsiGRKTK1[@nJLmI",
       "password": "Xw]*Pw11&dnT(mL[",
       "admin": true
     },
-    "plan": "v2.0-sp3"
-  }
+    "plan": "v3.4-large"
+  },
+  "errorStatusCode": 400
 }

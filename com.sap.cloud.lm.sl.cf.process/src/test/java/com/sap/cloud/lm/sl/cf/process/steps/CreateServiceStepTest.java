@@ -97,7 +97,7 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
 
     private void throwExceptionOnServiceCreation(HttpStatus httpStatus) {
         ServiceWithAlternativesCreator serviceCreator = Mockito.mock(ServiceWithAlternativesCreator.class);
-        Mockito.when(serviceCreator.createService(any(), any(), any()))
+        Mockito.when(serviceCreator.createService(any(), any()))
                .thenThrow(new CloudOperationException(httpStatus, "Error occurred"));
         Mockito.when(serviceCreatorFactory.createInstance(any()))
                .thenReturn(serviceCreator);
@@ -150,7 +150,7 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
 
         Mockito.when(serviceCreatorFactory.createInstance(any()))
                .thenReturn(serviceCreator);
-        Mockito.when(serviceCreator.createService(any(), any(), any()))
+        Mockito.when(serviceCreator.createService(any(), any()))
                .thenReturn(methodExec);
     }
 
