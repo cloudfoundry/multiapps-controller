@@ -89,6 +89,8 @@
             "mta_id": "9fb045bba26522b2a50bb3e7a06ae30d"
           }
         },
+        "credentials" : { },
+        "tags" : [ ],
         "resourceName": "resource-name-3"
       },
       {
@@ -106,13 +108,19 @@
             "mta_id": "9fb045bba26522b2a50bb3e7a06ae30d"
           }
         },
+        "credentials" : { },
+        "tags" : [ ],
         "resourceName": "resource-name-4"
       },
       {
-        "name": "mta-service-1"
+        "name": "mta-service-1",
+        "credentials" : { },
+        "tags" : [ ]
       },
       {
-        "name": "mta-service-2"
+        "name": "mta-service-2",
+        "credentials" : { },
+        "tags" : [ ]
       }
     ]
   }

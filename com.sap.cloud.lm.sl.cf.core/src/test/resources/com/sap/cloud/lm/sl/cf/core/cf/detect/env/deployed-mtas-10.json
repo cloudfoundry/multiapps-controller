@@ -55,10 +55,14 @@
     ],
     "services": [
       {
-        "name": "service-1"
+        "name": "service-1",
+        "credentials" : { },
+        "tags" : [ ]
       },
       {
-        "name": "service-2"
+        "name": "service-2",
+        "credentials" : { },
+        "tags" : [ ]
       }
     ]
   }

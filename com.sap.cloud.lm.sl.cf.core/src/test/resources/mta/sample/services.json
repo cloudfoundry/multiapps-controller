@@ -15,23 +15,23 @@
     },
     "label": "hdi-hana",
     "plan": "hdi-shared",
-    "alternativeLabels": [],
-    "resourceName": "pricing-db-service",
     "credentials": {},
     "tags": [],
+    "alternativeLabels": [],
+    "resourceName": "pricing-db-service",
     "shouldIgnoreUpdateErrors": false
   },
   {
     "isOptional": false,
     "isManaged": true,
     "name": "internal-odata-service",
-    "alternativeLabels": [],
-    "resourceName": "internal-odata-service",
     "credentials": {
       "password": "shfzj86g",
       "username": "technicalUser"
     },
-    "tags": [],
+    "tags" : [ ],
+    "alternativeLabels": [],
+    "resourceName": "internal-odata-service",
     "shouldIgnoreUpdateErrors": false
   }
 ]
