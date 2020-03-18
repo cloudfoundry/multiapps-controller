@@ -54,6 +54,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -141,7 +142,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
 
     @Test
     public void testExecute() {
-        if (StepsUtil.getServicesToDelete(context)
+        if (execution.getVariable(Variables.SERVICES_TO_DELETE)
                      .isEmpty()) {
             return;
         }
@@ -189,7 +190,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
     }
 
     private void prepareContext() {
-        StepsUtil.setServicesToDelete(context, servicesToDelete);
+        execution.setVariable(Variables.SERVICES_TO_DELETE, servicesToDelete);
         StepsUtil.setServicesData(context, servicesData);
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_DELETE_SERVICES, true);
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);

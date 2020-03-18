@@ -170,7 +170,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     public void testVersionRuleWithDowngrade() {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
-        StepsUtil.setDeployedMta(context, createDeployedMta("2.0.0", Collections.emptyList()));
+        execution.setVariable(Variables.DEPLOYED_MTA, createDeployedMta("2.0.0", Collections.emptyList()));
 
         step.execute(context);
     }
@@ -180,7 +180,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
         context.setVariable(Constants.PARAM_VERSION_RULE, VersionRule.HIGHER.toString());
-        StepsUtil.setDeployedMta(context, createDeployedMta("1.0.0", Collections.emptyList()));
+        execution.setVariable(Variables.DEPLOYED_MTA, createDeployedMta("1.0.0", Collections.emptyList()));
 
         step.execute(context);
     }

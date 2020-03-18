@@ -149,8 +149,8 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
     protected void prepareContext() {
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
-        StepsUtil.setMtaModules(context, Collections.emptySet());
-        StepsUtil.setMtaArchiveModules(context, Collections.emptySet());
+        execution.setVariable(Variables.MTA_MODULES, Collections.emptySet());
+        execution.setVariable(Variables.MTA_ARCHIVE_MODULES, Collections.emptySet());
         execution.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, DEPLOYMENT_DESCRIPTOR);
     }
 
@@ -162,11 +162,12 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
         tester.test(() -> StepsUtil.getServicesToBind(context), new Expectation(Expectation.Type.JSON, input.servicesToBindLocation));
         tester.test(() -> StepsUtil.getServicesToCreate(context), new Expectation(Expectation.Type.JSON, input.servicesToCreateLocation));
-        tester.test(() -> StepsUtil.getServiceKeysToCreate(context), new Expectation(Expectation.Type.JSON, input.serviceKeysLocation));
+        tester.test(() -> execution.getVariable(Variables.SERVICE_KEYS_TO_CREATE),
+                    new Expectation(Expectation.Type.JSON, input.serviceKeysLocation));
         tester.test(() -> StepsUtil.getModulesToDeploy(context), new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
         tester.test(() -> StepsUtil.getAllModulesToDeploy(context), new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
         assertFalse(StepsUtil.getUseIdleUris(context));
-        assertEquals(input.customDomains, StepsUtil.getCustomDomains(context));
+        assertEquals(input.customDomains, execution.getVariable(Variables.CUSTOM_DOMAINS));
         assertEquals(output.newMtaVersion, StepsUtil.getNewMtaVersion(context));
     }
 
@@ -192,7 +193,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         when(applicationCloudModelBuilder.getApplicationDomains(any(), any())).thenReturn(input.customDomains);
         when(servicesCloudModelBuilder.build(any())).thenReturn(servicesToBind);
         when(serviceKeysCloudModelBuilder.build()).thenReturn(serviceKeys);
-        StepsUtil.setDeployedMta(context, deployedMta);
+        execution.setVariable(Variables.DEPLOYED_MTA, deployedMta);
     }
 
     @Override

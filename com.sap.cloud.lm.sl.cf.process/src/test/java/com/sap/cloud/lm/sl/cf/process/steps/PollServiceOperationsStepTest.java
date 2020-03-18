@@ -27,6 +27,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -105,9 +106,9 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
         prepareServiceOperationGetter();
         StepsUtil.setServicesToCreate(context, input.services);
-        StepsUtil.setServicesToDelete(context, Collections.emptyList());
+        execution.setVariable(Variables.SERVICES_TO_DELETE, Collections.emptyList());
         StepsUtil.setServicesData(context, Collections.emptyList());
-        StepsUtil.setTriggeredServiceOperations(context, input.triggeredServiceOperations);
+        execution.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, input.triggeredServiceOperations);
         if (expectedExceptionMessage != null) {
             exception.expectMessage(expectedExceptionMessage);
         }

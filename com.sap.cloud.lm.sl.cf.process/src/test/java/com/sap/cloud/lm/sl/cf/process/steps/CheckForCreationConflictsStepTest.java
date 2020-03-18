@@ -46,6 +46,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaService;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -159,7 +160,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
                                                       .applications(prepareApps())
                                                       .services(prepareServices())
                                                       .build();
-        StepsUtil.setDeployedMta(context, deployedMta);
+        execution.setVariable(Variables.DEPLOYED_MTA, deployedMta);
     }
 
     private List<DeployedMtaApplication> prepareApps() {
@@ -184,7 +185,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
         StepsUtil.setServicesToCreate(context, stepInput.servicesToDeploy);
         List<String> appsToDeploy = new ArrayList<>();
         stepInput.appsToDeploy.forEach(app -> appsToDeploy.add(app.name));
-        StepsUtil.setAppsToDeploy(context, appsToDeploy);
+        execution.setVariable(Variables.APPS_TO_DEPLOY, appsToDeploy);
     }
 
     private List<DeployedMtaApplication> simpleAppListToAppList(List<SimpleApplication> simpleApps) {

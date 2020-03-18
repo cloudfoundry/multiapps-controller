@@ -57,13 +57,13 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
 
         // Get module sets:
-        DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
+        DeployedMta deployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
         List<DeployedMtaApplication> deployedApplications = (deployedMta != null) ? deployedMta.getApplications() : Collections.emptyList();
-        Set<String> mtaArchiveModules = StepsUtil.getMtaArchiveModules(execution.getContext());
+        Set<String> mtaArchiveModules = execution.getVariable(Variables.MTA_ARCHIVE_MODULES);
         getStepLogger().debug(Messages.MTA_ARCHIVE_MODULES, mtaArchiveModules);
         Set<String> deployedModuleNames = CloudModelBuilderUtil.getDeployedModuleNames(deployedApplications);
         getStepLogger().debug(Messages.DEPLOYED_MODULES, deployedModuleNames);
-        Set<String> mtaModules = StepsUtil.getMtaModules(execution.getContext());
+        Set<String> mtaModules = execution.getVariable(Variables.MTA_MODULES);
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
         StepsUtil.setNewMtaVersion(execution.getContext(), deploymentDescriptor.getVersion());
@@ -72,7 +72,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         Map<String, List<CloudServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(execution).build();
         getStepLogger().debug(Messages.SERVICE_KEYS_TO_CREATE, secureSerializer.toJson(serviceKeys));
 
-        StepsUtil.setServiceKeysToCreate(execution.getContext(), serviceKeys);
+        execution.setVariable(Variables.SERVICE_KEYS_TO_CREATE, serviceKeys);
 
         // Build a list of applications for deployment and save them in the context:
         List<Module> modulesCalculatedForDeployment = calculateModulesForDeployment(execution, deploymentDescriptor, mtaArchiveModules,
@@ -84,16 +84,16 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
         ApplicationCloudModelBuilder applicationCloudModelBuilder = getApplicationCloudModelBuilder(execution);
 
-        StepsUtil.setAppsToDeploy(execution.getContext(), getAppNames(modulesCalculatedForDeployment));
+        execution.setVariable(Variables.APPS_TO_DEPLOY, getAppNames(modulesCalculatedForDeployment));
 
         StepsUtil.setDeploymentMode(execution.getContext(), applicationCloudModelBuilder.getDeploymentMode());
-        StepsUtil.setServiceKeysCredentialsToInject(execution.getContext(), new HashMap<>());
+        execution.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());
         StepsUtil.setUseIdleUris(execution.getContext(), false);
 
         // Build a list of custom domains and save them in the context:
         List<String> customDomainsFromApps = getDomainsFromApps(execution, deploymentDescriptor, applicationCloudModelBuilder,
                                                                 modulesCalculatedForDeployment, moduleToDeployHelper);
-        StepsUtil.setCustomDomains(execution.getContext(), customDomainsFromApps);
+        execution.setVariable(Variables.CUSTOM_DOMAINS, customDomainsFromApps);
         getStepLogger().debug(Messages.CUSTOM_DOMAINS, customDomainsFromApps);
 
         ServicesCloudModelBuilder servicesCloudModelBuilder = getServicesCloudModelBuilder(execution);

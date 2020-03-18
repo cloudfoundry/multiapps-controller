@@ -31,13 +31,12 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
         CloudApplicationExtended app = execution.getVariable(Variables.APP_TO_PROCESS);
-        CloudTask taskToExecute = StepsUtil.getTask(execution.getContext());
+        CloudTask taskToExecute = StepsUtil.getTask(execution);
         CloudControllerClient client = execution.getControllerClient();
 
         getStepLogger().info(Messages.EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
         CloudTask startedTask = client.runTask(app.getName(), taskToExecute);
-
-        StepsUtil.setStartedTask(execution.getContext(), startedTask);
+        execution.setVariable(Variables.STARTED_TASK, startedTask);
         execution.getContext()
                  .setVariable(Constants.VAR_START_TIME, currentTimeSupplier.getAsLong());
         return StepPhase.POLL;
@@ -46,7 +45,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
     @Override
     protected String getStepErrorMessage(ExecutionWrapper execution) {
         CloudApplicationExtended app = execution.getVariable(Variables.APP_TO_PROCESS);
-        CloudTask taskToExecute = StepsUtil.getTask(execution.getContext());
+        CloudTask taskToExecute = StepsUtil.getTask(execution);
         return MessageFormat.format(Messages.ERROR_EXECUTING_TASK_0_ON_APP_1, taskToExecute.getName(), app.getName());
     }
 

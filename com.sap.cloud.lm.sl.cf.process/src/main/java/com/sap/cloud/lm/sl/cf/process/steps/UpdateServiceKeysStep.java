@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.util.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("updateServiceKeysStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -34,10 +35,10 @@ public class UpdateServiceKeysStep extends ServiceStep {
         throw new UnsupportedOperationException("Update service keys is not a pollable operation.");
     }
 
-    private MethodExecution<String> createOrUpdateServiceKeys(CloudServiceExtended service, DelegateExecution execution,
-                                                              CloudControllerClient client) {
+    private MethodExecution<String> createOrUpdateServiceKeys(ExecutionWrapper execution, CloudControllerClient client,
+                                                              CloudServiceExtended service) {
         MethodExecution<String> methodExecution = new MethodExecution<>(null, ExecutionState.FINISHED);
-        Map<String, List<CloudServiceKey>> serviceKeysMap = StepsUtil.getServiceKeysToCreate(execution);
+        Map<String, List<CloudServiceKey>> serviceKeysMap = execution.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
         List<CloudServiceKey> serviceKeys = serviceKeysMap.get(service.getResourceName());
 
         List<CloudServiceKey> existingServiceKeys = serviceOperationExecutor.executeServiceOperation(service,
@@ -52,7 +53,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
         List<CloudServiceKey> serviceKeysToUpdate = getServiceKeysToUpdate(serviceKeys, existingServiceKeys);
         List<CloudServiceKey> serviceKeysToDelete = getServiceKeysToDelete(serviceKeys, existingServiceKeys);
 
-        if (canDeleteServiceKeys(execution)) {
+        if (canDeleteServiceKeys(execution.getContext())) {
             deleteServiceKeys(client, serviceKeysToDelete);
             // Recreate the service keys, which should be updated, as direct update is not supported
             // by the controller:
@@ -146,8 +147,8 @@ public class UpdateServiceKeysStep extends ServiceStep {
     }
 
     @Override
-    protected MethodExecution<String> executeOperation(DelegateExecution context, CloudControllerClient controllerClient,
+    protected MethodExecution<String> executeOperation(ExecutionWrapper execution, CloudControllerClient controllerClient,
                                                        CloudServiceExtended service) {
-        return createOrUpdateServiceKeys(service, context, controllerClient);
+        return createOrUpdateServiceKeys(execution, controllerClient, service);
     }
 }

@@ -96,7 +96,7 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
     }
 
     private void testModules() {
-        Set<String> actualModules = StepsUtil.getMtaArchiveModules(context);
+        Set<String> actualModules = execution.getVariable(Variables.MTA_ARCHIVE_MODULES);
 
         assertEquals(input.expectedModules.size(), actualModules.size());
         for (String actualModuleName : actualModules) {

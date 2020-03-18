@@ -7,7 +7,6 @@ import java.util.UUID;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -21,14 +20,14 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 public class UpdateServiceMetadataStep extends ServiceStep {
 
     @Override
-    protected MethodExecution<String> executeOperation(DelegateExecution execution, CloudControllerClient client,
+    protected MethodExecution<String> executeOperation(ExecutionWrapper execution, CloudControllerClient controllerClient,
                                                        CloudServiceExtended service) {
-        return updateServiceMetadata(client, service);
+        return updateServiceMetadata(controllerClient, service);
     }
 
-    private MethodExecution<String> updateServiceMetadata(CloudControllerClient client, CloudServiceExtended service) {
+    private MethodExecution<String> updateServiceMetadata(CloudControllerClient controllerClient, CloudServiceExtended service) {
         getStepLogger().debug(Messages.UPDATING_SERVICE_METADATA, service.getName(), service.getResourceName());
-        updateServiceMetadata(service, client);
+        updateServiceMetadata(service, controllerClient);
         getStepLogger().debug(Messages.SERVICE_METADATA_UPDATED, service.getName());
         return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
     }

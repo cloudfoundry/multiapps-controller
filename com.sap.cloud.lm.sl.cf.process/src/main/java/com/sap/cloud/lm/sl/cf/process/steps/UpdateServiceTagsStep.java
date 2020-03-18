@@ -6,7 +6,6 @@ import java.util.List;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -21,12 +20,12 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 public class UpdateServiceTagsStep extends ServiceStep {
 
     @Override
-    protected MethodExecution<String> executeOperation(DelegateExecution context, CloudControllerClient controllerClient,
+    protected MethodExecution<String> executeOperation(ExecutionWrapper execution, CloudControllerClient controllerClient,
                                                        CloudServiceExtended service) {
         return updateServiceTags(controllerClient, service);
     }
 
-    private MethodExecution<String> updateServiceTags(CloudControllerClient client, CloudServiceExtended service) {
+    private MethodExecution<String> updateServiceTags(CloudControllerClient controllerClient, CloudServiceExtended service) {
         // TODO: Remove the service.isUserProvided() check when user provided services support tags.
         // See the following issue for more info:
         // https://www.pivotaltracker.com/n/projects/966314/stories/105674948
@@ -35,7 +34,7 @@ public class UpdateServiceTagsStep extends ServiceStep {
         }
         getStepLogger().info(Messages.UPDATING_SERVICE_TAGS, service.getName());
 
-        MethodExecution<String> methodExecution = updateService(client, service);
+        MethodExecution<String> methodExecution = updateService(controllerClient, service);
 
         getStepLogger().debug(Messages.SERVICE_TAGS_UPDATED, service.getName());
         return methodExecution;

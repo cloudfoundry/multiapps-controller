@@ -46,7 +46,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
         List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
         getStepLogger().debug(Messages.SUBSCRIPTIONS, secureSerializer.toJson(subscriptions));
-        StepsUtil.setSubscriptionsToCreate(context, subscriptions);
+        execution.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, subscriptions);
 
         execution.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, descriptor);
         // Set MTA modules in the context
@@ -58,7 +58,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         }
         Set<String> mtaModules = getModuleNames(descriptor, modulesForDeployment);
         getStepLogger().debug("MTA Modules: {0}", mtaModules);
-        StepsUtil.setMtaModules(context, mtaModules);
+        execution.setVariable(Variables.MTA_MODULES, mtaModules);
 
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(descriptor));
         getStepLogger().debug(Messages.DESCRIPTOR_PROPERTIES_RESOLVED);

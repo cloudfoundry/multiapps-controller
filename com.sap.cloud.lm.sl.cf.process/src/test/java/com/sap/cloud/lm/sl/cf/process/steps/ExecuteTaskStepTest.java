@@ -16,6 +16,7 @@ import org.junit.Test;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 
 public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
@@ -39,7 +40,7 @@ public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
     public void testExecute() {
         // Given:
         StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(app), context);
-        StepsUtil.setTasksToExecute(context, Collections.singletonList(task));
+        execution.setVariable(Variables.TASKS_TO_EXECUTE, Collections.singletonList(task));
         context.setVariable(Constants.VAR_TASKS_INDEX, 0);
 
         when(client.runTask(eq(app.getName()),
@@ -61,7 +62,7 @@ public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
     private void verifyTaskWasStarted() {
         verify(client).runTask(eq(app.getName()), argThat(GenericArgumentMatcher.forObject(task)));
         assertEquals(DUMMY_TIME, context.getVariable(Constants.VAR_START_TIME));
-        CloudTask startedTask = StepsUtil.getStartedTask(context);
+        CloudTask startedTask = execution.getVariable(Variables.STARTED_TASK);
         assertEquals(task.getName(), startedTask.getName());
         assertEquals(task.getCommand(), startedTask.getCommand());
     }

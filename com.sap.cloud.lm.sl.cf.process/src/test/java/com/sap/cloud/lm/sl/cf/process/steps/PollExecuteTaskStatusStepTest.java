@@ -23,6 +23,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @RunWith(Parameterized.class)
 public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskStep> {
@@ -113,7 +114,7 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
     }
 
     private void prepareContext() {
-        StepsUtil.setStartedTask(context, task);
+        execution.setVariable(Variables.STARTED_TASK, task);
         context.setVariable(Constants.VAR_TASKS_INDEX, 0);
         context.setVariable(Constants.VAR_START_TIME, 0L);
         context.setVariable(Constants.PARAM_START_TIMEOUT, START_TIMEOUT);

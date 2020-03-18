@@ -22,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
@@ -98,7 +99,7 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
         context.setVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX, 0);
         List<CloudApplication> brokers = new ArrayList<>();
         brokers.add(input.brokerApplication.toCloudApplication());
-        StepsUtil.setUpdatedServiceBrokerSubscribers(context, brokers);
+        execution.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS, brokers);
     }
 
     @Test

@@ -14,6 +14,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaDetector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("detectDeployedMtaStep")
@@ -34,7 +35,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMta(mtaId, client);
         if (optionalDeployedMta.isPresent()) {
             DeployedMta deployedMta = optionalDeployedMta.get();
-            StepsUtil.setDeployedMta(execution.getContext(), deployedMta);
+            execution.setVariable(Variables.DEPLOYED_MTA, deployedMta);
             getStepLogger().debug(Messages.DEPLOYED_MTA, JsonUtil.toJson(deployedMta, true));
             getStepLogger().info(MessageFormat.format(Messages.DEPLOYED_MTA_DETECTED_WITH_VERSION, deployedMta.getMetadata()
                                                                                                               .getId(),
@@ -42,7 +43,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
                                                                  .getVersion()));
         } else {
             getStepLogger().info(Messages.NO_DEPLOYED_MTA_DETECTED);
-            StepsUtil.setDeployedMta(execution.getContext(), null);
+            execution.setVariable(Variables.DEPLOYED_MTA, null);
         }
         return StepPhase.DONE;
     }

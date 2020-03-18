@@ -31,6 +31,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @RunWith(Parameterized.class)
 public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOperationTest<CheckForOperationsInProgressStep> {
@@ -161,7 +162,7 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
                 triggeredServiceOperations.put(serviceName, serviceOperationType);
             }
         }
-        StepsUtil.setTriggeredServiceOperations(context, triggeredServiceOperations);
+        execution.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, triggeredServiceOperations);
     }
 
     private List<CloudServiceExtended> generateCloudServicesExtended() {

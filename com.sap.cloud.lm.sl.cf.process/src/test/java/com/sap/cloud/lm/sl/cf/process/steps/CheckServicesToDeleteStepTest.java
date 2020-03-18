@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesToDeleteStep> {
@@ -73,7 +74,7 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
 
     private void prepareContext(List<String> serviceNames) {
         StepsUtil.setSpaceId(context, TEST_SPACE_ID);
-        StepsUtil.setServicesToDelete(context, serviceNames);
+        execution.setVariable(Variables.SERVICES_TO_DELETE, serviceNames);
     }
 
     private List<CloudService> getServices(List<String> existingServiceNames) {
@@ -105,7 +106,7 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
     }
 
     private void validateExecution(List<String> expectedServicesOperations, String expectedStatus) {
-        Map<String, ServiceOperation.Type> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(context);
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = execution.getVariable(Variables.TRIGGERED_SERVICE_OPERATIONS);
         for (String serviceName : expectedServicesOperations) {
             ServiceOperation.Type serviceOperationType = MapUtils.getObject(triggeredServiceOperations, serviceName);
             assertNotNull(serviceOperationType);

@@ -35,10 +35,10 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
 
         getStepLogger().debug(MessageFormat.format(Messages.PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES, app.getName()));
 
-        List<ConfigurationEntry> entriesToPublish = StepsUtil.getConfigurationEntriesToPublish(execution.getContext());
+        List<ConfigurationEntry> entriesToPublish = execution.getVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH);
 
         if (CollectionUtils.isEmpty(entriesToPublish)) {
-            StepsUtil.setPublishedEntries(execution.getContext(), Collections.emptyList());
+            execution.setVariable(Variables.PUBLISHED_ENTRIES, Collections.emptyList());
             getStepLogger().debug(Messages.NO_PUBLIC_PROVIDED_DEPENDENCIES_FOR_PUBLISHING);
             return StepPhase.DONE;
         }
@@ -46,7 +46,7 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
         List<ConfigurationEntry> publishedEntries = publish(entriesToPublish);
 
         getStepLogger().debug(Messages.PUBLISHED_ENTRIES, secureSerializer.toJson(publishedEntries));
-        StepsUtil.setPublishedEntries(execution.getContext(), publishedEntries);
+        execution.setVariable(Variables.PUBLISHED_ENTRIES, publishedEntries);
 
         getStepLogger().debug(Messages.PUBLIC_PROVIDED_DEPENDENCIES_PUBLISHED);
         return StepPhase.DONE;

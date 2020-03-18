@@ -48,6 +48,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -169,8 +170,8 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         context.setVariable(Constants.PARAM_USE_NAMESPACES, false);
         context.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
 
-        StepsUtil.setPublishedEntries(context, getPublishedEntries());
-        StepsUtil.setDeletedEntries(context, getDeletedEntries());
+        execution.setVariable(Variables.PUBLISHED_ENTRIES, getPublishedEntries());
+        execution.setVariable(Variables.DELETED_ENTRIES, getDeletedEntries());
 
         context.setVariable(Constants.VAR_USER, USER);
         step.targetCalculator = (client, spaceId) -> new CloudTarget(spaceId, spaceId);
@@ -315,7 +316,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
                 result.callArgumentsOfUpdateApplicationEnvMethod.addAll(callArgumentsOfUpdateApplicationEnvMethod);
             }
         }
-        result.updatedSubscribers = StepsUtil.getUpdatedSubscribers(context);
+        result.updatedSubscribers = execution.getVariable(Variables.UPDATED_SUBSCRIBERS);
         return result;
     }
 

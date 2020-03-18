@@ -18,7 +18,7 @@ public class PollStartServiceBrokerSubscriberStatusExecution extends PollStartAp
 
     @Override
     protected CloudApplication getAppToPoll(ExecutionWrapper execution) {
-        return StepsUtil.getServiceBrokerSubscriberToRestart(execution.getContext());
+        return StepsUtil.getUpdatedServiceBrokerSubscriber(execution);
     }
 
 }

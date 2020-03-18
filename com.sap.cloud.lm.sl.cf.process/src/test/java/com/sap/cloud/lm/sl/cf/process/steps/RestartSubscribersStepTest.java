@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribersStep> {
 
@@ -27,7 +28,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app", createCloudSpace("org", "space-foo")));
         updatedSubscribers.add(createCloudApplication("app", createCloudSpace("org", "space-bar")));
-        StepsUtil.setUpdatedSubscribers(context, updatedSubscribers);
+        execution.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
 
         // When:
         step.execute(context);
@@ -45,7 +46,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace("org", "space-foo")));
         updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace("org", "space-bar")));
-        StepsUtil.setUpdatedSubscribers(context, updatedSubscribers);
+        execution.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
 
         CloudControllerClient clientForSpaceFoo = Mockito.mock(CloudControllerClient.class);
         CloudControllerClient clientForSpaceBar = Mockito.mock(CloudControllerClient.class);
@@ -75,7 +76,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace("org", "space-foo")));
         updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace("org", "space-bar")));
-        StepsUtil.setUpdatedSubscribers(context, updatedSubscribers);
+        execution.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
 
         CloudControllerClient clientForSpaceFoo = Mockito.mock(CloudControllerClient.class);
         CloudControllerClient clientForSpaceBar = Mockito.mock(CloudControllerClient.class);
@@ -103,7 +104,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
     @Test
     public void testNothingHappensWhenThereAreNoSubscribersToRestart() {
         // Given:
-        StepsUtil.setUpdatedSubscribers(context, Collections.emptyList());
+        execution.setVariable(Variables.UPDATED_SUBSCRIBERS, Collections.emptyList());
 
         // When:
         step.execute(context);
@@ -118,7 +119,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace(ORG_NAME, SPACE_NAME)));
         updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace(ORG_NAME, SPACE_NAME)));
-        StepsUtil.setUpdatedSubscribers(context, updatedSubscribers);
+        execution.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
 
         Mockito.doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR))
                .when(client)

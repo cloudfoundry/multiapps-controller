@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("prepareToRestartServiceBrokerSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -20,7 +21,7 @@ public class PrepareToRestartServiceBrokerSubscribersStep extends SyncFlowableSt
     protected StepPhase executeStep(ExecutionWrapper execution) {
         DelegateExecution context = execution.getContext();
 
-        List<CloudApplication> serviceBrokersToRestart = StepsUtil.getServiceBrokerSubscribersToRestart(context);
+        List<CloudApplication> serviceBrokersToRestart = execution.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS);
         context.setVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT, serviceBrokersToRestart.size());
         context.setVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX, 0);
         context.setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);

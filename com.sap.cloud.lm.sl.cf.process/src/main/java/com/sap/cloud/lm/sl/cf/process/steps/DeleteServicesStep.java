@@ -36,6 +36,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -62,7 +63,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
 
         CloudControllerClient client = execution.getControllerClient();
 
-        List<String> servicesToDelete = new ArrayList<>(StepsUtil.getServicesToDelete(execution.getContext()));
+        List<String> servicesToDelete = new ArrayList<>(execution.getVariable(Variables.SERVICES_TO_DELETE));
 
         if (servicesToDelete.isEmpty()) {
             getStepLogger().debug(Messages.MISSING_SERVICES_TO_DELETE);
@@ -82,7 +83,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
 
         execution.getStepLogger()
                  .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
-        StepsUtil.setTriggeredServiceOperations(execution.getContext(), triggeredServiceOperations);
+        execution.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, triggeredServiceOperations);
 
         getStepLogger().debug(Messages.SERVICES_DELETED);
         return StepPhase.POLL;

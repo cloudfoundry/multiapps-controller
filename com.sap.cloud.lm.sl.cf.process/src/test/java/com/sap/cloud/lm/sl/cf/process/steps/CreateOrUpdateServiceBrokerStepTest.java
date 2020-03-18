@@ -163,7 +163,7 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
                    .warn(expectedWarningMessage);
         }
 
-        CloudServiceBroker actuallyCreatedOrUpdatedServiceBroker = StepsUtil.getCreatedOrUpdatedServiceBroker(context);
+        CloudServiceBroker actuallyCreatedOrUpdatedServiceBroker = execution.getVariable(Variables.CREATED_OR_UPDATED_SERVICE_BROKER);
         CloudServiceBroker expectedCreatedServiceBroker = expectedOutput.createdServiceBroker;
         CloudServiceBroker expectedUpdatedServiceBroker = expectedOutput.updatedServiceBroker;
 

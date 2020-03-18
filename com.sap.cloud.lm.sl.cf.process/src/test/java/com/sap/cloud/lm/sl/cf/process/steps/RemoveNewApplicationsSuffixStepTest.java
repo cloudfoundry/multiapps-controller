@@ -4,6 +4,8 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -33,7 +35,7 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
 
     @Test
     public void testExecuteWithNoAppsToDeploy() {
-        StepsUtil.setAppsToDeploy(context, Collections.emptyList());
+        execution.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
 
         step.execute(context);
         assertStepFinishedSuccessfully();
@@ -45,7 +47,7 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
     @Test
     public void testExecuteRenamesApps() {
         List<String> apps = Arrays.asList("a-idle", "b-idle");
-        StepsUtil.setAppsToDeploy(context, apps);
+        execution.setVariable(Variables.APPS_TO_DEPLOY, apps);
 
         step.execute(context);
         assertStepFinishedSuccessfully();
@@ -63,7 +65,7 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
         Mockito.when(subscriptionService.createQuery())
                .thenReturn(query);
 
-        StepsUtil.setAppsToDeploy(context, Collections.singletonList("a-idle"));
+        execution.setVariable(Variables.APPS_TO_DEPLOY, Collections.singletonList("a-idle"));
 
         step.execute(context);
         assertStepFinishedSuccessfully();

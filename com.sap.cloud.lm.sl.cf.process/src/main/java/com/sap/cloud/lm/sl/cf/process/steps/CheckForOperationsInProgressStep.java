@@ -52,7 +52,7 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
 
         Map<String, ServiceOperation.Type> servicesOperationTypes = getServicesOperationTypes(servicesInProgressState);
         getStepLogger().debug(Messages.SERVICES_IN_PROGRESS, JsonUtil.toJson(servicesOperationTypes, true));
-        StepsUtil.setTriggeredServiceOperations(execution.getContext(), servicesOperationTypes);
+        execution.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, servicesOperationTypes);
 
         List<CloudServiceExtended> servicesWithData = getListOfServicesWithData(servicesInProgressState);
         StepsUtil.setServicesData(execution.getContext(), servicesWithData);

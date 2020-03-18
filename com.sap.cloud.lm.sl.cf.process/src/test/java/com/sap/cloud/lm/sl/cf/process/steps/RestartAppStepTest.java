@@ -37,7 +37,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
         Mockito.verify(client, Mockito.times(1))
                .startApplication(APP_NAME);
 
-        assertEquals(JsonUtil.toJson(startingInfo), JsonUtil.toJson(StepsUtil.getStartingInfo(context)));
+        assertEquals(JsonUtil.toJson(startingInfo), JsonUtil.toJson(execution.getVariable(Variables.STARTING_INFO)));
     }
 
     @Override
@@ -59,7 +59,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
         Mockito.verify(client)
                .startApplication(APP_NAME);
 
-        assertEquals(JsonUtil.toJson(startingInfo), JsonUtil.toJson(StepsUtil.getStartingInfo(context)));
+        assertEquals(JsonUtil.toJson(startingInfo), JsonUtil.toJson(execution.getVariable(Variables.STARTING_INFO)));
     }
 
     private CloudApplicationExtended createApplication(String name, State state) {

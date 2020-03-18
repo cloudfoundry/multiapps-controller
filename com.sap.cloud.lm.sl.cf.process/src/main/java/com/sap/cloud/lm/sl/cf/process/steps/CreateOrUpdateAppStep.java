@@ -70,7 +70,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         CloudControllerClient client = execution.getControllerClient();
         CloudApplication existingApp = client.getApplication(app.getName(), false);
-        StepsUtil.setExistingApp(execution.getContext(), existingApp);
+        execution.setVariable(Variables.EXISTING_APP, existingApp);
 
         StepFlowHandler flowHandler = createStepFlowHandler(execution, client, app, existingApp);
 
@@ -117,7 +117,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             Map<String, String> appServiceKeysCredentials = buildServiceKeysCredentials(client, app, appEnv);
             app = ImmutableCloudApplicationExtended.copyOf(app)
                                                    .withEnv(appEnv);
-            updateContextWithServiceKeysCredentials(execution.getContext(), app, appServiceKeysCredentials);
+            updateContextWithServiceKeysCredentials(app, appServiceKeysCredentials);
         }
 
         private Map<String, String> buildServiceKeysCredentials(CloudControllerClient client, CloudApplicationExtended app,
@@ -134,14 +134,13 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             return appServiceKeysCredentials;
         }
 
-        private void updateContextWithServiceKeysCredentials(DelegateExecution context, CloudApplicationExtended app,
-                                                             Map<String, String> appServiceKeysCredentials) {
-            Map<String, Map<String, String>> serviceKeysCredentialsToInject = StepsUtil.getServiceKeysCredentialsToInject(context);
+        private void updateContextWithServiceKeysCredentials(CloudApplicationExtended app, Map<String, String> appServiceKeysCredentials) {
+            Map<String, Map<String, String>> serviceKeysCredentialsToInject = execution.getVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT);
             serviceKeysCredentialsToInject.put(app.getName(), appServiceKeysCredentials);
 
             // Update current process context
             execution.setVariable(Variables.APP_TO_PROCESS, app);
-            StepsUtil.setServiceKeysCredentialsToInject(context, serviceKeysCredentialsToInject);
+            execution.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysCredentialsToInject);
         }
 
         public abstract void printStepStartMessage();

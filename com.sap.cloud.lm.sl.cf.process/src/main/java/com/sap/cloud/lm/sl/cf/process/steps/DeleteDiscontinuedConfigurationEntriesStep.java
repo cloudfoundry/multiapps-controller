@@ -17,6 +17,7 @@ import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("deleteDiscontinuedConfigurationEntriesStep")
@@ -51,7 +52,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
             }
         }
         getStepLogger().debug(Messages.DELETED_ENTRIES, JsonUtil.toJson(entriesToDelete, true));
-        StepsUtil.setDeletedEntries(execution.getContext(), entriesToDelete);
+        execution.setVariable(Variables.DELETED_ENTRIES, entriesToDelete);
 
         getStepLogger().debug(Messages.PUBLISHED_DEPENDENCIES_DELETED);
         return StepPhase.DONE;

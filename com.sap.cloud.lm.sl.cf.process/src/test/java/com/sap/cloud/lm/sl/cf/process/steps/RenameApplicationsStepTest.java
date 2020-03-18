@@ -41,8 +41,8 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
     }
 
     private void prepareContext() {
-        StepsUtil.setDeployedMta(context,
-                                 JsonUtil.fromJson(TestUtil.getResourceAsString("deployed-mta-01.json", getClass()), DeployedMta.class));
+        execution.setVariable(Variables.DEPLOYED_MTA,
+                              JsonUtil.fromJson(TestUtil.getResourceAsString("deployed-mta-01.json", getClass()), DeployedMta.class));
 
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
@@ -53,7 +53,7 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
     @Test
     public void testOldNewSuffixRenaming() {
         context.setVariable(Constants.PARAM_KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
-        StepsUtil.setAppsToRename(context, Collections.singletonList("a"));
+        execution.setVariable(Variables.APPS_TO_RENAME, Collections.singletonList("a"));
 
         step.execute(context);
         assertStepFinishedSuccessfully();

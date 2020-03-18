@@ -65,7 +65,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                  .info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
         CloudService existingService = controllerClient.getService(serviceToProcess.getName(), false);
 
-        Map<String, List<CloudServiceKey>> serviceKeys = StepsUtil.getServiceKeysToCreate(execution.getContext());
+        Map<String, List<CloudServiceKey>> serviceKeys = execution.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
 
         setServiceParameters(execution, serviceToProcess);
 
@@ -143,7 +143,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
         if (shouldRecreate) {
             getStepLogger().debug("Service should be recreated");
-            StepsUtil.setServicesToDelete(execution.getContext(), Collections.singletonList(service.getName()));
+            execution.setVariable(Variables.SERVICES_TO_DELETE, Collections.singletonList(service.getName()));
             actions.add(ServiceAction.RECREATE);
             return actions;
         }

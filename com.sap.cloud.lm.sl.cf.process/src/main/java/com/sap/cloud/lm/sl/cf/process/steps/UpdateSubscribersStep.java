@@ -51,6 +51,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscription
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.helpers.VisitableObject;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -125,8 +126,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
                 addApplicationToProperList(updatedSubscribers, updatedServiceBrokerSubscribers, updatedApplication);
             }
         }
-        StepsUtil.setUpdatedSubscribers(execution.getContext(), removeDuplicates(updatedSubscribers));
-        StepsUtil.setUpdatedServiceBrokerSubscribers(execution.getContext(), updatedServiceBrokerSubscribers);
+        execution.setVariable(Variables.UPDATED_SUBSCRIBERS, removeDuplicates(updatedSubscribers));
+        execution.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS, updatedServiceBrokerSubscribers);
         getStepLogger().debug(Messages.SUBSCRIBERS_UPDATED);
         return StepPhase.DONE;
     }

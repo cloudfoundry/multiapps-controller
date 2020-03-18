@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("checkServicesToDeleteStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -17,7 +18,7 @@ public class CheckServicesToDeleteStep extends CheckForOperationsInProgressStep 
 
     @Override
     protected List<CloudServiceExtended> getServicesToProcess(ExecutionWrapper execution) {
-        List<String> servicesToDelete = StepsUtil.getServicesToDelete(execution.getContext());
+        List<String> servicesToDelete = execution.getVariable(Variables.SERVICES_TO_DELETE);
         return servicesToDelete.stream()
                                .map(this::buildCloudServiceExtended)
                                .collect(Collectors.toList());

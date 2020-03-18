@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaDetector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
@@ -37,13 +38,14 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
         List<DeployedMta> deployedComponents = Arrays.asList(deployedMta);
 
         when(deployedMtaDetector.detectDeployedMtas(Mockito.any(CloudControllerClient.class))).thenReturn(deployedComponents);
-        when(deployedMtaDetector.detectDeployedMta(Mockito.eq(MTA_ID), Mockito.any(CloudControllerClient.class))).thenReturn(Optional.of(deployedMta));
+        when(deployedMtaDetector.detectDeployedMta(Mockito.eq(MTA_ID),
+                                                   Mockito.any(CloudControllerClient.class))).thenReturn(Optional.of(deployedMta));
 
         step.execute(context);
 
         assertStepFinishedSuccessfully();
 
-        tester.test(() -> StepsUtil.getDeployedMta(context), new Expectation(Expectation.Type.JSON, DEPLOYED_MTA_LOCATION));
+        tester.test(() -> execution.getVariable(Variables.DEPLOYED_MTA), new Expectation(Expectation.Type.JSON, DEPLOYED_MTA_LOCATION));
     }
 
     @Test
@@ -55,7 +57,7 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
 
         assertStepFinishedSuccessfully();
 
-        assertNull(StepsUtil.getDeployedMta(context));
+        assertNull(execution.getVariable(Variables.DEPLOYED_MTA));
     }
 
     @Before

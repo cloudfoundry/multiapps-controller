@@ -85,7 +85,7 @@ public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<C
     }
 
     private void validateExecution(String serviceName, ServiceOperation.Type expectedTriggeredServiceOperation, String expectedStatus) {
-        Map<String, ServiceOperation.Type> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(context);
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = execution.getVariable(Variables.TRIGGERED_SERVICE_OPERATIONS);
         ServiceOperation.Type serviceOperationType = MapUtils.getObject(triggeredServiceOperations, serviceName);
         assertEquals(serviceOperationType, expectedTriggeredServiceOperation);
         assertEquals(expectedStatus, getExecutionStatus());

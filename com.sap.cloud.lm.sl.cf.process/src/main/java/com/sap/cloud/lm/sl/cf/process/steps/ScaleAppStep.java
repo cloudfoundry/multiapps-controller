@@ -20,7 +20,7 @@ public class ScaleAppStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         CloudApplication app = execution.getVariable(Variables.APP_TO_PROCESS);
 
-        CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
+        CloudApplication existingApp = execution.getVariable(Variables.EXISTING_APP);
 
         getStepLogger().debug(Messages.SCALING_APP, app.getName());
 

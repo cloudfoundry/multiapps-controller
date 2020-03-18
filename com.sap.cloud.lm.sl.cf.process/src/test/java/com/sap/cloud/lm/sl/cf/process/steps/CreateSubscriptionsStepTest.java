@@ -27,6 +27,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -90,7 +91,7 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
         List<ConfigurationSubscription> subscriptions = new ArrayList<>();
         subscriptions.addAll(input.subscriptionsToCreate);
         subscriptions.addAll(input.subscriptionsToUpdate);
-        StepsUtil.setSubscriptionsToCreate(context, subscriptions);
+        execution.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, subscriptions);
     }
 
     private void prepareSubscriptionService() {

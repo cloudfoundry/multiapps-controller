@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataAnnotations;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataLabels;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachServicesFromMtaStep> {
 
@@ -68,7 +69,7 @@ public class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachSe
     }
 
     private void prepareContext(List<String> servicesToDelete) {
-        StepsUtil.setServicesToDelete(context, servicesToDelete);
+        execution.setVariable(Variables.SERVICES_TO_DELETE, servicesToDelete);
     }
 
     private void prepareClient(List<SimpleServiceInstance> servicesToDelete) {

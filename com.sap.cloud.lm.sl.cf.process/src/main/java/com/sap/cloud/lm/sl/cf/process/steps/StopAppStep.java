@@ -31,7 +31,7 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
         CloudApplication app = execution.getVariable(Variables.APP_TO_PROCESS);
 
         // Get the existing application from the context
-        CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
+        CloudApplication existingApp = execution.getVariable(Variables.EXISTING_APP);
 
         if (existingApp != null && !existingApp.getState()
                                                .equals(State.STOPPED)) {

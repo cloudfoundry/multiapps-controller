@@ -65,7 +65,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
             MtaArchiveHelper helper = createInitializedMtaArchiveHelper(appArchiveStream);
             getStepLogger().debug("MTA Archive ID: {0}", appArchiveId);
             MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
-            addMtaArchiveModulesInMtaArchiveElements(helper, mtaArchiveElements, execution.getContext());
+            addMtaArchiveModulesInMtaArchiveElements(execution, helper, mtaArchiveElements);
             addMtaRequiredDependenciesInMtaArchiveElements(helper, mtaArchiveElements);
             addMtaArchiveResourcesInMtaArchiveElements(helper, mtaArchiveElements);
             execution.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
@@ -83,12 +83,12 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         return new MtaArchiveHelper(manifest);
     }
 
-    private void addMtaArchiveModulesInMtaArchiveElements(MtaArchiveHelper helper, MtaArchiveElements mtaArchiveElements,
-                                                          DelegateExecution context) {
+    private void addMtaArchiveModulesInMtaArchiveElements(ExecutionWrapper execution, MtaArchiveHelper helper,
+                                                          MtaArchiveElements mtaArchiveElements) {
         Map<String, String> mtaArchiveModules = helper.getMtaArchiveModules();
         mtaArchiveModules.forEach(mtaArchiveElements::addModuleFileName);
         getStepLogger().debug("MTA Archive Modules: {0}", mtaArchiveModules.keySet());
-        StepsUtil.setMtaArchiveModules(context, mtaArchiveModules.keySet());
+        execution.setVariable(Variables.MTA_ARCHIVE_MODULES, mtaArchiveModules.keySet());
     }
 
     private void addMtaRequiredDependenciesInMtaArchiveElements(MtaArchiveHelper helper, MtaArchiveElements mtaArchiveElements) {

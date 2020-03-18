@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("detectApplicationsToRenameStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -29,13 +30,13 @@ public class DetectApplicationsToRenameStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         DelegateExecution context = execution.getContext();
-        //This is set here in case of the step returning early or failing because the call activity
-        //following this step needs this variable, otherwise Flowable will throw an exception
+        // This is set here in case of the step returning early or failing because the call activity
+        // following this step needs this variable, otherwise Flowable will throw an exception
         StepsUtil.setAppsToUndeploy(context, Collections.emptyList());
         if (!StepsUtil.getKeepOriginalAppNamesAfterDeploy(execution.getContext())) {
             return StepPhase.DONE;
         }
-        DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
+        DeployedMta deployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
         if (deployedMta == null) {
             return StepPhase.DONE;
         }
@@ -44,9 +45,9 @@ public class DetectApplicationsToRenameStep extends SyncFlowableStep {
         List<String> appsToRename = computeOldAppsToRename(deployedAppNames);
         List<String> appsToUndeploy = computeLeftoverAppsToUndeploy(deployedAppNames);
 
-        StepsUtil.setAppsToRename(context, appsToRename);
+        execution.setVariable(Variables.APPS_TO_RENAME, appsToRename);
         setAppsToUndeploy(execution, appsToUndeploy);
-        updateDeployedMta(context, deployedMta, appsToRename, appsToUndeploy);
+        updateDeployedMta(execution, deployedMta, appsToRename, appsToUndeploy);
 
         return StepPhase.DONE;
     }
@@ -73,7 +74,7 @@ public class DetectApplicationsToRenameStep extends SyncFlowableStep {
         StepsUtil.setAppsToUndeploy(execution.getContext(), apps);
     }
 
-    private void updateDeployedMta(DelegateExecution context, DeployedMta deployedMta, List<String> appsToUpdate,
+    private void updateDeployedMta(ExecutionWrapper execution, DeployedMta deployedMta, List<String> appsToUpdate,
                                    List<String> appsToUndeploy) {
         if (appsToUpdate.isEmpty()) {
             return;
@@ -83,8 +84,8 @@ public class DetectApplicationsToRenameStep extends SyncFlowableStep {
                                                        .filter(app -> !appsToUndeploy.contains(app.getName()))
                                                        .map(app -> updateDeployedAppNameIfNeeded(app, appsToUpdate))
                                                        .collect(Collectors.toList());
-        StepsUtil.setDeployedMta(context, ImmutableDeployedMta.copyOf(deployedMta)
-                                                              .withApplications(updatedApps));
+        execution.setVariable(Variables.DEPLOYED_MTA, ImmutableDeployedMta.copyOf(deployedMta)
+                                                                          .withApplications(updatedApps));
     }
 
     private DeployedMtaApplication updateDeployedAppNameIfNeeded(DeployedMtaApplication app, List<String> appsToUpdate) {
