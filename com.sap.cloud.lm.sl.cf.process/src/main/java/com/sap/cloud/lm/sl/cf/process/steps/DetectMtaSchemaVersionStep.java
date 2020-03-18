@@ -5,12 +5,12 @@ import java.util.function.Supplier;
 
 import javax.inject.Named;
 
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.SchemaVersionDetector;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -27,7 +27,7 @@ public class DetectMtaSchemaVersionStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.DETECTING_MTA_MAJOR_SCHEMA_VERSION);
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
+        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         List<ExtensionDescriptor> extensionDescriptors = StepsUtil.getExtensionDescriptorChain(execution.getContext());
 
         SchemaVersionDetector detector = detectorSupplier.get();
@@ -47,7 +47,7 @@ public class DetectMtaSchemaVersionStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_DETECTING_MTA_MAJOR_SCHEMA_VERSION;
     }
 

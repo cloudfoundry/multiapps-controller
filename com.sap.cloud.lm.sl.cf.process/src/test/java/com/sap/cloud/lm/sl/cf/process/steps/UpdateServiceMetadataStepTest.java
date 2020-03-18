@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class UpdateServiceMetadataStepTest extends SyncFlowableStepTest<UpdateServiceMetadataStep> {
 
@@ -44,7 +45,7 @@ public class UpdateServiceMetadataStepTest extends SyncFlowableStepTest<UpdateSe
     }
 
     private void prepareServiceToProcess(CloudServiceExtended serviceToProcess) {
-        StepsUtil.setServiceToProcess(serviceToProcess, context);
+        execution.setVariable(Variables.SERVICE_TO_PROCESS, serviceToProcess);
     }
 
     private void prepareClient(CloudServiceExtended serviceToProcess) {

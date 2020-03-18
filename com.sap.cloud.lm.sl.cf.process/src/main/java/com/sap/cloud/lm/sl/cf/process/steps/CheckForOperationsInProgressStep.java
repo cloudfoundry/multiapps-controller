@@ -13,7 +13,6 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudService;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -23,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("checkForOperationsInProgressStep")
@@ -61,7 +61,7 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
     }
 
     protected List<CloudServiceExtended> getServicesToProcess(ExecutionWrapper execution) {
-        return Collections.singletonList(StepsUtil.getServiceToProcess(execution.getContext()));
+        return Collections.singletonList(execution.getVariable(Variables.SERVICE_TO_PROCESS));
     }
 
     private List<CloudServiceExtended> getExistingServices(CloudControllerClient cloudControllerClient,
@@ -119,7 +119,7 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_MONITORING_OPERATIONS_OVER_SERVICES;
     }
 

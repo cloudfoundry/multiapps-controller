@@ -20,9 +20,11 @@ import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.builders.ExtensionDescriptorChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
 
 public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest<ProcessMtaExtensionDescriptorsStep> {
@@ -74,7 +76,8 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
 
         context.setVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, String.join(",", fileIdToExtensionDescriptor.keySet()));
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
-        StepsUtil.setDeploymentDescriptor(context, DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass()));
+        DeploymentDescriptor descriptor = DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass());
+        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
 
         prepareFileService(fileIdToExtensionDescriptor);
     }

@@ -9,12 +9,12 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudTask;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("deleteApplicationStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -33,8 +33,8 @@ public class DeleteApplicationStep extends UndeployAppStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
-        return MessageFormat.format(Messages.ERROR_DELETING_APP, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
+        return MessageFormat.format(Messages.ERROR_DELETING_APP, execution.getVariable(Variables.APP_TO_PROCESS)
                                                                           .getName());
     }
 

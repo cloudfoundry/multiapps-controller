@@ -12,17 +12,17 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
 
     @Override
     public StepPhase executeStep(ExecutionWrapper execution) throws Exception {
-        boolean hasTimedOut = hasTimedOut(execution.getContext());
+        boolean hasTimedOut = hasTimedOut(execution);
         if (hasTimedOut) {
             throw new SLException(MessageFormat.format(Messages.EXECUTION_OF_STEP_HAS_TIMED_OUT, getStepName()));
         }
         return super.executeStep(execution);
     }
 
-    private boolean hasTimedOut(DelegateExecution context) {
-        long stepStartTime = getStepStartTime(context);
+    private boolean hasTimedOut(ExecutionWrapper execution) {
+        long stepStartTime = getStepStartTime(execution.getContext());
         long currentTime = System.currentTimeMillis();
-        return (currentTime - stepStartTime) >= getTimeout(context) * 1000;
+        return (currentTime - stepStartTime) >= getTimeout(execution) * 1000;
     }
 
     private long getStepStartTime(DelegateExecution context) {
@@ -47,5 +47,5 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
         return getClass().getSimpleName();
     }
 
-    public abstract Integer getTimeout(DelegateExecution context);
+    public abstract Integer getTimeout(ExecutionWrapper execution);
 }

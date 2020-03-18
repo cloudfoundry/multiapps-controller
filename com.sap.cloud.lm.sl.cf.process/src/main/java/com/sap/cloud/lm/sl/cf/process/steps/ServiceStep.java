@@ -19,6 +19,7 @@ import com.sap.cloud.lm.sl.cf.core.util.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public abstract class ServiceStep extends AsyncFlowableStep {
@@ -34,7 +35,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
 
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
-        CloudServiceExtended serviceToProcess = StepsUtil.getServiceToProcess(execution.getContext());
+        CloudServiceExtended serviceToProcess = execution.getVariable(Variables.SERVICE_TO_PROCESS);
         MethodExecution<String> methodExecution = executeOperationAndHandleExceptions(execution.getContext(),
                                                                                       execution.getControllerClient(), serviceToProcess);
         if (methodExecution.getState()
@@ -54,7 +55,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_SERVICE_OPERATION;
     }
 

@@ -16,6 +16,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.builders.ExtensionDescriptorChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
@@ -36,7 +37,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
         List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(context);
         String spaceId = StepsUtil.getSpaceId(context);
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
+        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
 
         List<ExtensionDescriptor> extensionDescriptors = parseExtensionDescriptors(spaceId, extensionDescriptorFileIds);
         List<ExtensionDescriptor> extensionDescriptorChain = extensionDescriptorChainBuilder.build(deploymentDescriptor,
@@ -48,7 +49,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS;
     }
 

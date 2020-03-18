@@ -19,6 +19,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
@@ -41,8 +42,8 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
-        return MessageFormat.format(Messages.ERROR_DELETING_APP_ROUTES, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
+        return MessageFormat.format(Messages.ERROR_DELETING_APP_ROUTES, execution.getVariable(Variables.APP_TO_PROCESS)
                                                                                  .getName());
     }
 

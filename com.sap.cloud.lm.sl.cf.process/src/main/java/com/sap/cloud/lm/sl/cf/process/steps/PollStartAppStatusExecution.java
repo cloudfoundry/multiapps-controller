@@ -12,7 +12,6 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.InstanceInfo;
 import org.cloudfoundry.client.lib.domain.InstanceState;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +19,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class PollStartAppStatusExecution implements AsyncExecution {
 
@@ -37,7 +37,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) {
-        String appToPoll = getAppToPoll(execution.getContext()).getName();
+        String appToPoll = getAppToPoll(execution).getName();
         CloudControllerClient client = execution.getControllerClient();
 
         execution.getStepLogger()
@@ -55,12 +55,12 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     }
 
     public String getPollingErrorMessage(ExecutionWrapper execution) {
-        String appToPoll = getAppToPoll(execution.getContext()).getName();
+        String appToPoll = getAppToPoll(execution).getName();
         return format(Messages.ERROR_STARTING_APP_0, appToPoll);
     }
 
-    protected CloudApplication getAppToPoll(DelegateExecution context) {
-        return StepsUtil.getApp(context);
+    protected CloudApplication getAppToPoll(ExecutionWrapper execution) {
+        return execution.getVariable(Variables.APP_TO_PROCESS);
     }
 
     private StartupStatus getStartupStatus(ExecutionWrapper execution, CloudApplication app, List<InstanceInfo> appInstances) {

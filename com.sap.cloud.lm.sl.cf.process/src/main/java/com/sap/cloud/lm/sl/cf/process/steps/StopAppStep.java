@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 
 @Named("stopAppStep")
@@ -27,7 +28,7 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
     @Override
     protected StepPhase executeStepInternal(ExecutionWrapper execution) {
         // Get the next cloud application from the context
-        CloudApplication app = StepsUtil.getApp(execution.getContext());
+        CloudApplication app = execution.getVariable(Variables.APP_TO_PROCESS);
 
         // Get the existing application from the context
         CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
@@ -51,8 +52,8 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
-        return MessageFormat.format(Messages.ERROR_STOPPING_APP, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
+        return MessageFormat.format(Messages.ERROR_STOPPING_APP, execution.getVariable(Variables.APP_TO_PROCESS)
                                                                           .getName());
     }
 

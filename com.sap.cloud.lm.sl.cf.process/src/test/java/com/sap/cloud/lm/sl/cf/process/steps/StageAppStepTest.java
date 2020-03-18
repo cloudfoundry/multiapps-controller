@@ -62,7 +62,7 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
     public void testGetErrorMessage() {
         String applicationName = "another-app";
         mockApplication(applicationName);
-        Assertions.assertEquals(MessageFormat.format(Messages.ERROR_STAGING_APP_0, applicationName), step.getStepErrorMessage(context));
+        Assertions.assertEquals(MessageFormat.format(Messages.ERROR_STAGING_APP_0, applicationName), step.getStepErrorMessage(execution));
     }
 
     @Test
@@ -74,7 +74,7 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
 
     @Test
     public void testGetTimeoutDefaultValue() {
-        Assertions.assertEquals(Constants.DEFAULT_START_TIMEOUT, step.getTimeout(context));
+        Assertions.assertEquals(Constants.DEFAULT_START_TIMEOUT, step.getTimeout(execution));
     }
 
     @Test
@@ -82,7 +82,7 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
         int timeout = 10;
         Mockito.when(context.getVariable(Constants.PARAM_START_TIMEOUT))
                .thenReturn(timeout);
-        Assertions.assertEquals(timeout, step.getTimeout(context));
+        Assertions.assertEquals(timeout, step.getTimeout(execution));
     }
 
     @Override

@@ -34,10 +34,6 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
         return StepPhase.RETRY;
     }
 
-    protected void onPollingError(DelegateExecution context, Exception e) throws Exception {
-        processException(e, getStepErrorMessage(context), getStepErrorMessageAdditionalDescription(context));
-    }
-
     private AsyncExecution getStepExecution(ExecutionWrapper execution, List<AsyncExecution> stepOperations) {
         Integer operationIndex = getStepExecutionIndex(execution.getContext());
         return stepOperations.get(operationIndex);

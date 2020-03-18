@@ -49,6 +49,7 @@ import com.sap.cloud.lm.sl.cf.process.util.MemoryApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationUtil;
 import com.sap.cloud.lm.sl.cf.process.util.StagingApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.cf.process.util.UrisApplicationAttributeUpdater;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -65,7 +66,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws FileStorageException {
-        CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
+        CloudApplicationExtended app = execution.getVariable(Variables.APP_TO_PROCESS);
 
         CloudControllerClient client = execution.getControllerClient();
         CloudApplication existingApp = client.getApplication(app.getName(), false);
@@ -86,8 +87,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
-        return MessageFormat.format(Messages.ERROR_CREATING_OR_UPDATING_APP, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
+        return MessageFormat.format(Messages.ERROR_CREATING_OR_UPDATING_APP, execution.getVariable(Variables.APP_TO_PROCESS)
                                                                                       .getName());
     }
 
@@ -139,7 +140,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             serviceKeysCredentialsToInject.put(app.getName(), appServiceKeysCredentials);
 
             // Update current process context
-            StepsUtil.setApp(context, app);
+            execution.setVariable(Variables.APP_TO_PROCESS, app);
             StepsUtil.setServiceKeysCredentialsToInject(context, serviceKeysCredentialsToInject);
         }
 
@@ -185,7 +186,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         @Override
         public void handleApplicationServices() throws FileStorageException {
             List<String> services = app.getServices();
-            Map<String, Map<String, Object>> bindingParameters = getBindingParameters(execution.getContext(), app);
+            Map<String, Map<String, Object>> bindingParameters = getBindingParameters(execution, app);
             for (String serviceName : services) {
                 Map<String, Object> bindingParametersForCurrentService = getBindingParametersForService(serviceName, bindingParameters);
                 bindService(execution, client, app.getName(), serviceName, bindingParametersForCurrentService);
@@ -257,7 +258,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             List<String> services = app.getServices();
             boolean hasUnboundServices = unbindServicesIfNeeded(app, existingApp, client, services);
 
-            Map<String, Map<String, Object>> bindingParameters = getBindingParameters(execution.getContext(), app);
+            Map<String, Map<String, Object>> bindingParameters = getBindingParameters(execution, app);
 
             boolean hasUpdatedServices = updateServices(execution.getContext(), app.getName(), bindingParameters, client,
                                                         calculateServicesForUpdate(app, existingApp.getServices()));
@@ -400,15 +401,15 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
     }
 
-    private Map<String, Map<String, Object>> getBindingParameters(DelegateExecution context, CloudApplicationExtended app)
+    private Map<String, Map<String, Object>> getBindingParameters(ExecutionWrapper execution, CloudApplicationExtended app)
         throws FileStorageException {
-        List<CloudServiceExtended> services = getServices(StepsUtil.getServicesToBind(context), app.getServices());
+        List<CloudServiceExtended> services = getServices(StepsUtil.getServicesToBind(execution.getContext()), app.getServices());
 
         Map<String, Map<String, Object>> descriptorProvidedBindingParameters = app.getBindingParameters();
         if (descriptorProvidedBindingParameters == null) {
             descriptorProvidedBindingParameters = Collections.emptyMap();
         }
-        Map<String, Map<String, Object>> fileProvidedBindingParameters = getFileProvidedBindingParameters(context, app.getModuleName(),
+        Map<String, Map<String, Object>> fileProvidedBindingParameters = getFileProvidedBindingParameters(execution, app.getModuleName(),
                                                                                                           services);
         Map<String, Map<String, Object>> bindingParameters = mergeBindingParameters(descriptorProvidedBindingParameters,
                                                                                     fileProvidedBindingParameters);
@@ -422,23 +423,23 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                        .collect(Collectors.toList());
     }
 
-    private Map<String, Map<String, Object>> getFileProvidedBindingParameters(DelegateExecution context, String moduleName,
+    private Map<String, Map<String, Object>> getFileProvidedBindingParameters(ExecutionWrapper execution, String moduleName,
                                                                               List<CloudServiceExtended> services)
         throws FileStorageException {
         Map<String, Map<String, Object>> result = new TreeMap<>();
         for (CloudServiceExtended service : services) {
             String requiredDependencyName = ValidatorUtil.getPrefixedName(moduleName, service.getResourceName(),
                                                                           com.sap.cloud.lm.sl.cf.core.Constants.MTA_ELEMENT_SEPARATOR);
-            addFileProvidedBindingParameters(context, service.getName(), requiredDependencyName, result);
+            addFileProvidedBindingParameters(execution, service.getName(), requiredDependencyName, result);
         }
         return result;
     }
 
-    private void addFileProvidedBindingParameters(DelegateExecution context, String serviceName, String requiredDependencyName,
+    private void addFileProvidedBindingParameters(ExecutionWrapper execution, String serviceName, String requiredDependencyName,
                                                   Map<String, Map<String, Object>> result)
         throws FileStorageException {
-        String archiveId = StepsUtil.getRequiredString(context, Constants.PARAM_APP_ARCHIVE_ID);
-        MtaArchiveElements mtaArchiveElements = StepsUtil.getMtaArchiveElements(context);
+        String archiveId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
+        MtaArchiveElements mtaArchiveElements = execution.getVariable(Variables.MTA_ARCHIVE_ELEMENTS);
         String fileName = mtaArchiveElements.getRequiredDependencyFileName(requiredDependencyName);
         if (fileName == null) {
             return;
@@ -450,7 +451,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
             }
         };
-        fileService.processFileContent(StepsUtil.getSpaceId(context), archiveId, fileProcessor);
+        fileService.processFileContent(StepsUtil.getSpaceId(execution.getContext()), archiveId, fileProcessor);
     }
 
     private static Map<String, Map<String, Object>>

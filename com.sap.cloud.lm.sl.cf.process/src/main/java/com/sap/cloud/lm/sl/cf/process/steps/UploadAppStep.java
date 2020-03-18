@@ -39,6 +39,7 @@ import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveReader;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationDigestDetector;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationZipBuilder;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Named("uploadAppStep")
@@ -54,14 +55,14 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public StepPhase executeAsyncStep(ExecutionWrapper execution) throws FileStorageException {
-        CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
+        CloudApplicationExtended app = execution.getVariable(Variables.APP_TO_PROCESS);
         String appName = app.getName();
 
         getStepLogger().info(Messages.UPLOADING_APP, appName);
         CloudControllerClient client = execution.getControllerClient();
 
         String appArchiveId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
-        MtaArchiveElements mtaArchiveElements = StepsUtil.getMtaArchiveElements(execution.getContext());
+        MtaArchiveElements mtaArchiveElements = execution.getVariable(Variables.MTA_ARCHIVE_ELEMENTS);
         String fileName = mtaArchiveElements.getModuleFileName(app.getModuleName());
 
         if (fileName == null) {
@@ -72,7 +73,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         String newApplicationDigest = getNewApplicationDigest(execution, appArchiveId, fileName);
         CloudApplication cloudApp = client.getApplication(appName);
         boolean contentChanged = detectApplicationFileDigestChanges(execution, cloudApp, client, newApplicationDigest);
-        if (!contentChanged && isAppStagedCorrectly(client, cloudApp)) {
+        if (!contentChanged && isAppStagedCorrectly(execution, cloudApp)) {
             getStepLogger().info(Messages.CONTENT_OF_APPLICATION_0_IS_NOT_CHANGED, appName);
             return StepPhase.DONE;
         }
@@ -81,18 +82,18 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         UploadToken uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
 
         getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, appName);
-        StepsUtil.setUploadToken(uploadToken, execution.getContext());
+        execution.setVariable(Variables.UPLOAD_TOKEN, uploadToken);
         return StepPhase.POLL;
     }
 
-    private boolean isAppStagedCorrectly(CloudControllerClient client, CloudApplication cloudApp) {
-        ApplicationStager appStager = new ApplicationStager(client);
-        return appStager.isApplicationStagedCorrectly(getStepLogger(), cloudApp);
+    private boolean isAppStagedCorrectly(ExecutionWrapper execution, CloudApplication cloudApp) {
+        ApplicationStager appStager = new ApplicationStager(execution);
+        return appStager.isApplicationStagedCorrectly(cloudApp);
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
-        return MessageFormat.format(Messages.ERROR_UPLOADING_APP_0, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
+        return MessageFormat.format(Messages.ERROR_UPLOADING_APP_0, execution.getVariable(Variables.APP_TO_PROCESS)
                                                                              .getName());
     }
 
@@ -202,8 +203,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     }
 
     @Override
-    public Integer getTimeout(DelegateExecution context) {
-        CloudApplication app = StepsUtil.getApp(context);
+    public Integer getTimeout(ExecutionWrapper execution) {
+        CloudApplication app = execution.getVariable(Variables.APP_TO_PROCESS);
         int uploadTimeout = extractUploadTimeoutFromAppAttributes(app, DEFAULT_APP_UPLOAD_TIMEOUT);
         getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadTimeout);
         return uploadTimeout;

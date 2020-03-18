@@ -1,19 +1,19 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+
 import com.sap.cloud.lm.sl.cf.core.model.BlueGreenApplicationNameSuffix;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.util.List;
 
 @Named("removeNewApplicationsSuffixStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -74,7 +74,7 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_RENAMING_NEW_APPLICATIONS;
     }
 

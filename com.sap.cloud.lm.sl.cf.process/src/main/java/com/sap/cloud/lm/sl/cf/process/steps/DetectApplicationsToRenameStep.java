@@ -1,12 +1,12 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import com.sap.cloud.lm.sl.cf.core.model.BlueGreenApplicationNameSuffix;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
-import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
-import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
-import com.sap.cloud.lm.sl.cf.process.Messages;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -14,12 +14,13 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import javax.inject.Named;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.sap.cloud.lm.sl.cf.core.model.BlueGreenApplicationNameSuffix;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
+import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
+import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
+import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 
 @Named("detectApplicationsToRenameStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -95,7 +96,7 @@ public class DetectApplicationsToRenameStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_DETECTING_APPLICATIONS_TO_RENAME;
     }
 

@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -188,7 +189,7 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
     }
 
     private void prepareContext() {
-        StepsUtil.setApp(context, input.application.toCloudApplication());
+        execution.setVariable(Variables.APP_TO_PROCESS, input.application.toCloudApplication());
         StepsUtil.setSpaceId(context, input.spaceGuid);
     }
 

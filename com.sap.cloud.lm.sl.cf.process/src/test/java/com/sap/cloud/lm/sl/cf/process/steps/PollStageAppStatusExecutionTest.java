@@ -31,6 +31,7 @@ import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
 import com.sap.cloud.lm.sl.cf.process.util.StagingState;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.process.util.ImmutableStagingState;
 
 public class PollStageAppStatusExecutionTest {
@@ -51,7 +52,7 @@ public class PollStageAppStatusExecutionTest {
     @Mock
     private CloudControllerClient client;
 
-    private ExecutionWrapper executionWrapper;
+    private ExecutionWrapper execution;
     private DelegateExecution context;
     private PollStageAppStatusExecution step;
 
@@ -59,7 +60,7 @@ public class PollStageAppStatusExecutionTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         context = MockDelegateExecution.createSpyInstance();
-        executionWrapper = new ExecutionWrapper(context, stepLogger, clientProvider);
+        execution = new ExecutionWrapper(context, stepLogger, clientProvider);
         step = new PollStageAppStatusExecution(recentLogsRetriever, applicationStager);
     }
 
@@ -83,15 +84,15 @@ public class PollStageAppStatusExecutionTest {
         StagingState stagingState = buildStagingState(applicationStageState);
         prepareApplicationStager(stagingState);
 
-        AsyncExecutionState executionState = step.execute(executionWrapper);
+        AsyncExecutionState executionState = step.execute(execution);
 
         assertEquals(expectedExecutionState, executionState);
     }
 
     @Test
     public void testPollingErrorMessage() {
-        StepsUtil.setApp(executionWrapper.getContext(), createCloudApplication("anatz"));
-        String pollingErrorMessage = step.getPollingErrorMessage(executionWrapper);
+        execution.setVariable(Variables.APP_TO_PROCESS, createCloudApplication("anatz"));
+        String pollingErrorMessage = step.getPollingErrorMessage(execution);
         Assertions.assertEquals("Error staging application \"anatz\"", pollingErrorMessage);
     }
 
@@ -113,7 +114,7 @@ public class PollStageAppStatusExecutionTest {
     private void prepareContext(CloudApplicationExtended application) {
         context.setVariable(Constants.VAR_USER, USER_NAME);
         context.setVariable(Constants.VAR_START_TIME, PROCESS_START_TIME);
-        StepsUtil.setApp(context, application);
+        execution.setVariable(Variables.APP_TO_PROCESS, application);
     }
 
     private void prepareClientProvider() {
@@ -132,6 +133,6 @@ public class PollStageAppStatusExecutionTest {
     }
 
     private void prepareApplicationStager(StagingState stagingState) {
-        when(applicationStager.getStagingState(any())).thenReturn(stagingState);
+        when(applicationStager.getStagingState()).thenReturn(stagingState);
     }
 }

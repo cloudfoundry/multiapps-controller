@@ -5,7 +5,6 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
-import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,7 +70,7 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
         }
 
         @Override
-        protected String getStepErrorMessage(DelegateExecution context) {
+        protected String getStepErrorMessage(ExecutionWrapper execution) {
             return "mock error";
         }
 

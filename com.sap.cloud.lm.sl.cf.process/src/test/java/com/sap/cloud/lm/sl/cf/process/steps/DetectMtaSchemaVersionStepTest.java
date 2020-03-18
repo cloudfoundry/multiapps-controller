@@ -20,6 +20,7 @@ import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.Messages;
 import com.sap.cloud.lm.sl.mta.handlers.SchemaVersionDetector;
@@ -87,7 +88,7 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
     public void setUp() {
         step.detectorSupplier = () -> versionDetector;
 
-        StepsUtil.setDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
+        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, DEPLOYMENT_DESCRIPTOR);
         StepsUtil.setExtensionDescriptorChain(context, Collections.emptyList());
     }
 

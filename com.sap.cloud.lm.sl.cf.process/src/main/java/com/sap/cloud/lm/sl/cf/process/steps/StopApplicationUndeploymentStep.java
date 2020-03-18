@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("stopApplicationUndeploymentStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -27,8 +28,8 @@ public class StopApplicationUndeploymentStep extends UndeployAppStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
-        return MessageFormat.format(Messages.ERROR_STOPPING_APP, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
+        return MessageFormat.format(Messages.ERROR_STOPPING_APP, execution.getVariable(Variables.APP_TO_PROCESS)
                                                                           .getName());
     }
 

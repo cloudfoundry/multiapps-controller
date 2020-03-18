@@ -14,6 +14,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorMerger;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
@@ -47,7 +48,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     private void prepareContext() {
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
-        StepsUtil.setDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
+        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, DEPLOYMENT_DESCRIPTOR);
         StepsUtil.setExtensionDescriptorChain(context, Collections.emptyList());
     }
 
@@ -59,7 +60,8 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
 
         assertStepFinishedSuccessfully();
 
-        tester.test(() -> StepsUtil.getDeploymentDescriptor(context), new Expectation(Expectation.Type.JSON, "node-hello-mtad.yaml.json"));
+        tester.test(() -> execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR),
+                    new Expectation(Expectation.Type.JSON, "node-hello-mtad.yaml.json"));
     }
 
     @Test(expected = SLException.class)

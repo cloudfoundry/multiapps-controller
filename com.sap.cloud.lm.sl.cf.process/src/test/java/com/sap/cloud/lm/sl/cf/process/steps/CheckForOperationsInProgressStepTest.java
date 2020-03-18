@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<CheckForOperationsInProgressStep> {
 
@@ -74,7 +75,7 @@ public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<C
 
     protected void prepareContext(CloudServiceExtended service) {
         StepsUtil.setSpaceId(context, TEST_SPACE_ID);
-        StepsUtil.setServiceToProcess(service, context);
+        execution.setVariable(Variables.SERVICE_TO_PROCESS, service);
     }
 
     private void prepareServiceInstanceGetter(CloudServiceExtended service, ServiceOperation serviceOperation) {

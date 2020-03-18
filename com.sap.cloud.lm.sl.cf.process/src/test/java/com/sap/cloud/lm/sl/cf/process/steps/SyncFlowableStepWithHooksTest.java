@@ -23,6 +23,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.steps.SyncFlowableStepWithHooks.ModuleHooksAggregator;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Hook;
@@ -34,6 +35,7 @@ public class SyncFlowableStepWithHooksTest {
     private ModuleHooksAggregator moduleHooksAggregatorMock;
 
     private final DelegateExecution context = MockDelegateExecution.createSpyInstance();
+    private final ExecutionWrapper execution = new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null);
 
     @BeforeEach
     public void setUp() {
@@ -55,7 +57,7 @@ public class SyncFlowableStepWithHooksTest {
         Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE))
                .thenReturn(moduleHooks);
 
-        new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
+        new SyncFlowableStepWithHooksMock().executeStep(execution);
 
         Mockito.verify(moduleHooksAggregatorMock)
                .aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE);
@@ -78,7 +80,7 @@ public class SyncFlowableStepWithHooksTest {
         Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE))
                .thenReturn(moduleHooks);
 
-        new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
+        new SyncFlowableStepWithHooksMock().executeStep(execution);
 
         Mockito.verify(moduleHooksAggregatorMock)
                .aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
@@ -204,13 +206,13 @@ public class SyncFlowableStepWithHooksTest {
                                                                                              .name(name)
                                                                                              .moduleName(moduleName)
                                                                                              .build();
-        StepsUtil.setApp(context, cloudApplicationExtended);
+        execution.setVariable(Variables.APP_TO_PROCESS, cloudApplicationExtended);
     }
 
     private void prepareDeploymentDescriptor(List<Module> modules) {
         DeploymentDescriptor deploymentDescriptorMock = DeploymentDescriptor.createV3()
                                                                             .setModules(modules);
-        StepsUtil.setCompleteDeploymentDescriptor(context, deploymentDescriptorMock);
+        execution.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, deploymentDescriptorMock);
     }
 
     private class SyncFlowableStepWithHooksMock extends SyncFlowableStepWithHooks {
@@ -251,7 +253,7 @@ public class SyncFlowableStepWithHooksTest {
         }
 
         @Override
-        protected String getStepErrorMessage(DelegateExecution context) {
+        protected String getStepErrorMessage(ExecutionWrapper execution) {
             return "generic error message";
         }
 

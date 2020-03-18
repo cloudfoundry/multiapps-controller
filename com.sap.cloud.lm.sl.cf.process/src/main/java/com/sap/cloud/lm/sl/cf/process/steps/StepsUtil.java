@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -23,17 +22,12 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.lib.domain.CloudTask;
-import org.cloudfoundry.client.lib.domain.UploadToken;
-import org.flowable.engine.RuntimeService;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.impl.context.Context;
-import org.flowable.engine.runtime.Execution;
 import org.flowable.variable.api.delegate.VariableScope;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
@@ -41,10 +35,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
-import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
@@ -52,19 +42,17 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ImmutableLogsOffset;
 import com.sap.cloud.lm.sl.cf.core.util.LogsOffset;
-import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.YamlUtil;
-import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
@@ -100,14 +88,6 @@ public class StepsUtil {
             throw new SLException(Messages.CANT_DETERMINE_CURRENT_USER);
         }
         return user;
-    }
-
-    public static MtaArchiveElements getMtaArchiveElements(VariableScope scope) {
-        return getFromJsonString(scope, Constants.VAR_MTA_ARCHIVE_ELEMENTS, MtaArchiveElements.class, new MtaArchiveElements());
-    }
-
-    public static void setMtaArchiveElements(VariableScope scope, MtaArchiveElements mtaArchiveElements) {
-        setAsJsonString(scope, Constants.VAR_MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
     }
 
     static InputStream getModuleContentAsStream(VariableScope scope, String moduleName) {
@@ -463,56 +443,12 @@ public class StepsUtil {
         setAsJsonBinary(scope, Constants.VAR_PUBLISHED_ENTRIES, publishedEntries);
     }
 
-    public static void setVariableInParentProcess(DelegateExecution context, String variablePrefix, Object variableValue) {
-        CloudApplicationExtended cloudApplication = StepsUtil.getApp(context);
-        if (cloudApplication == null) {
-            throw new IllegalStateException(Messages.CANNOT_DETERMINE_CURRENT_APPLICATION);
-        }
-
-        String moduleName = cloudApplication.getModuleName();
-        if (moduleName == null) {
-            throw new IllegalStateException(Messages.CANNOT_DETERMINE_MODULE_NAME);
-        }
-        String exportedVariableName = variablePrefix + moduleName;
-
-        RuntimeService runtimeService = Context.getProcessEngineConfiguration()
-                                               .getRuntimeService();
-
-        String superExecutionId = context.getParentId();
-        Execution superExecutionResult = runtimeService.createExecutionQuery()
-                                                       .executionId(superExecutionId)
-                                                       .singleResult();
-        superExecutionId = superExecutionResult.getSuperExecutionId();
-
-        byte[] binaryJson = variableValue == null ? null : JsonUtil.toJsonBinary(variableValue);
-        runtimeService.setVariable(superExecutionId, exportedVariableName, binaryJson);
-    }
-
     static void setDeployedMta(VariableScope scope, DeployedMta deployedMta) {
         setAsJsonBinary(scope, Constants.VAR_DEPLOYED_MTA, deployedMta);
     }
 
     protected static DeployedMta getDeployedMta(VariableScope scope) {
         return getFromJsonBinary(scope, Constants.VAR_DEPLOYED_MTA, DeployedMta.class);
-    }
-
-    public static DeploymentDescriptor getDeploymentDescriptor(VariableScope scope) {
-        return getFromJsonString(scope, Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR, DeploymentDescriptor.class);
-    }
-
-    public static DeploymentDescriptor getDeploymentDescriptorWithSystemParameters(VariableScope scope) {
-        return getFromJsonString(scope, Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, DeploymentDescriptor.class);
-    }
-
-    public static DeploymentDescriptor getCompleteDeploymentDescriptor(VariableScope scope) {
-        return getFromJsonString(scope, Constants.VAR_COMPLETE_MTA_DEPLOYMENT_DESCRIPTOR, DeploymentDescriptor.class);
-    }
-
-    public static Module findModuleInDeploymentDescriptor(VariableScope scope, String module) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
-        DeploymentDescriptor deploymentDescriptor = getCompleteDeploymentDescriptor(scope);
-        return handlerFactory.getDescriptorHandler()
-                             .findModule(deploymentDescriptor, module);
     }
 
     @SuppressWarnings("unchecked")
@@ -529,18 +465,6 @@ public class StepsUtil {
         return yamlList.stream()
                        .map(descriptorParserFacade::parseExtensionDescriptor)
                        .collect(Collectors.toList());
-    }
-
-    public static void setDeploymentDescriptor(VariableScope scope, DeploymentDescriptor deploymentDescriptor) {
-        setAsJsonString(scope, Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
-    }
-
-    public static void setDeploymentDescriptorWithSystemParameters(VariableScope scope, DeploymentDescriptor deploymentDescriptor) {
-        setAsJsonString(scope, Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, deploymentDescriptor);
-    }
-
-    public static void setCompleteDeploymentDescriptor(VariableScope scope, DeploymentDescriptor deploymentDescriptor) {
-        setAsJsonString(scope, Constants.VAR_COMPLETE_MTA_DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
     }
 
     static void setExtensionDescriptorChain(VariableScope scope, List<ExtensionDescriptor> extensionDescriptors) {
@@ -580,14 +504,6 @@ public class StepsUtil {
 
     static boolean getUserPropertiesChanged(VariableScope scope) {
         return getBoolean(scope, Constants.VAR_USER_PROPERTIES_CHANGED, false);
-    }
-
-    public static CloudApplicationExtended getApp(VariableScope scope) {
-        return getFromJsonString(scope, Constants.VAR_APP_TO_PROCESS, CloudApplicationExtended.class);
-    }
-
-    static void setApp(VariableScope scope, CloudApplicationExtended app) {
-        setAsJsonString(scope, Constants.VAR_APP_TO_PROCESS, app);
     }
 
     public static void setModuleToDeploy(VariableScope scope, Module module) {
@@ -751,56 +667,16 @@ public class StepsUtil {
         scope.setVariable(name, value + 1);
     }
 
-    static ApplicationCloudModelBuilder getApplicationCloudModelBuilder(VariableScope scope, UserMessageLogger stepLogger) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
+    static ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ExecutionWrapper execution) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
 
-        String deployId = DEPLOY_ID_PREFIX + getCorrelationId(scope);
+        String deployId = DEPLOY_ID_PREFIX + getCorrelationId(execution.getContext());
 
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(scope);
+        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
 
-        DeployedMta deployedMta = StepsUtil.getDeployedMta(scope);
+        DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
 
-        return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, stepLogger);
-    }
-
-    static List<String> getDomainsFromApps(VariableScope scope, DeploymentDescriptor descriptor,
-                                           ApplicationCloudModelBuilder applicationCloudModelBuilder, List<? extends Module> modules,
-                                           ModuleToDeployHelper moduleToDeployHelper) {
-
-        String defaultDomain = (String) descriptor.getParameters()
-                                                  .get(SupportedParameters.DEFAULT_DOMAIN);
-
-        Set<String> domains = new TreeSet<>();
-        for (Module module : modules) {
-            if (!moduleToDeployHelper.isApplication(module)) {
-                continue;
-            }
-            ParametersChainBuilder parametersChainBuilder = new ParametersChainBuilder(StepsUtil.getCompleteDeploymentDescriptor(scope));
-            List<String> appDomains = applicationCloudModelBuilder.getApplicationDomains(parametersChainBuilder.buildModuleChain(module.getName()),
-                                                                                         module);
-            if (appDomains != null) {
-                domains.addAll(appDomains);
-            }
-        }
-
-        if (defaultDomain != null) {
-            domains.remove(defaultDomain);
-        }
-
-        return new ArrayList<>(domains);
-    }
-
-    static ServicesCloudModelBuilder getServicesCloudModelBuilder(VariableScope scope) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(scope);
-
-        return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor);
-    }
-
-    static ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(VariableScope scope) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(scope);
-        return handlerFactory.getServiceKeysCloudModelBuilder(deploymentDescriptor);
+        return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, execution.getStepLogger());
     }
 
     static String getGitRepoRef(VariableScope scope) {
@@ -898,14 +774,6 @@ public class StepsUtil {
         return getBoolean(scope, Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE);
     }
 
-    public static CloudServiceExtended getServiceToProcess(VariableScope scope) {
-        return getFromJsonString(scope, Constants.VAR_SERVICE_TO_PROCESS, CloudServiceExtended.class);
-    }
-
-    public static void setServiceToProcess(CloudServiceExtended service, VariableScope scope) {
-        setAsJsonString(scope, Constants.VAR_SERVICE_TO_PROCESS, service);
-    }
-
     public static void setServiceActionsToExecute(List<ServiceAction> actions, VariableScope scope) {
         List<String> actionsStrings = actions.stream()
                                              .map(ServiceAction::toString)
@@ -957,14 +825,6 @@ public class StepsUtil {
         return variableWithCommaSeparator.isEmpty() ? Collections.emptyList() : Arrays.asList(variableWithCommaSeparator.split(","));
     }
 
-    public static void setUploadToken(UploadToken uploadToken, VariableScope scope) {
-        setAsJsonString(scope, Constants.VAR_UPLOAD_TOKEN, uploadToken);
-    }
-
-    public static UploadToken getUploadToken(VariableScope scope) {
-        return getFromJsonString(scope, Constants.VAR_UPLOAD_TOKEN, UploadToken.class);
-    }
-
     static void setExecutedHooksForModule(VariableScope scope, String moduleName, Map<String, List<String>> moduleHooks) {
         setAsJsonBinary(scope, getExecutedHooksForModuleVariableName(moduleName), moduleHooks);
     }
@@ -981,10 +841,6 @@ public class StepsUtil {
 
     static void setHooksForExecution(VariableScope scope, List<Hook> hooksForExecution) {
         setAsJsonStrings(scope, Constants.VAR_HOOKS_FOR_EXECUTION, hooksForExecution);
-    }
-
-    static Hook getHookForExecution(VariableScope scope) {
-        return getFromJsonString(scope, Constants.VAR_HOOK_FOR_EXECUTION, Hook.class);
     }
 
     public static <E> E getEnum(VariableScope scope, String name, Function<String, E> factory) {
@@ -1032,26 +888,6 @@ public class StepsUtil {
     public static <T> T getObject(VariableScope scope, String name, T defaultValue) {
         T value = (T) scope.getVariable(name);
         return value != null ? value : defaultValue;
-    }
-
-    public static <T> T getFromJsonString(VariableScope scope, String name, Class<T> classOfT) {
-        return getFromJsonString(scope, name, toTypeReference(classOfT));
-    }
-
-    public static <T> T getFromJsonString(VariableScope scope, String name, Class<T> classOfT, T defaultValue) {
-        return getFromJsonString(scope, name, toTypeReference(classOfT), defaultValue);
-    }
-
-    public static <T> T getFromJsonString(VariableScope scope, String name, TypeReference<T> type) {
-        return getFromJsonString(scope, name, type, null);
-    }
-
-    public static <T> T getFromJsonString(VariableScope scope, String name, TypeReference<T> type, T defaultValue) {
-        String stringJson = getString(scope, name);
-        if (stringJson == null) {
-            return defaultValue;
-        }
-        return JsonUtil.fromJson(stringJson, type);
     }
 
     public static <T> T getFromJsonBinary(VariableScope scope, String name, Class<T> classOfT) {
@@ -1134,15 +970,6 @@ public class StepsUtil {
         }
         byte[] jsonBinary = JsonUtil.toJsonBinary(value);
         scope.setVariable(name, jsonBinary);
-    }
-
-    public static void setAsJsonString(VariableScope scope, String name, Object value) {
-        if (value == null) {
-            scope.setVariable(name, null);
-            return;
-        }
-        String jsonString = JsonUtil.toJson(value);
-        scope.setVariable(name, jsonString);
     }
 
     public static void setAsJsonStrings(VariableScope scope, String name, List<?> values) {

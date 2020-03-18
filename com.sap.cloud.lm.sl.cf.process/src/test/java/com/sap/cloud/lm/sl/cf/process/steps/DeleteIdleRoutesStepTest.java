@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -67,7 +68,7 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
         CloudApplicationExtended appToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(appToDeployFile, getClass()),
                                                                  new TypeReference<CloudApplicationExtended>() {
                                                                  });
-        StepsUtil.setApp(context, appToDeploy);
+        execution.setVariable(Variables.APP_TO_PROCESS, appToDeploy);
     }
 
     private void prepareClient(CloudOperationException exceptionThrownByClient) {
@@ -106,7 +107,7 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
 
     @Test
     public void testErrorMessage() {
-        Assertions.assertEquals(Messages.ERROR_DELETING_IDLE_ROUTES, step.getStepErrorMessage(context));
+        Assertions.assertEquals(Messages.ERROR_DELETING_IDLE_ROUTES, step.getStepErrorMessage(execution));
     }
 
     @Test

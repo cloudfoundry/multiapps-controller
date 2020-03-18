@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -40,7 +41,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     }
 
     private void prepareContext() {
-        StepsUtil.setDeploymentDescriptorWithSystemParameters(context, DEPLOYMENT_DESCRIPTOR);
+        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, DEPLOYMENT_DESCRIPTOR);
 
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
         context.setVariable(Constants.PARAM_USE_NAMESPACES, false);
@@ -59,7 +60,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
 
         tester.test(() -> StepsUtil.getSubscriptionsToCreate(context), new Expectation("[]"));
 
-        tester.test(() -> StepsUtil.getCompleteDeploymentDescriptor(context),
+        tester.test(() -> execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR),
                     new Expectation(Expectation.Type.JSON, "node-hello-mtad-1.yaml.json"));
     }
 

@@ -8,6 +8,8 @@ import java.net.URL;
 import java.util.UUID;
 
 import com.sap.cloud.lm.sl.cf.process.util.ReadOnlyParametersChecker;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
+
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
@@ -61,7 +63,7 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
 
     protected void prepareDescriptor(String descriptorPath) {
         DeploymentDescriptor descriptor = DescriptorTestUtil.loadDeploymentDescriptor(descriptorPath, getClass());
-        StepsUtil.setDeploymentDescriptor(context, descriptor);
+        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
     }
 
     protected void prepareClient() {
