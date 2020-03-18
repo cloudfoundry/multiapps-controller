@@ -81,9 +81,6 @@ public class AuthorizationChecker {
     }
 
     boolean checkPermissions(UserInfo userInfo, String orgName, String spaceName, boolean readOnly) {
-        if (applicationConfiguration.areDummyTokensEnabled() && isDummyToken(userInfo)) {
-            return true;
-        }
         if (hasAdminScope(userInfo)) {
             return true;
         }
@@ -95,9 +92,6 @@ public class AuthorizationChecker {
     }
 
     boolean checkPermissions(UserInfo userInfo, String spaceId, boolean readOnly) {
-        if (applicationConfiguration.areDummyTokensEnabled() && isDummyToken(userInfo)) {
-            return true;
-        }
         if (hasAdminScope(userInfo)) {
             return true;
         }
@@ -160,12 +154,6 @@ public class AuthorizationChecker {
 
     private boolean hasAccess(CloudControllerClient client, String orgName, String spaceName) {
         return client.getSpace(orgName, spaceName, false) != null;
-    }
-
-    private boolean isDummyToken(UserInfo userInfo) {
-        return userInfo.getToken()
-                       .getValue()
-                       .equals(TokenFactory.DUMMY_TOKEN);
     }
 
     private boolean hasAdminScope(UserInfo userInfo) {

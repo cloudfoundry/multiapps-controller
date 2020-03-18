@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
@@ -19,39 +18,6 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 @RunWith(Enclosed.class)
 public class TokenFactoryTest {
-
-    @RunWith(Parameterized.class)
-    public static class DummyTokenFactoryTest {
-
-        @Parameters
-        public static Iterable<Object[]> getParameters() {
-            return Arrays.asList(new Object[][] {
-// @formatter:off
-                { "barney", "swarlz", },
-                { "", "swarlz", },
-                { "barney", "", },
-                { "", "", },
-// @formatter:on
-            });
-        }
-
-        private final String userName;
-        private final String clientId;
-
-        private final TokenFactory tokenFactory = new TokenFactory();
-
-        public DummyTokenFactoryTest(String userName, String clientId) {
-            this.userName = userName;
-            this.clientId = clientId;
-        }
-
-        @Test
-        public void testCreateDummyToken() {
-            OAuth2AccessToken token = tokenFactory.createDummyToken(userName, clientId);
-            validateToken(token, new TokenProperties(clientId, new UUID(0, 0).toString(), userName));
-        }
-
-    }
 
     @RunWith(Parameterized.class)
     public static class OauthTokenFactoryTest {

@@ -54,7 +54,6 @@ public class ApplicationConfiguration {
     static final String CFG_MAX_TTL_FOR_OLD_DATA = "MAX_TTL_FOR_OLD_DATA";
     static final String CFG_USE_XS_AUDIT_LOGGING = "USE_XS_AUDIT_LOGGING";
     static final String CFG_VCAP_APPLICATION = "VCAP_APPLICATION"; // Mandatory
-    static final String CFG_DUMMY_TOKENS_ENABLED = "DUMMY_TOKENS_ENABLED";
     static final String CFG_BASIC_AUTH_ENABLED = "BASIC_AUTH_ENABLED";
     static final String CFG_GLOBAL_AUDITOR_USER = "GLOBAL_AUDITOR_USER";
     static final String CFG_GLOBAL_AUDITOR_PASSWORD = "GLOBAL_AUDITOR_PASSWORD";
@@ -104,7 +103,6 @@ public class ApplicationConfiguration {
 
     public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
     public static final String DEFAULT_SPACE_GUID = "";
-    public static final Boolean DEFAULT_DUMMY_TOKENS_ENABLED = false;
     public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
     public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
     public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
@@ -147,7 +145,6 @@ public class ApplicationConfiguration {
     private Boolean useXSAuditLogging;
     private String spaceGuid;
     private String orgName;
-    private Boolean dummyTokensEnabled;
     private Boolean basicAuthEnabled;
     private String globalAuditorUser;
     private String globalAuditorPassword;
@@ -201,7 +198,6 @@ public class ApplicationConfiguration {
         getSpaceGuid();
         getOrgName();
         getDeployServiceUrl();
-        areDummyTokensEnabled();
         isBasicAuthEnabled();
         getGlobalAuditorUser();
         getGlobalAuditorPassword();
@@ -241,15 +237,14 @@ public class ApplicationConfiguration {
     private Set<String> getNotSensitiveConfigVariables() {
         return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_DB_TYPE, CFG_PLATFORM, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE,
                                            CFG_MAX_MANIFEST_SIZE, CFG_MAX_RESOURCE_FILE_SIZE, CFG_USE_XS_AUDIT_LOGGING,
-                                           CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED, CFG_GLOBAL_AUDITOR_USER,
-                                           CFG_STEP_POLLING_INTERVAL_IN_SECONDS, CFG_SKIP_SSL_VALIDATION, CFG_VERSION,
-                                           CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS,
-                                           CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL,
-                                           CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS,
-                                           CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS,
-                                           CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
-                                           CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
-                                           CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE));
+                                           CFG_BASIC_AUTH_ENABLED, CFG_GLOBAL_AUDITOR_USER, CFG_STEP_POLLING_INTERVAL_IN_SECONDS,
+                                           CFG_SKIP_SSL_VALIDATION, CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE,
+                                           CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE,
+                                           CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL, CFG_AUDIT_LOG_CLIENT_CORE_THREADS,
+                                           CFG_AUDIT_LOG_CLIENT_MAX_THREADS, CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY,
+                                           CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS,
+                                           CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE,
+                                           CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE, CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE));
     }
 
     public Configuration getFileConfiguration() {
@@ -338,13 +333,6 @@ public class ApplicationConfiguration {
             deployServiceUrl = getDeployServiceUrlFromEnvironment();
         }
         return deployServiceUrl;
-    }
-
-    public Boolean areDummyTokensEnabled() {
-        if (dummyTokensEnabled == null) {
-            dummyTokensEnabled = areDummyTokensEnabledThroughEnvironment();
-        }
-        return dummyTokensEnabled;
     }
 
     public Boolean isBasicAuthEnabled() {
@@ -693,12 +681,6 @@ public class ApplicationConfiguration {
             }
         }
         return Collections.emptyList();
-    }
-
-    private Boolean areDummyTokensEnabledThroughEnvironment() {
-        Boolean value = environment.getBoolean(CFG_DUMMY_TOKENS_ENABLED, DEFAULT_DUMMY_TOKENS_ENABLED);
-        LOGGER.info(format(Messages.DUMMY_TOKENS_ENABLED, value));
-        return value;
     }
 
     private Boolean isBasicAuthEnabledThroughEnvironment() {
