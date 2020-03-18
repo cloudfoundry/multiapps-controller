@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +35,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
@@ -52,7 +52,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
 
     private class BuildCloudUndeployModelStepMock extends BuildCloudUndeployModelStep {
         @Override
-        protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DelegateExecution context) {
+        protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ExecutionWrapper execution) {
             return applicationCloudModelBuilder;
         }
     }
@@ -241,7 +241,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         StepsUtil.setSubscriptionsToCreate(context, subscriptionsToCreate);
         StepsUtil.setSpaceId(context, SPACE_ID);
         StepsUtil.setMtaModules(context, input.mtaModules);
-        StepsUtil.setCompleteDeploymentDescriptor(context, deploymentDescriptor);
+        execution.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
     }
 
     private void prepareSubscriptionService() {

@@ -42,7 +42,7 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_DELETING_SERVICE_BROKERS;
     }
 

@@ -77,7 +77,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_VALIDATING_APPLICATIONS;
     }
 

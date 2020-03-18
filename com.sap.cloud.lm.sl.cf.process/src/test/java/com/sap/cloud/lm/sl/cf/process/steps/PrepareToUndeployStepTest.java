@@ -47,7 +47,7 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
 
     @Test
     public void testErrorMessage() {
-        Assertions.assertEquals(Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY, step.getStepErrorMessage(context));
+        Assertions.assertEquals(Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY, step.getStepErrorMessage(execution));
     }
 
     @Test

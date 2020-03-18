@@ -27,6 +27,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaService;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -46,7 +47,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
         DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
 
-        List<String> deploymentDescriptorModules = getDeploymentDescriptorModules(execution.getContext());
+        List<String> deploymentDescriptorModules = getDeploymentDescriptorModules(execution);
 
         if (deployedMta == null) {
             setComponentsToUndeploy(execution.getContext(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
@@ -71,7 +72,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                                                                              StepsUtil.getSpaceId(execution.getContext()));
         getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, secureSerializer.toJson(subscriptionsToDelete));
 
-        Set<String> servicesForApplications = getServicesForApplications(execution.getContext());
+        Set<String> servicesForApplications = getServicesForApplications(execution);
         List<String> servicesToDelete = computeServicesToDelete(appsWithoutChange, deployedMta.getServices(), servicesForApplications,
                                                                 serviceNames);
         getStepLogger().debug(Messages.SERVICES_TO_DELETE, servicesToDelete);
@@ -86,12 +87,12 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_BUILDING_CLOUD_UNDEPLOY_MODEL;
     }
 
-    private List<String> getDeploymentDescriptorModules(DelegateExecution context) {
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+    private List<String> getDeploymentDescriptorModules(ExecutionWrapper execution) {
+        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         if (deploymentDescriptor == null) {
             return Collections.emptyList();
         }
@@ -108,13 +109,13 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                         .collect(Collectors.toList());
     }
 
-    private Set<String> getServicesForApplications(DelegateExecution context) {
-        List<Module> modules = StepsUtil.getModulesToDeploy(context);
+    private Set<String> getServicesForApplications(ExecutionWrapper execution) {
+        List<Module> modules = StepsUtil.getModulesToDeploy(execution.getContext());
         if (CollectionUtils.isEmpty(modules)) {
             return Collections.emptySet();
         }
         Set<String> servicesForApplications = new HashSet<>();
-        ApplicationCloudModelBuilder applicationCloudModelBuilder = getApplicationCloudModelBuilder(context);
+        ApplicationCloudModelBuilder applicationCloudModelBuilder = getApplicationCloudModelBuilder(execution);
         for (Module module : modules) {
             if (!moduleToDeployHelper.isApplication(module)) {
                 continue;
@@ -229,8 +230,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                                                                                                      .getName());
     }
 
-    protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DelegateExecution context) {
-        return StepsUtil.getApplicationCloudModelBuilder(context, getStepLogger());
+    protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ExecutionWrapper execution) {
+        return StepsUtil.getApplicationCloudModelBuilder(execution);
     }
 
 }

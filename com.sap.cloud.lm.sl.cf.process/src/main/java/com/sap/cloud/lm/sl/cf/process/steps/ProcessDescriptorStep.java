@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.model.MtaDescriptorPropertiesResolverContext;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -38,7 +39,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         DelegateExecution context = execution.getContext();
         getStepLogger().debug(Messages.RESOLVING_DESCRIPTOR_PROPERTIES);
 
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
         MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(context);
 
         descriptor = resolver.resolve(descriptor);
@@ -47,7 +48,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.SUBSCRIPTIONS, secureSerializer.toJson(subscriptions));
         StepsUtil.setSubscriptionsToCreate(context, subscriptions);
 
-        StepsUtil.setCompleteDeploymentDescriptor(context, descriptor);
+        execution.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, descriptor);
         // Set MTA modules in the context
         List<String> modulesForDeployment = StepsUtil.getModulesForDeployment(context);
         List<String> invalidModulesSpecifiedForDeployment = findInvalidModulesSpecifiedForDeployment(descriptor, modulesForDeployment);
@@ -66,7 +67,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_RESOLVING_DESCRIPTOR_PROPERTIES;
     }
 

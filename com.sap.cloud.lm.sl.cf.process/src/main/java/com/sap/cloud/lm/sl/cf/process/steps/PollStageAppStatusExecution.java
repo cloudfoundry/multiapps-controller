@@ -6,7 +6,6 @@ import java.util.UUID;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.PackageState;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +15,7 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
 import com.sap.cloud.lm.sl.cf.process.util.StagingState;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class PollStageAppStatusExecution implements AsyncExecution {
 
@@ -31,12 +31,12 @@ public class PollStageAppStatusExecution implements AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) {
-        CloudApplication application = StepsUtil.getApp(execution.getContext());
+        CloudApplication application = execution.getVariable(Variables.APP_TO_PROCESS);
         CloudControllerClient client = execution.getControllerClient();
         StepLogger stepLogger = execution.getStepLogger();
         stepLogger.debug(Messages.CHECKING_APP_STATUS, application.getName());
 
-        StagingState state = applicationStager.getStagingState(execution.getContext());
+        StagingState state = applicationStager.getStagingState();
         stepLogger.debug(Messages.APP_STAGING_STATUS, application.getName(), state.getState());
 
         ProcessLoggerProvider processLoggerProvider = stepLogger.getProcessLoggerProvider();
@@ -45,14 +45,14 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         if (state.getState() != PackageState.STAGED) {
             return checkStagingState(execution.getStepLogger(), application, state);
         }
-        bindDropletToApplication(execution.getContext(), application, client);
+        bindDropletToApplication(client, application);
         stepLogger.info(Messages.APP_STAGED, application.getName());
         return AsyncExecutionState.FINISHED;
     }
 
     @Override
     public String getPollingErrorMessage(ExecutionWrapper execution) {
-        CloudApplication application = StepsUtil.getApp(execution.getContext());
+        CloudApplication application = execution.getVariable(Variables.APP_TO_PROCESS);
         return MessageFormat.format(Messages.ERROR_STAGING_APP_0, application.getName());
     }
 
@@ -64,11 +64,11 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         return AsyncExecutionState.RUNNING;
     }
 
-    private void bindDropletToApplication(DelegateExecution context, CloudApplication application, CloudControllerClient client) {
+    private void bindDropletToApplication(CloudControllerClient client, CloudApplication application) {
         UUID applicationGuid = client.getApplication(application.getName())
                                      .getMetadata()
                                      .getGuid();
-        applicationStager.bindDropletToApplication(context, applicationGuid);
+        applicationStager.bindDropletToApplication(applicationGuid);
     }
 
 }

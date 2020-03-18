@@ -6,11 +6,11 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("scaleAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -18,7 +18,7 @@ public class ScaleAppStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        CloudApplication app = StepsUtil.getApp(execution.getContext());
+        CloudApplication app = execution.getVariable(Variables.APP_TO_PROCESS);
 
         CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
 
@@ -39,8 +39,8 @@ public class ScaleAppStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
-        return MessageFormat.format(Messages.ERROR_SCALING_APP, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
+        return MessageFormat.format(Messages.ERROR_SCALING_APP, execution.getVariable(Variables.APP_TO_PROCESS)
                                                                          .getName());
     }
 

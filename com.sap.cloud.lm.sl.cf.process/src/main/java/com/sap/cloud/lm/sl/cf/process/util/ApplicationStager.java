@@ -12,48 +12,53 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudBuild;
 import org.cloudfoundry.client.lib.domain.PackageState;
 import org.cloudfoundry.client.lib.domain.UploadToken;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class ApplicationStager {
 
+    private final ExecutionWrapper execution;
+    private final StepLogger logger;
     private final CloudControllerClient client;
 
-    public ApplicationStager(CloudControllerClient client) {
-        this.client = client;
+    public ApplicationStager(ExecutionWrapper execution) {
+        this.execution = execution;
+        this.logger = execution.getStepLogger();
+        this.client = execution.getControllerClient();
     }
 
-    public StagingState getStagingState(DelegateExecution context) {
-        UUID buildGuid = (UUID) context.getVariable(Constants.VAR_BUILD_GUID);
+    public StagingState getStagingState() {
+        UUID buildGuid = (UUID) execution.getContext()
+                                         .getVariable(Constants.VAR_BUILD_GUID);
         if (buildGuid == null) {
             return ImmutableStagingState.builder()
                                         .state(PackageState.STAGED)
                                         .build();
         }
-        CloudBuild build = getBuild(context, buildGuid);
+        CloudBuild build = getBuild(buildGuid);
         return getStagingState(build);
     }
 
-    private CloudBuild getBuild(DelegateExecution context, UUID buildGuid) {
+    private CloudBuild getBuild(UUID buildGuid) {
         try {
             return client.getBuild(buildGuid);
         } catch (CloudOperationException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                checkIfApplicationExists(context);
+                checkIfApplicationExists();
             }
             throw e;
         }
     }
 
-    private void checkIfApplicationExists(DelegateExecution context) {
-        CloudApplicationExtended app = StepsUtil.getApp(context);
+    private void checkIfApplicationExists() {
+        CloudApplicationExtended app = execution.getVariable(Variables.APP_TO_PROCESS);
         // This will produce an exception with a more meaningful message why the build is missing
         client.getApplication(app.getName());
     }
@@ -80,7 +85,7 @@ public class ApplicationStager {
         throw new IllegalArgumentException("Invalid build state");
     }
 
-    public boolean isApplicationStagedCorrectly(StepLogger stepLogger, CloudApplication app) {
+    public boolean isApplicationStagedCorrectly(CloudApplication app) {
         // TODO Remove the null filtering.
         // We are not sure if the controller is returning null for created_at or not, so after the proper v3 client adoption,
         // we should decide what to do with this filtering.
@@ -91,13 +96,13 @@ public class ApplicationStager {
         }
         CloudBuild build = getLastBuild(buildsForApplication);
         if (build == null) {
-            stepLogger.debug(Messages.NO_BUILD_FOUND_FOR_APPLICATION, app.getName());
+            logger.debug(Messages.NO_BUILD_FOUND_FOR_APPLICATION, app.getName());
             return false;
         }
         if (isBuildStagedCorrectly(build)) {
             return true;
         }
-        logMessages(stepLogger, app, build);
+        logMessages(app, build);
         return false;
     }
 
@@ -118,56 +123,58 @@ public class ApplicationStager {
         return build.getState() == CloudBuild.State.STAGED && build.getDropletInfo() != null && build.getError() == null;
     }
 
-    private void logMessages(StepLogger stepLogger, CloudApplication app, CloudBuild build) {
-        stepLogger.info(Messages.APPLICATION_NOT_STAGED_CORRECTLY, app.getName());
-        stepLogger.debug(Messages.LAST_BUILD, JsonUtil.toJson(build));
+    private void logMessages(CloudApplication app, CloudBuild build) {
+        logger.info(Messages.APPLICATION_NOT_STAGED_CORRECTLY, app.getName());
+        logger.debug(Messages.LAST_BUILD, JsonUtil.toJson(build));
     }
 
-    public void bindDropletToApplication(DelegateExecution context, UUID appGuid) {
-        UUID buildGuid = (UUID) context.getVariable(Constants.VAR_BUILD_GUID);
+    public void bindDropletToApplication(UUID appGuid) {
+        UUID buildGuid = (UUID) execution.getContext()
+                                         .getVariable(Constants.VAR_BUILD_GUID);
         client.bindDropletToApp(client.getBuild(buildGuid)
                                       .getDropletInfo()
                                       .getGuid(),
                                 appGuid);
     }
 
-    public StepPhase stageApp(DelegateExecution context, CloudApplication app, StepLogger stepLogger) {
-        UploadToken uploadToken = StepsUtil.getUploadToken(context);
+    public StepPhase stageApp(CloudApplication app) {
+        UploadToken uploadToken = execution.getVariable(Variables.UPLOAD_TOKEN);
         if (uploadToken == null) {
             return StepPhase.DONE;
         }
-        stepLogger.info(Messages.STAGING_APP, app.getName());
-        return createBuild(context, uploadToken.getPackageGuid(), stepLogger);
+        logger.info(Messages.STAGING_APP, app.getName());
+        return createBuild(uploadToken.getPackageGuid());
     }
 
-    private StepPhase createBuild(DelegateExecution context, UUID packageGuid, StepLogger stepLogger) {
+    private StepPhase createBuild(UUID packageGuid) {
         try {
-            context.setVariable(Constants.VAR_BUILD_GUID, client.createBuild(packageGuid)
-                                                                .getMetadata()
-                                                                .getGuid());
+            execution.getContext()
+                     .setVariable(Constants.VAR_BUILD_GUID, client.createBuild(packageGuid)
+                                                                  .getMetadata()
+                                                                  .getGuid());
         } catch (CloudOperationException e) {
-            handleCloudOperationException(e, context, packageGuid, stepLogger);
+            handleCloudOperationException(e, packageGuid);
         }
         return StepPhase.POLL;
     }
 
-    private void handleCloudOperationException(CloudOperationException e, DelegateExecution context, UUID packageGuid,
-                                               StepLogger stepLogger) {
+    private void handleCloudOperationException(CloudOperationException e, UUID packageGuid) {
         if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
-            stepLogger.info(Messages.BUILD_FOR_PACKAGE_0_ALREADY_EXISTS, packageGuid);
-            stepLogger.warn(e, e.getMessage());
-            processLastBuild(packageGuid, context);
+            logger.info(Messages.BUILD_FOR_PACKAGE_0_ALREADY_EXISTS, packageGuid);
+            logger.warn(e, e.getMessage());
+            processLastBuild(packageGuid);
             return;
         }
         throw e;
     }
 
-    private void processLastBuild(UUID packageGuid, DelegateExecution context) {
+    private void processLastBuild(UUID packageGuid) {
         CloudBuild lastBuild = getLastBuild(client.getBuildsForPackage(packageGuid));
         if (lastBuild == null) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, format(Messages.NO_BUILDS_FOUND_FOR_PACKAGE, packageGuid));
         }
-        context.setVariable(Constants.VAR_BUILD_GUID, lastBuild.getMetadata()
-                                                               .getGuid());
+        execution.getContext()
+                 .setVariable(Constants.VAR_BUILD_GUID, lastBuild.getMetadata()
+                                                                 .getGuid());
     }
 }

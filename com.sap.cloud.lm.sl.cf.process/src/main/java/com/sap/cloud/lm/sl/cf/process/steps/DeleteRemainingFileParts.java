@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.inject.Named;
 
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -33,7 +32,7 @@ public class DeleteRemainingFileParts extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_DELETING_REMAINING_FILE_PARTS;
     }
 }

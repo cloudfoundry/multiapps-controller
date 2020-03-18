@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class DeleteApplicationStepTest extends UndeployAppStepTest {
@@ -21,7 +22,7 @@ public class DeleteApplicationStepTest extends UndeployAppStepTest {
         Mockito.doThrow(new CloudOperationException(HttpStatus.NOT_FOUND))
                .when(client)
                .deleteApplication(anyString());
-        StepsUtil.setApp(context, createCloudApplication("test-app"));
+        execution.setVariable(Variables.APP_TO_PROCESS, createCloudApplication("test-app"));
         step.execute(context);
         assertStepFinishedSuccessfully();
     }
@@ -31,7 +32,7 @@ public class DeleteApplicationStepTest extends UndeployAppStepTest {
         Mockito.doThrow(new CloudOperationException(HttpStatus.BAD_GATEWAY))
                .when(client)
                .deleteApplication(anyString());
-        StepsUtil.setApp(context, createCloudApplication("test-app"));
+        execution.setVariable(Variables.APP_TO_PROCESS, createCloudApplication("test-app"));
         Assertions.assertThrows(SLException.class, () -> step.execute(context));
     }
 

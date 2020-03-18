@@ -132,7 +132,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_UPDATING_SUBSCRIBERS;
     }
 

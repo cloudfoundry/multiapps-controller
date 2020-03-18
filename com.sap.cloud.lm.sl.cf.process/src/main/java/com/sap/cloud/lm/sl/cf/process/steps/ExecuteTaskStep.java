@@ -10,7 +10,6 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudTask;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -18,6 +17,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("executeTaskStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -30,7 +30,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
-        CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
+        CloudApplicationExtended app = execution.getVariable(Variables.APP_TO_PROCESS);
         CloudTask taskToExecute = StepsUtil.getTask(execution.getContext());
         CloudControllerClient client = execution.getControllerClient();
 
@@ -44,9 +44,9 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
-        CloudApplicationExtended app = StepsUtil.getApp(context);
-        CloudTask taskToExecute = StepsUtil.getTask(context);
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
+        CloudApplicationExtended app = execution.getVariable(Variables.APP_TO_PROCESS);
+        CloudTask taskToExecute = StepsUtil.getTask(execution.getContext());
         return MessageFormat.format(Messages.ERROR_EXECUTING_TASK_0_ON_APP_1, taskToExecute.getName(), app.getName());
     }
 
@@ -56,8 +56,8 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
     }
 
     @Override
-    public Integer getTimeout(DelegateExecution context) {
-        return StepsUtil.getInteger(context, Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
+    public Integer getTimeout(ExecutionWrapper execution) {
+        return StepsUtil.getInteger(execution.getContext(), Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
     }
 
 }

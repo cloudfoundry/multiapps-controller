@@ -23,6 +23,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.apps.ChangedApplicationActionCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.UnchangedApplicationActionCalculator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("determineDesiredStateAchievingActionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -32,7 +33,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        String appName = StepsUtil.getApp(execution.getContext())
+        String appName = execution.getVariable(Variables.APP_TO_PROCESS)
                                   .getName();
         CloudControllerClient client = execution.getControllerClient();
         CloudApplication app = client.getApplication(appName);
@@ -40,11 +41,10 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
         getStepLogger().debug(Messages.CURRENT_STATE, appName, currentState);
         ApplicationStartupState desiredState = computeDesiredState(execution.getContext(), app);
         getStepLogger().debug(Messages.DESIRED_STATE, appName, desiredState);
-        UploadToken uploadToken = StepsUtil.getUploadToken(execution.getContext());
+        UploadToken uploadToken = execution.getVariable(Variables.UPLOAD_TOKEN);
         boolean appHasUnstagedContent = uploadToken != null;
-        Set<ApplicationStateAction> actionsToExecute = getActionsCalculator(execution.getContext()).determineActionsToExecute(currentState,
-                                                                                                                              desiredState,
-                                                                                                                              !appHasUnstagedContent);
+        Set<ApplicationStateAction> actionsToExecute = getActionsCalculator(execution).determineActionsToExecute(currentState, desiredState,
+                                                                                                                 !appHasUnstagedContent);
         getStepLogger().debug(Messages.ACTIONS_TO_EXECUTE, appName, actionsToExecute);
 
         StepsUtil.setAppStateActionsToExecute(execution.getContext(), actionsToExecute);
@@ -52,8 +52,8 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
-        return MessageFormat.format(Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP, StepsUtil.getApp(context)
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
+        return MessageFormat.format(Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP, execution.getVariable(Variables.APP_TO_PROCESS)
                                                                                                    .getName());
     }
 
@@ -68,21 +68,22 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
                                          .computeDesiredState(app, shouldNotStartAnyApp);
     }
 
-    private ActionCalculator getActionsCalculator(DelegateExecution context) {
-        boolean shouldRestartApp = determineAppRestart(context);
+    private ActionCalculator getActionsCalculator(ExecutionWrapper execution) {
+        boolean shouldRestartApp = determineAppRestart(execution);
         return shouldRestartApp ? new ChangedApplicationActionCalculator() : new UnchangedApplicationActionCalculator();
     }
 
-    private boolean determineAppRestart(DelegateExecution context) {
-        String appContentChangedString = StepsUtil.getString(context, Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(false));
+    private boolean determineAppRestart(ExecutionWrapper execution) {
+        String appContentChangedString = StepsUtil.getString(execution.getContext(), Constants.VAR_APP_CONTENT_CHANGED,
+                                                             Boolean.toString(false));
         if (Boolean.parseBoolean(appContentChangedString)) {
             return true;
         }
-        boolean appPropertiesChanged = StepsUtil.getVcapAppPropertiesChanged(context);
-        boolean servicesPropertiesChanged = StepsUtil.getVcapServicesPropertiesChanged(context);
-        boolean userPropertiesChanged = StepsUtil.getUserPropertiesChanged(context);
+        boolean appPropertiesChanged = StepsUtil.getVcapAppPropertiesChanged(execution.getContext());
+        boolean servicesPropertiesChanged = StepsUtil.getVcapServicesPropertiesChanged(execution.getContext());
+        boolean userPropertiesChanged = StepsUtil.getUserPropertiesChanged(execution.getContext());
 
-        CloudApplicationExtended app = StepsUtil.getApp(context);
+        CloudApplicationExtended app = execution.getVariable(Variables.APP_TO_PROCESS);
         RestartParameters restartParameters = app.getRestartParameters();
 
         if (restartParameters.getShouldRestartOnVcapAppChange() && appPropertiesChanged) {

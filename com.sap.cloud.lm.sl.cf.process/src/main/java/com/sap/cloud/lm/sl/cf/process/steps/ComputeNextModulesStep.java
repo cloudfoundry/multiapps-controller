@@ -6,13 +6,13 @@ import java.util.stream.Collectors;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.ListUtils;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ModuleDependencyChecker;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -28,7 +28,7 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
         List<Module> allModulesToDeploy = StepsUtil.getModulesToDeploy(execution.getContext());
         List<Module> completedModules = StepsUtil.getIteratedModulesInParallel(execution.getContext());
 
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
+        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         ModuleDependencyChecker dependencyChecker = new ModuleDependencyChecker(execution.getControllerClient(),
                                                                                 descriptor.getModules(),
                                                                                 allModulesToDeploy,
@@ -50,7 +50,7 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_COMPUTING_NEXT_MODULES_FOR_PARALLEL_ITERATION;
     }
 

@@ -71,7 +71,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
             getStepHelper().failStepIfProcessIsAborted(context);
         } catch (Exception e) {
             stepPhase = StepPhase.RETRY;
-            handleException(executionWrapper.getContext(), e);
+            handleException(executionWrapper, e);
         } finally {
             StepsUtil.setStepPhase(context, stepPhase);
             postExecuteStep(context, stepPhase);
@@ -86,16 +86,16 @@ public abstract class SyncFlowableStep implements JavaDelegate {
         return new ExecutionWrapper(context, stepLogger, clientProvider);
     }
 
-    private void handleException(DelegateExecution context, Exception e) {
+    private void handleException(ExecutionWrapper execution, Exception e) {
         try {
-            StepPhase stepPhase = StepsUtil.getStepPhase(context);
+            StepPhase stepPhase = StepsUtil.getStepPhase(execution.getContext());
             if (stepPhase == StepPhase.POLL) {
                 throw e;
             }
-            onStepError(context, e);
+            onStepError(execution, e);
         } catch (Exception ex) {
             ex = getWithProperMessage(ex);
-            getStepHelper().logExceptionAndStoreProgressMessage(context, ex);
+            getStepHelper().logExceptionAndStoreProgressMessage(execution.getContext(), ex);
             throw ex instanceof RuntimeException ? (RuntimeException) ex : new RuntimeException(ex);
         }
     }
@@ -114,8 +114,8 @@ public abstract class SyncFlowableStep implements JavaDelegate {
      * @param e thrown exception from {@link #executeStep(ExecutionWrapper) executeStep} and pre-processed by
      *        {@link #handleException(DelegateExecution, Exception) handleException}
      */
-    protected void onStepError(DelegateExecution context, Exception e) throws Exception {
-        processException(e, getStepErrorMessage(context), getErrorMessageAdditionalDescription(e, context));
+    protected void onStepError(ExecutionWrapper execution, Exception e) throws Exception {
+        processException(e, getStepErrorMessage(execution), getErrorMessageAdditionalDescription(e, execution.getContext()));
     }
 
     protected void processException(Exception e, String detailedMessage, String description) throws Exception {
@@ -159,7 +159,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
         }
     }
 
-    protected abstract String getStepErrorMessage(DelegateExecution context);
+    protected abstract String getStepErrorMessage(ExecutionWrapper execution);
 
     protected abstract StepPhase executeStep(ExecutionWrapper execution) throws Exception;
 

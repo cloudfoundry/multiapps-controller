@@ -22,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class PollExecuteAppStatusExecution implements AsyncExecution {
 
@@ -69,7 +70,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             return AsyncExecutionState.FINISHED;
         }
 
-        CloudApplication app = getNextApp(execution.getContext());
+        CloudApplication app = getNextApp(execution);
         CloudControllerClient client = execution.getControllerClient();
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
         AppExecutionDetailedStatus status = getAppExecutionStatus(execution.getContext(), client, appAttributes, app);
@@ -81,12 +82,12 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
     }
 
     public String getPollingErrorMessage(ExecutionWrapper execution) {
-        CloudApplication app = getNextApp(execution.getContext());
+        CloudApplication app = getNextApp(execution);
         return MessageFormat.format(Messages.ERROR_EXECUTING_APP_1, app.getName());
     }
 
-    protected CloudApplication getNextApp(DelegateExecution context) {
-        return StepsUtil.getApp(context);
+    protected CloudApplication getNextApp(ExecutionWrapper execution) {
+        return execution.getVariable(Variables.APP_TO_PROCESS);
     }
 
     private AppExecutionDetailedStatus getAppExecutionStatus(DelegateExecution context, CloudControllerClient client,

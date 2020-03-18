@@ -42,7 +42,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
@@ -56,6 +55,7 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveContext;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveReader;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationZipBuilder;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -181,12 +181,12 @@ public class UploadAppStepTest {
                                                                             .name(APP_NAME)
                                                                             .moduleName(APP_NAME)
                                                                             .build();
-            StepsUtil.setApp(context, app);
+            execution.setVariable(Variables.APP_TO_PROCESS, app);
             context.setVariable(Constants.VAR_MODULES_INDEX, 0);
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
             context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
             mtaArchiveElements.addModuleFileName(APP_NAME, APP_FILE);
-            StepsUtil.setMtaArchiveElements(context, mtaArchiveElements);
+            execution.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
             StepsUtil.setVcapAppPropertiesChanged(context, false);
             when(configuration.getMaxResourceFileSize()).thenReturn(ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE);
         }
@@ -325,9 +325,9 @@ public class UploadAppStepTest {
         }
 
         private void testGetTimeout(CloudApplicationExtended app, int expectedUploadTimeout) {
-            StepsUtil.setApp(context, app);
+            execution.setVariable(Variables.APP_TO_PROCESS, app);
 
-            int uploadTimeout = step.getTimeout(context);
+            int uploadTimeout = step.getTimeout(execution);
             assertEquals(expectedUploadTimeout, uploadTimeout);
         }
 
@@ -353,13 +353,13 @@ public class UploadAppStepTest {
             CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
                                                                             .name(APP_NAME)
                                                                             .build();
-            StepsUtil.setApp(context, app);
+            execution.setVariable(Variables.APP_TO_PROCESS, app);
             context.setVariable(Constants.VAR_MODULES_INDEX, 0);
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
             context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
             MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
             mtaArchiveElements.addModuleFileName(APP_NAME, APP_NAME);
-            StepsUtil.setMtaArchiveElements(context, mtaArchiveElements);
+            execution.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
         }
 
         @Test

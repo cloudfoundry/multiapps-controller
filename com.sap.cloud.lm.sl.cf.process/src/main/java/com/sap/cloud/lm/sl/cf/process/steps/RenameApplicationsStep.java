@@ -1,16 +1,10 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.sap.cloud.lm.sl.cf.core.model.BlueGreenApplicationNameSuffix;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
-import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
-import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.cf.process.util.ApplicationColorDetector;
-import com.sap.cloud.lm.sl.cf.process.util.ApplicationProductizationStateUpdater;
-import com.sap.cloud.lm.sl.cf.process.util.ApplicationProductizationStateUpdaterBasedOnAge;
-import com.sap.cloud.lm.sl.cf.process.util.ApplicationProductizationStateUpdaterBasedOnColor;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.variable.api.delegate.VariableScope;
@@ -19,11 +13,18 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationNameSuffixAppender;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
+import com.sap.cloud.lm.sl.cf.core.model.BlueGreenApplicationNameSuffix;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
+import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
+import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationColorDetector;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationProductizationStateUpdater;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationProductizationStateUpdaterBasedOnAge;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationProductizationStateUpdaterBasedOnColor;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-
-import java.util.List;
 
 @Named("renameApplicationsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -47,7 +48,7 @@ public class RenameApplicationsStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_RENAMING_APPLICATIONS;
     }
 
@@ -72,7 +73,7 @@ public class RenameApplicationsStep extends SyncFlowableStep {
             }
 
             getStepLogger().debug(Messages.UPDATING_APP_NAMES_WITH_NEW_SUFFIX);
-            updateApplicationNamesInDescriptor(context, BlueGreenApplicationNameSuffix.IDLE.asSuffix());
+            updateApplicationNamesInDescriptor(execution, BlueGreenApplicationNameSuffix.IDLE.asSuffix());
         }
 
         private void renameOldApps(List<String> appsToRename, CloudControllerClient client) {
@@ -99,7 +100,7 @@ public class RenameApplicationsStep extends SyncFlowableStep {
             if (deployedMta == null) {
                 getStepLogger().info(Messages.NEW_MTA_COLOR, idleMtaColor);
                 StepsUtil.setIdleMtaColor(context, idleMtaColor);
-                updateApplicationNamesInDescriptor(context, idleMtaColor.asSuffix());
+                updateApplicationNamesInDescriptor(execution, idleMtaColor.asSuffix());
                 return;
             }
 
@@ -114,7 +115,7 @@ public class RenameApplicationsStep extends SyncFlowableStep {
             setIdleApplications(context, deployedMta, appUpdater);
             StepsUtil.setLiveMtaColor(context, liveMtaColor);
             StepsUtil.setIdleMtaColor(context, idleMtaColor);
-            updateApplicationNamesInDescriptor(context, idleMtaColor.asSuffix());
+            updateApplicationNamesInDescriptor(execution, idleMtaColor.asSuffix());
         }
 
         private ApplicationColor computeLiveMtaColor(DelegateExecution context, DeployedMta deployedMta) {
@@ -140,11 +141,11 @@ public class RenameApplicationsStep extends SyncFlowableStep {
                                                               .withApplications(updatedApplications));
     }
 
-    private void updateApplicationNamesInDescriptor(DelegateExecution context, String suffix) {
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(context);
+    private void updateApplicationNamesInDescriptor(ExecutionWrapper execution, String suffix) {
+        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         ApplicationNameSuffixAppender appender = new ApplicationNameSuffixAppender(suffix);
         descriptor.accept(appender);
-        StepsUtil.setDeploymentDescriptor(context, descriptor);
+        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
     }
 
 }

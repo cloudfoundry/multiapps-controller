@@ -26,6 +26,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServiceKeysStep> {
@@ -84,7 +85,7 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
     private void prepareContext(List<CloudServiceKey> serviceKeys, boolean canDeleteServiceKeys, CloudServiceExtended service) {
         StepsUtil.setServiceKeysToCreate(context, MapUtil.asMap(SERVICE_NAME, serviceKeys));
         context.setVariable(Constants.PARAM_DELETE_SERVICE_KEYS, canDeleteServiceKeys);
-        StepsUtil.setServiceToProcess(service, context);
+        execution.setVariable(Variables.SERVICE_TO_PROCESS, service);
 
     }
 

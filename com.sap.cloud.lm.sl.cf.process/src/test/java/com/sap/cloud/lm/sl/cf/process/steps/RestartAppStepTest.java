@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
@@ -73,7 +74,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
                .thenReturn(app);
         Mockito.when(client.startApplication(APP_NAME))
                .thenReturn(startingInfo);
-        StepsUtil.setApp(context, app);
+        execution.setVariable(Variables.APP_TO_PROCESS, app);
     }
 
     @Override

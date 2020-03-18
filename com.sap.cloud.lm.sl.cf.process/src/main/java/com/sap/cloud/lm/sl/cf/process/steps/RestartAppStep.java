@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("restartAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -30,7 +31,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public StepPhase executeAsyncStep(ExecutionWrapper execution) {
-        CloudApplication app = getAppToRestart(execution.getContext());
+        CloudApplication app = getAppToRestart(execution);
         CloudControllerClient client = execution.getControllerClient();
 
         if (isStarted(client, app.getName())) {
@@ -42,12 +43,12 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
-        return MessageFormat.format(Messages.ERROR_STARTING_APP_0, getAppToRestart(context).getName());
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
+        return MessageFormat.format(Messages.ERROR_STARTING_APP_0, getAppToRestart(execution).getName());
     }
 
-    protected CloudApplication getAppToRestart(DelegateExecution context) {
-        return StepsUtil.getApp(context);
+    protected CloudApplication getAppToRestart(ExecutionWrapper execution) {
+        return execution.getVariable(Variables.APP_TO_PROCESS);
     }
 
     private void setStartupPollingInfo(DelegateExecution context, StartingInfo startingInfo) {
@@ -88,8 +89,8 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
     }
 
     @Override
-    public Integer getTimeout(DelegateExecution context) {
-        return StepsUtil.getInteger(context, Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
+    public Integer getTimeout(ExecutionWrapper execution) {
+        return StepsUtil.getInteger(execution.getContext(), Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
     }
 
 }

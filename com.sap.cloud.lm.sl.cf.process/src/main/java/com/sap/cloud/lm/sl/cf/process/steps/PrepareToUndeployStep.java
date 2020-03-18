@@ -52,7 +52,7 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY;
     }
 

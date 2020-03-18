@@ -17,6 +17,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -32,42 +33,42 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.PROCESSING_MTA_ARCHIVE);
 
         String appArchiveId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
-        processApplicationArchive(execution.getContext(), appArchiveId);
-        setMtaIdForProcess(execution.getContext());
+        processApplicationArchive(execution, appArchiveId);
+        setMtaIdForProcess(execution);
         getStepLogger().debug(Messages.MTA_ARCHIVE_PROCESSED);
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_PROCESSING_MTA_ARCHIVE;
     }
 
-    private void processApplicationArchive(final DelegateExecution context, String appArchiveId) throws FileStorageException {
-        fileService.processFileContent(StepsUtil.getSpaceId(context), appArchiveId,
-                                       createDeploymentDescriptorFileContentProcessor(context));
-        fileService.processFileContent(StepsUtil.getSpaceId(context), appArchiveId,
-                                       createManifestFileContentProcessor(appArchiveId, context));
+    private void processApplicationArchive(ExecutionWrapper execution, String appArchiveId) throws FileStorageException {
+        fileService.processFileContent(StepsUtil.getSpaceId(execution.getContext()), appArchiveId,
+                                       createDeploymentDescriptorFileContentProcessor(execution));
+        fileService.processFileContent(StepsUtil.getSpaceId(execution.getContext()), appArchiveId,
+                                       createManifestFileContentProcessor(execution, appArchiveId));
     }
 
-    private FileContentProcessor createDeploymentDescriptorFileContentProcessor(DelegateExecution context) {
+    private FileContentProcessor createDeploymentDescriptorFileContentProcessor(ExecutionWrapper execution) {
         return appArchiveStream -> {
             String descriptorString = ArchiveHandler.getDescriptor(appArchiveStream, configuration.getMaxMtaDescriptorSize());
             DescriptorParserFacade descriptorParserFacade = new DescriptorParserFacade();
             DeploymentDescriptor deploymentDescriptor = descriptorParserFacade.parseDeploymentDescriptor(descriptorString);
-            StepsUtil.setDeploymentDescriptor(context, deploymentDescriptor);
+            execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
         };
     }
 
-    private FileContentProcessor createManifestFileContentProcessor(String appArchiveId, DelegateExecution context) {
+    private FileContentProcessor createManifestFileContentProcessor(ExecutionWrapper execution, String appArchiveId) {
         return appArchiveStream -> {
             MtaArchiveHelper helper = createInitializedMtaArchiveHelper(appArchiveStream);
             getStepLogger().debug("MTA Archive ID: {0}", appArchiveId);
             MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
-            addMtaArchiveModulesInMtaArchiveElements(helper, mtaArchiveElements, context);
+            addMtaArchiveModulesInMtaArchiveElements(helper, mtaArchiveElements, execution.getContext());
             addMtaRequiredDependenciesInMtaArchiveElements(helper, mtaArchiveElements);
             addMtaArchiveResourcesInMtaArchiveElements(helper, mtaArchiveElements);
-            StepsUtil.setMtaArchiveElements(context, mtaArchiveElements);
+            execution.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
         };
     }
 
@@ -102,11 +103,13 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         getStepLogger().debug("MTA Archive Resources: {0}", mtaArchiveResources.keySet());
     }
 
-    private void setMtaIdForProcess(DelegateExecution context) {
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
+    private void setMtaIdForProcess(ExecutionWrapper execution) {
+        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         String mtaId = deploymentDescriptor.getId();
-        context.setVariable(Constants.PARAM_MTA_ID, mtaId);
+        execution.getContext()
+                 .setVariable(Constants.PARAM_MTA_ID, mtaId);
         conflictPreventerSupplier.apply(operationService)
-                                 .acquireLock(mtaId, StepsUtil.getSpaceId(context), StepsUtil.getCorrelationId(context));
+                                 .acquireLock(mtaId, StepsUtil.getSpaceId(execution.getContext()),
+                                              StepsUtil.getCorrelationId(execution.getContext()));
     }
 }

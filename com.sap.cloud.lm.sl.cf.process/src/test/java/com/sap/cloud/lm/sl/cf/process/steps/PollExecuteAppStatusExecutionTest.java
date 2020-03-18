@@ -42,6 +42,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 
@@ -67,14 +68,14 @@ public class PollExecuteAppStatusExecutionTest {
     private CloudControllerClient client;
 
     private DelegateExecution context;
-    private ExecutionWrapper executionWrapper;
+    private ExecutionWrapper execution;
     private PollExecuteAppStatusExecution step;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         context = MockDelegateExecution.createSpyInstance();
-        executionWrapper = new ExecutionWrapper(context, stepLogger, clientProvider);
+        execution = new ExecutionWrapper(context, stepLogger, clientProvider);
         step = new PollExecuteAppStatusExecution(recentLogsRetriever);
     }
 
@@ -130,7 +131,7 @@ public class PollExecuteAppStatusExecutionTest {
         prepareStepLogger();
         prepareClientProvider();
 
-        AsyncExecutionState resultState = step.execute(executionWrapper);
+        AsyncExecutionState resultState = step.execute(execution);
 
         assertEquals(expectedExecutionState, resultState);
 
@@ -159,7 +160,7 @@ public class PollExecuteAppStatusExecutionTest {
     }
 
     private void prepareContext(CloudApplicationExtended application) {
-        StepsUtil.setApp(context, application);
+        execution.setVariable(Variables.APP_TO_PROCESS, application);
         StepsUtil.setAppStateActionsToExecute(context, new HashSet<>(Collections.singletonList(ApplicationStateAction.EXECUTE)));
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.VAR_USER, USER_NAME);
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.VAR_START_TIME, PROCESS_START_TIME);
@@ -182,7 +183,7 @@ public class PollExecuteAppStatusExecutionTest {
     public void testStepWithoutExecuteAction() {
         StepsUtil.setAppStateActionsToExecute(context, Collections.emptySet());
 
-        AsyncExecutionState resultState = step.execute(executionWrapper);
+        AsyncExecutionState resultState = step.execute(execution);
 
         assertEquals(AsyncExecutionState.FINISHED, resultState);
     }

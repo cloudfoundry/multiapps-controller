@@ -25,6 +25,8 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
+import com.sap.cloud.lm.sl.cf.process.variables.VariablesHandler;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class StepsUtilTest {
@@ -33,6 +35,7 @@ public class StepsUtilTest {
     private static final String EXAMPLE_MODULE_NAME = "exampleModule";
 
     protected final DelegateExecution context = MockDelegateExecution.createSpyInstance();
+    protected final VariablesHandler variablesHandler = new VariablesHandler(context);
 
     @Test
     public void testDetermineCurrentUserWithSetUser() {
@@ -106,6 +109,7 @@ public class StepsUtilTest {
 
     @Test
     public void testGetAppsToDeployWithBindingParameters() {
+        VariablesHandler variablesHandler = new VariablesHandler(context);
         Map<String, Map<String, Object>> bindingParameters = new HashMap<>();
         Map<String, Object> serviceBindingParameters = new HashMap<>();
         serviceBindingParameters.put("integer-value", 1);
@@ -118,8 +122,8 @@ public class StepsUtilTest {
                                                                                 .bindingParameters(bindingParameters)
                                                                                 .build();
 
-        StepsUtil.setApp(context, application);
-        CloudApplicationExtended actualAppToDeploy = StepsUtil.getApp(context);
+        variablesHandler.set(Variables.APP_TO_PROCESS, application);
+        CloudApplicationExtended actualAppToDeploy = variablesHandler.get(Variables.APP_TO_PROCESS);
 
         assertFalse(actualAppToDeploy.getBindingParameters()
                                      .isEmpty());
@@ -143,11 +147,11 @@ public class StepsUtilTest {
     @Test
     public void testSetAndGetUploadToken() {
         UploadToken expectedUploadToken = ImmutableUploadToken.builder()
-            .packageGuid(UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93"))
-            .build();
+                                                              .packageGuid(UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93"))
+                                                              .build();
 
-        StepsUtil.setUploadToken(expectedUploadToken, context);
-        UploadToken actualUploadToken = StepsUtil.getUploadToken(context);
+        variablesHandler.set(Variables.UPLOAD_TOKEN, expectedUploadToken);
+        UploadToken actualUploadToken = variablesHandler.get(Variables.UPLOAD_TOKEN);
 
         assertEquals(expectedUploadToken.getPackageGuid(), actualUploadToken.getPackageGuid());
     }

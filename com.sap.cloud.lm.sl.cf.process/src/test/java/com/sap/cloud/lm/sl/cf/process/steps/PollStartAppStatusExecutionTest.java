@@ -34,6 +34,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class PollStartAppStatusExecutionTest {
 
@@ -51,7 +52,7 @@ public class PollStartAppStatusExecutionTest {
     @Mock
     private CloudControllerClient client;
 
-    private ExecutionWrapper executionWrapper;
+    private ExecutionWrapper execution;
     private DelegateExecution context;
     private PollStartAppStatusExecution step;
 
@@ -59,7 +60,7 @@ public class PollStartAppStatusExecutionTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         context = MockDelegateExecution.createSpyInstance();
-        executionWrapper = new ExecutionWrapper(context, stepLogger, clientProvider);
+        execution = new ExecutionWrapper(context, stepLogger, clientProvider);
         step = new PollStartAppStatusExecution(recentLogsRetriever);
     }
 
@@ -84,7 +85,7 @@ public class PollStartAppStatusExecutionTest {
         InstancesInfo instancesInfo = buildInstancesInfo(instancesStates);
         prepareClient(application, instancesInfo);
 
-        AsyncExecutionState executionState = step.execute(executionWrapper);
+        AsyncExecutionState executionState = step.execute(execution);
 
         assertEquals(expectedAsyncExecutionState, executionState);
     }
@@ -99,7 +100,7 @@ public class PollStartAppStatusExecutionTest {
     private void prepareContext(CloudApplicationExtended application, boolean failOnCrash) {
         context.setVariable(Constants.VAR_USER, USER_NAME);
         context.setVariable(Constants.VAR_START_TIME, PROCESS_START_TIME);
-        StepsUtil.setApp(context, application);
+        execution.setVariable(Variables.APP_TO_PROCESS, application);
         context.setVariable(Constants.PARAM_FAIL_ON_CRASHED, failOnCrash);
     }
 

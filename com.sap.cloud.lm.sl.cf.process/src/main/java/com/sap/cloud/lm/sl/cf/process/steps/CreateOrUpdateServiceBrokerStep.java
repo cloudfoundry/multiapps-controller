@@ -24,6 +24,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 
@@ -37,7 +38,7 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.CREATING_SERVICE_BROKERS);
 
-        CloudServiceBroker serviceBroker = getServiceBrokerToCreate(execution.getContext());
+        CloudServiceBroker serviceBroker = getServiceBrokerToCreate(execution);
         if (serviceBroker == null) {
             return StepPhase.DONE;
         }
@@ -60,7 +61,7 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_CREATING_SERVICE_BROKERS;
     }
 
@@ -94,9 +95,9 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
                                                                                            name)));
     }
 
-    private CloudServiceBroker getServiceBrokerToCreate(DelegateExecution context) {
-        CloudApplicationExtended app = StepsUtil.getApp(context);
-        CloudServiceBroker serviceBroker = getServiceBrokerFromApp(app, context);
+    private CloudServiceBroker getServiceBrokerToCreate(ExecutionWrapper execution) {
+        CloudApplicationExtended app = execution.getVariable(Variables.APP_TO_PROCESS);
+        CloudServiceBroker serviceBroker = getServiceBrokerFromApp(app, execution.getContext());
         if (serviceBroker == null) {
             return null;
         }

@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +30,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
@@ -78,7 +78,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
     private class BuildCloudDeployModelStepMock extends BuildCloudDeployModelStep {
         @Override
-        protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DelegateExecution context) {
+        protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ExecutionWrapper execution) {
             return applicationCloudModelBuilder;
         }
 
@@ -90,12 +90,12 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         }
 
         @Override
-        protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DelegateExecution context) {
+        protected ServicesCloudModelBuilder getServicesCloudModelBuilder(ExecutionWrapper execution) {
             return servicesCloudModelBuilder;
         }
 
         @Override
-        protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context) {
+        protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(ExecutionWrapper execution) {
             return serviceKeysCloudModelBuilder;
         }
     }
@@ -151,7 +151,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
         StepsUtil.setMtaModules(context, Collections.emptySet());
         StepsUtil.setMtaArchiveModules(context, Collections.emptySet());
-        StepsUtil.setCompleteDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
+        execution.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, DEPLOYMENT_DESCRIPTOR);
     }
 
     @Test

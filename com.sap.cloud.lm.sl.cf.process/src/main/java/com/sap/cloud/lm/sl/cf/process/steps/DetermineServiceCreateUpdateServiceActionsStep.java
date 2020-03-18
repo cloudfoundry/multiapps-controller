@@ -39,6 +39,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MiscUtil;
@@ -58,7 +59,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         CloudControllerClient controllerClient = execution.getControllerClient();
         String spaceId = StepsUtil.getSpaceId(execution.getContext());
-        CloudServiceExtended serviceToProcess = StepsUtil.getServiceToProcess(execution.getContext());
+        CloudServiceExtended serviceToProcess = execution.getVariable(Variables.SERVICE_TO_PROCESS);
 
         execution.getStepLogger()
                  .info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
@@ -66,9 +67,9 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
         Map<String, List<CloudServiceKey>> serviceKeys = StepsUtil.getServiceKeysToCreate(execution.getContext());
 
-        setServiceParameters(serviceToProcess, execution.getContext());
+        setServiceParameters(execution, serviceToProcess);
 
-        serviceToProcess = StepsUtil.getServiceToProcess(execution.getContext());
+        serviceToProcess = execution.getVariable(Variables.SERVICE_TO_PROCESS);
 
         List<ServiceAction> actions = determineActionsAndHandleExceptions(controllerClient, spaceId, serviceToProcess, existingService,
                                                                           serviceKeys, execution);
@@ -80,9 +81,10 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
-        return MessageFormat.format(Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE, StepsUtil.getServiceToProcess(context)
-                                                                                                       .getName());
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
+        return MessageFormat.format(Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE,
+                                    execution.getVariable(Variables.SERVICE_TO_PROCESS)
+                                             .getName());
     }
 
     private List<ServiceAction> determineActionsAndHandleExceptions(CloudControllerClient client, String spaceId,
@@ -99,9 +101,9 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
     }
 
-    private void setServiceParameters(CloudServiceExtended service, DelegateExecution delegateExecution) throws FileStorageException {
-        service = prepareServiceParameters(delegateExecution, service);
-        StepsUtil.setServiceToProcess(service, delegateExecution);
+    private void setServiceParameters(ExecutionWrapper execution, CloudServiceExtended service) throws FileStorageException {
+        service = prepareServiceParameters(execution, service);
+        execution.setVariable(Variables.SERVICE_TO_PROCESS, service);
     }
 
     private List<ServiceAction> determineActions(CloudControllerClient client, String spaceId, CloudServiceExtended service,
@@ -211,14 +213,14 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return newMetadata != null;
     }
 
-    private CloudServiceExtended prepareServiceParameters(DelegateExecution context, CloudServiceExtended service)
+    private CloudServiceExtended prepareServiceParameters(ExecutionWrapper execution, CloudServiceExtended service)
         throws FileStorageException {
-        MtaArchiveElements mtaArchiveElements = StepsUtil.getMtaArchiveElements(context);
+        MtaArchiveElements mtaArchiveElements = execution.getVariable(Variables.MTA_ARCHIVE_ELEMENTS);
         String fileName = mtaArchiveElements.getResourceFileName(service.getResourceName());
         if (fileName != null) {
             getStepLogger().info(Messages.SETTING_SERVICE_PARAMETERS, service.getName(), fileName);
-            String appArchiveId = StepsUtil.getRequiredString(context, Constants.PARAM_APP_ARCHIVE_ID);
-            return setServiceParameters(context, service, appArchiveId, fileName);
+            String appArchiveId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
+            return setServiceParameters(execution.getContext(), service, appArchiveId, fileName);
         }
         return service;
     }

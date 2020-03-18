@@ -28,6 +28,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -105,14 +106,14 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
 
     private void testResources() {
         for (String expectedResource : input.expectedResources) {
-            assertNotNull(StepsUtil.getMtaArchiveElements(context)
+            assertNotNull(execution.getVariable(Variables.MTA_ARCHIVE_ELEMENTS)
                                    .getResourceFileName(expectedResource));
         }
     }
 
     private void testDependencies() {
         for (String expectedDependency : input.expectedRequiredDependencies) {
-            assertNotNull(StepsUtil.getMtaArchiveElements(context)
+            assertNotNull(execution.getVariable(Variables.MTA_ARCHIVE_ELEMENTS)
                                    .getRequiredDependencyFileName(expectedDependency));
         }
     }

@@ -17,6 +17,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationColorDetector;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -45,7 +46,8 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
 
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
-        StepsUtil.setDeploymentDescriptor(context, DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass()));
+        DeploymentDescriptor descriptor = DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass());
+        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
     }
 
     @Test
@@ -59,7 +61,7 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
         Mockito.verify(client)
                .rename("a", "a-live");
 
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(context);
+        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         Assertions.assertTrue(descriptor.getModules()
                                         .stream()
                                         .map(NameUtil::getApplicationName)
@@ -74,7 +76,7 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
 
         assertStepFinishedSuccessfully();
 
-        tester.test(() -> StepsUtil.getDeploymentDescriptor(context),
+        tester.test(() -> execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR),
                     new Expectation(Expectation.Type.JSON, "node-hello-blue-mtad.yaml.json"));
     }
 
@@ -86,7 +88,7 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
 
         assertStepFinishedSuccessfully();
 
-        tester.test(() -> StepsUtil.getDeploymentDescriptor(context),
+        tester.test(() -> execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR),
                     new Expectation(Expectation.Type.JSON, "node-hello-blue-mtad.yaml.json"));
     }
 
@@ -98,7 +100,7 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
 
         assertStepFinishedSuccessfully();
 
-        tester.test(() -> StepsUtil.getDeploymentDescriptor(context),
+        tester.test(() -> execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR),
                     new Expectation(Expectation.Type.JSON, "node-hello-blue-mtad.yaml.json"));
     }
 

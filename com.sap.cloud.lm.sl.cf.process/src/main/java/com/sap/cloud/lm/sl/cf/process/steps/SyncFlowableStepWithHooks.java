@@ -18,6 +18,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 import com.sap.cloud.lm.sl.mta.model.Module;
@@ -32,7 +33,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
-        Module moduleToDeploy = determineModuleToDeploy(execution.getContext());
+        Module moduleToDeploy = determineModuleToDeploy(execution);
 
         if (moduleToDeploy == null) {
             return executeStepInternal(execution);
@@ -62,20 +63,20 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         return hooksForCurrentPhase;
     }
 
-    private Module determineModuleToDeploy(DelegateExecution context) {
-        Module moduleToDeploy = StepsUtil.getModuleToDeploy(context);
+    private Module determineModuleToDeploy(ExecutionWrapper execution) {
+        Module moduleToDeploy = StepsUtil.getModuleToDeploy(execution.getContext());
 
-        return moduleToDeploy != null ? moduleToDeploy : determineModuleFromDescriptor(context);
+        return moduleToDeploy != null ? moduleToDeploy : determineModuleFromDescriptor(execution);
     }
 
-    private Module determineModuleFromDescriptor(DelegateExecution context) {
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+    private Module determineModuleFromDescriptor(ExecutionWrapper execution) {
+        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         if (deploymentDescriptor == null) {
             // This will be the case only when the process is undeploy.
             return null;
         }
 
-        CloudApplicationExtended cloudApplication = StepsUtil.getApp(context);
+        CloudApplicationExtended cloudApplication = execution.getVariable(Variables.APP_TO_PROCESS);
         if (cloudApplication.getModuleName() == null) {
             // This case handles the deletion of old applications when the process is blue-green deployment. Here the application is taken
             // from the
@@ -83,7 +84,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
             return determineModuleFromAppName(deploymentDescriptor, cloudApplication);
         }
 
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
         return findModuleByNameFromDeploymentDescriptor(handlerFactory, deploymentDescriptor, cloudApplication.getModuleName());
     }
 

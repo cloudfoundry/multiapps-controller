@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
@@ -39,7 +40,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         step.execute(context);
 
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
         Map<String, Object> generalParameters = descriptor.getParameters();
         assertEquals(USER, generalParameters.get(SupportedParameters.USER));
         assertEquals(ORG, generalParameters.get(SupportedParameters.ORG));
@@ -75,7 +76,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         step.execute(context);
 
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
         Mockito.verify(readOnlyParametersChecker)
                .check(any());
         List<Module> modules = descriptor.getModules();
@@ -92,7 +93,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         step.execute(context);
 
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
         List<Module> modules = descriptor.getModules();
         assertEquals(1, modules.size());
         validateHostBasedModuleParameters(modules.get(0), "/foo");
@@ -132,7 +133,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         step.execute(context);
 
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
         List<Module> modules = descriptor.getModules();
         assertEquals(2, modules.size());
         Module foo = modules.get(0);
@@ -191,7 +192,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         step.execute(context);
 
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
         List<Module> modules = descriptor.getModules();
         assertEquals(1, modules.size());
         Module foo = modules.get(0);

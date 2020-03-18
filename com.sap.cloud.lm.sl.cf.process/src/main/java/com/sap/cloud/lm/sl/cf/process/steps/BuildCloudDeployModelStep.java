@@ -1,11 +1,13 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -34,6 +36,8 @@ import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
+import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
@@ -50,7 +54,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.BUILDING_CLOUD_MODEL);
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(execution.getContext());
+        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
 
         // Get module sets:
         DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
@@ -65,7 +69,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         StepsUtil.setNewMtaVersion(execution.getContext(), deploymentDescriptor.getVersion());
 
         // Build a map of service keys and save them in the context:
-        Map<String, List<CloudServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(execution.getContext()).build();
+        Map<String, List<CloudServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(execution).build();
         getStepLogger().debug(Messages.SERVICE_KEYS_TO_CREATE, secureSerializer.toJson(serviceKeys));
 
         StepsUtil.setServiceKeysToCreate(execution.getContext(), serviceKeys);
@@ -78,7 +82,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         StepsUtil.setAllModulesToDeploy(execution.getContext(), modulesCalculatedForDeployment);
         StepsUtil.setModulesToDeploy(execution.getContext(), modulesCalculatedForDeployment);
 
-        ApplicationCloudModelBuilder applicationCloudModelBuilder = getApplicationCloudModelBuilder(execution.getContext());
+        ApplicationCloudModelBuilder applicationCloudModelBuilder = getApplicationCloudModelBuilder(execution);
 
         StepsUtil.setAppsToDeploy(execution.getContext(), getAppNames(modulesCalculatedForDeployment));
 
@@ -87,13 +91,12 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         StepsUtil.setUseIdleUris(execution.getContext(), false);
 
         // Build a list of custom domains and save them in the context:
-        List<String> customDomainsFromApps = StepsUtil.getDomainsFromApps(execution.getContext(), deploymentDescriptor,
-                                                                          applicationCloudModelBuilder, modulesCalculatedForDeployment,
-                                                                          moduleToDeployHelper);
+        List<String> customDomainsFromApps = getDomainsFromApps(execution, deploymentDescriptor, applicationCloudModelBuilder,
+                                                                modulesCalculatedForDeployment, moduleToDeployHelper);
         StepsUtil.setCustomDomains(execution.getContext(), customDomainsFromApps);
         getStepLogger().debug(Messages.CUSTOM_DOMAINS, customDomainsFromApps);
 
-        ServicesCloudModelBuilder servicesCloudModelBuilder = getServicesCloudModelBuilder(execution.getContext());
+        ServicesCloudModelBuilder servicesCloudModelBuilder = getServicesCloudModelBuilder(execution);
 
         List<Resource> resourcesUsedForBindings = calculateResourcesUsedForBindings(deploymentDescriptor, modulesCalculatedForDeployment);
         List<CloudServiceExtended> servicesForBindings = servicesCloudModelBuilder.build(resourcesUsedForBindings);
@@ -120,7 +123,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_BUILDING_CLOUD_MODEL;
     }
 
@@ -215,16 +218,48 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
                                                com.sap.cloud.lm.sl.cf.core.Constants.DEPENDENCY_TYPE_HARD);
     }
 
-    protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context) {
-        return StepsUtil.getServiceKeysCloudModelBuilder(context);
+    protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ExecutionWrapper execution) {
+        return StepsUtil.getApplicationCloudModelBuilder(execution);
     }
 
-    protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DelegateExecution context) {
-        return StepsUtil.getApplicationCloudModelBuilder(context, getStepLogger());
+    protected ServicesCloudModelBuilder getServicesCloudModelBuilder(ExecutionWrapper execution) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
+        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+
+        return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor);
     }
 
-    protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DelegateExecution context) {
-        return StepsUtil.getServicesCloudModelBuilder(context);
+    protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(ExecutionWrapper execution) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
+        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+        return handlerFactory.getServiceKeysCloudModelBuilder(deploymentDescriptor);
+    }
+
+    private List<String> getDomainsFromApps(ExecutionWrapper execution, DeploymentDescriptor descriptor,
+                                            ApplicationCloudModelBuilder applicationCloudModelBuilder, List<? extends Module> modules,
+                                            ModuleToDeployHelper moduleToDeployHelper) {
+
+        String defaultDomain = (String) descriptor.getParameters()
+                                                  .get(SupportedParameters.DEFAULT_DOMAIN);
+
+        Set<String> domains = new TreeSet<>();
+        for (Module module : modules) {
+            if (!moduleToDeployHelper.isApplication(module)) {
+                continue;
+            }
+            ParametersChainBuilder parametersChainBuilder = new ParametersChainBuilder(execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR));
+            List<String> appDomains = applicationCloudModelBuilder.getApplicationDomains(parametersChainBuilder.buildModuleChain(module.getName()),
+                                                                                         module);
+            if (appDomains != null) {
+                domains.addAll(appDomains);
+            }
+        }
+
+        if (defaultDomain != null) {
+            domains.remove(defaultDomain);
+        }
+
+        return new ArrayList<>(domains);
     }
 
 }

@@ -28,7 +28,7 @@ public class PrepareToRestartServiceBrokerSubscribersStep extends SyncFlowableSt
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_PREPARING_TO_RESTART_SERVICE_BROKER_SUBSCRIBERS;
     }
 

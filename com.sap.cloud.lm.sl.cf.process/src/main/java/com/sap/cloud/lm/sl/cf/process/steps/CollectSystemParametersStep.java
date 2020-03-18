@@ -22,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFac
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ReadOnlyParametersChecker;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.DeploymentType;
@@ -52,7 +53,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         String defaultDomainName = getDefaultDomain(client);
         getStepLogger().debug(Messages.DEFAULT_DOMAIN, defaultDomainName);
 
-        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
+        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         checkForOverwrittenReadOnlyParameters(descriptor);
         SystemParameters systemParameters = createSystemParameters(execution.getContext(), client, defaultDomainName,
                                                                    reserveTemporaryRoutes);
@@ -61,14 +62,14 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
         determineIsVersionAccepted(execution.getContext(), descriptor);
 
-        StepsUtil.setDeploymentDescriptorWithSystemParameters(execution.getContext(), descriptor);
+        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, descriptor);
         getStepLogger().debug(Messages.SYSTEM_PARAMETERS_COLLECTED);
 
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(DelegateExecution context) {
+    protected String getStepErrorMessage(ExecutionWrapper execution) {
         return Messages.ERROR_COLLECTING_SYSTEM_PARAMETERS;
     }
 
