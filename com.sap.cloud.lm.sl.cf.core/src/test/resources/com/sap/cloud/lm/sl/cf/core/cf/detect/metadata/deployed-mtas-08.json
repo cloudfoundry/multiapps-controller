@@ -20,6 +20,8 @@
             "mta_id": "9fb045bba26522b2a50bb3e7a06ae30d"
           }
         },
+        "credentials" : { },
+        "tags" : [ ],
         "resourceName": "resource-name-1"
       },
       {
@@ -37,6 +39,8 @@
             "mta_id": "9fb045bba26522b2a50bb3e7a06ae30d"
           }
         },
+        "credentials" : { },
+        "tags" : [ ],
         "resourceName": "resource-name-2"
       }
     ]

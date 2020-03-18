@@ -3,30 +3,30 @@
     "isOptional": false,
     "isManaged": true,
     "name": "user-provided-renamed",
-    "alternativeLabels": [],
-    "resourceName": "ups",
     "credentials": {},
     "tags": [],
+    "alternativeLabels": [],
+    "resourceName": "ups",
     "shouldIgnoreUpdateErrors": false
   },
   {
     "isOptional": false,
     "isManaged": true,
     "name": "user-provided-service",
-    "alternativeLabels": [],
-    "resourceName": "user-provided-service",
     "credentials": {},
     "tags": [],
+    "alternativeLabels": [],
+    "resourceName": "user-provided-service",
     "shouldIgnoreUpdateErrors": false
   },
   {
     "isOptional": false,
     "isManaged": true,
     "name": "user-provider-resource-named-service",
-    "alternativeLabels": [],
-    "resourceName": "user-provider-resource-named-service",
     "credentials": {},
     "tags": [],
+    "alternativeLabels": [],
+    "resourceName": "user-provider-resource-named-service",
     "shouldIgnoreUpdateErrors": false
   },
   {
@@ -45,10 +45,10 @@
     },
     "label": "xsuaa",
     "plan": "space",
-    "alternativeLabels": [],
-    "resourceName": "rs",
     "credentials": {},
     "tags": [],
+    "alternativeLabels": [],
+    "resourceName": "rs",
     "shouldIgnoreUpdateErrors": false
   },
   {
@@ -67,10 +67,10 @@
     },
     "label": "xsuaa",
     "plan": "space",
-    "alternativeLabels": [],
-    "resourceName": "random-service",
     "credentials": {},
     "tags": [],
+    "alternativeLabels": [],
+    "resourceName": "random-service",
     "shouldIgnoreUpdateErrors": false
   },
   {
@@ -89,10 +89,10 @@
     },
     "label": "xsuaa",
     "plan": "space",
-    "alternativeLabels": [],
-    "resourceName": "random-resource-named-service",
     "credentials": {},
     "tags": [],
+    "alternativeLabels": [],
+    "resourceName": "random-resource-named-service",
     "shouldIgnoreUpdateErrors": false
   },
   {
@@ -109,10 +109,10 @@
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
       }
     },
-    "alternativeLabels": [],
-    "resourceName": "es",
     "credentials": {},
     "tags": [],
+    "alternativeLabels": [],
+    "resourceName": "es",
     "shouldIgnoreUpdateErrors": false
   },
   {
@@ -129,10 +129,10 @@
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
       }
     },
-    "alternativeLabels": [],
-    "resourceName": "existing-service",
     "credentials": {},
     "tags": [],
+    "alternativeLabels": [],
+    "resourceName": "existing-service",
     "shouldIgnoreUpdateErrors": false
   },
   {
@@ -149,10 +149,10 @@
         "mta_id": "c3ec54a0d8eadd33b207c005ab4825ba"
       }
     },
-    "alternativeLabels": [],
-    "resourceName": "existing-resource-named-service",
     "credentials": {},
     "tags": [],
+    "alternativeLabels": [],
+    "resourceName": "existing-resource-named-service",
     "shouldIgnoreUpdateErrors": false
   }
 ]

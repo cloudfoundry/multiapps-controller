@@ -20,10 +20,6 @@ public interface CloudServiceExtended extends CloudService {
     @Nullable
     String getResourceName();
 
-    Map<String, Object> getCredentials();
-
-    List<String> getTags();
-
     @Value.Default
     default boolean isOptional() {
         return false;

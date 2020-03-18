@@ -50,10 +50,14 @@
   "services": [
     {
       "name": "node-hdi-container",
+      "credentials" : { },
+      "tags" : [ ],
       "resourceName": "node-hdi-container"
     },
     {
       "name": "uaa",
+      "credentials" : { },
+      "tags" : [ ],
       "resourceName": "uaa"
     }
   ]

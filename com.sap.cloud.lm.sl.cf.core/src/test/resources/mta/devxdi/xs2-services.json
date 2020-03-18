@@ -35,10 +35,10 @@
     },
     "label": "hana",
     "plan": "hdi-shared",
-    "alternativeLabels": [],
-    "resourceName": "di-core-hdi",
     "credentials": {},
     "tags": [],
+    "alternativeLabels": [],
+    "resourceName": "di-core-hdi",
     "shouldIgnoreUpdateErrors": false
   }
 ]
