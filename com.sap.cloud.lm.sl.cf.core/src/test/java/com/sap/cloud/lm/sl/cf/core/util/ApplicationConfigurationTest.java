@@ -217,14 +217,6 @@ public class ApplicationConfigurationTest {
     }
 
     @Test
-    public void testAreDummyTokensEnabled() {
-        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_DUMMY_TOKENS_ENABLED,
-                                            ApplicationConfiguration.DEFAULT_DUMMY_TOKENS_ENABLED))
-               .thenReturn(ApplicationConfiguration.DEFAULT_DUMMY_TOKENS_ENABLED);
-        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_DUMMY_TOKENS_ENABLED, configuration.areDummyTokensEnabled());
-    }
-
-    @Test
     public void testIsBasicAuthEnabled() {
         Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_BASIC_AUTH_ENABLED,
                                             ApplicationConfiguration.DEFAULT_BASIC_AUTH_ENABLED))

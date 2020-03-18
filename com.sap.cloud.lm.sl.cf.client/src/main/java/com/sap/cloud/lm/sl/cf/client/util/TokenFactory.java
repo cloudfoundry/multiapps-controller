@@ -20,8 +20,6 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 @Named
 public class TokenFactory {
-    public static final String DUMMY_TOKEN = "DUMMY";
-    public static final UUID DUMMY_UUID = new UUID(0, 0);
 
     // Scopes:
     public static final String SCOPE_CC_READ = "cloud_controller.read";
@@ -41,18 +39,6 @@ public class TokenFactory {
     public OAuth2AccessToken createToken(String tokenString) {
         Map<String, Object> tokenInfo = parseToken(tokenString);
         return createToken(tokenString, tokenInfo);
-    }
-
-    public OAuth2AccessToken createDummyToken(String userName, String clientId) {
-        List<String> scope = Arrays.asList(SCOPE_CC_READ, SCOPE_CC_WRITE, SCOPE_CC_ADMIN, SCOPE_SCIM_USERIDS, SCOPE_PASSWORD_WRITE,
-                                           SCOPE_OPENID);
-        Map<String, Object> dummyTokenInfo = new HashMap<>();
-        dummyTokenInfo.put(SCOPE, scope);
-        dummyTokenInfo.put(EXP, Long.MAX_VALUE / 1000);
-        dummyTokenInfo.put(USER_NAME, userName);
-        dummyTokenInfo.put(USER_ID, DUMMY_UUID.toString());
-        dummyTokenInfo.put(CLIENT_ID, clientId);
-        return createToken(DUMMY_TOKEN, dummyTokenInfo);
     }
 
     @SuppressWarnings("unchecked")

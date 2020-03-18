@@ -117,7 +117,6 @@ public final class Messages {
     public static final String MAX_TTL_FOR_OLD_DATA = "Max TTL for old data: {0}";
     public static final String SPACE_GUID = "Space GUID: {0}";
     public static final String ORG_NAME = "Org name: {0}";
-    public static final String DUMMY_TOKENS_ENABLED = "Dummy tokens enabled: {0}";
     public static final String BASIC_AUTH_ENABLED = "Basic authentication enabled: {0}";
     public static final String GLOBAL_AUDITOR_USERNAME = "Global Auditor username: {0}";
     public static final String USE_XS_AUDIT_LOGGING = "Use XSA audit logging: {0}";

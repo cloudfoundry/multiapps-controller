@@ -66,14 +66,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             OAuth2AccessToken token = (tokenProvider != null) ? tokenProvider.getToken() : null;
 
             if (token == null) {
-                if (configuration.areDummyTokensEnabled()) {
-                    token = tokenFactory.createDummyToken(userName, SecurityUtil.CLIENT_ID);
-                } else {
-                    String message = "Null access token returned by cloud controller";
-                    AuditLoggingProvider.getFacade()
-                                        .logSecurityIncident(message);
-                    throw new AuthenticationServiceException(message);
-                }
+                String message = "Null access token returned by cloud controller";
+                AuditLoggingProvider.getFacade()
+                                    .logSecurityIncident(message);
+                throw new AuthenticationServiceException(message);
             }
 
             // Check if an authentication for this token already exists in the token store
