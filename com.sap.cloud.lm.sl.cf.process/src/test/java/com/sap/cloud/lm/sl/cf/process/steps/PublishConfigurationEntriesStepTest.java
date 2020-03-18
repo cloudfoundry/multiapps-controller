@@ -30,6 +30,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -106,7 +107,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     }
 
     private void prepareContext() {
-        StepsUtil.setConfigurationEntriesToPublish(context, input.entriesToPublish);
+        execution.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, input.entriesToPublish);
         CloudApplicationExtended appToProcess = ImmutableCloudApplicationExtended.builder()
                                                                                  .metadata(CloudMetadata.defaultMetadata())
                                                                                  .name("test-app-name")

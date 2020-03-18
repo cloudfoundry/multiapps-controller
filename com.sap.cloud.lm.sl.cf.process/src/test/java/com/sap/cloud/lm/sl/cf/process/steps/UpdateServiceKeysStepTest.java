@@ -83,7 +83,7 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
     }
 
     private void prepareContext(List<CloudServiceKey> serviceKeys, boolean canDeleteServiceKeys, CloudServiceExtended service) {
-        StepsUtil.setServiceKeysToCreate(context, MapUtil.asMap(SERVICE_NAME, serviceKeys));
+        execution.setVariable(Variables.SERVICE_KEYS_TO_CREATE, MapUtil.asMap(SERVICE_NAME, serviceKeys));
         context.setVariable(Constants.PARAM_DELETE_SERVICE_KEYS, canDeleteServiceKeys);
         execution.setVariable(Variables.SERVICE_TO_PROCESS, service);
 

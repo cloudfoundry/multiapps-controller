@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -18,6 +17,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("prepareToUndeployStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -31,14 +31,13 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.DETECTING_COMPONENTS_TO_UNDEPLOY);
         String mtaId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_MTA_ID);
-
-        StepsUtil.setMtaModules(execution.getContext(), getMtaModules(execution.getContext()));
-        StepsUtil.setPublishedEntries(execution.getContext(), Collections.emptyList());
+        execution.setVariable(Variables.MTA_MODULES, getMtaModules(execution));
+        execution.setVariable(Variables.PUBLISHED_ENTRIES, Collections.emptyList());
         StepsUtil.setServicesToCreate(execution.getContext(), Collections.emptyList());
         StepsUtil.setModulesToDeploy(execution.getContext(), Collections.emptyList());
-        StepsUtil.setAppsToDeploy(execution.getContext(), Collections.emptyList());
+        execution.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
         StepsUtil.setAllModulesToDeploy(execution.getContext(), Collections.emptyList());
-        StepsUtil.setSubscriptionsToCreate(execution.getContext(), Collections.emptyList());
+        execution.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, Collections.emptyList());
         execution.getContext()
                  .setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 2);
 
@@ -56,8 +55,8 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
         return Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY;
     }
 
-    private Set<String> getMtaModules(DelegateExecution context) {
-        DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
+    private Set<String> getMtaModules(ExecutionWrapper execution) {
+        DeployedMta deployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
         if (deployedMta == null) {
             return Collections.emptySet();
         }

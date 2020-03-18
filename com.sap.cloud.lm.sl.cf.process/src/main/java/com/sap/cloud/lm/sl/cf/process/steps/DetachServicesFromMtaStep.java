@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataAnnotations;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataLabels;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("detachServicesFromMtaStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -25,7 +26,7 @@ public class DetachServicesFromMtaStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.DETACHING_SERVICES_FROM_MTA);
 
-        List<String> serviceNamesToDetachFromMta = StepsUtil.getServicesToDelete(execution.getContext());
+        List<String> serviceNamesToDetachFromMta = execution.getVariable(Variables.SERVICES_TO_DELETE);
         CloudControllerClient client = execution.getControllerClient();
         List<CloudServiceInstance> servicesToDetachFromMta = getServices(serviceNamesToDetachFromMta, client);
         deleteMtaMetadataFromServices(servicesToDetachFromMta, client);

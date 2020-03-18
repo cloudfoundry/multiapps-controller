@@ -13,6 +13,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("deleteSubscriptionsStep")
@@ -26,7 +27,7 @@ public class DeleteSubscriptionsStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.DELETING_SUBSCRIPTIONS);
 
-        List<ConfigurationSubscription> subscriptionsToDelete = StepsUtil.getSubscriptionsToDelete(execution.getContext());
+        List<ConfigurationSubscription> subscriptionsToDelete = execution.getVariable(Variables.SUBSCRIPTIONS_TO_DELETE);
         getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, JsonUtil.toJson(subscriptionsToDelete, true));
         for (ConfigurationSubscription subscription : subscriptionsToDelete) {
             infoSubscriptionDeletion(subscription);

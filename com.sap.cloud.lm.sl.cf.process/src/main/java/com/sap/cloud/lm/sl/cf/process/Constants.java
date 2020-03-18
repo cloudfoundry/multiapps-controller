@@ -122,7 +122,6 @@ public class Constants {
     public static final String VAR_EXISTING_APP = "existingApp";
     public static final String VAR_START_TIME = "startTime";
     public static final String VAR_STARTING_INFO = "startingInfo";
-    public static final String VAR_STARTING_INFO_CLASSNAME = "startingInfoClass";
     public static final String VAR_UPLOAD_TOKEN = "uploadToken";
     public static final String VAR_PUBLISHED_ENTRIES = "publishedEntries";
     public static final String VAR_DELETED_ENTRIES = "deletedEntries";

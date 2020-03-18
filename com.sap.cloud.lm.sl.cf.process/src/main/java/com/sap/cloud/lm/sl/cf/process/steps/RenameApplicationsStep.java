@@ -60,16 +60,15 @@ public class RenameApplicationsStep extends SyncFlowableStep {
 
         @Override
         public void execute(ExecutionWrapper execution) {
-            DelegateExecution context = execution.getContext();
-            List<String> appsToRename = StepsUtil.getAppsToRename(context);
+            List<String> appsToRename = execution.getVariable(Variables.APPS_TO_RENAME);
             if (appsToRename != null) {
                 renameOldApps(appsToRename, execution.getControllerClient());
             }
 
-            DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
+            DeployedMta deployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
             if (deployedMta != null) {
                 ApplicationProductizationStateUpdater appUpdater = new ApplicationProductizationStateUpdaterBasedOnAge(getStepLogger());
-                setIdleApplications(context, deployedMta, appUpdater);
+                setIdleApplications(execution, deployedMta, appUpdater);
             }
 
             getStepLogger().debug(Messages.UPDATING_APP_NAMES_WITH_NEW_SUFFIX);
@@ -94,7 +93,7 @@ public class RenameApplicationsStep extends SyncFlowableStep {
         public void execute(ExecutionWrapper execution) {
             DelegateExecution context = execution.getContext();
             getStepLogger().debug(Messages.DETECTING_COLOR_OF_DEPLOYED_MTA);
-            DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
+            DeployedMta deployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
             ApplicationColor idleMtaColor = DEFAULT_MTA_COLOR;
 
             if (deployedMta == null) {
@@ -112,7 +111,7 @@ public class RenameApplicationsStep extends SyncFlowableStep {
 
             ApplicationProductizationStateUpdater appUpdater = new ApplicationProductizationStateUpdaterBasedOnColor(getStepLogger(),
                                                                                                                      liveMtaColor);
-            setIdleApplications(context, deployedMta, appUpdater);
+            setIdleApplications(execution, deployedMta, appUpdater);
             StepsUtil.setLiveMtaColor(context, liveMtaColor);
             StepsUtil.setIdleMtaColor(context, idleMtaColor);
             updateApplicationNamesInDescriptor(execution, idleMtaColor.asSuffix());
@@ -135,10 +134,10 @@ public class RenameApplicationsStep extends SyncFlowableStep {
 
     }
 
-    private void setIdleApplications(DelegateExecution context, DeployedMta deployedMta, ApplicationProductizationStateUpdater appUpdater) {
+    private void setIdleApplications(ExecutionWrapper execution, DeployedMta deployedMta, ApplicationProductizationStateUpdater appUpdater) {
         List<DeployedMtaApplication> updatedApplications = appUpdater.updateApplicationsProductizationState(deployedMta.getApplications());
-        StepsUtil.setDeployedMta(context, ImmutableDeployedMta.copyOf(deployedMta)
-                                                              .withApplications(updatedApplications));
+        execution.setVariable(Variables.DEPLOYED_MTA, ImmutableDeployedMta.copyOf(deployedMta)
+                                                                          .withApplications(updatedApplications));
     }
 
     private void updateApplicationNamesInDescriptor(ExecutionWrapper execution, String suffix) {

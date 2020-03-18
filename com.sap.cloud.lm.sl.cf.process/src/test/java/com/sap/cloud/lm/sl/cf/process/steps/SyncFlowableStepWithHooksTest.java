@@ -50,7 +50,7 @@ public class SyncFlowableStepWithHooksTest {
                               .setHooks(Collections.singletonList(Hook.createV3()
                                                                       .setType("tasks")
                                                                       .setPhases(Collections.singletonList("application.before-start"))));
-        StepsUtil.setModuleToDeploy(context, module);
+        execution.setVariable(Variables.MODULE_TO_DEPLOY, module);
 
         List<Hook> moduleHooks = module.getHooks();
 
@@ -73,7 +73,7 @@ public class SyncFlowableStepWithHooksTest {
                               .setHooks(Collections.singletonList(Hook.createV3()
                                                                       .setType("tasks")
                                                                       .setPhases(Collections.singletonList("application.before-stop"))));
-        StepsUtil.setModuleToDeploy(context, module);
+        execution.setVariable(Variables.MODULE_TO_DEPLOY, module);
 
         List<Hook> moduleHooks = module.getHooks();
 
@@ -95,7 +95,7 @@ public class SyncFlowableStepWithHooksTest {
                               .setName("test")
                               .setHooks(Collections.emptyList());
 
-        StepsUtil.setModuleToDeploy(context, module);
+        execution.setVariable(Variables.MODULE_TO_DEPLOY, module);
 
         Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE))
                .thenReturn(Collections.emptyList());

@@ -9,7 +9,6 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
@@ -36,8 +35,8 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
         CloudServiceExtended serviceToProcess = execution.getVariable(Variables.SERVICE_TO_PROCESS);
-        MethodExecution<String> methodExecution = executeOperationAndHandleExceptions(execution.getContext(),
-                                                                                      execution.getControllerClient(), serviceToProcess);
+        MethodExecution<String> methodExecution = executeOperationAndHandleExceptions(execution, execution.getControllerClient(),
+                                                                                      serviceToProcess);
         if (methodExecution.getState()
                            .equals(ExecutionState.FINISHED)) {
             return StepPhase.DONE;
@@ -48,7 +47,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
 
         execution.getStepLogger()
                  .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(serviceOperation, true));
-        StepsUtil.setTriggeredServiceOperations(execution.getContext(), serviceOperation);
+        execution.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, serviceOperation);
 
         StepsUtil.isServiceUpdated(true, execution.getContext());
         return StepPhase.POLL;
@@ -59,7 +58,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
         return Messages.ERROR_SERVICE_OPERATION;
     }
 
-    private MethodExecution<String> executeOperationAndHandleExceptions(DelegateExecution execution, CloudControllerClient controllerClient,
+    private MethodExecution<String> executeOperationAndHandleExceptions(ExecutionWrapper execution, CloudControllerClient controllerClient,
                                                                         CloudServiceExtended service) {
         try {
             return executeOperation(execution, controllerClient, service);
@@ -69,7 +68,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
         }
     }
 
-    protected abstract MethodExecution<String> executeOperation(DelegateExecution context, CloudControllerClient controllerClient,
+    protected abstract MethodExecution<String> executeOperation(ExecutionWrapper execution, CloudControllerClient controllerClient,
                                                                 CloudServiceExtended service);
 
     protected abstract ServiceOperation.Type getOperationType();

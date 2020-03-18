@@ -30,6 +30,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -257,10 +258,10 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
                .thenReturn(input.existingApplication.toCloudApp());
         CloudApplicationExtended cloudApp = input.application.toCloudApp();
         // TODO
-        StepsUtil.setAppsToDeploy(context, Collections.emptyList());
+        execution.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
         StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(cloudApp), context);
         StepsUtil.setServicesToBind(context, mapToCloudServices());
-        StepsUtil.setTriggeredServiceOperations(context, Collections.emptyMap());
+        execution.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, Collections.emptyMap());
         context.setVariable(Constants.VAR_MODULES_INDEX, 0);
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
         byte[] serviceKeysToInjectByteArray = JsonUtil.toJsonBinary(new HashMap<>());

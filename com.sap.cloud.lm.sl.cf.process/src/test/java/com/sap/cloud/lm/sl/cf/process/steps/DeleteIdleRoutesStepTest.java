@@ -86,7 +86,7 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
         CloudApplicationExtended existingApp = JsonUtil.fromJson(TestUtil.getResourceAsString(existingAppFile, getClass()),
                                                                  new TypeReference<CloudApplicationExtended>() {
                                                                  });
-        StepsUtil.setExistingApp(context, existingApp);
+        execution.setVariable(Variables.EXISTING_APP, existingApp);
     }
 
     private void assertStepPhaseMatch(StepPhase stepPhase) {

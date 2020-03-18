@@ -23,7 +23,7 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         boolean deleteIdleRoutes = StepsUtil.getDeleteIdleUris(execution.getContext());
-        CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
+        CloudApplication existingApp = execution.getVariable(Variables.EXISTING_APP);
         if (!deleteIdleRoutes || existingApp == null) {
             return StepPhase.DONE;
         }

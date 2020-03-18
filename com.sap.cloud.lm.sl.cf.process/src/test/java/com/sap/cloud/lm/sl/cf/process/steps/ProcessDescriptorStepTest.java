@@ -58,7 +58,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
 
         assertStepFinishedSuccessfully();
 
-        tester.test(() -> StepsUtil.getSubscriptionsToCreate(context), new Expectation("[]"));
+        tester.test(() -> execution.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE), new Expectation("[]"));
 
         tester.test(() -> execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR),
                     new Expectation(Expectation.Type.JSON, "node-hello-mtad-1.yaml.json"));

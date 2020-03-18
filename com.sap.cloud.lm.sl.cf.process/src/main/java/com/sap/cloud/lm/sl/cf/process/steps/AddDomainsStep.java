@@ -11,6 +11,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("addDomainsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -20,7 +21,7 @@ public class AddDomainsStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         CloudControllerClient client = execution.getControllerClient();
 
-        List<String> customDomains = StepsUtil.getCustomDomains(execution.getContext());
+        List<String> customDomains = execution.getVariable(Variables.CUSTOM_DOMAINS);
         getStepLogger().debug("Custom domains: " + customDomains);
         if (customDomains.isEmpty()) {
             return StepPhase.DONE;

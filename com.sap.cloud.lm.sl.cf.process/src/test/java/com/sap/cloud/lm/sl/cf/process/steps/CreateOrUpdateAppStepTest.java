@@ -32,6 +32,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -126,7 +127,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
 
     private void prepareContext() {
         // TODO
-        StepsUtil.setAppsToDeploy(context, Collections.emptyList());
+        execution.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
         StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
         StepsUtil.setServicesToBind(context, mapToCloudServiceExtended());
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");

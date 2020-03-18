@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public abstract class PollServiceOperationsExecution implements AsyncExecution {
@@ -38,7 +39,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         execution.getStepLogger()
                  .debug(Messages.POLLING_SERVICE_OPERATIONS);
 
-        Map<String, ServiceOperation.Type> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(execution.getContext());
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = execution.getVariable(Variables.TRIGGERED_SERVICE_OPERATIONS);
         List<CloudServiceExtended> servicesToPoll = getServiceOperationsToPoll(execution, triggeredServiceOperations);
         if (CollectionUtils.isEmpty(servicesToPoll)) {
             return AsyncExecutionState.FINISHED;
@@ -58,7 +59,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         List<CloudServiceExtended> remainingServicesToPoll = getRemainingServicesToPoll(servicesWithLastOperation);
         execution.getStepLogger()
                  .debug(Messages.REMAINING_SERVICES_TO_POLL, JsonUtil.toJson(remainingServicesToPoll, true));
-        StepsUtil.setServicesToPoll(execution.getContext(), remainingServicesToPoll);
+        execution.setVariable(Variables.SERVICES_TO_POLL, remainingServicesToPoll);
 
         if (remainingServicesToPoll.isEmpty()) {
             return AsyncExecutionState.FINISHED;
@@ -68,7 +69,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
 
     protected List<CloudServiceExtended> getServiceOperationsToPoll(ExecutionWrapper execution,
                                                                     Map<String, ServiceOperation.Type> triggeredServiceOperations) {
-        List<CloudServiceExtended> servicesToPoll = StepsUtil.getServicesToPoll(execution.getContext());
+        List<CloudServiceExtended> servicesToPoll = execution.getVariable(Variables.SERVICES_TO_POLL);
         if (CollectionUtils.isEmpty(servicesToPoll)) {
             return computeServicesToPoll(execution, triggeredServiceOperations);
         }

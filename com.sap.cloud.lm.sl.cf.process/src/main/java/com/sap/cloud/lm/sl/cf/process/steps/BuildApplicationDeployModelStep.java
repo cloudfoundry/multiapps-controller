@@ -28,11 +28,11 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        Module module = StepsUtil.getModuleToDeploy(execution.getContext());
+        Module module = execution.getVariable(Variables.MODULE_TO_DEPLOY);
         getStepLogger().debug(Messages.BUILDING_CLOUD_APP_MODEL, module.getName());
 
         Module applicationModule = findModuleInDeploymentDescriptor(execution, module.getName());
-        StepsUtil.setModuleToDeploy(execution.getContext(), applicationModule);
+        execution.setVariable(Variables.MODULE_TO_DEPLOY, applicationModule);
         CloudApplicationExtended modifiedApp = StepsUtil.getApplicationCloudModelBuilder(execution)
                                                         .build(applicationModule, moduleToDeployHelper);
         modifiedApp = ImmutableCloudApplicationExtended.builder()
@@ -46,7 +46,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         execution.setVariable(Variables.APP_TO_PROCESS, modifiedApp);
 
         buildConfigurationEntries(execution, modifiedApp);
-        StepsUtil.setTasksToExecute(execution.getContext(), modifiedApp.getTasks());
+        execution.setVariable(Variables.TASKS_TO_EXECUTE, modifiedApp.getTasks());
 
         getStepLogger().debug(Messages.CLOUD_APP_MODEL_BUILT);
         return StepPhase.DONE;
@@ -77,7 +77,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
 
     private void buildConfigurationEntries(ExecutionWrapper execution, CloudApplicationExtended app) {
         if (StepsUtil.getSkipUpdateConfigurationEntries(execution.getContext())) {
-            StepsUtil.setConfigurationEntriesToPublish(execution.getContext(), Collections.emptyList());
+            execution.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, Collections.emptyList());
             return;
         }
         DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
@@ -85,7 +85,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         ConfigurationEntriesCloudModelBuilder configurationEntriesCloudModelBuilder = getConfigurationEntriesCloudModelBuilder(execution.getContext());
         Map<String, List<ConfigurationEntry>> allConfigurationEntries = configurationEntriesCloudModelBuilder.build(deploymentDescriptor);
         List<ConfigurationEntry> updatedModuleNames = allConfigurationEntries.getOrDefault(app.getModuleName(), Collections.emptyList());
-        StepsUtil.setConfigurationEntriesToPublish(execution.getContext(), updatedModuleNames);
+        execution.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, updatedModuleNames);
         StepsUtil.setSkipUpdateConfigurationEntries(execution.getContext(), false);
 
         getStepLogger().debug(Messages.CONFIGURATION_ENTRIES_TO_PUBLISH, JsonUtil.toJson(updatedModuleNames, true));

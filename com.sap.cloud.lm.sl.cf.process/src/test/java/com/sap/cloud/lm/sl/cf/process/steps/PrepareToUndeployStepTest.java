@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUndeployStep> {
 
@@ -40,8 +41,8 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
         step.execute(context);
 
         assertStepFinishedSuccessfully();
-        Assertions.assertEquals(Collections.emptyList(), StepsUtil.getAppsToDeploy(context));
-        Assertions.assertEquals(Collections.emptySet(), StepsUtil.getMtaModules(context));
+        Assertions.assertEquals(Collections.emptyList(), execution.getVariable(Variables.APPS_TO_DEPLOY));
+        Assertions.assertEquals(Collections.emptySet(), execution.getVariable(Variables.MTA_MODULES));
         Assertions.assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacadeFacade));
     }
 
@@ -52,12 +53,12 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
 
     @Test
     public void testExecuteDeployedModuleNotNull() {
-        StepsUtil.setDeployedMta(context, createDeployedMta());
+        execution.setVariable(Variables.DEPLOYED_MTA, createDeployedMta());
         step.execute(context);
 
         assertStepFinishedSuccessfully();
-        Assertions.assertEquals(Collections.emptyList(), StepsUtil.getAppsToDeploy(context));
-        Assertions.assertEquals(getMtaModulesNames(createDeployedMtaApplications()), StepsUtil.getMtaModules(context));
+        Assertions.assertEquals(Collections.emptyList(), execution.getVariable(Variables.APPS_TO_DEPLOY));
+        Assertions.assertEquals(getMtaModulesNames(createDeployedMtaApplications()), execution.getVariable(Variables.MTA_MODULES));
         Assertions.assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacadeFacade));
     }
 

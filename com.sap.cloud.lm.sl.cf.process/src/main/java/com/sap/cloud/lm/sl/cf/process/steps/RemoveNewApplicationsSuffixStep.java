@@ -14,6 +14,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("removeNewApplicationsSuffixStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -28,7 +29,7 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
             return StepPhase.DONE;
         }
 
-        List<String> appsToProcess = StepsUtil.getAppsToDeploy(execution.getContext());
+        List<String> appsToProcess = execution.getVariable(Variables.APPS_TO_DEPLOY);
         CloudControllerClient client = execution.getControllerClient();
 
         for (String appName : appsToProcess) {

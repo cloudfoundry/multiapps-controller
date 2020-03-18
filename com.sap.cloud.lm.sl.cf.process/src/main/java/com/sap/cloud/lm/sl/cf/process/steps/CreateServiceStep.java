@@ -37,9 +37,9 @@ public class CreateServiceStep extends ServiceStep {
     private ServiceWithAlternativesCreator.Factory serviceCreatorFactory;
 
     @Override
-    protected MethodExecution<String> executeOperation(DelegateExecution execution, CloudControllerClient controllerClient,
+    protected MethodExecution<String> executeOperation(ExecutionWrapper execution, CloudControllerClient controllerClient,
                                                        CloudServiceExtended service) {
-        return createService(execution, controllerClient, service);
+        return createService(execution.getContext(), controllerClient, service);
     }
 
     private MethodExecution<String> createService(DelegateExecution context, CloudControllerClient client, CloudServiceExtended service) {

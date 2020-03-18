@@ -23,7 +23,7 @@ public class UpdateServiceBrokerSubscriberStep extends CreateOrUpdateServiceBrok
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        CloudApplication serviceBrokerApplication = StepsUtil.getServiceBrokerSubscriberToRestart(execution.getContext());
+        CloudApplication serviceBrokerApplication = StepsUtil.getUpdatedServiceBrokerSubscriber(execution);
         CloudServiceBroker serviceBroker = getServiceBrokerFromApp(serviceBrokerApplication, execution.getContext());
 
         try {

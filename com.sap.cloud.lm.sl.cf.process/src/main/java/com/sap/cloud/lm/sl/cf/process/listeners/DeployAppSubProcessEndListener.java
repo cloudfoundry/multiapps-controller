@@ -12,7 +12,6 @@ import org.flowable.engine.runtime.Execution;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.process.variables.VariablesHandler;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -24,15 +23,16 @@ public class DeployAppSubProcessEndListener implements ExecutionListener {
 
     @Override
     public void notify(DelegateExecution context) {
-        CloudServiceBroker cloudServiceBrokerExtended = StepsUtil.getCreatedOrUpdatedServiceBroker(context);
+        VariablesHandler variablesHandler = new VariablesHandler(context);
+        CloudServiceBroker cloudServiceBrokerExtended = variablesHandler.get(Variables.CREATED_OR_UPDATED_SERVICE_BROKER);
 
         if (cloudServiceBrokerExtended != null) {
-            setVariableInParentProcess(context, Constants.VAR_APP_SERVICE_BROKER_VAR_PREFIX, cloudServiceBrokerExtended);
+            setVariableInParentProcess(context, variablesHandler, Constants.VAR_APP_SERVICE_BROKER_VAR_PREFIX, cloudServiceBrokerExtended);
         }
     }
 
-    private void setVariableInParentProcess(DelegateExecution context, String variablePrefix, Object variableValue) {
-        VariablesHandler variablesHandler = new VariablesHandler(context);
+    private void setVariableInParentProcess(DelegateExecution context, VariablesHandler variablesHandler, String variablePrefix,
+                                            Object variableValue) {
         CloudApplicationExtended cloudApplication = variablesHandler.get(Variables.APP_TO_PROCESS);
         if (cloudApplication == null) {
             throw new IllegalStateException(Messages.CANNOT_DETERMINE_CURRENT_APPLICATION);

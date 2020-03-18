@@ -55,7 +55,7 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
             createServiceBroker(execution.getContext(), serviceBroker, client);
         }
 
-        StepsUtil.setCreatedOrUpdatedServiceBroker(execution.getContext(), serviceBroker);
+        execution.setVariable(Variables.CREATED_OR_UPDATED_SERVICE_BROKER, serviceBroker);
         getStepLogger().debug(Messages.SERVICE_BROKERS_CREATED);
         return StepPhase.DONE;
     }

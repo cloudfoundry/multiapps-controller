@@ -26,6 +26,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.impl.ConfigurationSubscriptionQueryImpl;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @RunWith(Parameterized.class)
 public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubscriptionsStep> {
@@ -78,7 +79,7 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
     }
 
     private void prepareContext() {
-        StepsUtil.setSubscriptionsToDelete(context, asSubscriptions(input.subscriptionsToDelete));
+        execution.setVariable(Variables.SUBSCRIPTIONS_TO_DELETE, asSubscriptions(input.subscriptionsToDelete));
     }
 
     private List<ConfigurationSubscription> asSubscriptions(List<Long> subscriptionsToDelete) {

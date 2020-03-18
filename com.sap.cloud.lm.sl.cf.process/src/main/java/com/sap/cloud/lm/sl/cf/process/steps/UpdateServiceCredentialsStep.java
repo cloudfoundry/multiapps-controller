@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -26,7 +25,7 @@ public class UpdateServiceCredentialsStep extends ServiceStep {
     protected ServiceUpdater serviceUpdater;
 
     @Override
-    protected MethodExecution<String> executeOperation(DelegateExecution context, CloudControllerClient controllerClient,
+    protected MethodExecution<String> executeOperation(ExecutionWrapper execution, CloudControllerClient controllerClient,
                                                        CloudServiceExtended service) {
         return updateServiceCredentials(controllerClient, service);
     }

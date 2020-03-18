@@ -38,7 +38,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
             stopApp(client, app);
         }
         StartingInfo startingInfo = startApp(client, app);
-        setStartupPollingInfo(execution.getContext(), startingInfo);
+        setStartupPollingInfo(execution, startingInfo);
         return StepPhase.POLL;
     }
 
@@ -51,8 +51,9 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
         return execution.getVariable(Variables.APP_TO_PROCESS);
     }
 
-    private void setStartupPollingInfo(DelegateExecution context, StartingInfo startingInfo) {
-        StepsUtil.setStartingInfo(context, startingInfo);
+    private void setStartupPollingInfo(ExecutionWrapper execution, StartingInfo startingInfo) {
+        execution.setVariable(Variables.STARTING_INFO, startingInfo);
+        DelegateExecution context = execution.getContext();
         if (context.getVariable(Constants.VAR_START_TIME) == null) {
             context.setVariable(Constants.VAR_START_TIME, System.currentTimeMillis());
         }

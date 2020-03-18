@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
@@ -68,7 +69,7 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
 
         byte[] serviceKeysToInjectByteArray = JsonUtil.toJsonBinary(new HashMap<>());
         context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
-        StepsUtil.setAppsToDeploy(context, Collections.emptyList());
+        execution.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
         StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
     }
 

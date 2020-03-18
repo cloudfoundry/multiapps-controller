@@ -29,6 +29,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -123,9 +124,9 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
     private void prepareContext() {
         context.setVariable(Constants.VAR_ORG, input.org);
         context.setVariable(Constants.VAR_SPACE, input.space);
-        StepsUtil.setExistingApp(context, input.existingApp);
+        execution.setVariable(Variables.EXISTING_APP, input.existingApp);
         context.setVariable(Constants.PARAM_MTA_ID, input.mtaId);
-        StepsUtil.setPublishedEntries(context, input.publishedEntries);
+        execution.setVariable(Variables.PUBLISHED_ENTRIES, input.publishedEntries);
     }
 
     private void prepareConfigurationEntryService() {
@@ -155,7 +156,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
 
     private StepOutput getActualOutput() {
         StepOutput actualOutput = new StepOutput();
-        actualOutput.deletedEntries = StepsUtil.getDeletedEntries(context);
+        actualOutput.deletedEntries = execution.getVariable(Variables.DELETED_ENTRIES);
         return actualOutput;
     }
 

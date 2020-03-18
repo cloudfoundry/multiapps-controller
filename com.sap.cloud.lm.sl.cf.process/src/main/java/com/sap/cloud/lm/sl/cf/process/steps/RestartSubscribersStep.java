@@ -13,6 +13,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("restartSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -20,7 +21,7 @@ public class RestartSubscribersStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        List<CloudApplication> updatedSubscribers = StepsUtil.getUpdatedSubscribers(execution.getContext());
+        List<CloudApplication> updatedSubscribers = execution.getVariable(Variables.UPDATED_SUBSCRIBERS);
         for (CloudApplication subscriber : updatedSubscribers) {
             getStepLogger().debug(Messages.UPDATING_SUBSCRIBER_0, subscriber.getName());
             restartSubscriber(execution, subscriber);

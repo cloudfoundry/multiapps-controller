@@ -45,18 +45,18 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
-        DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
+        DeployedMta deployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
 
         List<String> deploymentDescriptorModules = getDeploymentDescriptorModules(execution);
 
         if (deployedMta == null) {
-            setComponentsToUndeploy(execution.getContext(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+            setComponentsToUndeploy(execution, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
             return StepPhase.DONE;
         }
 
-        List<ConfigurationSubscription> subscriptionsToCreate = StepsUtil.getSubscriptionsToCreate(execution.getContext());
-        Set<String> mtaModules = StepsUtil.getMtaModules(execution.getContext());
-        List<String> appNames = StepsUtil.getAppsToDeploy(execution.getContext());
+        List<ConfigurationSubscription> subscriptionsToCreate = execution.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE);
+        Set<String> mtaModules = execution.getVariable(Variables.MTA_MODULES);
+        List<String> appNames = execution.getVariable(Variables.APPS_TO_DEPLOY);
         List<String> serviceNames = getServicesToCreate(execution.getContext());
 
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
@@ -80,7 +80,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(deployedAppsToUndeploy, execution.getControllerClient());
         getStepLogger().debug(Messages.APPS_TO_UNDEPLOY, secureSerializer.toJson(appsToUndeploy));
 
-        setComponentsToUndeploy(execution.getContext(), servicesToDelete, appsToUndeploy, subscriptionsToDelete);
+        setComponentsToUndeploy(execution, servicesToDelete, appsToUndeploy, subscriptionsToDelete);
 
         getStepLogger().debug(Messages.CLOUD_UNDEPLOY_MODEL_BUILT);
         return StepPhase.DONE;
@@ -147,11 +147,11 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                          .noneMatch(existingModuleName::equals);
     }
 
-    private void setComponentsToUndeploy(DelegateExecution context, List<String> services, List<CloudApplication> apps,
+    private void setComponentsToUndeploy(ExecutionWrapper execution, List<String> services, List<CloudApplication> apps,
                                          List<ConfigurationSubscription> subscriptions) {
-        StepsUtil.setSubscriptionsToDelete(context, subscriptions);
-        StepsUtil.setServicesToDelete(context, services);
-        StepsUtil.setAppsToUndeploy(context, apps);
+        execution.setVariable(Variables.SUBSCRIPTIONS_TO_DELETE, subscriptions);
+        execution.setVariable(Variables.SERVICES_TO_DELETE, services);
+        StepsUtil.setAppsToUndeploy(execution.getContext(), apps);
     }
 
     private List<String> computeServicesToDelete(List<DeployedMtaApplication> appsWithoutChange,

@@ -36,6 +36,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -124,7 +125,7 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
     }
 
     private void prepareContext() {
-        StepsUtil.setServiceKeysToCreate(context, stepInput.getServiceKeysToCreate());
+        execution.setVariable(Variables.SERVICE_KEYS_TO_CREATE, stepInput.getServiceKeysToCreate());
         context.setVariable(Constants.VAR_SERVICE_TO_PROCESS, JsonUtil.toJson(stepInput.service));
         context.setVariable(Constants.PARAM_DELETE_SERVICE_KEYS, true);
         context.setVariable(Constants.PARAM_DELETE_SERVICES, stepInput.shouldDeleteServices);

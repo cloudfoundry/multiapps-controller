@@ -7,6 +7,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -38,7 +39,7 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
         step.execute(context);
         assertStepFinishedSuccessfully();
     }
-    
+
     @Test
     public void testExecuteWithoutDeployedMta() {
         step.execute(context);
@@ -59,12 +60,12 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
     @MethodSource
     public void testExecuteWithoutRenamingApps(String appName1, String appName2) {
         DeployedMta deployedMta = createDeployedMta(appName1, appName2);
-        StepsUtil.setDeployedMta(context, deployedMta);
+        execution.setVariable(Variables.DEPLOYED_MTA, deployedMta);
 
         step.execute(context);
         assertStepFinishedSuccessfully();
 
-        Assertions.assertTrue(StepsUtil.getAppsToRename(context)
+        Assertions.assertTrue(execution.getVariable(Variables.APPS_TO_RENAME)
                                        .isEmpty());
         Assertions.assertTrue(StepsUtil.getAppsToUndeploy(context)
                                        .isEmpty());
@@ -82,12 +83,12 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
         List<String> appsToUpdate = Arrays.asList("a", "b");
 
         DeployedMta deployedMta = createDeployedMta(appsToUpdate.toArray(new String[0]));
-        StepsUtil.setDeployedMta(context, deployedMta);
+        execution.setVariable(Variables.DEPLOYED_MTA, deployedMta);
 
         step.execute(context);
         assertStepFinishedSuccessfully();
 
-        Assertions.assertEquals(appsToUpdate, StepsUtil.getAppsToRename(context));
+        Assertions.assertEquals(appsToUpdate, execution.getVariable(Variables.APPS_TO_RENAME));
 
         List<String> appsToCheck = appsToUpdate.stream()
                                                .map(name -> name + BlueGreenApplicationNameSuffix.LIVE.asSuffix())
@@ -98,7 +99,7 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
     @Test
     public void testExecuteWithTwoVersionsOfAppDeletesOldAndRenamesNew() {
         DeployedMta deployedMta = createDeployedMta("a-live", "a");
-        StepsUtil.setDeployedMta(context, deployedMta);
+        execution.setVariable(Variables.DEPLOYED_MTA, deployedMta);
 
         CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
         Mockito.when(client.getApplication("a-live", false))
@@ -111,7 +112,7 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
 
         Assertions.assertTrue(StepsUtil.getAppsToUndeploy(context)
                                        .contains(createApplication("a-live")));
-        Assertions.assertTrue(StepsUtil.getAppsToRename(context)
+        Assertions.assertTrue(execution.getVariable(Variables.APPS_TO_RENAME)
                                        .contains("a"));
 
         List<String> appsToCheck = Collections.singletonList("a-live");
@@ -121,12 +122,12 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
     @Test
     public void testExecuteWithTwoVersionsOfAppRenamesOld() {
         DeployedMta deployedMta = createDeployedMta("a-idle", "a");
-        StepsUtil.setDeployedMta(context, deployedMta);
+        execution.setVariable(Variables.DEPLOYED_MTA, deployedMta);
 
         step.execute(context);
         assertStepFinishedSuccessfully();
 
-        Assertions.assertTrue(StepsUtil.getAppsToRename(context)
+        Assertions.assertTrue(execution.getVariable(Variables.APPS_TO_RENAME)
                                        .contains("a"));
         Assertions.assertTrue(StepsUtil.getAppsToUndeploy(context)
                                        .isEmpty());
@@ -138,12 +139,12 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
     @Test
     public void testExecuteWithTwoVersionsOfAppDoesNothing() {
         DeployedMta deployedMta = createDeployedMta("a-live", "a-idle");
-        StepsUtil.setDeployedMta(context, deployedMta);
+        execution.setVariable(Variables.DEPLOYED_MTA, deployedMta);
 
         step.execute(context);
         assertStepFinishedSuccessfully();
 
-        Assertions.assertTrue(StepsUtil.getAppsToRename(context)
+        Assertions.assertTrue(execution.getVariable(Variables.APPS_TO_RENAME)
                                        .isEmpty());
         Assertions.assertTrue(StepsUtil.getAppsToUndeploy(context)
                                        .isEmpty());
@@ -178,7 +179,7 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
     }
 
     private void validateUpdatedDeployedMta(List<String> appsToCheck) {
-        DeployedMta updatedDeployedMta = StepsUtil.getDeployedMta(context);
+        DeployedMta updatedDeployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
         Assertions.assertTrue(updatedDeployedMta.getApplications()
                                                 .stream()
                                                 .allMatch(module -> appsToCheck.contains(module.getName())));

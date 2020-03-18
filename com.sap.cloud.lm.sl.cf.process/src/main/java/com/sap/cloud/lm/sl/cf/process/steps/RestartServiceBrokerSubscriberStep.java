@@ -23,7 +23,7 @@ public class RestartServiceBrokerSubscriberStep extends RestartAppStep {
 
     @Override
     protected CloudApplication getAppToRestart(ExecutionWrapper execution) {
-        return StepsUtil.getServiceBrokerSubscriberToRestart(execution.getContext());
+        return StepsUtil.getUpdatedServiceBrokerSubscriber(execution);
     }
 
     @Override

@@ -12,6 +12,7 @@ import org.junit.Test;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareToExecuteTasksStep> {
 
@@ -23,7 +24,7 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
     @Test
     public void testIterationOverTasksIsInitialized() {
         // Given:
-        StepsUtil.setTasksToExecute(context, createDummyApplicationWithTasks(3).getTasks());
+        execution.setVariable(Variables.TASKS_TO_EXECUTE, createDummyApplicationWithTasks(3).getTasks());
 
         // When:
         step.execute(context);
@@ -33,14 +34,14 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
         assertEquals(3, context.getVariable(Constants.VAR_TASKS_COUNT));
         assertEquals(0, context.getVariable(Constants.VAR_TASKS_INDEX));
         assertEquals(Constants.VAR_TASKS_INDEX, context.getVariable(Constants.VAR_INDEX_VARIABLE_NAME));
-        assertEquals(3, StepsUtil.getTasksToExecute(context)
+        assertEquals(3, execution.getVariable(Variables.TASKS_TO_EXECUTE)
                                  .size());
     }
 
     @Test
     public void testExecuteWhenTasksAreSupported() {
         // Given:
-        StepsUtil.setTasksToExecute(context, createDummyApplicationWithTasks(0).getTasks());
+        execution.setVariable(Variables.TASKS_TO_EXECUTE, createDummyApplicationWithTasks(0).getTasks());
 
         // When:
         step.execute(context);

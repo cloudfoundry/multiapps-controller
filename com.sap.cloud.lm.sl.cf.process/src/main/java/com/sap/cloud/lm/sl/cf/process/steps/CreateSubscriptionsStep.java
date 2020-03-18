@@ -14,6 +14,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("createSubscriptionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -26,7 +27,7 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.CREATING_SUBSCRIPTIONS);
 
-        List<ConfigurationSubscription> subscriptions = StepsUtil.getSubscriptionsToCreate(execution.getContext());
+        List<ConfigurationSubscription> subscriptions = execution.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE);
 
         for (ConfigurationSubscription subscription : subscriptions) {
             createSubscription(subscription);

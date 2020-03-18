@@ -31,6 +31,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaService;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Named("checkForCreationConflictsStep")
@@ -45,7 +46,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws CloudOperationException, SLException {
-        DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
+        DeployedMta deployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
         try {
             getStepLogger().debug(Messages.VALIDATING_SERVICES);
             CloudControllerClient client = execution.getControllerClient();
@@ -172,7 +173,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
     }
 
     private void validateApplicationsToDeploy(ExecutionWrapper execution, DeployedMta deployedMta) {
-        List<String> appNames = StepsUtil.getAppsToDeploy(execution.getContext());
+        List<String> appNames = execution.getVariable(Variables.APPS_TO_DEPLOY);
         for (String appName : appNames) {
             validateApplicationToDeploy(deployedMta, appName, execution.getControllerClient());
         }

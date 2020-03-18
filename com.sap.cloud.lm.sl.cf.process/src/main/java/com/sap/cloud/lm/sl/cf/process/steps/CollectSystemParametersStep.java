@@ -60,7 +60,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         systemParameters.injectInto(descriptor);
         getStepLogger().debug(Messages.DESCRIPTOR_WITH_SYSTEM_PARAMETERS, secureSerializer.toJson(descriptor));
 
-        determineIsVersionAccepted(execution.getContext(), descriptor);
+        determineIsVersionAccepted(execution, descriptor);
 
         execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, descriptor);
         getStepLogger().debug(Messages.SYSTEM_PARAMETERS_COLLECTED);
@@ -109,9 +109,10 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                                              .build();
     }
 
-    private void determineIsVersionAccepted(DelegateExecution context, DeploymentDescriptor descriptor) {
-        DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
-        VersionRule versionRule = VersionRule.valueOf((String) context.getVariable(Constants.PARAM_VERSION_RULE));
+    private void determineIsVersionAccepted(ExecutionWrapper execution, DeploymentDescriptor descriptor) {
+        DeployedMta deployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
+        VersionRule versionRule = VersionRule.valueOf((String) execution.getContext()
+                                                                        .getVariable(Constants.PARAM_VERSION_RULE));
         getStepLogger().debug(Messages.VERSION_RULE, versionRule);
 
         Version mtaVersion = Version.parseVersion(descriptor.getVersion());

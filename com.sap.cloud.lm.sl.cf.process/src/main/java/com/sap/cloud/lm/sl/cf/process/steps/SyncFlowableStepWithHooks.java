@@ -64,7 +64,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
     }
 
     private Module determineModuleToDeploy(ExecutionWrapper execution) {
-        Module moduleToDeploy = StepsUtil.getModuleToDeploy(execution.getContext());
+        Module moduleToDeploy = execution.getVariable(Variables.MODULE_TO_DEPLOY);
 
         return moduleToDeploy != null ? moduleToDeploy : determineModuleFromDescriptor(execution);
     }

@@ -34,6 +34,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -96,8 +97,8 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         context.setVariable("__TASK_ID", getTaskId());
         prepareExecution();
         prepareProcessEngineConfiguration();
-        StepsUtil.setModuleToDeploy(context, Module.createV3()
-                                                   .setName("testModule"));
+        execution.setVariable(Variables.MODULE_TO_DEPLOY, Module.createV3()
+                                                                .setName("testModule"));
     }
 
     private void prepareProcessEngineConfiguration() {

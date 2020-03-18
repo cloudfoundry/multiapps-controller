@@ -231,16 +231,16 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
     }
 
     private void prepareContext() {
-        StepsUtil.setDeployedMta(context, deployedMta);
+        execution.setVariable(Variables.DEPLOYED_MTA, deployedMta);
         StepsUtil.setModulesToDeploy(context, modulesToDeploy);
         StepsUtil.setServicesToCreate(context, servicesToCreate);
         StepsUtil.setAllModulesToDeploy(context, modulesToDeploy);
         List<String> appNamesToDeploy = new ArrayList<>();
         appsToDeploy.forEach(app -> appNamesToDeploy.add(app.getName()));
-        StepsUtil.setAppsToDeploy(context, appNamesToDeploy);
-        StepsUtil.setSubscriptionsToCreate(context, subscriptionsToCreate);
+        execution.setVariable(Variables.APPS_TO_DEPLOY, appNamesToDeploy);
+        execution.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, subscriptionsToCreate);
         StepsUtil.setSpaceId(context, SPACE_ID);
-        StepsUtil.setMtaModules(context, input.mtaModules);
+        execution.setVariable(Variables.MTA_MODULES, input.mtaModules);
         execution.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
     }
 
@@ -267,11 +267,11 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
 
         assertStepFinishedSuccessfully();
 
-        assertEquals(output.servicesToDelete, StepsUtil.getServicesToDelete(context));
+        assertEquals(output.servicesToDelete, execution.getVariable(Variables.SERVICES_TO_DELETE));
 
         assertEquals(output.appsToUndeployNames, getNames(StepsUtil.getAppsToUndeploy(context)));
 
-        tester.test(() -> StepsUtil.getSubscriptionsToDelete(context), output.subscriptionsToDeleteExpectation);
+        tester.test(() -> execution.getVariable(Variables.SUBSCRIPTIONS_TO_DELETE), output.subscriptionsToDeleteExpectation);
     }
 
     private List<String> getNames(List<CloudApplication> appsToUndeploy) {
