@@ -15,6 +15,7 @@ import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudService;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
+import org.cloudfoundry.client.lib.domain.ServiceInstanceType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -168,6 +169,7 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
                                                                           .plan(service.plan)
                                                                           .label(service.label)
                                                                           .metadata(serviceMetadata)
+                                                                          .type(ServiceInstanceType.valueOfWithDefault(service.type))
                                                                           .build())
                                             .build();
     }
@@ -187,6 +189,7 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
         String label;
         String plan;
         String guid;
+        String type;
     }
 
 }
