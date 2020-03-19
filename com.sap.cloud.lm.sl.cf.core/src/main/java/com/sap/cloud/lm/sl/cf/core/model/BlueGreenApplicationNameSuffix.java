@@ -6,7 +6,7 @@ public class BlueGreenApplicationNameSuffix {
 
     public static final BlueGreenApplicationNameSuffix LIVE = new BlueGreenApplicationNameSuffix("live");
     public static final BlueGreenApplicationNameSuffix IDLE = new BlueGreenApplicationNameSuffix("idle");
-    
+
     private final String value;
 
     private BlueGreenApplicationNameSuffix(String value) {

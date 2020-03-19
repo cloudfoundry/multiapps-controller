@@ -38,26 +38,26 @@ public class DeployProcessAttributesCollector extends AbstractCommonProcessAttri
 
  // @formatter:off
     @Override
-    public DeployProcessAttributes collectProcessVariables(DelegateExecution context) {
-        VariablesHandler variablesHandler = new VariablesHandler(context);
-        DeployProcessAttributes deployProcessAttributes = super.collectProcessVariables(context);
-        deployProcessAttributes.setMtaSize(getMtaSize(context).intValue());
+    public DeployProcessAttributes collectProcessVariables(DelegateExecution execution) {
+        VariablesHandler variablesHandler = new VariablesHandler(execution);
+        DeployProcessAttributes deployProcessAttributes = super.collectProcessVariables(execution);
+        deployProcessAttributes.setMtaSize(getMtaSize(execution).intValue());
         deployProcessAttributes.setCustomDomains(
-            getAttribute(context, Constants.VAR_CUSTOM_DOMAINS, () -> variablesHandler.get(Variables.CUSTOM_DOMAINS).size()));
+            getAttribute(execution, Constants.VAR_CUSTOM_DOMAINS, () -> variablesHandler.get(Variables.CUSTOM_DOMAINS).size()));
         deployProcessAttributes.setServicesToCreate(
-            getAttribute(context, Constants.VAR_SERVICES_TO_CREATE, () -> StepsUtil.getServicesToCreate(context).size()));
+            getAttribute(execution, Constants.VAR_SERVICES_TO_CREATE, () -> StepsUtil.getServicesToCreate(execution).size()));
         deployProcessAttributes.setAppsToDeploy(
-            getAttribute(context, Constants.VAR_APPS_TO_DEPLOY, () -> variablesHandler.get(Variables.APPS_TO_DEPLOY).size()));
+            getAttribute(execution, Constants.VAR_APPS_TO_DEPLOY, () -> variablesHandler.get(Variables.APPS_TO_DEPLOY).size()));
         deployProcessAttributes.setPublishedEntries(
-            getAttribute(context, Constants.VAR_PUBLISHED_ENTRIES, () -> variablesHandler.get(Variables.PUBLISHED_ENTRIES).size()));
+            getAttribute(execution, Constants.VAR_PUBLISHED_ENTRIES, () -> variablesHandler.get(Variables.PUBLISHED_ENTRIES).size()));
         deployProcessAttributes.setSubscriptionsToCreate(
-            getAttribute(context, Constants.VAR_SUBSCRIPTIONS_TO_CREATE, () -> variablesHandler.get(Variables.SUBSCRIPTIONS_TO_CREATE).size()));
+            getAttribute(execution, Constants.VAR_SUBSCRIPTIONS_TO_CREATE, () -> variablesHandler.get(Variables.SUBSCRIPTIONS_TO_CREATE).size()));
         deployProcessAttributes.setServiceBrokersToCreate(
-            getAttribute(context, Constants.VAR_ALL_MODULES_TO_DEPLOY, () -> StepsUtil.getCreatedOrUpdatedServiceBrokerNames(context).size()));
+            getAttribute(execution, Constants.VAR_ALL_MODULES_TO_DEPLOY, () -> StepsUtil.getCreatedOrUpdatedServiceBrokerNames(execution).size()));
         deployProcessAttributes.setTriggeredServiceOperations(
-            getAttribute(context, Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, () -> getCreatedServicesCount(variablesHandler.get(Variables.TRIGGERED_SERVICE_OPERATIONS))));
+            getAttribute(execution, Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, () -> getCreatedServicesCount(variablesHandler.get(Variables.TRIGGERED_SERVICE_OPERATIONS))));
         deployProcessAttributes.setServiceKeysToCreate(
-            getAttribute(context, Constants.VAR_SERVICE_KEYS_TO_CREATE, () -> variablesHandler.get(Variables.SERVICE_KEYS_TO_CREATE).size()));
+            getAttribute(execution, Constants.VAR_SERVICE_KEYS_TO_CREATE, () -> variablesHandler.get(Variables.SERVICE_KEYS_TO_CREATE).size()));
         return deployProcessAttributes;
     }
  // @formatter:on
@@ -73,19 +73,19 @@ public class DeployProcessAttributesCollector extends AbstractCommonProcessAttri
                                       .count();
     }
 
-    public BigInteger getMtaSize(DelegateExecution context) {
-        String appArchiveId = (String) context.getVariable(Constants.PARAM_APP_ARCHIVE_ID);
+    public BigInteger getMtaSize(DelegateExecution execution) {
+        String appArchiveId = (String) execution.getVariable(Constants.PARAM_APP_ARCHIVE_ID);
         try {
-            return computeMtaSize(appArchiveId, context);
+            return computeMtaSize(appArchiveId, execution);
         } catch (FileStorageException e) {
             throw new SLException(e);
         }
     }
 
-    private BigInteger computeMtaSize(String appArchiveId, DelegateExecution context) throws FileStorageException {
+    private BigInteger computeMtaSize(String appArchiveId, DelegateExecution execution) throws FileStorageException {
         BigInteger mtaSize = BigInteger.valueOf(0);
         for (String appId : appArchiveId.split(",")) {
-            FileEntry fileEntry = fileService.getFile(StepsUtil.getSpaceId(context), appId);
+            FileEntry fileEntry = fileService.getFile(StepsUtil.getSpaceId(execution), appId);
             mtaSize = mtaSize.add(entrySize(fileEntry));
         }
         return mtaSize;

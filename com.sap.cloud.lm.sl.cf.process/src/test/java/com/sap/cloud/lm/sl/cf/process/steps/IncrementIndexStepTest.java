@@ -34,18 +34,18 @@ public class IncrementIndexStepTest extends SyncFlowableStepTest<IncrementIndexS
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
-        String indexVariableName = (String) context.getVariable(Constants.VAR_INDEX_VARIABLE_NAME);
-        assertEquals(index + 1, context.getVariable(indexVariableName));
+        String indexVariableName = (String) execution.getVariable(Constants.VAR_INDEX_VARIABLE_NAME);
+        assertEquals(index + 1, execution.getVariable(indexVariableName));
     }
 
     private DelegateExecution prepareContext() {
-        context.setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
-        context.setVariable(Constants.VAR_MODULES_INDEX, index);
-        return context;
+        execution.setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
+        execution.setVariable(Constants.VAR_MODULES_INDEX, index);
+        return execution;
     }
 
     @Override

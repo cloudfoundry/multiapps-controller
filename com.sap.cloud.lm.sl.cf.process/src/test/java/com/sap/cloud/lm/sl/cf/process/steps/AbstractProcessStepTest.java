@@ -44,7 +44,7 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
 
     @Before
     public void setUp() {
-        Mockito.when(context.getProcessInstanceId())
+        Mockito.when(execution.getProcessInstanceId())
                .thenReturn(PROCESS_ID);
     }
 
@@ -52,10 +52,10 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
     public void testExecute() {
         step.exceptionSupplier = () -> exceptionToSimulate;
         try {
-            step.execute(context);
+            step.execute(execution);
             fail();
         } catch (Exception e) {
-            Mockito.verify(context)
+            Mockito.verify(execution)
                    .setVariable(Constants.VAR_ERROR_TYPE, expectedErrorType.toString());
         }
     }
@@ -65,12 +65,12 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
         private Supplier<Exception> exceptionSupplier;
 
         @Override
-        protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
+        protected StepPhase executeStep(ProcessContext context) throws Exception {
             throw exceptionSupplier.get();
         }
 
         @Override
-        protected String getStepErrorMessage(ExecutionWrapper execution) {
+        protected String getStepErrorMessage(ProcessContext context) {
             return "mock error";
         }
 

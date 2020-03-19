@@ -27,7 +27,7 @@ public class OperationInFinalStateHandlerTest {
     private final boolean keepFiles;
     private final String[] expectedFileIdsToSweep;
 
-    private final DelegateExecution context = MockDelegateExecution.createSpyInstance();
+    private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
 
     @Mock
     private FileService fileService;
@@ -94,15 +94,15 @@ public class OperationInFinalStateHandlerTest {
     }
 
     private void prepareContext() {
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
-        context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, archiveIds);
-        context.setVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, extensionDescriptorIds);
-        context.setVariable(Constants.PARAM_KEEP_FILES, keepFiles);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, archiveIds);
+        execution.setVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, extensionDescriptorIds);
+        execution.setVariable(Constants.PARAM_KEEP_FILES, keepFiles);
     }
 
     @Test
     public void testDeleteDeploymentFiles() throws Exception {
-        eventHandler.deleteDeploymentFiles(context);
+        eventHandler.deleteDeploymentFiles(execution);
         for (String fileId : expectedFileIdsToSweep) {
             Mockito.verify(fileService)
                    .deleteFile(SPACE_ID, fileId);

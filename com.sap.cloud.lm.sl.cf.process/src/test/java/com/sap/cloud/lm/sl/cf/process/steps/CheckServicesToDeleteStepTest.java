@@ -67,14 +67,14 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
         prepareClient(services);
         prepareServiceOperationGetter(servicesOperationState);
 
-        step.execute(context);
+        step.execute(execution);
 
         validateExecution(expectedServicesOperations, expectedStatus);
     }
 
     private void prepareContext(List<String> serviceNames) {
-        StepsUtil.setSpaceId(context, TEST_SPACE_ID);
-        execution.setVariable(Variables.SERVICES_TO_DELETE, serviceNames);
+        StepsUtil.setSpaceId(execution, TEST_SPACE_ID);
+        context.setVariable(Variables.SERVICES_TO_DELETE, serviceNames);
     }
 
     private List<CloudService> getServices(List<String> existingServiceNames) {
@@ -106,7 +106,7 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
     }
 
     private void validateExecution(List<String> expectedServicesOperations, String expectedStatus) {
-        Map<String, ServiceOperation.Type> triggeredServiceOperations = execution.getVariable(Variables.TRIGGERED_SERVICE_OPERATIONS);
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = context.getVariable(Variables.TRIGGERED_SERVICE_OPERATIONS);
         for (String serviceName : expectedServicesOperations) {
             ServiceOperation.Type serviceOperationType = MapUtils.getObject(triggeredServiceOperations, serviceName);
             assertNotNull(serviceOperationType);

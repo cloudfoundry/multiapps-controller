@@ -263,11 +263,8 @@ public class ConfigurationSubscription implements AuditableConfiguration {
         if (o == null || getClass() != o.getClass())
             return false;
         ConfigurationSubscription that = (ConfigurationSubscription) o;
-        return id == that.id
-            && Objects.equals(mtaId, that.mtaId)
-            && Objects.equals(filter, that.filter)
-            && Objects.equals(spaceId, that.spaceId)
-            && Objects.equals(appName, that.appName);
+        return id == that.id && Objects.equals(mtaId, that.mtaId) && Objects.equals(filter, that.filter)
+            && Objects.equals(spaceId, that.spaceId) && Objects.equals(appName, that.appName);
     }
 
     @Override

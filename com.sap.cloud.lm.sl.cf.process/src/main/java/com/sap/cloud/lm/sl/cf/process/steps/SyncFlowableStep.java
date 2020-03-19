@@ -24,8 +24,8 @@ import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
-import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
+import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -54,55 +54,55 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     protected ApplicationConfiguration configuration;
 
     @Override
-    public void execute(DelegateExecution context) {
-        LoggingUtil.logWithCorrelationId(StepsUtil.getCorrelationId(context), () -> executeInternal(context));
+    public void execute(DelegateExecution execution) {
+        LoggingUtil.logWithCorrelationId(StepsUtil.getCorrelationId(execution), () -> executeInternal(execution));
     }
 
-    private void executeInternal(DelegateExecution context) {
-        initializeStepLogger(context);
-        ExecutionWrapper executionWrapper = createExecutionWrapper(context);
-        StepPhase stepPhase = getInitialStepPhase(executionWrapper);
+    private void executeInternal(DelegateExecution execution) {
+        initializeStepLogger(execution);
+        ProcessContext context = createExecutionWrapper(execution);
+        StepPhase stepPhase = getInitialStepPhase(context);
         try {
-            getStepHelper().preExecuteStep(context, stepPhase);
-            stepPhase = executeStep(executionWrapper);
+            getStepHelper().preExecuteStep(execution, stepPhase);
+            stepPhase = executeStep(context);
             if (stepPhase == StepPhase.RETRY) {
                 throw new SLException("A step of the process has failed. Retrying it may solve the issue.");
             }
-            getStepHelper().failStepIfProcessIsAborted(context);
+            getStepHelper().failStepIfProcessIsAborted(execution);
         } catch (Exception e) {
             stepPhase = StepPhase.RETRY;
-            handleException(executionWrapper, e);
+            handleException(context, e);
         } finally {
-            StepsUtil.setStepPhase(context, stepPhase);
-            postExecuteStep(context, stepPhase);
+            StepsUtil.setStepPhase(execution, stepPhase);
+            postExecuteStep(execution, stepPhase);
         }
     }
 
-    protected StepPhase getInitialStepPhase(ExecutionWrapper executionWrapper) {
+    protected StepPhase getInitialStepPhase(ProcessContext context) {
         return StepPhase.EXECUTE;
     }
 
-    protected ExecutionWrapper createExecutionWrapper(DelegateExecution context) {
-        return new ExecutionWrapper(context, stepLogger, clientProvider);
+    protected ProcessContext createExecutionWrapper(DelegateExecution execution) {
+        return new ProcessContext(execution, stepLogger, clientProvider);
     }
 
-    private void handleException(ExecutionWrapper execution, Exception e) {
+    private void handleException(ProcessContext context, Exception e) {
         try {
-            StepPhase stepPhase = StepsUtil.getStepPhase(execution.getContext());
+            StepPhase stepPhase = StepsUtil.getStepPhase(context.getExecution());
             if (stepPhase == StepPhase.POLL) {
                 throw e;
             }
-            onStepError(execution, e);
+            onStepError(context, e);
         } catch (Exception ex) {
             ex = getWithProperMessage(ex);
-            getStepHelper().logExceptionAndStoreProgressMessage(execution.getContext(), ex);
+            getStepHelper().logExceptionAndStoreProgressMessage(context.getExecution(), ex);
             throw ex instanceof RuntimeException ? (RuntimeException) ex : new RuntimeException(ex);
         }
     }
 
     /**
      * <p>
-     * Handle exception thrown during {@link #executeStep(ExecutionWrapper) executeStep}
+     * Handle exception thrown during {@link #executeStep(ProcessContext) executeStep}
      * </p>
      * <p>
      * Can be overridden if standard behavior does not fulfill custom step requirements. For example, exception can be parsed to other
@@ -111,11 +111,11 @@ public abstract class SyncFlowableStep implements JavaDelegate {
      * <p>
      * 
      * @param context flowable context of the step
-     * @param e thrown exception from {@link #executeStep(ExecutionWrapper) executeStep} and pre-processed by
+     * @param e thrown exception from {@link #executeStep(ProcessContext) executeStep} and pre-processed by
      *        {@link #handleException(DelegateExecution, Exception) handleException}
      */
-    protected void onStepError(ExecutionWrapper execution, Exception e) throws Exception {
-        processException(e, getStepErrorMessage(execution), getErrorMessageAdditionalDescription(e, execution.getContext()));
+    protected void onStepError(ProcessContext context, Exception e) throws Exception {
+        processException(e, getStepErrorMessage(context), getErrorMessageAdditionalDescription(e, context.getExecution()));
     }
 
     protected void processException(Exception e, String detailedMessage, String description) throws Exception {
@@ -123,12 +123,12 @@ public abstract class SyncFlowableStep implements JavaDelegate {
         throw getExceptionConstructor(e).apply(e, detailedMessage + ": " + e.getMessage() + " " + description);
     }
 
-    protected String getErrorMessageAdditionalDescription(Exception e, DelegateExecution context) {
+    protected String getErrorMessageAdditionalDescription(Exception e, DelegateExecution execution) {
         if (e instanceof ContentException) {
             return StringUtils.EMPTY;
         }
         if (e instanceof CloudServiceBrokerException) {
-            return getStepErrorMessageAdditionalDescription(context);
+            return getStepErrorMessageAdditionalDescription(execution);
         }
         if (e instanceof CloudOperationException || e instanceof CloudControllerException) {
             return ExceptionMessageTailMapper.map(configuration, CloudComponents.CLOUD_CONTROLLER, null);
@@ -150,18 +150,18 @@ public abstract class SyncFlowableStep implements JavaDelegate {
         return SLException::new;
     }
 
-    protected void postExecuteStep(DelegateExecution context, StepPhase stepState) {
+    protected void postExecuteStep(DelegateExecution execution, StepPhase stepState) {
         try {
-            getStepHelper().postExecuteStep(context, stepState);
+            getStepHelper().postExecuteStep(execution, stepState);
         } catch (SLException e) {
-            getStepHelper().logExceptionAndStoreProgressMessage(context, e);
+            getStepHelper().logExceptionAndStoreProgressMessage(execution, e);
             throw e;
         }
     }
 
-    protected abstract String getStepErrorMessage(ExecutionWrapper execution);
+    protected abstract String getStepErrorMessage(ProcessContext context);
 
-    protected abstract StepPhase executeStep(ExecutionWrapper execution) throws Exception;
+    protected abstract StepPhase executeStep(ProcessContext context) throws Exception;
 
     protected StepLogger getStepLogger() {
         if (stepLogger == null) {
@@ -170,8 +170,8 @@ public abstract class SyncFlowableStep implements JavaDelegate {
         return stepLogger;
     }
 
-    protected void initializeStepLogger(DelegateExecution context) {
-        stepLogger = stepLoggerFactory.create(context, progressMessageService, processLoggerProvider, logger);
+    protected void initializeStepLogger(DelegateExecution execution) {
+        stepLogger = stepLoggerFactory.create(execution, progressMessageService, processLoggerProvider, logger);
     }
 
     protected Exception getWithProperMessage(Exception e) {
@@ -199,7 +199,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
         return processLogsPersister;
     }
 
-    protected String getStepErrorMessageAdditionalDescription(DelegateExecution context) {
+    protected String getStepErrorMessageAdditionalDescription(DelegateExecution execution) {
         return StringUtils.EMPTY;
     }
 

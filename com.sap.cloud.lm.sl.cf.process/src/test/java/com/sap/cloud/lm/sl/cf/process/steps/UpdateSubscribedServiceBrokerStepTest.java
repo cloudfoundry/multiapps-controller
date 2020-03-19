@@ -96,15 +96,15 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
     }
 
     private void prepareContext() {
-        context.setVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX, 0);
+        execution.setVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX, 0);
         List<CloudApplication> brokers = new ArrayList<>();
         brokers.add(input.brokerApplication.toCloudApplication());
-        execution.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS, brokers);
+        context.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS, brokers);
     }
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         validateExecution();
     }

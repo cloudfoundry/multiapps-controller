@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 public class UpdateServiceTagsStep extends ServiceStep {
 
     @Override
-    protected MethodExecution<String> executeOperation(ExecutionWrapper execution, CloudControllerClient controllerClient,
+    protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
                                                        CloudServiceExtended service) {
         return updateServiceTags(controllerClient, service);
     }
@@ -48,7 +48,7 @@ public class UpdateServiceTagsStep extends ServiceStep {
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
+    protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         return Collections.singletonList(new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(),
                                                                                           getServiceProgressReporter()));
     }

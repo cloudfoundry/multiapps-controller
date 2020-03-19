@@ -60,14 +60,14 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
     public void testExecute(String stepInput, String expectedExceptionMessage) {
         initializeInput(stepInput, expectedExceptionMessage);
         prepareResponses(STEP_EXECUTION);
-        step.execute(context);
+        step.execute(execution);
         assertStepPhase(STEP_EXECUTION);
 
         if (getExecutionStatus().equals(DONE_EXECUTION_STATUS)) {
             return;
         }
         prepareResponses(POLLING);
-        step.execute(context);
+        step.execute(execution);
         assertStepPhase(POLLING);
     }
 
@@ -75,14 +75,14 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
     public void testExceptionIsThrownOnManagedServiceCreationInternalServerError() {
         initializeInput("create-service-step-input-1.json", null);
         throwExceptionOnServiceCreation(HttpStatus.INTERNAL_SERVER_ERROR);
-        Assertions.assertThrows(SLException.class, () -> step.execute(context));
+        Assertions.assertThrows(SLException.class, () -> step.execute(execution));
     }
 
     @Test
     public void testExceptionIsThrownOnManagedServiceCreationBadGateway() {
         initializeInput("create-service-step-input-1.json", null);
         throwExceptionOnServiceCreation(HttpStatus.BAD_GATEWAY);
-        Assertions.assertThrows(SLException.class, () -> step.execute(context));
+        Assertions.assertThrows(SLException.class, () -> step.execute(execution));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
         CloudService cloudService = Mockito.mock(CloudService.class);
         Mockito.when(client.getService(any(), eq(false)))
                .thenReturn(cloudService);
-        step.execute(context);
+        step.execute(execution);
         Assertions.assertEquals(DONE_EXECUTION_STATUS, getExecutionStatus());
     }
 
@@ -117,7 +117,7 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
     }
 
     private void prepareContext() {
-        context.setVariable("serviceToProcess", JsonUtil.toJson(stepInput.service));
+        execution.setVariable("serviceToProcess", JsonUtil.toJson(stepInput.service));
     }
 
     private void prepareClient() {
@@ -126,7 +126,7 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
         Mockito.when(client.getServiceInstance(service.name))
                .thenReturn(cloudService);
         Mockito.when(client.getService(service.name))
-                .thenReturn(cloudService.getService());
+               .thenReturn(cloudService.getService());
         Mockito.doNothing()
                .when(client)
                .createUserProvidedService(any(CloudServiceExtended.class), any(Map.class));

@@ -43,8 +43,8 @@ public class ProcessGitSourceStepTest extends SyncFlowableStepTest<ProcessGitSou
     @Test
     public void getGitUriTest() throws SLException {
         String gitUri = "https://somehost.com/somerepo/.git";
-        context.setVariable(Constants.PARAM_GIT_URI, gitUri);
-        assertEquals(gitUri, step.getGitUri(execution));
+        execution.setVariable(Constants.PARAM_GIT_URI, gitUri);
+        assertEquals(gitUri, step.getGitUri(context));
     }
 
     @Test

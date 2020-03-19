@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sap.cloud.lm.sl.cf.web.api.Constants.Endpoints;
 import com.sap.cloud.lm.sl.cf.web.api.Constants.PathVariables;
-import com.sap.cloud.lm.sl.cf.web.api.Constants.RequestVariables;
 import com.sap.cloud.lm.sl.cf.web.api.Constants.QueryVariables;
+import com.sap.cloud.lm.sl.cf.web.api.Constants.RequestVariables;
 import com.sap.cloud.lm.sl.cf.web.api.Constants.Resources;
 import com.sap.cloud.lm.sl.cf.web.api.model.Log;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;

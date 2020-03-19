@@ -24,10 +24,10 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
     private ConfigurationSubscriptionService configurationSubscriptionService;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.CREATING_SUBSCRIPTIONS);
 
-        List<ConfigurationSubscription> subscriptions = execution.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE);
+        List<ConfigurationSubscription> subscriptions = context.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE);
 
         for (ConfigurationSubscription subscription : subscriptions) {
             createSubscription(subscription);
@@ -39,7 +39,7 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_CREATING_SUBSCRIPTIONS;
     }
 

@@ -28,38 +28,38 @@ public class ProcessLoggerProvider {
 
     private final Map<String, ProcessLogger> loggersCache = new ConcurrentHashMap<>();
 
-    public ProcessLogger getLogger(DelegateExecution context) {
-        return getLogger(context, DEFAULT_LOG_NAME);
+    public ProcessLogger getLogger(DelegateExecution execution) {
+        return getLogger(execution, DEFAULT_LOG_NAME);
     }
 
-    public ProcessLogger getLogger(DelegateExecution context, String logName) {
-        return getLogger(context, logName, null);
+    public ProcessLogger getLogger(DelegateExecution execution, String logName) {
+        return getLogger(execution, logName, null);
     }
 
-    public ProcessLogger getLogger(DelegateExecution context, String logName, PatternLayout layout) {
-        String name = getLoggerName(context, logName);
-        String correlationId = getCorrelationId(context);
-        String spaceId = getSpaceId(context);
-        String activityId = getTaskId(context);
+    public ProcessLogger getLogger(DelegateExecution execution, String logName, PatternLayout layout) {
+        String name = getLoggerName(execution, logName);
+        String correlationId = getCorrelationId(execution);
+        String spaceId = getSpaceId(execution);
+        String activityId = getTaskId(execution);
         String logNameWithExtension = logName + LOG_FILE_EXTENSION;
         if (correlationId == null || activityId == null) {
-            return new NullProcessLogger(spaceId, context.getProcessInstanceId(), activityId);
+            return new NullProcessLogger(spaceId, execution.getProcessInstanceId(), activityId);
         }
         return loggersCache.computeIfAbsent(name, (String loggerName) -> createProcessLogger(spaceId, correlationId, activityId, loggerName,
                                                                                              logNameWithExtension, layout));
     }
 
-    private String getLoggerName(DelegateExecution context, String logName) {
-        return PARENT_LOGGER + '.' + getCorrelationId(context) + '.' + logName + '.' + getTaskId(context);
+    private String getLoggerName(DelegateExecution execution, String logName) {
+        return PARENT_LOGGER + '.' + getCorrelationId(execution) + '.' + logName + '.' + getTaskId(execution);
     }
 
-    private String getCorrelationId(DelegateExecution context) {
-        return (String) context.getVariable(Constants.CORRELATION_ID);
+    private String getCorrelationId(DelegateExecution execution) {
+        return (String) execution.getVariable(Constants.CORRELATION_ID);
     }
 
-    private String getTaskId(DelegateExecution context) {
-        String taskId = (String) context.getVariable(Constants.TASK_ID);
-        return taskId != null ? taskId : context.getCurrentActivityId();
+    private String getTaskId(DelegateExecution execution) {
+        String taskId = (String) execution.getVariable(Constants.TASK_ID);
+        return taskId != null ? taskId : execution.getCurrentActivityId();
     }
 
     private ProcessLogger createProcessLogger(String spaceId, String correlationId, String activityId, String loggerName, String logName,
@@ -89,8 +89,8 @@ public class ProcessLoggerProvider {
         return appender;
     }
 
-    private String getSpaceId(DelegateExecution context) {
-        return (String) context.getVariable(Constants.VARIABLE_NAME_SPACE_ID);
+    private String getSpaceId(DelegateExecution execution) {
+        return (String) execution.getVariable(Constants.VARIABLE_NAME_SPACE_ID);
     }
 
     public List<ProcessLogger> getExistingLoggers(String processId, String activityId) {

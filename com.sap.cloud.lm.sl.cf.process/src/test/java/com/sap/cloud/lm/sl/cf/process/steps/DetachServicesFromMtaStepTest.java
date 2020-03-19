@@ -35,7 +35,7 @@ public class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachSe
     void testExecute(List<SimpleServiceInstance> servicesToDetach) {
         setUp(servicesToDetach);
 
-        step.execute(context);
+        step.execute(execution);
         assertStepFinishedSuccessfully();
         validateServicesDetached(servicesToDetach);
     }
@@ -69,7 +69,7 @@ public class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachSe
     }
 
     private void prepareContext(List<String> servicesToDelete) {
-        execution.setVariable(Variables.SERVICES_TO_DELETE, servicesToDelete);
+        context.setVariable(Variables.SERVICES_TO_DELETE, servicesToDelete);
     }
 
     private void prepareClient(List<SimpleServiceInstance> servicesToDelete) {

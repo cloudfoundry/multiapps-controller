@@ -21,12 +21,12 @@ public class ArchiveMerger {
 
     private final FileService fileService;
     private final StepLogger stepLogger;
-    private final DelegateExecution context;
+    private final DelegateExecution execution;
 
-    public ArchiveMerger(FileService fileService, StepLogger stepLogger, DelegateExecution context) {
+    public ArchiveMerger(FileService fileService, StepLogger stepLogger, DelegateExecution execution) {
         this.fileService = fileService;
         this.stepLogger = stepLogger;
-        this.context = context;
+        this.execution = execution;
     }
 
     public Path createArchiveFromParts(List<FileEntry> archiveParts) {
@@ -76,7 +76,7 @@ public class ArchiveMerger {
         FileContentProcessor archivePartProcessor = filePartsMerger::merge;
         for (FileEntry archivePart : sortedArchiveParts) {
             stepLogger.debug(Messages.MERGING_ARCHIVE_PART, archivePart.getId(), archivePart.getName());
-            fileService.processFileContent(StepsUtil.getSpaceId(context), archivePart.getId(), archivePartProcessor);
+            fileService.processFileContent(StepsUtil.getSpaceId(execution), archivePart.getId(), archivePartProcessor);
         }
     }
 

@@ -15,7 +15,7 @@ public class EnterTestingPhaseListener extends AbstractProcessExecutionListener 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnterTestingPhaseListener.class);
 
     @Override
-    protected void notifyInternal(DelegateExecution context) {
+    protected void notifyInternal(DelegateExecution execution) {
         getStepLogger().debug(Messages.ENTERING_TESTING_PHASE);
     }
 

@@ -62,20 +62,20 @@ public class StepsUtil {
     protected StepsUtil() {
     }
 
-    public static org.apache.log4j.Logger getLogger(DelegateExecution context, String name, ProcessLoggerProvider processLoggerProvider) {
-        return processLoggerProvider.getLogger(context, name);
+    public static org.apache.log4j.Logger getLogger(DelegateExecution execution, String name, ProcessLoggerProvider processLoggerProvider) {
+        return processLoggerProvider.getLogger(execution, name);
     }
 
-    static CloudControllerClient getControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider) {
-        String userName = determineCurrentUser(context);
-        String spaceId = getSpaceId(context);
+    static CloudControllerClient getControllerClient(DelegateExecution execution, CloudControllerClientProvider clientProvider) {
+        String userName = determineCurrentUser(execution);
+        String spaceId = getSpaceId(execution);
         return clientProvider.getControllerClient(userName, spaceId);
     }
 
-    static CloudControllerClient getControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider, String org,
+    static CloudControllerClient getControllerClient(DelegateExecution execution, CloudControllerClientProvider clientProvider, String org,
                                                      String space) {
-        String userName = determineCurrentUser(context);
-        return clientProvider.getControllerClient(userName, org, space, context.getProcessInstanceId());
+        String userName = determineCurrentUser(execution);
+        return clientProvider.getControllerClient(userName, org, space, execution.getProcessInstanceId());
     }
 
     public static String determineCurrentUser(VariableScope scope) {
@@ -207,10 +207,10 @@ public class StepsUtil {
         scope.setVariable(Constants.VAR_DEPLOYMENT_MODE, deploymentMode);
     }
 
-    static CloudApplication getUpdatedServiceBrokerSubscriber(ExecutionWrapper execution) {
-        List<CloudApplication> apps = execution.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS);
-        int index = (Integer) execution.getContext()
-                                       .getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
+    static CloudApplication getUpdatedServiceBrokerSubscriber(ProcessContext context) {
+        List<CloudApplication> apps = context.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS);
+        int index = (Integer) context.getExecution()
+                                     .getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
         return apps.get(index);
     }
 
@@ -329,10 +329,10 @@ public class StepsUtil {
         return getBoolean(scope, Constants.VAR_USER_PROPERTIES_CHANGED, false);
     }
 
-    static CloudTask getTask(ExecutionWrapper execution) {
-        List<CloudTask> tasks = execution.getVariable(Variables.TASKS_TO_EXECUTE);
-        int index = (Integer) execution.getContext()
-                                       .getVariable(Constants.VAR_TASKS_INDEX);
+    static CloudTask getTask(ProcessContext context) {
+        List<CloudTask> tasks = context.getVariable(Variables.TASKS_TO_EXECUTE);
+        int index = (Integer) context.getExecution()
+                                     .getVariable(Constants.VAR_TASKS_INDEX);
         return tasks.get(index);
     }
 
@@ -363,31 +363,31 @@ public class StepsUtil {
         return getString(scope, Constants.VAR_PARENTPROCESS_ID);
     }
 
-    static void saveAppLogs(DelegateExecution context, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
+    static void saveAppLogs(DelegateExecution execution, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
                             CloudApplication app, Logger logger, ProcessLoggerProvider processLoggerProvider) {
-        LogsOffset offset = getLogOffset(context);
+        LogsOffset offset = getLogOffset(execution);
         List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogsSafely(client, app.getName(), offset);
         if (!recentLogs.isEmpty()) {
-            recentLogs.forEach(log -> appLog(context, app.getName(), log.toString(), logger, processLoggerProvider));
-            setLogOffset(recentLogs.get(recentLogs.size() - 1), context);
+            recentLogs.forEach(log -> appLog(execution, app.getName(), log.toString(), logger, processLoggerProvider));
+            setLogOffset(recentLogs.get(recentLogs.size() - 1), execution);
         }
     }
 
-    static void appLog(DelegateExecution context, String appName, String message, Logger logger,
+    static void appLog(DelegateExecution execution, String appName, String message, Logger logger,
                        ProcessLoggerProvider processLoggerProvider) {
-        getLogger(context, appName, processLoggerProvider).debug(getLoggerPrefix(logger) + "[" + appName + "] " + message);
+        getLogger(execution, appName, processLoggerProvider).debug(getLoggerPrefix(logger) + "[" + appName + "] " + message);
     }
 
-    static LogsOffset getLogOffset(DelegateExecution context) {
-        return (LogsOffset) context.getVariable(com.sap.cloud.lm.sl.cf.core.Constants.LOGS_OFFSET);
+    static LogsOffset getLogOffset(DelegateExecution execution) {
+        return (LogsOffset) execution.getVariable(com.sap.cloud.lm.sl.cf.core.Constants.LOGS_OFFSET);
     }
 
-    static void setLogOffset(ApplicationLog lastLog, DelegateExecution context) {
+    static void setLogOffset(ApplicationLog lastLog, DelegateExecution execution) {
         LogsOffset newOffset = ImmutableLogsOffset.builder()
                                                   .timestamp(lastLog.getTimestamp())
                                                   .message(lastLog.getMessage())
                                                   .build();
-        context.setVariable(com.sap.cloud.lm.sl.cf.core.Constants.LOGS_OFFSET, newOffset);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.core.Constants.LOGS_OFFSET, newOffset);
     }
 
     public static String getCorrelationId(VariableScope scope) {
@@ -433,16 +433,16 @@ public class StepsUtil {
         scope.setVariable(name, value + 1);
     }
 
-    static ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ExecutionWrapper execution) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
+    static ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ProcessContext context) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
 
-        String deployId = DEPLOY_ID_PREFIX + getCorrelationId(execution.getContext());
+        String deployId = DEPLOY_ID_PREFIX + getCorrelationId(context.getExecution());
 
-        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
 
-        DeployedMta deployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
+        DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
 
-        return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, execution.getStepLogger());
+        return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, context.getStepLogger());
     }
 
     static String getGitRepoRef(VariableScope scope) {
@@ -487,10 +487,6 @@ public class StepsUtil {
 
     static boolean getUseNamespaces(VariableScope scope) {
         return getBoolean(scope, Constants.PARAM_USE_NAMESPACES, false);
-    }
-
-    public static boolean getSkipUpdateConfigurationEntries(DelegateExecution context) {
-        return getBoolean(context, Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES, false);
     }
 
     public static void setSkipUpdateConfigurationEntries(VariableScope scope, boolean update) {

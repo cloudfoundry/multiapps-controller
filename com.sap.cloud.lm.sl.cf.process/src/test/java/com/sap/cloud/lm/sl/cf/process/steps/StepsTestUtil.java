@@ -12,11 +12,11 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class StepsTestUtil {
 
-    public static void mockApplicationsToDeploy(List<CloudApplicationExtended> applications, DelegateExecution context) {
+    public static void mockApplicationsToDeploy(List<CloudApplicationExtended> applications, DelegateExecution execution) {
         String[] appsInArray = getAppsInArray(applications);
         for (String appInArray : appsInArray) {
             // FIXME: This does not work! It will always return the last app in the array.
-            Mockito.when(context.getVariable(Constants.VAR_APP_TO_PROCESS))
+            Mockito.when(execution.getVariable(Constants.VAR_APP_TO_PROCESS))
                    .thenReturn(appInArray);
         }
     }

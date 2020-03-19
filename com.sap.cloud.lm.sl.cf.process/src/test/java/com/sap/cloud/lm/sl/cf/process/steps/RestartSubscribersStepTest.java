@@ -28,10 +28,10 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app", createCloudSpace("org", "space-foo")));
         updatedSubscribers.add(createCloudApplication("app", createCloudSpace("org", "space-bar")));
-        execution.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
+        context.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
 
         // When:
-        step.execute(context);
+        step.execute(execution);
 
         // Then:
         Mockito.verify(clientProvider, Mockito.atLeastOnce())
@@ -46,7 +46,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace("org", "space-foo")));
         updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace("org", "space-bar")));
-        execution.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
+        context.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
 
         CloudControllerClient clientForSpaceFoo = Mockito.mock(CloudControllerClient.class);
         CloudControllerClient clientForSpaceBar = Mockito.mock(CloudControllerClient.class);
@@ -56,7 +56,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
                .thenReturn(clientForSpaceBar);
 
         // When:
-        step.execute(context);
+        step.execute(execution);
 
         // Then:
         assertStepFinishedSuccessfully();
@@ -76,7 +76,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace("org", "space-foo")));
         updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace("org", "space-bar")));
-        execution.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
+        context.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
 
         CloudControllerClient clientForSpaceFoo = Mockito.mock(CloudControllerClient.class);
         CloudControllerClient clientForSpaceBar = Mockito.mock(CloudControllerClient.class);
@@ -87,7 +87,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
                .thenReturn(clientForSpaceBar);
 
         // When:
-        step.execute(context);
+        step.execute(execution);
 
         // Then:
         assertStepFinishedSuccessfully();
@@ -104,10 +104,10 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
     @Test
     public void testNothingHappensWhenThereAreNoSubscribersToRestart() {
         // Given:
-        execution.setVariable(Variables.UPDATED_SUBSCRIBERS, Collections.emptyList());
+        context.setVariable(Variables.UPDATED_SUBSCRIBERS, Collections.emptyList());
 
         // When:
-        step.execute(context);
+        step.execute(execution);
 
         // Then:
         assertStepFinishedSuccessfully();
@@ -119,14 +119,14 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace(ORG_NAME, SPACE_NAME)));
         updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace(ORG_NAME, SPACE_NAME)));
-        execution.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
+        context.setVariable(Variables.UPDATED_SUBSCRIBERS, updatedSubscribers);
 
         Mockito.doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR))
                .when(client)
                .stopApplication("app-1");
 
         // When:
-        step.execute(context);
+        step.execute(execution);
 
         // Then:
         assertStepFinishedSuccessfully();

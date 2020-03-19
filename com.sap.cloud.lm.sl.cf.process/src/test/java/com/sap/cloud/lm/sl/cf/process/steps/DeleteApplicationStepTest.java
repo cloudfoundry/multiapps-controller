@@ -22,8 +22,8 @@ public class DeleteApplicationStepTest extends UndeployAppStepTest {
         Mockito.doThrow(new CloudOperationException(HttpStatus.NOT_FOUND))
                .when(client)
                .deleteApplication(anyString());
-        execution.setVariable(Variables.APP_TO_PROCESS, createCloudApplication("test-app"));
-        step.execute(context);
+        context.setVariable(Variables.APP_TO_PROCESS, createCloudApplication("test-app"));
+        step.execute(execution);
         assertStepFinishedSuccessfully();
     }
 
@@ -32,8 +32,8 @@ public class DeleteApplicationStepTest extends UndeployAppStepTest {
         Mockito.doThrow(new CloudOperationException(HttpStatus.BAD_GATEWAY))
                .when(client)
                .deleteApplication(anyString());
-        execution.setVariable(Variables.APP_TO_PROCESS, createCloudApplication("test-app"));
-        Assertions.assertThrows(SLException.class, () -> step.execute(context));
+        context.setVariable(Variables.APP_TO_PROCESS, createCloudApplication("test-app"));
+        Assertions.assertThrows(SLException.class, () -> step.execute(execution));
     }
 
     @Override

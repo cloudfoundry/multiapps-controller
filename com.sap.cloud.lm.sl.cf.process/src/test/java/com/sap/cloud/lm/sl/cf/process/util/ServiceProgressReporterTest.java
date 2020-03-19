@@ -21,12 +21,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
+import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
 
 public class ServiceProgressReporterTest {
 
     @Mock
-    private ExecutionWrapper execution;
+    private ProcessContext context;
     @Mock
     private StepLogger stepLogger;
 
@@ -53,7 +53,7 @@ public class ServiceProgressReporterTest {
         prepareExecution();
         Map<String, ServiceOperation.Type> triggeredServiceOperations = getServicesOperationsInProgress(servicesOperations);
 
-        serviceProgressReporter.reportOverallProgress(execution, servicesOperations, triggeredServiceOperations);
+        serviceProgressReporter.reportOverallProgress(context, servicesOperations, triggeredServiceOperations);
 
         if (countTriggeredServiceOperations > 0) {
             verify(stepLogger).info(anyString(), any(), eq(countTriggeredServiceOperations), any());
@@ -63,7 +63,7 @@ public class ServiceProgressReporterTest {
     }
 
     private void prepareExecution() {
-        when(execution.getStepLogger()).thenReturn(stepLogger);
+        when(context.getStepLogger()).thenReturn(stepLogger);
     }
 
     private Map<String, ServiceOperation.Type> getServicesOperationsInProgress(List<ServiceOperation> servicesOperations) {

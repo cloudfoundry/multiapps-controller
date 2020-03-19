@@ -41,7 +41,7 @@ public class ArchiveMergerTest {
     @Mock
     private StepLogger stepLogger;
     @Mock
-    private DelegateExecution context;
+    private DelegateExecution execution;
     @Mock
     private Logger logger;
     @Spy
@@ -53,7 +53,7 @@ public class ArchiveMergerTest {
 
     @BeforeEach
     public void setUp() {
-        archiveMerger = new ArchiveMerger(fileService, stepLogger, context);
+        archiveMerger = new ArchiveMerger(fileService, stepLogger, execution);
     }
 
     @Test

@@ -17,9 +17,9 @@ public class CreateOrUpdateServiceEndListener implements ExecutionListener {
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void notify(DelegateExecution context) {
-        boolean isServiceUpdated = StepsUtil.getIsServiceUpdated(context);
-        String serviceName = StepsUtil.getServiceToProcessName(context);
+    public void notify(DelegateExecution execution) {
+        boolean isServiceUpdated = StepsUtil.getIsServiceUpdated(execution);
+        String serviceName = StepsUtil.getServiceToProcessName(execution);
         if (serviceName == null) {
             throw new IllegalStateException("Not able to determine service update status.");
         }
@@ -28,7 +28,7 @@ public class CreateOrUpdateServiceEndListener implements ExecutionListener {
         RuntimeService runtimeService = Context.getProcessEngineConfiguration()
                                                .getRuntimeService();
 
-        String superExecutionId = context.getParentId();
+        String superExecutionId = execution.getParentId();
         Execution superExecutionResult = runtimeService.createExecutionQuery()
                                                        .executionId(superExecutionId)
                                                        .singleResult();

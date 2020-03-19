@@ -33,9 +33,9 @@ public class DeleteApplicationStep extends UndeployAppStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
-        return MessageFormat.format(Messages.ERROR_DELETING_APP, execution.getVariable(Variables.APP_TO_PROCESS)
-                                                                          .getName());
+    protected String getStepErrorMessage(ProcessContext context) {
+        return MessageFormat.format(Messages.ERROR_DELETING_APP, context.getVariable(Variables.APP_TO_PROCESS)
+                                                                        .getName());
     }
 
     private void deleteApplication(CloudControllerClient client, String applicationName) {

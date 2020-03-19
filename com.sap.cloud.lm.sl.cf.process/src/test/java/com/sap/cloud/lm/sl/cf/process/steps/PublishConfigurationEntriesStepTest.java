@@ -107,18 +107,18 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     }
 
     private void prepareContext() {
-        execution.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, input.entriesToPublish);
+        context.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, input.entriesToPublish);
         CloudApplicationExtended appToProcess = ImmutableCloudApplicationExtended.builder()
                                                                                  .metadata(CloudMetadata.defaultMetadata())
                                                                                  .name("test-app-name")
                                                                                  .build();
-        Mockito.when(context.getVariable(Constants.VAR_APP_TO_PROCESS))
+        Mockito.when(execution.getVariable(Constants.VAR_APP_TO_PROCESS))
                .thenReturn(JsonUtil.toJson(appToProcess));
     }
 
     @Test
     public void test() throws Exception {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 

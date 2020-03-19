@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -114,11 +114,11 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
     }
 
     private void prepareContext() {
-        execution.setVariable(Variables.STARTED_TASK, task);
-        context.setVariable(Constants.VAR_TASKS_INDEX, 0);
-        context.setVariable(Constants.VAR_START_TIME, 0L);
-        context.setVariable(Constants.PARAM_START_TIMEOUT, START_TIMEOUT);
-        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(APPLICATION), context);
+        context.setVariable(Variables.STARTED_TASK, task);
+        execution.setVariable(Constants.VAR_TASKS_INDEX, 0);
+        execution.setVariable(Constants.VAR_START_TIME, 0L);
+        execution.setVariable(Constants.PARAM_START_TIMEOUT, START_TIMEOUT);
+        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(APPLICATION), execution);
     }
 
     private void prepareClientExtensions() {
@@ -140,7 +140,7 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncOperations(ExecutionWrapper wrapper) {
+    protected List<AsyncExecution> getAsyncOperations(ProcessContext wrapper) {
         return step.getAsyncStepExecutions(wrapper);
     }
 

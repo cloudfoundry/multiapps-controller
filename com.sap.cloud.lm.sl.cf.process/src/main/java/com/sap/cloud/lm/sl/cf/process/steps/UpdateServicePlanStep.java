@@ -19,7 +19,7 @@ import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
 public class UpdateServicePlanStep extends ServiceStep {
 
     @Override
-    protected MethodExecution<String> executeOperation(ExecutionWrapper execution, CloudControllerClient controllerClient,
+    protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
                                                        CloudServiceExtended service) {
         return updateServicePlan(controllerClient, service);
     }
@@ -34,7 +34,7 @@ public class UpdateServicePlanStep extends ServiceStep {
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
+    protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         return Collections.singletonList(new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(),
                                                                                           getServiceProgressReporter()));
     }

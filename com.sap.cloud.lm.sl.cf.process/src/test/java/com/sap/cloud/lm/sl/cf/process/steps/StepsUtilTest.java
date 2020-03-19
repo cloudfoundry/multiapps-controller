@@ -34,36 +34,36 @@ public class StepsUtilTest {
     private static final String EXAMPLE_USER = "exampleUser";
     private static final String EXAMPLE_MODULE_NAME = "exampleModule";
 
-    protected final DelegateExecution context = MockDelegateExecution.createSpyInstance();
-    protected final VariablesHandler variablesHandler = new VariablesHandler(context);
+    protected final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
+    protected final VariablesHandler variablesHandler = new VariablesHandler(execution);
 
     @Test
     public void testDetermineCurrentUserWithSetUser() {
-        Mockito.when(context.getVariable(Mockito.eq(Constants.VAR_USER)))
+        Mockito.when(execution.getVariable(Mockito.eq(Constants.VAR_USER)))
                .thenReturn(EXAMPLE_USER);
-        String determinedUser = StepsUtil.determineCurrentUser(context);
+        String determinedUser = StepsUtil.determineCurrentUser(execution);
         assertEquals(EXAMPLE_USER, determinedUser);
     }
 
     public void testDetermineCurrentUserError() {
-        Assertions.assertThrows(SLException.class, () -> StepsUtil.determineCurrentUser(context));
+        Assertions.assertThrows(SLException.class, () -> StepsUtil.determineCurrentUser(execution));
     }
 
     @Test
     public void testGetModuleContentAsStream() throws Exception {
         byte[] bytes = "example byte array".getBytes();
-        Mockito.when(context.getVariable(Mockito.eq(constructModuleContentVariable(EXAMPLE_MODULE_NAME))))
+        Mockito.when(execution.getVariable(Mockito.eq(constructModuleContentVariable(EXAMPLE_MODULE_NAME))))
                .thenReturn(bytes);
-        InputStream stream = StepsUtil.getModuleContentAsStream(context, EXAMPLE_MODULE_NAME);
+        InputStream stream = StepsUtil.getModuleContentAsStream(execution, EXAMPLE_MODULE_NAME);
         byte[] readBytes = ByteStreams.toByteArray(stream);
         assertByteArraysMatch(bytes, readBytes);
     }
 
     @Test
     public void testGetModuleContentAsStreamNotFound() {
-        Mockito.when(context.getVariable(Mockito.eq(constructModuleContentVariable(EXAMPLE_MODULE_NAME))))
+        Mockito.when(execution.getVariable(Mockito.eq(constructModuleContentVariable(EXAMPLE_MODULE_NAME))))
                .thenReturn(null);
-        Assertions.assertThrows(SLException.class, () -> StepsUtil.getModuleContentAsStream(context, EXAMPLE_MODULE_NAME));
+        Assertions.assertThrows(SLException.class, () -> StepsUtil.getModuleContentAsStream(execution, EXAMPLE_MODULE_NAME));
     }
 
     private String constructModuleContentVariable(String moduleName) {
@@ -86,8 +86,8 @@ public class StepsUtilTest {
                                                                     .putCredential("string-value", "1")
                                                                     .build();
 
-        StepsUtil.setServicesToCreate(context, Collections.singletonList(service));
-        List<CloudServiceExtended> actualServicesToCreate = StepsUtil.getServicesToCreate(context);
+        StepsUtil.setServicesToCreate(execution, Collections.singletonList(service));
+        List<CloudServiceExtended> actualServicesToCreate = StepsUtil.getServicesToCreate(execution);
 
         assertEquals(1, actualServicesToCreate.size());
         assertFalse(actualServicesToCreate.get(0)
@@ -109,7 +109,7 @@ public class StepsUtilTest {
 
     @Test
     public void testGetAppsToDeployWithBindingParameters() {
-        VariablesHandler variablesHandler = new VariablesHandler(context);
+        VariablesHandler variablesHandler = new VariablesHandler(execution);
         Map<String, Map<String, Object>> bindingParameters = new HashMap<>();
         Map<String, Object> serviceBindingParameters = new HashMap<>();
         serviceBindingParameters.put("integer-value", 1);
@@ -159,17 +159,17 @@ public class StepsUtilTest {
     @Test
     public void testSetAndGetPhase() {
         Phase expectedPhase = Phase.UNDEPLOY;
-        StepsUtil.setPhase(context, expectedPhase);
-        Phase actualPhase = Phase.valueOf((String) context.getVariable(Constants.VAR_PHASE));
+        StepsUtil.setPhase(execution, expectedPhase);
+        Phase actualPhase = Phase.valueOf((String) execution.getVariable(Constants.VAR_PHASE));
 
         assertEquals(expectedPhase, actualPhase);
     }
 
     @Test
     public void testShouldVerifyArchiveSignatureSet() {
-        Mockito.when(context.getVariable(Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE))
+        Mockito.when(execution.getVariable(Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE))
                .thenReturn(true);
-        Assertions.assertTrue(StepsUtil.shouldVerifyArchiveSignature(context));
+        Assertions.assertTrue(StepsUtil.shouldVerifyArchiveSignature(execution));
     }
 
 }

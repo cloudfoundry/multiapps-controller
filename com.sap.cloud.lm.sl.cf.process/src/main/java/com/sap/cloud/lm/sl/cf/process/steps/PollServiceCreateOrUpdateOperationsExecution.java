@@ -22,8 +22,8 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
     }
 
     @Override
-    protected List<CloudServiceExtended> getServicesData(DelegateExecution context) {
-        List<CloudServiceExtended> allServicesToCreate = StepsUtil.getServicesToCreate(context);
+    protected List<CloudServiceExtended> getServicesData(DelegateExecution execution) {
+        List<CloudServiceExtended> allServicesToCreate = StepsUtil.getServicesToCreate(execution);
         // There's no need to poll the creation or update of user-provided services, because it is done synchronously:
         return allServicesToCreate.stream()
                                   .filter(s -> !s.isUserProvided())
@@ -57,15 +57,15 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
     }
 
     @Override
-    protected void reportServiceState(ExecutionWrapper execution, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
+    protected void reportServiceState(ProcessContext context, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
         if (lastServiceOperation.getState() == ServiceOperation.State.SUCCEEDED) {
-            execution.getStepLogger()
-                     .debug(getSuccessMessage(service, lastServiceOperation.getType()));
+            context.getStepLogger()
+                   .debug(getSuccessMessage(service, lastServiceOperation.getType()));
             return;
         }
 
         if (lastServiceOperation.getState() == ServiceOperation.State.FAILED) {
-            handleFailedState(execution.getStepLogger(), service, lastServiceOperation);
+            handleFailedState(context.getStepLogger(), service, lastServiceOperation);
         }
     }
 
@@ -120,7 +120,7 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
         }
     }
 
-    public String getPollingErrorMessage(ExecutionWrapper execution) {
+    public String getPollingErrorMessage(ProcessContext context) {
         return Messages.ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES;
     }
 }

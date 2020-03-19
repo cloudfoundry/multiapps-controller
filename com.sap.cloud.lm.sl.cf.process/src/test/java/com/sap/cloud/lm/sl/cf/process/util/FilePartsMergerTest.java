@@ -6,7 +6,6 @@ import java.io.InputStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.sap.cloud.lm.sl.cf.process.util.FilePartsMerger;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class FilePartsMergerTest {

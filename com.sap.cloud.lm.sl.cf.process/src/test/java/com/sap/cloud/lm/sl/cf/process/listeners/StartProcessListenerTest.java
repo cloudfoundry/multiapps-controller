@@ -49,7 +49,7 @@ public class StartProcessListenerTest {
     private ProcessType processType;
     private String exceptionMessage;
 
-    private final DelegateExecution context = MockDelegateExecution.createSpyInstance();
+    private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();
@@ -102,7 +102,7 @@ public class StartProcessListenerTest {
         this.processInstanceId = processInstanceId;
         this.exceptionMessage = exceptionMessage;
         prepare();
-        listener.notify(context);
+        listener.notify(execution);
 
         verifyOperationInsertion();
     }
@@ -125,16 +125,16 @@ public class StartProcessListenerTest {
 
     private void prepareContext() {
         listener.currentTimeSupplier = currentTimeSupplier;
-        Mockito.when(context.getProcessInstanceId())
+        Mockito.when(execution.getProcessInstanceId())
                .thenReturn(processInstanceId);
-        Mockito.when(context.getVariables())
+        Mockito.when(execution.getVariables())
                .thenReturn(Collections.emptyMap());
-        Mockito.when(processTypeParser.getProcessType(context))
+        Mockito.when(processTypeParser.getProcessType(execution))
                .thenReturn(processType);
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
-        context.setVariable(Constants.VAR_USER, USER);
-        context.setVariable(Constants.VAR_CORRELATION_ID, processInstanceId);
-        context.setVariable(Constants.TASK_ID, TASK_ID);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        execution.setVariable(Constants.VAR_USER, USER);
+        execution.setVariable(Constants.VAR_CORRELATION_ID, processInstanceId);
+        execution.setVariable(Constants.TASK_ID, TASK_ID);
     }
 
     private void loadParameters() {
@@ -145,7 +145,7 @@ public class StartProcessListenerTest {
     }
 
     private void verifyOperationInsertion() throws SLException {
-        String user = StepsUtil.determineCurrentUser(context);
+        String user = StepsUtil.determineCurrentUser(execution);
         Operation operation = ImmutableOperation.builder()
                                                 .processId(processInstanceId)
                                                 .processType(processType)

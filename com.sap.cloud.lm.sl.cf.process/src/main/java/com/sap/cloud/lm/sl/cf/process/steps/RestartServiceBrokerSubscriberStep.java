@@ -17,17 +17,17 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 public class RestartServiceBrokerSubscriberStep extends RestartAppStep {
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
-        return MessageFormat.format(Messages.ERROR_STARTING_APP_0, getAppToRestart(execution).getName());
+    protected String getStepErrorMessage(ProcessContext context) {
+        return MessageFormat.format(Messages.ERROR_STARTING_APP_0, getAppToRestart(context).getName());
     }
 
     @Override
-    protected CloudApplication getAppToRestart(ExecutionWrapper execution) {
-        return StepsUtil.getUpdatedServiceBrokerSubscriber(execution);
+    protected CloudApplication getAppToRestart(ProcessContext context) {
+        return StepsUtil.getUpdatedServiceBrokerSubscriber(context);
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
+    protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         return Collections.singletonList(new PollStartServiceBrokerSubscriberStatusExecution(recentLogsRetriever));
     }
 

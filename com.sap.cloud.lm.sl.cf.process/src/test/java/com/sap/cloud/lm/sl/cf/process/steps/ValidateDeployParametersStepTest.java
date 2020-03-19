@@ -93,12 +93,12 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
         throws Exception {
         initializeComponents(stepInput, isArchiveChunked);
         if (expectedExceptionMessage != null) {
-            SLException exception = Assertions.assertThrows(SLException.class, () -> step.execute(context));
+            SLException exception = Assertions.assertThrows(SLException.class, () -> step.execute(execution));
             Assertions.assertEquals(EXCEPTION_START_MESSAGE + expectedExceptionMessage + versionOutput, exception.getMessage()
                                                                                                                  .trim());
             return;
         }
-        step.execute(context);
+        step.execute(execution);
         validate();
     }
 
@@ -112,13 +112,13 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
     }
 
     private void prepareContext() {
-        context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_APP_ARCHIVE_ID, stepInput.appArchiveId);
-        context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, stepInput.extDescriptorId);
-        context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_START_TIMEOUT, stepInput.startTimeout);
-        context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_VERSION_RULE, stepInput.versionRule);
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, "space-id");
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID, "service-id");
-        context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE, stepInput.shouldVerifyArchive);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_APP_ARCHIVE_ID, stepInput.appArchiveId);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, stepInput.extDescriptorId);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_START_TIMEOUT, stepInput.startTimeout);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_VERSION_RULE, stepInput.versionRule);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, "space-id");
+        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID, "service-id");
+        execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE, stepInput.shouldVerifyArchive);
     }
 
     private void prepareFileService() throws FileStorageException {
@@ -174,7 +174,7 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
             Mockito.verify(jarSignatureOperations)
                    .checkCertificates(any(), eq(certificates), any());
         }
-        Mockito.verify(context, Mockito.atLeastOnce())
+        Mockito.verify(execution, Mockito.atLeastOnce())
                .setVariable(Constants.PARAM_APP_ARCHIVE_ID, stepInput.appArchiveId);
     }
 

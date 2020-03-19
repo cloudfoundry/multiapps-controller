@@ -23,11 +23,11 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 public class DetachServicesFromMtaStep extends SyncFlowableStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.DETACHING_SERVICES_FROM_MTA);
 
-        List<String> serviceNamesToDetachFromMta = execution.getVariable(Variables.SERVICES_TO_DELETE);
-        CloudControllerClient client = execution.getControllerClient();
+        List<String> serviceNamesToDetachFromMta = context.getVariable(Variables.SERVICES_TO_DELETE);
+        CloudControllerClient client = context.getControllerClient();
         List<CloudServiceInstance> servicesToDetachFromMta = getServices(serviceNamesToDetachFromMta, client);
         deleteMtaMetadataFromServices(servicesToDetachFromMta, client);
 
@@ -65,7 +65,7 @@ public class DetachServicesFromMtaStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_DETACHING_SERVICES_FROM_MTA;
     }
 

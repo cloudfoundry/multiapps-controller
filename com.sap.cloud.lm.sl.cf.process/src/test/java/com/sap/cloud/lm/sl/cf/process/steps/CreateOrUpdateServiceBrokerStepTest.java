@@ -151,7 +151,7 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
@@ -163,7 +163,7 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
                    .warn(expectedWarningMessage);
         }
 
-        CloudServiceBroker actuallyCreatedOrUpdatedServiceBroker = execution.getVariable(Variables.CREATED_OR_UPDATED_SERVICE_BROKER);
+        CloudServiceBroker actuallyCreatedOrUpdatedServiceBroker = context.getVariable(Variables.CREATED_OR_UPDATED_SERVICE_BROKER);
         CloudServiceBroker expectedCreatedServiceBroker = expectedOutput.createdServiceBroker;
         CloudServiceBroker expectedUpdatedServiceBroker = expectedOutput.updatedServiceBroker;
 
@@ -184,13 +184,13 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
         } else {
             expectedOutput = JsonUtil.fromJson(TestUtil.getResourceAsString(expectedOutputLocation, getClass()), StepOutput.class);
         }
-        context.setVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS, shouldSucceed);
+        execution.setVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS, shouldSucceed);
         input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
     }
 
     private void prepareContext() {
-        execution.setVariable(Variables.APP_TO_PROCESS, input.application.toCloudApplication());
-        StepsUtil.setSpaceId(context, input.spaceGuid);
+        context.setVariable(Variables.APP_TO_PROCESS, input.application.toCloudApplication());
+        StepsUtil.setSpaceId(execution, input.spaceGuid);
     }
 
     private void prepareClient() {

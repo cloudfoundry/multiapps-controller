@@ -21,7 +21,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
@@ -48,7 +47,7 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
 
     private class DeleteServiceBrokersStepMock extends DeleteServiceBrokersStep {
         @Override
-        protected List<String> getCreatedOrUpdatedServiceBrokerNames(DelegateExecution context) {
+        protected List<String> getCreatedOrUpdatedServiceBrokerNames(DelegateExecution execution) {
             return input.serviceBrokersToCreate;
         }
     }
@@ -111,7 +110,7 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
@@ -127,12 +126,12 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
             expectedException.expect(expectedExceptionClass);
             shouldSucceed = false;
         }
-        context.setVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS, shouldSucceed);
+        execution.setVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS, shouldSucceed);
         input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
     }
 
     private void prepareContext() {
-        StepsUtil.setAppsToUndeploy(context, toCloudApplications(input.applicationsToUndeploy));
+        StepsUtil.setAppsToUndeploy(execution, toCloudApplications(input.applicationsToUndeploy));
     }
 
     private List<CloudApplication> toCloudApplications(List<SimpleApplication> applications) {

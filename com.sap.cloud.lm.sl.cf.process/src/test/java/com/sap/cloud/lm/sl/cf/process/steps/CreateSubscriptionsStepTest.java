@@ -91,7 +91,7 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
         List<ConfigurationSubscription> subscriptions = new ArrayList<>();
         subscriptions.addAll(input.subscriptionsToCreate);
         subscriptions.addAll(input.subscriptionsToUpdate);
-        execution.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, subscriptions);
+        context.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, subscriptions);
     }
 
     private void prepareSubscriptionService() {
@@ -126,7 +126,7 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
 
     @Test
     public void testExecute() throws Exception {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 

@@ -25,26 +25,26 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
     protected RecentLogsRetriever recentLogsRetriever;
 
     @Override
-    protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
-        CloudApplication app = execution.getVariable(Variables.APP_TO_PROCESS);
-        ApplicationStager applicationStager = new ApplicationStager(execution);
+    protected StepPhase executeAsyncStep(ProcessContext context) {
+        CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
+        ApplicationStager applicationStager = new ApplicationStager(context);
         return applicationStager.stageApp(app);
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
-        return MessageFormat.format(Messages.ERROR_STAGING_APP_0, execution.getVariable(Variables.APP_TO_PROCESS)
-                                                                           .getName());
+    protected String getStepErrorMessage(ProcessContext context) {
+        return MessageFormat.format(Messages.ERROR_STAGING_APP_0, context.getVariable(Variables.APP_TO_PROCESS)
+                                                                         .getName());
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
-        return Collections.singletonList(new PollStageAppStatusExecution(recentLogsRetriever, new ApplicationStager(execution)));
+    protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
+        return Collections.singletonList(new PollStageAppStatusExecution(recentLogsRetriever, new ApplicationStager(context)));
     }
 
     @Override
-    public Integer getTimeout(ExecutionWrapper execution) {
-        return StepsUtil.getInteger(execution.getContext(), Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
+    public Integer getTimeout(ProcessContext context) {
+        return StepsUtil.getInteger(context.getExecution(), Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
     }
 
 }

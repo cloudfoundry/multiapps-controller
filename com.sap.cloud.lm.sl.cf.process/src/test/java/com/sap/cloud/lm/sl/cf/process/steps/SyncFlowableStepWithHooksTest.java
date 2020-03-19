@@ -34,8 +34,8 @@ public class SyncFlowableStepWithHooksTest {
     @Mock
     private ModuleHooksAggregator moduleHooksAggregatorMock;
 
-    private final DelegateExecution context = MockDelegateExecution.createSpyInstance();
-    private final ExecutionWrapper execution = new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null);
+    private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
+    private final ProcessContext context = new ProcessContext(execution, Mockito.mock(StepLogger.class), null);
 
     @BeforeEach
     public void setUp() {
@@ -44,20 +44,20 @@ public class SyncFlowableStepWithHooksTest {
 
     @Test
     public void testWithHooksForPreExecuteStepPhase() throws Exception {
-        StepsUtil.setStepPhase(context, StepPhase.EXECUTE);
+        StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
         Module module = Module.createV3()
                               .setName("test")
                               .setHooks(Collections.singletonList(Hook.createV3()
                                                                       .setType("tasks")
                                                                       .setPhases(Collections.singletonList("application.before-start"))));
-        execution.setVariable(Variables.MODULE_TO_DEPLOY, module);
+        context.setVariable(Variables.MODULE_TO_DEPLOY, module);
 
         List<Hook> moduleHooks = module.getHooks();
 
         Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE))
                .thenReturn(moduleHooks);
 
-        new SyncFlowableStepWithHooksMock().executeStep(execution);
+        new SyncFlowableStepWithHooksMock().executeStep(context);
 
         Mockito.verify(moduleHooksAggregatorMock)
                .aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE);
@@ -66,21 +66,21 @@ public class SyncFlowableStepWithHooksTest {
 
     @Test
     public void testWithHooksForPostExecuteStepPhase() throws Exception {
-        StepsUtil.setStepPhase(context, StepPhase.DONE);
+        StepsUtil.setStepPhase(execution, StepPhase.DONE);
 
         Module module = Module.createV3()
                               .setName("test")
                               .setHooks(Collections.singletonList(Hook.createV3()
                                                                       .setType("tasks")
                                                                       .setPhases(Collections.singletonList("application.before-stop"))));
-        execution.setVariable(Variables.MODULE_TO_DEPLOY, module);
+        context.setVariable(Variables.MODULE_TO_DEPLOY, module);
 
         List<Hook> moduleHooks = module.getHooks();
 
         Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE))
                .thenReturn(moduleHooks);
 
-        new SyncFlowableStepWithHooksMock().executeStep(execution);
+        new SyncFlowableStepWithHooksMock().executeStep(context);
 
         Mockito.verify(moduleHooksAggregatorMock)
                .aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
@@ -89,18 +89,18 @@ public class SyncFlowableStepWithHooksTest {
 
     @Test
     public void testWithNoHooksForCurrentStep() throws Exception {
-        StepsUtil.setStepPhase(context, StepPhase.EXECUTE);
+        StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
 
         Module module = Module.createV3()
                               .setName("test")
                               .setHooks(Collections.emptyList());
 
-        execution.setVariable(Variables.MODULE_TO_DEPLOY, module);
+        context.setVariable(Variables.MODULE_TO_DEPLOY, module);
 
         Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE))
                .thenReturn(Collections.emptyList());
 
-        new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
+        new SyncFlowableStepWithHooksMock().executeStep(new ProcessContext(execution, Mockito.mock(StepLogger.class), null));
 
         Mockito.verify(moduleHooksAggregatorMock)
                .aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE);
@@ -109,14 +109,14 @@ public class SyncFlowableStepWithHooksTest {
 
     @Test
     public void testWithNoModuleToDeployAndNoDeploymentDescriptor() throws Exception {
-        new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
+        new SyncFlowableStepWithHooksMock().executeStep(new ProcessContext(execution, Mockito.mock(StepLogger.class), null));
 
         Mockito.verifyNoInteractions(moduleHooksAggregatorMock);
     }
 
     @Test
     public void testWithDeploymentDescriptorAndNoModuleNameInApplication() throws Exception {
-        StepsUtil.setStepPhase(context, StepPhase.EXECUTE);
+        StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
 
         Module module = Module.createV3()
                               .setName("test")
@@ -128,7 +128,7 @@ public class SyncFlowableStepWithHooksTest {
         Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE))
                .thenReturn(Collections.emptyList());
 
-        new SyncFlowableStepWithHooksMock("test").executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
+        new SyncFlowableStepWithHooksMock("test").executeStep(new ProcessContext(execution, Mockito.mock(StepLogger.class), null));
 
         Mockito.verify(moduleHooksAggregatorMock)
                .aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
@@ -137,8 +137,8 @@ public class SyncFlowableStepWithHooksTest {
 
     @Test
     public void testWithDeploymentDescriptorAndModuleNameInApplication() throws Exception {
-        StepsUtil.setStepPhase(context, StepPhase.EXECUTE);
-        context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 3);
+        StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
+        execution.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 3);
 
         Module module = Module.createV3()
                               .setName("test")
@@ -150,7 +150,7 @@ public class SyncFlowableStepWithHooksTest {
         Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE))
                .thenReturn(Collections.emptyList());
 
-        new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
+        new SyncFlowableStepWithHooksMock().executeStep(new ProcessContext(execution, Mockito.mock(StepLogger.class), null));
 
         Mockito.verify(moduleHooksAggregatorMock)
                .aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
@@ -159,8 +159,8 @@ public class SyncFlowableStepWithHooksTest {
 
     @Test
     public void testWithDeploymentDescriptorWithNoModulesContainingModuleName() throws Exception {
-        StepsUtil.setStepPhase(context, StepPhase.EXECUTE);
-        context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 3);
+        StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
+        execution.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 3);
 
         prepareDeploymentDescriptor(Arrays.asList(Module.createV3()
                                                         .setName("foo"),
@@ -171,15 +171,15 @@ public class SyncFlowableStepWithHooksTest {
         Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE))
                .thenReturn(Collections.emptyList());
 
-        new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
+        new SyncFlowableStepWithHooksMock().executeStep(new ProcessContext(execution, Mockito.mock(StepLogger.class), null));
 
         Mockito.verifyNoInteractions(moduleHooksAggregatorMock);
     }
 
     @Test
     public void testWithDeploymentDescriptorAndModuleNamesWhichHaveTheSamePrefixForNames() throws Exception {
-        StepsUtil.setStepPhase(context, StepPhase.EXECUTE);
-        context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 3);
+        StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
+        execution.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 3);
 
         Module moduleWithHooks = Module.createV3()
                                        .setName("test")
@@ -194,7 +194,7 @@ public class SyncFlowableStepWithHooksTest {
         Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE))
                .thenReturn(Collections.emptyList());
 
-        new SyncFlowableStepWithHooksMock("test").executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
+        new SyncFlowableStepWithHooksMock("test").executeStep(new ProcessContext(execution, Mockito.mock(StepLogger.class), null));
 
         Mockito.verify(moduleHooksAggregatorMock)
                .aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
@@ -206,13 +206,13 @@ public class SyncFlowableStepWithHooksTest {
                                                                                              .name(name)
                                                                                              .moduleName(moduleName)
                                                                                              .build();
-        execution.setVariable(Variables.APP_TO_PROCESS, cloudApplicationExtended);
+        context.setVariable(Variables.APP_TO_PROCESS, cloudApplicationExtended);
     }
 
     private void prepareDeploymentDescriptor(List<Module> modules) {
         DeploymentDescriptor deploymentDescriptorMock = DeploymentDescriptor.createV3()
                                                                             .setModules(modules);
-        execution.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, deploymentDescriptorMock);
+        context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, deploymentDescriptorMock);
     }
 
     private class SyncFlowableStepWithHooksMock extends SyncFlowableStepWithHooks {
@@ -228,22 +228,22 @@ public class SyncFlowableStepWithHooksTest {
         }
 
         @Override
-        protected StepPhase executeStepInternal(ExecutionWrapper execution) {
+        protected StepPhase executeStepInternal(ProcessContext context) {
             return StepPhase.DONE;
         }
 
         @Override
-        protected ModuleHooksAggregator getModuleHooksAggregator(DelegateExecution context, Module moduleToDeploy) {
+        protected ModuleHooksAggregator getModuleHooksAggregator(DelegateExecution execution, Module moduleToDeploy) {
             return moduleHooksAggregatorMock;
         }
 
         @Override
-        protected HookPhase getHookPhaseBeforeStep(DelegateExecution context) {
+        protected HookPhase getHookPhaseBeforeStep(DelegateExecution execution) {
             return HookPhase.APPLICATION_AFTER_STOP_LIVE;
         }
 
         @Override
-        protected HookPhase getHookPhaseAfterStep(DelegateExecution context) {
+        protected HookPhase getHookPhaseAfterStep(DelegateExecution execution) {
             return HookPhase.APPLICATION_BEFORE_STOP_IDLE;
         }
 
@@ -253,7 +253,7 @@ public class SyncFlowableStepWithHooksTest {
         }
 
         @Override
-        protected String getStepErrorMessage(ExecutionWrapper execution) {
+        protected String getStepErrorMessage(ProcessContext context) {
             return "generic error message";
         }
 
@@ -263,11 +263,11 @@ public class SyncFlowableStepWithHooksTest {
 
         private static final String DEFAULT_MODULE_NAME = "testModuleName";
 
-        private final DelegateExecution context = MockDelegateExecution.createSpyInstance();
+        private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
 
         @Test
         public void withNoAlreadyExecutedHooksAndWithHooksForCurrentStepPhase() {
-            StepsUtil.setExecutedHooksForModule(context, DEFAULT_MODULE_NAME, Collections.emptyMap());
+            StepsUtil.setExecutedHooksForModule(execution, DEFAULT_MODULE_NAME, Collections.emptyMap());
             Module module = prepareModule(2, "application.after-stop.live");
 
             ModuleHooksAggregator aggregator = getModuleHooksAggregator(module);
@@ -276,14 +276,14 @@ public class SyncFlowableStepWithHooksTest {
             Assertions.assertEquals(2, aggregatedHooks.size());
             Assertions.assertEquals(module.getHooks(), aggregatedHooks);
 
-            Map<String, List<String>> executedHooks = StepsUtil.getExecutedHooksForModule(context, DEFAULT_MODULE_NAME);
+            Map<String, List<String>> executedHooks = StepsUtil.getExecutedHooksForModule(execution, DEFAULT_MODULE_NAME);
             Map<String, List<String>> expectedResult = new HashMap<>();
             buildResultForAggregatedHook(aggregatedHooks, expectedResult);
             Assertions.assertEquals(expectedResult, executedHooks);
         }
 
         private ModuleHooksAggregator getModuleHooksAggregator(Module module) {
-            return new ModuleHooksAggregator(context, module);
+            return new ModuleHooksAggregator(execution, module);
         }
 
         private Module prepareModule(int numberOfHooks, String phase) {
@@ -307,7 +307,7 @@ public class SyncFlowableStepWithHooksTest {
         @Test
         public void withAlreadyExecutedHooksAndNoHooksForCurrentStepPhase() {
             Hook executedHook = getExecutedHook();
-            StepsUtil.setExecutedHooksForModule(context, DEFAULT_MODULE_NAME,
+            StepsUtil.setExecutedHooksForModule(execution, DEFAULT_MODULE_NAME,
                                                 MapUtil.asMap(executedHook.getName(), executedHook.getPhases()));
 
             Module module = prepareModule(0, null);
@@ -317,14 +317,14 @@ public class SyncFlowableStepWithHooksTest {
             Assertions.assertEquals(0, aggregatedHooks.size());
             Assertions.assertEquals(Collections.emptyList(), aggregatedHooks);
 
-            Map<String, List<String>> executedHooks = StepsUtil.getExecutedHooksForModule(context, DEFAULT_MODULE_NAME);
+            Map<String, List<String>> executedHooks = StepsUtil.getExecutedHooksForModule(execution, DEFAULT_MODULE_NAME);
             Assertions.assertEquals(buildResultWithExecutedHook(Collections.emptyList(), "application.before-start"), executedHooks);
         }
 
         @Test
         public void withAlreadyExecutedHooksAndOneHookForCurrentStepPhase() {
             Hook executedHook = getExecutedHook();
-            StepsUtil.setExecutedHooksForModule(context, DEFAULT_MODULE_NAME,
+            StepsUtil.setExecutedHooksForModule(execution, DEFAULT_MODULE_NAME,
                                                 MapUtil.asMap(executedHook.getName(), executedHook.getPhases()));
 
             Module module = prepareModule(1, "application.before-stop.idle");
@@ -334,14 +334,14 @@ public class SyncFlowableStepWithHooksTest {
             Assertions.assertEquals(1, aggregatedHooks.size());
             Assertions.assertEquals(module.getHooks(), aggregatedHooks);
 
-            Map<String, List<String>> executedHooks = StepsUtil.getExecutedHooksForModule(context, DEFAULT_MODULE_NAME);
+            Map<String, List<String>> executedHooks = StepsUtil.getExecutedHooksForModule(execution, DEFAULT_MODULE_NAME);
             Assertions.assertEquals(buildResultWithExecutedHook(aggregatedHooks, "application.before-start"), executedHooks);
         }
 
         @Test
         public void withAlreadyExecutedHooksAndTwoHooksForCurrentStepPhase() {
             Hook executedHook = getExecutedHook();
-            StepsUtil.setExecutedHooksForModule(context, DEFAULT_MODULE_NAME,
+            StepsUtil.setExecutedHooksForModule(execution, DEFAULT_MODULE_NAME,
                                                 MapUtil.asMap(executedHook.getName(), executedHook.getPhases()));
 
             Module module = prepareModule(2, "application.before-stop.idle");
@@ -351,14 +351,14 @@ public class SyncFlowableStepWithHooksTest {
             Assertions.assertEquals(2, aggregatedHooks.size());
             Assertions.assertEquals(module.getHooks(), aggregatedHooks);
 
-            Map<String, List<String>> executedHooksForModule = StepsUtil.getExecutedHooksForModule(context, DEFAULT_MODULE_NAME);
+            Map<String, List<String>> executedHooksForModule = StepsUtil.getExecutedHooksForModule(execution, DEFAULT_MODULE_NAME);
             Assertions.assertEquals(buildResultWithExecutedHook(aggregatedHooks, "application.before-start"), executedHooksForModule);
         }
 
         @Test
         public void withAlreadyExecutedHooksAndHooksWhichAreAlreadyExecuted() {
             Hook executedHook = getExecutedHook("hook0", "application.before-stop.idle");
-            StepsUtil.setExecutedHooksForModule(context, DEFAULT_MODULE_NAME,
+            StepsUtil.setExecutedHooksForModule(execution, DEFAULT_MODULE_NAME,
                                                 MapUtil.asMap(executedHook.getName(), executedHook.getPhases()));
 
             Module module = prepareModule(1, "application.before-stop.idle");
@@ -367,7 +367,7 @@ public class SyncFlowableStepWithHooksTest {
 
             Assertions.assertEquals(0, aggregatedHooks.size());
 
-            Map<String, List<String>> executedHooksForModule = StepsUtil.getExecutedHooksForModule(context, DEFAULT_MODULE_NAME);
+            Map<String, List<String>> executedHooksForModule = StepsUtil.getExecutedHooksForModule(execution, DEFAULT_MODULE_NAME);
             Assertions.assertEquals(1, executedHooksForModule.size());
             Assertions.assertTrue(executedHooksForModule.containsKey("hook0"));
             Assertions.assertEquals(Collections.singletonList("application.before-stop.idle"), executedHooksForModule.get("hook0"));

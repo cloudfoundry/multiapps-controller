@@ -17,26 +17,26 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
+import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class ApplicationStager {
 
-    private final ExecutionWrapper execution;
+    private final ProcessContext context;
     private final StepLogger logger;
     private final CloudControllerClient client;
 
-    public ApplicationStager(ExecutionWrapper execution) {
-        this.execution = execution;
-        this.logger = execution.getStepLogger();
-        this.client = execution.getControllerClient();
+    public ApplicationStager(ProcessContext context) {
+        this.context = context;
+        this.logger = context.getStepLogger();
+        this.client = context.getControllerClient();
     }
 
     public StagingState getStagingState() {
-        UUID buildGuid = (UUID) execution.getContext()
-                                         .getVariable(Constants.VAR_BUILD_GUID);
+        UUID buildGuid = (UUID) context.getExecution()
+                                       .getVariable(Constants.VAR_BUILD_GUID);
         if (buildGuid == null) {
             return ImmutableStagingState.builder()
                                         .state(PackageState.STAGED)
@@ -58,7 +58,7 @@ public class ApplicationStager {
     }
 
     private void checkIfApplicationExists() {
-        CloudApplicationExtended app = execution.getVariable(Variables.APP_TO_PROCESS);
+        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
         // This will produce an exception with a more meaningful message why the build is missing
         client.getApplication(app.getName());
     }
@@ -129,8 +129,8 @@ public class ApplicationStager {
     }
 
     public void bindDropletToApplication(UUID appGuid) {
-        UUID buildGuid = (UUID) execution.getContext()
-                                         .getVariable(Constants.VAR_BUILD_GUID);
+        UUID buildGuid = (UUID) context.getExecution()
+                                       .getVariable(Constants.VAR_BUILD_GUID);
         client.bindDropletToApp(client.getBuild(buildGuid)
                                       .getDropletInfo()
                                       .getGuid(),
@@ -138,7 +138,7 @@ public class ApplicationStager {
     }
 
     public StepPhase stageApp(CloudApplication app) {
-        UploadToken uploadToken = execution.getVariable(Variables.UPLOAD_TOKEN);
+        UploadToken uploadToken = context.getVariable(Variables.UPLOAD_TOKEN);
         if (uploadToken == null) {
             return StepPhase.DONE;
         }
@@ -148,10 +148,10 @@ public class ApplicationStager {
 
     private StepPhase createBuild(UUID packageGuid) {
         try {
-            execution.getContext()
-                     .setVariable(Constants.VAR_BUILD_GUID, client.createBuild(packageGuid)
-                                                                  .getMetadata()
-                                                                  .getGuid());
+            context.getExecution()
+                   .setVariable(Constants.VAR_BUILD_GUID, client.createBuild(packageGuid)
+                                                                .getMetadata()
+                                                                .getGuid());
         } catch (CloudOperationException e) {
             handleCloudOperationException(e, packageGuid);
         }
@@ -173,8 +173,8 @@ public class ApplicationStager {
         if (lastBuild == null) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, format(Messages.NO_BUILDS_FOUND_FOR_PACKAGE, packageGuid));
         }
-        execution.getContext()
-                 .setVariable(Constants.VAR_BUILD_GUID, lastBuild.getMetadata()
-                                                                 .getGuid());
+        context.getExecution()
+               .setVariable(Constants.VAR_BUILD_GUID, lastBuild.getMetadata()
+                                                               .getGuid());
     }
 }

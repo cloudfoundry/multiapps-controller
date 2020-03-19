@@ -17,8 +17,8 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 public class DeleteRemainingFileParts extends SyncFlowableStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        List<FileEntry> filesToRemove = StepsUtil.getFromJsonBinaries(execution.getContext(), Constants.VAR_FILE_ENTRIES, FileEntry.class);
+    protected StepPhase executeStep(ProcessContext context) {
+        List<FileEntry> filesToRemove = StepsUtil.getFromJsonBinaries(context.getExecution(), Constants.VAR_FILE_ENTRIES, FileEntry.class);
         filesToRemove.forEach(this::attemptToDeleteFilePart);
         return StepPhase.DONE;
     }
@@ -32,7 +32,7 @@ public class DeleteRemainingFileParts extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_DELETING_REMAINING_FILE_PARTS;
     }
 }

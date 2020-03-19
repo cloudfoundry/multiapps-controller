@@ -107,7 +107,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
@@ -127,13 +127,13 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
 
     private void prepareContext() {
         // TODO
-        execution.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
-        StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
-        StepsUtil.setServicesToBind(context, mapToCloudServiceExtended());
-        context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
-        context.setVariable(Constants.VAR_MODULES_INDEX, stepInput.applicationIndex);
+        context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
+        StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, execution);
+        StepsUtil.setServicesToBind(execution, mapToCloudServiceExtended());
+        execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
+        execution.setVariable(Constants.VAR_MODULES_INDEX, stepInput.applicationIndex);
         byte[] serviceKeysToInjectByteArray = JsonUtil.toJsonBinary(new HashMap<>());
-        context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
+        execution.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
     }
 
     private List<CloudServiceExtended> mapToCloudServiceExtended() {
@@ -201,7 +201,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
                 Mockito.verify(client)
                        .bindService(application.getName(), service,
                                     getBindingParametersForService(application.getBindingParameters(), service),
-                                    step.getApplicationServicesUpdateCallback(context));
+                                    step.getApplicationServicesUpdateCallback(execution));
             }
         }
         Mockito.verify(client)
@@ -228,7 +228,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
 
     private class CreateAppStepMock extends CreateOrUpdateAppStep {
         @Override
-        protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(DelegateExecution context) {
+        protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(DelegateExecution execution) {
             return callback;
         }
     }

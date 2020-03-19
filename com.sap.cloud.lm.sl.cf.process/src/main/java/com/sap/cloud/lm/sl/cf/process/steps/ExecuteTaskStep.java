@@ -29,34 +29,34 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
     private RecentLogsRetriever recentLogsRetriever;
 
     @Override
-    protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
-        CloudApplicationExtended app = execution.getVariable(Variables.APP_TO_PROCESS);
-        CloudTask taskToExecute = StepsUtil.getTask(execution);
-        CloudControllerClient client = execution.getControllerClient();
+    protected StepPhase executeAsyncStep(ProcessContext context) {
+        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
+        CloudTask taskToExecute = StepsUtil.getTask(context);
+        CloudControllerClient client = context.getControllerClient();
 
         getStepLogger().info(Messages.EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
         CloudTask startedTask = client.runTask(app.getName(), taskToExecute);
-        execution.setVariable(Variables.STARTED_TASK, startedTask);
-        execution.getContext()
-                 .setVariable(Constants.VAR_START_TIME, currentTimeSupplier.getAsLong());
+        context.setVariable(Variables.STARTED_TASK, startedTask);
+        context.getExecution()
+               .setVariable(Constants.VAR_START_TIME, currentTimeSupplier.getAsLong());
         return StepPhase.POLL;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
-        CloudApplicationExtended app = execution.getVariable(Variables.APP_TO_PROCESS);
-        CloudTask taskToExecute = StepsUtil.getTask(execution);
+    protected String getStepErrorMessage(ProcessContext context) {
+        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
+        CloudTask taskToExecute = StepsUtil.getTask(context);
         return MessageFormat.format(Messages.ERROR_EXECUTING_TASK_0_ON_APP_1, taskToExecute.getName(), app.getName());
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
+    protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         return Collections.singletonList(new PollExecuteTaskStatusExecution(recentLogsRetriever));
     }
 
     @Override
-    public Integer getTimeout(ExecutionWrapper execution) {
-        return StepsUtil.getInteger(execution.getContext(), Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
+    public Integer getTimeout(ProcessContext context) {
+        return StepsUtil.getInteger(context.getExecution(), Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
     }
 
 }

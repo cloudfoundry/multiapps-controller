@@ -2,8 +2,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 public interface AsyncExecution {
 
-    AsyncExecutionState execute(ExecutionWrapper execution);
+    AsyncExecutionState execute(ProcessContext context);
 
-    String getPollingErrorMessage(ExecutionWrapper execution);
+    String getPollingErrorMessage(ProcessContext context);
 
 }

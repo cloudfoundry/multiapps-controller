@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.cf.metadata.criteria;
 
-import java.util.stream.Collectors;
-
 public class FinalizingBuilder {
     private MtaMetadataCriteriaBuilder mtaMetadataCriteriaBuilder;
 

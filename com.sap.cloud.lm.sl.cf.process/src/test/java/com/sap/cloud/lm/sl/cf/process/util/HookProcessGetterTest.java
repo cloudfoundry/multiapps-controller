@@ -27,7 +27,7 @@ public class HookProcessGetterTest {
     private FlowableFacade flowableFacade;
 
     @Mock
-    private DelegateExecution context;
+    private DelegateExecution execution;
 
     private final Date now = Date.valueOf(LocalDate.now());
 
@@ -41,14 +41,14 @@ public class HookProcessGetterTest {
         String result = getProcessDefinitionForHookWithType("task");
         Assertions.assertEquals("executeHookTasksSubProcess", result);
 
-        Mockito.verifyNoInteractions(progressMessageService, flowableFacade, context);
+        Mockito.verifyNoInteractions(progressMessageService, flowableFacade, execution);
     }
 
     @Test
     public void testWithHookWhichIsOfUnsupportedType() {
         Mockito.when(flowableFacade.getProcessInstanceId(Mockito.any()))
                .thenReturn("foo-process-id");
-        Mockito.when(context.getCurrentActivityId())
+        Mockito.when(execution.getCurrentActivityId())
                .thenReturn("foo-current-activity-id");
 
         Throwable thrownException = Assertions.assertThrows(IllegalStateException.class,
@@ -72,7 +72,7 @@ public class HookProcessGetterTest {
                             .setName("foo")
                             .setType(hookType);
 
-        return hookProcessGetter.get(JsonUtil.toJson(testHook), context);
+        return hookProcessGetter.get(JsonUtil.toJson(testHook), execution);
     }
 
     private class HookProcessGetterMock extends HookProcessGetter {

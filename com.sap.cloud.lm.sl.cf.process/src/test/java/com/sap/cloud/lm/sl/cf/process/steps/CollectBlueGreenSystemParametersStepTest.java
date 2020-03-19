@@ -19,7 +19,7 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
 
     @Before
     public void setNoConfirm() {
-        context.setVariable(Constants.PARAM_NO_CONFIRM, false);
+        execution.setVariable(Constants.PARAM_NO_CONFIRM, false);
     }
 
     @Test
@@ -27,9 +27,9 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
 
-        step.execute(context);
+        step.execute(execution);
 
-        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
+        DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
         Map<String, Object> generalParameters = descriptor.getParameters();
         assertEquals(DEFAULT_DOMAIN, generalParameters.get(SupportedParameters.DEFAULT_IDLE_DOMAIN));
         assertEquals(DEFAULT_DOMAIN, generalParameters.get(SupportedParameters.DEFAULT_DOMAIN));
@@ -40,9 +40,9 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
 
-        step.execute(context);
+        step.execute(execution);
 
-        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
+        DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
         List<Module> modules = descriptor.getModules();
         validateGlobalHostParameters(descriptor.getParameters());
         assertEquals(2, modules.size());

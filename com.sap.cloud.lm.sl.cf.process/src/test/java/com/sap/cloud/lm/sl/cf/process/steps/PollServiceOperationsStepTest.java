@@ -103,16 +103,16 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
 
     @Before
     public void setUp() {
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
         prepareServiceOperationGetter();
-        StepsUtil.setServicesToCreate(context, input.services);
-        execution.setVariable(Variables.SERVICES_TO_DELETE, Collections.emptyList());
-        StepsUtil.setServicesData(context, Collections.emptyList());
-        execution.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, input.triggeredServiceOperations);
+        StepsUtil.setServicesToCreate(execution, input.services);
+        context.setVariable(Variables.SERVICES_TO_DELETE, Collections.emptyList());
+        StepsUtil.setServicesData(execution, Collections.emptyList());
+        context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, input.triggeredServiceOperations);
         if (expectedExceptionMessage != null) {
             exception.expectMessage(expectedExceptionMessage);
         }
-        context.setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, 0);
+        execution.setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, 0);
         when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
     }
 
@@ -158,7 +158,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncOperations(ExecutionWrapper wrapper) {
+    protected List<AsyncExecution> getAsyncOperations(ProcessContext wrapper) {
         return step.getAsyncStepExecutions(wrapper);
     }
 

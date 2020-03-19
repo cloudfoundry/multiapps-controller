@@ -26,19 +26,19 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
     private ProcessTypeParser processTypeParser;
 
     @Override
-    protected StepPhase executeStepInternal(ExecutionWrapper execution) {
+    protected StepPhase executeStepInternal(ProcessContext context) {
         // Get the next cloud application from the context
-        CloudApplication app = execution.getVariable(Variables.APP_TO_PROCESS);
+        CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
 
         // Get the existing application from the context
-        CloudApplication existingApp = execution.getVariable(Variables.EXISTING_APP);
+        CloudApplication existingApp = context.getVariable(Variables.EXISTING_APP);
 
         if (existingApp != null && !existingApp.getState()
                                                .equals(State.STOPPED)) {
             getStepLogger().info(Messages.STOPPING_APP, app.getName());
 
             // Get a cloud foundry client
-            CloudControllerClient client = execution.getControllerClient();
+            CloudControllerClient client = context.getControllerClient();
 
             // Stop the application
             client.stopApplication(app.getName());
@@ -52,14 +52,14 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
-        return MessageFormat.format(Messages.ERROR_STOPPING_APP, execution.getVariable(Variables.APP_TO_PROCESS)
-                                                                          .getName());
+    protected String getStepErrorMessage(ProcessContext context) {
+        return MessageFormat.format(Messages.ERROR_STOPPING_APP, context.getVariable(Variables.APP_TO_PROCESS)
+                                                                        .getName());
     }
 
     @Override
-    protected HookPhase getHookPhaseBeforeStep(DelegateExecution context) {
-        ProcessType processType = processTypeParser.getProcessType(context);
+    protected HookPhase getHookPhaseBeforeStep(DelegateExecution execution) {
+        ProcessType processType = processTypeParser.getProcessType(execution);
         if (ProcessType.BLUE_GREEN_DEPLOY.getName()
                                          .equals(processType.getName())) {
             return HookPhase.APPLICATION_BEFORE_STOP_IDLE;
@@ -69,8 +69,8 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
     }
 
     @Override
-    protected HookPhase getHookPhaseAfterStep(DelegateExecution context) {
-        ProcessType processType = processTypeParser.getProcessType(context);
+    protected HookPhase getHookPhaseAfterStep(DelegateExecution execution) {
+        ProcessType processType = processTypeParser.getProcessType(execution);
         if (ProcessType.BLUE_GREEN_DEPLOY.getName()
                                          .equals(processType.getName())) {
             return HookPhase.APPLICATION_AFTER_STOP_IDLE;

@@ -89,8 +89,8 @@ public class HelperFactory implements HelperFactoryConstructor {
 
     @Override
     public ConfigurationSubscriptionFactory
-        getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
-                                            Map<String, ResolvedConfigurationReference> resolvedReferences) {
+           getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
+                                               Map<String, ResolvedConfigurationReference> resolvedReferences) {
         return new ConfigurationSubscriptionFactory(descriptor, resolvedReferences);
     }
 

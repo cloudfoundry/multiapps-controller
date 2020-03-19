@@ -24,13 +24,13 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
     private ConfigurationSubscriptionService subscriptionService;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        if (!StepsUtil.getKeepOriginalAppNamesAfterDeploy(execution.getContext())) {
+    protected StepPhase executeStep(ProcessContext context) {
+        if (!StepsUtil.getKeepOriginalAppNamesAfterDeploy(context.getExecution())) {
             return StepPhase.DONE;
         }
 
-        List<String> appsToProcess = execution.getVariable(Variables.APPS_TO_DEPLOY);
-        CloudControllerClient client = execution.getControllerClient();
+        List<String> appsToProcess = context.getVariable(Variables.APPS_TO_DEPLOY);
+        CloudControllerClient client = context.getControllerClient();
 
         for (String appName : appsToProcess) {
             String newName = BlueGreenApplicationNameSuffix.removeSuffix(appName);
@@ -38,9 +38,9 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
             client.rename(appName, newName);
         }
 
-        String mtaId = (String) execution.getContext()
-                                         .getVariable(Constants.PARAM_MTA_ID);
-        String spaceId = StepsUtil.getSpaceId(execution.getContext());
+        String mtaId = (String) context.getExecution()
+                                       .getVariable(Constants.PARAM_MTA_ID);
+        String spaceId = StepsUtil.getSpaceId(context.getExecution());
         updateConfigurationSubscribers(appsToProcess, mtaId, spaceId);
 
         return StepPhase.DONE;
@@ -75,7 +75,7 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_RENAMING_NEW_APPLICATIONS;
     }
 

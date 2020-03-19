@@ -1,9 +1,9 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
-import org.immutables.value.Value;
-
 import java.io.Serializable;
 import java.util.Date;
+
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface LogsOffset extends Serializable {

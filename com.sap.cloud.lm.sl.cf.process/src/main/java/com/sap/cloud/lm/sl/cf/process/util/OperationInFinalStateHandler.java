@@ -51,38 +51,38 @@ public class OperationInFinalStateHandler {
     private OperationTimeAggregator operationTimeAggregator;
     private final SafeExecutor safeExecutor = new SafeExecutor();
 
-    public void handle(DelegateExecution context, Operation.State state) {
-        LoggingUtil.logWithCorrelationId(StepsUtil.getCorrelationId(context), () -> handleInternal(context, state));
+    public void handle(DelegateExecution execution, Operation.State state) {
+        LoggingUtil.logWithCorrelationId(StepsUtil.getCorrelationId(execution), () -> handleInternal(execution, state));
     }
 
-    private void handleInternal(DelegateExecution context, Operation.State state) {
+    private void handleInternal(DelegateExecution execution, Operation.State state) {
         safeExecutor.execute(() -> {
             if (configuration.shouldGatherUsageStatistics()) {
-                sendStatistics(context, state);
+                sendStatistics(execution, state);
             }
         });
-        safeExecutor.execute(() -> deleteDeploymentFiles(context));
-        safeExecutor.execute(() -> deleteCloudControllerClientForProcess(context));
-        safeExecutor.execute(() -> releaseOperationLock(StepsUtil.getCorrelationId(context)));
-        safeExecutor.execute(() -> setOperationState(StepsUtil.getCorrelationId(context), state));
-        safeExecutor.execute(() -> aggregateOperationTime(context));
+        safeExecutor.execute(() -> deleteDeploymentFiles(execution));
+        safeExecutor.execute(() -> deleteCloudControllerClientForProcess(execution));
+        safeExecutor.execute(() -> releaseOperationLock(StepsUtil.getCorrelationId(execution)));
+        safeExecutor.execute(() -> setOperationState(StepsUtil.getCorrelationId(execution), state));
+        safeExecutor.execute(() -> aggregateOperationTime(execution));
     }
 
-    protected void sendStatistics(DelegateExecution context, Operation.State state) {
+    protected void sendStatistics(DelegateExecution execution, Operation.State state) {
         RestTemplate restTemplate = new RestUtil().createRestTemplate(null, false);
-        AnalyticsData collectedData = dataSender.collectAnalyticsData(context, state);
-        dataSender.sendCollectedData(restTemplate, dataSender.convertCollectedAnalyticsDataToXml(context, collectedData));
+        AnalyticsData collectedData = dataSender.collectAnalyticsData(execution, state);
+        dataSender.sendCollectedData(restTemplate, dataSender.convertCollectedAnalyticsDataToXml(execution, collectedData));
     }
 
-    protected void deleteDeploymentFiles(DelegateExecution context) throws FileStorageException {
-        if (shouldKeepFiles((Boolean) context.getVariable(Constants.PARAM_KEEP_FILES))) {
+    protected void deleteDeploymentFiles(DelegateExecution execution) throws FileStorageException {
+        if (shouldKeepFiles((Boolean) execution.getVariable(Constants.PARAM_KEEP_FILES))) {
             return;
         }
 
-        String extensionDescriptorFileIds = (String) context.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
-        String appArchiveFileIds = (String) context.getVariable(Constants.PARAM_APP_ARCHIVE_ID);
+        String extensionDescriptorFileIds = (String) execution.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
+        String appArchiveFileIds = (String) execution.getVariable(Constants.PARAM_APP_ARCHIVE_ID);
 
-        FileSweeper fileSweeper = new FileSweeper(StepsUtil.getSpaceId(context), fileService);
+        FileSweeper fileSweeper = new FileSweeper(StepsUtil.getSpaceId(execution), fileService);
         fileSweeper.sweep(extensionDescriptorFileIds);
         fileSweeper.sweep(appArchiveFileIds);
     }
@@ -91,11 +91,11 @@ public class OperationInFinalStateHandler {
         return keepFiles != null && keepFiles;
     }
 
-    private void deleteCloudControllerClientForProcess(DelegateExecution context) {
-        String user = StepsUtil.determineCurrentUser(context);
-        String space = StepsUtil.getSpace(context);
-        String org = StepsUtil.getOrg(context);
-        String spaceId = StepsUtil.getSpaceId(context);
+    private void deleteCloudControllerClientForProcess(DelegateExecution execution) {
+        String user = StepsUtil.determineCurrentUser(execution);
+        String space = StepsUtil.getSpace(execution);
+        String org = StepsUtil.getOrg(execution);
+        String spaceId = StepsUtil.getSpaceId(execution);
 
         clientProvider.releaseClient(user, org, space);
         clientProvider.releaseClient(user, spaceId);
@@ -123,7 +123,7 @@ public class OperationInFinalStateHandler {
         return state == Operation.State.FINISHED ? EventType.FINISHED : EventType.ABORTED;
     }
 
-    private void aggregateOperationTime(DelegateExecution context) {
-        operationTimeAggregator.aggregateOperationTime(StepsUtil.getCorrelationId(context));
+    private void aggregateOperationTime(DelegateExecution execution) {
+        operationTimeAggregator.aggregateOperationTime(StepsUtil.getCorrelationId(execution));
     }
 }

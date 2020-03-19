@@ -23,29 +23,29 @@ public class PrepareAppsRestartStep extends PrepareModulesDeploymentStep {
     private ModuleToDeployHelper moduleToDeployHelper;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        super.executeStep(execution);
+    protected StepPhase executeStep(ProcessContext context) {
+        super.executeStep(context);
 
-        execution.getContext()
-                 .setVariable(Constants.REBUILD_APP_ENV, true);
-        execution.getContext()
-                 .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, false);
-        execution.getContext()
-                 .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
-        execution.getContext()
-                 .setVariable(Constants.VAR_SHOULD_SKIP_SERVICE_REBINDING, true);
-        StepsUtil.setUseIdleUris(execution.getContext(), false);
-        StepsUtil.setDeleteIdleUris(execution.getContext(), true);
-        StepsUtil.setSkipUpdateConfigurationEntries(execution.getContext(), false);
-        StepsUtil.setSkipManageServiceBroker(execution.getContext(), false);
-        StepsUtil.setIteratedModulesInParallel(execution.getContext(), Collections.emptyList());
+        context.getExecution()
+               .setVariable(Constants.REBUILD_APP_ENV, true);
+        context.getExecution()
+               .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, false);
+        context.getExecution()
+               .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
+        context.getExecution()
+               .setVariable(Constants.VAR_SHOULD_SKIP_SERVICE_REBINDING, true);
+        StepsUtil.setUseIdleUris(context.getExecution(), false);
+        StepsUtil.setDeleteIdleUris(context.getExecution(), true);
+        StepsUtil.setSkipUpdateConfigurationEntries(context.getExecution(), false);
+        StepsUtil.setSkipManageServiceBroker(context.getExecution(), false);
+        StepsUtil.setIteratedModulesInParallel(context.getExecution(), Collections.emptyList());
 
         return StepPhase.DONE;
     }
 
     @Override
-    protected List<Module> getModulesToDeploy(DelegateExecution context) {
-        List<Module> allModulesToDeploy = StepsUtil.getAllModulesToDeploy(context);
+    protected List<Module> getModulesToDeploy(DelegateExecution execution) {
+        List<Module> allModulesToDeploy = StepsUtil.getAllModulesToDeploy(execution);
         return allModulesToDeploy.stream()
                                  .filter(module -> moduleToDeployHelper.isApplication(module))
                                  .collect(Collectors.toList());

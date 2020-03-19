@@ -99,8 +99,9 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
     }
 
     public PollServiceInProgressOperationsExecutionTest(List<String> serviceNames, List<ServiceOperation.Type> servicesOperationTypes,
-                                                        List<ServiceOperation.State> servicesOperationStates, boolean shouldVerifyStepLogger,
-                                                        AsyncExecutionState expectedExecutionState, String expectedExceptionMessage) {
+                                                        List<ServiceOperation.State> servicesOperationStates,
+                                                        boolean shouldVerifyStepLogger, AsyncExecutionState expectedExecutionState,
+                                                        String expectedExceptionMessage) {
         this.serviceNames = serviceNames;
         this.servicesOperationTypes = servicesOperationTypes;
         this.servicesOperationStates = servicesOperationStates;
@@ -128,7 +129,7 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
 
     @Before
     public void setUp() {
-        context.setVariable(Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
+        execution.setVariable(Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
         List<CloudServiceExtended> services = generateCloudServicesExtended();
         prepareServiceOperationGetter(services);
         prepareServicesData(services);
@@ -162,7 +163,7 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
                 triggeredServiceOperations.put(serviceName, serviceOperationType);
             }
         }
-        execution.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, triggeredServiceOperations);
+        context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, triggeredServiceOperations);
     }
 
     private List<CloudServiceExtended> generateCloudServicesExtended() {
@@ -184,7 +185,7 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
     }
 
     private void prepareServicesData(List<CloudServiceExtended> services) {
-        StepsUtil.setServicesData(context, services);
+        StepsUtil.setServicesData(execution, services);
     }
 
     @Override
@@ -201,7 +202,7 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncOperations(ExecutionWrapper wrapper) {
+    protected List<AsyncExecution> getAsyncOperations(ProcessContext wrapper) {
         return step.getAsyncStepExecutions(wrapper);
     }
 }

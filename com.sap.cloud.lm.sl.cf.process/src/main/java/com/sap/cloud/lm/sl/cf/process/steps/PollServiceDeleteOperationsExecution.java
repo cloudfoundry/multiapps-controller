@@ -21,8 +21,8 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
     }
 
     @Override
-    protected List<CloudServiceExtended> getServicesData(DelegateExecution context) {
-        return StepsUtil.getServicesData(context);
+    protected List<CloudServiceExtended> getServicesData(DelegateExecution execution) {
+        return StepsUtil.getServicesData(execution);
     }
 
     @Override
@@ -31,10 +31,10 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
     }
 
     @Override
-    protected void reportServiceState(ExecutionWrapper execution, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
+    protected void reportServiceState(ProcessContext context, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
         if (lastServiceOperation.getState() == ServiceOperation.State.SUCCEEDED) {
-            execution.getStepLogger()
-                     .debug(getSuccessMessage(service));
+            context.getStepLogger()
+                   .debug(getSuccessMessage(service));
             return;
         }
 
@@ -53,7 +53,7 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
     }
 
     @Override
-    public String getPollingErrorMessage(ExecutionWrapper execution) {
+    public String getPollingErrorMessage(ProcessContext context) {
         return Messages.ERROR_MONITORING_DELETION_OF_SERVICES;
     }
 

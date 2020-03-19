@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Scope;
 public class CollectBlueGreenSystemParametersStep extends CollectSystemParametersStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        return executeStepInternal(execution, true);
+    protected StepPhase executeStep(ProcessContext context) {
+        return executeStepInternal(context, true);
     }
 
 }

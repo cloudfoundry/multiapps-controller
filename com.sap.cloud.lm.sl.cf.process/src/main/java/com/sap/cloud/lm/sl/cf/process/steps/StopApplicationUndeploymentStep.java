@@ -28,18 +28,18 @@ public class StopApplicationUndeploymentStep extends UndeployAppStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
-        return MessageFormat.format(Messages.ERROR_STOPPING_APP, execution.getVariable(Variables.APP_TO_PROCESS)
-                                                                          .getName());
+    protected String getStepErrorMessage(ProcessContext context) {
+        return MessageFormat.format(Messages.ERROR_STOPPING_APP, context.getVariable(Variables.APP_TO_PROCESS)
+                                                                        .getName());
     }
 
     @Override
-    protected HookPhase getHookPhaseBeforeStep(DelegateExecution context) {
+    protected HookPhase getHookPhaseBeforeStep(DelegateExecution execution) {
         return HookPhase.APPLICATION_BEFORE_STOP_LIVE;
     }
 
     @Override
-    protected HookPhase getHookPhaseAfterStep(DelegateExecution context) {
+    protected HookPhase getHookPhaseAfterStep(DelegateExecution execution) {
         return HookPhase.APPLICATION_AFTER_STOP_LIVE;
     }
 

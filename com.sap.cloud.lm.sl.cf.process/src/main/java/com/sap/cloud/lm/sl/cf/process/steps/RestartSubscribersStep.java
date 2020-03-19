@@ -20,30 +20,30 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 public class RestartSubscribersStep extends SyncFlowableStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        List<CloudApplication> updatedSubscribers = execution.getVariable(Variables.UPDATED_SUBSCRIBERS);
+    protected StepPhase executeStep(ProcessContext context) {
+        List<CloudApplication> updatedSubscribers = context.getVariable(Variables.UPDATED_SUBSCRIBERS);
         for (CloudApplication subscriber : updatedSubscribers) {
             getStepLogger().debug(Messages.UPDATING_SUBSCRIBER_0, subscriber.getName());
-            restartSubscriber(execution, subscriber);
+            restartSubscriber(context, subscriber);
         }
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_RESTARTING_SUBSCRIBERS;
     }
 
-    private void restartSubscriber(ExecutionWrapper execution, CloudApplication subscriber) {
+    private void restartSubscriber(ProcessContext context, CloudApplication subscriber) {
         try {
-            attemptToRestartApplication(execution, subscriber);
+            attemptToRestartApplication(context, subscriber);
         } catch (CloudOperationException e) {
             getStepLogger().warn(e, Messages.COULD_NOT_RESTART_SUBSCRIBER_0, subscriber.getName());
         }
     }
 
-    private void attemptToRestartApplication(ExecutionWrapper execution, CloudApplication app) {
-        CloudControllerClient client = getClientForApplicationSpace(execution, app);
+    private void attemptToRestartApplication(ProcessContext context, CloudApplication app) {
+        CloudControllerClient client = getClientForApplicationSpace(context, app);
 
         getStepLogger().info(Messages.STOPPING_APP, app.getName());
         client.stopApplication(app.getName());
@@ -51,10 +51,10 @@ public class RestartSubscribersStep extends SyncFlowableStep {
         client.startApplication(app.getName());
     }
 
-    private CloudControllerClient getClientForApplicationSpace(ExecutionWrapper execution, CloudApplication app) {
+    private CloudControllerClient getClientForApplicationSpace(ProcessContext context, CloudApplication app) {
         CloudSpace space = app.getSpace();
         CloudOrganization organization = space.getOrganization();
-        return execution.getControllerClient(organization.getName(), space.getName());
+        return context.getControllerClient(organization.getName(), space.getName());
     }
 
 }

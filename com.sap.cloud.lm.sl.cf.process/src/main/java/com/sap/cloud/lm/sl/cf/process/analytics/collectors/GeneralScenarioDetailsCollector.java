@@ -16,8 +16,8 @@ public class GeneralScenarioDetailsCollector {
     @Inject
     private AnalyticsCollector analytics;
 
-    public GeneralScenarioDetails collectDetails(DelegateExecution context, GeneralProcess generalProcess) {
-        String processId = context.getProcessInstanceId();
+    public GeneralScenarioDetails collectDetails(DelegateExecution execution, GeneralProcess generalProcess) {
+        String processId = execution.getProcessInstanceId();
         long startDate = analytics.getStartTime(processId);
         long endDate = analytics.getEndTime();
 

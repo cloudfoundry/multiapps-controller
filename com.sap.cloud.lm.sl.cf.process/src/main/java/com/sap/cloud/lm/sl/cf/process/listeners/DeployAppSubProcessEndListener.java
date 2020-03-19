@@ -22,16 +22,17 @@ public class DeployAppSubProcessEndListener implements ExecutionListener {
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void notify(DelegateExecution context) {
-        VariablesHandler variablesHandler = new VariablesHandler(context);
+    public void notify(DelegateExecution execution) {
+        VariablesHandler variablesHandler = new VariablesHandler(execution);
         CloudServiceBroker cloudServiceBrokerExtended = variablesHandler.get(Variables.CREATED_OR_UPDATED_SERVICE_BROKER);
 
         if (cloudServiceBrokerExtended != null) {
-            setVariableInParentProcess(context, variablesHandler, Constants.VAR_APP_SERVICE_BROKER_VAR_PREFIX, cloudServiceBrokerExtended);
+            setVariableInParentProcess(execution, variablesHandler, Constants.VAR_APP_SERVICE_BROKER_VAR_PREFIX,
+                                       cloudServiceBrokerExtended);
         }
     }
 
-    private void setVariableInParentProcess(DelegateExecution context, VariablesHandler variablesHandler, String variablePrefix,
+    private void setVariableInParentProcess(DelegateExecution execution, VariablesHandler variablesHandler, String variablePrefix,
                                             Object variableValue) {
         CloudApplicationExtended cloudApplication = variablesHandler.get(Variables.APP_TO_PROCESS);
         if (cloudApplication == null) {
@@ -47,7 +48,7 @@ public class DeployAppSubProcessEndListener implements ExecutionListener {
         RuntimeService runtimeService = Context.getProcessEngineConfiguration()
                                                .getRuntimeService();
 
-        String superExecutionId = context.getParentId();
+        String superExecutionId = execution.getParentId();
         Execution superExecutionResult = runtimeService.createExecutionQuery()
                                                        .executionId(superExecutionId)
                                                        .singleResult();

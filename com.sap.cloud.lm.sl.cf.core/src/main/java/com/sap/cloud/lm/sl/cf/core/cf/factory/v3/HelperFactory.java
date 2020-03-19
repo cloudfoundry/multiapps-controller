@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf.factory.v3;
 
+import java.util.Map;
+
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v3.ApplicationCloudModelBuilder;
@@ -15,8 +17,6 @@ import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-
-import java.util.Map;
 
 public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v2.HelperFactory {
     public HelperFactory(DescriptorHandler descriptorHandler) {
@@ -42,8 +42,8 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v2.Hel
 
     @Override
     public ConfigurationSubscriptionFactory
-        getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
-                                            Map<String, ResolvedConfigurationReference> resolvedReferences) {
+           getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
+                                               Map<String, ResolvedConfigurationReference> resolvedReferences) {
         return new ConfigurationSubscriptionFactory(descriptor, resolvedReferences);
     }
 

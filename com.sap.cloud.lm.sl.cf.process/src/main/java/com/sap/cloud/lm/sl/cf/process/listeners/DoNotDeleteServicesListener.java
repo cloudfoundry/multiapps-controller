@@ -15,8 +15,8 @@ public class DoNotDeleteServicesListener extends AbstractProcessExecutionListene
     private static final Logger LOGGER = LoggerFactory.getLogger(DoNotDeleteServicesListener.class);
 
     @Override
-    protected void notifyInternal(DelegateExecution context) {
-        if (!isRootProcess(context)) {
+    protected void notifyInternal(DelegateExecution execution) {
+        if (!isRootProcess(execution)) {
             return;
         }
         getStepLogger().warn(Messages.SKIP_SERVICES_DELETION);

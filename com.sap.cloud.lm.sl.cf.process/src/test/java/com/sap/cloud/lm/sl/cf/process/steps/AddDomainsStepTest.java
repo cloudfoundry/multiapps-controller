@@ -58,7 +58,7 @@ public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
@@ -69,7 +69,7 @@ public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
     }
 
     private void prepareContext() {
-        execution.setVariable(Variables.CUSTOM_DOMAINS, customDomains);
+        context.setVariable(Variables.CUSTOM_DOMAINS, customDomains);
     }
 
     private List<CloudDomain> getExistingDomainsList() {

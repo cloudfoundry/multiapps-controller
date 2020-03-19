@@ -80,8 +80,8 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     }
 
     private void prepareContext() {
-        context.setVariable(Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(hasAppChanged));
-        context.setVariable(Constants.PARAM_NO_START, false);
+        execution.setVariable(Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(hasAppChanged));
+        execution.setVariable(Constants.PARAM_NO_START, false);
     }
 
     private void prepareAppStepCalculator() {
@@ -100,12 +100,12 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
                                                                         .name(DUMMY)
                                                                         .restartParameters(restartParameters)
                                                                         .build();
-        context.setVariable(Constants.VAR_APP_TO_PROCESS, JsonUtil.toJson(app));
+        execution.setVariable(Constants.VAR_APP_TO_PROCESS, JsonUtil.toJson(app));
         when(client.getApplication(anyString())).thenReturn(app);
         if (hasUploadToken) {
-            context.setVariable(Constants.VAR_UPLOAD_TOKEN, JsonUtil.toJson(ImmutableUploadToken.builder()
-                                                                                                .packageGuid(FAKE_UUID)
-                                                                                                .build()));
+            execution.setVariable(Constants.VAR_UPLOAD_TOKEN, JsonUtil.toJson(ImmutableUploadToken.builder()
+                                                                                                  .packageGuid(FAKE_UUID)
+                                                                                                  .build()));
         }
     }
 }

@@ -23,21 +23,21 @@ import com.sap.cloud.lm.sl.common.SLException;
  */
 public class StepLogger implements UserMessageLogger {
 
-    protected final DelegateExecution context;
+    protected final DelegateExecution execution;
     protected final ProgressMessageService progressMessageService;
     protected final ProcessLoggerProvider processLoggerProvider;
     protected final Logger simpleStepLogger;
 
-    public StepLogger(DelegateExecution context, ProgressMessageService progressMessageService, ProcessLoggerProvider processLoggerProvider,
-                      Logger simpleStepLogger) {
-        this.context = context;
+    public StepLogger(DelegateExecution execution, ProgressMessageService progressMessageService,
+                      ProcessLoggerProvider processLoggerProvider, Logger simpleStepLogger) {
+        this.execution = execution;
         this.progressMessageService = progressMessageService;
         this.processLoggerProvider = processLoggerProvider;
         this.simpleStepLogger = simpleStepLogger;
     }
 
     public void logFlowableTask() {
-        debug(Messages.EXECUTING_TASK, context.getCurrentActivityId(), context.getId());
+        debug(Messages.EXECUTING_TASK, execution.getCurrentActivityId(), execution.getId());
     }
 
     public void infoWithoutProgressMessage(String pattern, Object... arguments) {
@@ -161,9 +161,9 @@ public class StepLogger implements UserMessageLogger {
 
     private void sendProgressMessage(String message, ProgressMessageType type) {
         try {
-            String taskId = StepsUtil.getTaskId(context);
+            String taskId = StepsUtil.getTaskId(execution);
             progressMessageService.add(ImmutableProgressMessage.builder()
-                                                               .processId(StepsUtil.getCorrelationId(context))
+                                                               .processId(StepsUtil.getCorrelationId(execution))
                                                                .taskId(taskId)
                                                                .type(type)
                                                                .text(message)
@@ -175,7 +175,7 @@ public class StepLogger implements UserMessageLogger {
     }
 
     public ProcessLogger getProcessLogger() {
-        return processLoggerProvider.getLogger(context);
+        return processLoggerProvider.getLogger(execution);
     }
 
     public ProcessLoggerProvider getProcessLoggerProvider() {
@@ -187,16 +187,12 @@ public class StepLogger implements UserMessageLogger {
         return "[" + name.substring(name.lastIndexOf('.') + 1) + "] ";
     }
 
-    protected DelegateExecution getContext() {
-        return context;
-    }
-
     @Named
     public static class Factory {
 
-        public StepLogger create(DelegateExecution context, ProgressMessageService progressMessageService,
+        public StepLogger create(DelegateExecution execution, ProgressMessageService progressMessageService,
                                  ProcessLoggerProvider processLoggerProvider, Logger logger) {
-            return new StepLogger(context, progressMessageService, processLoggerProvider, logger);
+            return new StepLogger(execution, progressMessageService, processLoggerProvider, logger);
         }
 
     }

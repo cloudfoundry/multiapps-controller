@@ -60,7 +60,7 @@ public class AnalyticsCollectorTest {
 
     private final Tester tester = Tester.forClass(getClass());
 
-    protected final DelegateExecution context = com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution.createSpyInstance();
+    protected final DelegateExecution execution = com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution.createSpyInstance();
 
     protected final FileService fileService = Mockito.mock(FileService.class);
     @Mock
@@ -104,34 +104,34 @@ public class AnalyticsCollectorTest {
     }
 
     public void mockMtaSize() throws Exception {
-        when(context.getVariable(Constants.PARAM_APP_ARCHIVE_ID)).thenReturn(ARCHIVE_ID);
+        when(execution.getVariable(Constants.PARAM_APP_ARCHIVE_ID)).thenReturn(ARCHIVE_ID);
         FileEntry fileEntry = Mockito.mock(FileEntry.class);
-        when(fileService.getFile(StepsUtil.getSpaceId(context), ARCHIVE_ID)).thenReturn(fileEntry);
+        when(fileService.getFile(StepsUtil.getSpaceId(execution), ARCHIVE_ID)).thenReturn(fileEntry);
         when(fileEntry.getSize()).thenReturn(BigInteger.valueOf(1234));
     }
 
     private void prepareContextForDeploy() {
-        when(context.getProcessInstanceId()).thenReturn(PROCESS_ID);
-        when(context.getVariable(Constants.PARAM_MTA_ID)).thenReturn(MTA_ID);
-        context.setVariable(Constants.VAR_SPACE, SPACE_NAME);
-        context.setVariable(Constants.VAR_ORG, ORG_NAME);
+        when(execution.getProcessInstanceId()).thenReturn(PROCESS_ID);
+        when(execution.getVariable(Constants.PARAM_MTA_ID)).thenReturn(MTA_ID);
+        execution.setVariable(Constants.VAR_SPACE, SPACE_NAME);
+        execution.setVariable(Constants.VAR_ORG, ORG_NAME);
 
-        when(context.getVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME)).thenReturn(Module.class.getName());
-        when(context.getVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY)).thenReturn(mockModulesToDeploy(2));
-        when(context.getVariable(Constants.VAR_CUSTOM_DOMAINS)).thenReturn(mockedListAsBytesWithStrings(2));
-        when(context.getVariable(Constants.VAR_SERVICES_TO_CREATE)).thenReturn(mockedListWithStrings(4));
-        when(context.getVariable(Constants.VAR_APPS_TO_DEPLOY)).thenReturn(mockedListAsBytesWithStrings(1));
-        when(context.getVariable(Constants.VAR_PUBLISHED_ENTRIES)).thenReturn(mockedListWithObjects(1));
-        when(context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE)).thenReturn(mockedListWithObjects(3));
-        when(context.getVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS)).thenReturn(JsonUtil.toJsonBinary(TRIGGERED_SERVICE_OPERATIONS));
-        when(context.getVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE)).thenReturn(JsonUtil.toJsonBinary(Collections.emptyMap()));
+        when(execution.getVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME)).thenReturn(Module.class.getName());
+        when(execution.getVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY)).thenReturn(mockModulesToDeploy(2));
+        when(execution.getVariable(Constants.VAR_CUSTOM_DOMAINS)).thenReturn(mockedListAsBytesWithStrings(2));
+        when(execution.getVariable(Constants.VAR_SERVICES_TO_CREATE)).thenReturn(mockedListWithStrings(4));
+        when(execution.getVariable(Constants.VAR_APPS_TO_DEPLOY)).thenReturn(mockedListAsBytesWithStrings(1));
+        when(execution.getVariable(Constants.VAR_PUBLISHED_ENTRIES)).thenReturn(mockedListWithObjects(1));
+        when(execution.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE)).thenReturn(mockedListWithObjects(3));
+        when(execution.getVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS)).thenReturn(JsonUtil.toJsonBinary(TRIGGERED_SERVICE_OPERATIONS));
+        when(execution.getVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE)).thenReturn(JsonUtil.toJsonBinary(Collections.emptyMap()));
 
-        when(context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE)).thenReturn(mockedListWithObjects(2));
-        when(context.getVariable(Constants.VAR_DELETED_ENTRIES)).thenReturn(mockedListWithObjects(1));
-        when(context.getVariable(Constants.VAR_APPS_TO_UNDEPLOY)).thenReturn(mockAppsToUndeploy(3));
-        when(context.getVariable(Constants.VAR_SERVICES_TO_DELETE)).thenReturn(mockedListAsBytesWithStrings(3));
-        when(context.getVariable(Constants.VAR_UPDATED_SUBSCRIBERS)).thenReturn(mockedListWithObjects(1));
-        when(context.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS)).thenReturn(mockedListWithObjects(2));
+        when(execution.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE)).thenReturn(mockedListWithObjects(2));
+        when(execution.getVariable(Constants.VAR_DELETED_ENTRIES)).thenReturn(mockedListWithObjects(1));
+        when(execution.getVariable(Constants.VAR_APPS_TO_UNDEPLOY)).thenReturn(mockAppsToUndeploy(3));
+        when(execution.getVariable(Constants.VAR_SERVICES_TO_DELETE)).thenReturn(mockedListAsBytesWithStrings(3));
+        when(execution.getVariable(Constants.VAR_UPDATED_SUBSCRIBERS)).thenReturn(mockedListWithObjects(1));
+        when(execution.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS)).thenReturn(mockedListWithObjects(2));
     }
 
     private byte[] mockedListWithObjects(int size) {
@@ -181,14 +181,14 @@ public class AnalyticsCollectorTest {
 
     @Test
     public void collectAttributesDeployTest() {
-        when(processTypeParser.getProcessType(context)).thenReturn(ProcessType.DEPLOY);
-        tester.test(() -> collector.collectAnalyticsData(context), new Expectation(Expectation.Type.JSON, "AnalyticsDeploy.json"));
+        when(processTypeParser.getProcessType(execution)).thenReturn(ProcessType.DEPLOY);
+        tester.test(() -> collector.collectAnalyticsData(execution), new Expectation(Expectation.Type.JSON, "AnalyticsDeploy.json"));
     }
 
     @Test
     public void collectAttributesUndeployTest() {
-        when(processTypeParser.getProcessType(context)).thenReturn(ProcessType.UNDEPLOY);
-        tester.test(() -> collector.collectAnalyticsData(context), new Expectation(Expectation.Type.JSON, "AnalyticsUndeploy.json"));
+        when(processTypeParser.getProcessType(execution)).thenReturn(ProcessType.UNDEPLOY);
+        tester.test(() -> collector.collectAnalyticsData(execution), new Expectation(Expectation.Type.JSON, "AnalyticsUndeploy.json"));
     }
 
 }

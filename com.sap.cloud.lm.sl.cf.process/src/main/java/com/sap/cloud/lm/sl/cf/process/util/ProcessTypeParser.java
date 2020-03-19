@@ -12,8 +12,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 @Named
 public class ProcessTypeParser {
 
-    public ProcessType getProcessType(DelegateExecution context) {
-        String serviceId = getServiceId(context);
+    public ProcessType getProcessType(DelegateExecution execution) {
+        String serviceId = getServiceId(execution);
         switch (serviceId) {
             case Constants.UNDEPLOY_SERVICE_ID:
                 return ProcessType.UNDEPLOY;
@@ -26,8 +26,8 @@ public class ProcessTypeParser {
         }
     }
 
-    public static String getServiceId(DelegateExecution context) {
-        return (String) context.getVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID);
+    public static String getServiceId(DelegateExecution execution) {
+        return (String) execution.getVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID);
     }
 
 }

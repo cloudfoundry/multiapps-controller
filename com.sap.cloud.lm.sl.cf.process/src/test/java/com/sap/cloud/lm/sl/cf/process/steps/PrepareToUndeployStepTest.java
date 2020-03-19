@@ -29,7 +29,7 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
 
     @BeforeEach
     public void setUp() {
-        context.setVariable(Constants.PARAM_MTA_ID, MTA_ID);
+        execution.setVariable(Constants.PARAM_MTA_ID, MTA_ID);
 
         step.conflictPreventerSupplier = service -> mock(ProcessConflictPreventer.class);
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
@@ -38,28 +38,28 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
-        Assertions.assertEquals(Collections.emptyList(), execution.getVariable(Variables.APPS_TO_DEPLOY));
-        Assertions.assertEquals(Collections.emptySet(), execution.getVariable(Variables.MTA_MODULES));
-        Assertions.assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacadeFacade));
+        Assertions.assertEquals(Collections.emptyList(), context.getVariable(Variables.APPS_TO_DEPLOY));
+        Assertions.assertEquals(Collections.emptySet(), context.getVariable(Variables.MTA_MODULES));
+        Assertions.assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntriesFromSubProcesses(execution, flowableFacadeFacade));
     }
 
     @Test
     public void testErrorMessage() {
-        Assertions.assertEquals(Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY, step.getStepErrorMessage(execution));
+        Assertions.assertEquals(Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY, step.getStepErrorMessage(context));
     }
 
     @Test
     public void testExecuteDeployedModuleNotNull() {
-        execution.setVariable(Variables.DEPLOYED_MTA, createDeployedMta());
-        step.execute(context);
+        context.setVariable(Variables.DEPLOYED_MTA, createDeployedMta());
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
-        Assertions.assertEquals(Collections.emptyList(), execution.getVariable(Variables.APPS_TO_DEPLOY));
-        Assertions.assertEquals(getMtaModulesNames(createDeployedMtaApplications()), execution.getVariable(Variables.MTA_MODULES));
-        Assertions.assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacadeFacade));
+        Assertions.assertEquals(Collections.emptyList(), context.getVariable(Variables.APPS_TO_DEPLOY));
+        Assertions.assertEquals(getMtaModulesNames(createDeployedMtaApplications()), context.getVariable(Variables.MTA_MODULES));
+        Assertions.assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntriesFromSubProcesses(execution, flowableFacadeFacade));
     }
 
     private DeployedMta createDeployedMta() {

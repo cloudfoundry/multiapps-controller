@@ -29,7 +29,7 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
         mockApplication("demo-app");
         mockUploadToken(PACKAGE_GUID);
         mockClient();
-        step.execute(context);
+        step.execute(execution);
         Assertions.assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
     }
 
@@ -37,13 +37,15 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
         ImmutableCloudApplicationExtended cloudApplicationExtended = ImmutableCloudApplicationExtended.builder()
                                                                                                       .name(applicationName)
                                                                                                       .build();
-        Mockito.when(context.getVariable(Constants.VAR_APP_TO_PROCESS))
+        Mockito.when(execution.getVariable(Constants.VAR_APP_TO_PROCESS))
                .thenReturn(JsonUtil.toJson(cloudApplicationExtended));
     }
 
     private void mockUploadToken(UUID packageGuid) {
-        UploadToken uploadToken = ImmutableUploadToken.builder().packageGuid(packageGuid).build();
-        Mockito.when(context.getVariable(Constants.VAR_UPLOAD_TOKEN))
+        UploadToken uploadToken = ImmutableUploadToken.builder()
+                                                      .packageGuid(packageGuid)
+                                                      .build();
+        Mockito.when(execution.getVariable(Constants.VAR_UPLOAD_TOKEN))
                .thenReturn(JsonUtil.toJson(uploadToken));
     }
 
@@ -62,27 +64,27 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
     public void testGetErrorMessage() {
         String applicationName = "another-app";
         mockApplication(applicationName);
-        Assertions.assertEquals(MessageFormat.format(Messages.ERROR_STAGING_APP_0, applicationName), step.getStepErrorMessage(execution));
+        Assertions.assertEquals(MessageFormat.format(Messages.ERROR_STAGING_APP_0, applicationName), step.getStepErrorMessage(context));
     }
 
     @Test
     public void testAsyncExecutionStatus() {
-        List<AsyncExecution> asyncStepExecutions = step.getAsyncStepExecutions(execution);
+        List<AsyncExecution> asyncStepExecutions = step.getAsyncStepExecutions(context);
         Assertions.assertEquals(1, asyncStepExecutions.size());
         Assertions.assertTrue(asyncStepExecutions.get(0) instanceof PollStageAppStatusExecution);
     }
 
     @Test
     public void testGetTimeoutDefaultValue() {
-        Assertions.assertEquals(Constants.DEFAULT_START_TIMEOUT, step.getTimeout(execution));
+        Assertions.assertEquals(Constants.DEFAULT_START_TIMEOUT, step.getTimeout(context));
     }
 
     @Test
     public void testGetTimeoutCustomValue() {
         int timeout = 10;
-        Mockito.when(context.getVariable(Constants.PARAM_START_TIMEOUT))
+        Mockito.when(execution.getVariable(Constants.PARAM_START_TIMEOUT))
                .thenReturn(timeout);
-        Assertions.assertEquals(timeout, step.getTimeout(execution));
+        Assertions.assertEquals(timeout, step.getTimeout(context));
     }
 
     @Override

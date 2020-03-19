@@ -43,33 +43,33 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                                                                                                                .getTime());
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        return executeStepInternal(execution, false);
+    protected StepPhase executeStep(ProcessContext context) {
+        return executeStepInternal(context, false);
     }
 
-    protected StepPhase executeStepInternal(ExecutionWrapper execution, boolean reserveTemporaryRoutes) {
+    protected StepPhase executeStepInternal(ProcessContext context, boolean reserveTemporaryRoutes) {
         getStepLogger().debug(Messages.COLLECTING_SYSTEM_PARAMETERS);
-        CloudControllerClient client = execution.getControllerClient();
+        CloudControllerClient client = context.getControllerClient();
         String defaultDomainName = getDefaultDomain(client);
         getStepLogger().debug(Messages.DEFAULT_DOMAIN, defaultDomainName);
 
-        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
+        DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         checkForOverwrittenReadOnlyParameters(descriptor);
-        SystemParameters systemParameters = createSystemParameters(execution.getContext(), client, defaultDomainName,
+        SystemParameters systemParameters = createSystemParameters(context.getExecution(), client, defaultDomainName,
                                                                    reserveTemporaryRoutes);
         systemParameters.injectInto(descriptor);
         getStepLogger().debug(Messages.DESCRIPTOR_WITH_SYSTEM_PARAMETERS, secureSerializer.toJson(descriptor));
 
-        determineIsVersionAccepted(execution, descriptor);
+        determineIsVersionAccepted(context, descriptor);
 
-        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, descriptor);
+        context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, descriptor);
         getStepLogger().debug(Messages.SYSTEM_PARAMETERS_COLLECTED);
 
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_COLLECTING_SYSTEM_PARAMETERS;
     }
 
@@ -87,17 +87,17 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.NO_READ_ONLY_PARAMETERS_ARE_OVERWRITTEN);
     }
 
-    private SystemParameters createSystemParameters(DelegateExecution context, CloudControllerClient client, String defaultDomain,
+    private SystemParameters createSystemParameters(DelegateExecution execution, CloudControllerClient client, String defaultDomain,
                                                     boolean reserveTemporaryRoutes) {
         String authorizationEndpoint = client.getCloudInfo()
                                              .getAuthorizationEndpoint();
-        String user = (String) context.getVariable(Constants.VAR_USER);
+        String user = (String) execution.getVariable(Constants.VAR_USER);
 
         URL controllerUrl = configuration.getControllerUrl();
         String deployServiceUrl = configuration.getDeployServiceUrl();
 
-        return new SystemParameters.Builder().organization(StepsUtil.getOrg(context))
-                                             .space(StepsUtil.getSpace(context))
+        return new SystemParameters.Builder().organization(StepsUtil.getOrg(execution))
+                                             .space(StepsUtil.getSpace(execution))
                                              .user(user)
                                              .defaultDomain(defaultDomain)
                                              .controllerUrl(controllerUrl)
@@ -109,10 +109,10 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                                              .build();
     }
 
-    private void determineIsVersionAccepted(ExecutionWrapper execution, DeploymentDescriptor descriptor) {
-        DeployedMta deployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
-        VersionRule versionRule = VersionRule.valueOf((String) execution.getContext()
-                                                                        .getVariable(Constants.PARAM_VERSION_RULE));
+    private void determineIsVersionAccepted(ProcessContext context, DeploymentDescriptor descriptor) {
+        DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
+        VersionRule versionRule = VersionRule.valueOf((String) context.getExecution()
+                                                                      .getVariable(Constants.PARAM_VERSION_RULE));
         getStepLogger().debug(Messages.VERSION_RULE, versionRule);
 
         Version mtaVersion = Version.parseVersion(descriptor.getVersion());

@@ -52,15 +52,15 @@ public class PollStartAppStatusExecutionTest {
     @Mock
     private CloudControllerClient client;
 
-    private ExecutionWrapper execution;
-    private DelegateExecution context;
+    private ProcessContext context;
+    private DelegateExecution execution;
     private PollStartAppStatusExecution step;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        context = MockDelegateExecution.createSpyInstance();
-        execution = new ExecutionWrapper(context, stepLogger, clientProvider);
+        execution = MockDelegateExecution.createSpyInstance();
+        context = new ProcessContext(execution, stepLogger, clientProvider);
         step = new PollStartAppStatusExecution(recentLogsRetriever);
     }
 
@@ -85,7 +85,7 @@ public class PollStartAppStatusExecutionTest {
         InstancesInfo instancesInfo = buildInstancesInfo(instancesStates);
         prepareClient(application, instancesInfo);
 
-        AsyncExecutionState executionState = step.execute(execution);
+        AsyncExecutionState executionState = step.execute(context);
 
         assertEquals(expectedAsyncExecutionState, executionState);
     }
@@ -98,10 +98,10 @@ public class PollStartAppStatusExecutionTest {
     }
 
     private void prepareContext(CloudApplicationExtended application, boolean failOnCrash) {
-        context.setVariable(Constants.VAR_USER, USER_NAME);
-        context.setVariable(Constants.VAR_START_TIME, PROCESS_START_TIME);
-        execution.setVariable(Variables.APP_TO_PROCESS, application);
-        context.setVariable(Constants.PARAM_FAIL_ON_CRASHED, failOnCrash);
+        execution.setVariable(Constants.VAR_USER, USER_NAME);
+        execution.setVariable(Constants.VAR_START_TIME, PROCESS_START_TIME);
+        context.setVariable(Variables.APP_TO_PROCESS, application);
+        execution.setVariable(Constants.PARAM_FAIL_ON_CRASHED, failOnCrash);
     }
 
     private void prepareClientProvider() {

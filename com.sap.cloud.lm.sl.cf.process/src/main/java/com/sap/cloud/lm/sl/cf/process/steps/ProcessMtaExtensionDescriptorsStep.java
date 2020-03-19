@@ -32,29 +32,29 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
     protected ExtensionDescriptorChainBuilder extensionDescriptorChainBuilder = new ExtensionDescriptorChainBuilder(false);
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        DelegateExecution context = execution.getContext();
+    protected StepPhase executeStep(ProcessContext context) {
+        DelegateExecution execution = context.getExecution();
         getStepLogger().debug(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
-        List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(context);
-        String spaceId = StepsUtil.getSpaceId(context);
-        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
+        List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(execution);
+        String spaceId = StepsUtil.getSpaceId(execution);
+        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
 
         List<ExtensionDescriptor> extensionDescriptors = parseExtensionDescriptors(spaceId, extensionDescriptorFileIds);
         List<ExtensionDescriptor> extensionDescriptorChain = extensionDescriptorChainBuilder.build(deploymentDescriptor,
                                                                                                    extensionDescriptors);
 
-        StepsUtil.setExtensionDescriptorChain(context, extensionDescriptorChain);
+        StepsUtil.setExtensionDescriptorChain(execution, extensionDescriptorChain);
         getStepLogger().debug(Messages.MTA_EXTENSION_DESCRIPTORS_PROCESSED);
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS;
     }
 
-    private List<String> getExtensionDescriptorFileIds(DelegateExecution context) {
-        String parameter = (String) context.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
+    private List<String> getExtensionDescriptorFileIds(DelegateExecution execution) {
+        String parameter = (String) execution.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
         if (parameter == null || parameter.isEmpty()) {
             return Collections.emptyList();
         }

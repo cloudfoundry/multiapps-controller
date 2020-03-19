@@ -63,8 +63,8 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
     }
 
     private void prepareContext() {
-        context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_APP_ARCHIVE_ID, FILE_ID);
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_APP_ARCHIVE_ID, FILE_ID);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
         step.conflictPreventerSupplier = service -> mock(ProcessConflictPreventer.class);
     }
 
@@ -86,7 +86,7 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
 
     @Test
     public void testExecute() throws Exception {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
@@ -96,7 +96,7 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
     }
 
     private void testModules() {
-        Set<String> actualModules = execution.getVariable(Variables.MTA_ARCHIVE_MODULES);
+        Set<String> actualModules = context.getVariable(Variables.MTA_ARCHIVE_MODULES);
 
         assertEquals(input.expectedModules.size(), actualModules.size());
         for (String actualModuleName : actualModules) {
@@ -106,15 +106,15 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
 
     private void testResources() {
         for (String expectedResource : input.expectedResources) {
-            assertNotNull(execution.getVariable(Variables.MTA_ARCHIVE_ELEMENTS)
-                                   .getResourceFileName(expectedResource));
+            assertNotNull(context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS)
+                                 .getResourceFileName(expectedResource));
         }
     }
 
     private void testDependencies() {
         for (String expectedDependency : input.expectedRequiredDependencies) {
-            assertNotNull(execution.getVariable(Variables.MTA_ARCHIVE_ELEMENTS)
-                                   .getRequiredDependencyFileName(expectedDependency));
+            assertNotNull(context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS)
+                                 .getRequiredDependencyFileName(expectedDependency));
         }
     }
 

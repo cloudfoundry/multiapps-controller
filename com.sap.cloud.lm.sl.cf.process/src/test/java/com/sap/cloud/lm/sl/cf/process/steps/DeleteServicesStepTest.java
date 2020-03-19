@@ -142,17 +142,17 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
 
     @Test
     public void testExecute() {
-        if (execution.getVariable(Variables.SERVICES_TO_DELETE)
-                     .isEmpty()) {
+        if (context.getVariable(Variables.SERVICES_TO_DELETE)
+                   .isEmpty()) {
             return;
         }
         prepareResponses(STEP_EXECUTION);
-        step.execute(context);
+        step.execute(execution);
         assertStepPhase(STEP_EXECUTION);
         verifyClient();
 
         prepareResponses(POLLING);
-        step.execute(context);
+        step.execute(execution);
         assertStepPhase(POLLING);
         verifyClient();
         verifyServiceUnbinding();
@@ -190,10 +190,10 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
     }
 
     private void prepareContext() {
-        execution.setVariable(Variables.SERVICES_TO_DELETE, servicesToDelete);
-        StepsUtil.setServicesData(context, servicesData);
-        context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_DELETE_SERVICES, true);
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
+        context.setVariable(Variables.SERVICES_TO_DELETE, servicesToDelete);
+        StepsUtil.setServicesData(execution, servicesData);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_DELETE_SERVICES, true);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
         when(clientProvider.getControllerClient(any(), any())).thenReturn(client);
         when(clientProvider.getControllerClient(any(), any(), any(), any())).thenReturn(client);
     }

@@ -41,11 +41,11 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
         when(deployedMtaDetector.detectDeployedMta(Mockito.eq(MTA_ID),
                                                    Mockito.any(CloudControllerClient.class))).thenReturn(Optional.of(deployedMta));
 
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
-        tester.test(() -> execution.getVariable(Variables.DEPLOYED_MTA), new Expectation(Expectation.Type.JSON, DEPLOYED_MTA_LOCATION));
+        tester.test(() -> context.getVariable(Variables.DEPLOYED_MTA), new Expectation(Expectation.Type.JSON, DEPLOYED_MTA_LOCATION));
     }
 
     @Test
@@ -53,11 +53,11 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
         when(client.getApplications()).thenReturn(Collections.emptyList());
         when(deployedMtaDetector.detectDeployedMtas(client)).thenReturn(Collections.emptyList());
         when(deployedMtaDetector.detectDeployedMta(MTA_ID, client)).thenReturn(Optional.empty());
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
-        assertNull(execution.getVariable(Variables.DEPLOYED_MTA));
+        assertNull(context.getVariable(Variables.DEPLOYED_MTA));
     }
 
     @Before
@@ -66,7 +66,7 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
     }
 
     private void prepareContext() {
-        context.setVariable(Constants.PARAM_MTA_ID, MTA_ID);
+        execution.setVariable(Constants.PARAM_MTA_ID, MTA_ID);
     }
 
     @Override

@@ -24,27 +24,27 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
     @Test
     public void testIterationOverTasksIsInitialized() {
         // Given:
-        execution.setVariable(Variables.TASKS_TO_EXECUTE, createDummyApplicationWithTasks(3).getTasks());
+        context.setVariable(Variables.TASKS_TO_EXECUTE, createDummyApplicationWithTasks(3).getTasks());
 
         // When:
-        step.execute(context);
+        step.execute(execution);
 
         // Then:
         assertStepFinishedSuccessfully();
-        assertEquals(3, context.getVariable(Constants.VAR_TASKS_COUNT));
-        assertEquals(0, context.getVariable(Constants.VAR_TASKS_INDEX));
-        assertEquals(Constants.VAR_TASKS_INDEX, context.getVariable(Constants.VAR_INDEX_VARIABLE_NAME));
-        assertEquals(3, execution.getVariable(Variables.TASKS_TO_EXECUTE)
-                                 .size());
+        assertEquals(3, execution.getVariable(Constants.VAR_TASKS_COUNT));
+        assertEquals(0, execution.getVariable(Constants.VAR_TASKS_INDEX));
+        assertEquals(Constants.VAR_TASKS_INDEX, execution.getVariable(Constants.VAR_INDEX_VARIABLE_NAME));
+        assertEquals(3, context.getVariable(Variables.TASKS_TO_EXECUTE)
+                               .size());
     }
 
     @Test
     public void testExecuteWhenTasksAreSupported() {
         // Given:
-        execution.setVariable(Variables.TASKS_TO_EXECUTE, createDummyApplicationWithTasks(0).getTasks());
+        context.setVariable(Variables.TASKS_TO_EXECUTE, createDummyApplicationWithTasks(0).getTasks());
 
         // When:
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
     }

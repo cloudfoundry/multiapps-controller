@@ -36,8 +36,8 @@ public class DockerInfoParserTest {
 
         DockerInfo actualDockerInfo = dockerInfoParser.parse(parameters);
         DockerInfo expectedDockerInfo = ImmutableDockerInfo.builder()
-            .image(sampleImage)
-            .build();
+                                                           .image(sampleImage)
+                                                           .build();
 
         assertEquals(expectedDockerInfo, actualDockerInfo);
     }
@@ -60,12 +60,12 @@ public class DockerInfoParserTest {
 
         DockerInfo actualDockerInfo = dockerInfoParser.parse(parameters);
         DockerInfo expectedDockerInfo = ImmutableDockerInfo.builder()
-            .image(sampleImage)
-            .credentials(ImmutableDockerCredentials.builder()
-                .username(username)
-                .password(password)
-                .build())
-            .build();
+                                                           .image(sampleImage)
+                                                           .credentials(ImmutableDockerCredentials.builder()
+                                                                                                  .username(username)
+                                                                                                  .password(password)
+                                                                                                  .build())
+                                                           .build();
 
         assertEquals(expectedDockerInfo, actualDockerInfo);
     }

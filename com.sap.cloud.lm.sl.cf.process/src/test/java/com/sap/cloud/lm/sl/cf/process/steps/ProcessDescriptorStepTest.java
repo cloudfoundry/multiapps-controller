@@ -26,7 +26,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     private class ProcessDescriptorStepMock extends ProcessDescriptorStep {
 
         @Override
-        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(DelegateExecution context) {
+        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(DelegateExecution execution) {
             return resolver;
         }
 
@@ -41,26 +41,26 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     }
 
     private void prepareContext() {
-        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, DEPLOYMENT_DESCRIPTOR);
+        context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, DEPLOYMENT_DESCRIPTOR);
 
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
-        context.setVariable(Constants.PARAM_USE_NAMESPACES, false);
-        context.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
+        execution.setVariable(Constants.PARAM_USE_NAMESPACES, false);
+        execution.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
 
-        context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
+        execution.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
     }
 
     @Test
     public void testExecute1() {
         when(resolver.resolve(any())).thenAnswer((invocation) -> invocation.getArguments()[0]);
 
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
-        tester.test(() -> execution.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE), new Expectation("[]"));
+        tester.test(() -> context.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE), new Expectation("[]"));
 
-        tester.test(() -> execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR),
+        tester.test(() -> context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR),
                     new Expectation(Expectation.Type.JSON, "node-hello-mtad-1.yaml.json"));
     }
 
@@ -68,15 +68,15 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     public void testExecute2() {
         when(resolver.resolve(any())).thenThrow(new SLException("Error!"));
 
-        step.execute(context);
+        step.execute(execution);
     }
 
     @Test(expected = SLException.class)
     public void testWithInvalidModulesSpecifiedForDeployment() {
         when(resolver.resolve(any())).thenReturn(DEPLOYMENT_DESCRIPTOR);
-        when(context.getVariable(Constants.PARAM_MODULES_FOR_DEPLOYMENT)).thenReturn("foo,bar");
+        when(execution.getVariable(Constants.PARAM_MODULES_FOR_DEPLOYMENT)).thenReturn("foo,bar");
 
-        step.execute(context);
+        step.execute(execution);
     }
 
     @Override

@@ -73,14 +73,14 @@ public class UpdateServiceTagsStepTest extends SyncFlowableStepTest<UpdateServic
     @Test
     public void testExecute() {
         prepareResponses(STEP_EXECUTION);
-        step.execute(context);
+        step.execute(execution);
         assertStepPhase(STEP_EXECUTION);
 
         if (getExecutionStatus().equals("DONE")) {
             return;
         }
         prepareResponses(POLLING);
-        step.execute(context);
+        step.execute(execution);
         assertStepPhase(POLLING);
         assertMethodCalls();
     }
@@ -98,7 +98,7 @@ public class UpdateServiceTagsStepTest extends SyncFlowableStepTest<UpdateServic
     }
 
     private void prepareContext() {
-        context.setVariable("serviceToProcess", JsonUtil.toJson(stepInput.service));
+        execution.setVariable("serviceToProcess", JsonUtil.toJson(stepInput.service));
     }
 
     private void prepareResponses(String stepPhase) {

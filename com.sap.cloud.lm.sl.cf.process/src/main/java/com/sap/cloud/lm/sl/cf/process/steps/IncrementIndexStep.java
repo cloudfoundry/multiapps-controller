@@ -13,17 +13,17 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 public class IncrementIndexStep extends SyncFlowableStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ProcessContext context) {
         // Continue the iteration over the collection:
-        String indexVariableName = (String) execution.getContext()
-                                                     .getVariable(Constants.VAR_INDEX_VARIABLE_NAME);
-        StepsUtil.incrementVariable(execution.getContext(), indexVariableName);
+        String indexVariableName = (String) context.getExecution()
+                                                   .getVariable(Constants.VAR_INDEX_VARIABLE_NAME);
+        StepsUtil.incrementVariable(context.getExecution(), indexVariableName);
 
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_INCREMENT_INDEX;
     }
 

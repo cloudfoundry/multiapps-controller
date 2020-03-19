@@ -50,13 +50,13 @@ public class AbortProcessListener extends AbstractFlowableEngineEventListener {
     }
 
     private void execute(FlowableEngineEvent event) {
-        DelegateExecution context = getExecution(event);
-        if (context == null) {
+        DelegateExecution execution = getExecution(event);
+        if (execution == null) {
             LOGGER.warn(MessageFormat.format(Messages.CANNOT_GET_CONTEXT_FOR_EVENT_0_AND_PROCESS_1, event.getType(),
                                              event.getProcessInstanceId()));
             return;
         }
-        eventHandler.handle(context, Operation.State.ABORTED);
+        eventHandler.handle(execution, Operation.State.ABORTED);
     }
 
     private static boolean hasCorrectEntityType(FlowableEngineEntityEvent event) {

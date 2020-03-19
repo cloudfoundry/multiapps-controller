@@ -31,12 +31,12 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
         String username = "someUser";
         String password = "somePassword";
         return ImmutableDockerInfo.builder()
-            .image(image)
-            .credentials(ImmutableDockerCredentials.builder()
-                .username(username)
-                .password(password)
-                .build())
-            .build();
+                                  .image(image)
+                                  .credentials(ImmutableDockerCredentials.builder()
+                                                                         .username(username)
+                                                                         .password(password)
+                                                                         .build())
+                                  .build();
     }
 
     @Test
@@ -46,7 +46,7 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
         prepareContext();
         prepareClient();
 
-        step.execute(context);
+        step.execute(execution);
         assertStepFinishedSuccessfully();
 
         validateClient();
@@ -63,14 +63,14 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
     }
 
     private void prepareContext() {
-        context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "archive_id");
-        context.setVariable(Constants.VAR_MODULES_INDEX, stepInput.applicationIndex);
-        StepsUtil.setServicesToBind(context, Collections.emptyList());
+        execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "archive_id");
+        execution.setVariable(Constants.VAR_MODULES_INDEX, stepInput.applicationIndex);
+        StepsUtil.setServicesToBind(execution, Collections.emptyList());
 
         byte[] serviceKeysToInjectByteArray = JsonUtil.toJsonBinary(new HashMap<>());
-        context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
-        execution.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
-        StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
+        execution.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
+        context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
+        StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, execution);
     }
 
     private void loadParameters() {

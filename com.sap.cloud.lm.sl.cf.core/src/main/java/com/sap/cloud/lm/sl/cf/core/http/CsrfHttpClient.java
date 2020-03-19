@@ -79,14 +79,12 @@ public class CsrfHttpClient implements HttpClient, Closeable {
     }
 
     @Override
-    public <T> T execute(HttpUriRequest request, ResponseHandler<? extends T> responseHandler, HttpContext context)
-        throws IOException {
+    public <T> T execute(HttpUriRequest request, ResponseHandler<? extends T> responseHandler, HttpContext context) throws IOException {
         return executeRequest(request, () -> delegate.execute(request, responseHandler, context));
     }
 
     @Override
-    public <T> T execute(HttpHost target, HttpRequest request, ResponseHandler<? extends T> responseHandler)
-        throws IOException {
+    public <T> T execute(HttpHost target, HttpRequest request, ResponseHandler<? extends T> responseHandler) throws IOException {
         return executeRequest(request, () -> delegate.execute(target, request, responseHandler));
     }
 

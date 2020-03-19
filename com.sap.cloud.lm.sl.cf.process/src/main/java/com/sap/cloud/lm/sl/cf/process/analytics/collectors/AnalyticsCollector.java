@@ -43,18 +43,18 @@ public class AnalyticsCollector {
     LongSupplier endTimeSupplier = System::currentTimeMillis;
     Supplier<ZoneId> timeZoneSupplier = ZoneId::systemDefault;
 
-    public AnalyticsData collectAnalyticsData(DelegateExecution context) {
-        String processId = context.getProcessInstanceId();
-        ProcessType processType = processTypeParser.getProcessType(context);
+    public AnalyticsData collectAnalyticsData(DelegateExecution execution) {
+        String processId = execution.getProcessInstanceId();
+        ProcessType processType = processTypeParser.getProcessType(execution);
         long startTime = getStartTime(processId);
         long endTime = getEndTime();
         long processDuration = getProcessDurationInSeconds(processId);
-        String mtaId = (String) context.getVariable(Constants.PARAM_MTA_ID);
-        String org = StepsUtil.getOrg(context);
-        String space = StepsUtil.getSpace(context);
+        String mtaId = (String) execution.getVariable(Constants.PARAM_MTA_ID);
+        String org = StepsUtil.getOrg(execution);
+        String space = StepsUtil.getSpace(execution);
         String controllerUrl = configuration.getControllerUrl()
                                             .toString();
-        AbstractCommonProcessAttributes attributes = getProcessType(processType).collectProcessVariables(context);
+        AbstractCommonProcessAttributes attributes = getProcessType(processType).collectProcessVariables(execution);
 
         return new AnalyticsData(processId,
                                  processType,

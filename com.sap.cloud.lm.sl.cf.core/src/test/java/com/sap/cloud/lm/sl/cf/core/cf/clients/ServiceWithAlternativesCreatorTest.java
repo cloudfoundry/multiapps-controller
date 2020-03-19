@@ -12,13 +12,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import org.springframework.http.HttpStatus;
 
 public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest {
 
@@ -64,9 +64,12 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
         }
         CloudControllerClient mockClient = getMockedClient();
         serviceWithAlternativesCreator.createService(mockClient, input.actualService);
-        int callsForAllOfferings = input.actualService.getAlternativeLabels().isEmpty() ? 0 : 1;
-        Mockito.verify(mockClient, Mockito.times(callsForAllOfferings)).getServiceOfferings();
-        Mockito.verify(mockClient).createService(input.expectedService);
+        int callsForAllOfferings = input.actualService.getAlternativeLabels()
+                                                      .isEmpty() ? 0 : 1;
+        Mockito.verify(mockClient, Mockito.times(callsForAllOfferings))
+               .getServiceOfferings();
+        Mockito.verify(mockClient)
+               .createService(input.expectedService);
     }
 
     private void throwExceptionIfNeeded() {

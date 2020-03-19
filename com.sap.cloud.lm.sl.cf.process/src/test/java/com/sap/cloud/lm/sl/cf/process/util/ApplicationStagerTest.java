@@ -36,7 +36,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
-import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
+import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -55,24 +55,24 @@ public class ApplicationStagerTest {
     private CloudControllerClientProvider clientProvider;
     @Mock
     private StepLogger stepLogger;
-    private DelegateExecution context = MockDelegateExecution.createSpyInstance();
-    private ExecutionWrapper execution;
+    private DelegateExecution execution = MockDelegateExecution.createSpyInstance();
+    private ProcessContext context;
     private ApplicationStager applicationStager;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        context.setVariable(Constants.VAR_USER, "whatever");
+        execution.setVariable(Constants.VAR_USER, "whatever");
         Mockito.when(clientProvider.getControllerClient(Mockito.any(), Mockito.any()))
                .thenReturn(client);
-        this.execution = new ExecutionWrapper(context, stepLogger, clientProvider);
-        this.applicationStager = new ApplicationStager(execution);
+        this.context = new ProcessContext(execution, stepLogger, clientProvider);
+        this.applicationStager = new ApplicationStager(context);
         setUploadTokenVariable();
     }
 
     @Test
     public void testBuildStateFailed() {
-        context.setVariable(Constants.VAR_BUILD_GUID, BUILD_GUID);
+        execution.setVariable(Constants.VAR_BUILD_GUID, BUILD_GUID);
         CloudBuild build = ImmutableCloudBuild.builder()
                                               .state(CloudBuild.State.FAILED)
                                               .error("Error occurred while creating a build!")
@@ -86,11 +86,11 @@ public class ApplicationStagerTest {
 
     @Test
     public void testBuildStateNotFoundAppNotFound() {
-        context.setVariable(Constants.VAR_BUILD_GUID, BUILD_GUID);
+        execution.setVariable(Constants.VAR_BUILD_GUID, BUILD_GUID);
         CloudApplicationExtended application = ImmutableCloudApplicationExtended.builder()
                                                                                 .name(APP_NAME)
                                                                                 .build();
-        execution.setVariable(Variables.APP_TO_PROCESS, application);
+        context.setVariable(Variables.APP_TO_PROCESS, application);
         Mockito.when(client.getBuild(BUILD_GUID))
                .thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND));
         Mockito.when(client.getApplication(APP_NAME))
@@ -108,11 +108,11 @@ public class ApplicationStagerTest {
 
     @Test
     public void testBuildStateNotFoundAppFound() {
-        context.setVariable(Constants.VAR_BUILD_GUID, BUILD_GUID);
+        execution.setVariable(Constants.VAR_BUILD_GUID, BUILD_GUID);
         CloudApplicationExtended application = ImmutableCloudApplicationExtended.builder()
                                                                                 .name(APP_NAME)
                                                                                 .build();
-        execution.setVariable(Variables.APP_TO_PROCESS, application);
+        context.setVariable(Variables.APP_TO_PROCESS, application);
         Mockito.when(client.getBuild(BUILD_GUID))
                .thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND));
         Mockito.when(client.getApplication(APP_NAME))
@@ -142,7 +142,7 @@ public class ApplicationStagerTest {
 
     @Test
     public void testBuildStateStaging() {
-        context.setVariable(Constants.VAR_BUILD_GUID, BUILD_GUID);
+        execution.setVariable(Constants.VAR_BUILD_GUID, BUILD_GUID);
         CloudBuild build = ImmutableCloudBuild.builder()
                                               .state(CloudBuild.State.STAGING)
                                               .build();
@@ -209,7 +209,7 @@ public class ApplicationStagerTest {
 
     @Test
     public void testBindDropletToApp() {
-        context.setVariable(Constants.VAR_BUILD_GUID, BUILD_GUID);
+        execution.setVariable(Constants.VAR_BUILD_GUID, BUILD_GUID);
         CloudBuild build = ImmutableCloudBuild.builder()
                                               .dropletInfo(ImmutableDropletInfo.builder()
                                                                                .guid(DROPLET_GUID)
@@ -224,7 +224,7 @@ public class ApplicationStagerTest {
 
     @Test
     public void testStageAppIfThereIsNoUploadToken() {
-        context.setVariable(Constants.VAR_UPLOAD_TOKEN, null);
+        execution.setVariable(Constants.VAR_UPLOAD_TOKEN, null);
         assertEquals(StepPhase.DONE, applicationStager.stageApp(null));
     }
 
@@ -239,7 +239,7 @@ public class ApplicationStagerTest {
                .thenReturn(build);
         StepPhase stepPhase = applicationStager.stageApp(app);
         assertEquals(StepPhase.POLL, stepPhase);
-        Mockito.verify(context)
+        Mockito.verify(execution)
                .setVariable(Constants.VAR_BUILD_GUID, BUILD_GUID);
         Mockito.verify(stepLogger)
                .info(Messages.STAGING_APP, APP_NAME);
@@ -285,7 +285,7 @@ public class ApplicationStagerTest {
         Mockito.when(client.getBuildsForPackage(any(UUID.class)))
                .thenReturn(Collections.singletonList(build));
         applicationStager.stageApp(app);
-        Mockito.verify(context)
+        Mockito.verify(execution)
                .setVariable(Constants.VAR_BUILD_GUID, build.getMetadata()
                                                            .getGuid());
     }
@@ -294,7 +294,7 @@ public class ApplicationStagerTest {
         String uploadTokenJson = JsonUtil.toJson(ImmutableUploadToken.builder()
                                                                      .packageGuid(PACKAGE_GUID)
                                                                      .build());
-        context.setVariable(Constants.VAR_UPLOAD_TOKEN, uploadTokenJson);
+        execution.setVariable(Constants.VAR_UPLOAD_TOKEN, uploadTokenJson);
     }
 
     private CloudApplication createApplication() {
