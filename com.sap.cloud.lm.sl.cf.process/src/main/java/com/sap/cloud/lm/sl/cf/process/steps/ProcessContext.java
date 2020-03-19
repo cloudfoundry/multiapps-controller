@@ -7,20 +7,18 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.process.client.LoggingCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.cf.process.variables.Variable;
-import com.sap.cloud.lm.sl.cf.process.variables.VariablesHandler;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 
 public class ProcessContext {
 
     private final DelegateExecution execution;
     private final StepLogger stepLogger;
     private final CloudControllerClientProvider clientProvider;
-    private final VariablesHandler variablesHandler;
 
     public ProcessContext(DelegateExecution execution, StepLogger stepLogger, CloudControllerClientProvider clientProvider) {
         this.execution = execution;
         this.stepLogger = stepLogger;
         this.clientProvider = clientProvider;
-        this.variablesHandler = new VariablesHandler(execution);
     }
 
     public DelegateExecution getExecution() {
@@ -42,11 +40,11 @@ public class ProcessContext {
     }
 
     public <T> T getVariable(Variable<T> variable) {
-        return variablesHandler.get(variable);
+        return VariableHandling.get(execution, variable);
     }
 
     public <T> void setVariable(Variable<T> variable, T value) {
-        variablesHandler.set(variable, value);
+        VariableHandling.set(execution, variable, value);
     }
 
 }
