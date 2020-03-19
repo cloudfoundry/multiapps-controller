@@ -5,6 +5,7 @@
     "name": "user-provided-renamed",
     "credentials": {},
     "tags": [],
+    "type": "user_provided_service_instance",
     "alternativeLabels": [],
     "resourceName": "ups",
     "shouldIgnoreUpdateErrors": false
@@ -15,6 +16,7 @@
     "name": "user-provided-service",
     "credentials": {},
     "tags": [],
+    "type": "user_provided_service_instance",
     "alternativeLabels": [],
     "resourceName": "user-provided-service",
     "shouldIgnoreUpdateErrors": false
@@ -25,6 +27,7 @@
     "name": "user-provider-resource-named-service",
     "credentials": {},
     "tags": [],
+    "type": "user_provided_service_instance",
     "alternativeLabels": [],
     "resourceName": "user-provider-resource-named-service",
     "shouldIgnoreUpdateErrors": false
@@ -47,6 +50,7 @@
     "plan": "space",
     "credentials": {},
     "tags": [],
+    "type": "managed_service_instance",
     "alternativeLabels": [],
     "resourceName": "rs",
     "shouldIgnoreUpdateErrors": false
@@ -69,6 +73,7 @@
     "plan": "space",
     "credentials": {},
     "tags": [],
+    "type": "managed_service_instance",
     "alternativeLabels": [],
     "resourceName": "random-service",
     "shouldIgnoreUpdateErrors": false
@@ -91,6 +96,7 @@
     "plan": "space",
     "credentials": {},
     "tags": [],
+    "type": "managed_service_instance",
     "alternativeLabels": [],
     "resourceName": "random-resource-named-service",
     "shouldIgnoreUpdateErrors": false

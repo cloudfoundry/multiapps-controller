@@ -12,6 +12,7 @@
       "user": "XS2SHINE"
     },
     "tags" : [ ],
+    "type" : "user_provided_service_instance",
     "alternativeLabels": [],
     "resourceName": "shine-database",
     "shouldIgnoreUpdateErrors": false
@@ -29,6 +30,7 @@
       "url": "http://sap-login.cfapps.neo.ondemand.com"
     },
     "tags" : [ ],
+    "type" : "user_provided_service_instance",
     "alternativeLabels": [],
     "resourceName": "uaa",
     "shouldIgnoreUpdateErrors": false
