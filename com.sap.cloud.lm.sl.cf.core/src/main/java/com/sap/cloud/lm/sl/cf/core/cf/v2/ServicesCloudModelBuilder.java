@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.client.lib.domain.ServiceInstanceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +76,7 @@ public class ServicesCloudModelBuilder {
                                             .resourceName(resource.getName())
                                             .label((String) parameters.get(SupportedParameters.SERVICE))
                                             .plan((String) parameters.get(SupportedParameters.SERVICE_PLAN))
+                                            .type(ServiceInstanceType.MANAGED)
                                             .provider((String) parameters.get(SupportedParameters.SERVICE_PROVIDER))
                                             .version((String) parameters.get(SupportedParameters.SERVICE_VERSION))
                                             .tags((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_TAGS,
@@ -101,6 +103,7 @@ public class ServicesCloudModelBuilder {
         return ImmutableCloudServiceExtended.builder()
                                             .name(serviceName)
                                             .resourceName(resource.getName())
+                                            .type(ServiceInstanceType.USER_PROVIDED)
                                             .credentials(credentials)
                                             .isOptional(isOptional)
                                             .isManaged(true)

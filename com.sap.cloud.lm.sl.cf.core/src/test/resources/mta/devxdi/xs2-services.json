@@ -37,6 +37,7 @@
     "plan": "hdi-shared",
     "credentials": {},
     "tags": [],
+    "type" : "managed_service_instance",
     "alternativeLabels": [],
     "resourceName": "di-core-hdi",
     "shouldIgnoreUpdateErrors": false

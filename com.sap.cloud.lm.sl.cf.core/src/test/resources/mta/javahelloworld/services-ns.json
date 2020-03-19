@@ -17,6 +17,7 @@
     "plan": "hdi-shared",
     "credentials": {},
     "tags": [],
+    "type" : "managed_service_instance",
     "alternativeLabels": [],
     "resourceName": "java-hdi-container",
     "shouldIgnoreUpdateErrors": false
@@ -34,6 +35,7 @@
       "url": "http://sap-login.cfapps.neo.ondemand.com"
     },
     "tags" : [],
+    "type" : "user_provided_service_instance",
     "alternativeLabels": [],
     "resourceName": "uaa",
     "shouldIgnoreUpdateErrors": false
