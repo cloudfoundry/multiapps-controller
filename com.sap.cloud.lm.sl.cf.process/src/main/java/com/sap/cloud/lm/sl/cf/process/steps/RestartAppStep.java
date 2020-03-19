@@ -30,32 +30,32 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
     protected RecentLogsRetriever recentLogsRetriever;
 
     @Override
-    public StepPhase executeAsyncStep(ExecutionWrapper execution) {
-        CloudApplication app = getAppToRestart(execution);
-        CloudControllerClient client = execution.getControllerClient();
+    public StepPhase executeAsyncStep(ProcessContext context) {
+        CloudApplication app = getAppToRestart(context);
+        CloudControllerClient client = context.getControllerClient();
 
         if (isStarted(client, app.getName())) {
             stopApp(client, app);
         }
         StartingInfo startingInfo = startApp(client, app);
-        setStartupPollingInfo(execution, startingInfo);
+        setStartupPollingInfo(context, startingInfo);
         return StepPhase.POLL;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
-        return MessageFormat.format(Messages.ERROR_STARTING_APP_0, getAppToRestart(execution).getName());
+    protected String getStepErrorMessage(ProcessContext context) {
+        return MessageFormat.format(Messages.ERROR_STARTING_APP_0, getAppToRestart(context).getName());
     }
 
-    protected CloudApplication getAppToRestart(ExecutionWrapper execution) {
-        return execution.getVariable(Variables.APP_TO_PROCESS);
+    protected CloudApplication getAppToRestart(ProcessContext context) {
+        return context.getVariable(Variables.APP_TO_PROCESS);
     }
 
-    private void setStartupPollingInfo(ExecutionWrapper execution, StartingInfo startingInfo) {
-        execution.setVariable(Variables.STARTING_INFO, startingInfo);
-        DelegateExecution context = execution.getContext();
-        if (context.getVariable(Constants.VAR_START_TIME) == null) {
-            context.setVariable(Constants.VAR_START_TIME, System.currentTimeMillis());
+    private void setStartupPollingInfo(ProcessContext context, StartingInfo startingInfo) {
+        context.setVariable(Variables.STARTING_INFO, startingInfo);
+        DelegateExecution execution = context.getExecution();
+        if (execution.getVariable(Constants.VAR_START_TIME) == null) {
+            execution.setVariable(Constants.VAR_START_TIME, System.currentTimeMillis());
         }
     }
 
@@ -85,13 +85,13 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
+    protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         return Arrays.asList(new PollStartAppStatusExecution(recentLogsRetriever), new PollExecuteAppStatusExecution(recentLogsRetriever));
     }
 
     @Override
-    public Integer getTimeout(ExecutionWrapper execution) {
-        return StepsUtil.getInteger(execution.getContext(), Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
+    public Integer getTimeout(ProcessContext context) {
+        return StepsUtil.getInteger(context.getExecution(), Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
     }
 
 }

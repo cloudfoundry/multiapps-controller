@@ -88,10 +88,10 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
     }
 
     private void prepareContext() {
-        context.setVariable(Constants.VAR_SPACE, stepInput.space);
-        context.setVariable(Constants.VAR_ORG, stepInput.org);
-        context.setVariable(Constants.PARAM_MTA_ID, stepInput.mtaId);
-        Mockito.when(context.getProcessInstanceId())
+        execution.setVariable(Constants.VAR_SPACE, stepInput.space);
+        execution.setVariable(Constants.VAR_ORG, stepInput.org);
+        execution.setVariable(Constants.PARAM_MTA_ID, stepInput.mtaId);
+        Mockito.when(execution.getProcessInstanceId())
                .thenReturn("process-instance-id");
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
                .thenReturn(Collections.singletonList("test-subprocess-id"));
@@ -115,12 +115,12 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
     public void testExecute() {
         List<ConfigurationEntryQuery> queriesToExecuteDeleteOn = initEntryQueries();
 
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
         assertEquals(toJson(getEntriesToDelete()),
-                     toJson(StepsUtil.getDeletedEntriesFromProcess(flowableFacadeFacade, context.getProcessInstanceId())));
+                     toJson(StepsUtil.getDeletedEntriesFromProcess(flowableFacadeFacade, execution.getProcessInstanceId())));
 
         for (ConfigurationEntryQuery query : queriesToExecuteDeleteOn) {
             verify(query).delete();

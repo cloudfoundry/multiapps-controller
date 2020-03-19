@@ -33,7 +33,8 @@ public class RecentLogsRetriever {
             return true;
         }
         return log.getTimestamp()
-                  .equals(offset.getTimestamp()) && !log.getMessage()
-                                                        .equals(offset.getMessage());
+                  .equals(offset.getTimestamp())
+            && !log.getMessage()
+                   .equals(offset.getMessage());
     }
 }

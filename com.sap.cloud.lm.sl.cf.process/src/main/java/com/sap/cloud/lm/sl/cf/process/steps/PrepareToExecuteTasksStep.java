@@ -18,21 +18,21 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 public class PrepareToExecuteTasksStep extends SyncFlowableStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        List<CloudTask> tasksToExecute = execution.getVariable(Variables.TASKS_TO_EXECUTE);
-        execution.getContext()
-                 .setVariable(Constants.VAR_TASKS_COUNT, tasksToExecute.size());
-        execution.getContext()
-                 .setVariable(Constants.VAR_TASKS_INDEX, 0);
-        execution.getContext()
-                 .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_TASKS_INDEX);
+    protected StepPhase executeStep(ProcessContext context) {
+        List<CloudTask> tasksToExecute = context.getVariable(Variables.TASKS_TO_EXECUTE);
+        context.getExecution()
+               .setVariable(Constants.VAR_TASKS_COUNT, tasksToExecute.size());
+        context.getExecution()
+               .setVariable(Constants.VAR_TASKS_INDEX, 0);
+        context.getExecution()
+               .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_TASKS_INDEX);
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
-        return MessageFormat.format(Messages.ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP, execution.getVariable(Variables.APP_TO_PROCESS)
-                                                                                               .getName());
+    protected String getStepErrorMessage(ProcessContext context) {
+        return MessageFormat.format(Messages.ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP, context.getVariable(Variables.APP_TO_PROCESS)
+                                                                                             .getName());
     }
 
 }

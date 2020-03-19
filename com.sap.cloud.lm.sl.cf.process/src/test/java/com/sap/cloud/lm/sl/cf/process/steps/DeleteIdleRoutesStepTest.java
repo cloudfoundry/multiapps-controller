@@ -56,19 +56,19 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
                             CloudOperationException exceptionThrownByClient, CloudOperationException expectedException,
                             StepPhase expectedStepPhase) {
         prepareContext(existingAppFile, appToDeployFile, exceptionThrownByClient);
-        step.execute(context);
+        step.execute(execution);
         assertStepPhaseMatch(expectedStepPhase);
         verifyClient(urisToDelete);
     }
 
     private void prepareContext(String existingAppFile, String appToDeployFile, CloudOperationException exceptionThrownByClient) {
         prepareClient(exceptionThrownByClient);
-        StepsUtil.setDeleteIdleUris(context, true);
+        StepsUtil.setDeleteIdleUris(execution, true);
         setExistingAppInContext(existingAppFile);
         CloudApplicationExtended appToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(appToDeployFile, getClass()),
                                                                  new TypeReference<CloudApplicationExtended>() {
                                                                  });
-        execution.setVariable(Variables.APP_TO_PROCESS, appToDeploy);
+        context.setVariable(Variables.APP_TO_PROCESS, appToDeploy);
     }
 
     private void prepareClient(CloudOperationException exceptionThrownByClient) {
@@ -86,7 +86,7 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
         CloudApplicationExtended existingApp = JsonUtil.fromJson(TestUtil.getResourceAsString(existingAppFile, getClass()),
                                                                  new TypeReference<CloudApplicationExtended>() {
                                                                  });
-        execution.setVariable(Variables.EXISTING_APP, existingApp);
+        context.setVariable(Variables.EXISTING_APP, existingApp);
     }
 
     private void assertStepPhaseMatch(StepPhase stepPhase) {
@@ -107,13 +107,13 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
 
     @Test
     public void testErrorMessage() {
-        Assertions.assertEquals(Messages.ERROR_DELETING_IDLE_ROUTES, step.getStepErrorMessage(execution));
+        Assertions.assertEquals(Messages.ERROR_DELETING_IDLE_ROUTES, step.getStepErrorMessage(context));
     }
 
     @Test
     public void testIfNotHandledExceptionIsThrown() {
         prepareContext("existing-app-1.json", "app-to-deploy-1.json", new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR));
-        Assertions.assertThrows(SLException.class, () -> step.execute(context));
+        Assertions.assertThrows(SLException.class, () -> step.execute(execution));
     }
 
     @Override

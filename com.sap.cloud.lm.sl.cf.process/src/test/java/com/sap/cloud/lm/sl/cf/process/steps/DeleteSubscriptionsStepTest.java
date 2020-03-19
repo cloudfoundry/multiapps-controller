@@ -79,7 +79,7 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
     }
 
     private void prepareContext() {
-        execution.setVariable(Variables.SUBSCRIPTIONS_TO_DELETE, asSubscriptions(input.subscriptionsToDelete));
+        context.setVariable(Variables.SUBSCRIPTIONS_TO_DELETE, asSubscriptions(input.subscriptionsToDelete));
     }
 
     private List<ConfigurationSubscription> asSubscriptions(List<Long> subscriptionsToDelete) {
@@ -113,7 +113,7 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
     public void testExecute() {
         initSubscriptionQueries();
 
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 

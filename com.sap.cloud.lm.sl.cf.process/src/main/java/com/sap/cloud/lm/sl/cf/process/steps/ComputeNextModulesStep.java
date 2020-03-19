@@ -23,13 +23,13 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
     protected final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.COMPUTING_NEXT_MODULES_FOR_PARALLEL_ITERATION);
-        List<Module> allModulesToDeploy = StepsUtil.getModulesToDeploy(execution.getContext());
-        List<Module> completedModules = StepsUtil.getIteratedModulesInParallel(execution.getContext());
+        List<Module> allModulesToDeploy = StepsUtil.getModulesToDeploy(context.getExecution());
+        List<Module> completedModules = StepsUtil.getIteratedModulesInParallel(context.getExecution());
 
-        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
-        ModuleDependencyChecker dependencyChecker = new ModuleDependencyChecker(execution.getControllerClient(),
+        DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
+        ModuleDependencyChecker dependencyChecker = new ModuleDependencyChecker(context.getControllerClient(),
                                                                                 descriptor.getModules(),
                                                                                 allModulesToDeploy,
                                                                                 completedModules);
@@ -40,17 +40,17 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
 
         // Set next iteration data
         List<Module> modulesForNextIteration = computeApplicationsForNextIteration(allModulesToDeploy, dependencyChecker);
-        StepsUtil.setModulesToIterateInParallel(execution.getContext(), modulesForNextIteration);
+        StepsUtil.setModulesToIterateInParallel(context.getExecution(), modulesForNextIteration);
 
         // Mark next iteration data as computed
-        StepsUtil.setIteratedModulesInParallel(execution.getContext(), ListUtils.union(completedModules, modulesForNextIteration));
+        StepsUtil.setIteratedModulesInParallel(context.getExecution(), ListUtils.union(completedModules, modulesForNextIteration));
 
         getStepLogger().debug(Messages.COMPUTED_NEXT_MODULES_FOR_PARALLEL_ITERATION, secureSerializer.toJson(modulesForNextIteration));
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_COMPUTING_NEXT_MODULES_FOR_PARALLEL_ITERATION;
     }
 

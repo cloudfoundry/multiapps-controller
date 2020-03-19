@@ -19,9 +19,9 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 public class AbortProcessListenerTest {
 
     private final OperationInFinalStateHandler eventHandler = Mockito.mock(OperationInFinalStateHandler.class);
-    private final DelegateExecution context = MockDelegateExecution.createSpyInstance();
+    private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
 
-    private final AbortProcessListener abortProcessListenerWithContext = new AbortProcessListenerMock(eventHandler, context);
+    private final AbortProcessListener abortProcessListenerWithContext = new AbortProcessListenerMock(eventHandler, execution);
     private final AbortProcessListener abortProcessListener = new AbortProcessListenerMock(eventHandler, null);
 
     @Test
@@ -45,7 +45,7 @@ public class AbortProcessListenerTest {
         mockEntity(entityDeletedEvent);
         abortProcessListenerWithContext.onEvent(entityDeletedEvent);
         Mockito.verify(eventHandler)
-               .handle(context, Operation.State.ABORTED);
+               .handle(execution, Operation.State.ABORTED);
     }
 
     @Test
@@ -53,7 +53,7 @@ public class AbortProcessListenerTest {
         abortProcessListenerWithContext.onEvent(mockFlowableEngineEvent(FlowableCancelledEvent.class,
                                                                         FlowableEngineEventType.PROCESS_CANCELLED));
         Mockito.verify(eventHandler)
-               .handle(context, Operation.State.ABORTED);
+               .handle(execution, Operation.State.ABORTED);
     }
 
     @Test
@@ -81,16 +81,16 @@ public class AbortProcessListenerTest {
 
     private static class AbortProcessListenerMock extends AbortProcessListener {
 
-        private final DelegateExecution context;
+        private final DelegateExecution execution;
 
-        private AbortProcessListenerMock(OperationInFinalStateHandler eventHandler, DelegateExecution context) {
+        private AbortProcessListenerMock(OperationInFinalStateHandler eventHandler, DelegateExecution execution) {
             super(eventHandler);
-            this.context = context;
+            this.execution = execution;
         }
 
         @Override
         protected DelegateExecution getExecution(FlowableEngineEvent event) {
-            return context;
+            return execution;
         }
 
     }

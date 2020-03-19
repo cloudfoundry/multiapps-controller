@@ -15,27 +15,27 @@ public abstract class AbstractCommonProcessAttributesCollector<T extends Abstrac
     protected abstract T getProcessAttributes();
 
     // @formatter:off
-    public T collectProcessVariables(DelegateExecution context) {
-        VariablesHandler variablesHandler = new VariablesHandler(context);
+    public T collectProcessVariables(DelegateExecution execution) {
+        VariablesHandler variablesHandler = new VariablesHandler(execution);
         T commonProcessVariables = getProcessAttributes();
         commonProcessVariables.setSubscriptionsToDelete(
-            getAttribute(context, Constants.VAR_SUBSCRIPTIONS_TO_DELETE, () -> variablesHandler.get(Variables.SUBSCRIPTIONS_TO_DELETE).size()));
+            getAttribute(execution, Constants.VAR_SUBSCRIPTIONS_TO_DELETE, () -> variablesHandler.get(Variables.SUBSCRIPTIONS_TO_DELETE).size()));
         commonProcessVariables.setDeletedEntries(
-            getAttribute(context, Constants.VAR_DELETED_ENTRIES, () -> variablesHandler.get(Variables.DELETED_ENTRIES).size()));
+            getAttribute(execution, Constants.VAR_DELETED_ENTRIES, () -> variablesHandler.get(Variables.DELETED_ENTRIES).size()));
         commonProcessVariables.setAppsToUndeploy(
-            getAttribute(context, Constants.VAR_APPS_TO_UNDEPLOY, () -> StepsUtil.getAppsToUndeploy(context).size()));
+            getAttribute(execution, Constants.VAR_APPS_TO_UNDEPLOY, () -> StepsUtil.getAppsToUndeploy(execution).size()));
         commonProcessVariables.setServicesToDelete(
-            getAttribute(context, Constants.VAR_SERVICES_TO_DELETE, () -> variablesHandler.get(Variables.SERVICES_TO_DELETE).size()));
+            getAttribute(execution, Constants.VAR_SERVICES_TO_DELETE, () -> variablesHandler.get(Variables.SERVICES_TO_DELETE).size()));
         commonProcessVariables.setUpdatedSubscripers(
-            getAttribute(context, Constants.VAR_UPDATED_SUBSCRIBERS, () -> variablesHandler.get(Variables.UPDATED_SUBSCRIBERS).size()));
+            getAttribute(execution, Constants.VAR_UPDATED_SUBSCRIBERS, () -> variablesHandler.get(Variables.UPDATED_SUBSCRIBERS).size()));
         commonProcessVariables.setUpdatedServiceBrokerSubscribers(
-            getAttribute(context, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS, () -> variablesHandler.get(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS).size()));
+            getAttribute(execution, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS, () -> variablesHandler.get(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS).size()));
 
         return commonProcessVariables;
     }
  // @formatter:on
 
-    protected <A> A getAttribute(DelegateExecution context, String variableName, Supplier<A> attributeValueSupplier) {
-        return context.getVariable(variableName) != null ? attributeValueSupplier.get() : null;
+    protected <A> A getAttribute(DelegateExecution execution, String variableName, Supplier<A> attributeValueSupplier) {
+        return execution.getVariable(variableName) != null ? attributeValueSupplier.get() : null;
     }
 }

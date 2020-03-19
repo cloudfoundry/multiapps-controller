@@ -52,7 +52,7 @@ public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
@@ -60,10 +60,10 @@ public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
     }
 
     private void prepareContext() {
-        context.setVariable(Constants.VAR_MODULES_INDEX, 0);
-        context.setVariable(Constants.VAR_APP_TO_PROCESS, JsonUtil.toJson(application.toCloudApplication()));
-        execution.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
-        execution.setVariable(Variables.EXISTING_APP, (existingApplication != null) ? existingApplication.toCloudApplication() : null);
+        execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
+        execution.setVariable(Constants.VAR_APP_TO_PROCESS, JsonUtil.toJson(application.toCloudApplication()));
+        context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
+        context.setVariable(Variables.EXISTING_APP, (existingApplication != null) ? existingApplication.toCloudApplication() : null);
     }
 
     List<CloudApplicationExtended> toCloudApplication() {

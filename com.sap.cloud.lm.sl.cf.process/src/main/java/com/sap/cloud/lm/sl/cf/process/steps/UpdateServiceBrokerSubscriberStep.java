@@ -22,19 +22,19 @@ import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudCompo
 public class UpdateServiceBrokerSubscriberStep extends CreateOrUpdateServiceBrokerStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        CloudApplication serviceBrokerApplication = StepsUtil.getUpdatedServiceBrokerSubscriber(execution);
-        CloudServiceBroker serviceBroker = getServiceBrokerFromApp(serviceBrokerApplication, execution.getContext());
+    protected StepPhase executeStep(ProcessContext context) {
+        CloudApplication serviceBrokerApplication = StepsUtil.getUpdatedServiceBrokerSubscriber(context);
+        CloudServiceBroker serviceBroker = getServiceBrokerFromApp(serviceBrokerApplication, context.getExecution());
 
         try {
-            CloudControllerClient client = execution.getControllerClient();
+            CloudControllerClient client = context.getControllerClient();
             CloudServiceBroker existingServiceBroker = client.getServiceBroker(serviceBroker.getName(), false);
             if (existingServiceBroker == null) {
                 getStepLogger().warn(MessageFormat.format(Messages.SERVICE_BROKER_DOES_NOT_EXIST, serviceBroker.getName()));
             } else {
                 serviceBroker = ImmutableCloudServiceBroker.copyOf(serviceBroker)
                                                            .withMetadata(existingServiceBroker.getMetadata());
-                updateServiceBroker(execution.getContext(), serviceBroker, client);
+                updateServiceBroker(context.getExecution(), serviceBroker, client);
             }
             return StepPhase.DONE;
         } catch (CloudOperationException coe) {

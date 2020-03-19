@@ -18,10 +18,10 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 public class AddDomainsStep extends SyncFlowableStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        CloudControllerClient client = execution.getControllerClient();
+    protected StepPhase executeStep(ProcessContext context) {
+        CloudControllerClient client = context.getControllerClient();
 
-        List<String> customDomains = execution.getVariable(Variables.CUSTOM_DOMAINS);
+        List<String> customDomains = context.getVariable(Variables.CUSTOM_DOMAINS);
         getStepLogger().debug("Custom domains: " + customDomains);
         if (customDomains.isEmpty()) {
             return StepPhase.DONE;
@@ -40,7 +40,7 @@ public class AddDomainsStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_ADDING_DOMAINS;
     }
 

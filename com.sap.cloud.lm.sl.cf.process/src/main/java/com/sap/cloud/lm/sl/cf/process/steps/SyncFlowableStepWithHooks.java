@@ -32,51 +32,51 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
     private EnvMtaMetadataParser envMtaMetadataParser;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
-        Module moduleToDeploy = determineModuleToDeploy(execution);
+    protected StepPhase executeStep(ProcessContext context) throws Exception {
+        Module moduleToDeploy = determineModuleToDeploy(context);
 
         if (moduleToDeploy == null) {
-            return executeStepInternal(execution);
+            return executeStepInternal(context);
         }
 
-        StepPhase currentStepPhase = StepsUtil.getStepPhase(execution.getContext());
-        List<Hook> executedHooks = executeHooksForStepPhase(execution.getContext(), moduleToDeploy, currentStepPhase);
+        StepPhase currentStepPhase = StepsUtil.getStepPhase(context.getExecution());
+        List<Hook> executedHooks = executeHooksForStepPhase(context.getExecution(), moduleToDeploy, currentStepPhase);
         if (!executedHooks.isEmpty()) {
             return currentStepPhase;
         }
 
-        currentStepPhase = executeStepInternal(execution);
+        currentStepPhase = executeStepInternal(context);
 
         if (!isInPostExecuteStepPhase(currentStepPhase)) {
             return currentStepPhase;
         }
-        executeHooksForStepPhase(execution.getContext(), moduleToDeploy, currentStepPhase);
+        executeHooksForStepPhase(context.getExecution(), moduleToDeploy, currentStepPhase);
 
         return currentStepPhase;
     }
 
-    private List<Hook> executeHooksForStepPhase(DelegateExecution context, Module moduleToDeploy, StepPhase currentStepPhase) {
-        HookPhase currentHookPhaseForExecution = determineHookPhaseForCurrentStepPhase(context, currentStepPhase);
-        List<Hook> hooksForCurrentPhase = getHooksForCurrentPhase(context, moduleToDeploy, currentHookPhaseForExecution);
-        setHooksForExecution(context, hooksForCurrentPhase);
+    private List<Hook> executeHooksForStepPhase(DelegateExecution execution, Module moduleToDeploy, StepPhase currentStepPhase) {
+        HookPhase currentHookPhaseForExecution = determineHookPhaseForCurrentStepPhase(execution, currentStepPhase);
+        List<Hook> hooksForCurrentPhase = getHooksForCurrentPhase(execution, moduleToDeploy, currentHookPhaseForExecution);
+        setHooksForExecution(execution, hooksForCurrentPhase);
 
         return hooksForCurrentPhase;
     }
 
-    private Module determineModuleToDeploy(ExecutionWrapper execution) {
-        Module moduleToDeploy = execution.getVariable(Variables.MODULE_TO_DEPLOY);
+    private Module determineModuleToDeploy(ProcessContext context) {
+        Module moduleToDeploy = context.getVariable(Variables.MODULE_TO_DEPLOY);
 
-        return moduleToDeploy != null ? moduleToDeploy : determineModuleFromDescriptor(execution);
+        return moduleToDeploy != null ? moduleToDeploy : determineModuleFromDescriptor(context);
     }
 
-    private Module determineModuleFromDescriptor(ExecutionWrapper execution) {
-        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+    private Module determineModuleFromDescriptor(ProcessContext context) {
+        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         if (deploymentDescriptor == null) {
             // This will be the case only when the process is undeploy.
             return null;
         }
 
-        CloudApplicationExtended cloudApplication = execution.getVariable(Variables.APP_TO_PROCESS);
+        CloudApplicationExtended cloudApplication = context.getVariable(Variables.APP_TO_PROCESS);
         if (cloudApplication.getModuleName() == null) {
             // This case handles the deletion of old applications when the process is blue-green deployment. Here the application is taken
             // from the
@@ -84,7 +84,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
             return determineModuleFromAppName(deploymentDescriptor, cloudApplication);
         }
 
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
         return findModuleByNameFromDeploymentDescriptor(handlerFactory, deploymentDescriptor, cloudApplication.getModuleName());
     }
 
@@ -117,16 +117,16 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
                              .findModule(deploymentDescriptor, moduleName);
     }
 
-    private List<Hook> getHooksForCurrentPhase(DelegateExecution context, Module moduleToDeploy, HookPhase currentHookPhaseForExecution) {
-        return getModuleHooksAggregator(context, moduleToDeploy).aggregateHooks(currentHookPhaseForExecution);
+    private List<Hook> getHooksForCurrentPhase(DelegateExecution execution, Module moduleToDeploy, HookPhase currentHookPhaseForExecution) {
+        return getModuleHooksAggregator(execution, moduleToDeploy).aggregateHooks(currentHookPhaseForExecution);
     }
 
-    protected ModuleHooksAggregator getModuleHooksAggregator(DelegateExecution context, Module moduleToDeploy) {
-        return new ModuleHooksAggregator(context, moduleToDeploy);
+    protected ModuleHooksAggregator getModuleHooksAggregator(DelegateExecution execution, Module moduleToDeploy) {
+        return new ModuleHooksAggregator(execution, moduleToDeploy);
     }
 
-    private void setHooksForExecution(DelegateExecution context, List<Hook> hooksForExecution) {
-        StepsUtil.setHooksForExecution(context, hooksForExecution);
+    private void setHooksForExecution(DelegateExecution execution, List<Hook> hooksForExecution) {
+        StepsUtil.setHooksForExecution(execution, hooksForExecution);
     }
 
     private boolean isInPreExecuteStepPhase(StepPhase currentStepPhase) {
@@ -137,33 +137,33 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         return currentStepPhase == StepPhase.DONE;
     }
 
-    protected HookPhase getHookPhaseBeforeStep(DelegateExecution context) {
+    protected HookPhase getHookPhaseBeforeStep(DelegateExecution execution) {
         return HookPhase.NONE;
     }
 
-    protected HookPhase getHookPhaseAfterStep(DelegateExecution context) {
+    protected HookPhase getHookPhaseAfterStep(DelegateExecution execution) {
         return HookPhase.NONE;
     }
 
-    private HookPhase determineHookPhaseForCurrentStepPhase(DelegateExecution context, StepPhase currentStepPhase) {
+    private HookPhase determineHookPhaseForCurrentStepPhase(DelegateExecution execution, StepPhase currentStepPhase) {
         if (isInPreExecuteStepPhase(currentStepPhase)) {
-            return getHookPhaseBeforeStep(context);
+            return getHookPhaseBeforeStep(execution);
         }
         if (isInPostExecuteStepPhase(currentStepPhase)) {
-            return getHookPhaseAfterStep(context);
+            return getHookPhaseAfterStep(execution);
         }
         return HookPhase.NONE;
     }
 
-    protected abstract StepPhase executeStepInternal(ExecutionWrapper execution);
+    protected abstract StepPhase executeStepInternal(ProcessContext context);
 
     static class ModuleHooksAggregator {
 
-        private final DelegateExecution context;
+        private final DelegateExecution execution;
         private final Module moduleToDeploy;
 
-        public ModuleHooksAggregator(DelegateExecution context, Module moduleToDeploy) {
-            this.context = context;
+        public ModuleHooksAggregator(DelegateExecution execution, Module moduleToDeploy) {
+            this.execution = execution;
             this.moduleToDeploy = moduleToDeploy;
         }
 
@@ -176,7 +176,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         }
 
         private Map<String, List<String>> getAlreadyExecutedHooks() {
-            return StepsUtil.getExecutedHooksForModule(context, moduleToDeploy.getName());
+            return StepsUtil.getExecutedHooksForModule(execution, moduleToDeploy.getName());
         }
 
         private List<Hook> determineHooksForExecution(Map<String, List<String>> alreadyExecutedHooks,
@@ -230,7 +230,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
                                                   List<Hook> hooksForExecution) {
             Map<String, List<String>> result = new HashMap<>(alreadyExecutedHooks);
             updateExecutedHooks(result, currentHookPhaseForExecution, hooksForExecution);
-            StepsUtil.setExecutedHooksForModule(context, moduleToDeploy.getName(), result);
+            StepsUtil.setExecutedHooksForModule(execution, moduleToDeploy.getName(), result);
         }
 
         private void updateExecutedHooks(Map<String, List<String>> alreadyExecutedHooks, HookPhase currentHookPhaseForExecution,

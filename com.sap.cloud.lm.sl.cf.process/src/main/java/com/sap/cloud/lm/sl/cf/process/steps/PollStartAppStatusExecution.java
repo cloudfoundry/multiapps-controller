@@ -36,36 +36,36 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     }
 
     @Override
-    public AsyncExecutionState execute(ExecutionWrapper execution) {
-        String appToPoll = getAppToPoll(execution).getName();
-        CloudControllerClient client = execution.getControllerClient();
+    public AsyncExecutionState execute(ProcessContext context) {
+        String appToPoll = getAppToPoll(context).getName();
+        CloudControllerClient client = context.getControllerClient();
 
-        execution.getStepLogger()
-                 .debug(Messages.CHECKING_APP_STATUS, appToPoll);
+        context.getStepLogger()
+               .debug(Messages.CHECKING_APP_STATUS, appToPoll);
 
         // We're using the app object returned by the controller, because it includes the router port in its URIs, while the app model
         // we've built doesn't.
         CloudApplication app = client.getApplication(appToPoll);
         List<InstanceInfo> appInstances = getApplicationInstances(client, app);
-        StartupStatus status = getStartupStatus(execution, app, appInstances);
-        ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
-                                                               .getProcessLoggerProvider();
-        StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
-        return checkStartupStatus(execution, app, status);
+        StartupStatus status = getStartupStatus(context, app, appInstances);
+        ProcessLoggerProvider processLoggerProvider = context.getStepLogger()
+                                                             .getProcessLoggerProvider();
+        StepsUtil.saveAppLogs(context.getExecution(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
+        return checkStartupStatus(context, app, status);
     }
 
-    public String getPollingErrorMessage(ExecutionWrapper execution) {
-        String appToPoll = getAppToPoll(execution).getName();
+    public String getPollingErrorMessage(ProcessContext context) {
+        String appToPoll = getAppToPoll(context).getName();
         return format(Messages.ERROR_STARTING_APP_0, appToPoll);
     }
 
-    protected CloudApplication getAppToPoll(ExecutionWrapper execution) {
-        return execution.getVariable(Variables.APP_TO_PROCESS);
+    protected CloudApplication getAppToPoll(ProcessContext context) {
+        return context.getVariable(Variables.APP_TO_PROCESS);
     }
 
-    private StartupStatus getStartupStatus(ExecutionWrapper execution, CloudApplication app, List<InstanceInfo> appInstances) {
+    private StartupStatus getStartupStatus(ProcessContext context, CloudApplication app, List<InstanceInfo> appInstances) {
         // The default value here is provided for undeploy processes:
-        boolean failOnCrashed = StepsUtil.getBoolean(execution.getContext(), Constants.PARAM_FAIL_ON_CRASHED, true);
+        boolean failOnCrashed = StepsUtil.getBoolean(context.getExecution(), Constants.PARAM_FAIL_ON_CRASHED, true);
 
         if (appInstances != null) {
             int expectedInstances = app.getInstances();
@@ -74,7 +74,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             long crashedInstances = getInstanceCount(appInstances, InstanceState.CRASHED);
             long startingInstances = getInstanceCount(appInstances, InstanceState.STARTING);
 
-            showInstancesStatus(execution, app.getName(), appInstances, runningInstances, expectedInstances);
+            showInstancesStatus(context, app.getName(), appInstances, runningInstances, expectedInstances);
 
             if (runningInstances == expectedInstances) {
                 return StartupStatus.STARTED;
@@ -93,35 +93,35 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         return StartupStatus.STARTING;
     }
 
-    private AsyncExecutionState checkStartupStatus(ExecutionWrapper execution, CloudApplication app, StartupStatus status) {
+    private AsyncExecutionState checkStartupStatus(ProcessContext context, CloudApplication app, StartupStatus status) {
         if (status == StartupStatus.CRASHED) {
-            onError(execution, Messages.ERROR_STARTING_APP_0_DESCRIPTION_1, app.getName(), Messages.SOME_INSTANCES_HAVE_CRASHED);
+            onError(context, Messages.ERROR_STARTING_APP_0_DESCRIPTION_1, app.getName(), Messages.SOME_INSTANCES_HAVE_CRASHED);
             return AsyncExecutionState.ERROR;
         }
         if (status == StartupStatus.FLAPPING) {
-            onError(execution, Messages.ERROR_STARTING_APP_0_DESCRIPTION_1, app.getName(), Messages.SOME_INSTANCES_ARE_FLAPPING);
+            onError(context, Messages.ERROR_STARTING_APP_0_DESCRIPTION_1, app.getName(), Messages.SOME_INSTANCES_ARE_FLAPPING);
             return AsyncExecutionState.ERROR;
         }
         if (status == StartupStatus.STARTED) {
             List<String> uris = app.getUris();
             if (uris.isEmpty()) {
-                execution.getStepLogger()
-                         .info(Messages.APP_STARTED, app.getName());
+                context.getStepLogger()
+                       .info(Messages.APP_STARTED, app.getName());
             } else {
-                execution.getStepLogger()
-                         .info(Messages.APP_STARTED_URLS, app.getName(), String.join(",", uris));
+                context.getStepLogger()
+                       .info(Messages.APP_STARTED_URLS, app.getName(), String.join(",", uris));
             }
             return AsyncExecutionState.FINISHED;
         }
         return AsyncExecutionState.RUNNING;
     }
 
-    protected void onError(ExecutionWrapper execution, String message, Object... arguments) {
-        execution.getStepLogger()
-                 .error(message, arguments);
+    protected void onError(ProcessContext context, String message, Object... arguments) {
+        context.getStepLogger()
+               .error(message, arguments);
     }
 
-    private void showInstancesStatus(ExecutionWrapper execution, String appName, List<InstanceInfo> instances, long runningInstances,
+    private void showInstancesStatus(ProcessContext context, String appName, List<InstanceInfo> instances, long runningInstances,
                                      int expectedInstances) {
 
         // Determine state counts
@@ -144,8 +144,8 @@ public class PollStartAppStatusExecution implements AsyncExecution {
 
         // Print message
         String message = format(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, appName, runningInstances, expectedInstances, states);
-        execution.getStepLogger()
-                 .debug(message);
+        context.getStepLogger()
+               .debug(message);
     }
 
     private void incrementStateCount(Map<String, Integer> stateCounts, String state) {

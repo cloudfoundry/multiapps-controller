@@ -4,6 +4,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 public interface TaskIdProvider {
 
-    String getTaskId(DelegateExecution context);
+    String getTaskId(DelegateExecution execution);
 
 }

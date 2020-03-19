@@ -24,10 +24,10 @@ public class DeleteSubscriptionsStep extends SyncFlowableStep {
     private ConfigurationSubscriptionService configurationSubscriptionService;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.DELETING_SUBSCRIPTIONS);
 
-        List<ConfigurationSubscription> subscriptionsToDelete = execution.getVariable(Variables.SUBSCRIPTIONS_TO_DELETE);
+        List<ConfigurationSubscription> subscriptionsToDelete = context.getVariable(Variables.SUBSCRIPTIONS_TO_DELETE);
         getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, JsonUtil.toJson(subscriptionsToDelete, true));
         for (ConfigurationSubscription subscription : subscriptionsToDelete) {
             infoSubscriptionDeletion(subscription);
@@ -45,7 +45,7 @@ public class DeleteSubscriptionsStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_DELETING_SUBSCRIPTIONS;
     }
 

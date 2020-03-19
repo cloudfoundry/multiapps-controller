@@ -26,7 +26,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
+import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class ServiceOperationGetterTest {
@@ -36,7 +36,7 @@ public class ServiceOperationGetterTest {
     @Mock
     private EventsGetter eventsGetter;
     @Mock
-    private ExecutionWrapper execution;
+    private ProcessContext context;
     @Mock
     private CloudServiceExtended service;
 
@@ -80,7 +80,7 @@ public class ServiceOperationGetterTest {
         prepareService(isMissingServiceMetadata);
         prepareExecution();
 
-        ServiceOperation serviceOperation = serviceOperationGetter.getLastServiceOperation(execution, service);
+        ServiceOperation serviceOperation = serviceOperationGetter.getLastServiceOperation(context, service);
 
         assertServiceOperation(expectedServiceOperation, serviceOperation);
     }
@@ -115,7 +115,7 @@ public class ServiceOperationGetterTest {
     }
 
     private void prepareExecution() {
-        when(execution.getContext()).thenReturn(mock(DelegateExecution.class));
+        when(context.getExecution()).thenReturn(mock(DelegateExecution.class));
     }
 
     private void assertServiceOperation(ServiceOperation expectedServiceOperation, ServiceOperation serviceOperation) {

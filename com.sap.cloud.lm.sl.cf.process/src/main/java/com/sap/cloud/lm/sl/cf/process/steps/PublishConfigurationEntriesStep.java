@@ -30,15 +30,15 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
     ConfigurationEntryService configurationEntryService;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        CloudApplicationExtended app = execution.getVariable(Variables.APP_TO_PROCESS);
+    protected StepPhase executeStep(ProcessContext context) {
+        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
 
         getStepLogger().debug(MessageFormat.format(Messages.PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES, app.getName()));
 
-        List<ConfigurationEntry> entriesToPublish = execution.getVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH);
+        List<ConfigurationEntry> entriesToPublish = context.getVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH);
 
         if (CollectionUtils.isEmpty(entriesToPublish)) {
-            execution.setVariable(Variables.PUBLISHED_ENTRIES, Collections.emptyList());
+            context.setVariable(Variables.PUBLISHED_ENTRIES, Collections.emptyList());
             getStepLogger().debug(Messages.NO_PUBLIC_PROVIDED_DEPENDENCIES_FOR_PUBLISHING);
             return StepPhase.DONE;
         }
@@ -46,14 +46,14 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
         List<ConfigurationEntry> publishedEntries = publish(entriesToPublish);
 
         getStepLogger().debug(Messages.PUBLISHED_ENTRIES, secureSerializer.toJson(publishedEntries));
-        execution.setVariable(Variables.PUBLISHED_ENTRIES, publishedEntries);
+        context.setVariable(Variables.PUBLISHED_ENTRIES, publishedEntries);
 
         getStepLogger().debug(Messages.PUBLIC_PROVIDED_DEPENDENCIES_PUBLISHED);
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES;
     }
 

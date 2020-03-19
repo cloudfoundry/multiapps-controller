@@ -11,14 +11,14 @@ public class PollStartServiceBrokerSubscriberStatusExecution extends PollStartAp
     }
 
     @Override
-    protected void onError(ExecutionWrapper execution, String message, Object... arguments) {
-        execution.getStepLogger()
-                 .warn(message, arguments);
+    protected void onError(ProcessContext context, String message, Object... arguments) {
+        context.getStepLogger()
+               .warn(message, arguments);
     }
 
     @Override
-    protected CloudApplication getAppToPoll(ExecutionWrapper execution) {
-        return StepsUtil.getUpdatedServiceBrokerSubscriber(execution);
+    protected CloudApplication getAppToPoll(ProcessContext context) {
+        return StepsUtil.getUpdatedServiceBrokerSubscriber(context);
     }
 
 }

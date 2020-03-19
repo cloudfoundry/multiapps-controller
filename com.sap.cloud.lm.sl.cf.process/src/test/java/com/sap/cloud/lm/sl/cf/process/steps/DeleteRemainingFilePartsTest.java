@@ -26,12 +26,12 @@ public class DeleteRemainingFilePartsTest extends SyncFlowableStepTest<DeleteRem
 
     @BeforeEach
     public void setUp() {
-        StepsUtil.setAsJsonBinaries(context, Constants.VAR_FILE_ENTRIES, createFakeFileEntries());
+        StepsUtil.setAsJsonBinaries(execution, Constants.VAR_FILE_ENTRIES, createFakeFileEntries());
     }
 
     @Test
     public void testFileEntriesAreRemoved() throws FileStorageException {
-        step.execute(context);
+        step.execute(execution);
         verify(fileService, times(3)).deleteFile(any(String.class), any(String.class));
         assertStepFinishedSuccessfully();
     }
@@ -39,7 +39,7 @@ public class DeleteRemainingFilePartsTest extends SyncFlowableStepTest<DeleteRem
     @Test
     public void testThrowingException() throws FileStorageException {
         when(fileService.deleteFile(any(String.class), any(String.class))).thenThrow(FileStorageException.class);
-        step.execute(context);
+        step.execute(execution);
         assertStepFinishedSuccessfully();
     }
 

@@ -27,74 +27,74 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
     private ModuleToDeployHelper moduleToDeployHelper;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        Module module = execution.getVariable(Variables.MODULE_TO_DEPLOY);
+    protected StepPhase executeStep(ProcessContext context) {
+        Module module = context.getVariable(Variables.MODULE_TO_DEPLOY);
         getStepLogger().debug(Messages.BUILDING_CLOUD_APP_MODEL, module.getName());
 
-        Module applicationModule = findModuleInDeploymentDescriptor(execution, module.getName());
-        execution.setVariable(Variables.MODULE_TO_DEPLOY, applicationModule);
-        CloudApplicationExtended modifiedApp = StepsUtil.getApplicationCloudModelBuilder(execution)
+        Module applicationModule = findModuleInDeploymentDescriptor(context, module.getName());
+        context.setVariable(Variables.MODULE_TO_DEPLOY, applicationModule);
+        CloudApplicationExtended modifiedApp = StepsUtil.getApplicationCloudModelBuilder(context)
                                                         .build(applicationModule, moduleToDeployHelper);
         modifiedApp = ImmutableCloudApplicationExtended.builder()
                                                        .from(modifiedApp)
-                                                       .env(getApplicationEnv(execution.getContext(), modifiedApp))
-                                                       .uris(getApplicationUris(execution.getContext(), modifiedApp))
+                                                       .env(getApplicationEnv(context.getExecution(), modifiedApp))
+                                                       .uris(getApplicationUris(context.getExecution(), modifiedApp))
                                                        .build();
         SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
         String appJson = secureSerializationFacade.toJson(modifiedApp);
         getStepLogger().debug(Messages.APP_WITH_UPDATED_ENVIRONMENT, appJson);
-        execution.setVariable(Variables.APP_TO_PROCESS, modifiedApp);
+        context.setVariable(Variables.APP_TO_PROCESS, modifiedApp);
 
-        buildConfigurationEntries(execution, modifiedApp);
-        execution.setVariable(Variables.TASKS_TO_EXECUTE, modifiedApp.getTasks());
+        buildConfigurationEntries(context, modifiedApp);
+        context.setVariable(Variables.TASKS_TO_EXECUTE, modifiedApp.getTasks());
 
         getStepLogger().debug(Messages.CLOUD_APP_MODEL_BUILT);
         return StepPhase.DONE;
     }
 
-    private Module findModuleInDeploymentDescriptor(ExecutionWrapper execution, String module) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
-        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+    private Module findModuleInDeploymentDescriptor(ProcessContext context, String module) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
+        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         return handlerFactory.getDescriptorHandler()
                              .findModule(deploymentDescriptor, module);
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_BUILDING_CLOUD_APP_MODEL;
     }
 
-    protected Map<String, String> getApplicationEnv(DelegateExecution context, CloudApplicationExtended app) {
+    protected Map<String, String> getApplicationEnv(DelegateExecution execution, CloudApplicationExtended app) {
         return app.getEnv();
     }
 
-    private List<String> getApplicationUris(DelegateExecution context, CloudApplicationExtended modifiedApp) {
-        if (StepsUtil.getUseIdleUris(context)) {
+    private List<String> getApplicationUris(DelegateExecution execution, CloudApplicationExtended modifiedApp) {
+        if (StepsUtil.getUseIdleUris(execution)) {
             return modifiedApp.getIdleUris();
         }
         return modifiedApp.getUris();
     }
 
-    private void buildConfigurationEntries(ExecutionWrapper execution, CloudApplicationExtended app) {
-        if (StepsUtil.getSkipUpdateConfigurationEntries(execution.getContext())) {
-            execution.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, Collections.emptyList());
+    private void buildConfigurationEntries(ProcessContext context, CloudApplicationExtended app) {
+        if (StepsUtil.getSkipUpdateConfigurationEntries(context.getExecution())) {
+            context.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, Collections.emptyList());
             return;
         }
-        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
 
-        ConfigurationEntriesCloudModelBuilder configurationEntriesCloudModelBuilder = getConfigurationEntriesCloudModelBuilder(execution.getContext());
+        ConfigurationEntriesCloudModelBuilder configurationEntriesCloudModelBuilder = getConfigurationEntriesCloudModelBuilder(context.getExecution());
         Map<String, List<ConfigurationEntry>> allConfigurationEntries = configurationEntriesCloudModelBuilder.build(deploymentDescriptor);
         List<ConfigurationEntry> updatedModuleNames = allConfigurationEntries.getOrDefault(app.getModuleName(), Collections.emptyList());
-        execution.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, updatedModuleNames);
-        StepsUtil.setSkipUpdateConfigurationEntries(execution.getContext(), false);
+        context.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, updatedModuleNames);
+        StepsUtil.setSkipUpdateConfigurationEntries(context.getExecution(), false);
 
         getStepLogger().debug(Messages.CONFIGURATION_ENTRIES_TO_PUBLISH, JsonUtil.toJson(updatedModuleNames, true));
     }
 
-    private ConfigurationEntriesCloudModelBuilder getConfigurationEntriesCloudModelBuilder(DelegateExecution context) {
-        String orgName = StepsUtil.getOrg(context);
-        String spaceName = StepsUtil.getSpace(context);
-        String spaceId = StepsUtil.getSpaceId(context);
+    private ConfigurationEntriesCloudModelBuilder getConfigurationEntriesCloudModelBuilder(DelegateExecution execution) {
+        String orgName = StepsUtil.getOrg(execution);
+        String spaceName = StepsUtil.getSpace(execution);
+        String spaceId = StepsUtil.getSpaceId(execution);
         return new ConfigurationEntriesCloudModelBuilder(orgName, spaceName, spaceId);
     }
 

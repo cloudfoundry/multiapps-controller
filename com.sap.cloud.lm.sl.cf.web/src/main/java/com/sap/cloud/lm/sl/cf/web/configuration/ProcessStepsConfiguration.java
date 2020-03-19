@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
-import com.sap.cloud.lm.sl.cf.process.steps.ProcessMtaArchiveStep;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +16,7 @@ import org.springframework.jmx.export.MBeanExporter;
 import com.sap.cloud.lm.sl.cf.process.steps.BuildApplicationDeployModelStep;
 import com.sap.cloud.lm.sl.cf.process.steps.BuildCloudDeployModelStep;
 import com.sap.cloud.lm.sl.cf.process.steps.ProcessDescriptorStep;
+import com.sap.cloud.lm.sl.cf.process.steps.ProcessMtaArchiveStep;
 import com.sap.cloud.lm.sl.cf.process.util.ModuleDeployProcessGetter;
 import com.sap.cloud.lm.sl.cf.web.monitoring.Metrics;
 

@@ -52,9 +52,9 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
         step.descriptorParserFacade = descriptorParserFacade;
         step.extensionDescriptorChainBuilder = extensionDescriptorChainBuilder;
 
-        step.execute(context);
+        step.execute(execution);
 
-        List<ExtensionDescriptor> actualExtensionDescriptorChain = StepsUtil.getExtensionDescriptorChain(context);
+        List<ExtensionDescriptor> actualExtensionDescriptorChain = StepsUtil.getExtensionDescriptorChain(execution);
         String expectedJson = JsonUtil.toJson(extensionDescriptorChain, true);
         String actualJson = JsonUtil.toJson(actualExtensionDescriptorChain, true);
 
@@ -65,19 +65,19 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
     public void testExecuteWithNoExtensionDescriptors() throws FileStorageException {
         prepare(Collections.emptyList());
 
-        step.execute(context);
+        step.execute(execution);
 
-        List<ExtensionDescriptor> extensionDescriptorChain = StepsUtil.getExtensionDescriptorChain(context);
+        List<ExtensionDescriptor> extensionDescriptorChain = StepsUtil.getExtensionDescriptorChain(execution);
         assertTrue(extensionDescriptorChain.isEmpty());
     }
 
     private void prepare(List<String> extensionDescriptors) throws FileStorageException {
         Map<String, String> fileIdToExtensionDescriptor = generateIds(extensionDescriptors);
 
-        context.setVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, String.join(",", fileIdToExtensionDescriptor.keySet()));
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        execution.setVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, String.join(",", fileIdToExtensionDescriptor.keySet()));
+        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
         DeploymentDescriptor descriptor = DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass());
-        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
+        context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
 
         prepareFileService(fileIdToExtensionDescriptor);
     }

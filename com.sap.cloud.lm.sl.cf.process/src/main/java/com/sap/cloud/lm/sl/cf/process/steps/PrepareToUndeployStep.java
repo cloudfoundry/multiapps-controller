@@ -28,22 +28,22 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
     private OperationService operationService;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.DETECTING_COMPONENTS_TO_UNDEPLOY);
-        String mtaId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_MTA_ID);
-        execution.setVariable(Variables.MTA_MODULES, getMtaModules(execution));
-        execution.setVariable(Variables.PUBLISHED_ENTRIES, Collections.emptyList());
-        StepsUtil.setServicesToCreate(execution.getContext(), Collections.emptyList());
-        StepsUtil.setModulesToDeploy(execution.getContext(), Collections.emptyList());
-        execution.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
-        StepsUtil.setAllModulesToDeploy(execution.getContext(), Collections.emptyList());
-        execution.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, Collections.emptyList());
-        execution.getContext()
-                 .setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 2);
+        String mtaId = StepsUtil.getRequiredString(context.getExecution(), Constants.PARAM_MTA_ID);
+        context.setVariable(Variables.MTA_MODULES, getMtaModules(context));
+        context.setVariable(Variables.PUBLISHED_ENTRIES, Collections.emptyList());
+        StepsUtil.setServicesToCreate(context.getExecution(), Collections.emptyList());
+        StepsUtil.setModulesToDeploy(context.getExecution(), Collections.emptyList());
+        context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
+        StepsUtil.setAllModulesToDeploy(context.getExecution(), Collections.emptyList());
+        context.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, Collections.emptyList());
+        context.getExecution()
+               .setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 2);
 
         conflictPreventerSupplier.apply(operationService)
-                                 .acquireLock(mtaId, StepsUtil.getSpaceId(execution.getContext()), execution.getContext()
-                                                                                                            .getProcessInstanceId());
+                                 .acquireLock(mtaId, StepsUtil.getSpaceId(context.getExecution()), context.getExecution()
+                                                                                                          .getProcessInstanceId());
 
         getStepLogger().debug(Messages.COMPONENTS_TO_UNDEPLOY_DETECTED);
 
@@ -51,12 +51,12 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY;
     }
 
-    private Set<String> getMtaModules(ExecutionWrapper execution) {
-        DeployedMta deployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
+    private Set<String> getMtaModules(ProcessContext context) {
+        DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
         if (deployedMta == null) {
             return Collections.emptySet();
         }

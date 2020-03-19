@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.client.lib.domain;
 
 import java.util.List;
-import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.annotation.Nullable;

@@ -31,11 +31,10 @@ public class SetRetryPhaseAdditionalProcessAction implements AdditionalProcessAc
                                                                    .setVariable(executionProcessId, Constants.VAR_STEP_PHASE,
                                                                                 StepPhase.RETRY.toString()));
     }
-    
-    private ExecutionEntityImpl toExecutionEntityImpl(Execution e) {
-        return (ExecutionEntityImpl)e;
-    }
 
+    private ExecutionEntityImpl toExecutionEntityImpl(Execution e) {
+        return (ExecutionEntityImpl) e;
+    }
 
     @Override
     public String getApplicableActionId() {

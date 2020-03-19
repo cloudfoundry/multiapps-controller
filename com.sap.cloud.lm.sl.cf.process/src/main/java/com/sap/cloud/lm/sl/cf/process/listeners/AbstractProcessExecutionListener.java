@@ -38,20 +38,20 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     private StepLogger stepLogger;
 
     @Override
-    public void notify(DelegateExecution context) {
+    public void notify(DelegateExecution execution) {
         try {
-            String correlationId = StepsUtil.getCorrelationId(context);
+            String correlationId = StepsUtil.getCorrelationId(execution);
             if (correlationId == null) {
-                correlationId = context.getProcessInstanceId();
-                context.setVariable(Constants.VAR_CORRELATION_ID, correlationId);
+                correlationId = execution.getProcessInstanceId();
+                execution.setVariable(Constants.VAR_CORRELATION_ID, correlationId);
             }
-            this.stepLogger = createStepLogger(context);
-            notifyInternal(context);
+            this.stepLogger = createStepLogger(execution);
+            notifyInternal(execution);
         } catch (Exception e) {
             logException(e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED);
             throw new SLException(e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED);
         } finally {
-            finalizeLogs(context);
+            finalizeLogs(execution);
         }
     }
 
@@ -64,13 +64,13 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
         return getStepLogger().getProcessLogger();
     }
 
-    protected void finalizeLogs(DelegateExecution context) {
-        processLogsPersister.persistLogs(StepsUtil.getCorrelationId(context), getTaskId(context));
+    protected void finalizeLogs(DelegateExecution execution) {
+        processLogsPersister.persistLogs(StepsUtil.getCorrelationId(execution), getTaskId(execution));
     }
 
-    private String getTaskId(DelegateExecution context) {
-        String taskId = (String) context.getVariable(Constants.TASK_ID);
-        return taskId != null ? taskId : context.getCurrentActivityId();
+    private String getTaskId(DelegateExecution execution) {
+        String taskId = (String) execution.getVariable(Constants.TASK_ID);
+        return taskId != null ? taskId : execution.getCurrentActivityId();
     }
 
     protected StepLogger getStepLogger() {
@@ -84,17 +84,17 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
         return historicOperationEventPersister;
     }
 
-    private StepLogger createStepLogger(DelegateExecution context) {
-        return stepLoggerFactory.create(context, progressMessageService, processLoggerProvider, getLogger());
+    private StepLogger createStepLogger(DelegateExecution execution) {
+        return stepLoggerFactory.create(execution, progressMessageService, processLoggerProvider, getLogger());
     }
 
-    protected boolean isRootProcess(DelegateExecution context) {
-        String correlationId = StepsUtil.getCorrelationId(context);
-        String processInstanceId = context.getProcessInstanceId();
+    protected boolean isRootProcess(DelegateExecution execution) {
+        String correlationId = StepsUtil.getCorrelationId(execution);
+        String processInstanceId = execution.getProcessInstanceId();
         return processInstanceId.equals(correlationId);
     }
 
-    protected abstract void notifyInternal(DelegateExecution context) throws Exception;
+    protected abstract void notifyInternal(DelegateExecution execution) throws Exception;
 
     protected abstract org.slf4j.Logger getLogger();
 

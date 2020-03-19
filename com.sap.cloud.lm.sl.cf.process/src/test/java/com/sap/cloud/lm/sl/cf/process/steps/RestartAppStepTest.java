@@ -20,7 +20,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     @Before
     public void setUp() {
-        context.setVariable(Constants.VAR_MODULES_INDEX, 0);
+        execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
     }
 
     @Test
@@ -29,7 +29,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
         StartingInfo startingInfo = new StartingInfo("dummyStagingFile");
         prepareContextAndClient(app, startingInfo);
 
-        step.execute(context);
+        step.execute(execution);
         assertStepFinishedSuccessfully();
 
         Mockito.verify(client, Mockito.never())
@@ -37,7 +37,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
         Mockito.verify(client, Mockito.times(1))
                .startApplication(APP_NAME);
 
-        assertEquals(JsonUtil.toJson(startingInfo), JsonUtil.toJson(execution.getVariable(Variables.STARTING_INFO)));
+        assertEquals(JsonUtil.toJson(startingInfo), JsonUtil.toJson(context.getVariable(Variables.STARTING_INFO)));
     }
 
     @Override
@@ -51,7 +51,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
         StartingInfo startingInfo = new StartingInfo("dummyStagingFile");
         prepareContextAndClient(app, startingInfo);
 
-        step.execute(context);
+        step.execute(execution);
         assertStepFinishedSuccessfully();
 
         Mockito.verify(client)
@@ -59,7 +59,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
         Mockito.verify(client)
                .startApplication(APP_NAME);
 
-        assertEquals(JsonUtil.toJson(startingInfo), JsonUtil.toJson(execution.getVariable(Variables.STARTING_INFO)));
+        assertEquals(JsonUtil.toJson(startingInfo), JsonUtil.toJson(context.getVariable(Variables.STARTING_INFO)));
     }
 
     private CloudApplicationExtended createApplication(String name, State state) {
@@ -74,7 +74,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
                .thenReturn(app);
         Mockito.when(client.startApplication(APP_NAME))
                .thenReturn(startingInfo);
-        execution.setVariable(Variables.APP_TO_PROCESS, app);
+        context.setVariable(Variables.APP_TO_PROCESS, app);
     }
 
     @Override

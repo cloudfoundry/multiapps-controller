@@ -41,25 +41,25 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
     private EnvMtaMetadataParser envMtaMetadataParser;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        CloudApplication existingApp = execution.getVariable(Variables.EXISTING_APP);
+    protected StepPhase executeStep(ProcessContext context) {
+        CloudApplication existingApp = context.getVariable(Variables.EXISTING_APP);
         if (existingApp == null) {
             return StepPhase.DONE;
         }
         getStepLogger().info(Messages.DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP, existingApp.getName());
-        String mtaId = (String) execution.getContext()
-                                         .getVariable(Constants.PARAM_MTA_ID);
+        String mtaId = (String) context.getExecution()
+                                       .getVariable(Constants.PARAM_MTA_ID);
         MtaMetadata mtaMetadata = getMtaMetadata(existingApp);
         if (mtaMetadata == null) {
             return StepPhase.DONE;
         }
         List<String> providedDependencyNames = getDeployedMtaApplication(existingApp).getProvidedDependencyNames();
-        String org = StepsUtil.getOrg(execution.getContext());
-        String space = StepsUtil.getSpace(execution.getContext());
+        String org = StepsUtil.getOrg(context.getExecution());
+        String space = StepsUtil.getSpace(context.getExecution());
         CloudTarget target = new CloudTarget(org, space);
         String oldMtaVersion = mtaMetadata.getVersion()
                                           .toString();
-        List<ConfigurationEntry> publishedEntries = execution.getVariable(Variables.PUBLISHED_ENTRIES);
+        List<ConfigurationEntry> publishedEntries = context.getVariable(Variables.PUBLISHED_ENTRIES);
 
         List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, oldMtaVersion, target, providedDependencyNames,
                                                                       publishedEntries);
@@ -72,7 +72,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
             }
         }
         getStepLogger().debug(Messages.DELETED_ENTRIES, JsonUtil.toJson(entriesToDelete, true));
-        execution.setVariable(Variables.DELETED_ENTRIES, entriesToDelete);
+        context.setVariable(Variables.DELETED_ENTRIES, entriesToDelete);
 
         getStepLogger().debug(Messages.DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP_DELETED, existingApp.getName());
         return StepPhase.DONE;
@@ -95,10 +95,10 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return MessageFormat.format(Messages.ERROR_DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP,
-                                    execution.getVariable(Variables.EXISTING_APP)
-                                             .getName());
+                                    context.getVariable(Variables.EXISTING_APP)
+                                           .getName());
     }
 
     private List<ConfigurationEntry> getEntriesToDelete(String mtaId, String mtaVersion, CloudTarget target,

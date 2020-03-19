@@ -25,17 +25,17 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
     private DeployedMtaDetector deployedMtaDetector;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.DETECTING_DEPLOYED_MTA);
 
-        CloudControllerClient client = execution.getControllerClient();
+        CloudControllerClient client = context.getControllerClient();
 
-        String mtaId = (String) execution.getContext()
-                                         .getVariable(Constants.PARAM_MTA_ID);
+        String mtaId = (String) context.getExecution()
+                                       .getVariable(Constants.PARAM_MTA_ID);
         Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMta(mtaId, client);
         if (optionalDeployedMta.isPresent()) {
             DeployedMta deployedMta = optionalDeployedMta.get();
-            execution.setVariable(Variables.DEPLOYED_MTA, deployedMta);
+            context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
             getStepLogger().debug(Messages.DEPLOYED_MTA, JsonUtil.toJson(deployedMta, true));
             getStepLogger().info(MessageFormat.format(Messages.DEPLOYED_MTA_DETECTED_WITH_VERSION, deployedMta.getMetadata()
                                                                                                               .getId(),
@@ -43,13 +43,13 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
                                                                  .getVersion()));
         } else {
             getStepLogger().info(Messages.NO_DEPLOYED_MTA_DETECTED);
-            execution.setVariable(Variables.DEPLOYED_MTA, null);
+            context.setVariable(Variables.DEPLOYED_MTA, null);
         }
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_DETECTING_DEPLOYED_MTA;
     }
 }

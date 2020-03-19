@@ -99,8 +99,8 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
 
     @Override
     public ConfigurationSubscriptionFactory
-        getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
-                                            Map<String, ResolvedConfigurationReference> resolvedReferences) {
+           getConfigurationSubscriptionFactory(DeploymentDescriptor descriptor,
+                                               Map<String, ResolvedConfigurationReference> resolvedReferences) {
         return getHelperDelegate().getConfigurationSubscriptionFactory(descriptor, resolvedReferences);
     }
 

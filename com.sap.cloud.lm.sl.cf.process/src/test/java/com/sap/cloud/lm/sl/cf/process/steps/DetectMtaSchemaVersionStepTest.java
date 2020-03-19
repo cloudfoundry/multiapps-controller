@@ -1,10 +1,10 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,7 +39,7 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
 // @formatter:off
             // Unsupported version:
             {
-                "1.0.0", 1,  format(Messages.UNSUPPORTED_VERSION, "1.0.0"),
+                "1.0.0", 1,  MessageFormat.format(Messages.UNSUPPORTED_VERSION, "1.0.0"),
             },
             // Supported version:
             {
@@ -63,7 +63,7 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
             },
             // Unsupported version:
             {
-                "0.1.0", 0, format(Messages.UNSUPPORTED_VERSION, "0.1.0"),
+                "0.1.0", 0, MessageFormat.format(Messages.UNSUPPORTED_VERSION, "0.1.0"),
             },
 // @formatter:on
         });
@@ -88,8 +88,8 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
     public void setUp() {
         step.detectorSupplier = () -> versionDetector;
 
-        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, DEPLOYMENT_DESCRIPTOR);
-        StepsUtil.setExtensionDescriptorChain(context, Collections.emptyList());
+        context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, DEPLOYMENT_DESCRIPTOR);
+        StepsUtil.setExtensionDescriptorChain(execution, Collections.emptyList());
     }
 
     @Test
@@ -99,11 +99,11 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
             expectedException.expectMessage(expectedExceptionMessage);
         }
 
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
-        assertEquals(expectedMajor, context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION));
+        assertEquals(expectedMajor, execution.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION));
     }
 
     @Test
@@ -111,7 +111,7 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
         expectedException.expectMessage("Error");
 
         when(versionDetector.detect(any(), any())).thenThrow(new SLException("Error"));
-        step.execute(context);
+        step.execute(execution);
     }
 
     @Override

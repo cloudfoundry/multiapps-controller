@@ -91,7 +91,7 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
 
     @Test
     public void testPollStatus() throws Exception {
-        step.initializeStepLogger(context);
+        step.initializeStepLogger(execution);
         testExecuteOperations();
     }
 
@@ -107,22 +107,22 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
             when(client.getUploadStatus(PACKAGE_GUID)).thenThrow(CLOUD_OPERATION_EXCEPTION);
         } else {
             Upload upload = ImmutableUpload.builder()
-                .status(uploadState)
-                .errorDetails(ImmutableErrorDetails.builder()
-                    .description("Something happened!")
-                    .build())
-                .build();
+                                           .status(uploadState)
+                                           .errorDetails(ImmutableErrorDetails.builder()
+                                                                              .description("Something happened!")
+                                                                              .build())
+                                           .build();
             when(client.getUploadStatus(PACKAGE_GUID)).thenReturn(upload);
         }
     }
 
     private void prepareContext() {
-        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(application.toCloudApplication()), context);
-        context.setVariable(Constants.VAR_MODULES_INDEX, 0);
+        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(application.toCloudApplication()), execution);
+        execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
         UploadToken uploadToken = ImmutableUploadToken.builder()
-            .packageGuid(PACKAGE_GUID)
-            .build();
-        context.setVariable(Constants.VAR_UPLOAD_TOKEN, JsonUtil.toJson(uploadToken));
+                                                      .packageGuid(PACKAGE_GUID)
+                                                      .build();
+        execution.setVariable(Constants.VAR_UPLOAD_TOKEN, JsonUtil.toJson(uploadToken));
     }
 
     @Override
@@ -131,7 +131,7 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncOperations(ExecutionWrapper wrapper) {
+    protected List<AsyncExecution> getAsyncOperations(ProcessContext wrapper) {
         return step.getAsyncStepExecutions(wrapper);
     }
 

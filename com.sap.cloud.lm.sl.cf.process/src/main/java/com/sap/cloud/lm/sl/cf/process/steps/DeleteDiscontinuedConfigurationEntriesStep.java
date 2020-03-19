@@ -31,15 +31,15 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
     private FlowableFacade flowableFacade;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.DELETING_PUBLISHED_DEPENDENCIES);
-        String mtaId = (String) execution.getContext()
-                                         .getVariable(Constants.PARAM_MTA_ID);
-        String org = StepsUtil.getOrg(execution.getContext());
-        String space = StepsUtil.getSpace(execution.getContext());
+        String mtaId = (String) context.getExecution()
+                                       .getVariable(Constants.PARAM_MTA_ID);
+        String org = StepsUtil.getOrg(context.getExecution());
+        String space = StepsUtil.getSpace(context.getExecution());
         CloudTarget target = new CloudTarget(org, space);
 
-        List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(execution.getContext(), flowableFacade);
+        List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context.getExecution(), flowableFacade);
 
         List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, target, publishedEntries);
         for (ConfigurationEntry entry : entriesToDelete) {
@@ -52,14 +52,14 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
             }
         }
         getStepLogger().debug(Messages.DELETED_ENTRIES, JsonUtil.toJson(entriesToDelete, true));
-        execution.setVariable(Variables.DELETED_ENTRIES, entriesToDelete);
+        context.setVariable(Variables.DELETED_ENTRIES, entriesToDelete);
 
         getStepLogger().debug(Messages.PUBLISHED_DEPENDENCIES_DELETED);
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_DELETING_PUBLISHED_DEPENDENCIES;
     }
 

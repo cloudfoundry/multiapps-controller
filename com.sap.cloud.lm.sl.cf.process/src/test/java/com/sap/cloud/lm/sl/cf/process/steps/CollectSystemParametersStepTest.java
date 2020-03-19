@@ -38,9 +38,9 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
 
-        step.execute(context);
+        step.execute(execution);
 
-        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
+        DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
         Map<String, Object> generalParameters = descriptor.getParameters();
         assertEquals(USER, generalParameters.get(SupportedParameters.USER));
         assertEquals(ORG, generalParameters.get(SupportedParameters.ORG));
@@ -74,9 +74,9 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
 
-        step.execute(context);
+        step.execute(execution);
 
-        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
+        DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
         Mockito.verify(readOnlyParametersChecker)
                .check(any());
         List<Module> modules = descriptor.getModules();
@@ -91,9 +91,9 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         prepareDescriptor("system-parameters/mtad-with-route-path.yaml");
         prepareClient();
 
-        step.execute(context);
+        step.execute(execution);
 
-        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
+        DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
         List<Module> modules = descriptor.getModules();
         assertEquals(1, modules.size());
         validateHostBasedModuleParameters(modules.get(0), "/foo");
@@ -131,9 +131,9 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         prepareClient();
         when(credentialsGenerator.next(anyInt())).thenReturn("abc", "def", "ghi", "jkl", "mno", "pqr", "stu", "vwx");
 
-        step.execute(context);
+        step.execute(execution);
 
-        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
+        DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
         List<Module> modules = descriptor.getModules();
         assertEquals(2, modules.size());
         Module foo = modules.get(0);
@@ -170,19 +170,19 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     public void testVersionRuleWithDowngrade() {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
-        execution.setVariable(Variables.DEPLOYED_MTA, createDeployedMta("2.0.0", Collections.emptyList()));
+        context.setVariable(Variables.DEPLOYED_MTA, createDeployedMta("2.0.0", Collections.emptyList()));
 
-        step.execute(context);
+        step.execute(execution);
     }
 
     @Test(expected = ContentException.class)
     public void testVersionRuleWithReinstallation() {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
-        context.setVariable(Constants.PARAM_VERSION_RULE, VersionRule.HIGHER.toString());
-        execution.setVariable(Variables.DEPLOYED_MTA, createDeployedMta("1.0.0", Collections.emptyList()));
+        execution.setVariable(Constants.PARAM_VERSION_RULE, VersionRule.HIGHER.toString());
+        context.setVariable(Variables.DEPLOYED_MTA, createDeployedMta("1.0.0", Collections.emptyList()));
 
-        step.execute(context);
+        step.execute(execution);
     }
 
     @Test
@@ -190,9 +190,9 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         prepareDescriptor("system-parameters/mtad-with-existing-parameters.yaml");
         prepareClient();
 
-        step.execute(context);
+        step.execute(execution);
 
-        DeploymentDescriptor descriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
+        DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
         List<Module> modules = descriptor.getModules();
         assertEquals(1, modules.size());
         Module foo = modules.get(0);

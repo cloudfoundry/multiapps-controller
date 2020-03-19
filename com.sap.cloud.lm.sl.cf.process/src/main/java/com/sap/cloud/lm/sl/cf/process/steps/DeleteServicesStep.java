@@ -36,9 +36,9 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
-import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
@@ -58,50 +58,50 @@ public class DeleteServicesStep extends AsyncFlowableStep {
     }
 
     @Override
-    protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
+    protected StepPhase executeAsyncStep(ProcessContext context) {
         getStepLogger().debug(Messages.DELETING_SERVICES);
 
-        CloudControllerClient client = execution.getControllerClient();
+        CloudControllerClient client = context.getControllerClient();
 
-        List<String> servicesToDelete = new ArrayList<>(execution.getVariable(Variables.SERVICES_TO_DELETE));
+        List<String> servicesToDelete = new ArrayList<>(context.getVariable(Variables.SERVICES_TO_DELETE));
 
         if (servicesToDelete.isEmpty()) {
             getStepLogger().debug(Messages.MISSING_SERVICES_TO_DELETE);
             return StepPhase.DONE;
         }
 
-        List<CloudServiceExtended> servicesData = getServicesData(servicesToDelete, execution);
+        List<CloudServiceExtended> servicesData = getServicesData(servicesToDelete, context);
         List<String> servicesWithoutData = getServicesWithoutData(servicesToDelete, servicesData);
         if (!servicesWithoutData.isEmpty()) {
-            execution.getStepLogger()
-                     .info(Messages.SERVICES_ARE_ALREADY_DELETED, servicesWithoutData);
+            context.getStepLogger()
+                   .info(Messages.SERVICES_ARE_ALREADY_DELETED, servicesWithoutData);
             servicesToDelete.removeAll(servicesWithoutData);
         }
-        StepsUtil.setServicesData(execution.getContext(), servicesData);
+        StepsUtil.setServicesData(context.getExecution(), servicesData);
 
-        Map<String, ServiceOperation.Type> triggeredServiceOperations = deleteServices(execution.getContext(), client, servicesToDelete);
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = deleteServices(context.getExecution(), client, servicesToDelete);
 
-        execution.getStepLogger()
-                 .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
-        execution.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, triggeredServiceOperations);
+        context.getStepLogger()
+               .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
+        context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, triggeredServiceOperations);
 
         getStepLogger().debug(Messages.SERVICES_DELETED);
         return StepPhase.POLL;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_DELETING_SERVICES;
     }
 
     @Override
-    protected String getStepErrorMessageAdditionalDescription(DelegateExecution context) {
-        String offering = StepsUtil.getServiceOffering(context);
+    protected String getStepErrorMessageAdditionalDescription(DelegateExecution execution) {
+        String offering = StepsUtil.getServiceOffering(execution);
         return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, offering);
     }
 
-    private List<CloudServiceExtended> getServicesData(List<String> serviceNames, ExecutionWrapper execution) {
-        CloudControllerClient client = execution.getControllerClient();
+    private List<CloudServiceExtended> getServicesData(List<String> serviceNames, ProcessContext context) {
+        CloudControllerClient client = context.getControllerClient();
 
         return serviceNames.parallelStream()
                            .map(name -> client.getService(name, false))
@@ -124,8 +124,8 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         return ListUtils.removeAll(servicesToDelete, servicesWithDataNames);
     }
 
-    private Map<String, ServiceOperation.Type> deleteServices(DelegateExecution context, CloudControllerClient client,
-                                                             List<String> serviceNames) {
+    private Map<String, ServiceOperation.Type> deleteServices(DelegateExecution execution, CloudControllerClient client,
+                                                              List<String> serviceNames) {
         Map<String, ServiceOperation.Type> triggeredServiceOperations = new HashMap<>();
 
         for (String serviceName : serviceNames) {
@@ -134,7 +134,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
                 deleteService(client, serviceName);
                 triggeredServiceOperations.put(serviceName, ServiceOperation.Type.DELETE);
             } catch (CloudException e) {
-                processException(context, e, client.getServiceInstance(serviceName), serviceName);
+                processException(execution, e, client.getServiceInstance(serviceName), serviceName);
             }
         }
         return triggeredServiceOperations;
@@ -181,10 +181,10 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         getStepLogger().debug(Messages.SERVICE_DELETED, serviceName);
     }
 
-    private void processException(DelegateExecution context, Exception e, CloudServiceInstance serviceInstance, String serviceName) {
+    private void processException(DelegateExecution execution, Exception e, CloudServiceInstance serviceInstance, String serviceName) {
         if (e instanceof CloudOperationException) {
-            e = evaluateCloudOperationException(context, (CloudOperationException) e, serviceName, serviceInstance.getService()
-                                                                                                                  .getLabel());
+            e = evaluateCloudOperationException(execution, (CloudOperationException) e, serviceName, serviceInstance.getService()
+                                                                                                                    .getLabel());
             if (e == null) {
                 return;
             }
@@ -192,7 +192,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         wrapAndThrowException(e, serviceInstance, serviceName);
     }
 
-    private CloudOperationException evaluateCloudOperationException(DelegateExecution context, CloudOperationException e,
+    private CloudOperationException evaluateCloudOperationException(DelegateExecution execution, CloudOperationException e,
                                                                     String serviceName, String label) {
         if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
             getStepLogger().warn(MessageFormat.format(Messages.COULD_NOT_DELETE_SERVICE, serviceName), e,
@@ -200,7 +200,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
             return null;
         }
         if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
-            StepsUtil.setServiceOffering(context, Constants.VAR_SERVICE_OFFERING, label);
+            StepsUtil.setServiceOffering(execution, Constants.VAR_SERVICE_OFFERING, label);
             return new CloudServiceBrokerException(e);
         }
         return new CloudControllerException(e);
@@ -226,7 +226,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
+    protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         return Collections.singletonList(new PollServiceDeleteOperationsExecution(serviceOperationGetter, serviceProgressReporter));
     }
 

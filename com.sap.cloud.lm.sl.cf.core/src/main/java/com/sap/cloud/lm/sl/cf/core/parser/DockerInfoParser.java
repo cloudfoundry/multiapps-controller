@@ -37,9 +37,9 @@ public class DockerInfoParser implements ParametersParser<DockerInfo> {
             return null;
         }
         return ImmutableDockerInfo.builder()
-            .image(image)
-            .credentials(getDockerCredentials(docker))
-            .build();
+                                  .image(image)
+                                  .credentials(getDockerCredentials(docker))
+                                  .build();
     }
 
     private DockerCredentials getDockerCredentials(Map<String, String> docker) {
@@ -49,9 +49,9 @@ public class DockerInfoParser implements ParametersParser<DockerInfo> {
             return null;
         }
         return ImmutableDockerCredentials.builder()
-            .username(username)
-            .password(password)
-            .build();
+                                         .username(username)
+                                         .password(password)
+                                         .build();
     }
 
 }

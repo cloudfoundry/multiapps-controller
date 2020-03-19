@@ -125,15 +125,15 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
     }
 
     private void prepareContext() {
-        execution.setVariable(Variables.SERVICE_KEYS_TO_CREATE, stepInput.getServiceKeysToCreate());
-        context.setVariable(Constants.VAR_SERVICE_TO_PROCESS, JsonUtil.toJson(stepInput.service));
-        context.setVariable(Constants.PARAM_DELETE_SERVICE_KEYS, true);
-        context.setVariable(Constants.PARAM_DELETE_SERVICES, stepInput.shouldDeleteServices);
+        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, stepInput.getServiceKeysToCreate());
+        execution.setVariable(Constants.VAR_SERVICE_TO_PROCESS, JsonUtil.toJson(stepInput.service));
+        execution.setVariable(Constants.PARAM_DELETE_SERVICE_KEYS, true);
+        execution.setVariable(Constants.PARAM_DELETE_SERVICES, stepInput.shouldDeleteServices);
     }
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepIsRunning();
 
@@ -141,7 +141,7 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
     }
 
     private void validateActions() {
-        List<ServiceAction> serviceActionsToExecute = StepsUtil.getServiceActionsToExecute(context);
+        List<ServiceAction> serviceActionsToExecute = StepsUtil.getServiceActionsToExecute(execution);
         if (stepInput.shouldCreateService) {
             collector.checkThat("Actions should contain " + ServiceAction.CREATE, serviceActionsToExecute.contains(ServiceAction.CREATE),
                                 Is.is(true));

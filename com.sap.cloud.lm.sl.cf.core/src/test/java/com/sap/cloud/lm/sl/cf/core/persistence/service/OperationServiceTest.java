@@ -126,7 +126,8 @@ public class OperationServiceTest {
                                                  .withState(Operation.State.ERROR);
         Operation operation2 = ImmutableOperation.copyOf(OPERATION_2)
                                                  .withState(Operation.State.RUNNING);
-        testQueryByCriteria((query, operation) -> query.withStateAnyOf(Collections.singletonList(Operation.State.ERROR)), operation1, operation2);
+        testQueryByCriteria((query, operation) -> query.withStateAnyOf(Collections.singletonList(Operation.State.ERROR)), operation1,
+                            operation2);
     }
 
     @Test

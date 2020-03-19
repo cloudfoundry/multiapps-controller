@@ -17,8 +17,8 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 public class CheckServicesToDeleteStep extends CheckForOperationsInProgressStep {
 
     @Override
-    protected List<CloudServiceExtended> getServicesToProcess(ExecutionWrapper execution) {
-        List<String> servicesToDelete = execution.getVariable(Variables.SERVICES_TO_DELETE);
+    protected List<CloudServiceExtended> getServicesToProcess(ProcessContext context) {
+        List<String> servicesToDelete = context.getVariable(Variables.SERVICES_TO_DELETE);
         return servicesToDelete.stream()
                                .map(this::buildCloudServiceExtended)
                                .collect(Collectors.toList());

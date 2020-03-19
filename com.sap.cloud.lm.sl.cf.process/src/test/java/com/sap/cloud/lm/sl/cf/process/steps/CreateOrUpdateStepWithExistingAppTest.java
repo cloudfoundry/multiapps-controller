@@ -12,8 +12,14 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
-import org.cloudfoundry.client.lib.domain.*;
 import org.cloudfoundry.client.lib.domain.CloudApplication.State;
+import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
+import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBinding;
+import org.cloudfoundry.client.lib.domain.ImmutableStaging;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,10 +98,10 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     public void testSkipRebindOfServices() {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString("update-app-step-input-1.json", getClass()), StepInput.class);
         prepareContext();
-        context.setVariable(Constants.VAR_SHOULD_SKIP_SERVICE_REBINDING, true);
+        execution.setVariable(Constants.VAR_SHOULD_SKIP_SERVICE_REBINDING, true);
         prepareClient();
 
-        Assertions.assertDoesNotThrow(() -> step.execute(context));
+        Assertions.assertDoesNotThrow(() -> step.execute(execution));
 
         assertStepFinishedSuccessfully();
         validateUpdateComponents();
@@ -114,11 +120,11 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         prepareClient();
 
         if (expectedExceptionMessage != null) {
-            Assertions.assertThrows(Exception.class, () -> step.execute(context), expectedExceptionMessage);
+            Assertions.assertThrows(Exception.class, () -> step.execute(execution), expectedExceptionMessage);
             return;
         }
 
-        Assertions.assertDoesNotThrow(() -> step.execute(context));
+        Assertions.assertDoesNotThrow(() -> step.execute(execution));
 
         assertStepFinishedSuccessfully();
 
@@ -156,9 +162,11 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         Map<String, Map<String, Object>> currentBindingParameters = input.application.toCloudApp()
                                                                                      .getBindingParameters();
         for (String serviceToBind : expectedServicesToBind) {
-            Mockito.verify(client).bindService(input.application.toCloudApp().getName(), serviceToBind,
-                                               getBindingParametersForService(currentBindingParameters, serviceToBind),
-                                               step.getApplicationServicesUpdateCallback(context));
+            Mockito.verify(client)
+                   .bindService(input.application.toCloudApp()
+                                                 .getName(),
+                                serviceToBind, getBindingParametersForService(currentBindingParameters, serviceToBind),
+                                step.getApplicationServicesUpdateCallback(execution));
         }
     }
 
@@ -209,13 +217,13 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
             Mockito.when(cloudServiceInstance.getBindings())
                    .thenReturn(serviceBindings);
             Mockito.when(cloudServiceInstance.getService())
-                    .thenReturn(cloudService);
+                   .thenReturn(cloudService);
             Mockito.when(cloudService.getName())
-                    .thenReturn(serviceName);
+                   .thenReturn(serviceName);
             Mockito.when(cloudServiceInstance.getMetadata())
-                    .thenReturn(ImmutableCloudMetadata.builder()
-                                                      .guid(NameUtil.getUUID(serviceName))
-                                                      .build());
+                   .thenReturn(ImmutableCloudMetadata.builder()
+                                                     .guid(NameUtil.getUUID(serviceName))
+                                                     .build());
             Mockito.when(client.getServiceInstance(serviceName))
                    .thenReturn(cloudServiceInstance);
         }
@@ -258,14 +266,14 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
                .thenReturn(input.existingApplication.toCloudApp());
         CloudApplicationExtended cloudApp = input.application.toCloudApp();
         // TODO
-        execution.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
-        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(cloudApp), context);
-        StepsUtil.setServicesToBind(context, mapToCloudServices());
-        execution.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, Collections.emptyMap());
-        context.setVariable(Constants.VAR_MODULES_INDEX, 0);
-        context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
+        context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
+        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(cloudApp), execution);
+        StepsUtil.setServicesToBind(execution, mapToCloudServices());
+        context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, Collections.emptyMap());
+        execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
+        execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
         byte[] serviceKeysToInjectByteArray = JsonUtil.toJsonBinary(new HashMap<>());
-        context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
+        execution.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
     }
 
     private static class StepInput {
@@ -366,7 +374,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
 
     private static class CreateAppStepMock extends CreateOrUpdateAppStep {
         @Override
-        protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(DelegateExecution context) {
+        protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(DelegateExecution execution) {
             return CALLBACK;
         }
     }

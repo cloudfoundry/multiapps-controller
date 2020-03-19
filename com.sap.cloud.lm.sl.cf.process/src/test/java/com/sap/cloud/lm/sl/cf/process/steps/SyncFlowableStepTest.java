@@ -51,7 +51,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
 
     protected final Tester tester = Tester.forClass(getClass());
 
-    protected final DelegateExecution context = MockDelegateExecution.createSpyInstance();
+    protected final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
     @Mock
     protected StepLogger.Factory stepLoggerFactory;
     protected StepLogger stepLogger;
@@ -75,7 +75,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     @InjectMocks
     protected ProcessLogsPersister processLogsPersister = Mockito.spy(ProcessLogsPersister.class);
 
-    protected ExecutionWrapper execution;
+    protected ProcessContext context;
     @InjectMocks
     protected T step = createStep();
 
@@ -85,20 +85,20 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     @BeforeEach
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
-        this.stepLogger = Mockito.spy(new StepLogger(context, progressMessageService, processLoggerProvider, LOGGER));
+        this.stepLogger = Mockito.spy(new StepLogger(execution, progressMessageService, processLoggerProvider, LOGGER));
         when(stepLoggerFactory.create(any(), any(), any(), any())).thenReturn(stepLogger);
-        context.setVariable(Constants.VAR_SPACE, SPACE_NAME);
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_GUID);
-        context.setVariable(Constants.VAR_USER, USER_NAME);
-        context.setVariable(Constants.VAR_ORG, ORG_NAME);
+        execution.setVariable(Constants.VAR_SPACE, SPACE_NAME);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_GUID);
+        execution.setVariable(Constants.VAR_USER, USER_NAME);
+        execution.setVariable(Constants.VAR_ORG, ORG_NAME);
         when(clientProvider.getControllerClient(any(), any())).thenReturn(client);
         when(clientProvider.getControllerClient(any(), any(), any(), any())).thenReturn(client);
-        context.setVariable("correlationId", getCorrelationId());
-        context.setVariable("__TASK_ID", getTaskId());
+        execution.setVariable("correlationId", getCorrelationId());
+        execution.setVariable("__TASK_ID", getTaskId());
         prepareExecution();
         prepareProcessEngineConfiguration();
-        execution.setVariable(Variables.MODULE_TO_DEPLOY, Module.createV3()
-                                                                .setName("testModule"));
+        context.setVariable(Variables.MODULE_TO_DEPLOY, Module.createV3()
+                                                              .setName("testModule"));
     }
 
     private void prepareProcessEngineConfiguration() {
@@ -137,7 +137,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     }
 
     private void prepareExecution() {
-        execution = step.createExecutionWrapper(context);
+        context = step.createExecutionWrapper(execution);
     }
 
     protected void assertStepFinishedSuccessfully() {
@@ -145,7 +145,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     }
 
     protected String getExecutionStatus() {
-        return (String) context.getVariable("StepExecution");
+        return (String) execution.getVariable("StepExecution");
     }
 
     protected String getCorrelationId() {

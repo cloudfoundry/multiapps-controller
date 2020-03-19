@@ -9,22 +9,22 @@ import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.cf.process.variables.Variable;
 import com.sap.cloud.lm.sl.cf.process.variables.VariablesHandler;
 
-public class ExecutionWrapper {
+public class ProcessContext {
 
-    private final DelegateExecution context;
+    private final DelegateExecution execution;
     private final StepLogger stepLogger;
     private final CloudControllerClientProvider clientProvider;
     private final VariablesHandler variablesHandler;
 
-    public ExecutionWrapper(DelegateExecution context, StepLogger stepLogger, CloudControllerClientProvider clientProvider) {
-        this.context = context;
+    public ProcessContext(DelegateExecution execution, StepLogger stepLogger, CloudControllerClientProvider clientProvider) {
+        this.execution = execution;
         this.stepLogger = stepLogger;
         this.clientProvider = clientProvider;
-        this.variablesHandler = new VariablesHandler(context);
+        this.variablesHandler = new VariablesHandler(execution);
     }
 
-    public DelegateExecution getContext() {
-        return context;
+    public DelegateExecution getExecution() {
+        return execution;
     }
 
     public StepLogger getStepLogger() {
@@ -32,12 +32,12 @@ public class ExecutionWrapper {
     }
 
     public CloudControllerClient getControllerClient() {
-        CloudControllerClient delegate = StepsUtil.getControllerClient(context, clientProvider);
+        CloudControllerClient delegate = StepsUtil.getControllerClient(execution, clientProvider);
         return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 
     public CloudControllerClient getControllerClient(String org, String space) {
-        CloudControllerClient delegate = StepsUtil.getControllerClient(context, clientProvider, org, space);
+        CloudControllerClient delegate = StepsUtil.getControllerClient(execution, clientProvider, org, space);
         return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 

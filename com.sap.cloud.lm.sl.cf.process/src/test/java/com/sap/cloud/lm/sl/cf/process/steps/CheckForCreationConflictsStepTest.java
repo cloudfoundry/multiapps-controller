@@ -135,7 +135,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
         if (shouldWarn) {
@@ -160,7 +160,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
                                                       .applications(prepareApps())
                                                       .services(prepareServices())
                                                       .build();
-        execution.setVariable(Variables.DEPLOYED_MTA, deployedMta);
+        context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
     }
 
     private List<DeployedMtaApplication> prepareApps() {
@@ -182,10 +182,10 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     }
 
     private void prepareContext() {
-        StepsUtil.setServicesToCreate(context, stepInput.servicesToDeploy);
+        StepsUtil.setServicesToCreate(execution, stepInput.servicesToDeploy);
         List<String> appsToDeploy = new ArrayList<>();
         stepInput.appsToDeploy.forEach(app -> appsToDeploy.add(app.name));
-        execution.setVariable(Variables.APPS_TO_DEPLOY, appsToDeploy);
+        context.setVariable(Variables.APPS_TO_DEPLOY, appsToDeploy);
     }
 
     private List<DeployedMtaApplication> simpleAppListToAppList(List<SimpleApplication> simpleApps) {

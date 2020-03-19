@@ -42,9 +42,9 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
-        return MessageFormat.format(Messages.ERROR_DELETING_APP_ROUTES, execution.getVariable(Variables.APP_TO_PROCESS)
-                                                                                 .getName());
+    protected String getStepErrorMessage(ProcessContext context) {
+        return MessageFormat.format(Messages.ERROR_DELETING_APP_ROUTES, context.getVariable(Variables.APP_TO_PROCESS)
+                                                                               .getName());
     }
 
     private void deleteApplicationRoutes(CloudControllerClient client, CloudApplication cloudApplication) {
@@ -74,7 +74,7 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep {
     }
 
     @Override
-    protected HookPhase getHookPhaseBeforeStep(DelegateExecution context) {
+    protected HookPhase getHookPhaseBeforeStep(DelegateExecution execution) {
         return HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES;
     }
 

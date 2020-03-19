@@ -45,12 +45,12 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
     private EnvMtaMetadataParser envMtaMetadataParser;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws CloudOperationException, SLException {
-        DeployedMta deployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
+    protected StepPhase executeStep(ProcessContext context) throws CloudOperationException, SLException {
+        DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
         try {
             getStepLogger().debug(Messages.VALIDATING_SERVICES);
-            CloudControllerClient client = execution.getControllerClient();
-            validateServicesToCreate(client, execution.getContext(), deployedMta);
+            CloudControllerClient client = context.getControllerClient();
+            validateServicesToCreate(client, context.getExecution(), deployedMta);
             getStepLogger().debug(Messages.SERVICES_VALIDATED);
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
@@ -63,7 +63,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
 
         try {
             getStepLogger().debug(Messages.VALIDATING_APPLICATIONS);
-            validateApplicationsToDeploy(execution, deployedMta);
+            validateApplicationsToDeploy(context, deployedMta);
             getStepLogger().debug(Messages.APPLICATIONS_VALIDATED);
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
@@ -78,12 +78,12 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_VALIDATING_APPLICATIONS;
     }
 
-    private void validateServicesToCreate(CloudControllerClient client, DelegateExecution context, DeployedMta deployedMta) {
-        List<CloudServiceExtended> servicesToCreate = StepsUtil.getServicesToCreate(context);
+    private void validateServicesToCreate(CloudControllerClient client, DelegateExecution execution, DeployedMta deployedMta) {
+        List<CloudServiceExtended> servicesToCreate = StepsUtil.getServicesToCreate(execution);
         for (CloudServiceExtended service : servicesToCreate) {
             CloudServiceInstance existingServiceInstance = client.getServiceInstance(service.getName(), false);
             if (existingServiceInstance != null) {
@@ -172,10 +172,10 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
                                      .anyMatch(boundMtaService -> boundMtaService.equals(service.getName()));
     }
 
-    private void validateApplicationsToDeploy(ExecutionWrapper execution, DeployedMta deployedMta) {
-        List<String> appNames = execution.getVariable(Variables.APPS_TO_DEPLOY);
+    private void validateApplicationsToDeploy(ProcessContext context, DeployedMta deployedMta) {
+        List<String> appNames = context.getVariable(Variables.APPS_TO_DEPLOY);
         for (String appName : appNames) {
-            validateApplicationToDeploy(deployedMta, appName, execution.getControllerClient());
+            validateApplicationToDeploy(deployedMta, appName, context.getControllerClient());
         }
     }
 

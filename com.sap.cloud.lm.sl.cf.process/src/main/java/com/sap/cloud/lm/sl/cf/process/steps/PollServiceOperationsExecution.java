@@ -35,31 +35,31 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
     }
 
     @Override
-    public AsyncExecutionState execute(ExecutionWrapper execution) {
-        execution.getStepLogger()
-                 .debug(Messages.POLLING_SERVICE_OPERATIONS);
+    public AsyncExecutionState execute(ProcessContext context) {
+        context.getStepLogger()
+               .debug(Messages.POLLING_SERVICE_OPERATIONS);
 
-        Map<String, ServiceOperation.Type> triggeredServiceOperations = execution.getVariable(Variables.TRIGGERED_SERVICE_OPERATIONS);
-        List<CloudServiceExtended> servicesToPoll = getServiceOperationsToPoll(execution, triggeredServiceOperations);
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = context.getVariable(Variables.TRIGGERED_SERVICE_OPERATIONS);
+        List<CloudServiceExtended> servicesToPoll = getServiceOperationsToPoll(context, triggeredServiceOperations);
         if (CollectionUtils.isEmpty(servicesToPoll)) {
             return AsyncExecutionState.FINISHED;
         }
 
         Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation = new HashMap<>();
         for (CloudServiceExtended service : servicesToPoll) {
-            ServiceOperation lastServiceOperation = getLastServiceOperationAndHandleExceptions(execution, service);
+            ServiceOperation lastServiceOperation = getLastServiceOperationAndHandleExceptions(context, service);
             if (lastServiceOperation != null) {
                 servicesWithLastOperation.put(service, lastServiceOperation);
             }
-            execution.getStepLogger()
-                     .debug(Messages.LAST_OPERATION_FOR_SERVICE, service.getName(), JsonUtil.toJson(lastServiceOperation, true));
+            context.getStepLogger()
+                   .debug(Messages.LAST_OPERATION_FOR_SERVICE, service.getName(), JsonUtil.toJson(lastServiceOperation, true));
         }
-        reportDetailedServicesStates(execution, servicesWithLastOperation);
-        reportOverallProgress(execution, new ArrayList<>(servicesWithLastOperation.values()), triggeredServiceOperations);
+        reportDetailedServicesStates(context, servicesWithLastOperation);
+        reportOverallProgress(context, new ArrayList<>(servicesWithLastOperation.values()), triggeredServiceOperations);
         List<CloudServiceExtended> remainingServicesToPoll = getRemainingServicesToPoll(servicesWithLastOperation);
-        execution.getStepLogger()
-                 .debug(Messages.REMAINING_SERVICES_TO_POLL, JsonUtil.toJson(remainingServicesToPoll, true));
-        execution.setVariable(Variables.SERVICES_TO_POLL, remainingServicesToPoll);
+        context.getStepLogger()
+               .debug(Messages.REMAINING_SERVICES_TO_POLL, JsonUtil.toJson(remainingServicesToPoll, true));
+        context.setVariable(Variables.SERVICES_TO_POLL, remainingServicesToPoll);
 
         if (remainingServicesToPoll.isEmpty()) {
             return AsyncExecutionState.FINISHED;
@@ -67,11 +67,11 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         return AsyncExecutionState.RUNNING;
     }
 
-    protected List<CloudServiceExtended> getServiceOperationsToPoll(ExecutionWrapper execution,
+    protected List<CloudServiceExtended> getServiceOperationsToPoll(ProcessContext context,
                                                                     Map<String, ServiceOperation.Type> triggeredServiceOperations) {
-        List<CloudServiceExtended> servicesToPoll = execution.getVariable(Variables.SERVICES_TO_POLL);
+        List<CloudServiceExtended> servicesToPoll = context.getVariable(Variables.SERVICES_TO_POLL);
         if (CollectionUtils.isEmpty(servicesToPoll)) {
-            return computeServicesToPoll(execution, triggeredServiceOperations);
+            return computeServicesToPoll(context, triggeredServiceOperations);
         }
         return servicesToPoll;
     }
@@ -83,19 +83,19 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
                        .collect(Collectors.toList());
     }
 
-    protected List<CloudServiceExtended> computeServicesToPoll(ExecutionWrapper execution,
+    protected List<CloudServiceExtended> computeServicesToPoll(ProcessContext context,
                                                                Map<String, ServiceOperation.Type> triggeredServiceOperations) {
-        List<CloudServiceExtended> servicesData = getServicesData(execution.getContext());
+        List<CloudServiceExtended> servicesData = getServicesData(context.getExecution());
         return getServicesWithTriggeredOperations(servicesData, triggeredServiceOperations);
     }
 
-    private ServiceOperation getLastServiceOperationAndHandleExceptions(ExecutionWrapper execution, CloudServiceExtended service) {
+    private ServiceOperation getLastServiceOperationAndHandleExceptions(ProcessContext context, CloudServiceExtended service) {
         try {
-            ServiceOperation lastServiceOperation = getLastServiceOperation(execution, service);
+            ServiceOperation lastServiceOperation = getLastServiceOperation(context, service);
             if (lastServiceOperation != null) {
-                return mapOperationState(execution.getStepLogger(), lastServiceOperation, service);
+                return mapOperationState(context.getStepLogger(), lastServiceOperation, service);
             }
-            handleMissingOperationState(execution.getStepLogger(), service);
+            handleMissingOperationState(context.getStepLogger(), service);
             return null;
         } catch (CloudOperationException e) {
             String errorMessage = format(Messages.ERROR_POLLING_OF_SERVICE, service.getName(), e.getStatusText());
@@ -103,8 +103,8 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         }
     }
 
-    private ServiceOperation getLastServiceOperation(ExecutionWrapper execution, CloudServiceExtended service) {
-        return serviceOperationGetter.getLastServiceOperation(execution, service);
+    private ServiceOperation getLastServiceOperation(ProcessContext context, CloudServiceExtended service) {
+        return serviceOperationGetter.getLastServiceOperation(context, service);
     }
 
     protected ServiceOperation mapOperationState(StepLogger stepLogger, ServiceOperation lastServiceOperation,
@@ -117,16 +117,16 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         return lastServiceOperation;
     }
 
-    protected void reportDetailedServicesStates(ExecutionWrapper execution,
+    protected void reportDetailedServicesStates(ProcessContext context,
                                                 Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation) {
         for (Entry<CloudServiceExtended, ServiceOperation> serviceWithLastOperation : servicesWithLastOperation.entrySet()) {
-            reportServiceState(execution, serviceWithLastOperation.getKey(), serviceWithLastOperation.getValue());
+            reportServiceState(context, serviceWithLastOperation.getKey(), serviceWithLastOperation.getValue());
         }
     }
 
-    private void reportOverallProgress(ExecutionWrapper execution, List<ServiceOperation> lastServicesOperations,
+    private void reportOverallProgress(ProcessContext context, List<ServiceOperation> lastServicesOperations,
                                        Map<String, ServiceOperation.Type> triggeredServiceOperations) {
-        serviceProgressReporter.reportOverallProgress(execution, lastServicesOperations, triggeredServiceOperations);
+        serviceProgressReporter.reportOverallProgress(context, lastServicesOperations, triggeredServiceOperations);
     }
 
     protected List<CloudServiceExtended> getRemainingServicesToPoll(Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation) {
@@ -138,9 +138,9 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
                                         .collect(Collectors.toList());
     }
 
-    protected abstract List<CloudServiceExtended> getServicesData(DelegateExecution context);
+    protected abstract List<CloudServiceExtended> getServicesData(DelegateExecution execution);
 
-    protected abstract void reportServiceState(ExecutionWrapper execution, CloudServiceExtended service, ServiceOperation lastOperation);
+    protected abstract void reportServiceState(ProcessContext context, CloudServiceExtended service, ServiceOperation lastOperation);
 
     protected abstract void handleMissingOperationState(StepLogger stepLogger, CloudServiceExtended service);
 

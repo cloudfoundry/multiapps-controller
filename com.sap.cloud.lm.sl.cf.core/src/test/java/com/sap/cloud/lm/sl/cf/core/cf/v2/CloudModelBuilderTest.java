@@ -653,7 +653,8 @@ public class CloudModelBuilderTest {
 
     @Test
     public void testGetServices() {
-        tester.test(() -> servicesBuilder.build(resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources())), expectedServices);
+        tester.test(() -> servicesBuilder.build(resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources())),
+                    expectedServices);
     }
 
 }

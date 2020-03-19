@@ -42,9 +42,9 @@ public class ErrorProcessListener extends AbstractFlowableEngineEventListener {
     }
 
     private void handleWithCorrelationId(FlowableEngineEvent event, Runnable handlerFunction) {
-        DelegateExecution context = getExecution(event);
-        if (context != null) {
-            LoggingUtil.logWithCorrelationId(StepsUtil.getCorrelationId(context), handlerFunction);
+        DelegateExecution execution = getExecution(event);
+        if (execution != null) {
+            LoggingUtil.logWithCorrelationId(StepsUtil.getCorrelationId(execution), handlerFunction);
             return;
         }
         handlerFunction.run();

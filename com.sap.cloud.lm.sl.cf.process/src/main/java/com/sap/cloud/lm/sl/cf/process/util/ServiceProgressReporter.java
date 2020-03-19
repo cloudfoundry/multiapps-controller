@@ -12,23 +12,23 @@ import javax.inject.Named;
 
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.model.TypedServiceOperationState;
-import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
+import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
 
 @Named
 public class ServiceProgressReporter {
 
-    public void reportOverallProgress(ExecutionWrapper execution, List<ServiceOperation> lastServicesOperations,
+    public void reportOverallProgress(ProcessContext context, List<ServiceOperation> lastServicesOperations,
                                       Map<String, ServiceOperation.Type> triggeredServiceOperations) {
         List<TypedServiceOperationState> nonFinalStates = getNonFinalStates(lastServicesOperations);
         String nonFinalStateStrings = getStateStrings(nonFinalStates);
 
         int doneOperations = triggeredServiceOperations.size() - nonFinalStates.size();
         if (!nonFinalStateStrings.isEmpty()) {
-            execution.getStepLogger()
-                     .info("{0} of {1} done, ({2})", doneOperations, triggeredServiceOperations.size(), nonFinalStateStrings);
+            context.getStepLogger()
+                   .info("{0} of {1} done, ({2})", doneOperations, triggeredServiceOperations.size(), nonFinalStateStrings);
         } else {
-            execution.getStepLogger()
-                     .info("{0} of {0} done", triggeredServiceOperations.size());
+            context.getStepLogger()
+                   .info("{0} of {0} done", triggeredServiceOperations.size());
         }
     }
 

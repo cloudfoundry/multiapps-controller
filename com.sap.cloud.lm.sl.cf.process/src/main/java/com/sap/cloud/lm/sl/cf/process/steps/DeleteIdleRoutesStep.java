@@ -21,16 +21,16 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 public class DeleteIdleRoutesStep extends SyncFlowableStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        boolean deleteIdleRoutes = StepsUtil.getDeleteIdleUris(execution.getContext());
-        CloudApplication existingApp = execution.getVariable(Variables.EXISTING_APP);
+    protected StepPhase executeStep(ProcessContext context) {
+        boolean deleteIdleRoutes = StepsUtil.getDeleteIdleUris(context.getExecution());
+        CloudApplication existingApp = context.getVariable(Variables.EXISTING_APP);
         if (!deleteIdleRoutes || existingApp == null) {
             return StepPhase.DONE;
         }
 
         getStepLogger().debug(Messages.DELETING_IDLE_URIS);
-        CloudControllerClient client = execution.getControllerClient();
-        CloudApplication app = execution.getVariable(Variables.APP_TO_PROCESS);
+        CloudControllerClient client = context.getControllerClient();
+        CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
 
         deleteIdleRoutes(existingApp, client, app);
 
@@ -39,7 +39,7 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_DELETING_IDLE_ROUTES;
     }
 

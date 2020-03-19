@@ -124,16 +124,16 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
         if (exception != null) {
             expectedException.expect(exception);
         }
-        step.execute(context);
+        step.execute(execution);
         assertStepFinishedSuccessfully();
-        assertEquals(expectedAppStateActions, StepsUtil.getAppStateActionsToExecute(context));
+        assertEquals(expectedAppStateActions, StepsUtil.getAppStateActionsToExecute(execution));
     }
 
     @Before
     public void setUpProperties() {
-        context.setVariable(Constants.VAR_VCAP_APP_PROPERTIES_CHANGED, false);
-        context.setVariable(Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED, false);
-        context.setVariable(Constants.VAR_USER_PROPERTIES_CHANGED, false);        
+        execution.setVariable(Constants.VAR_VCAP_APP_PROPERTIES_CHANGED, false);
+        execution.setVariable(Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED, false);
+        execution.setVariable(Constants.VAR_USER_PROPERTIES_CHANGED, false);        
     }
 
     @Override
@@ -218,9 +218,9 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
 
         @Test
         public void testParameters() {
-            step.execute(context);
+            step.execute(execution);
 
-            assertEquals(expectedAppStateActions, StepsUtil.getAppStateActionsToExecute(context));
+            assertEquals(expectedAppStateActions, StepsUtil.getAppStateActionsToExecute(execution));
         }
 
         @Override
@@ -230,9 +230,9 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
 
         @Before
         public void setUpProperties() {
-            context.setVariable(Constants.VAR_VCAP_APP_PROPERTIES_CHANGED, vcapPropertiesChanged);
-            context.setVariable(Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED, vcapServicesChanged);
-            context.setVariable(Constants.VAR_USER_PROPERTIES_CHANGED, userPropertiesChanged);
+            execution.setVariable(Constants.VAR_VCAP_APP_PROPERTIES_CHANGED, vcapPropertiesChanged);
+            execution.setVariable(Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED, vcapServicesChanged);
+            execution.setVariable(Constants.VAR_USER_PROPERTIES_CHANGED, userPropertiesChanged);
         }
 
         @Override

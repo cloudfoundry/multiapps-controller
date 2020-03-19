@@ -25,7 +25,7 @@ public class UpdateServiceMetadataStepTest extends SyncFlowableStepTest<UpdateSe
         prepareServiceToProcess(serviceToProcess);
         prepareClient(serviceToProcess);
 
-        step.execute(context);
+        step.execute(execution);
 
         verify(client).updateServiceMetadata(serviceToProcess.getMetadata()
                                                              .getGuid(),
@@ -45,7 +45,7 @@ public class UpdateServiceMetadataStepTest extends SyncFlowableStepTest<UpdateSe
     }
 
     private void prepareServiceToProcess(CloudServiceExtended serviceToProcess) {
-        execution.setVariable(Variables.SERVICE_TO_PROCESS, serviceToProcess);
+        context.setVariable(Variables.SERVICE_TO_PROCESS, serviceToProcess);
     }
 
     private void prepareClient(CloudServiceExtended serviceToProcess) {

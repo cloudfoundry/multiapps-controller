@@ -63,7 +63,7 @@ public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<C
         prepareClient(service, serviceExist);
         prepareServiceInstanceGetter(service, serviceOperation);
 
-        step.execute(context);
+        step.execute(execution);
         validateExecution(serviceName, expectedTriggeredServiceOperation, expectedStatus);
     }
 
@@ -74,8 +74,8 @@ public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<C
     }
 
     protected void prepareContext(CloudServiceExtended service) {
-        StepsUtil.setSpaceId(context, TEST_SPACE_ID);
-        execution.setVariable(Variables.SERVICE_TO_PROCESS, service);
+        StepsUtil.setSpaceId(execution, TEST_SPACE_ID);
+        context.setVariable(Variables.SERVICE_TO_PROCESS, service);
     }
 
     private void prepareServiceInstanceGetter(CloudServiceExtended service, ServiceOperation serviceOperation) {
@@ -85,7 +85,7 @@ public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<C
     }
 
     private void validateExecution(String serviceName, ServiceOperation.Type expectedTriggeredServiceOperation, String expectedStatus) {
-        Map<String, ServiceOperation.Type> triggeredServiceOperations = execution.getVariable(Variables.TRIGGERED_SERVICE_OPERATIONS);
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = context.getVariable(Variables.TRIGGERED_SERVICE_OPERATIONS);
         ServiceOperation.Type serviceOperationType = MapUtils.getObject(triggeredServiceOperations, serviceName);
         assertEquals(serviceOperationType, expectedTriggeredServiceOperation);
         assertEquals(expectedStatus, getExecutionStatus());

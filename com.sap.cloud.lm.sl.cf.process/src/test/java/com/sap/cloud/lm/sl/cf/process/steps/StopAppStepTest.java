@@ -69,7 +69,7 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
@@ -81,9 +81,9 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     }
 
     private void prepareContext() {
-        context.setVariable(Constants.VAR_MODULES_INDEX, 0);
-        StepsTestUtil.mockApplicationsToDeploy(toCloudApplication(), context);
-        execution.setVariable(Variables.EXISTING_APP, (existingApplication != null) ? existingApplication.toCloudApplication() : null);
+        execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
+        StepsTestUtil.mockApplicationsToDeploy(toCloudApplication(), execution);
+        context.setVariable(Variables.EXISTING_APP, (existingApplication != null) ? existingApplication.toCloudApplication() : null);
     }
 
     List<CloudApplicationExtended> toCloudApplication() {

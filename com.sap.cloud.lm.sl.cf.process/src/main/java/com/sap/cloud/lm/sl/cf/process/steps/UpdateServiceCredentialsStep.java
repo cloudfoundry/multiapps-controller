@@ -25,7 +25,7 @@ public class UpdateServiceCredentialsStep extends ServiceStep {
     protected ServiceUpdater serviceUpdater;
 
     @Override
-    protected MethodExecution<String> executeOperation(ExecutionWrapper execution, CloudControllerClient controllerClient,
+    protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
                                                        CloudServiceExtended service) {
         return updateServiceCredentials(controllerClient, service);
     }
@@ -45,7 +45,7 @@ public class UpdateServiceCredentialsStep extends ServiceStep {
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
+    protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         return Collections.singletonList(new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(),
                                                                                           getServiceProgressReporter()));
     }

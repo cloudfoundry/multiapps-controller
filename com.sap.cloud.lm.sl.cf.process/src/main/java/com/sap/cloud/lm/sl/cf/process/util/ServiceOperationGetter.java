@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
+import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 
 @Named
@@ -31,33 +31,33 @@ public class ServiceOperationGetter {
         this.eventsGetter = eventsGetter;
     }
 
-    public ServiceOperation getLastServiceOperation(ExecutionWrapper execution, CloudServiceExtended service) {
-        Map<String, Object> serviceInstanceEntity = getServiceInstanceEntity(execution, service);
+    public ServiceOperation getLastServiceOperation(ProcessContext context, CloudServiceExtended service) {
+        Map<String, Object> serviceInstanceEntity = getServiceInstanceEntity(context, service);
 
         if (MapUtils.isEmpty(serviceInstanceEntity)) {
-            return getLastDeleteServiceOperation(execution, service);
+            return getLastDeleteServiceOperation(context, service);
         }
 
         return getLastServiceOperation(serviceInstanceEntity);
     }
 
-    private Map<String, Object> getServiceInstanceEntity(ExecutionWrapper execution, CloudServiceExtended service) {
-        CloudControllerClient client = execution.getControllerClient();
-        return serviceGetter.getServiceInstanceEntity(client, service.getName(), StepsUtil.getSpaceId(execution.getContext()));
+    private Map<String, Object> getServiceInstanceEntity(ProcessContext context, CloudServiceExtended service) {
+        CloudControllerClient client = context.getControllerClient();
+        return serviceGetter.getServiceInstanceEntity(client, service.getName(), StepsUtil.getSpaceId(context.getExecution()));
     }
 
-    private ServiceOperation getLastDeleteServiceOperation(ExecutionWrapper execution, CloudServiceExtended service) {
+    private ServiceOperation getLastDeleteServiceOperation(ProcessContext context, CloudServiceExtended service) {
         if (service.getMetadata() == null) {
             return null;
         }
-        boolean isServiceDeleted = isServiceDeleted(execution, service.getMetadata()
-                                                                      .getGuid());
+        boolean isServiceDeleted = isServiceDeleted(context, service.getMetadata()
+                                                                    .getGuid());
         ServiceOperation.State operationState = isServiceDeleted ? ServiceOperation.State.SUCCEEDED : ServiceOperation.State.IN_PROGRESS;
         return new ServiceOperation(ServiceOperation.Type.DELETE, ServiceOperation.Type.DELETE.name(), operationState);
     }
 
-    private boolean isServiceDeleted(ExecutionWrapper execution, UUID uuid) {
-        List<CloudEvent> serviceEvent = eventsGetter.getEvents(uuid, execution.getControllerClient());
+    private boolean isServiceDeleted(ProcessContext context, UUID uuid) {
+        List<CloudEvent> serviceEvent = eventsGetter.getEvents(uuid, context.getControllerClient());
         return serviceEvent.stream()
                            .filter(Objects::nonNull)
                            .anyMatch(e -> eventsGetter.isDeleteEvent(e.getType()));

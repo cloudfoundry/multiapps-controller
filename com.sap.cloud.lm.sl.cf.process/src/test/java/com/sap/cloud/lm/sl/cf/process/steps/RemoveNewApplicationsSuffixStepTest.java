@@ -1,10 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
-import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
-import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
-import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.variables.Variables;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,9 +10,11 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
+import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<RemoveNewApplicationsSuffixStep> {
 
@@ -26,7 +26,7 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
 
     @BeforeEach
     public void setUp() {
-        context.setVariable(Constants.PARAM_KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
+        execution.setVariable(Constants.PARAM_KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
         Mockito.when(query.list())
                .thenReturn(Collections.emptyList());
         Mockito.when(subscriptionService.createQuery())
@@ -35,9 +35,9 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
 
     @Test
     public void testExecuteWithNoAppsToDeploy() {
-        execution.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
+        context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
 
-        step.execute(context);
+        step.execute(execution);
         assertStepFinishedSuccessfully();
 
         Mockito.verify(client, Mockito.never())
@@ -47,9 +47,9 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
     @Test
     public void testExecuteRenamesApps() {
         List<String> apps = Arrays.asList("a-idle", "b-idle");
-        execution.setVariable(Variables.APPS_TO_DEPLOY, apps);
+        context.setVariable(Variables.APPS_TO_DEPLOY, apps);
 
-        step.execute(context);
+        step.execute(execution);
         assertStepFinishedSuccessfully();
 
         for (String app : apps) {
@@ -65,9 +65,9 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
         Mockito.when(subscriptionService.createQuery())
                .thenReturn(query);
 
-        execution.setVariable(Variables.APPS_TO_DEPLOY, Collections.singletonList("a-idle"));
+        context.setVariable(Variables.APPS_TO_DEPLOY, Collections.singletonList("a-idle"));
 
-        step.execute(context);
+        step.execute(execution);
         assertStepFinishedSuccessfully();
 
         Mockito.verify(subscriptionService)

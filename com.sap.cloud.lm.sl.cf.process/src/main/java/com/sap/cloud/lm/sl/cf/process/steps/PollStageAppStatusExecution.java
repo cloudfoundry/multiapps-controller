@@ -30,20 +30,20 @@ public class PollStageAppStatusExecution implements AsyncExecution {
     }
 
     @Override
-    public AsyncExecutionState execute(ExecutionWrapper execution) {
-        CloudApplication application = execution.getVariable(Variables.APP_TO_PROCESS);
-        CloudControllerClient client = execution.getControllerClient();
-        StepLogger stepLogger = execution.getStepLogger();
+    public AsyncExecutionState execute(ProcessContext context) {
+        CloudApplication application = context.getVariable(Variables.APP_TO_PROCESS);
+        CloudControllerClient client = context.getControllerClient();
+        StepLogger stepLogger = context.getStepLogger();
         stepLogger.debug(Messages.CHECKING_APP_STATUS, application.getName());
 
         StagingState state = applicationStager.getStagingState();
         stepLogger.debug(Messages.APP_STAGING_STATUS, application.getName(), state.getState());
 
         ProcessLoggerProvider processLoggerProvider = stepLogger.getProcessLoggerProvider();
-        StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, application, LOGGER, processLoggerProvider);
+        StepsUtil.saveAppLogs(context.getExecution(), client, recentLogsRetriever, application, LOGGER, processLoggerProvider);
 
         if (state.getState() != PackageState.STAGED) {
-            return checkStagingState(execution.getStepLogger(), application, state);
+            return checkStagingState(context.getStepLogger(), application, state);
         }
         bindDropletToApplication(client, application);
         stepLogger.info(Messages.APP_STAGED, application.getName());
@@ -51,8 +51,8 @@ public class PollStageAppStatusExecution implements AsyncExecution {
     }
 
     @Override
-    public String getPollingErrorMessage(ExecutionWrapper execution) {
-        CloudApplication application = execution.getVariable(Variables.APP_TO_PROCESS);
+    public String getPollingErrorMessage(ProcessContext context) {
+        CloudApplication application = context.getVariable(Variables.APP_TO_PROCESS);
         return MessageFormat.format(Messages.ERROR_STAGING_APP_0, application.getName());
     }
 

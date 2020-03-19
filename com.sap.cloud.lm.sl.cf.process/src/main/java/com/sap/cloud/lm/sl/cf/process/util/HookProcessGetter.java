@@ -29,22 +29,22 @@ public class HookProcessGetter {
         this.flowableFacade = flowableFacade;
     }
 
-    public String get(String hookForExecutionString, DelegateExecution context) {
+    public String get(String hookForExecutionString, DelegateExecution execution) {
         Hook hookForExecution = JsonUtil.fromJson(hookForExecutionString, Hook.class);
         if (TaskHookParser.HOOK_TYPE_TASK.equals(hookForExecution.getType())) {
             return Constants.EXECUTE_HOOK_TASKS_SUB_PROCESS_ID;
         }
 
         String errorMessage = MessageFormat.format("Unsupported hook type \"{0}\"", hookForExecution.getType());
-        preserveErrorMessage(context, errorMessage);
+        preserveErrorMessage(execution, errorMessage);
 
         throw new IllegalStateException(errorMessage);
     }
 
-    private void preserveErrorMessage(DelegateExecution context, String errorMessage) {
+    private void preserveErrorMessage(DelegateExecution execution, String errorMessage) {
         progressMessageService.add(ImmutableProgressMessage.builder()
-                                                           .processId(flowableFacade.getProcessInstanceId(context.getId()))
-                                                           .taskId(context.getCurrentActivityId())
+                                                           .processId(flowableFacade.getProcessInstanceId(execution.getId()))
+                                                           .taskId(execution.getCurrentActivityId())
                                                            .type(ProgressMessageType.ERROR)
                                                            .text(errorMessage)
                                                            .timestamp(getCurrentTime())

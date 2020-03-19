@@ -27,7 +27,7 @@ public class ProcessLoggerProviderTest {
     private static final String TEST_FILE_NAME = "testLoggerFile";
 
     @Mock
-    private DelegateExecution context;
+    private DelegateExecution execution;
 
     private Path temporaryLogFile;
     private ProcessLoggerProvider processLoggerProvider;
@@ -63,7 +63,7 @@ public class ProcessLoggerProviderTest {
     public void testGetLogger() {
         prepareContext();
 
-        processLogger = processLoggerProvider.getLogger(context);
+        processLogger = processLoggerProvider.getLogger(execution);
 
         assertEquals(CORRELATION_ID, processLogger.getProcessId());
         assertEquals(TASK_ID, processLogger.getActivityId());
@@ -72,16 +72,16 @@ public class ProcessLoggerProviderTest {
     }
 
     private void prepareContext() {
-        when(context.getVariable(Constants.CORRELATION_ID)).thenReturn(CORRELATION_ID);
-        when(context.getVariable(Constants.TASK_ID)).thenReturn(TASK_ID);
-        when(context.getVariable(Constants.VARIABLE_NAME_SPACE_ID)).thenReturn(SPACE_ID);
+        when(execution.getVariable(Constants.CORRELATION_ID)).thenReturn(CORRELATION_ID);
+        when(execution.getVariable(Constants.TASK_ID)).thenReturn(TASK_ID);
+        when(execution.getVariable(Constants.VARIABLE_NAME_SPACE_ID)).thenReturn(SPACE_ID);
     }
 
     @Test
     public void testGetExistingLogger() {
         prepareContext();
 
-        processLogger = processLoggerProvider.getLogger(context);
+        processLogger = processLoggerProvider.getLogger(execution);
         ProcessLogger existingLogger = processLoggerProvider.getExistingLoggers(CORRELATION_ID, TASK_ID)
                                                             .get(0);
 
@@ -91,7 +91,7 @@ public class ProcessLoggerProviderTest {
 
     @Test
     public void testGetNullProcessLogger() {
-        processLogger = processLoggerProvider.getLogger(context);
+        processLogger = processLoggerProvider.getLogger(execution);
 
         assertTrue(processLogger instanceof NullProcessLogger,
                    MessageFormat.format("Expected NullProcessLogger but was {0}", processLogger.getClass()

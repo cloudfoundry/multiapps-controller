@@ -39,12 +39,12 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     private final ResilientOperationExecutor resilientOperationExecutor = new ResilientOperationExecutor();
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.VALIDATING_PARAMETERS);
 
-        validateParameters(execution.getContext());
-        String space = StepsUtil.getSpace(execution.getContext());
-        String org = StepsUtil.getOrg(execution.getContext());
+        validateParameters(context.getExecution());
+        String space = StepsUtil.getSpace(context.getExecution());
+        String org = StepsUtil.getOrg(context.getExecution());
         getStepLogger().info(Messages.DEPLOYING_IN_ORG_0_AND_SPACE_1, org, space);
 
         getStepLogger().debug(Messages.PARAMETERS_VALIDATED);
@@ -52,19 +52,19 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_VALIDATING_PARAMS;
     }
 
-    private void validateParameters(DelegateExecution context) {
-        validateStartTimeout(context);
-        validateExtensionDescriptorFileIds(context);
-        validateVersionRule(context);
-        validateArchive(context);
+    private void validateParameters(DelegateExecution execution) {
+        validateStartTimeout(execution);
+        validateExtensionDescriptorFileIds(execution);
+        validateVersionRule(execution);
+        validateArchive(execution);
     }
 
-    private void validateStartTimeout(DelegateExecution context) {
-        Object parameter = context.getVariable(Constants.PARAM_START_TIMEOUT);
+    private void validateStartTimeout(DelegateExecution execution) {
+        Object parameter = execution.getVariable(Constants.PARAM_START_TIMEOUT);
         if (parameter == null) {
             return;
         }
@@ -74,22 +74,22 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         }
     }
 
-    private void validateExtensionDescriptorFileIds(DelegateExecution context) {
-        String extensionDescriptorFileId = (String) context.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
+    private void validateExtensionDescriptorFileIds(DelegateExecution execution) {
+        String extensionDescriptorFileId = (String) execution.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
         if (extensionDescriptorFileId == null) {
             return;
         }
 
         String[] extensionDescriptorFileIds = extensionDescriptorFileId.split(",");
         for (String fileId : extensionDescriptorFileIds) {
-            FileEntry file = findFile(context, fileId);
+            FileEntry file = findFile(execution, fileId);
             validateDescriptorSize(file);
         }
     }
 
-    private FileEntry findFile(DelegateExecution context, String fileId) {
+    private FileEntry findFile(DelegateExecution execution, String fileId) {
         try {
-            String space = StepsUtil.getSpaceId(context);
+            String space = StepsUtil.getSpaceId(execution);
             FileEntry fileEntry = fileService.getFile(space, fileId);
             if (fileEntry == null) {
                 throw new SLException(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1, fileId, space);
@@ -112,8 +112,8 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         }
     }
 
-    private void validateVersionRule(DelegateExecution context) {
-        String versionRuleString = (String) context.getVariable(Constants.PARAM_VERSION_RULE);
+    private void validateVersionRule(DelegateExecution execution) {
+        String versionRuleString = (String) execution.getVariable(Constants.PARAM_VERSION_RULE);
         try {
             VersionRule.value(versionRuleString);
         } catch (IllegalArgumentException e) {
@@ -125,9 +125,9 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         }
     }
 
-    private void validateArchive(DelegateExecution context) {
-        String[] archivePartIds = getArchivePartIds(context);
-        if (!StepsUtil.shouldVerifyArchiveSignature(context) && archivePartIds.length == 1) {
+    private void validateArchive(DelegateExecution execution) {
+        String[] archivePartIds = getArchivePartIds(execution);
+        if (!StepsUtil.shouldVerifyArchiveSignature(execution) && archivePartIds.length == 1) {
             // The archive doesn't need "validation", i.e. merging or signature verification.
             // TODO The merging of chunks should be done prior to this step, since it's not really a validation, but we may need the result
             // here, if the user wants us to verify the archive's signature.
@@ -135,40 +135,40 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         }
         Path archive = null;
         try {
-            archive = mergeArchiveParts(context, archivePartIds);
-            verifyArchiveSignature(context, archive);
+            archive = mergeArchiveParts(execution, archivePartIds);
+            verifyArchiveSignature(execution, archive);
             if (archivePartIds.length != 1) {
-                persistMergedArchive(context, archive);
+                persistMergedArchive(execution, archive);
             }
         } finally {
             deleteArchive(archive);
         }
     }
 
-    private String[] getArchivePartIds(DelegateExecution context) {
-        String archiveId = StepsUtil.getRequiredString(context, Constants.PARAM_APP_ARCHIVE_ID);
+    private String[] getArchivePartIds(DelegateExecution execution) {
+        String archiveId = StepsUtil.getRequiredString(execution, Constants.PARAM_APP_ARCHIVE_ID);
         return archiveId.split(",");
     }
 
-    private Path mergeArchiveParts(DelegateExecution context, String[] archivePartIds) {
-        List<FileEntry> archivePartEntries = getArchivePartEntries(context, archivePartIds);
-        StepsUtil.setAsJsonBinaries(context, Constants.VAR_FILE_ENTRIES, archivePartEntries);
+    private Path mergeArchiveParts(DelegateExecution execution, String[] archivePartIds) {
+        List<FileEntry> archivePartEntries = getArchivePartEntries(execution, archivePartIds);
+        StepsUtil.setAsJsonBinaries(execution, Constants.VAR_FILE_ENTRIES, archivePartEntries);
         getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
-        return resilientOperationExecutor.execute(createArchiveFromParts(context, archivePartEntries));
+        return resilientOperationExecutor.execute(createArchiveFromParts(execution, archivePartEntries));
     }
 
-    private List<FileEntry> getArchivePartEntries(DelegateExecution context, String[] appArchivePartsId) {
+    private List<FileEntry> getArchivePartEntries(DelegateExecution execution, String[] appArchivePartsId) {
         return Arrays.stream(appArchivePartsId)
-                     .map(appArchivePartId -> findFile(context, appArchivePartId))
+                     .map(appArchivePartId -> findFile(execution, appArchivePartId))
                      .collect(Collectors.toList());
     }
 
-    private Supplier<Path> createArchiveFromParts(DelegateExecution context, List<FileEntry> archivePartEntries) {
-        return () -> new ArchiveMerger(fileService, getStepLogger(), context).createArchiveFromParts(archivePartEntries);
+    private Supplier<Path> createArchiveFromParts(DelegateExecution execution, List<FileEntry> archivePartEntries) {
+        return () -> new ArchiveMerger(fileService, getStepLogger(), execution).createArchiveFromParts(archivePartEntries);
     }
 
-    private void verifyArchiveSignature(DelegateExecution context, Path archiveFilePath) {
-        if (!StepsUtil.shouldVerifyArchiveSignature(context)) {
+    private void verifyArchiveSignature(DelegateExecution execution, Path archiveFilePath) {
+        if (!StepsUtil.shouldVerifyArchiveSignature(execution)) {
             return;
         }
         getStepLogger().debug(Messages.VERIFYING_ARCHIVE_0, archiveFilePath);
@@ -192,19 +192,19 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         }
     }
 
-    private void persistMergedArchive(DelegateExecution context, Path archiveFilePath) {
-        resilientOperationExecutor.execute(() -> persistMergedArchive(archiveFilePath, context));
+    private void persistMergedArchive(DelegateExecution execution, Path archiveFilePath) {
+        resilientOperationExecutor.execute(() -> persistMergedArchive(archiveFilePath, execution));
     }
 
-    private void persistMergedArchive(Path archivePath, DelegateExecution context) {
-        FileEntry uploadedArchive = persistArchive(archivePath, context);
-        context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedArchive.getId());
+    private void persistMergedArchive(Path archivePath, DelegateExecution execution) {
+        FileEntry uploadedArchive = persistArchive(archivePath, execution);
+        execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedArchive.getId());
     }
 
-    private FileEntry persistArchive(Path archivePath, DelegateExecution context) {
+    private FileEntry persistArchive(Path archivePath, DelegateExecution execution) {
         try {
-            return fileService.addFile(StepsUtil.getSpaceId(context), StepsUtil.getServiceId(context), archivePath.getFileName()
-                                                                                                                  .toString(),
+            return fileService.addFile(StepsUtil.getSpaceId(execution), StepsUtil.getServiceId(execution), archivePath.getFileName()
+                                                                                                                      .toString(),
                                        archivePath.toFile());
         } catch (FileStorageException e) {
             throw new SLException(e, e.getMessage());

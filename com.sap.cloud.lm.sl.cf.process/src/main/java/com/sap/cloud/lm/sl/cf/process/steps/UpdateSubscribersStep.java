@@ -100,13 +100,13 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     private ModuleToDeployHelper moduleToDeployHelper;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.UPDATING_SUBSCRIBERS);
-        List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(execution.getContext(), flowableFacade);
-        List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(execution.getContext(), flowableFacade);
+        List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context.getExecution(), flowableFacade);
+        List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(context.getExecution(), flowableFacade);
         List<ConfigurationEntry> updatedEntries = ListUtils.union(publishedEntries, deletedEntries);
 
-        CloudControllerClient clientForCurrentSpace = execution.getControllerClient();
+        CloudControllerClient clientForCurrentSpace = context.getControllerClient();
 
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         List<CloudApplication> updatedServiceBrokerSubscribers = new ArrayList<>();
@@ -120,20 +120,20 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
                 getStepLogger().warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
                 continue;
             }
-            CloudApplication updatedApplication = updateSubscriber(execution, target, subscription);
+            CloudApplication updatedApplication = updateSubscriber(context, target, subscription);
             if (updatedApplication != null) {
                 updatedApplication = addOrgAndSpaceIfNecessary(updatedApplication, target);
                 addApplicationToProperList(updatedSubscribers, updatedServiceBrokerSubscribers, updatedApplication);
             }
         }
-        execution.setVariable(Variables.UPDATED_SUBSCRIBERS, removeDuplicates(updatedSubscribers));
-        execution.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS, updatedServiceBrokerSubscribers);
+        context.setVariable(Variables.UPDATED_SUBSCRIBERS, removeDuplicates(updatedSubscribers));
+        context.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS, updatedServiceBrokerSubscribers);
         getStepLogger().debug(Messages.SUBSCRIBERS_UPDATED);
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_UPDATING_SUBSCRIBERS;
     }
 
@@ -187,9 +187,9 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         return new ArrayList<>(applicationsMap.values());
     }
 
-    private CloudApplication updateSubscriber(ExecutionWrapper execution, CloudTarget cloudTarget, ConfigurationSubscription subscription) {
+    private CloudApplication updateSubscriber(ProcessContext context, CloudTarget cloudTarget, ConfigurationSubscription subscription) {
         try {
-            return attemptToUpdateSubscriber(execution.getContext(), getClient(execution, cloudTarget), subscription);
+            return attemptToUpdateSubscriber(context.getExecution(), getClient(context, cloudTarget), subscription);
         } catch (CloudOperationException | SLException e) {
             String appName = subscription.getAppName();
             String mtaId = subscription.getMtaId();
@@ -199,7 +199,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         }
     }
 
-    private CloudApplication attemptToUpdateSubscriber(DelegateExecution context, CloudControllerClient client,
+    private CloudApplication attemptToUpdateSubscriber(DelegateExecution execution, CloudControllerClient client,
                                                        ConfigurationSubscription subscription) {
         HandlerFactory handlerFactory = new HandlerFactory(MAJOR_SCHEMA_VERSION);
 
@@ -208,8 +208,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(configurationEntryService,
                                                                                                      new DummyConfigurationFilterParser(subscription.getFilter()),
-                                                                                                     new CloudTarget(StepsUtil.getOrg(context),
-                                                                                                                     StepsUtil.getSpace(context)),
+                                                                                                     new CloudTarget(StepsUtil.getOrg(execution),
+                                                                                                                     StepsUtil.getSpace(execution)),
                                                                                                      configuration);
         resolver.resolve(dummyDescriptor);
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(dummyDescriptor));
@@ -299,8 +299,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
                            .get(0);
     }
 
-    private CloudControllerClient getClient(ExecutionWrapper execution, CloudTarget cloudTarget) {
-        return execution.getControllerClient(cloudTarget.getOrganizationName(), cloudTarget.getSpaceName());
+    private CloudControllerClient getClient(ProcessContext context, CloudTarget cloudTarget) {
+        return context.getControllerClient(cloudTarget.getOrganizationName(), cloudTarget.getSpaceName());
     }
 
     private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, HandlerFactory handlerFactory) {

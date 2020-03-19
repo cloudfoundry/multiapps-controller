@@ -31,14 +31,14 @@ public class UpdateServiceKeysStep extends ServiceStep {
     private ServiceOperationExecutor serviceOperationExecutor;
 
     @Override
-    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
+    protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         throw new UnsupportedOperationException("Update service keys is not a pollable operation.");
     }
 
-    private MethodExecution<String> createOrUpdateServiceKeys(ExecutionWrapper execution, CloudControllerClient client,
+    private MethodExecution<String> createOrUpdateServiceKeys(ProcessContext context, CloudControllerClient client,
                                                               CloudServiceExtended service) {
         MethodExecution<String> methodExecution = new MethodExecution<>(null, ExecutionState.FINISHED);
-        Map<String, List<CloudServiceKey>> serviceKeysMap = execution.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
+        Map<String, List<CloudServiceKey>> serviceKeysMap = context.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
         List<CloudServiceKey> serviceKeys = serviceKeysMap.get(service.getResourceName());
 
         List<CloudServiceKey> existingServiceKeys = serviceOperationExecutor.executeServiceOperation(service,
@@ -53,7 +53,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
         List<CloudServiceKey> serviceKeysToUpdate = getServiceKeysToUpdate(serviceKeys, existingServiceKeys);
         List<CloudServiceKey> serviceKeysToDelete = getServiceKeysToDelete(serviceKeys, existingServiceKeys);
 
-        if (canDeleteServiceKeys(execution.getContext())) {
+        if (canDeleteServiceKeys(context.getExecution())) {
             deleteServiceKeys(client, serviceKeysToDelete);
             // Recreate the service keys, which should be updated, as direct update is not supported
             // by the controller:
@@ -108,8 +108,8 @@ public class UpdateServiceKeysStep extends ServiceStep {
                           .orElse(null);
     }
 
-    private boolean canDeleteServiceKeys(DelegateExecution context) {
-        return (boolean) context.getVariable(Constants.PARAM_DELETE_SERVICE_KEYS);
+    private boolean canDeleteServiceKeys(DelegateExecution execution) {
+        return (boolean) execution.getVariable(Constants.PARAM_DELETE_SERVICE_KEYS);
     }
 
     private boolean areServiceKeysEqual(CloudServiceKey key1, CloudServiceKey key2) {
@@ -147,8 +147,8 @@ public class UpdateServiceKeysStep extends ServiceStep {
     }
 
     @Override
-    protected MethodExecution<String> executeOperation(ExecutionWrapper execution, CloudControllerClient controllerClient,
+    protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
                                                        CloudServiceExtended service) {
-        return createOrUpdateServiceKeys(execution, controllerClient, service);
+        return createOrUpdateServiceKeys(context, controllerClient, service);
     }
 }

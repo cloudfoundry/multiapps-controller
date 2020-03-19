@@ -57,28 +57,28 @@ public class PrepareModulesDeploymentStepTest extends SyncFlowableStepTest<Prepa
         prepareContext();
         Mockito.when(configuration.getStepPollingIntervalInSeconds())
                .thenReturn(ApplicationConfiguration.DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS);
-        when(processTypeParser.getProcessType(context)).thenReturn(processType);
+        when(processTypeParser.getProcessType(execution)).thenReturn(processType);
     }
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
-        assertEquals(count, context.getVariable(Constants.VAR_MODULES_COUNT));
-        assertEquals(0, context.getVariable(Constants.VAR_MODULES_INDEX));
-        assertEquals(Constants.VAR_MODULES_INDEX, context.getVariable(Constants.VAR_INDEX_VARIABLE_NAME));
-        assertTrue((boolean) context.getVariable(Constants.REBUILD_APP_ENV));
-        assertTrue((boolean) context.getVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT));
-        assertTrue((boolean) context.getVariable(Constants.EXECUTE_ONE_OFF_TASKS));
+        assertEquals(count, execution.getVariable(Constants.VAR_MODULES_COUNT));
+        assertEquals(0, execution.getVariable(Constants.VAR_MODULES_INDEX));
+        assertEquals(Constants.VAR_MODULES_INDEX, execution.getVariable(Constants.VAR_INDEX_VARIABLE_NAME));
+        assertTrue((boolean) execution.getVariable(Constants.REBUILD_APP_ENV));
+        assertTrue((boolean) execution.getVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT));
+        assertTrue((boolean) execution.getVariable(Constants.EXECUTE_ONE_OFF_TASKS));
 
-        assertEquals(skipUpdateConfigurations, context.getVariable(Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES));
+        assertEquals(skipUpdateConfigurations, execution.getVariable(Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES));
     }
 
     private DelegateExecution prepareContext() {
-        StepsUtil.setAllModulesToDeploy(context, getDummyModules());
-        return context;
+        StepsUtil.setAllModulesToDeploy(execution, getDummyModules());
+        return execution;
     }
 
     private List<Module> getDummyModules() {

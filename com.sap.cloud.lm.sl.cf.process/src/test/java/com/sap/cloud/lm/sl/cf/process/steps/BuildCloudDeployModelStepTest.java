@@ -78,24 +78,24 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
     private class BuildCloudDeployModelStepMock extends BuildCloudDeployModelStep {
         @Override
-        protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ExecutionWrapper execution) {
+        protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ProcessContext context) {
             return applicationCloudModelBuilder;
         }
 
         @Override
         protected ModulesCloudModelBuilderContentCalculator
-                  getModulesContentCalculator(ExecutionWrapper execution, Set<String> mtaArchiveModules, Set<String> deployedModuleNames,
+                  getModulesContentCalculator(ProcessContext context, Set<String> mtaArchiveModules, Set<String> deployedModuleNames,
                                               Set<String> allMtaModules) {
             return modulesCloudModelBuilderContentCalculator;
         }
 
         @Override
-        protected ServicesCloudModelBuilder getServicesCloudModelBuilder(ExecutionWrapper execution) {
+        protected ServicesCloudModelBuilder getServicesCloudModelBuilder(ProcessContext context) {
             return servicesCloudModelBuilder;
         }
 
         @Override
-        protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(ExecutionWrapper execution) {
+        protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(ProcessContext context) {
             return serviceKeysCloudModelBuilder;
         }
     }
@@ -147,28 +147,29 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
     }
 
     protected void prepareContext() {
-        context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
+        execution.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
-        execution.setVariable(Variables.MTA_MODULES, Collections.emptySet());
-        execution.setVariable(Variables.MTA_ARCHIVE_MODULES, Collections.emptySet());
-        execution.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, DEPLOYMENT_DESCRIPTOR);
+        context.setVariable(Variables.MTA_MODULES, Collections.emptySet());
+        context.setVariable(Variables.MTA_ARCHIVE_MODULES, Collections.emptySet());
+        context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, DEPLOYMENT_DESCRIPTOR);
     }
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
-        tester.test(() -> StepsUtil.getServicesToBind(context), new Expectation(Expectation.Type.JSON, input.servicesToBindLocation));
-        tester.test(() -> StepsUtil.getServicesToCreate(context), new Expectation(Expectation.Type.JSON, input.servicesToCreateLocation));
-        tester.test(() -> execution.getVariable(Variables.SERVICE_KEYS_TO_CREATE),
+        tester.test(() -> StepsUtil.getServicesToBind(execution), new Expectation(Expectation.Type.JSON, input.servicesToBindLocation));
+        tester.test(() -> StepsUtil.getServicesToCreate(execution), new Expectation(Expectation.Type.JSON, input.servicesToCreateLocation));
+        tester.test(() -> context.getVariable(Variables.SERVICE_KEYS_TO_CREATE),
                     new Expectation(Expectation.Type.JSON, input.serviceKeysLocation));
-        tester.test(() -> StepsUtil.getModulesToDeploy(context), new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
-        tester.test(() -> StepsUtil.getAllModulesToDeploy(context), new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
-        assertFalse(StepsUtil.getUseIdleUris(context));
-        assertEquals(input.customDomains, execution.getVariable(Variables.CUSTOM_DOMAINS));
-        assertEquals(output.newMtaVersion, StepsUtil.getNewMtaVersion(context));
+        tester.test(() -> StepsUtil.getModulesToDeploy(execution), new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
+        tester.test(() -> StepsUtil.getAllModulesToDeploy(execution),
+                    new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
+        assertFalse(StepsUtil.getUseIdleUris(execution));
+        assertEquals(input.customDomains, context.getVariable(Variables.CUSTOM_DOMAINS));
+        assertEquals(output.newMtaVersion, StepsUtil.getNewMtaVersion(execution));
     }
 
     protected void loadParameters() {
@@ -193,7 +194,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         when(applicationCloudModelBuilder.getApplicationDomains(any(), any())).thenReturn(input.customDomains);
         when(servicesCloudModelBuilder.build(any())).thenReturn(servicesToBind);
         when(serviceKeysCloudModelBuilder.build()).thenReturn(serviceKeys);
-        execution.setVariable(Variables.DEPLOYED_MTA, deployedMta);
+        context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
     }
 
     @Override

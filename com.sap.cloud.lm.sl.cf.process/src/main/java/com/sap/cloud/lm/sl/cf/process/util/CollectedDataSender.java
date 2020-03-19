@@ -34,8 +34,8 @@ public class CollectedDataSender {
     @Inject
     private GeneralScenarioDetailsCollector details;
 
-    public AnalyticsData collectAnalyticsData(DelegateExecution context, Operation.State processState) {
-        AnalyticsData model = analytics.collectAnalyticsData(context);
+    public AnalyticsData collectAnalyticsData(DelegateExecution execution, Operation.State processState) {
+        AnalyticsData model = analytics.collectAnalyticsData(execution);
         model.setProcessFinalState(processState);
         return model;
     }
@@ -47,10 +47,10 @@ public class CollectedDataSender {
         return properties;
     }
 
-    public String convertCollectedAnalyticsDataToXml(DelegateExecution context, AnalyticsData collectAnalyticsData) {
+    public String convertCollectedAnalyticsDataToXml(DelegateExecution execution, AnalyticsData collectAnalyticsData) {
         Analysis analysis = new Analysis();
         analysis.setTitle("XSA Deploy Service");
-        analysis.setGeneralScenarioDetails(details.collectDetails(context, new GeneralProcess(collectAnalyticsData)));
+        analysis.setGeneralScenarioDetails(details.collectDetails(execution, new GeneralProcess(collectAnalyticsData)));
         return XmlUtil.toXml(analysis, getXmlProperties());
     }
 

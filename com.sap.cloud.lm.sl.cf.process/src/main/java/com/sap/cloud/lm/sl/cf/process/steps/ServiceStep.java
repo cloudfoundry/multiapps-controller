@@ -33,9 +33,9 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     private ServiceProgressReporter serviceProgressReporter;
 
     @Override
-    protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
-        CloudServiceExtended serviceToProcess = execution.getVariable(Variables.SERVICE_TO_PROCESS);
-        MethodExecution<String> methodExecution = executeOperationAndHandleExceptions(execution, execution.getControllerClient(),
+    protected StepPhase executeAsyncStep(ProcessContext context) {
+        CloudServiceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
+        MethodExecution<String> methodExecution = executeOperationAndHandleExceptions(context, context.getControllerClient(),
                                                                                       serviceToProcess);
         if (methodExecution.getState()
                            .equals(ExecutionState.FINISHED)) {
@@ -45,30 +45,30 @@ public abstract class ServiceStep extends AsyncFlowableStep {
         Map<String, ServiceOperation.Type> serviceOperation = new HashMap<>();
         serviceOperation.put(serviceToProcess.getName(), getOperationType());
 
-        execution.getStepLogger()
-                 .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(serviceOperation, true));
-        execution.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, serviceOperation);
+        context.getStepLogger()
+               .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(serviceOperation, true));
+        context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, serviceOperation);
 
-        StepsUtil.isServiceUpdated(true, execution.getContext());
+        StepsUtil.isServiceUpdated(true, context.getExecution());
         return StepPhase.POLL;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_SERVICE_OPERATION;
     }
 
-    private MethodExecution<String> executeOperationAndHandleExceptions(ExecutionWrapper execution, CloudControllerClient controllerClient,
+    private MethodExecution<String> executeOperationAndHandleExceptions(ProcessContext context, CloudControllerClient controllerClient,
                                                                         CloudServiceExtended service) {
         try {
-            return executeOperation(execution, controllerClient, service);
+            return executeOperation(context, controllerClient, service);
         } catch (CloudOperationException e) {
             String serviceUpdateFailedMessage = MessageFormat.format(Messages.FAILED_SERVICE_UPDATE, service.getName(), e.getStatusText());
             throw new CloudOperationException(e.getStatusCode(), serviceUpdateFailedMessage, e.getDescription(), e);
         }
     }
 
-    protected abstract MethodExecution<String> executeOperation(ExecutionWrapper execution, CloudControllerClient controllerClient,
+    protected abstract MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
                                                                 CloudServiceExtended service);
 
     protected abstract ServiceOperation.Type getOperationType();

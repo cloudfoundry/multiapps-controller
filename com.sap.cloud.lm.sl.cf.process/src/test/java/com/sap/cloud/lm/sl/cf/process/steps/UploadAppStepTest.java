@@ -149,7 +149,7 @@ public class UploadAppStepTest {
         @Test
         public void test() {
             try {
-                step.execute(context);
+                step.execute(execution);
             } catch (Throwable e) {
                 e.printStackTrace();
                 assertFalse(appFile.exists());
@@ -161,7 +161,7 @@ public class UploadAppStepTest {
 
         private void assertCall(String variableName, String variableValue) {
             int numberOfCalls = shouldUpload ? 1 : 0;
-            Mockito.verify(context, Mockito.times(numberOfCalls))
+            Mockito.verify(execution, Mockito.times(numberOfCalls))
                    .setVariable(variableName, variableValue);
         }
 
@@ -181,13 +181,13 @@ public class UploadAppStepTest {
                                                                             .name(APP_NAME)
                                                                             .moduleName(APP_NAME)
                                                                             .build();
-            execution.setVariable(Variables.APP_TO_PROCESS, app);
-            context.setVariable(Constants.VAR_MODULES_INDEX, 0);
-            context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
-            context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
+            context.setVariable(Variables.APP_TO_PROCESS, app);
+            execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
+            execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
+            execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
             mtaArchiveElements.addModuleFileName(APP_NAME, APP_FILE);
-            execution.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
-            StepsUtil.setVcapAppPropertiesChanged(context, false);
+            context.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
+            StepsUtil.setVcapAppPropertiesChanged(execution, false);
             when(configuration.getMaxResourceFileSize()).thenReturn(ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE);
         }
 
@@ -300,8 +300,8 @@ public class UploadAppStepTest {
 
         @Before
         public void prepareContext() {
-            context.setVariable(Constants.VAR_MODULES_INDEX, 0);
-            step.initializeStepLogger(context);
+            execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
+            step.initializeStepLogger(execution);
         }
 
         @Test
@@ -325,9 +325,9 @@ public class UploadAppStepTest {
         }
 
         private void testGetTimeout(CloudApplicationExtended app, int expectedUploadTimeout) {
-            execution.setVariable(Variables.APP_TO_PROCESS, app);
+            context.setVariable(Variables.APP_TO_PROCESS, app);
 
-            int uploadTimeout = step.getTimeout(execution);
+            int uploadTimeout = step.getTimeout(context);
             assertEquals(expectedUploadTimeout, uploadTimeout);
         }
 
@@ -353,18 +353,18 @@ public class UploadAppStepTest {
             CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
                                                                             .name(APP_NAME)
                                                                             .build();
-            execution.setVariable(Variables.APP_TO_PROCESS, app);
-            context.setVariable(Constants.VAR_MODULES_INDEX, 0);
-            context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
-            context.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
+            context.setVariable(Variables.APP_TO_PROCESS, app);
+            execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
+            execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
+            execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
             MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
             mtaArchiveElements.addModuleFileName(APP_NAME, APP_NAME);
-            execution.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
+            context.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
         }
 
         @Test
         public void testWithMissingFileNameMustReturnDone() {
-            step.execute(context);
+            step.execute(execution);
             assertStepFinishedSuccessfully();
         }
 

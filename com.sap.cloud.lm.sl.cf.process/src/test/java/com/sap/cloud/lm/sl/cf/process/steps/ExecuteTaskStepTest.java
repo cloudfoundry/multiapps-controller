@@ -39,15 +39,15 @@ public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
     @Test
     public void testExecute() {
         // Given:
-        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(app), context);
-        execution.setVariable(Variables.TASKS_TO_EXECUTE, Collections.singletonList(task));
-        context.setVariable(Constants.VAR_TASKS_INDEX, 0);
+        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(app), execution);
+        context.setVariable(Variables.TASKS_TO_EXECUTE, Collections.singletonList(task));
+        execution.setVariable(Constants.VAR_TASKS_INDEX, 0);
 
         when(client.runTask(eq(app.getName()),
                             argThat(GenericArgumentMatcher.forObject(task)))).thenReturn(ImmutableCloudTask.copyOf(task));
 
         // When:
-        step.execute(context);
+        step.execute(execution);
 
         // Then:
         assertStepFinishedSuccessfully();
@@ -61,8 +61,8 @@ public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
 
     private void verifyTaskWasStarted() {
         verify(client).runTask(eq(app.getName()), argThat(GenericArgumentMatcher.forObject(task)));
-        assertEquals(DUMMY_TIME, context.getVariable(Constants.VAR_START_TIME));
-        CloudTask startedTask = execution.getVariable(Variables.STARTED_TASK);
+        assertEquals(DUMMY_TIME, execution.getVariable(Constants.VAR_START_TIME));
+        CloudTask startedTask = context.getVariable(Variables.STARTED_TASK);
         assertEquals(task.getName(), startedTask.getName());
         assertEquals(task.getCommand(), startedTask.getCommand());
     }

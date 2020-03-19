@@ -122,11 +122,11 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
     }
 
     private void prepareContext() {
-        context.setVariable(Constants.VAR_ORG, input.org);
-        context.setVariable(Constants.VAR_SPACE, input.space);
-        execution.setVariable(Variables.EXISTING_APP, input.existingApp);
-        context.setVariable(Constants.PARAM_MTA_ID, input.mtaId);
-        execution.setVariable(Variables.PUBLISHED_ENTRIES, input.publishedEntries);
+        execution.setVariable(Constants.VAR_ORG, input.org);
+        execution.setVariable(Constants.VAR_SPACE, input.space);
+        context.setVariable(Variables.EXISTING_APP, input.existingApp);
+        execution.setVariable(Constants.PARAM_MTA_ID, input.mtaId);
+        context.setVariable(Variables.PUBLISHED_ENTRIES, input.publishedEntries);
     }
 
     private void prepareConfigurationEntryService() {
@@ -147,7 +147,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
         StepOutput actualOutput = getActualOutput();
@@ -156,7 +156,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
 
     private StepOutput getActualOutput() {
         StepOutput actualOutput = new StepOutput();
-        actualOutput.deletedEntries = execution.getVariable(Variables.DELETED_ENTRIES);
+        actualOutput.deletedEntries = context.getVariable(Variables.DELETED_ENTRIES);
         return actualOutput;
     }
 

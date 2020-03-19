@@ -46,19 +46,19 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     Supplier<ZonedDateTime> currentTimeSupplier = ZonedDateTime::now;
 
     @Override
-    protected void notifyInternal(DelegateExecution context) {
-        if (!isRootProcess(context)) {
+    protected void notifyInternal(DelegateExecution execution) {
+        if (!isRootProcess(execution)) {
             return;
         }
-        String correlationId = StepsUtil.getCorrelationId(context);
-        ProcessType processType = processTypeParser.getProcessType(context);
+        String correlationId = StepsUtil.getCorrelationId(execution);
+        ProcessType processType = processTypeParser.getProcessType(execution);
 
         if (getOperation(correlationId) == null) {
-            addOperation(context, correlationId, processType);
+            addOperation(execution, correlationId, processType);
         }
         getHistoricOperationEventPersister().add(correlationId, EventType.STARTED);
         logProcessEnvironment();
-        logProcessVariables(context, processType);
+        logProcessVariables(execution, processType);
     }
 
     private Operation getOperation(String correlationId) {
@@ -76,33 +76,33 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         getStepLogger().debug(Messages.PROCESS_ENVIRONMENT, JsonUtil.toJson(environment, true));
     }
 
-    private void logProcessVariables(DelegateExecution context, ProcessType processType) {
-        getStepLogger().debug(Messages.CURRENT_USER, StepsUtil.determineCurrentUser(context));
-        getStepLogger().debug(Messages.CLIENT_SPACE, StepsUtil.getSpace(context));
-        getStepLogger().debug(Messages.CLIENT_ORG, StepsUtil.getOrg(context));
-        Map<String, Object> processVariables = findProcessVariables(context, processType);
+    private void logProcessVariables(DelegateExecution execution, ProcessType processType) {
+        getStepLogger().debug(Messages.CURRENT_USER, StepsUtil.determineCurrentUser(execution));
+        getStepLogger().debug(Messages.CLIENT_SPACE, StepsUtil.getSpace(execution));
+        getStepLogger().debug(Messages.CLIENT_ORG, StepsUtil.getOrg(execution));
+        Map<String, Object> processVariables = findProcessVariables(execution, processType);
         getStepLogger().debug(Messages.PROCESS_VARIABLES, JsonUtil.toJson(processVariables, true));
     }
 
-    protected Map<String, Object> findProcessVariables(DelegateExecution context, ProcessType processType) {
+    protected Map<String, Object> findProcessVariables(DelegateExecution execution, ProcessType processType) {
         OperationMetadata operationMetadata = operationMetadataMapper.getOperationMetadata(processType);
         Map<String, Object> result = new HashMap<>();
         for (ParameterMetadata parameterMetadata : operationMetadata.getParameters()) {
-            if (context.hasVariable(parameterMetadata.getId())) {
-                Object variableValue = context.getVariable(parameterMetadata.getId());
+            if (execution.hasVariable(parameterMetadata.getId())) {
+                Object variableValue = execution.getVariable(parameterMetadata.getId());
                 result.put(parameterMetadata.getId(), variableValue);
             }
         }
         return result;
     }
 
-    private void addOperation(DelegateExecution context, String correlationId, ProcessType processType) {
+    private void addOperation(DelegateExecution execution, String correlationId, ProcessType processType) {
         Operation operation = ImmutableOperation.builder()
                                                 .processId(correlationId)
                                                 .processType(processType)
                                                 .startedAt(currentTimeSupplier.get())
-                                                .spaceId(StepsUtil.getSpaceId(context))
-                                                .user(StepsUtil.determineCurrentUser(context))
+                                                .spaceId(StepsUtil.getSpaceId(execution))
+                                                .user(StepsUtil.determineCurrentUser(execution))
                                                 .hasAcquiredLock(false)
                                                 .build();
         operationService.add(operation);

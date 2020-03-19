@@ -24,23 +24,23 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
     }
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.MERGING_DESCRIPTORS);
-        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
-        List<ExtensionDescriptor> extensionDescriptors = StepsUtil.getExtensionDescriptorChain(execution.getContext());
+        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
+        List<ExtensionDescriptor> extensionDescriptors = StepsUtil.getExtensionDescriptorChain(context.getExecution());
 
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
         Platform platform = configuration.getPlatform();
         DeploymentDescriptor descriptor = getMtaDescriptorMerger(handlerFactory, platform).merge(deploymentDescriptor,
                                                                                                  extensionDescriptors);
-        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
+        context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
         getStepLogger().debug(Messages.DESCRIPTORS_MERGED);
 
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_MERGING_DESCRIPTORS;
     }
 

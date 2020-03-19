@@ -52,7 +52,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
 
     private class BuildCloudUndeployModelStepMock extends BuildCloudUndeployModelStep {
         @Override
-        protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ExecutionWrapper execution) {
+        protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ProcessContext context) {
             return applicationCloudModelBuilder;
         }
     }
@@ -231,17 +231,17 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
     }
 
     private void prepareContext() {
-        execution.setVariable(Variables.DEPLOYED_MTA, deployedMta);
-        StepsUtil.setModulesToDeploy(context, modulesToDeploy);
-        StepsUtil.setServicesToCreate(context, servicesToCreate);
-        StepsUtil.setAllModulesToDeploy(context, modulesToDeploy);
+        context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
+        StepsUtil.setModulesToDeploy(execution, modulesToDeploy);
+        StepsUtil.setServicesToCreate(execution, servicesToCreate);
+        StepsUtil.setAllModulesToDeploy(execution, modulesToDeploy);
         List<String> appNamesToDeploy = new ArrayList<>();
         appsToDeploy.forEach(app -> appNamesToDeploy.add(app.getName()));
-        execution.setVariable(Variables.APPS_TO_DEPLOY, appNamesToDeploy);
-        execution.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, subscriptionsToCreate);
-        StepsUtil.setSpaceId(context, SPACE_ID);
-        execution.setVariable(Variables.MTA_MODULES, input.mtaModules);
-        execution.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
+        context.setVariable(Variables.APPS_TO_DEPLOY, appNamesToDeploy);
+        context.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, subscriptionsToCreate);
+        StepsUtil.setSpaceId(execution, SPACE_ID);
+        context.setVariable(Variables.MTA_MODULES, input.mtaModules);
+        context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
     }
 
     private void prepareSubscriptionService() {
@@ -263,15 +263,15 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
-        assertEquals(output.servicesToDelete, execution.getVariable(Variables.SERVICES_TO_DELETE));
+        assertEquals(output.servicesToDelete, context.getVariable(Variables.SERVICES_TO_DELETE));
 
-        assertEquals(output.appsToUndeployNames, getNames(StepsUtil.getAppsToUndeploy(context)));
+        assertEquals(output.appsToUndeployNames, getNames(StepsUtil.getAppsToUndeploy(execution)));
 
-        tester.test(() -> execution.getVariable(Variables.SUBSCRIPTIONS_TO_DELETE), output.subscriptionsToDeleteExpectation);
+        tester.test(() -> context.getVariable(Variables.SUBSCRIPTIONS_TO_DELETE), output.subscriptionsToDeleteExpectation);
     }
 
     private List<String> getNames(List<CloudApplication> appsToUndeploy) {

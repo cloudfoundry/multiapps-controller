@@ -17,14 +17,14 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 public class ScaleAppStep extends SyncFlowableStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
-        CloudApplication app = execution.getVariable(Variables.APP_TO_PROCESS);
+    protected StepPhase executeStep(ProcessContext context) {
+        CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
 
-        CloudApplication existingApp = execution.getVariable(Variables.EXISTING_APP);
+        CloudApplication existingApp = context.getVariable(Variables.EXISTING_APP);
 
         getStepLogger().debug(Messages.SCALING_APP, app.getName());
 
-        CloudControllerClient client = execution.getControllerClient();
+        CloudControllerClient client = context.getControllerClient();
 
         String appName = app.getName();
         Integer instances = (app.getInstances() != 0) ? app.getInstances() : null;
@@ -39,9 +39,9 @@ public class ScaleAppStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
-        return MessageFormat.format(Messages.ERROR_SCALING_APP, execution.getVariable(Variables.APP_TO_PROCESS)
-                                                                         .getName());
+    protected String getStepErrorMessage(ProcessContext context) {
+        return MessageFormat.format(Messages.ERROR_SCALING_APP, context.getVariable(Variables.APP_TO_PROCESS)
+                                                                       .getName());
     }
 
 }

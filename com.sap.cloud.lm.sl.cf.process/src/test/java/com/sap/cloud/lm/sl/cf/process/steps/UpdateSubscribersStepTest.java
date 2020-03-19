@@ -162,18 +162,18 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
     }
 
     private void prepareContext() {
-        context.setVariable(Constants.VAR_SPACE, input.currentSpace.getName());
-        context.setVariable(Constants.VAR_ORG, input.currentSpace.getOrganization()
-                                                                 .getName());
+        execution.setVariable(Constants.VAR_SPACE, input.currentSpace.getName());
+        execution.setVariable(Constants.VAR_ORG, input.currentSpace.getOrganization()
+                                                                   .getName());
 
-        context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, majorSchemaVersion);
-        context.setVariable(Constants.PARAM_USE_NAMESPACES, false);
-        context.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
+        execution.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, majorSchemaVersion);
+        execution.setVariable(Constants.PARAM_USE_NAMESPACES, false);
+        execution.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
 
-        execution.setVariable(Variables.PUBLISHED_ENTRIES, getPublishedEntries());
-        execution.setVariable(Variables.DELETED_ENTRIES, getDeletedEntries());
+        context.setVariable(Variables.PUBLISHED_ENTRIES, getPublishedEntries());
+        context.setVariable(Variables.DELETED_ENTRIES, getDeletedEntries());
 
-        context.setVariable(Constants.VAR_USER, USER);
+        execution.setVariable(Constants.VAR_USER, USER);
         step.targetCalculator = (client, spaceId) -> new CloudTarget(spaceId, spaceId);
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
                .thenReturn(Collections.singletonList("test-subprocess-id"));
@@ -297,7 +297,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
 
     @Test
     public void testExecute() {
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
@@ -316,7 +316,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
                 result.callArgumentsOfUpdateApplicationEnvMethod.addAll(callArgumentsOfUpdateApplicationEnvMethod);
             }
         }
-        result.updatedSubscribers = execution.getVariable(Variables.UPDATED_SUBSCRIBERS);
+        result.updatedSubscribers = context.getVariable(Variables.UPDATED_SUBSCRIBERS);
         return result;
     }
 

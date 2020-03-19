@@ -46,21 +46,21 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     }
 
     private void prepareContext() {
-        context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
+        execution.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
-        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, DEPLOYMENT_DESCRIPTOR);
-        StepsUtil.setExtensionDescriptorChain(context, Collections.emptyList());
+        context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, DEPLOYMENT_DESCRIPTOR);
+        StepsUtil.setExtensionDescriptorChain(execution, Collections.emptyList());
     }
 
     @Test
     public void testExecute1() {
         when(merger.merge(any(), eq(Collections.emptyList()))).thenReturn(DEPLOYMENT_DESCRIPTOR);
 
-        step.execute(context);
+        step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
-        tester.test(() -> execution.getVariable(Variables.DEPLOYMENT_DESCRIPTOR),
+        tester.test(() -> context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR),
                     new Expectation(Expectation.Type.JSON, "node-hello-mtad.yaml.json"));
     }
 
@@ -68,7 +68,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     public void testExecute2() {
         when(merger.merge(any(), eq(Collections.emptyList()))).thenThrow(new ContentException("Error!"));
 
-        step.execute(context);
+        step.execute(execution);
     }
 
     @Override

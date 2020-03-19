@@ -52,59 +52,59 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     protected final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.BUILDING_CLOUD_MODEL);
-        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
 
         // Get module sets:
-        DeployedMta deployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
+        DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
         List<DeployedMtaApplication> deployedApplications = (deployedMta != null) ? deployedMta.getApplications() : Collections.emptyList();
-        Set<String> mtaArchiveModules = execution.getVariable(Variables.MTA_ARCHIVE_MODULES);
+        Set<String> mtaArchiveModules = context.getVariable(Variables.MTA_ARCHIVE_MODULES);
         getStepLogger().debug(Messages.MTA_ARCHIVE_MODULES, mtaArchiveModules);
         Set<String> deployedModuleNames = CloudModelBuilderUtil.getDeployedModuleNames(deployedApplications);
         getStepLogger().debug(Messages.DEPLOYED_MODULES, deployedModuleNames);
-        Set<String> mtaModules = execution.getVariable(Variables.MTA_MODULES);
+        Set<String> mtaModules = context.getVariable(Variables.MTA_MODULES);
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
-        StepsUtil.setNewMtaVersion(execution.getContext(), deploymentDescriptor.getVersion());
+        StepsUtil.setNewMtaVersion(context.getExecution(), deploymentDescriptor.getVersion());
 
         // Build a map of service keys and save them in the context:
-        Map<String, List<CloudServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(execution).build();
+        Map<String, List<CloudServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(context).build();
         getStepLogger().debug(Messages.SERVICE_KEYS_TO_CREATE, secureSerializer.toJson(serviceKeys));
 
-        execution.setVariable(Variables.SERVICE_KEYS_TO_CREATE, serviceKeys);
+        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, serviceKeys);
 
         // Build a list of applications for deployment and save them in the context:
-        List<Module> modulesCalculatedForDeployment = calculateModulesForDeployment(execution, deploymentDescriptor, mtaArchiveModules,
+        List<Module> modulesCalculatedForDeployment = calculateModulesForDeployment(context, deploymentDescriptor, mtaArchiveModules,
                                                                                     deployedModuleNames, mtaModules);
 
         getStepLogger().debug(Messages.MODULES_TO_DEPLOY, secureSerializer.toJson(modulesCalculatedForDeployment));
-        StepsUtil.setAllModulesToDeploy(execution.getContext(), modulesCalculatedForDeployment);
-        StepsUtil.setModulesToDeploy(execution.getContext(), modulesCalculatedForDeployment);
+        StepsUtil.setAllModulesToDeploy(context.getExecution(), modulesCalculatedForDeployment);
+        StepsUtil.setModulesToDeploy(context.getExecution(), modulesCalculatedForDeployment);
 
-        ApplicationCloudModelBuilder applicationCloudModelBuilder = getApplicationCloudModelBuilder(execution);
+        ApplicationCloudModelBuilder applicationCloudModelBuilder = getApplicationCloudModelBuilder(context);
 
-        execution.setVariable(Variables.APPS_TO_DEPLOY, getAppNames(modulesCalculatedForDeployment));
+        context.setVariable(Variables.APPS_TO_DEPLOY, getAppNames(modulesCalculatedForDeployment));
 
-        StepsUtil.setDeploymentMode(execution.getContext(), applicationCloudModelBuilder.getDeploymentMode());
-        execution.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());
-        StepsUtil.setUseIdleUris(execution.getContext(), false);
+        StepsUtil.setDeploymentMode(context.getExecution(), applicationCloudModelBuilder.getDeploymentMode());
+        context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());
+        StepsUtil.setUseIdleUris(context.getExecution(), false);
 
         // Build a list of custom domains and save them in the context:
-        List<String> customDomainsFromApps = getDomainsFromApps(execution, deploymentDescriptor, applicationCloudModelBuilder,
+        List<String> customDomainsFromApps = getDomainsFromApps(context, deploymentDescriptor, applicationCloudModelBuilder,
                                                                 modulesCalculatedForDeployment, moduleToDeployHelper);
-        execution.setVariable(Variables.CUSTOM_DOMAINS, customDomainsFromApps);
+        context.setVariable(Variables.CUSTOM_DOMAINS, customDomainsFromApps);
         getStepLogger().debug(Messages.CUSTOM_DOMAINS, customDomainsFromApps);
 
-        ServicesCloudModelBuilder servicesCloudModelBuilder = getServicesCloudModelBuilder(execution);
+        ServicesCloudModelBuilder servicesCloudModelBuilder = getServicesCloudModelBuilder(context);
 
         List<Resource> resourcesUsedForBindings = calculateResourcesUsedForBindings(deploymentDescriptor, modulesCalculatedForDeployment);
         List<CloudServiceExtended> servicesForBindings = servicesCloudModelBuilder.build(resourcesUsedForBindings);
 
         // Build a list of services for binding and save them in the context:
-        StepsUtil.setServicesToBind(execution.getContext(), servicesForBindings);
+        StepsUtil.setServicesToBind(context.getExecution(), servicesForBindings);
 
-        List<Resource> resourcesForDeployment = calculateResourcesForDeployment(execution, deploymentDescriptor);
+        List<Resource> resourcesForDeployment = calculateResourcesForDeployment(context, deploymentDescriptor);
         List<CloudServiceExtended> servicesCalculatedForDeployment = servicesCloudModelBuilder.build(resourcesForDeployment);
 
         // Build a list of services for creation and save them in the context:
@@ -112,18 +112,18 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
                                                                                      .filter(CloudServiceExtended::isManaged)
                                                                                      .collect(Collectors.toList());
         getStepLogger().debug(Messages.SERVICES_TO_CREATE, secureSerializer.toJson(servicesToCreate));
-        StepsUtil.setServicesToCreate(execution.getContext(), servicesToCreate);
+        StepsUtil.setServicesToCreate(context.getExecution(), servicesToCreate);
 
         // Needed by CreateOrUpdateServicesStep, as it is used as an iteration variable:
-        execution.getContext()
-                 .setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, servicesToCreate.size());
+        context.getExecution()
+               .setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, servicesToCreate.size());
 
         getStepLogger().debug(Messages.CLOUD_MODEL_BUILT);
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_BUILDING_CLOUD_MODEL;
     }
 
@@ -134,8 +134,8 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
                                              .collect(Collectors.toList());
     }
 
-    private List<Resource> calculateResourcesForDeployment(ExecutionWrapper execution, DeploymentDescriptor deploymentDescriptor) {
-        CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = getResourcesCloudModelBuilderContentCalculator(execution.getContext());
+    private List<Resource> calculateResourcesForDeployment(ProcessContext context, DeploymentDescriptor deploymentDescriptor) {
+        CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = getResourcesCloudModelBuilderContentCalculator(context.getExecution());
 
         return calculateResourcesForDeployment(deploymentDescriptor, resourcesCloudModelBuilderContentCalculator);
     }
@@ -170,14 +170,14 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
                         .collect(Collectors.toList());
     }
 
-    private List<Module> calculateModulesForDeployment(ExecutionWrapper execution, DeploymentDescriptor deploymentDescriptor,
+    private List<Module> calculateModulesForDeployment(ProcessContext context, DeploymentDescriptor deploymentDescriptor,
                                                        Set<String> mtaArchiveModules, Set<String> deployedModuleNames,
                                                        Set<String> mtaModules) {
-        CloudModelBuilderContentCalculator<Module> modulesCloudModelBuilderContentCalculator = getModulesContentCalculator(execution,
+        CloudModelBuilderContentCalculator<Module> modulesCloudModelBuilderContentCalculator = getModulesContentCalculator(context,
                                                                                                                            mtaArchiveModules,
                                                                                                                            deployedModuleNames,
                                                                                                                            mtaModules);
-        return modulesCloudModelBuilderContentCalculator.calculateContentForBuilding(getModulesForDeployment(execution.getContext(),
+        return modulesCloudModelBuilderContentCalculator.calculateContentForBuilding(getModulesForDeployment(context.getExecution(),
                                                                                                              deploymentDescriptor));
     }
 
@@ -187,20 +187,20 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         return resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(deploymentDescriptor.getResources());
     }
 
-    private CloudModelBuilderContentCalculator<Resource> getResourcesCloudModelBuilderContentCalculator(DelegateExecution context) {
-        List<String> resourcesSpecifiedForDeployment = StepsUtil.getResourcesForDeployment(context);
+    private CloudModelBuilderContentCalculator<Resource> getResourcesCloudModelBuilderContentCalculator(DelegateExecution execution) {
+        List<String> resourcesSpecifiedForDeployment = StepsUtil.getResourcesForDeployment(execution);
         return new ResourcesCloudModelBuilderContentCalculator(resourcesSpecifiedForDeployment, getStepLogger());
     }
 
-    protected ModulesCloudModelBuilderContentCalculator
-              getModulesContentCalculator(ExecutionWrapper execution, Set<String> mtaArchiveModules, Set<String> deployedModuleNames,
-                                          Set<String> allMtaModules) {
+    protected ModulesCloudModelBuilderContentCalculator getModulesContentCalculator(ProcessContext context, Set<String> mtaArchiveModules,
+                                                                                    Set<String> deployedModuleNames,
+                                                                                    Set<String> allMtaModules) {
         return new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules,
                                                              deployedModuleNames,
-                                                             StepsUtil.getModulesForDeployment(execution.getContext()),
+                                                             StepsUtil.getModulesForDeployment(context.getExecution()),
                                                              getStepLogger(),
                                                              moduleToDeployHelper,
-                                                             getModuleContentValidators(execution.getControllerClient(), allMtaModules,
+                                                             getModuleContentValidators(context.getControllerClient(), allMtaModules,
                                                                                         deployedModuleNames));
     }
 
@@ -210,32 +210,32 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
                              new DeployedAfterModulesContentValidator(cloudControllerClient));
     }
 
-    private List<? extends Module> getModulesForDeployment(DelegateExecution context, DeploymentDescriptor deploymentDescriptor) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
+    private List<? extends Module> getModulesForDeployment(DelegateExecution execution, DeploymentDescriptor deploymentDescriptor) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution);
         DescriptorHandler handler = handlerFactory.getDescriptorHandler();
         return handler.getModulesForDeployment(deploymentDescriptor, SupportedParameters.ENABLE_PARALLEL_DEPLOYMENTS,
                                                SupportedParameters.DEPENDENCY_TYPE,
                                                com.sap.cloud.lm.sl.cf.core.Constants.DEPENDENCY_TYPE_HARD);
     }
 
-    protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ExecutionWrapper execution) {
-        return StepsUtil.getApplicationCloudModelBuilder(execution);
+    protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ProcessContext context) {
+        return StepsUtil.getApplicationCloudModelBuilder(context);
     }
 
-    protected ServicesCloudModelBuilder getServicesCloudModelBuilder(ExecutionWrapper execution) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
-        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+    protected ServicesCloudModelBuilder getServicesCloudModelBuilder(ProcessContext context) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
+        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
 
         return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor);
     }
 
-    protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(ExecutionWrapper execution) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
-        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+    protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(ProcessContext context) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
+        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         return handlerFactory.getServiceKeysCloudModelBuilder(deploymentDescriptor);
     }
 
-    private List<String> getDomainsFromApps(ExecutionWrapper execution, DeploymentDescriptor descriptor,
+    private List<String> getDomainsFromApps(ProcessContext context, DeploymentDescriptor descriptor,
                                             ApplicationCloudModelBuilder applicationCloudModelBuilder, List<? extends Module> modules,
                                             ModuleToDeployHelper moduleToDeployHelper) {
 
@@ -247,7 +247,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
             if (!moduleToDeployHelper.isApplication(module)) {
                 continue;
             }
-            ParametersChainBuilder parametersChainBuilder = new ParametersChainBuilder(execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR));
+            ParametersChainBuilder parametersChainBuilder = new ParametersChainBuilder(context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR));
             List<String> appDomains = applicationCloudModelBuilder.getApplicationDomains(parametersChainBuilder.buildModuleChain(module.getName()),
                                                                                          module);
             if (appDomains != null) {

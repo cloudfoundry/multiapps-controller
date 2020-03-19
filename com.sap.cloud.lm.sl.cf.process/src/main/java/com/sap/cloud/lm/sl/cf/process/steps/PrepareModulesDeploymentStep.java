@@ -23,46 +23,46 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
     protected ProcessTypeParser processTypeParser;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.PREPARING_MODULES_DEPLOYMENT);
 
         // Get the list of cloud modules from the context:
-        List<Module> modulesToDeploy = getModulesToDeploy(execution.getContext());
+        List<Module> modulesToDeploy = getModulesToDeploy(context.getExecution());
 
         // Initialize the iteration over the applications list:
-        execution.getContext()
-                 .setVariable(Constants.VAR_MODULES_COUNT, modulesToDeploy.size());
-        execution.getContext()
-                 .setVariable(Constants.VAR_MODULES_INDEX, 0);
-        execution.getContext()
-                 .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
+        context.getExecution()
+               .setVariable(Constants.VAR_MODULES_COUNT, modulesToDeploy.size());
+        context.getExecution()
+               .setVariable(Constants.VAR_MODULES_INDEX, 0);
+        context.getExecution()
+               .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
 
-        execution.getContext()
-                 .setVariable(Constants.REBUILD_APP_ENV, true);
-        execution.getContext()
-                 .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, true);
-        execution.getContext()
-                 .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, true);
+        context.getExecution()
+               .setVariable(Constants.REBUILD_APP_ENV, true);
+        context.getExecution()
+               .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, true);
+        context.getExecution()
+               .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, true);
 
-        StepsUtil.setModulesToDeploy(execution.getContext(), modulesToDeploy);
+        StepsUtil.setModulesToDeploy(context.getExecution(), modulesToDeploy);
 
-        ProcessType processType = processTypeParser.getProcessType(execution.getContext());
+        ProcessType processType = processTypeParser.getProcessType(context.getExecution());
 
-        StepsUtil.setDeleteIdleUris(execution.getContext(), false);
-        StepsUtil.setSkipUpdateConfigurationEntries(execution.getContext(), ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
-        StepsUtil.setSkipManageServiceBroker(execution.getContext(), ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
-        StepsUtil.setUseIdleUris(execution.getContext(), ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
+        StepsUtil.setDeleteIdleUris(context.getExecution(), false);
+        StepsUtil.setSkipUpdateConfigurationEntries(context.getExecution(), ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
+        StepsUtil.setSkipManageServiceBroker(context.getExecution(), ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
+        StepsUtil.setUseIdleUris(context.getExecution(), ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
 
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_PREPARING_MODULES_DEPLOYMENT;
     }
 
-    protected List<Module> getModulesToDeploy(DelegateExecution context) {
-        return StepsUtil.getAllModulesToDeploy(context);
+    protected List<Module> getModulesToDeploy(DelegateExecution execution) {
+        return StepsUtil.getAllModulesToDeploy(execution);
     }
 
 }

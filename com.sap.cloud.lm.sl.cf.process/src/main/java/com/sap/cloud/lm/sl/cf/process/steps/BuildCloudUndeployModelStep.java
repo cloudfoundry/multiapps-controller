@@ -43,21 +43,21 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     private ModuleToDeployHelper moduleToDeployHelper;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
-        DeployedMta deployedMta = execution.getVariable(Variables.DEPLOYED_MTA);
+        DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
 
-        List<String> deploymentDescriptorModules = getDeploymentDescriptorModules(execution);
+        List<String> deploymentDescriptorModules = getDeploymentDescriptorModules(context);
 
         if (deployedMta == null) {
-            setComponentsToUndeploy(execution, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+            setComponentsToUndeploy(context, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
             return StepPhase.DONE;
         }
 
-        List<ConfigurationSubscription> subscriptionsToCreate = execution.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE);
-        Set<String> mtaModules = execution.getVariable(Variables.MTA_MODULES);
-        List<String> appNames = execution.getVariable(Variables.APPS_TO_DEPLOY);
-        List<String> serviceNames = getServicesToCreate(execution.getContext());
+        List<ConfigurationSubscription> subscriptionsToCreate = context.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE);
+        Set<String> mtaModules = context.getVariable(Variables.MTA_MODULES);
+        List<String> appNames = context.getVariable(Variables.APPS_TO_DEPLOY);
+        List<String> serviceNames = getServicesToCreate(context.getExecution());
 
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
@@ -69,30 +69,30 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.MODULES_NOT_TO_BE_CHANGED, secureSerializer.toJson(appsWithoutChange));
 
         List<ConfigurationSubscription> subscriptionsToDelete = computeSubscriptionsToDelete(subscriptionsToCreate, deployedMta,
-                                                                                             StepsUtil.getSpaceId(execution.getContext()));
+                                                                                             StepsUtil.getSpaceId(context.getExecution()));
         getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, secureSerializer.toJson(subscriptionsToDelete));
 
-        Set<String> servicesForApplications = getServicesForApplications(execution);
+        Set<String> servicesForApplications = getServicesForApplications(context);
         List<String> servicesToDelete = computeServicesToDelete(appsWithoutChange, deployedMta.getServices(), servicesForApplications,
                                                                 serviceNames);
         getStepLogger().debug(Messages.SERVICES_TO_DELETE, servicesToDelete);
 
-        List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(deployedAppsToUndeploy, execution.getControllerClient());
+        List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(deployedAppsToUndeploy, context.getControllerClient());
         getStepLogger().debug(Messages.APPS_TO_UNDEPLOY, secureSerializer.toJson(appsToUndeploy));
 
-        setComponentsToUndeploy(execution, servicesToDelete, appsToUndeploy, subscriptionsToDelete);
+        setComponentsToUndeploy(context, servicesToDelete, appsToUndeploy, subscriptionsToDelete);
 
         getStepLogger().debug(Messages.CLOUD_UNDEPLOY_MODEL_BUILT);
         return StepPhase.DONE;
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_BUILDING_CLOUD_UNDEPLOY_MODEL;
     }
 
-    private List<String> getDeploymentDescriptorModules(ExecutionWrapper execution) {
-        DeploymentDescriptor deploymentDescriptor = execution.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+    private List<String> getDeploymentDescriptorModules(ProcessContext context) {
+        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         if (deploymentDescriptor == null) {
             return Collections.emptyList();
         }
@@ -102,20 +102,20 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                    .collect(Collectors.toList());
     }
 
-    private List<String> getServicesToCreate(DelegateExecution context) {
-        return StepsUtil.getServicesToCreate(context)
+    private List<String> getServicesToCreate(DelegateExecution execution) {
+        return StepsUtil.getServicesToCreate(execution)
                         .stream()
                         .map(CloudServiceExtended::getName)
                         .collect(Collectors.toList());
     }
 
-    private Set<String> getServicesForApplications(ExecutionWrapper execution) {
-        List<Module> modules = StepsUtil.getModulesToDeploy(execution.getContext());
+    private Set<String> getServicesForApplications(ProcessContext context) {
+        List<Module> modules = StepsUtil.getModulesToDeploy(context.getExecution());
         if (CollectionUtils.isEmpty(modules)) {
             return Collections.emptySet();
         }
         Set<String> servicesForApplications = new HashSet<>();
-        ApplicationCloudModelBuilder applicationCloudModelBuilder = getApplicationCloudModelBuilder(execution);
+        ApplicationCloudModelBuilder applicationCloudModelBuilder = getApplicationCloudModelBuilder(context);
         for (Module module : modules) {
             if (!moduleToDeployHelper.isApplication(module)) {
                 continue;
@@ -147,11 +147,11 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                          .noneMatch(existingModuleName::equals);
     }
 
-    private void setComponentsToUndeploy(ExecutionWrapper execution, List<String> services, List<CloudApplication> apps,
+    private void setComponentsToUndeploy(ProcessContext context, List<String> services, List<CloudApplication> apps,
                                          List<ConfigurationSubscription> subscriptions) {
-        execution.setVariable(Variables.SUBSCRIPTIONS_TO_DELETE, subscriptions);
-        execution.setVariable(Variables.SERVICES_TO_DELETE, services);
-        StepsUtil.setAppsToUndeploy(execution.getContext(), apps);
+        context.setVariable(Variables.SUBSCRIPTIONS_TO_DELETE, subscriptions);
+        context.setVariable(Variables.SERVICES_TO_DELETE, services);
+        StepsUtil.setAppsToUndeploy(context.getExecution(), apps);
     }
 
     private List<String> computeServicesToDelete(List<DeployedMtaApplication> appsWithoutChange,
@@ -230,8 +230,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                                                                                                      .getName());
     }
 
-    protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ExecutionWrapper execution) {
-        return StepsUtil.getApplicationCloudModelBuilder(execution);
+    protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ProcessContext context) {
+        return StepsUtil.getApplicationCloudModelBuilder(context);
     }
 
 }

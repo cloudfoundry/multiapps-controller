@@ -35,15 +35,15 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
     private ServiceProgressReporter serviceProgressReporter;
 
     @Override
-    protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
-        List<CloudServiceExtended> servicesToProcess = getServicesToProcess(execution);
+    protected StepPhase executeAsyncStep(ProcessContext context) {
+        List<CloudServiceExtended> servicesToProcess = getServicesToProcess(context);
 
-        List<CloudServiceExtended> existingServices = getExistingServices(execution.getControllerClient(), servicesToProcess);
+        List<CloudServiceExtended> existingServices = getExistingServices(context.getControllerClient(), servicesToProcess);
         if (existingServices.isEmpty()) {
             return StepPhase.DONE;
         }
 
-        Map<CloudServiceExtended, ServiceOperation> servicesInProgressState = getServicesInProgressState(execution, existingServices);
+        Map<CloudServiceExtended, ServiceOperation> servicesInProgressState = getServicesInProgressState(context, existingServices);
         if (servicesInProgressState.isEmpty()) {
             return StepPhase.DONE;
         }
@@ -52,16 +52,16 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
 
         Map<String, ServiceOperation.Type> servicesOperationTypes = getServicesOperationTypes(servicesInProgressState);
         getStepLogger().debug(Messages.SERVICES_IN_PROGRESS, JsonUtil.toJson(servicesOperationTypes, true));
-        execution.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, servicesOperationTypes);
+        context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, servicesOperationTypes);
 
         List<CloudServiceExtended> servicesWithData = getListOfServicesWithData(servicesInProgressState);
-        StepsUtil.setServicesData(execution.getContext(), servicesWithData);
+        StepsUtil.setServicesData(context.getExecution(), servicesWithData);
 
         return StepPhase.POLL;
     }
 
-    protected List<CloudServiceExtended> getServicesToProcess(ExecutionWrapper execution) {
-        return Collections.singletonList(execution.getVariable(Variables.SERVICE_TO_PROCESS));
+    protected List<CloudServiceExtended> getServicesToProcess(ProcessContext context) {
+        return Collections.singletonList(context.getVariable(Variables.SERVICE_TO_PROCESS));
     }
 
     private List<CloudServiceExtended> getExistingServices(CloudControllerClient cloudControllerClient,
@@ -83,11 +83,11 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
         return null;
     }
 
-    private Map<CloudServiceExtended, ServiceOperation> getServicesInProgressState(ExecutionWrapper execution,
+    private Map<CloudServiceExtended, ServiceOperation> getServicesInProgressState(ProcessContext context,
                                                                                    List<CloudServiceExtended> existingServices) {
         Map<CloudServiceExtended, ServiceOperation> servicesOperation = new HashMap<>();
         for (CloudServiceExtended existingService : existingServices) {
-            ServiceOperation lastServiceOperation = serviceOperationGetter.getLastServiceOperation(execution, existingService);
+            ServiceOperation lastServiceOperation = serviceOperationGetter.getLastServiceOperation(context, existingService);
             if (isServiceOperationInProgress(lastServiceOperation)) {
                 servicesOperation.put(existingService, lastServiceOperation);
             }
@@ -114,12 +114,12 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
+    protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
         return Collections.singletonList(new PollServiceInProgressOperationsExecution(serviceOperationGetter, serviceProgressReporter));
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_MONITORING_OPERATIONS_OVER_SERVICES;
     }
 

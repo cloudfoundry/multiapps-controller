@@ -7,9 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
 
-import com.sap.cloud.lm.sl.cf.process.util.ReadOnlyParametersChecker;
-import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
@@ -19,6 +16,8 @@ import org.mockito.Mock;
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.util.ReadOnlyParametersChecker;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
@@ -49,13 +48,13 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
         when(configuration.getControllerUrl()).thenReturn(new URL(CONTROLLER_URL));
         when(configuration.getDeployServiceUrl()).thenReturn(MULTIAPPS_CONTROLLER_URL);
 
-        context.setVariable(Constants.VAR_USER, USER);
-        context.setVariable(Constants.VAR_ORG, ORG);
-        context.setVariable(Constants.VAR_SPACE, SPACE);
+        execution.setVariable(Constants.VAR_USER, USER);
+        execution.setVariable(Constants.VAR_ORG, ORG);
+        execution.setVariable(Constants.VAR_SPACE, SPACE);
 
-        context.setVariable(Constants.PARAM_USE_NAMESPACES, DEFAULT_USE_NAMESPACES);
-        context.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, DEFAULT_USE_NAMESPACES_FOR_SERVICES);
-        context.setVariable(Constants.PARAM_VERSION_RULE, VERSION_RULE);
+        execution.setVariable(Constants.PARAM_USE_NAMESPACES, DEFAULT_USE_NAMESPACES);
+        execution.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, DEFAULT_USE_NAMESPACES_FOR_SERVICES);
+        execution.setVariable(Constants.PARAM_VERSION_RULE, VERSION_RULE);
 
         step.credentialsGeneratorSupplier = () -> credentialsGenerator;
         step.timestampSupplier = () -> DEFAULT_TIMESTAMP;
@@ -63,7 +62,7 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
 
     protected void prepareDescriptor(String descriptorPath) {
         DeploymentDescriptor descriptor = DescriptorTestUtil.loadDeploymentDescriptor(descriptorPath, getClass());
-        execution.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
+        context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
     }
 
     protected void prepareClient() {

@@ -78,7 +78,7 @@ public class ConfigurationEntriesCloudModelBuilder {
 
     protected List<Map<String, Object>> getVisibleTargets(ProvidedDependency providedDependency) {
         return MiscUtil.cast(providedDependency.getParameters()
-                                                 .get(SupportedParameters.VISIBILITY));
+                                               .get(SupportedParameters.VISIBILITY));
     }
 
     private String getElement(Map<String, Object> map, String elementName) {

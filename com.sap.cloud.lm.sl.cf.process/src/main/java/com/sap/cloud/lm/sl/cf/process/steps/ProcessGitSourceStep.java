@@ -46,14 +46,14 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
     private static final String MTAD_PATH = "mtad.yaml";
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws IOException, GitAPIException, FileStorageException {
+    protected StepPhase executeStep(ProcessContext context) throws IOException, GitAPIException, FileStorageException {
         getStepLogger().info(Messages.DOWNLOADING_DEPLOYABLE);
 
-        final String gitUri = getGitUri(execution);
-        final String gitRepoPath = (String) execution.getContext()
-                                                     .getVariable(Constants.PARAM_GIT_REPO_PATH);
-        String processId = execution.getContext()
-                                    .getProcessInstanceId();
+        final String gitUri = getGitUri(context);
+        final String gitRepoPath = (String) context.getExecution()
+                                                   .getVariable(Constants.PARAM_GIT_REPO_PATH);
+        String processId = context.getExecution()
+                                  .getProcessInstanceId();
         final String repoName = extractRepoName(gitUri, processId);
         final Path reposDir = Paths.get(REPOSITORY_DIRECTORY_NAME, repoName);
         Path gitConfigFilePath = generateGitConfigFilepath(processId);
@@ -64,13 +64,13 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
         Path mtarZip = null;
         try {
 
-            GitRepoCloner cloner = createCloner(execution);
+            GitRepoCloner cloner = createCloner(context);
             getStepLogger().info(Messages.CLONING_REPOSITORY, gitUri);
             cloner.cloneRepo(gitUri, reposDir);
             final Path mtaRepoPath = reposDir.resolve(gitRepoPath)
                                              .normalize();
             mtarZip = zipRepoContent(mtaRepoPath);
-            uploadZipToDB(execution.getContext(), mtarZip);
+            uploadZipToDB(context.getExecution(), mtarZip);
         } finally {
             try {
                 deleteTemporaryRepositoryDirectory(reposDir);
@@ -90,21 +90,21 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessage(ExecutionWrapper execution) {
+    protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_DOWNLOADING_DEPLOYABLE_FROM_GIT;
     }
 
-    private GitRepoCloner createCloner(ExecutionWrapper execution) {
-        DelegateExecution context = execution.getContext();
+    private GitRepoCloner createCloner(ProcessContext context) {
+        DelegateExecution execution = context.getExecution();
         GitRepoCloner cloner = new GitRepoCloner();
-        cloner.setRefName(StepsUtil.getGitRepoRef(context));
-        cloner.setGitConfigFilePath(generateGitConfigFilepath(context.getProcessInstanceId()));
-        cloner.setSkipSslValidation((boolean) context.getVariable(Constants.PARAM_GIT_SKIP_SSL));
+        cloner.setRefName(StepsUtil.getGitRepoRef(execution));
+        cloner.setGitConfigFilePath(generateGitConfigFilepath(execution.getProcessInstanceId()));
+        cloner.setSkipSslValidation((boolean) execution.getVariable(Constants.PARAM_GIT_SKIP_SSL));
         return cloner;
     }
 
-    protected String getGitUri(ExecutionWrapper execution) {
-        String gitUriParam = StepsUtil.getGitRepoUri(execution.getContext());
+    protected String getGitUri(ProcessContext context) {
+        String gitUriParam = StepsUtil.getGitRepoUri(context.getExecution());
         try {
             return new URL(gitUriParam).toString();
         } catch (MalformedURLException e) {
@@ -136,19 +136,19 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
         }
     }
 
-    protected void uploadZipToDB(DelegateExecution context, final Path mtarZip) throws FileStorageException, IOException {
+    protected void uploadZipToDB(DelegateExecution execution, final Path mtarZip) throws FileStorageException, IOException {
         getStepLogger().info(Messages.UPLOADING_MTAR);
         getStepLogger().debug("uploading file " + mtarZip.toAbsolutePath()
                                                          .toString()
             + " to DB");
-        String spaceId = StepsUtil.getSpaceId(context);
+        String spaceId = StepsUtil.getSpaceId(execution);
         try (InputStream mtarInputStream = Files.newInputStream(mtarZip)) {
-            String serviceId = StepsUtil.getServiceId(context);
+            String serviceId = StepsUtil.getServiceId(execution);
             String mtarName = mtarZip.getFileName()
                                      .toString();
             FileEntry entry = fileService.addFile(spaceId, serviceId, mtarName, mtarInputStream);
             String uploadedMtarId = entry.getId();
-            StepsUtil.setArchiveFileId(context, uploadedMtarId);
+            StepsUtil.setArchiveFileId(execution, uploadedMtarId);
         }
         getStepLogger().debug(Messages.MTAR_UPLOADED);
     }

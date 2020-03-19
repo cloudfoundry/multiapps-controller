@@ -40,54 +40,54 @@ public class ProcessStepHelper {
         this.processEngineConfiguration = processEngineConfigurationSupplier;
     }
 
-    protected void postExecuteStep(DelegateExecution context, StepPhase state) {
-        logDebug(MessageFormat.format(Messages.STEP_FINISHED, context.getCurrentFlowElement()
-                                                                     .getName()));
+    protected void postExecuteStep(DelegateExecution execution, StepPhase state) {
+        logDebug(MessageFormat.format(Messages.STEP_FINISHED, execution.getCurrentFlowElement()
+                                                                       .getName()));
 
-        processLogsPersister.persistLogs(StepsUtil.getCorrelationId(context), StepsUtil.getTaskId(context));
-        context.setVariable(Constants.VAR_STEP_EXECUTION, state.toString());
+        processLogsPersister.persistLogs(StepsUtil.getCorrelationId(execution), StepsUtil.getTaskId(execution));
+        execution.setVariable(Constants.VAR_STEP_EXECUTION, state.toString());
     }
 
-    void preExecuteStep(DelegateExecution context, StepPhase initialPhase) {
-        String taskId = context.getCurrentActivityId();
-        context.setVariable(Constants.TASK_ID, taskId);
+    void preExecuteStep(DelegateExecution execution, StepPhase initialPhase) {
+        String taskId = execution.getCurrentActivityId();
+        execution.setVariable(Constants.TASK_ID, taskId);
 
-        deletePreviousErrorType(context);
+        deletePreviousErrorType(execution);
         stepLogger.logFlowableTask();
-        StepsUtil.setStepPhase(context, initialPhase);
+        StepsUtil.setStepPhase(execution, initialPhase);
     }
 
-    protected void deletePreviousErrorType(DelegateExecution context) {
-        String processId = context.getProcessInstanceId();
-        ErrorType errorType = StepsUtil.getErrorType(context);
+    protected void deletePreviousErrorType(DelegateExecution execution) {
+        String processId = execution.getProcessInstanceId();
+        ErrorType errorType = StepsUtil.getErrorType(execution);
         if (errorType == null) {
             return;
         }
         LOGGER.debug(MessageFormat.format(Messages.DELETING_ERROR_TYPE_O_FOR_PROCESS_1, errorType, processId));
-        context.removeVariable(Constants.VAR_ERROR_TYPE);
+        execution.removeVariable(Constants.VAR_ERROR_TYPE);
     }
 
-    protected void logExceptionAndStoreProgressMessage(DelegateExecution context, Throwable t) {
-        logException(context, t);
-        storeExceptionInProgressMessageService(context, t);
+    protected void logExceptionAndStoreProgressMessage(DelegateExecution execution, Throwable t) {
+        logException(execution, t);
+        storeExceptionInProgressMessageService(execution, t);
     }
 
-    private void logException(DelegateExecution context, Throwable t) {
+    private void logException(DelegateExecution execution, Throwable t) {
         LOGGER.error(Messages.EXCEPTION_CAUGHT, t);
         getProcessLogger().error(Messages.EXCEPTION_CAUGHT, t);
 
         if (t instanceof ContentException) {
-            StepsUtil.setErrorType(context, ErrorType.CONTENT_ERROR);
+            StepsUtil.setErrorType(execution, ErrorType.CONTENT_ERROR);
         } else {
-            StepsUtil.setErrorType(context, ErrorType.UNKNOWN_ERROR);
+            StepsUtil.setErrorType(execution, ErrorType.UNKNOWN_ERROR);
         }
     }
 
-    private void storeExceptionInProgressMessageService(DelegateExecution context, Throwable throwable) {
+    private void storeExceptionInProgressMessageService(DelegateExecution execution, Throwable throwable) {
         try {
             progressMessageService.add(ImmutableProgressMessage.builder()
-                                                               .processId(StepsUtil.getCorrelationId(context))
-                                                               .taskId(getCurrentActivityId(context))
+                                                               .processId(StepsUtil.getCorrelationId(execution))
+                                                               .taskId(getCurrentActivityId(execution))
                                                                .type(ProgressMessageType.ERROR)
                                                                .text(throwable.getMessage())
                                                                .build());
@@ -98,17 +98,17 @@ public class ProcessStepHelper {
 
     // This method is needed because sometimes the DelegateExecution::getCurrentActivityId returns null
     // Check the issue: https://github.com/flowable/flowable-engine/issues/1280
-    private String getCurrentActivityId(DelegateExecution context) {
+    private String getCurrentActivityId(DelegateExecution execution) {
         List<Execution> processExecutions = processEngineConfiguration.getRuntimeService()
                                                                       .createExecutionQuery()
-                                                                      .processInstanceId(context.getProcessInstanceId())
+                                                                      .processInstanceId(execution.getProcessInstanceId())
                                                                       .list();
         List<Execution> processExecutionsWithActivityIds = processExecutions.stream()
                                                                             .filter(e -> e.getActivityId() != null)
                                                                             .collect(Collectors.toList());
         if (processExecutionsWithActivityIds.isEmpty()) {
             // if this happen then there is a really big problem with Flowable :)
-            throw new SLException("There are no executions for process with id: " + context.getProcessInstanceId());
+            throw new SLException("There are no executions for process with id: " + execution.getProcessInstanceId());
         }
         return processExecutionsWithActivityIds.get(0)
                                                .getActivityId();
@@ -122,9 +122,9 @@ public class ProcessStepHelper {
         return stepLogger.getProcessLogger();
     }
 
-    public void failStepIfProcessIsAborted(DelegateExecution context) {
+    public void failStepIfProcessIsAborted(DelegateExecution execution) {
         Boolean processAborted = (Boolean) processEngineConfiguration.getRuntimeService()
-                                                                     .getVariable(StepsUtil.getCorrelationId(context),
+                                                                     .getVariable(StepsUtil.getCorrelationId(execution),
                                                                                   Constants.PROCESS_ABORTED);
         if (processAborted != null && processAborted) {
             throw new SLException(Messages.PROCESS_WAS_ABORTED);

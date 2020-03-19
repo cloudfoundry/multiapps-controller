@@ -21,15 +21,15 @@ public class PollServiceInProgressOperationsExecution extends PollServiceOperati
     }
 
     @Override
-    protected List<CloudServiceExtended> getServicesData(DelegateExecution context) {
-        return StepsUtil.getServicesData(context);
+    protected List<CloudServiceExtended> getServicesData(DelegateExecution execution) {
+        return StepsUtil.getServicesData(execution);
     }
 
     @Override
-    protected void reportServiceState(ExecutionWrapper execution, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
+    protected void reportServiceState(ProcessContext context, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
         if (lastServiceOperation.getState() == ServiceOperation.State.SUCCEEDED) {
-            execution.getStepLogger()
-                     .debug(getSuccessMessage(service, lastServiceOperation.getType()));
+            context.getStepLogger()
+                   .debug(getSuccessMessage(service, lastServiceOperation.getType()));
             return;
         }
 
@@ -75,7 +75,7 @@ public class PollServiceInProgressOperationsExecution extends PollServiceOperati
     }
 
     @Override
-    public String getPollingErrorMessage(ExecutionWrapper execution) {
+    public String getPollingErrorMessage(ProcessContext context) {
         return Messages.ERROR_MONITORING_OPERATIONS_OVER_SERVICES;
     }
 

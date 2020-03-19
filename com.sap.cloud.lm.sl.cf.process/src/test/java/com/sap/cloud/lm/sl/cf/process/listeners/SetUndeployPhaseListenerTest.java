@@ -15,7 +15,7 @@ public class SetUndeployPhaseListenerTest {
 
     private ExecutionListener executionListener;
 
-    protected final DelegateExecution context = MockDelegateExecution.createSpyInstance();
+    protected final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
 
     @BeforeEach
     public void setUp() {
@@ -24,7 +24,7 @@ public class SetUndeployPhaseListenerTest {
 
     @Test
     public void testPhaseIsSet() {
-        executionListener.notify(context);
-        assertEquals(Phase.UNDEPLOY, Phase.valueOf((String) context.getVariable(Constants.VAR_PHASE)));
+        executionListener.notify(execution);
+        assertEquals(Phase.UNDEPLOY, Phase.valueOf((String) execution.getVariable(Constants.VAR_PHASE)));
     }
 }
