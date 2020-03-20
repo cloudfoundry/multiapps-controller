@@ -12,7 +12,8 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class ArchiveMerger {
@@ -76,7 +77,7 @@ public class ArchiveMerger {
         FileContentProcessor archivePartProcessor = filePartsMerger::merge;
         for (FileEntry archivePart : sortedArchiveParts) {
             stepLogger.debug(Messages.MERGING_ARCHIVE_PART, archivePart.getId(), archivePart.getName());
-            fileService.processFileContent(StepsUtil.getSpaceId(execution), archivePart.getId(), archivePartProcessor);
+            fileService.processFileContent(VariableHandling.get(execution, Variables.SPACE_ID), archivePart.getId(), archivePartProcessor);
         }
     }
 

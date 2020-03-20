@@ -44,7 +44,7 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
         context.setVariable(Variables.DEPLOYED_MTA,
                             JsonUtil.fromJson(TestUtil.getResourceAsString("deployed-mta-01.json", getClass()), DeployedMta.class));
 
-        execution.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
+        context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
         DeploymentDescriptor descriptor = DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass());
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);

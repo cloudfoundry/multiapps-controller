@@ -54,8 +54,8 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
             return StepPhase.DONE;
         }
         List<String> providedDependencyNames = getDeployedMtaApplication(existingApp).getProvidedDependencyNames();
-        String org = StepsUtil.getOrg(context.getExecution());
-        String space = StepsUtil.getSpace(context.getExecution());
+        String org = context.getVariable(Variables.ORG);
+        String space = context.getVariable(Variables.SPACE);
         CloudTarget target = new CloudTarget(org, space);
         String oldMtaVersion = mtaMetadata.getVersion()
                                           .toString();

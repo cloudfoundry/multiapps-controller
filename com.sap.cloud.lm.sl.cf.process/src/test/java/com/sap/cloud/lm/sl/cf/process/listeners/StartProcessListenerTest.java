@@ -32,6 +32,8 @@ import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.HistoricOperationEventPersister;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
@@ -131,9 +133,9 @@ public class StartProcessListenerTest {
                .thenReturn(Collections.emptyMap());
         Mockito.when(processTypeParser.getProcessType(execution))
                .thenReturn(processType);
-        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        VariableHandling.set(execution, Variables.SPACE_ID, SPACE_ID);
         execution.setVariable(Constants.VAR_USER, USER);
-        execution.setVariable(Constants.VAR_CORRELATION_ID, processInstanceId);
+        VariableHandling.set(execution, Variables.CORRELATION_ID, processInstanceId);
         execution.setVariable(Constants.TASK_ID, TASK_ID);
     }
 

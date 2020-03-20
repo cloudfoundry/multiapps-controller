@@ -103,7 +103,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
 
     @Before
     public void setUp() {
-        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
+        context.setVariable(Variables.SPACE_ID, TEST_SPACE_ID);
         prepareServiceOperationGetter();
         StepsUtil.setServicesToCreate(execution, input.services);
         context.setVariable(Variables.SERVICES_TO_DELETE, Collections.emptyList());

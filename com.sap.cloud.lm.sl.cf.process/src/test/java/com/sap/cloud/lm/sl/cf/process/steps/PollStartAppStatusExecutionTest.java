@@ -101,7 +101,7 @@ public class PollStartAppStatusExecutionTest {
         execution.setVariable(Constants.VAR_USER, USER_NAME);
         execution.setVariable(Constants.VAR_START_TIME, PROCESS_START_TIME);
         context.setVariable(Variables.APP_TO_PROCESS, application);
-        execution.setVariable(Constants.PARAM_FAIL_ON_CRASHED, failOnCrash);
+        context.setVariable(Variables.FAIL_ON_CRASHED, failOnCrash);
     }
 
     private void prepareClientProvider() {

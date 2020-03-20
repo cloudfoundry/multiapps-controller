@@ -28,6 +28,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -88,8 +89,8 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
     }
 
     private void prepareContext() {
-        execution.setVariable(Constants.VAR_SPACE, stepInput.space);
-        execution.setVariable(Constants.VAR_ORG, stepInput.org);
+        context.setVariable(Variables.SPACE, stepInput.space);
+        context.setVariable(Variables.ORG, stepInput.org);
         execution.setVariable(Constants.PARAM_MTA_ID, stepInput.mtaId);
         Mockito.when(execution.getProcessInstanceId())
                .thenReturn("process-instance-id");

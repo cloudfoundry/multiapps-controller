@@ -162,13 +162,13 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
     }
 
     private void prepareContext() {
-        execution.setVariable(Constants.VAR_SPACE, input.currentSpace.getName());
-        execution.setVariable(Constants.VAR_ORG, input.currentSpace.getOrganization()
-                                                                   .getName());
+        context.setVariable(Variables.SPACE, input.currentSpace.getName());
+        context.setVariable(Variables.ORG, input.currentSpace.getOrganization()
+                                                             .getName());
 
-        execution.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, majorSchemaVersion);
-        execution.setVariable(Constants.PARAM_USE_NAMESPACES, false);
-        execution.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
+        context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, majorSchemaVersion);
+        context.setVariable(Variables.USE_NAMESPACES, false);
+        context.setVariable(Variables.USE_NAMESPACES_FOR_SERVICES, false);
 
         context.setVariable(Variables.PUBLISHED_ENTRIES, getPublishedEntries());
         context.setVariable(Variables.DELETED_ENTRIES, getDeletedEntries());

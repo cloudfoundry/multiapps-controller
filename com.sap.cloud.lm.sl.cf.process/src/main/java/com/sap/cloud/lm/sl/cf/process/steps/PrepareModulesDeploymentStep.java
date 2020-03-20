@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -48,10 +49,10 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
 
         ProcessType processType = processTypeParser.getProcessType(context.getExecution());
 
-        StepsUtil.setDeleteIdleUris(context.getExecution(), false);
-        StepsUtil.setSkipUpdateConfigurationEntries(context.getExecution(), ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
-        StepsUtil.setSkipManageServiceBroker(context.getExecution(), ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
-        StepsUtil.setUseIdleUris(context.getExecution(), ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
+        context.setVariable(Variables.DELETE_IDLE_URIS, false);
+        context.setVariable(Variables.SKIP_UPDATE_CONFIGURATION_ENTRIES, ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
+        context.setVariable(Variables.SKIP_MANAGE_SERVICE_BROKER, ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
+        context.setVariable(Variables.USE_IDLE_URIS, ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
 
         return StepPhase.DONE;
     }

@@ -193,7 +193,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         context.setVariable(Variables.SERVICES_TO_DELETE, servicesToDelete);
         StepsUtil.setServicesData(execution, servicesData);
         execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_DELETE_SERVICES, true);
-        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
+        context.setVariable(Variables.SPACE_ID, TEST_SPACE_ID);
         when(clientProvider.getControllerClient(any(), any())).thenReturn(client);
         when(clientProvider.getControllerClient(any(), any(), any(), any())).thenReturn(client);
     }

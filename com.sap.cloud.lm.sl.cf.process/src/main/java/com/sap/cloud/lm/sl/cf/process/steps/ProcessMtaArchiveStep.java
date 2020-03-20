@@ -43,9 +43,9 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     }
 
     private void processApplicationArchive(ProcessContext context, String appArchiveId) throws FileStorageException {
-        fileService.processFileContent(StepsUtil.getSpaceId(context.getExecution()), appArchiveId,
+        fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId,
                                        createDeploymentDescriptorFileContentProcessor(context));
-        fileService.processFileContent(StepsUtil.getSpaceId(context.getExecution()), appArchiveId,
+        fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId,
                                        createManifestFileContentProcessor(context, appArchiveId));
     }
 
@@ -107,7 +107,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         context.getExecution()
                .setVariable(Constants.PARAM_MTA_ID, mtaId);
         conflictPreventerSupplier.apply(operationService)
-                                 .acquireLock(mtaId, StepsUtil.getSpaceId(context.getExecution()),
-                                              StepsUtil.getCorrelationId(context.getExecution()));
+                                 .acquireLock(mtaId, context.getVariable(Variables.SPACE_ID),
+                                              context.getVariable(Variables.CORRELATION_ID));
     }
 }

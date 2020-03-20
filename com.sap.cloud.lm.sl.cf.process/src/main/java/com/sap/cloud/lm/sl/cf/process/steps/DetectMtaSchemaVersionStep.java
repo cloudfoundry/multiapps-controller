@@ -8,7 +8,6 @@ import javax.inject.Named;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -38,8 +37,7 @@ public class DetectMtaSchemaVersionStep extends SyncFlowableStep {
         if (!SupportedVersions.isFullySupported(schemaVersion)) {
             getStepLogger().warn(Messages.UNSUPPORTED_MINOR_VERSION, schemaVersion);
         }
-        context.getExecution()
-               .setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, schemaVersion.getMajor());
+        context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, schemaVersion.getMajor());
 
         getStepLogger().info(Messages.MTA_SCHEMA_VERSION_DETECTED_AS, schemaVersion.getMajor());
 

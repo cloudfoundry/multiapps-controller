@@ -184,10 +184,10 @@ public class UploadAppStepTest {
             context.setVariable(Variables.APP_TO_PROCESS, app);
             execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
             execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
-            execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
+            context.setVariable(Variables.SPACE_ID, SPACE);
             mtaArchiveElements.addModuleFileName(APP_NAME, APP_FILE);
             context.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
-            StepsUtil.setVcapAppPropertiesChanged(execution, false);
+            context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, false);
             when(configuration.getMaxResourceFileSize()).thenReturn(ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE);
         }
 
@@ -356,7 +356,7 @@ public class UploadAppStepTest {
             context.setVariable(Variables.APP_TO_PROCESS, app);
             execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
             execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
-            execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
+            context.setVariable(Variables.SPACE_ID, SPACE);
             MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
             mtaArchiveElements.addModuleFileName(APP_NAME, APP_NAME);
             context.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);

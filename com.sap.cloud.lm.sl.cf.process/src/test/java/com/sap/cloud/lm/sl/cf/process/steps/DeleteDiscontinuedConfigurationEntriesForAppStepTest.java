@@ -122,8 +122,8 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
     }
 
     private void prepareContext() {
-        execution.setVariable(Constants.VAR_ORG, input.org);
-        execution.setVariable(Constants.VAR_SPACE, input.space);
+        context.setVariable(Variables.ORG, input.org);
+        context.setVariable(Variables.SPACE, input.space);
         context.setVariable(Variables.EXISTING_APP, input.existingApp);
         execution.setVariable(Constants.PARAM_MTA_ID, input.mtaId);
         context.setVariable(Variables.PUBLISHED_ENTRIES, input.publishedEntries);

@@ -13,8 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.util.LoggingUtil;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.OperationInErrorStateHandler;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("errorProcessListener")
 public class ErrorProcessListener extends AbstractFlowableEngineEventListener {
@@ -44,7 +45,7 @@ public class ErrorProcessListener extends AbstractFlowableEngineEventListener {
     private void handleWithCorrelationId(FlowableEngineEvent event, Runnable handlerFunction) {
         DelegateExecution execution = getExecution(event);
         if (execution != null) {
-            LoggingUtil.logWithCorrelationId(StepsUtil.getCorrelationId(execution), handlerFunction);
+            LoggingUtil.logWithCorrelationId(VariableHandling.get(execution, Variables.CORRELATION_ID), handlerFunction);
             return;
         }
         handlerFunction.run();

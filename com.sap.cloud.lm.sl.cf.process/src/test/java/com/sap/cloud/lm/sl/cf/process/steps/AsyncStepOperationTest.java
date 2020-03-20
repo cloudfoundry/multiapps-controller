@@ -11,7 +11,7 @@ public abstract class AsyncStepOperationTest<AsyncStep extends SyncFlowableStep>
     @Test
     public void testExecuteOperations() {
         step.initializeStepLogger(execution);
-        ProcessContext wrapper = step.createExecutionWrapper(execution);
+        ProcessContext wrapper = step.createProcessContext(execution);
 
         for (AsyncExecution operation : getAsyncOperations(wrapper)) {
             AsyncExecutionState result = operation.execute(wrapper);

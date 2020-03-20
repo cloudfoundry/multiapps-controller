@@ -20,7 +20,6 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.Status;
 import org.cloudfoundry.client.lib.domain.UploadToken;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -98,9 +97,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     }
 
     private String getNewApplicationDigest(ProcessContext context, String appArchiveId, String fileName) throws FileStorageException {
-        DelegateExecution execution = context.getExecution();
         StringBuilder digestStringBuilder = new StringBuilder();
-        fileService.processFileContent(StepsUtil.getSpaceId(execution), appArchiveId,
+        fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId,
                                        createDigestCalculatorFileContentProcessor(digestStringBuilder, fileName));
         return digestStringBuilder.toString();
     }
@@ -121,9 +119,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                                          String fileName)
         throws FileStorageException {
         AtomicReference<UploadToken> uploadTokenReference = new AtomicReference<>();
-        DelegateExecution execution = context.getExecution();
 
-        fileService.processFileContent(StepsUtil.getSpaceId(execution), appArchiveId, appArchiveStream -> {
+        fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId, appArchiveStream -> {
             Path filePath = null;
             long maxSize = configuration.getMaxResourceFileSize();
             try {
@@ -149,7 +146,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     private UploadToken upload(ProcessContext context, CloudControllerClient client, CloudApplication app, Path filePath)
         throws IOException {
         return client.asyncUploadApplication(app.getName(), filePath.toFile(),
-                                             getMonitorUploadStatusCallback(app, filePath.toFile(), context.getExecution()));
+                                             getMonitorUploadStatusCallback(context, app, filePath.toFile()));
     }
 
     private boolean detectApplicationFileDigestChanges(ProcessContext context, CloudApplication appWithUpdatedEnvironment,
@@ -176,8 +173,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                .setVariable(Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(appContentChanged));
     }
 
-    MonitorUploadStatusCallback getMonitorUploadStatusCallback(CloudApplication app, File file, DelegateExecution execution) {
-        return new MonitorUploadStatusCallback(app, file, execution);
+    MonitorUploadStatusCallback getMonitorUploadStatusCallback(ProcessContext context, CloudApplication app, File file) {
+        return new MonitorUploadStatusCallback(context, app, file);
     }
 
     private void cleanUp(Path filePath) {
@@ -220,12 +217,12 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
         private final CloudApplication app;
         private final File file;
-        private final DelegateExecution execution;
+        private final ProcessContext context;
 
-        public MonitorUploadStatusCallback(CloudApplication app, File file, DelegateExecution execution) {
+        public MonitorUploadStatusCallback(ProcessContext context, CloudApplication app, File file) {
             this.app = app;
             this.file = file;
-            this.execution = execution;
+            this.context = context;
         }
 
         @Override
@@ -248,7 +245,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             getStepLogger().debug(Messages.UPLOAD_STATUS_0, status);
             if (status.equals(Status.READY.toString())) {
                 cleanUp(file.toPath());
-                getProcessLogsPersister().persistLogs(StepsUtil.getCorrelationId(execution), StepsUtil.getTaskId(execution));
+                getProcessLogsPersister().persistLogs(context.getVariable(Variables.CORRELATION_ID),
+                                                      context.getVariable(Variables.TASK_ID));
             }
             return false;
         }

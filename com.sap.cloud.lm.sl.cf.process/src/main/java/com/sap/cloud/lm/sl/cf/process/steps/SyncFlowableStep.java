@@ -25,6 +25,8 @@ import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -55,26 +57,26 @@ public abstract class SyncFlowableStep implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) {
-        LoggingUtil.logWithCorrelationId(StepsUtil.getCorrelationId(execution), () -> executeInternal(execution));
+        LoggingUtil.logWithCorrelationId(VariableHandling.get(execution, Variables.CORRELATION_ID), () -> executeInternal(execution));
     }
 
     private void executeInternal(DelegateExecution execution) {
         initializeStepLogger(execution);
-        ProcessContext context = createExecutionWrapper(execution);
+        ProcessContext context = createProcessContext(execution);
         StepPhase stepPhase = getInitialStepPhase(context);
         try {
-            getStepHelper().preExecuteStep(execution, stepPhase);
+            getStepHelper().preExecuteStep(context, stepPhase);
             stepPhase = executeStep(context);
             if (stepPhase == StepPhase.RETRY) {
                 throw new SLException("A step of the process has failed. Retrying it may solve the issue.");
             }
-            getStepHelper().failStepIfProcessIsAborted(execution);
+            getStepHelper().failStepIfProcessIsAborted(context);
         } catch (Exception e) {
             stepPhase = StepPhase.RETRY;
             handleException(context, e);
         } finally {
             StepsUtil.setStepPhase(execution, stepPhase);
-            postExecuteStep(execution, stepPhase);
+            postExecuteStep(context, stepPhase);
         }
     }
 
@@ -82,7 +84,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
         return StepPhase.EXECUTE;
     }
 
-    protected ProcessContext createExecutionWrapper(DelegateExecution execution) {
+    protected ProcessContext createProcessContext(DelegateExecution execution) {
         return new ProcessContext(execution, stepLogger, clientProvider);
     }
 
@@ -95,7 +97,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
             onStepError(context, e);
         } catch (Exception ex) {
             ex = getWithProperMessage(ex);
-            getStepHelper().logExceptionAndStoreProgressMessage(context.getExecution(), ex);
+            getStepHelper().logExceptionAndStoreProgressMessage(context, ex);
             throw ex instanceof RuntimeException ? (RuntimeException) ex : new RuntimeException(ex);
         }
     }
@@ -150,11 +152,11 @@ public abstract class SyncFlowableStep implements JavaDelegate {
         return SLException::new;
     }
 
-    protected void postExecuteStep(DelegateExecution execution, StepPhase stepState) {
+    protected void postExecuteStep(ProcessContext context, StepPhase stepState) {
         try {
-            getStepHelper().postExecuteStep(execution, stepState);
+            getStepHelper().postExecuteStep(context, stepState);
         } catch (SLException e) {
-            getStepHelper().logExceptionAndStoreProgressMessage(execution, e);
+            getStepHelper().logExceptionAndStoreProgressMessage(context, e);
             throw e;
         }
     }

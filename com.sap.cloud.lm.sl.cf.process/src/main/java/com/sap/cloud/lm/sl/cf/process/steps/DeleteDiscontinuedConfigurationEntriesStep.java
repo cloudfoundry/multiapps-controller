@@ -35,11 +35,11 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
         getStepLogger().debug(Messages.DELETING_PUBLISHED_DEPENDENCIES);
         String mtaId = (String) context.getExecution()
                                        .getVariable(Constants.PARAM_MTA_ID);
-        String org = StepsUtil.getOrg(context.getExecution());
-        String space = StepsUtil.getSpace(context.getExecution());
+        String org = context.getVariable(Variables.ORG);
+        String space = context.getVariable(Variables.SPACE);
         CloudTarget target = new CloudTarget(org, space);
 
-        List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context.getExecution(), flowableFacade);
+        List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacade);
 
         List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, target, publishedEntries);
         for (ConfigurationEntry entry : entriesToDelete) {

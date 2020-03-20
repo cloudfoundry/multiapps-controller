@@ -26,6 +26,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ArchiveMerger;
 import com.sap.cloud.lm.sl.cf.process.util.JarSignatureOperations;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
@@ -42,9 +43,9 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.VALIDATING_PARAMETERS);
 
-        validateParameters(context.getExecution());
-        String space = StepsUtil.getSpace(context.getExecution());
-        String org = StepsUtil.getOrg(context.getExecution());
+        validateParameters(context);
+        String space = context.getVariable(Variables.SPACE);
+        String org = context.getVariable(Variables.ORG);
         getStepLogger().info(Messages.DEPLOYING_IN_ORG_0_AND_SPACE_1, org, space);
 
         getStepLogger().debug(Messages.PARAMETERS_VALIDATED);
@@ -56,11 +57,11 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         return Messages.ERROR_VALIDATING_PARAMS;
     }
 
-    private void validateParameters(DelegateExecution execution) {
-        validateStartTimeout(execution);
-        validateExtensionDescriptorFileIds(execution);
-        validateVersionRule(execution);
-        validateArchive(execution);
+    private void validateParameters(ProcessContext context) {
+        validateStartTimeout(context.getExecution());
+        validateExtensionDescriptorFileIds(context);
+        validateVersionRule(context.getExecution());
+        validateArchive(context);
     }
 
     private void validateStartTimeout(DelegateExecution execution) {
@@ -74,22 +75,23 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         }
     }
 
-    private void validateExtensionDescriptorFileIds(DelegateExecution execution) {
-        String extensionDescriptorFileId = (String) execution.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
+    private void validateExtensionDescriptorFileIds(ProcessContext context) {
+        String extensionDescriptorFileId = (String) context.getExecution()
+                                                           .getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
         if (extensionDescriptorFileId == null) {
             return;
         }
 
         String[] extensionDescriptorFileIds = extensionDescriptorFileId.split(",");
         for (String fileId : extensionDescriptorFileIds) {
-            FileEntry file = findFile(execution, fileId);
+            FileEntry file = findFile(context, fileId);
             validateDescriptorSize(file);
         }
     }
 
-    private FileEntry findFile(DelegateExecution execution, String fileId) {
+    private FileEntry findFile(ProcessContext context, String fileId) {
         try {
-            String space = StepsUtil.getSpaceId(execution);
+            String space = context.getVariable(Variables.SPACE_ID);
             FileEntry fileEntry = fileService.getFile(space, fileId);
             if (fileEntry == null) {
                 throw new SLException(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1, fileId, space);
@@ -125,9 +127,9 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         }
     }
 
-    private void validateArchive(DelegateExecution execution) {
-        String[] archivePartIds = getArchivePartIds(execution);
-        if (!StepsUtil.shouldVerifyArchiveSignature(execution) && archivePartIds.length == 1) {
+    private void validateArchive(ProcessContext context) {
+        String[] archivePartIds = getArchivePartIds(context.getExecution());
+        if (!context.getVariable(Variables.VERIFY_ARCHIVE_SIGNATURE) && archivePartIds.length == 1) {
             // The archive doesn't need "validation", i.e. merging or signature verification.
             // TODO The merging of chunks should be done prior to this step, since it's not really a validation, but we may need the result
             // here, if the user wants us to verify the archive's signature.
@@ -135,10 +137,10 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         }
         Path archive = null;
         try {
-            archive = mergeArchiveParts(execution, archivePartIds);
-            verifyArchiveSignature(execution, archive);
+            archive = mergeArchiveParts(context, archivePartIds);
+            verifyArchiveSignature(context, archive);
             if (archivePartIds.length != 1) {
-                persistMergedArchive(execution, archive);
+                persistMergedArchive(context, archive);
             }
         } finally {
             deleteArchive(archive);
@@ -150,16 +152,16 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         return archiveId.split(",");
     }
 
-    private Path mergeArchiveParts(DelegateExecution execution, String[] archivePartIds) {
-        List<FileEntry> archivePartEntries = getArchivePartEntries(execution, archivePartIds);
-        StepsUtil.setAsJsonBinaries(execution, Constants.VAR_FILE_ENTRIES, archivePartEntries);
+    private Path mergeArchiveParts(ProcessContext context, String[] archivePartIds) {
+        List<FileEntry> archivePartEntries = getArchivePartEntries(context, archivePartIds);
+        StepsUtil.setAsJsonBinaries(context.getExecution(), Constants.VAR_FILE_ENTRIES, archivePartEntries);
         getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
-        return resilientOperationExecutor.execute(createArchiveFromParts(execution, archivePartEntries));
+        return resilientOperationExecutor.execute(createArchiveFromParts(context.getExecution(), archivePartEntries));
     }
 
-    private List<FileEntry> getArchivePartEntries(DelegateExecution execution, String[] appArchivePartsId) {
+    private List<FileEntry> getArchivePartEntries(ProcessContext context, String[] appArchivePartsId) {
         return Arrays.stream(appArchivePartsId)
-                     .map(appArchivePartId -> findFile(execution, appArchivePartId))
+                     .map(appArchivePartId -> findFile(context, appArchivePartId))
                      .collect(Collectors.toList());
     }
 
@@ -167,8 +169,8 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         return () -> new ArchiveMerger(fileService, getStepLogger(), execution).createArchiveFromParts(archivePartEntries);
     }
 
-    private void verifyArchiveSignature(DelegateExecution execution, Path archiveFilePath) {
-        if (!StepsUtil.shouldVerifyArchiveSignature(execution)) {
+    private void verifyArchiveSignature(ProcessContext context, Path archiveFilePath) {
+        if (!context.getVariable(Variables.VERIFY_ARCHIVE_SIGNATURE)) {
             return;
         }
         getStepLogger().debug(Messages.VERIFYING_ARCHIVE_0, archiveFilePath);
@@ -192,19 +194,21 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         }
     }
 
-    private void persistMergedArchive(DelegateExecution execution, Path archiveFilePath) {
-        resilientOperationExecutor.execute(() -> persistMergedArchive(archiveFilePath, execution));
+    private void persistMergedArchive(ProcessContext context, Path archiveFilePath) {
+        resilientOperationExecutor.execute(() -> persistMergedArchive(archiveFilePath, context));
     }
 
-    private void persistMergedArchive(Path archivePath, DelegateExecution execution) {
-        FileEntry uploadedArchive = persistArchive(archivePath, execution);
-        execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedArchive.getId());
+    private void persistMergedArchive(Path archivePath, ProcessContext context) {
+        FileEntry uploadedArchive = persistArchive(archivePath, context);
+        context.getExecution()
+               .setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedArchive.getId());
     }
 
-    private FileEntry persistArchive(Path archivePath, DelegateExecution execution) {
+    private FileEntry persistArchive(Path archivePath, ProcessContext context) {
         try {
-            return fileService.addFile(StepsUtil.getSpaceId(execution), StepsUtil.getServiceId(execution), archivePath.getFileName()
-                                                                                                                      .toString(),
+            return fileService.addFile(context.getVariable(Variables.SPACE_ID), context.getVariable(Variables.SERVICE_ID),
+                                       archivePath.getFileName()
+                                                  .toString(),
                                        archivePath.toFile());
         } catch (FileStorageException e) {
             throw new SLException(e, e.getMessage());

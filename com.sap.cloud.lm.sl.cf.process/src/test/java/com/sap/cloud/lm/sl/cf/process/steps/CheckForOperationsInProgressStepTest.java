@@ -74,7 +74,7 @@ public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<C
     }
 
     protected void prepareContext(CloudServiceExtended service) {
-        StepsUtil.setSpaceId(execution, TEST_SPACE_ID);
+        context.setVariable(Variables.SPACE_ID, TEST_SPACE_ID);
         context.setVariable(Variables.SERVICE_TO_PROCESS, service);
     }
 

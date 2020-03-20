@@ -19,7 +19,6 @@ import org.mockito.MockitoAnnotations;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.steps.SyncFlowableStepWithHooks.ModuleHooksAggregator;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
@@ -138,7 +137,7 @@ public class SyncFlowableStepWithHooksTest {
     @Test
     public void testWithDeploymentDescriptorAndModuleNameInApplication() throws Exception {
         StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
-        execution.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 3);
+        context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
 
         Module module = Module.createV3()
                               .setName("test")
@@ -160,7 +159,7 @@ public class SyncFlowableStepWithHooksTest {
     @Test
     public void testWithDeploymentDescriptorWithNoModulesContainingModuleName() throws Exception {
         StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
-        execution.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 3);
+        context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
 
         prepareDeploymentDescriptor(Arrays.asList(Module.createV3()
                                                         .setName("foo"),
@@ -179,7 +178,7 @@ public class SyncFlowableStepWithHooksTest {
     @Test
     public void testWithDeploymentDescriptorAndModuleNamesWhichHaveTheSamePrefixForNames() throws Exception {
         StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
-        execution.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 3);
+        context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
 
         Module moduleWithHooks = Module.createV3()
                                        .setName("test")

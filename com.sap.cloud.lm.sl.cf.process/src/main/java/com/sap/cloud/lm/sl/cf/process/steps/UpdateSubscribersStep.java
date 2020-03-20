@@ -27,7 +27,6 @@ import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudOrganization;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudSpace;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -102,8 +101,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.UPDATING_SUBSCRIBERS);
-        List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context.getExecution(), flowableFacade);
-        List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(context.getExecution(), flowableFacade);
+        List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacade);
+        List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(context, flowableFacade);
         List<ConfigurationEntry> updatedEntries = ListUtils.union(publishedEntries, deletedEntries);
 
         CloudControllerClient clientForCurrentSpace = context.getControllerClient();
@@ -189,7 +188,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
     private CloudApplication updateSubscriber(ProcessContext context, CloudTarget cloudTarget, ConfigurationSubscription subscription) {
         try {
-            return attemptToUpdateSubscriber(context.getExecution(), getClient(context, cloudTarget), subscription);
+            return attemptToUpdateSubscriber(context, getClient(context, cloudTarget), subscription);
         } catch (CloudOperationException | SLException e) {
             String appName = subscription.getAppName();
             String mtaId = subscription.getMtaId();
@@ -199,7 +198,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         }
     }
 
-    private CloudApplication attemptToUpdateSubscriber(DelegateExecution execution, CloudControllerClient client,
+    private CloudApplication attemptToUpdateSubscriber(ProcessContext context, CloudControllerClient client,
                                                        ConfigurationSubscription subscription) {
         HandlerFactory handlerFactory = new HandlerFactory(MAJOR_SCHEMA_VERSION);
 
@@ -208,8 +207,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(configurationEntryService,
                                                                                                      new DummyConfigurationFilterParser(subscription.getFilter()),
-                                                                                                     new CloudTarget(StepsUtil.getOrg(execution),
-                                                                                                                     StepsUtil.getSpace(execution)),
+                                                                                                     new CloudTarget(context.getVariable(Variables.ORG),
+                                                                                                                     context.getVariable(Variables.SPACE)),
                                                                                                      configuration);
         resolver.resolve(dummyDescriptor);
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(dummyDescriptor));
