@@ -25,11 +25,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.process.AbortFailedProcessCommandFactory;
 
 @Configuration
 public class FlowableConfiguration {
@@ -61,13 +61,13 @@ public class FlowableConfiguration {
     @Bean
     @DependsOn("coreChangelog")
     public SpringProcessEngineConfiguration processEngineConfiguration(DataSource dataSource, PlatformTransactionManager transactionManager,
-                                                                       AsyncExecutor jobExecutor) {
+                                                                       AsyncExecutor jobExecutor, @Lazy FailedJobCommandFactory abortFailedProcessCommandFactory) {
         SpringProcessEngineConfiguration processEngineConfiguration = new SpringProcessEngineConfiguration();
         processEngineConfiguration.setDatabaseSchemaUpdate(DATABASE_SCHEMA_UPDATE);
         processEngineConfiguration.setDataSource(dataSource);
         processEngineConfiguration.setTransactionManager(transactionManager);
         processEngineConfiguration.setDeploymentResources(getFlowableResources());
-        processEngineConfiguration.setFailedJobCommandFactory(getFailedJobCommandFactory());
+        processEngineConfiguration.setFailedJobCommandFactory(abortFailedProcessCommandFactory);
         processEngineConfiguration.setAsyncExecutor(jobExecutor);
         // By default Flowable will retry failed jobs and we don't want that.
         processEngineConfiguration.setAsyncExecutorNumberOfRetries(0);
@@ -81,10 +81,6 @@ public class FlowableConfiguration {
 
     protected List<Resource> getFlowableResourcesAsList() {
         return new ArrayList<>(Arrays.asList(flowableResources));
-    }
-
-    protected FailedJobCommandFactory getFailedJobCommandFactory() {
-        return new AbortFailedProcessCommandFactory();
     }
 
     @Inject
