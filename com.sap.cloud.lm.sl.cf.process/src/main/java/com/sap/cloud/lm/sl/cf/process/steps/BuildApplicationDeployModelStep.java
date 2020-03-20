@@ -38,7 +38,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         modifiedApp = ImmutableCloudApplicationExtended.builder()
                                                        .from(modifiedApp)
                                                        .env(getApplicationEnv(context.getExecution(), modifiedApp))
-                                                       .uris(getApplicationUris(context.getExecution(), modifiedApp))
+                                                       .uris(getApplicationUris(context, modifiedApp))
                                                        .build();
         SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
         String appJson = secureSerializationFacade.toJson(modifiedApp);
@@ -68,33 +68,33 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         return app.getEnv();
     }
 
-    private List<String> getApplicationUris(DelegateExecution execution, CloudApplicationExtended modifiedApp) {
-        if (StepsUtil.getUseIdleUris(execution)) {
+    private List<String> getApplicationUris(ProcessContext context, CloudApplicationExtended modifiedApp) {
+        if (context.getVariable(Variables.USE_IDLE_URIS)) {
             return modifiedApp.getIdleUris();
         }
         return modifiedApp.getUris();
     }
 
     private void buildConfigurationEntries(ProcessContext context, CloudApplicationExtended app) {
-        if (StepsUtil.getSkipUpdateConfigurationEntries(context.getExecution())) {
+        if (context.getVariable(Variables.SKIP_UPDATE_CONFIGURATION_ENTRIES)) {
             context.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, Collections.emptyList());
             return;
         }
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
 
-        ConfigurationEntriesCloudModelBuilder configurationEntriesCloudModelBuilder = getConfigurationEntriesCloudModelBuilder(context.getExecution());
+        ConfigurationEntriesCloudModelBuilder configurationEntriesCloudModelBuilder = getConfigurationEntriesCloudModelBuilder(context);
         Map<String, List<ConfigurationEntry>> allConfigurationEntries = configurationEntriesCloudModelBuilder.build(deploymentDescriptor);
         List<ConfigurationEntry> updatedModuleNames = allConfigurationEntries.getOrDefault(app.getModuleName(), Collections.emptyList());
         context.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, updatedModuleNames);
-        StepsUtil.setSkipUpdateConfigurationEntries(context.getExecution(), false);
+        context.setVariable(Variables.SKIP_UPDATE_CONFIGURATION_ENTRIES, false);
 
         getStepLogger().debug(Messages.CONFIGURATION_ENTRIES_TO_PUBLISH, JsonUtil.toJson(updatedModuleNames, true));
     }
 
-    private ConfigurationEntriesCloudModelBuilder getConfigurationEntriesCloudModelBuilder(DelegateExecution execution) {
-        String orgName = StepsUtil.getOrg(execution);
-        String spaceName = StepsUtil.getSpace(execution);
-        String spaceId = StepsUtil.getSpaceId(execution);
+    private ConfigurationEntriesCloudModelBuilder getConfigurationEntriesCloudModelBuilder(ProcessContext context) {
+        String orgName = context.getVariable(Variables.ORG);
+        String spaceName = context.getVariable(Variables.SPACE);
+        String spaceId = context.getVariable(Variables.SPACE_ID);
         return new ConfigurationEntriesCloudModelBuilder(orgName, spaceName, spaceId);
     }
 

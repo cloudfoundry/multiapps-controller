@@ -22,6 +22,8 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation.State;
@@ -52,10 +54,11 @@ public class OperationInFinalStateHandler {
     private final SafeExecutor safeExecutor = new SafeExecutor();
 
     public void handle(DelegateExecution execution, Operation.State state) {
-        LoggingUtil.logWithCorrelationId(StepsUtil.getCorrelationId(execution), () -> handleInternal(execution, state));
+        LoggingUtil.logWithCorrelationId(VariableHandling.get(execution, Variables.CORRELATION_ID), () -> handleInternal(execution, state));
     }
 
     private void handleInternal(DelegateExecution execution, Operation.State state) {
+        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
         safeExecutor.execute(() -> {
             if (configuration.shouldGatherUsageStatistics()) {
                 sendStatistics(execution, state);
@@ -63,9 +66,9 @@ public class OperationInFinalStateHandler {
         });
         safeExecutor.execute(() -> deleteDeploymentFiles(execution));
         safeExecutor.execute(() -> deleteCloudControllerClientForProcess(execution));
-        safeExecutor.execute(() -> releaseOperationLock(StepsUtil.getCorrelationId(execution)));
-        safeExecutor.execute(() -> setOperationState(StepsUtil.getCorrelationId(execution), state));
-        safeExecutor.execute(() -> aggregateOperationTime(execution));
+        safeExecutor.execute(() -> releaseOperationLock(correlationId));
+        safeExecutor.execute(() -> setOperationState(correlationId, state));
+        safeExecutor.execute(() -> operationTimeAggregator.aggregateOperationTime(correlationId));
     }
 
     protected void sendStatistics(DelegateExecution execution, Operation.State state) {
@@ -82,7 +85,7 @@ public class OperationInFinalStateHandler {
         String extensionDescriptorFileIds = (String) execution.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
         String appArchiveFileIds = (String) execution.getVariable(Constants.PARAM_APP_ARCHIVE_ID);
 
-        FileSweeper fileSweeper = new FileSweeper(StepsUtil.getSpaceId(execution), fileService);
+        FileSweeper fileSweeper = new FileSweeper(VariableHandling.get(execution, Variables.SPACE_ID), fileService);
         fileSweeper.sweep(extensionDescriptorFileIds);
         fileSweeper.sweep(appArchiveFileIds);
     }
@@ -93,9 +96,9 @@ public class OperationInFinalStateHandler {
 
     private void deleteCloudControllerClientForProcess(DelegateExecution execution) {
         String user = StepsUtil.determineCurrentUser(execution);
-        String space = StepsUtil.getSpace(execution);
-        String org = StepsUtil.getOrg(execution);
-        String spaceId = StepsUtil.getSpaceId(execution);
+        String space = VariableHandling.get(execution, Variables.SPACE);
+        String org = VariableHandling.get(execution, Variables.ORG);
+        String spaceId = VariableHandling.get(execution, Variables.SPACE_ID);
 
         clientProvider.releaseClient(user, org, space);
         clientProvider.releaseClient(user, spaceId);
@@ -123,7 +126,4 @@ public class OperationInFinalStateHandler {
         return state == Operation.State.FINISHED ? EventType.FINISHED : EventType.ABORTED;
     }
 
-    private void aggregateOperationTime(DelegateExecution execution) {
-        operationTimeAggregator.aggregateOperationTime(StepsUtil.getCorrelationId(execution));
-    }
 }

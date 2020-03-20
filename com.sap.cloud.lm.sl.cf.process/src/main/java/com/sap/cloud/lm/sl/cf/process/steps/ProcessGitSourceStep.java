@@ -30,6 +30,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.GitRepoCloner;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ContentException;
 
 // Should be executed before ValidateDeployParametersStep as the archive ID is determined during this step execution
@@ -70,7 +71,7 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
             final Path mtaRepoPath = reposDir.resolve(gitRepoPath)
                                              .normalize();
             mtarZip = zipRepoContent(mtaRepoPath);
-            uploadZipToDB(context.getExecution(), mtarZip);
+            uploadZipToDB(context, mtarZip);
         } finally {
             try {
                 deleteTemporaryRepositoryDirectory(reposDir);
@@ -136,19 +137,19 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
         }
     }
 
-    protected void uploadZipToDB(DelegateExecution execution, final Path mtarZip) throws FileStorageException, IOException {
+    protected void uploadZipToDB(ProcessContext context, final Path mtarZip) throws FileStorageException, IOException {
         getStepLogger().info(Messages.UPLOADING_MTAR);
         getStepLogger().debug("uploading file " + mtarZip.toAbsolutePath()
                                                          .toString()
             + " to DB");
-        String spaceId = StepsUtil.getSpaceId(execution);
+        String spaceId = context.getVariable(Variables.SPACE_ID);
         try (InputStream mtarInputStream = Files.newInputStream(mtarZip)) {
-            String serviceId = StepsUtil.getServiceId(execution);
+            String serviceId = context.getVariable(Variables.SERVICE_ID);
             String mtarName = mtarZip.getFileName()
                                      .toString();
             FileEntry entry = fileService.addFile(spaceId, serviceId, mtarName, mtarInputStream);
             String uploadedMtarId = entry.getId();
-            StepsUtil.setArchiveFileId(execution, uploadedMtarId);
+            StepsUtil.setArchiveFileId(context.getExecution(), uploadedMtarId);
         }
         getStepLogger().debug(Messages.MTAR_UPLOADED);
     }

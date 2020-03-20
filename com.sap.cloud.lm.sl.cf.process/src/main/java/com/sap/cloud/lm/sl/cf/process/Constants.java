@@ -65,6 +65,7 @@ public class Constants {
     public static final String VAR_MTA_REQUIRES_FILE_NAME_PREFIX = "mtaRequiresFileName_";
     public static final String VAR_MTA_RESOURCE_FILE_NAME_PREFIX = "mtaResourceFileName_";
     public static final String VAR_MTA_ARCHIVE_MODULES = "mtaArchiveModules";
+    // TODO: Do we use this variable?
     public static final String VAR_NEW_MTA_VERSION = "newMtaVersion";
     public static final String VAR_MTA_MODULES = "mtaModules";
     public static final String MODULE_NAME_TO_MODULE_TYPE_MAP = "moduleNameToModuleTypeMap";
@@ -135,7 +136,8 @@ public class Constants {
     public static final String VAR_MODULE_TO_DEPLOY = "moduleToDeploy";
     public static final String VAR_APP_TO_PROCESS = "appToProcess";
     public static final String VAR_SUBPROCESS_ID = "subProcessId";
-    public static final String VAR_PARENTPROCESS_ID = "parentProcessId";
+    // TODO: Do we use this variable?
+    public static final String VAR_PARENT_PROCESS_ID = "parentProcessId";
     public static final String VAR_SERVICES_TO_CREATE_COUNT = "servicesToCreateCount";
     public static final String VAR_SERVICES_TO_POLL = "servicesToPoll";
     public static final String VAR_ERROR_TYPE = "errorType";
@@ -143,6 +145,7 @@ public class Constants {
     public static final String VAR_USE_IDLE_URIS = "useIdleUris";
     public static final String VAR_DELETE_IDLE_URIS = "deleteIdleUris";
     public static final String VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES = "skipUpdateConfigurationEntries";
+    // TODO: Do we use this variable?
     public static final String VAR_SKIP_MANAGE_SERVICE_BROKER = "skipManageServiceBroker";
     public static final String PROCESS_ABORTED = "__PROCESS_ABORTED";
     public static final String TASK_ID = "__TASK_ID";

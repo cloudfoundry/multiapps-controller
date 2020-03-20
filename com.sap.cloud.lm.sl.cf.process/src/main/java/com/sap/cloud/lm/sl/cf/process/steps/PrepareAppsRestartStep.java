@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 @Named("prepareAppsRestartStep")
@@ -34,10 +35,10 @@ public class PrepareAppsRestartStep extends PrepareModulesDeploymentStep {
                .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
         context.getExecution()
                .setVariable(Constants.VAR_SHOULD_SKIP_SERVICE_REBINDING, true);
-        StepsUtil.setUseIdleUris(context.getExecution(), false);
-        StepsUtil.setDeleteIdleUris(context.getExecution(), true);
-        StepsUtil.setSkipUpdateConfigurationEntries(context.getExecution(), false);
-        StepsUtil.setSkipManageServiceBroker(context.getExecution(), false);
+        context.setVariable(Variables.USE_IDLE_URIS, false);
+        context.setVariable(Variables.DELETE_IDLE_URIS, true);
+        context.setVariable(Variables.SKIP_UPDATE_CONFIGURATION_ENTRIES, false);
+        context.setVariable(Variables.SKIP_MANAGE_SERVICE_BROKER, false);
         StepsUtil.setIteratedModulesInParallel(context.getExecution(), Collections.emptyList());
 
         return StepPhase.DONE;

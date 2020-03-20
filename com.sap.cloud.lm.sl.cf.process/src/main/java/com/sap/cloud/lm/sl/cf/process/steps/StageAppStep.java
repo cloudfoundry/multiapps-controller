@@ -12,7 +12,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -44,7 +43,7 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Integer getTimeout(ProcessContext context) {
-        return StepsUtil.getInteger(context.getExecution(), Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
+        return context.getVariable(Variables.START_TIMEOUT);
     }
 
 }

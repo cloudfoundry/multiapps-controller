@@ -179,7 +179,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             client.updateApplicationMetadata(application.getMetadata()
                                                         .getGuid(),
                                              app.getV3Metadata());
-            StepsUtil.setVcapAppPropertiesChanged(context.getExecution(), true);
+            context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, true);
         }
 
         @Override
@@ -190,13 +190,13 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                 Map<String, Object> bindingParametersForCurrentService = getBindingParametersForService(serviceName, bindingParameters);
                 bindService(context, client, app.getName(), serviceName, bindingParametersForCurrentService);
             }
-            StepsUtil.setVcapServicesPropertiesChanged(context.getExecution(), true);
+            context.setVariable(Variables.VCAP_SERVICES_PROPERTIES_CHANGED, true);
         }
 
         @Override
         public void handleApplicationEnv() {
             client.updateApplicationEnv(app.getName(), app.getEnv());
-            StepsUtil.setUserPropertiesChanged(context.getExecution(), true);
+            context.setVariable(Variables.USER_PROPERTIES_CHANGED, true);
         }
 
         @Override
@@ -244,13 +244,12 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                        .anyMatch(updateState -> updateState == UpdateState.UPDATED);
 
             reportApplicationUpdateStatus(app, arePropertiesChanged);
-            StepsUtil.setVcapAppPropertiesChanged(context.getExecution(), arePropertiesChanged);
-
+            context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, arePropertiesChanged);
         }
 
         @Override
         public void handleApplicationServices() throws FileStorageException {
-            if (StepsUtil.getBoolean(context.getExecution(), Constants.VAR_SHOULD_SKIP_SERVICE_REBINDING, false)) {
+            if (context.getVariable(Variables.SHOULD_SKIP_SERVICE_REBINDING)) {
                 return;
             }
 
@@ -262,7 +261,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             boolean hasUpdatedServices = updateServices(context.getExecution(), app.getName(), bindingParameters, client,
                                                         calculateServicesForUpdate(app, existingApp.getServices()));
 
-            StepsUtil.setVcapServicesPropertiesChanged(context.getExecution(), hasUnboundServices || hasUpdatedServices);
+            context.setVariable(Variables.VCAP_SERVICES_PROPERTIES_CHANGED, hasUnboundServices || hasUpdatedServices);
         }
 
         @Override
@@ -275,7 +274,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             UpdateState updateApplicationEnvironmentState = updateApplicationEnvironment(app, existingApp, client,
                                                                                          app.getAttributesUpdateStrategy());
 
-            StepsUtil.setUserPropertiesChanged(context.getExecution(), updateApplicationEnvironmentState == UpdateState.UPDATED);
+            context.setVariable(Variables.USER_PROPERTIES_CHANGED, updateApplicationEnvironmentState == UpdateState.UPDATED);
         }
 
         @Override
@@ -450,7 +449,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
             }
         };
-        fileService.processFileContent(StepsUtil.getSpaceId(context.getExecution()), archiveId, fileProcessor);
+        fileService.processFileContent(context.getVariable(Variables.SPACE_ID), archiveId, fileProcessor);
     }
 
     private static Map<String, Map<String, Object>>

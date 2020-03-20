@@ -49,7 +49,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
                .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(serviceOperation, true));
         context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, serviceOperation);
 
-        StepsUtil.isServiceUpdated(true, context.getExecution());
+        context.setVariable(Variables.IS_SERVICE_UPDATED, true);
         return StepPhase.POLL;
     }
 

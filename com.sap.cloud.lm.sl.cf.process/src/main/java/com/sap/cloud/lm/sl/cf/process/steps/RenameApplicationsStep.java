@@ -103,7 +103,7 @@ public class RenameApplicationsStep extends SyncFlowableStep {
                 return;
             }
 
-            ApplicationColor liveMtaColor = computeLiveMtaColor(execution, deployedMta);
+            ApplicationColor liveMtaColor = computeLiveMtaColor(context, deployedMta);
             if (liveMtaColor != null) {
                 idleMtaColor = liveMtaColor.getAlternativeColor();
             }
@@ -117,7 +117,7 @@ public class RenameApplicationsStep extends SyncFlowableStep {
             updateApplicationNamesInDescriptor(context, idleMtaColor.asSuffix());
         }
 
-        private ApplicationColor computeLiveMtaColor(DelegateExecution execution, DeployedMta deployedMta) {
+        private ApplicationColor computeLiveMtaColor(ProcessContext context, DeployedMta deployedMta) {
             try {
                 ApplicationColor liveMtaColor = applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta);
                 getStepLogger().info(Messages.DEPLOYED_MTA_COLOR, liveMtaColor);
@@ -125,7 +125,7 @@ public class RenameApplicationsStep extends SyncFlowableStep {
             } catch (ConflictException e) {
                 getStepLogger().warn(e.getMessage());
                 ApplicationColor liveMtaColor = applicationColorDetector.detectLiveApplicationColor(deployedMta,
-                                                                                                    StepsUtil.getCorrelationId(execution));
+                                                                                                    context.getVariable(Variables.CORRELATION_ID));
                 ApplicationColor idleMtaColor = liveMtaColor.getAlternativeColor();
                 getStepLogger().info(Messages.ASSUMED_LIVE_AND_IDLE_COLORS, liveMtaColor, idleMtaColor);
                 return liveMtaColor;

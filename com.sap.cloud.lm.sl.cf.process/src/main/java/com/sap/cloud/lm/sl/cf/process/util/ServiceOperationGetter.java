@@ -18,6 +18,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named
 public class ServiceOperationGetter {
@@ -43,7 +44,7 @@ public class ServiceOperationGetter {
 
     private Map<String, Object> getServiceInstanceEntity(ProcessContext context, CloudServiceExtended service) {
         CloudControllerClient client = context.getControllerClient();
-        return serviceGetter.getServiceInstanceEntity(client, service.getName(), StepsUtil.getSpaceId(context.getExecution()));
+        return serviceGetter.getServiceInstanceEntity(client, service.getName(), context.getVariable(Variables.SPACE_ID));
     }
 
     private ServiceOperation getLastDeleteServiceOperation(ProcessContext context, CloudServiceExtended service) {

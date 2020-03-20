@@ -22,7 +22,6 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.v3.Metadata;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -58,7 +57,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     @Override
     protected StepPhase executeStep(ProcessContext context) throws Exception {
         CloudControllerClient controllerClient = context.getControllerClient();
-        String spaceId = StepsUtil.getSpaceId(context.getExecution());
+        String spaceId = context.getVariable(Variables.SPACE_ID);
         CloudServiceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
 
         context.getStepLogger()
@@ -75,8 +74,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                                                                           serviceKeys, context);
 
         StepsUtil.setServiceActionsToExecute(actions, context.getExecution());
-        StepsUtil.isServiceUpdated(false, context.getExecution());
-        StepsUtil.setServiceToProcessName(serviceToProcess.getName(), context.getExecution());
+        context.setVariable(Variables.IS_SERVICE_UPDATED, false);
+        context.setVariable(Variables.SERVICE_TO_PROCESS_NAME, serviceToProcess.getName());
         return StepPhase.DONE;
     }
 
@@ -126,7 +125,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
         boolean shouldRecreate = false;
         if (haveDifferentTypesOrLabels(service, existingService)) {
-            if (StepsUtil.shouldDeleteServices(context.getExecution())) {
+            if (context.getVariable(Variables.DELETE_SERVICES)) {
                 shouldRecreate = true;
             } else {
                 throw getServiceRecreationNeededException(service, existingService);
@@ -134,7 +133,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
         ServiceOperation lastOperation = getLastOperation(client, spaceId, existingService.getName());
         if (isInDangerousState(lastOperation)) {
-            if (StepsUtil.shouldDeleteServices(context.getExecution())) {
+            if (context.getVariable(Variables.DELETE_SERVICES)) {
                 shouldRecreate = true;
             } else {
                 getStepLogger().warn(Messages.SERVICE_0_IS_IN_STATE_1_AND_MAY_NOT_BE_OPERATIONAL, existingService.getName(), lastOperation);
@@ -219,12 +218,12 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         if (fileName != null) {
             getStepLogger().info(Messages.SETTING_SERVICE_PARAMETERS, service.getName(), fileName);
             String appArchiveId = StepsUtil.getRequiredString(context.getExecution(), Constants.PARAM_APP_ARCHIVE_ID);
-            return setServiceParameters(context.getExecution(), service, appArchiveId, fileName);
+            return setServiceParameters(context, service, appArchiveId, fileName);
         }
         return service;
     }
 
-    private CloudServiceExtended setServiceParameters(DelegateExecution execution, CloudServiceExtended service, final String appArchiveId,
+    private CloudServiceExtended setServiceParameters(ProcessContext context, CloudServiceExtended service, final String appArchiveId,
                                                       final String fileName)
         throws FileStorageException {
         AtomicReference<CloudServiceExtended> serviceReference = new AtomicReference<>();
@@ -235,7 +234,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
             }
         };
-        fileService.processFileContent(StepsUtil.getSpaceId(execution), appArchiveId, parametersFileProcessor);
+        fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId, parametersFileProcessor);
         return serviceReference.get();
     }
 

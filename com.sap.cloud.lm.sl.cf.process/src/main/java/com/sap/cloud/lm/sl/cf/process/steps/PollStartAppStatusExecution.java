@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
@@ -64,8 +63,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     }
 
     private StartupStatus getStartupStatus(ProcessContext context, CloudApplication app, List<InstanceInfo> appInstances) {
-        // The default value here is provided for undeploy processes:
-        boolean failOnCrashed = StepsUtil.getBoolean(context.getExecution(), Constants.PARAM_FAIL_ON_CRASHED, true);
+        boolean failOnCrashed = context.getVariable(Variables.FAIL_ON_CRASHED);
 
         if (appInstances != null) {
             int expectedInstances = app.getInstances();

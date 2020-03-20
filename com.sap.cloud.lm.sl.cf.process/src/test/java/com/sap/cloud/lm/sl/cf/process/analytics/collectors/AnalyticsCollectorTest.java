@@ -34,6 +34,8 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
@@ -106,15 +108,15 @@ public class AnalyticsCollectorTest {
     public void mockMtaSize() throws Exception {
         when(execution.getVariable(Constants.PARAM_APP_ARCHIVE_ID)).thenReturn(ARCHIVE_ID);
         FileEntry fileEntry = Mockito.mock(FileEntry.class);
-        when(fileService.getFile(StepsUtil.getSpaceId(execution), ARCHIVE_ID)).thenReturn(fileEntry);
+        when(fileService.getFile(VariableHandling.get(execution, Variables.SPACE_ID), ARCHIVE_ID)).thenReturn(fileEntry);
         when(fileEntry.getSize()).thenReturn(BigInteger.valueOf(1234));
     }
 
     private void prepareContextForDeploy() {
         when(execution.getProcessInstanceId()).thenReturn(PROCESS_ID);
         when(execution.getVariable(Constants.PARAM_MTA_ID)).thenReturn(MTA_ID);
-        execution.setVariable(Constants.VAR_SPACE, SPACE_NAME);
-        execution.setVariable(Constants.VAR_ORG, ORG_NAME);
+        VariableHandling.set(execution, Variables.SPACE, SPACE_NAME);
+        VariableHandling.set(execution, Variables.ORG, ORG_NAME);
 
         when(execution.getVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME)).thenReturn(Module.class.getName());
         when(execution.getVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY)).thenReturn(mockModulesToDeploy(2));

@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -26,7 +25,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     private class ProcessDescriptorStepMock extends ProcessDescriptorStep {
 
         @Override
-        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(DelegateExecution execution) {
+        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(ProcessContext context) {
             return resolver;
         }
 
@@ -43,11 +42,11 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     private void prepareContext() {
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, DEPLOYMENT_DESCRIPTOR);
 
-        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
-        execution.setVariable(Constants.PARAM_USE_NAMESPACES, false);
-        execution.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
+        context.setVariable(Variables.SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
+        context.setVariable(Variables.USE_NAMESPACES, false);
+        context.setVariable(Variables.USE_NAMESPACES_FOR_SERVICES, false);
 
-        execution.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
+        context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
     }
 
     @Test

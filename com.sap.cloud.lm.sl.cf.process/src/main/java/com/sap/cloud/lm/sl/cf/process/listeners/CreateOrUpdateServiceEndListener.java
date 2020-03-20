@@ -9,7 +9,8 @@ import org.flowable.engine.impl.context.Context;
 import org.flowable.engine.runtime.Execution;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("createOrUpdateServiceEndListener")
 public class CreateOrUpdateServiceEndListener implements ExecutionListener {
@@ -18,8 +19,8 @@ public class CreateOrUpdateServiceEndListener implements ExecutionListener {
 
     @Override
     public void notify(DelegateExecution execution) {
-        boolean isServiceUpdated = StepsUtil.getIsServiceUpdated(execution);
-        String serviceName = StepsUtil.getServiceToProcessName(execution);
+        boolean isServiceUpdated = VariableHandling.get(execution, Variables.IS_SERVICE_UPDATED);
+        String serviceName = VariableHandling.get(execution, Variables.SERVICE_TO_PROCESS_NAME);
         if (serviceName == null) {
             throw new IllegalStateException("Not able to determine service update status.");
         }

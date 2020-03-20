@@ -38,12 +38,11 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
         context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
         StepsUtil.setAllModulesToDeploy(context.getExecution(), Collections.emptyList());
         context.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, Collections.emptyList());
-        context.getExecution()
-               .setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 2);
+        context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 2);
 
         conflictPreventerSupplier.apply(operationService)
-                                 .acquireLock(mtaId, StepsUtil.getSpaceId(context.getExecution()), context.getExecution()
-                                                                                                          .getProcessInstanceId());
+                                 .acquireLock(mtaId, context.getVariable(Variables.SPACE_ID), context.getExecution()
+                                                                                                     .getProcessInstanceId());
 
         getStepLogger().debug(Messages.COMPONENTS_TO_UNDEPLOY_DETECTED);
 

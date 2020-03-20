@@ -21,6 +21,8 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
@@ -50,7 +52,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         if (!isRootProcess(execution)) {
             return;
         }
-        String correlationId = StepsUtil.getCorrelationId(execution);
+        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
         ProcessType processType = processTypeParser.getProcessType(execution);
 
         if (getOperation(correlationId) == null) {
@@ -78,8 +80,8 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private void logProcessVariables(DelegateExecution execution, ProcessType processType) {
         getStepLogger().debug(Messages.CURRENT_USER, StepsUtil.determineCurrentUser(execution));
-        getStepLogger().debug(Messages.CLIENT_SPACE, StepsUtil.getSpace(execution));
-        getStepLogger().debug(Messages.CLIENT_ORG, StepsUtil.getOrg(execution));
+        getStepLogger().debug(Messages.CLIENT_SPACE, VariableHandling.get(execution, Variables.SPACE));
+        getStepLogger().debug(Messages.CLIENT_ORG, VariableHandling.get(execution, Variables.ORG));
         Map<String, Object> processVariables = findProcessVariables(execution, processType);
         getStepLogger().debug(Messages.PROCESS_VARIABLES, JsonUtil.toJson(processVariables, true));
     }
@@ -101,7 +103,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
                                                 .processId(correlationId)
                                                 .processType(processType)
                                                 .startedAt(currentTimeSupplier.get())
-                                                .spaceId(StepsUtil.getSpaceId(execution))
+                                                .spaceId(VariableHandling.get(execution, Variables.SPACE_ID))
                                                 .user(StepsUtil.determineCurrentUser(execution))
                                                 .hasAcquiredLock(false)
                                                 .build();

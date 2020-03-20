@@ -79,9 +79,9 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
         if (Boolean.parseBoolean(appContentChangedString)) {
             return true;
         }
-        boolean appPropertiesChanged = StepsUtil.getVcapAppPropertiesChanged(context.getExecution());
-        boolean servicesPropertiesChanged = StepsUtil.getVcapServicesPropertiesChanged(context.getExecution());
-        boolean userPropertiesChanged = StepsUtil.getUserPropertiesChanged(context.getExecution());
+        boolean appPropertiesChanged = context.getVariable(Variables.VCAP_APP_PROPERTIES_CHANGED);
+        boolean servicesPropertiesChanged = context.getVariable(Variables.VCAP_SERVICES_PROPERTIES_CHANGED);
+        boolean userPropertiesChanged = context.getVariable(Variables.USER_PROPERTIES_CHANGED);
 
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
         RestartParameters restartParameters = app.getRestartParameters();

@@ -97,7 +97,7 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
 
     private CloudServiceBroker getServiceBrokerToCreate(ProcessContext context) {
         CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
-        CloudServiceBroker serviceBroker = getServiceBrokerFromApp(app, context.getExecution());
+        CloudServiceBroker serviceBroker = getServiceBrokerFromApp(context, app);
         if (serviceBroker == null) {
             return null;
         }
@@ -106,7 +106,7 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
         return serviceBroker;
     }
 
-    protected CloudServiceBroker getServiceBrokerFromApp(CloudApplication app, DelegateExecution execution) {
+    protected CloudServiceBroker getServiceBrokerFromApp(ProcessContext context, CloudApplication app) {
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
         if (!appAttributes.get(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
             return null;
@@ -116,7 +116,7 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
         String serviceBrokerUsername = appAttributes.get(SupportedParameters.SERVICE_BROKER_USERNAME, String.class);
         String serviceBrokerPassword = appAttributes.get(SupportedParameters.SERVICE_BROKER_PASSWORD, String.class);
         String serviceBrokerUrl = appAttributes.get(SupportedParameters.SERVICE_BROKER_URL, String.class);
-        String serviceBrokerSpaceGuid = getServiceBrokerSpaceGuid(execution, appAttributes);
+        String serviceBrokerSpaceGuid = getServiceBrokerSpaceGuid(context, appAttributes);
 
         if (serviceBrokerName == null) {
             throw new ContentException(Messages.MISSING_SERVICE_BROKER_NAME, app.getName());
@@ -140,9 +140,9 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
                                           .build();
     }
 
-    private String getServiceBrokerSpaceGuid(DelegateExecution execution, ApplicationAttributes appAttributes) {
+    private String getServiceBrokerSpaceGuid(ProcessContext context, ApplicationAttributes appAttributes) {
         boolean isSpaceScoped = appAttributes.get(SupportedParameters.SERVICE_BROKER_SPACE_SCOPED, Boolean.class, false);
-        return isSpaceScoped ? StepsUtil.getSpaceId(execution) : null;
+        return isSpaceScoped ? context.getVariable(Variables.SPACE_ID) : null;
     }
 
     public static List<String> getServiceBrokerNames(List<? extends CloudServiceBroker> serviceBrokers) {

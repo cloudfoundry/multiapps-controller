@@ -165,9 +165,8 @@ public class StepsUtilTest {
 
     @Test
     public void testShouldVerifyArchiveSignatureSet() {
-        Mockito.when(execution.getVariable(Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE))
-               .thenReturn(true);
-        Assertions.assertTrue(StepsUtil.shouldVerifyArchiveSignature(execution));
+        VariableHandling.set(execution, Variables.VERIFY_ARCHIVE_SIGNATURE, true);
+        VariableHandling.get(execution, Variables.VERIFY_ARCHIVE_SIGNATURE);
     }
 
 }

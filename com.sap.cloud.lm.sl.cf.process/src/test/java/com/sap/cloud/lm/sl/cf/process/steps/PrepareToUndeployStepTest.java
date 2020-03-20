@@ -43,7 +43,7 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
         assertStepFinishedSuccessfully();
         Assertions.assertEquals(Collections.emptyList(), context.getVariable(Variables.APPS_TO_DEPLOY));
         Assertions.assertEquals(Collections.emptySet(), context.getVariable(Variables.MTA_MODULES));
-        Assertions.assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntriesFromSubProcesses(execution, flowableFacadeFacade));
+        Assertions.assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacadeFacade));
     }
 
     @Test
@@ -59,7 +59,7 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
         assertStepFinishedSuccessfully();
         Assertions.assertEquals(Collections.emptyList(), context.getVariable(Variables.APPS_TO_DEPLOY));
         Assertions.assertEquals(getMtaModulesNames(createDeployedMtaApplications()), context.getVariable(Variables.MTA_MODULES));
-        Assertions.assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntriesFromSubProcesses(execution, flowableFacadeFacade));
+        Assertions.assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacadeFacade));
     }
 
     private DeployedMta createDeployedMta() {

@@ -14,7 +14,8 @@ import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageT
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 
 /**
@@ -161,9 +162,9 @@ public class StepLogger implements UserMessageLogger {
 
     private void sendProgressMessage(String message, ProgressMessageType type) {
         try {
-            String taskId = StepsUtil.getTaskId(execution);
+            String taskId = VariableHandling.get(execution, Variables.TASK_ID);
             progressMessageService.add(ImmutableProgressMessage.builder()
-                                                               .processId(StepsUtil.getCorrelationId(execution))
+                                                               .processId(VariableHandling.get(execution, Variables.CORRELATION_ID))
                                                                .taskId(taskId)
                                                                .type(type)
                                                                .text(message)

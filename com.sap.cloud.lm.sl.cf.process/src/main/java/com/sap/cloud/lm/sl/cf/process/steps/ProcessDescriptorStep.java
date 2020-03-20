@@ -40,7 +40,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.RESOLVING_DESCRIPTOR_PROPERTIES);
 
         DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
-        MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(execution);
+        MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(context);
 
         descriptor = resolver.resolve(descriptor);
 
@@ -71,17 +71,17 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         return Messages.ERROR_RESOLVING_DESCRIPTOR_PROPERTIES;
     }
 
-    protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(DelegateExecution execution) {
-        return new MtaDescriptorPropertiesResolver(buildMtaDescriptorPropertiesResolverContext(execution));
+    protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(ProcessContext context) {
+        return new MtaDescriptorPropertiesResolver(buildMtaDescriptorPropertiesResolverContext(context));
     }
 
-    private MtaDescriptorPropertiesResolverContext buildMtaDescriptorPropertiesResolverContext(DelegateExecution execution) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution);
-        CloudTarget cloudTarget = new CloudTarget(StepsUtil.getOrg(execution), StepsUtil.getSpace(execution));
-        String currentSpaceId = StepsUtil.getSpaceId(execution);
-        boolean useNamespacesForServices = StepsUtil.getUseNamespacesForService(execution);
-        boolean useNamespaces = StepsUtil.getUseNamespaces(execution);
-        boolean setIdleRoutes = StepsUtil.getUseIdleUris(execution);
+    private MtaDescriptorPropertiesResolverContext buildMtaDescriptorPropertiesResolverContext(ProcessContext context) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
+        CloudTarget cloudTarget = new CloudTarget(context.getVariable(Variables.ORG), context.getVariable(Variables.SPACE));
+        String currentSpaceId = context.getVariable(Variables.SPACE_ID);
+        boolean useNamespacesForServices = context.getVariable(Variables.USE_NAMESPACES_FOR_SERVICES);
+        boolean useNamespaces = context.getVariable(Variables.USE_NAMESPACES);
+        boolean setIdleRoutes = context.getVariable(Variables.USE_IDLE_URIS);
 
         return ImmutableMtaDescriptorPropertiesResolverContext.builder()
                                                               .handlerFactory(handlerFactory)

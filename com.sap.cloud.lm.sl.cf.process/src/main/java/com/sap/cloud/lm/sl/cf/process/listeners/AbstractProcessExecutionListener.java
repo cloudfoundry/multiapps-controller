@@ -11,11 +11,11 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.HistoricOperationEventPersister;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public abstract class AbstractProcessExecutionListener implements ExecutionListener {
@@ -40,10 +40,10 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     @Override
     public void notify(DelegateExecution execution) {
         try {
-            String correlationId = StepsUtil.getCorrelationId(execution);
+            String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
             if (correlationId == null) {
                 correlationId = execution.getProcessInstanceId();
-                execution.setVariable(Constants.VAR_CORRELATION_ID, correlationId);
+                VariableHandling.set(execution, Variables.CORRELATION_ID, correlationId);
             }
             this.stepLogger = createStepLogger(execution);
             notifyInternal(execution);
@@ -65,11 +65,11 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     }
 
     protected void finalizeLogs(DelegateExecution execution) {
-        processLogsPersister.persistLogs(StepsUtil.getCorrelationId(execution), getTaskId(execution));
+        processLogsPersister.persistLogs(VariableHandling.get(execution, Variables.CORRELATION_ID), getTaskId(execution));
     }
 
     private String getTaskId(DelegateExecution execution) {
-        String taskId = (String) execution.getVariable(Constants.TASK_ID);
+        String taskId = VariableHandling.get(execution, Variables.TASK_ID);
         return taskId != null ? taskId : execution.getCurrentActivityId();
     }
 
@@ -89,7 +89,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     }
 
     protected boolean isRootProcess(DelegateExecution execution) {
-        String correlationId = StepsUtil.getCorrelationId(execution);
+        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
         String processInstanceId = execution.getProcessInstanceId();
         return processInstanceId.equals(correlationId);
     }

@@ -19,7 +19,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.Messages;
@@ -103,7 +102,7 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
 
         assertStepFinishedSuccessfully();
 
-        assertEquals(expectedMajor, execution.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION));
+        assertEquals((Integer) expectedMajor, context.getVariable(Variables.MTA_MAJOR_SCHEMA_VERSION));
     }
 
     @Test

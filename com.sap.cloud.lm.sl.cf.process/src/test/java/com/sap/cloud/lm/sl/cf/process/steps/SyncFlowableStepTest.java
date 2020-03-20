@@ -86,16 +86,16 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
         this.stepLogger = Mockito.spy(new StepLogger(execution, progressMessageService, processLoggerProvider, LOGGER));
+        this.context = step.createProcessContext(execution);
         when(stepLoggerFactory.create(any(), any(), any(), any())).thenReturn(stepLogger);
-        execution.setVariable(Constants.VAR_SPACE, SPACE_NAME);
-        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, SPACE_GUID);
+        context.setVariable(Variables.SPACE, SPACE_NAME);
+        context.setVariable(Variables.SPACE_ID, SPACE_GUID);
         execution.setVariable(Constants.VAR_USER, USER_NAME);
-        execution.setVariable(Constants.VAR_ORG, ORG_NAME);
-        when(clientProvider.getControllerClient(any(), any())).thenReturn(client);
+        context.setVariable(Variables.ORG, ORG_NAME);
         when(clientProvider.getControllerClient(any(), any(), any(), any())).thenReturn(client);
+        when(clientProvider.getControllerClient(any(), any())).thenReturn(client);
         execution.setVariable("correlationId", getCorrelationId());
         execution.setVariable("__TASK_ID", getTaskId());
-        prepareExecution();
         prepareProcessEngineConfiguration();
         context.setVariable(Variables.MODULE_TO_DEPLOY, Module.createV3()
                                                               .setName("testModule"));
@@ -134,10 +134,6 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         ExecutionQuery mockExecutionQuery = Mockito.mock(ExecutionQuery.class);
         when(mockRuntimeService.createExecutionQuery()).thenReturn(mockExecutionQuery);
         return mockExecutionQuery;
-    }
-
-    private void prepareExecution() {
-        context = step.createExecutionWrapper(execution);
     }
 
     protected void assertStepFinishedSuccessfully() {

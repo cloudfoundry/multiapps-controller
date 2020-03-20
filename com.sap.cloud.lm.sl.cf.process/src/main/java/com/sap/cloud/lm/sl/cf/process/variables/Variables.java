@@ -27,6 +27,100 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 
 public interface Variables {
 
+    Variable<String> CORRELATION_ID = ImmutableVariable.<String> builder()
+                                                       .name(Constants.VAR_CORRELATION_ID)
+                                                       .build();
+    Variable<String> ORG = ImmutableVariable.<String> builder()
+                                            .name(Constants.VAR_ORG)
+                                            .build();
+    Variable<String> SPACE = ImmutableVariable.<String> builder()
+                                              .name(Constants.VAR_SPACE)
+                                              .build();
+    Variable<String> ORG_ID = ImmutableVariable.<String> builder()
+                                               .name(Constants.VAR_ORG_ID)
+                                               .build();
+    Variable<String> SPACE_ID = ImmutableVariable.<String> builder()
+                                                 .name(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID)
+                                                 .build();
+    Variable<String> NEW_MTA_VERSION = ImmutableVariable.<String> builder()
+                                                        .name(Constants.VAR_NEW_MTA_VERSION)
+                                                        .build();
+    Variable<String> PARENT_PROCESS_ID = ImmutableVariable.<String> builder()
+                                                          .name(Constants.VAR_PARENT_PROCESS_ID)
+                                                          .build();
+    Variable<String> SUBPROCESS_ID = ImmutableVariable.<String> builder()
+                                                      .name(Constants.VAR_SUBPROCESS_ID)
+                                                      .build();
+    Variable<String> SERVICE_ID = ImmutableVariable.<String> builder()
+                                                   .name(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID)
+                                                   .build();
+    Variable<String> TASK_ID = ImmutableVariable.<String> builder()
+                                                .name(Constants.TASK_ID)
+                                                .build();
+    Variable<String> SERVICE_TO_PROCESS_NAME = ImmutableVariable.<String> builder()
+                                                                .name(Constants.VAR_SERVICE_TO_PROCESS_NAME)
+                                                                .build();
+    Variable<Integer> MTA_MAJOR_SCHEMA_VERSION = ImmutableVariable.<Integer> builder()
+                                                                  .name(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION)
+                                                                  .build();
+    Variable<Integer> START_TIMEOUT = ImmutableVariable.<Integer> builder()
+                                                       .name(Constants.PARAM_START_TIMEOUT)
+                                                       .defaultValue(Constants.DEFAULT_START_TIMEOUT)
+                                                       .build();
+    Variable<Boolean> SKIP_MANAGE_SERVICE_BROKER = ImmutableVariable.<Boolean> builder()
+                                                                    .name(Constants.VAR_SKIP_MANAGE_SERVICE_BROKER)
+                                                                    .build();
+    Variable<Boolean> VERIFY_ARCHIVE_SIGNATURE = ImmutableVariable.<Boolean> builder()
+                                                                  .name(Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE)
+                                                                  .build();
+    Variable<Boolean> DELETE_IDLE_URIS = ImmutableVariable.<Boolean> builder()
+                                                          .name(Constants.VAR_DELETE_IDLE_URIS)
+                                                          .defaultValue(false)
+                                                          .build();
+    Variable<Boolean> USE_IDLE_URIS = ImmutableVariable.<Boolean> builder()
+                                                       .name(Constants.VAR_USE_IDLE_URIS)
+                                                       .defaultValue(false)
+                                                       .build();
+    Variable<Boolean> USE_NAMESPACES = ImmutableVariable.<Boolean> builder()
+                                                        .name(Constants.PARAM_USE_NAMESPACES)
+                                                        .defaultValue(false)
+                                                        .build();
+    Variable<Boolean> USE_NAMESPACES_FOR_SERVICES = ImmutableVariable.<Boolean> builder()
+                                                                     .name(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES)
+                                                                     .defaultValue(false)
+                                                                     .build();
+    Variable<Boolean> IS_SERVICE_UPDATED = ImmutableVariable.<Boolean> builder()
+                                                            .name(Constants.VAR_IS_SERVICE_UPDATED)
+                                                            .defaultValue(false)
+                                                            .build();
+    Variable<Boolean> SKIP_UPDATE_CONFIGURATION_ENTRIES = ImmutableVariable.<Boolean> builder()
+                                                                           .name(Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES)
+                                                                           .defaultValue(false)
+                                                                           .build();
+    Variable<Boolean> FAIL_ON_CRASHED = ImmutableVariable.<Boolean> builder()
+                                                         .name(Constants.PARAM_FAIL_ON_CRASHED)
+                                                         .defaultValue(true)
+                                                         .build();
+    Variable<Boolean> USER_PROPERTIES_CHANGED = ImmutableVariable.<Boolean> builder()
+                                                                 .name(Constants.VAR_USER_PROPERTIES_CHANGED)
+                                                                 .defaultValue(false)
+                                                                 .build();
+    Variable<Boolean> VCAP_APP_PROPERTIES_CHANGED = ImmutableVariable.<Boolean> builder()
+                                                                     .name(Constants.VAR_VCAP_APP_PROPERTIES_CHANGED)
+                                                                     .defaultValue(false)
+                                                                     .build();
+    Variable<Boolean> VCAP_SERVICES_PROPERTIES_CHANGED = ImmutableVariable.<Boolean> builder()
+                                                                          .name(Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED)
+                                                                          .defaultValue(false)
+                                                                          .build();
+    Variable<Boolean> SHOULD_SKIP_SERVICE_REBINDING = ImmutableVariable.<Boolean> builder()
+                                                                       .name(Constants.VAR_SHOULD_SKIP_SERVICE_REBINDING)
+                                                                       .defaultValue(false)
+                                                                       .build();
+    Variable<Boolean> DELETE_SERVICES = ImmutableVariable.<Boolean> builder()
+                                                         .name(Constants.PARAM_DELETE_SERVICES)
+                                                         .defaultValue(false)
+                                                         .build();
     Variable<DeploymentDescriptor> DEPLOYMENT_DESCRIPTOR = ImmutableVariable.<DeploymentDescriptor> builder()
                                                                             .name(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR)
                                                                             .type(Variable.typeReference(DeploymentDescriptor.class))

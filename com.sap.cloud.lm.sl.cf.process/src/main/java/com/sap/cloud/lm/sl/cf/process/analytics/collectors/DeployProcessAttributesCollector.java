@@ -84,7 +84,7 @@ public class DeployProcessAttributesCollector extends AbstractCommonProcessAttri
     private BigInteger computeMtaSize(String appArchiveId, DelegateExecution execution) throws FileStorageException {
         BigInteger mtaSize = BigInteger.valueOf(0);
         for (String appId : appArchiveId.split(",")) {
-            FileEntry fileEntry = fileService.getFile(StepsUtil.getSpaceId(execution), appId);
+            FileEntry fileEntry = fileService.getFile(VariableHandling.get(execution, Variables.SPACE_ID), appId);
             mtaSize = mtaSize.add(entrySize(fileEntry));
         }
         return mtaSize;

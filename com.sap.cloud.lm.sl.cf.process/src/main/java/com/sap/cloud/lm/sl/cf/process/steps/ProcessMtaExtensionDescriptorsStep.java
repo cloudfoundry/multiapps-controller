@@ -36,7 +36,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
         DelegateExecution execution = context.getExecution();
         getStepLogger().debug(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
         List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(execution);
-        String spaceId = StepsUtil.getSpaceId(execution);
+        String spaceId = context.getVariable(Variables.SPACE_ID);
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
 
         List<ExtensionDescriptor> extensionDescriptors = parseExtensionDescriptors(spaceId, extensionDescriptorFileIds);

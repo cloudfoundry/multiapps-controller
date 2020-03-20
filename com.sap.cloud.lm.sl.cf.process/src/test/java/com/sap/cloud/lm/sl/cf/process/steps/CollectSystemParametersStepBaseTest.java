@@ -49,11 +49,11 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
         when(configuration.getDeployServiceUrl()).thenReturn(MULTIAPPS_CONTROLLER_URL);
 
         execution.setVariable(Constants.VAR_USER, USER);
-        execution.setVariable(Constants.VAR_ORG, ORG);
-        execution.setVariable(Constants.VAR_SPACE, SPACE);
+        context.setVariable(Variables.ORG, ORG);
+        context.setVariable(Variables.SPACE, SPACE);
 
-        execution.setVariable(Constants.PARAM_USE_NAMESPACES, DEFAULT_USE_NAMESPACES);
-        execution.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, DEFAULT_USE_NAMESPACES_FOR_SERVICES);
+        context.setVariable(Variables.USE_NAMESPACES, DEFAULT_USE_NAMESPACES);
+        context.setVariable(Variables.USE_NAMESPACES_FOR_SERVICES, DEFAULT_USE_NAMESPACES_FOR_SERVICES);
         execution.setVariable(Constants.PARAM_VERSION_RULE, VERSION_RULE);
 
         step.credentialsGeneratorSupplier = () -> credentialsGenerator;

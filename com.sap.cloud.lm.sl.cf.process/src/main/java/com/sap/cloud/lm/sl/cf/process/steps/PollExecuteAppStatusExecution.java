@@ -11,7 +11,6 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +72,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         CloudApplication app = getNextApp(context);
         CloudControllerClient client = context.getControllerClient();
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
-        AppExecutionDetailedStatus status = getAppExecutionStatus(context.getExecution(), client, appAttributes, app);
+        AppExecutionDetailedStatus status = getAppExecutionStatus(context, client, appAttributes, app);
         ProcessLoggerProvider processLoggerProvider = context.getStepLogger()
                                                              .getProcessLoggerProvider();
         StepsUtil.saveAppLogs(context.getExecution(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
@@ -90,13 +89,14 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         return context.getVariable(Variables.APP_TO_PROCESS);
     }
 
-    private AppExecutionDetailedStatus getAppExecutionStatus(DelegateExecution execution, CloudControllerClient client,
+    private AppExecutionDetailedStatus getAppExecutionStatus(ProcessContext context, CloudControllerClient client,
                                                              ApplicationAttributes appAttributes, CloudApplication app) {
-        long startTime = (long) execution.getVariable(Constants.VAR_START_TIME);
+        long startTime = (long) context.getExecution()
+                                       .getVariable(Constants.VAR_START_TIME);
         Marker sm = getMarker(appAttributes, SupportedParameters.SUCCESS_MARKER, DEFAULT_SUCCESS_MARKER);
         Marker fm = getMarker(appAttributes, SupportedParameters.FAILURE_MARKER, DEFAULT_FAILURE_MARKER);
         boolean checkDeployId = appAttributes.get(SupportedParameters.CHECK_DEPLOY_ID, Boolean.class, Boolean.FALSE);
-        String deployId = checkDeployId ? (StepsUtil.DEPLOY_ID_PREFIX + StepsUtil.getCorrelationId(execution)) : null;
+        String deployId = checkDeployId ? (StepsUtil.DEPLOY_ID_PREFIX + context.getVariable(Variables.CORRELATION_ID)) : null;
 
         List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName(), null);
         return recentLogs.stream()

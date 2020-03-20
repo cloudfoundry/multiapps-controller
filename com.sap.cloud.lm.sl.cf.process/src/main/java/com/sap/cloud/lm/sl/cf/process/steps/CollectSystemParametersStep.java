@@ -55,8 +55,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
         DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         checkForOverwrittenReadOnlyParameters(descriptor);
-        SystemParameters systemParameters = createSystemParameters(context.getExecution(), client, defaultDomainName,
-                                                                   reserveTemporaryRoutes);
+        SystemParameters systemParameters = createSystemParameters(context, client, defaultDomainName, reserveTemporaryRoutes);
         systemParameters.injectInto(descriptor);
         getStepLogger().debug(Messages.DESCRIPTOR_WITH_SYSTEM_PARAMETERS, secureSerializer.toJson(descriptor));
 
@@ -87,17 +86,18 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.NO_READ_ONLY_PARAMETERS_ARE_OVERWRITTEN);
     }
 
-    private SystemParameters createSystemParameters(DelegateExecution execution, CloudControllerClient client, String defaultDomain,
+    private SystemParameters createSystemParameters(ProcessContext context, CloudControllerClient client, String defaultDomain,
                                                     boolean reserveTemporaryRoutes) {
         String authorizationEndpoint = client.getCloudInfo()
                                              .getAuthorizationEndpoint();
-        String user = (String) execution.getVariable(Constants.VAR_USER);
+        String user = (String) context.getExecution()
+                                      .getVariable(Constants.VAR_USER);
 
         URL controllerUrl = configuration.getControllerUrl();
         String deployServiceUrl = configuration.getDeployServiceUrl();
 
-        return new SystemParameters.Builder().organization(StepsUtil.getOrg(execution))
-                                             .space(StepsUtil.getSpace(execution))
+        return new SystemParameters.Builder().organization(context.getVariable(Variables.ORG))
+                                             .space(context.getVariable(Variables.SPACE))
                                              .user(user)
                                              .defaultDomain(defaultDomain)
                                              .controllerUrl(controllerUrl)

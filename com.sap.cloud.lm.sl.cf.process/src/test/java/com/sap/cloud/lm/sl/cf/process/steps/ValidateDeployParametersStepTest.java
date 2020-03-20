@@ -29,6 +29,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.FilePartsMerger;
 import com.sap.cloud.lm.sl.cf.process.util.JarSignatureOperations;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
@@ -116,9 +117,9 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
         execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, stepInput.extDescriptorId);
         execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_START_TIMEOUT, stepInput.startTimeout);
         execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_VERSION_RULE, stepInput.versionRule);
-        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, "space-id");
-        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID, "service-id");
-        execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE, stepInput.shouldVerifyArchive);
+        context.setVariable(Variables.SPACE_ID, "space-id");
+        context.setVariable(Variables.SERVICE_ID, "service-id");
+        context.setVariable(Variables.VERIFY_ARCHIVE_SIGNATURE, stepInput.shouldVerifyArchive);
     }
 
     private void prepareFileService() throws FileStorageException {

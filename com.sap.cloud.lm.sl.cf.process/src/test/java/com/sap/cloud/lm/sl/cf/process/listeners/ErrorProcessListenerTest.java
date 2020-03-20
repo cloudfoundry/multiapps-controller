@@ -13,10 +13,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.OperationInErrorStateHandler;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTimeCalculator;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class ErrorProcessListenerTest {
 
@@ -124,8 +125,7 @@ public class ErrorProcessListenerTest {
 
     private DelegateExecution mockExecutionWithCorrelationId() {
         DelegateExecution execution = MockDelegateExecution.createSpyInstance();
-        Mockito.when(execution.getVariable(Constants.VAR_CORRELATION_ID))
-               .thenReturn("abc");
+        VariableHandling.set(execution, Variables.CORRELATION_ID, "abc");
         return execution;
     }
 

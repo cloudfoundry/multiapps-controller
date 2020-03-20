@@ -29,7 +29,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -147,7 +146,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
     }
 
     protected void prepareContext() {
-        execution.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
+        context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
         context.setVariable(Variables.MTA_MODULES, Collections.emptySet());
         context.setVariable(Variables.MTA_ARCHIVE_MODULES, Collections.emptySet());
@@ -167,9 +166,9 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         tester.test(() -> StepsUtil.getModulesToDeploy(execution), new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
         tester.test(() -> StepsUtil.getAllModulesToDeploy(execution),
                     new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
-        assertFalse(StepsUtil.getUseIdleUris(execution));
+        assertFalse(context.getVariable(Variables.USE_IDLE_URIS));
         assertEquals(input.customDomains, context.getVariable(Variables.CUSTOM_DOMAINS));
-        assertEquals(output.newMtaVersion, StepsUtil.getNewMtaVersion(execution));
+        assertEquals(output.newMtaVersion, context.getVariable(Variables.NEW_MTA_VERSION));
     }
 
     protected void loadParameters() {

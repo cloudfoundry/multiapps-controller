@@ -45,6 +45,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -68,7 +69,7 @@ public class StepsUtil {
 
     static CloudControllerClient getControllerClient(DelegateExecution execution, CloudControllerClientProvider clientProvider) {
         String userName = determineCurrentUser(execution);
-        String spaceId = getSpaceId(execution);
+        String spaceId = VariableHandling.get(execution, Variables.SPACE_ID);
         return clientProvider.getControllerClient(userName, spaceId);
     }
 
@@ -127,36 +128,8 @@ public class StepsUtil {
     }
 
     public static HandlerFactory getHandlerFactory(VariableScope scope) {
-        int majorSchemaVersion = getInteger(scope, Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
+        int majorSchemaVersion = VariableHandling.get(scope, Variables.MTA_MAJOR_SCHEMA_VERSION);
         return new HandlerFactory(majorSchemaVersion);
-    }
-
-    public static String getOrg(VariableScope scope) {
-        return getString(scope, Constants.VAR_ORG);
-    }
-
-    public static String getOrgId(VariableScope scope) {
-        return getString(scope, Constants.VAR_ORG_ID);
-    }
-
-    public static String getSpaceId(VariableScope scope) {
-        return getString(scope, com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID);
-    }
-
-    public static void setSpaceId(VariableScope scope, String spaceId) {
-        scope.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, spaceId);
-    }
-
-    public static String getSpace(VariableScope scope) {
-        return getString(scope, Constants.VAR_SPACE);
-    }
-
-    static String getNewMtaVersion(VariableScope scope) {
-        return getString(scope, Constants.VAR_NEW_MTA_VERSION);
-    }
-
-    static void setNewMtaVersion(VariableScope scope, String version) {
-        scope.setVariable(Constants.VAR_NEW_MTA_VERSION, version);
     }
 
     public static List<CloudServiceExtended> getServicesToCreate(VariableScope scope) {
@@ -245,10 +218,11 @@ public class StepsUtil {
         return Arrays.asList(JsonUtil.fromJsonBinary(deletedEntriesByteArray, ConfigurationEntry[].class));
     }
 
-    static List<ConfigurationEntry> getDeletedEntriesFromAllProcesses(VariableScope scope, FlowableFacade flowableFacade) {
+    static List<ConfigurationEntry> getDeletedEntriesFromAllProcesses(ProcessContext context, FlowableFacade flowableFacade) {
+        String correlationId = context.getVariable(Variables.CORRELATION_ID);
         List<ConfigurationEntry> configurationEntries = new ArrayList<>(StepsUtil.getDeletedEntriesFromProcess(flowableFacade,
-                                                                                                               StepsUtil.getCorrelationId(scope)));
-        List<String> subProcessIds = flowableFacade.getHistoricSubProcessIds(StepsUtil.getCorrelationId(scope));
+                                                                                                               correlationId));
+        List<String> subProcessIds = flowableFacade.getHistoricSubProcessIds(correlationId);
         for (String subProcessId : subProcessIds) {
             configurationEntries.addAll(getDeletedEntriesFromProcess(flowableFacade, subProcessId));
         }
@@ -265,9 +239,9 @@ public class StepsUtil {
         return Arrays.asList(JsonUtil.fromJsonBinary(binaryJson, ConfigurationEntry[].class));
     }
 
-    static List<ConfigurationEntry> getPublishedEntriesFromSubProcesses(VariableScope scope, FlowableFacade flowableFacade) {
+    static List<ConfigurationEntry> getPublishedEntriesFromSubProcesses(ProcessContext context, FlowableFacade flowableFacade) {
         List<ConfigurationEntry> result = new ArrayList<>();
-        List<String> subProcessIds = flowableFacade.getHistoricSubProcessIds(StepsUtil.getCorrelationId(scope));
+        List<String> subProcessIds = flowableFacade.getHistoricSubProcessIds(context.getVariable(Variables.CORRELATION_ID));
         for (String subProcessId : subProcessIds) {
             result.addAll(getPublishedEntriesFromProcess(flowableFacade, subProcessId));
         }
@@ -305,30 +279,6 @@ public class StepsUtil {
         return yaml.getBytes(StandardCharsets.UTF_8);
     }
 
-    static void setVcapAppPropertiesChanged(VariableScope scope, boolean state) {
-        scope.setVariable(Constants.VAR_VCAP_APP_PROPERTIES_CHANGED, state);
-    }
-
-    static boolean getVcapAppPropertiesChanged(VariableScope scope) {
-        return getBoolean(scope, Constants.VAR_VCAP_APP_PROPERTIES_CHANGED, false);
-    }
-
-    static void setVcapServicesPropertiesChanged(VariableScope scope, boolean state) {
-        scope.setVariable(Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED, state);
-    }
-
-    static boolean getVcapServicesPropertiesChanged(VariableScope scope) {
-        return getBoolean(scope, Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED, false);
-    }
-
-    static void setUserPropertiesChanged(VariableScope scope, boolean state) {
-        scope.setVariable(Constants.VAR_USER_PROPERTIES_CHANGED, state);
-    }
-
-    static boolean getUserPropertiesChanged(VariableScope scope) {
-        return getBoolean(scope, Constants.VAR_USER_PROPERTIES_CHANGED, false);
-    }
-
     static CloudTask getTask(ProcessContext context) {
         List<CloudTask> tasks = context.getVariable(Variables.TASKS_TO_EXECUTE);
         int index = (Integer) context.getExecution()
@@ -349,18 +299,6 @@ public class StepsUtil {
                                               .map(ApplicationStateAction::toString)
                                               .collect(Collectors.toSet());
         scope.setVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE, actionsAsStrings);
-    }
-
-    public static void setSubProcessId(VariableScope scope, String subProcessId) {
-        scope.setVariable(Constants.VAR_SUBPROCESS_ID, subProcessId);
-    }
-
-    public static String getSubProcessId(VariableScope scope) {
-        return getString(scope, Constants.VAR_SUBPROCESS_ID);
-    }
-
-    static String getParentProcessId(VariableScope scope) {
-        return getString(scope, Constants.VAR_PARENTPROCESS_ID);
     }
 
     static void saveAppLogs(DelegateExecution execution, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
@@ -390,14 +328,6 @@ public class StepsUtil {
         execution.setVariable(com.sap.cloud.lm.sl.cf.core.Constants.LOGS_OFFSET, newOffset);
     }
 
-    public static String getCorrelationId(VariableScope scope) {
-        return getString(scope, Constants.VAR_CORRELATION_ID);
-    }
-
-    public static String getTaskId(VariableScope scope) {
-        return getString(scope, Constants.TASK_ID);
-    }
-
     public static ErrorType getErrorType(VariableScope scope) {
         return getEnum(scope, Constants.VAR_ERROR_TYPE, ErrorType::valueOf);
     }
@@ -424,10 +354,6 @@ public class StepsUtil {
         scope.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedMtarId);
     }
 
-    public static String getServiceId(VariableScope scope) {
-        return getString(scope, com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SERVICE_ID);
-    }
-
     public static void incrementVariable(VariableScope scope, String name) {
         int value = getInteger(scope, name);
         scope.setVariable(name, value + 1);
@@ -436,7 +362,7 @@ public class StepsUtil {
     static ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ProcessContext context) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
 
-        String deployId = DEPLOY_ID_PREFIX + getCorrelationId(context.getExecution());
+        String deployId = DEPLOY_ID_PREFIX + context.getVariable(Variables.CORRELATION_ID);
 
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
 
@@ -465,46 +391,6 @@ public class StepsUtil {
         return gitRepoConfigMap.get(Constants.PARAM_GIT_URI);
     }
 
-    static void setUseIdleUris(VariableScope scope, boolean state) {
-        scope.setVariable(Constants.VAR_USE_IDLE_URIS, state);
-    }
-
-    static boolean getUseIdleUris(VariableScope scope) {
-        return getBoolean(scope, Constants.VAR_USE_IDLE_URIS, false);
-    }
-
-    public static void setDeleteIdleUris(VariableScope scope, boolean state) {
-        scope.setVariable(Constants.VAR_DELETE_IDLE_URIS, state);
-    }
-
-    static boolean getDeleteIdleUris(VariableScope scope) {
-        return getBoolean(scope, Constants.VAR_DELETE_IDLE_URIS, false);
-    }
-
-    static boolean getUseNamespacesForService(VariableScope scope) {
-        return getBoolean(scope, Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
-    }
-
-    static boolean getUseNamespaces(VariableScope scope) {
-        return getBoolean(scope, Constants.PARAM_USE_NAMESPACES, false);
-    }
-
-    public static void setSkipUpdateConfigurationEntries(VariableScope scope, boolean update) {
-        scope.setVariable(Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES, update);
-    }
-
-    public static boolean getSkipUpdateConfigurationEntries(VariableScope scope) {
-        return getBoolean(scope, Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES, false);
-    }
-
-    public static void setSkipManageServiceBroker(VariableScope scope, boolean manage) {
-        scope.setVariable(Constants.VAR_SKIP_MANAGE_SERVICE_BROKER, manage);
-    }
-
-    public static boolean getSkipManageServiceBroker(VariableScope scope) {
-        return getBoolean(scope, Constants.VAR_SKIP_MANAGE_SERVICE_BROKER);
-    }
-
     public static void setServicesData(VariableScope scope, List<CloudServiceExtended> servicesData) {
         scope.setVariable(Constants.VAR_SERVICES_DATA, JsonUtil.toJsonBinary(servicesData));
     }
@@ -528,14 +414,6 @@ public class StepsUtil {
                   .equals(appGuid);
     }
 
-    public static boolean shouldDeleteServices(VariableScope scope) {
-        return getBoolean(scope, Constants.PARAM_DELETE_SERVICES, false);
-    }
-
-    public static boolean shouldVerifyArchiveSignature(VariableScope scope) {
-        return getBoolean(scope, Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE);
-    }
-
     public static void setServiceActionsToExecute(List<ServiceAction> actions, VariableScope scope) {
         List<String> actionsStrings = actions.stream()
                                              .map(ServiceAction::toString)
@@ -549,22 +427,6 @@ public class StepsUtil {
         return actionStrings.stream()
                             .map(ServiceAction::valueOf)
                             .collect(Collectors.toList());
-    }
-
-    public static void isServiceUpdated(boolean isUpdated, VariableScope scope) {
-        scope.setVariable(Constants.VAR_IS_SERVICE_UPDATED, isUpdated);
-    }
-
-    public static boolean getIsServiceUpdated(VariableScope scope) {
-        return getBoolean(scope, Constants.VAR_IS_SERVICE_UPDATED, false);
-    }
-
-    public static void setServiceToProcessName(String name, VariableScope scope) {
-        scope.setVariable(Constants.VAR_SERVICE_TO_PROCESS_NAME, name);
-    }
-
-    public static String getServiceToProcessName(VariableScope scope) {
-        return getString(scope, Constants.VAR_SERVICE_TO_PROCESS_NAME);
     }
 
     public static boolean getIsServiceUpdatedExportedVariable(VariableScope scope, String serviceName) {
@@ -608,10 +470,6 @@ public class StepsUtil {
     public static <E> E getEnum(VariableScope scope, String name, Function<String, E> factory) {
         String value = getObject(scope, name);
         return value == null ? null : factory.apply(value);
-    }
-
-    public static Boolean getBoolean(VariableScope scope, String name) {
-        return getBoolean(scope, name, null);
     }
 
     public static Boolean getBoolean(VariableScope scope, String name, Boolean defaultValue) {

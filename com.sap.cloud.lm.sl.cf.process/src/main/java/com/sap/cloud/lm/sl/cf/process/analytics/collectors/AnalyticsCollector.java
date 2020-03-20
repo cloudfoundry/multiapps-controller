@@ -18,8 +18,9 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AbstractCommonProcessAttributes;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 
 @Named("analyticsCollector")
@@ -50,8 +51,8 @@ public class AnalyticsCollector {
         long endTime = getEndTime();
         long processDuration = getProcessDurationInSeconds(processId);
         String mtaId = (String) execution.getVariable(Constants.PARAM_MTA_ID);
-        String org = StepsUtil.getOrg(execution);
-        String space = StepsUtil.getSpace(execution);
+        String org = VariableHandling.get(execution, Variables.ORG);
+        String space = VariableHandling.get(execution, Variables.SPACE);
         String controllerUrl = configuration.getControllerUrl()
                                             .toString();
         AbstractCommonProcessAttributes attributes = getProcessType(processType).collectProcessVariables(execution);

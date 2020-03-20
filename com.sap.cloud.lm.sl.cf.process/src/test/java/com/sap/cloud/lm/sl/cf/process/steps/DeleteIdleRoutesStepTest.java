@@ -63,7 +63,7 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
 
     private void prepareContext(String existingAppFile, String appToDeployFile, CloudOperationException exceptionThrownByClient) {
         prepareClient(exceptionThrownByClient);
-        StepsUtil.setDeleteIdleUris(execution, true);
+        context.setVariable(Variables.DELETE_IDLE_URIS, true);
         setExistingAppInContext(existingAppFile);
         CloudApplicationExtended appToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(appToDeployFile, getClass()),
                                                                  new TypeReference<CloudApplicationExtended>() {
