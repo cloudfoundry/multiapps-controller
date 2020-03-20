@@ -46,7 +46,10 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
                 Arguments.of("undeploy-apps-step-input-04.json", "undeploy-apps-step-output-04.json"),
                 
                 // (4) There are not found routes matching app uri:
-                Arguments.of("undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json")
+                Arguments.of("undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json"),
+
+                // (5) There is a route that should be deleted, but it is bound to a service instance:
+                Arguments.of("undeploy-apps-step-input-06.json", "undeploy-apps-step-output-06.json")
         );
     }
     // @formatter:on
