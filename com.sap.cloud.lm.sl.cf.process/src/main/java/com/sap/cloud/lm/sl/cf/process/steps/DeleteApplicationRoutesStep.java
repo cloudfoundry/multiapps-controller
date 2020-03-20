@@ -61,7 +61,8 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep {
     private void deleteApplicationRoutes(CloudControllerClient client, List<CloudRoute> routes, String uri) {
         try {
             CloudRoute route = UriUtil.findRoute(routes, uri);
-            if (route.getAppsUsingRoute() > 1) {
+            if (route.getAppsUsingRoute() > 1 || route.hasServiceUsingRoute()) {
+                getStepLogger().warn(Messages.ROUTE_NOT_DELETED, uri);
                 return;
             }
         } catch (NotFoundException e) {
