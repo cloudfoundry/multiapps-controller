@@ -7,8 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -45,6 +47,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.AbortProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.flowable.ProcessAction;
@@ -106,10 +109,10 @@ public class OperationsApiServiceImplTest {
     public void initialize() {
         MockitoAnnotations.initMocks(this);
         operations = new LinkedList<>();
-        operations.add(createOperation(FINISHED_PROCESS, Operation.State.FINISHED));
-        operations.add(createOperation(RUNNING_PROCESS, Operation.State.RUNNING));
-        operations.add(createOperation(ERROR_PROCESS, Operation.State.ERROR));
-        operations.add(createOperation(ABORTED_PROCESS, Operation.State.ABORTED));
+        operations.add(createOperation(FINISHED_PROCESS, Operation.State.FINISHED, Collections.emptyMap()));
+        operations.add(createOperation(RUNNING_PROCESS, Operation.State.RUNNING, Collections.emptyMap()));
+        operations.add(createOperation(ERROR_PROCESS, Operation.State.ERROR, Collections.emptyMap()));
+        operations.add(createOperation(ABORTED_PROCESS, Operation.State.ABORTED, Collections.emptyMap()));
 
         AuditLoggingProvider.setFacade(Mockito.mock(AuditLoggingFacade.class));
         setupOperationServiceMock();
@@ -191,7 +194,12 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testStartOperation() {
-        testedClass.startOperation(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, createOperation(null, null));
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put(Constants.PARAM_MTA_ID, "test");
+        Operation operation = createOperation(null, null, parameters);
+        Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
+               .thenReturn("deploy");
+        testedClass.startOperation(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, operation);
         Mockito.verify(flowableFacade)
                .startProcess(Mockito.any(), Mockito.anyMap());
     }
@@ -369,12 +377,13 @@ public class OperationsApiServiceImplTest {
                .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
-    private Operation createOperation(String processId, Operation.State state) {
+    private Operation createOperation(String processId, Operation.State state, Map<String, Object> parameters) {
         return ImmutableOperation.builder()
                                  .state(state)
                                  .spaceId(SPACE_GUID)
                                  .processId(processId)
                                  .processType(ProcessType.DEPLOY)
+                                 .parameters(parameters)
                                  .build();
     }
 }
