@@ -9,7 +9,6 @@ import javax.inject.Named;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.UploadToken;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -39,7 +38,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
         CloudApplication app = client.getApplication(appName);
         ApplicationStartupState currentState = computeCurrentState(app);
         getStepLogger().debug(Messages.CURRENT_STATE, appName, currentState);
-        ApplicationStartupState desiredState = computeDesiredState(context.getExecution(), app);
+        ApplicationStartupState desiredState = computeDesiredState(context, app);
         getStepLogger().debug(Messages.DESIRED_STATE, appName, desiredState);
         UploadToken uploadToken = context.getVariable(Variables.UPLOAD_TOKEN);
         boolean appHasUnstagedContent = uploadToken != null;
@@ -62,8 +61,8 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
                                          .computeCurrentState(app);
     }
 
-    private ApplicationStartupState computeDesiredState(DelegateExecution execution, CloudApplication app) {
-        boolean shouldNotStartAnyApp = (boolean) execution.getVariable(Constants.PARAM_NO_START);
+    private ApplicationStartupState computeDesiredState(ProcessContext context, CloudApplication app) {
+        boolean shouldNotStartAnyApp = context.getVariable(Variables.NO_START);
         return appStateCalculatorSupplier.get()
                                          .computeDesiredState(app, shouldNotStartAnyApp);
     }

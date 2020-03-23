@@ -90,7 +90,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         when(stepLoggerFactory.create(any(), any(), any(), any())).thenReturn(stepLogger);
         context.setVariable(Variables.SPACE, SPACE_NAME);
         context.setVariable(Variables.SPACE_ID, SPACE_GUID);
-        execution.setVariable(Constants.VAR_USER, USER_NAME);
+        context.setVariable(Variables.USER, USER_NAME);
         context.setVariable(Variables.ORG, ORG_NAME);
         when(clientProvider.getControllerClient(any(), any(), any(), any())).thenReturn(client);
         when(clientProvider.getControllerClient(any(), any())).thenReturn(client);

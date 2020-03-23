@@ -33,7 +33,6 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -126,9 +125,9 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
 
     private void prepareContext() {
         context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, stepInput.getServiceKeysToCreate());
-        execution.setVariable(Constants.VAR_SERVICE_TO_PROCESS, JsonUtil.toJson(stepInput.service));
-        execution.setVariable(Constants.PARAM_DELETE_SERVICE_KEYS, true);
-        execution.setVariable(Constants.PARAM_DELETE_SERVICES, stepInput.shouldDeleteServices);
+        context.setVariable(Variables.SERVICE_TO_PROCESS, stepInput.service);
+        context.setVariable(Variables.DELETE_SERVICE_KEYS, true);
+        context.setVariable(Variables.DELETE_SERVICES, stepInput.shouldDeleteServices);
     }
 
     @Test

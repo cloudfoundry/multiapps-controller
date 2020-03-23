@@ -23,10 +23,10 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceWithAlternativesCreator;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution.ExecutionState;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("createServiceStep")
@@ -39,18 +39,18 @@ public class CreateServiceStep extends ServiceStep {
     @Override
     protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
                                                        CloudServiceExtended service) {
-        return createService(context.getExecution(), controllerClient, service);
+        return createService(context, controllerClient, service);
     }
 
-    private MethodExecution<String> createService(DelegateExecution execution, CloudControllerClient client, CloudServiceExtended service) {
+    private MethodExecution<String> createService(ProcessContext context, CloudControllerClient controllerClient, CloudServiceExtended service) {
         getStepLogger().info(Messages.CREATING_SERVICE_FROM_MTA_RESOURCE, service.getName(), service.getResourceName());
 
         try {
-            MethodExecution<String> createServiceMethodExecution = createCloudService(execution, client, service);
+            MethodExecution<String> createServiceMethodExecution = createCloudService(context.getExecution(), controllerClient, service);
             getStepLogger().debug(Messages.SERVICE_CREATED, service.getName());
             return createServiceMethodExecution;
         } catch (CloudOperationException e) {
-            processServiceCreationFailure(execution, service, e);
+            processServiceCreationFailure(context, service, e);
         }
 
         return new MethodExecution<>(null, ExecutionState.FINISHED);
@@ -86,12 +86,12 @@ public class CreateServiceStep extends ServiceStep {
         return createService;
     }
 
-    private void processServiceCreationFailure(DelegateExecution execution, CloudServiceExtended service, CloudOperationException e) {
+    private void processServiceCreationFailure(ProcessContext context, CloudServiceExtended service, CloudOperationException e) {
         if (!service.isOptional()) {
             String detailedDescription = MessageFormat.format(Messages.ERROR_CREATING_SERVICE, service.getName(), service.getLabel(),
                                                               service.getPlan(), e.getDescription());
             if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
-                StepsUtil.setServiceOffering(execution, Constants.VAR_SERVICE_OFFERING, service.getLabel());
+                context.setVariable(Variables.SERVICE_OFFERING, service.getLabel());
                 throw new CloudServiceBrokerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
             }
             throw new CloudControllerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
@@ -124,8 +124,8 @@ public class CreateServiceStep extends ServiceStep {
     }
 
     @Override
-    protected String getStepErrorMessageAdditionalDescription(DelegateExecution execution) {
-        String offering = StepsUtil.getServiceOffering(execution);
+    protected String getStepErrorMessageAdditionalDescription(ProcessContext context) {
+        String offering = context.getVariable(Variables.SERVICE_OFFERING);
         return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, offering);
     }
 

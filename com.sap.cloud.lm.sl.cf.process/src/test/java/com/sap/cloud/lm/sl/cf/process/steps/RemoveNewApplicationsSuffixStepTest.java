@@ -13,7 +13,6 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<RemoveNewApplicationsSuffixStep> {
@@ -26,7 +25,7 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
 
     @BeforeEach
     public void setUp() {
-        execution.setVariable(Constants.PARAM_KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
+        context.setVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
         Mockito.when(query.list())
                .thenReturn(Collections.emptyList());
         Mockito.when(subscriptionService.createQuery())

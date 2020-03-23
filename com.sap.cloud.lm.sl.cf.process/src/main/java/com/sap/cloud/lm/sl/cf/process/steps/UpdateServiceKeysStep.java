@@ -10,7 +10,6 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -18,7 +17,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution.ExecutionState;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -53,7 +51,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
         List<CloudServiceKey> serviceKeysToUpdate = getServiceKeysToUpdate(serviceKeys, existingServiceKeys);
         List<CloudServiceKey> serviceKeysToDelete = getServiceKeysToDelete(serviceKeys, existingServiceKeys);
 
-        if (canDeleteServiceKeys(context.getExecution())) {
+        if (canDeleteServiceKeys(context)) {
             deleteServiceKeys(client, serviceKeysToDelete);
             // Recreate the service keys, which should be updated, as direct update is not supported
             // by the controller:
@@ -108,8 +106,8 @@ public class UpdateServiceKeysStep extends ServiceStep {
                           .orElse(null);
     }
 
-    private boolean canDeleteServiceKeys(DelegateExecution execution) {
-        return (boolean) execution.getVariable(Constants.PARAM_DELETE_SERVICE_KEYS);
+    private boolean canDeleteServiceKeys(ProcessContext context) {
+        return context.getVariable(Variables.DELETE_SERVICE_KEYS);
     }
 
     private boolean areServiceKeysEqual(CloudServiceKey key1, CloudServiceKey key2) {

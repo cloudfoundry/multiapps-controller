@@ -48,7 +48,7 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
         when(configuration.getControllerUrl()).thenReturn(new URL(CONTROLLER_URL));
         when(configuration.getDeployServiceUrl()).thenReturn(MULTIAPPS_CONTROLLER_URL);
 
-        execution.setVariable(Constants.VAR_USER, USER);
+        context.setVariable(Variables.USER, USER);
         context.setVariable(Variables.ORG, ORG);
         context.setVariable(Variables.SPACE, SPACE);
 

@@ -183,7 +183,7 @@ public class UploadAppStepTest {
                                                                             .build();
             context.setVariable(Variables.APP_TO_PROCESS, app);
             execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
-            execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
+            context.setVariable(Variables.APP_ARCHIVE_ID, APP_ARCHIVE);
             context.setVariable(Variables.SPACE_ID, SPACE);
             mtaArchiveElements.addModuleFileName(APP_NAME, APP_FILE);
             context.setVariable(Variables.MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
@@ -355,7 +355,7 @@ public class UploadAppStepTest {
                                                                             .build();
             context.setVariable(Variables.APP_TO_PROCESS, app);
             execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
-            execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
+            context.setVariable(Variables.APP_ARCHIVE_ID, APP_ARCHIVE);
             context.setVariable(Variables.SPACE_ID, SPACE);
             MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
             mtaArchiveElements.addModuleFileName(APP_NAME, APP_NAME);

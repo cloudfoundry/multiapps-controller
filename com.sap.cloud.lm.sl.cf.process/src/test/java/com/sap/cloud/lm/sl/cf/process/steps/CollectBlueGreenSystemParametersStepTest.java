@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.SystemParameters;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
@@ -19,7 +18,7 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
 
     @Before
     public void setNoConfirm() {
-        execution.setVariable(Constants.PARAM_NO_CONFIRM, false);
+        context.setVariable(Variables.NO_CONFIRM, false);
     }
 
     @Test

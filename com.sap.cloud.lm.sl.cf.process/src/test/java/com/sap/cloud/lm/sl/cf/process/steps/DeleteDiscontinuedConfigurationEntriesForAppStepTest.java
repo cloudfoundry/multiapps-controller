@@ -28,7 +28,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -125,7 +124,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
         context.setVariable(Variables.ORG, input.org);
         context.setVariable(Variables.SPACE, input.space);
         context.setVariable(Variables.EXISTING_APP, input.existingApp);
-        execution.setVariable(Constants.PARAM_MTA_ID, input.mtaId);
+        context.setVariable(Variables.MTA_ID, input.mtaId);
         context.setVariable(Variables.PUBLISHED_ENTRIES, input.publishedEntries);
     }
 

@@ -14,7 +14,6 @@ import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -33,8 +32,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.DELETING_PUBLISHED_DEPENDENCIES);
-        String mtaId = (String) context.getExecution()
-                                       .getVariable(Constants.PARAM_MTA_ID);
+        String mtaId = context.getVariable(Variables.MTA_ID);
         String org = context.getVariable(Variables.ORG);
         String space = context.getVariable(Variables.SPACE);
         CloudTarget target = new CloudTarget(org, space);

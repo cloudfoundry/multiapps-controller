@@ -58,14 +58,14 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private void validateParameters(ProcessContext context) {
-        validateStartTimeout(context.getExecution());
+        validateStartTimeout(context);
         validateExtensionDescriptorFileIds(context);
         validateVersionRule(context.getExecution());
         validateArchive(context);
     }
 
-    private void validateStartTimeout(DelegateExecution execution) {
-        Object parameter = execution.getVariable(Constants.PARAM_START_TIMEOUT);
+    private void validateStartTimeout(ProcessContext context) {
+        Object parameter = context.getVariable(Variables.START_TIMEOUT);
         if (parameter == null) {
             return;
         }
@@ -76,8 +76,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private void validateExtensionDescriptorFileIds(ProcessContext context) {
-        String extensionDescriptorFileId = (String) context.getExecution()
-                                                           .getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
+        String extensionDescriptorFileId = context.getVariable(Variables.EXT_DESCRIPTOR_FILE_ID);
         if (extensionDescriptorFileId == null) {
             return;
         }
@@ -200,8 +199,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private void persistMergedArchive(Path archivePath, ProcessContext context) {
         FileEntry uploadedArchive = persistArchive(archivePath, context);
-        context.getExecution()
-               .setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedArchive.getId());
+        context.setVariable(Variables.APP_ARCHIVE_ID, uploadedArchive.getId());
     }
 
     private FileEntry persistArchive(Path archivePath, ProcessContext context) {

@@ -91,7 +91,7 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
     private void prepareContext() {
         context.setVariable(Variables.SPACE, stepInput.space);
         context.setVariable(Variables.ORG, stepInput.org);
-        execution.setVariable(Constants.PARAM_MTA_ID, stepInput.mtaId);
+        context.setVariable(Variables.MTA_ID, stepInput.mtaId);
         Mockito.when(execution.getProcessInstanceId())
                .thenReturn("process-instance-id");
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))

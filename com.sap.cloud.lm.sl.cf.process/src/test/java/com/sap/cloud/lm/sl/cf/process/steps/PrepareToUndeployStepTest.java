@@ -18,7 +18,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -29,7 +28,7 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
 
     @BeforeEach
     public void setUp() {
-        execution.setVariable(Constants.PARAM_MTA_ID, MTA_ID);
+        context.setVariable(Variables.MTA_ID, MTA_ID);
 
         step.conflictPreventerSupplier = service -> mock(ProcessConflictPreventer.class);
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))

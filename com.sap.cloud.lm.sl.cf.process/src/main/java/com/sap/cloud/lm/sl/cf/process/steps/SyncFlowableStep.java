@@ -117,7 +117,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
      *        {@link #handleException(DelegateExecution, Exception) handleException}
      */
     protected void onStepError(ProcessContext context, Exception e) throws Exception {
-        processException(e, getStepErrorMessage(context), getErrorMessageAdditionalDescription(e, context.getExecution()));
+        processException(e, getStepErrorMessage(context), getErrorMessageAdditionalDescription(e, context));
     }
 
     protected void processException(Exception e, String detailedMessage, String description) throws Exception {
@@ -125,12 +125,12 @@ public abstract class SyncFlowableStep implements JavaDelegate {
         throw getExceptionConstructor(e).apply(e, detailedMessage + ": " + e.getMessage() + " " + description);
     }
 
-    protected String getErrorMessageAdditionalDescription(Exception e, DelegateExecution execution) {
+    protected String getErrorMessageAdditionalDescription(Exception e, ProcessContext context) {
         if (e instanceof ContentException) {
             return StringUtils.EMPTY;
         }
         if (e instanceof CloudServiceBrokerException) {
-            return getStepErrorMessageAdditionalDescription(execution);
+            return getStepErrorMessageAdditionalDescription(context);
         }
         if (e instanceof CloudOperationException || e instanceof CloudControllerException) {
             return ExceptionMessageTailMapper.map(configuration, CloudComponents.CLOUD_CONTROLLER, null);
@@ -201,7 +201,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
         return processLogsPersister;
     }
 
-    protected String getStepErrorMessageAdditionalDescription(DelegateExecution execution) {
+    protected String getStepErrorMessageAdditionalDescription(ProcessContext context) {
         return StringUtils.EMPTY;
     }
 

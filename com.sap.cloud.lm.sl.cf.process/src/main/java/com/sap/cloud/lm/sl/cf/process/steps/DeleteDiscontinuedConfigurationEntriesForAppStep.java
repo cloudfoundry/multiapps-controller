@@ -22,7 +22,6 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -47,8 +46,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowab
             return StepPhase.DONE;
         }
         getStepLogger().info(Messages.DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP, existingApp.getName());
-        String mtaId = (String) context.getExecution()
-                                       .getVariable(Constants.PARAM_MTA_ID);
+        String mtaId = context.getVariable(Variables.MTA_ID);
         MtaMetadata mtaMetadata = getMtaMetadata(existingApp);
         if (mtaMetadata == null) {
             return StepPhase.DONE;

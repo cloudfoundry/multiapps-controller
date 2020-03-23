@@ -19,9 +19,11 @@ public class Constants {
     public static final String PARAM_EXT_DESCRIPTOR_FILE_ID = "mtaExtDescriptorId";
     public static final String PARAM_NO_START = "noStart";
     public static final String PARAM_START_TIMEOUT = "startTimeout";
+    // TODO: Do we use this variable?
     public static final String PARAM_UPLOAD_TIMEOUT = "uploadTimeout";
     public static final String PARAM_USE_NAMESPACES = "useNamespaces";
     public static final String PARAM_USE_NAMESPACES_FOR_SERVICES = "useNamespacesForServices";
+    // TODO: Do we use this variable?
     public static final String PARAM_ALLOW_INVALID_ENV_NAMES = "allowInvalidEnvNames";
     public static final String PARAM_VERSION_RULE = "versionRule";
     public static final String PARAM_DELETE_SERVICES = "deleteServices";
@@ -53,6 +55,7 @@ public class Constants {
 
     public static final String VAR_USER = "user";
 
+    // TODO: Do we use this variable?
     public static final String VAR_MTA_MANIFEST = "mtaManifest";
     public static final String VAR_MTA_DEPLOYMENT_DESCRIPTOR = "mtaDeploymentDescriptor";
     public static final String VAR_MTA_DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS = "mtaDeploymentDescriptorWithSystemParameters";
@@ -67,16 +70,20 @@ public class Constants {
     // TODO: Do we use this variable?
     public static final String VAR_NEW_MTA_VERSION = "newMtaVersion";
     public static final String VAR_MTA_MODULES = "mtaModules";
+    // TODO: Do we use this variable?
     public static final String MODULE_NAME_TO_MODULE_TYPE_MAP = "moduleNameToModuleTypeMap";
+    // TODO: Do we use this variable?
     public static final String VAR_MTA_MODULES_TO_DEPLOY_ALWAYS = "mtaModulesToDeployAlways";
 
     public static final String VAR_APP_STATE_ACTIONS_TO_EXECUTE = "appStateActionsToExecute";
     public static final String VAR_DEPLOYED_MTA = "deployedMta";
+    // TODO: Do we use this variable?
     public static final String VAR_SYSTEM_PARAMETERS = "systemParameters";
     public static final String VAR_ORG = "org";
     public static final String VAR_ORG_ID = "orgId";
     public static final String VAR_SPACE = "space";
     public static final String VAR_CUSTOM_DOMAINS = "customDomains";
+    // TODO: Do we use this variable?
     public static final String VAR_DEPLOYED_APPS = "deployedApps";
     public static final String VAR_SERVICES_TO_CREATE = "servicesToCreate";
     public static final String VAR_SERVICE_TO_PROCESS = "serviceToProcess";
@@ -89,10 +96,12 @@ public class Constants {
     public static final String VAR_SERVICES_TO_BIND = "servicesToBind";
     public static final String VAR_SERVICE_KEYS_TO_CREATE = "serviceKeysToCreate";
     public static final String VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT = "serviceKeysCredentialsToInject";
+    // TODO: Do we use this variable?
     public static final String VAR_MODULES_TO_DEPLOY_CLASSNAME = "modulesToDeployClassname";
     public static final String VAR_MODULES_TO_DEPLOY = "modulesToDeploy";
     public static final String VAR_ALL_MODULES_TO_DEPLOY = "allModulesToDeploy";
     public static final String VAR_APPS_TO_DEPLOY = "appsToDeploy";
+    // TODO: Do we use this variable?
     public static final String VAR_CONTENTS_TO_DEPLOY = "contentsToDeploy";
     public static final String VAR_DEPLOYMENT_MODE = "deploymentMode";
     public static final String VAR_ITERATED_MODULES_IN_PARALLEL = "iteratedModulesInParallel";

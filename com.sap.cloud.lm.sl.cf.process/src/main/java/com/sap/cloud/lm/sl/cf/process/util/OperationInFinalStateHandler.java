@@ -19,7 +19,6 @@ import com.sap.cloud.lm.sl.cf.core.util.LoggingUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SafeExecutor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
@@ -78,20 +77,16 @@ public class OperationInFinalStateHandler {
     }
 
     protected void deleteDeploymentFiles(DelegateExecution execution) throws FileStorageException {
-        if (shouldKeepFiles((Boolean) execution.getVariable(Constants.PARAM_KEEP_FILES))) {
+        if (VariableHandling.get(execution, Variables.KEEP_FILES)) {
             return;
         }
 
-        String extensionDescriptorFileIds = (String) execution.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
-        String appArchiveFileIds = (String) execution.getVariable(Constants.PARAM_APP_ARCHIVE_ID);
+        String extensionDescriptorFileIds = VariableHandling.get(execution, Variables.EXT_DESCRIPTOR_FILE_ID);
+        String appArchiveFileIds = VariableHandling.get(execution, Variables.APP_ARCHIVE_ID);
 
         FileSweeper fileSweeper = new FileSweeper(VariableHandling.get(execution, Variables.SPACE_ID), fileService);
         fileSweeper.sweep(extensionDescriptorFileIds);
         fileSweeper.sweep(appArchiveFileIds);
-    }
-
-    private boolean shouldKeepFiles(Boolean keepFiles) {
-        return keepFiles != null && keepFiles;
     }
 
     private void deleteCloudControllerClientForProcess(DelegateExecution execution) {

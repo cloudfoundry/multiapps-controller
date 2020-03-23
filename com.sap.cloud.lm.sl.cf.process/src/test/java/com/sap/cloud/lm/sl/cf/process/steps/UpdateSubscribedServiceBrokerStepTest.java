@@ -96,7 +96,7 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
     }
 
     private void prepareContext() {
-        execution.setVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX, 0);
+        context.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX, 0);
         List<CloudApplication> brokers = new ArrayList<>();
         brokers.add(input.brokerApplication.toCloudApplication());
         context.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS, brokers);

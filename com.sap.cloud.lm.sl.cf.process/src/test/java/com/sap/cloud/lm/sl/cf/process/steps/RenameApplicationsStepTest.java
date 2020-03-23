@@ -17,7 +17,6 @@ import com.sap.cloud.lm.sl.cf.core.model.BlueGreenApplicationNameSuffix;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationColorDetector;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ConflictException;
@@ -37,7 +36,7 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
     @BeforeEach
     public void setUp() {
         prepareContext();
-        execution.setVariable(Constants.PARAM_KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, false);
+        context.setVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, false);
     }
 
     private void prepareContext() {
@@ -52,7 +51,7 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
 
     @Test
     public void testOldNewSuffixRenaming() {
-        execution.setVariable(Constants.PARAM_KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
+        context.setVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
         context.setVariable(Variables.APPS_TO_RENAME, Collections.singletonList("a"));
 
         step.execute(execution);

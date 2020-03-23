@@ -105,7 +105,7 @@ public class AnalyticsCollectorTest {
     }
 
     public void mockMtaSize() throws Exception {
-        when(execution.getVariable(Constants.PARAM_APP_ARCHIVE_ID)).thenReturn(ARCHIVE_ID);
+        VariableHandling.set(execution, Variables.APP_ARCHIVE_ID, ARCHIVE_ID);
         FileEntry fileEntry = Mockito.mock(FileEntry.class);
         when(fileService.getFile(VariableHandling.get(execution, Variables.SPACE_ID), ARCHIVE_ID)).thenReturn(fileEntry);
         when(fileEntry.getSize()).thenReturn(BigInteger.valueOf(1234));
@@ -113,7 +113,7 @@ public class AnalyticsCollectorTest {
 
     private void prepareContextForDeploy() {
         when(execution.getProcessInstanceId()).thenReturn(PROCESS_ID);
-        when(execution.getVariable(Constants.PARAM_MTA_ID)).thenReturn(MTA_ID);
+        VariableHandling.set(execution, Variables.MTA_ID, MTA_ID);
         VariableHandling.set(execution, Variables.SPACE, SPACE_NAME);
         VariableHandling.set(execution, Variables.ORG, ORG_NAME);
 

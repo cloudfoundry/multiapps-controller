@@ -19,8 +19,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @RunWith(Enclosed.class)
@@ -43,7 +43,7 @@ public class ProcessGitSourceStepTest extends SyncFlowableStepTest<ProcessGitSou
     @Test
     public void getGitUriTest() throws SLException {
         String gitUri = "https://somehost.com/somerepo/.git";
-        execution.setVariable(Constants.PARAM_GIT_URI, gitUri);
+        context.setVariable(Variables.GIT_URI, gitUri);
         assertEquals(gitUri, step.getGitUri(context));
     }
 
