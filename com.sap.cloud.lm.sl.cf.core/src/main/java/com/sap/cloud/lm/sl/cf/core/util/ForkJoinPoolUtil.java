@@ -18,13 +18,4 @@ public class ForkJoinPoolUtil {
         }
     }
 
-    public static void execute(int threads, Runnable runnable) {
-        ForkJoinPool customThreadPool = new ForkJoinPool(threads);
-        try {
-            customThreadPool.submit(runnable)
-                            .join();
-        } finally {
-            customThreadPool.shutdown();
-        }
-    }
 }
