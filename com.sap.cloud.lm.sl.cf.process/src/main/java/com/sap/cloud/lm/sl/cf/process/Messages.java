@@ -8,7 +8,7 @@ public class Messages {
     // Exception messages
     public static final String CANT_DETERMINE_CURRENT_USER = "Cannot determine the current user";
     public static final String CONFLICTING_PROCESS_FOUND = "Conflicting process \"{0}\" found for MTA \"{1}\"";
-    public static final String REQUIRED_PARAMETER_IS_MISSING = "Required parameter \"{0}\" is missing";
+    public static final String REQUIRED_PROCESS_VARIABLE_IS_MISSING = "Required process variable \"{0}\" is missing.";
     public static final String ERROR_RETRIEVING_MTA_MODULE_CONTENT = "Error retrieving content of MTA module \"{0}\"";
     public static final String ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT = "Error retrieving content of MTA required dependency \"{0}\"";
     public static final String ERROR_DELETING_APP_TEMP_FILE = "Error deleting temp application file \"{0}\"";

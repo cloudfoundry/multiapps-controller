@@ -128,7 +128,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private void validateArchive(ProcessContext context) {
-        String[] archivePartIds = getArchivePartIds(context.getExecution());
+        String[] archivePartIds = getArchivePartIds(context);
         if (!context.getVariable(Variables.VERIFY_ARCHIVE_SIGNATURE) && archivePartIds.length == 1) {
             // The archive doesn't need "validation", i.e. merging or signature verification.
             // TODO The merging of chunks should be done prior to this step, since it's not really a validation, but we may need the result
@@ -147,8 +147,8 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         }
     }
 
-    private String[] getArchivePartIds(DelegateExecution execution) {
-        String archiveId = StepsUtil.getRequiredString(execution, Constants.PARAM_APP_ARCHIVE_ID);
+    private String[] getArchivePartIds(ProcessContext context) {
+        String archiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
         return archiveId.split(",");
     }
 

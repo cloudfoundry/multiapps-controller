@@ -4,10 +4,12 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.client.LoggingCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.cf.process.variables.Variable;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.common.SLException;
 
 public class ProcessContext {
 
@@ -37,6 +39,14 @@ public class ProcessContext {
     public CloudControllerClient getControllerClient(String org, String space) {
         CloudControllerClient delegate = StepsUtil.getControllerClient(execution, clientProvider, org, space);
         return new LoggingCloudControllerClient(delegate, stepLogger);
+    }
+
+    public <T> T getRequiredVariable(Variable<T> variable) {
+        T value = getVariable(variable);
+        if (value == null) {
+            throw new SLException(Messages.REQUIRED_PROCESS_VARIABLE_IS_MISSING, variable.getName());
+        }
+        return value;
     }
 
     public <T> T getVariable(Variable<T> variable) {
