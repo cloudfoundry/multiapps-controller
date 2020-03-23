@@ -31,9 +31,9 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
         return StepPhase.RETRY;
     }
 
-    private AsyncExecution getStepExecution(ProcessContext context, List<AsyncExecution> stepOperations) {
-        Integer operationIndex = getStepExecutionIndex(context);
-        return stepOperations.get(operationIndex);
+    private AsyncExecution getStepExecution(ProcessContext context, List<AsyncExecution> stepExecutions) {
+        Integer executionIndex = getStepExecutionIndex(context);
+        return stepExecutions.get(executionIndex);
     }
 
     private Integer getStepExecutionIndex(ProcessContext context) {
