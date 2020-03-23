@@ -501,18 +501,6 @@ public class StepsUtil {
         return getObject(scope, name, defaultValue);
     }
 
-    public static String getRequiredString(VariableScope scope, String name) {
-        String value = getString(scope, name);
-        if (value == null || value.isEmpty()) {
-            throw new SLException(Messages.REQUIRED_PARAMETER_IS_MISSING, name);
-        }
-        return value;
-    }
-
-    public static String getString(VariableScope scope, String name) {
-        return getString(scope, name, null);
-    }
-
     public static String getString(VariableScope scope, String name, String defaultValue) {
         return getObject(scope, name, defaultValue);
     }

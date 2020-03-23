@@ -30,7 +30,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) throws FileStorageException {
         getStepLogger().debug(Messages.PROCESSING_MTA_ARCHIVE);
 
-        String appArchiveId = StepsUtil.getRequiredString(context.getExecution(), Constants.PARAM_APP_ARCHIVE_ID);
+        String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
         processApplicationArchive(context, appArchiveId);
         setMtaIdForProcess(context);
         getStepLogger().debug(Messages.MTA_ARCHIVE_PROCESSED);

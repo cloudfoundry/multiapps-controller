@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -30,7 +29,7 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.DETECTING_COMPONENTS_TO_UNDEPLOY);
-        String mtaId = StepsUtil.getRequiredString(context.getExecution(), Constants.PARAM_MTA_ID);
+        String mtaId = context.getRequiredVariable(Variables.MTA_ID);
         context.setVariable(Variables.MTA_MODULES, getMtaModules(context));
         context.setVariable(Variables.PUBLISHED_ENTRIES, Collections.emptyList());
         StepsUtil.setServicesToCreate(context.getExecution(), Collections.emptyList());

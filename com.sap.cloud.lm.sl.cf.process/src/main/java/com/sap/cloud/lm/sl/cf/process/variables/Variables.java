@@ -60,6 +60,12 @@ public interface Variables {
     Variable<String> SERVICE_TO_PROCESS_NAME = ImmutableVariable.<String> builder()
                                                                 .name(Constants.VAR_SERVICE_TO_PROCESS_NAME)
                                                                 .build();
+    Variable<String> APP_ARCHIVE_ID = ImmutableVariable.<String> builder()
+                                                       .name(Constants.PARAM_APP_ARCHIVE_ID)
+                                                       .build();
+    Variable<String> MTA_ID = ImmutableVariable.<String> builder()
+                                               .name(Constants.PARAM_MTA_ID)
+                                               .build();
     Variable<Integer> MTA_MAJOR_SCHEMA_VERSION = ImmutableVariable.<Integer> builder()
                                                                   .name(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION)
                                                                   .build();
