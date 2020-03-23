@@ -15,7 +15,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.history.HistoricProcessInstance;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AbstractCommonProcessAttributes;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
@@ -50,7 +49,7 @@ public class AnalyticsCollector {
         long startTime = getStartTime(processId);
         long endTime = getEndTime();
         long processDuration = getProcessDurationInSeconds(processId);
-        String mtaId = (String) execution.getVariable(Constants.PARAM_MTA_ID);
+        String mtaId = VariableHandling.get(execution, Variables.MTA_ID);
         String org = VariableHandling.get(execution, Variables.ORG);
         String space = VariableHandling.get(execution, Variables.SPACE);
         String controllerUrl = configuration.getControllerUrl()

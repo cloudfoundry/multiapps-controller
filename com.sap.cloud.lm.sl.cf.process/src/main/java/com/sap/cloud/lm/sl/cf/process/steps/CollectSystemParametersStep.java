@@ -11,7 +11,6 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -90,8 +89,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                                                     boolean reserveTemporaryRoutes) {
         String authorizationEndpoint = client.getCloudInfo()
                                              .getAuthorizationEndpoint();
-        String user = (String) context.getExecution()
-                                      .getVariable(Constants.VAR_USER);
+        String user = context.getVariable(Variables.USER);
 
         URL controllerUrl = configuration.getControllerUrl();
         String deployServiceUrl = configuration.getDeployServiceUrl();

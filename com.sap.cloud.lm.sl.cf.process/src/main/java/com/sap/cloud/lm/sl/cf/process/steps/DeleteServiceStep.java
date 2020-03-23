@@ -10,7 +10,6 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -81,8 +80,8 @@ public class DeleteServiceStep extends AsyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessageAdditionalDescription(DelegateExecution context) {
-        String offering = StepsUtil.getServiceOffering(context);
+    protected String getStepErrorMessageAdditionalDescription(ProcessContext context) {
+        String offering = context.getVariable(Variables.SERVICE_OFFERING);
         return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, offering);
     }
 

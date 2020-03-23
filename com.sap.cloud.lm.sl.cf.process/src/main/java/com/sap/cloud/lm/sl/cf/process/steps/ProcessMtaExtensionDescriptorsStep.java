@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -35,7 +34,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) {
         DelegateExecution execution = context.getExecution();
         getStepLogger().debug(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
-        List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(execution);
+        List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(context);
         String spaceId = context.getVariable(Variables.SPACE_ID);
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
 
@@ -53,8 +52,8 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
         return Messages.ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS;
     }
 
-    private List<String> getExtensionDescriptorFileIds(DelegateExecution execution) {
-        String parameter = (String) execution.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
+    private List<String> getExtensionDescriptorFileIds(ProcessContext context) {
+        String parameter = context.getVariable(Variables.EXT_DESCRIPTOR_FILE_ID);
         if (parameter == null || parameter.isEmpty()) {
             return Collections.emptyList();
         }

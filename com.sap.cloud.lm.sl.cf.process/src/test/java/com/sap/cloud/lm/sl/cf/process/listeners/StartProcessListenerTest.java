@@ -134,7 +134,7 @@ public class StartProcessListenerTest {
         Mockito.when(processTypeParser.getProcessType(execution))
                .thenReturn(processType);
         VariableHandling.set(execution, Variables.SPACE_ID, SPACE_ID);
-        execution.setVariable(Constants.VAR_USER, USER);
+        VariableHandling.set(execution, Variables.USER, USER);
         VariableHandling.set(execution, Variables.CORRELATION_ID, processInstanceId);
         execution.setVariable(Constants.TASK_ID, TASK_ID);
     }

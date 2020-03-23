@@ -24,6 +24,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupStateCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
@@ -81,7 +82,7 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
 
     private void prepareContext() {
         execution.setVariable(Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(hasAppChanged));
-        execution.setVariable(Constants.PARAM_NO_START, false);
+        context.setVariable(Variables.NO_START, false);
     }
 
     private void prepareAppStepCalculator() {

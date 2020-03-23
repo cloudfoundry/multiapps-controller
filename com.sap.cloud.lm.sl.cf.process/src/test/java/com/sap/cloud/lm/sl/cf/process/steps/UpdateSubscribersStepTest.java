@@ -173,7 +173,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         context.setVariable(Variables.PUBLISHED_ENTRIES, getPublishedEntries());
         context.setVariable(Variables.DELETED_ENTRIES, getDeletedEntries());
 
-        execution.setVariable(Constants.VAR_USER, USER);
+        context.setVariable(Variables.USER, USER);
         step.targetCalculator = (client, spaceId) -> new CloudTarget(spaceId, spaceId);
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
                .thenReturn(Collections.singletonList("test-subprocess-id"));

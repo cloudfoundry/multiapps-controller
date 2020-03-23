@@ -28,8 +28,7 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
             AsyncExecutionState stepExecutionStatus = stepExecution.execute(context);
             return handleStepExecutionStatus(context, stepExecutionStatus, stepExecutions);
         } catch (Exception e) {
-            processException(e, stepExecution.getPollingErrorMessage(context),
-                             getStepErrorMessageAdditionalDescription(context.getExecution()));
+            processException(e, stepExecution.getPollingErrorMessage(context), getStepErrorMessageAdditionalDescription(context));
         }
         return StepPhase.RETRY;
     }

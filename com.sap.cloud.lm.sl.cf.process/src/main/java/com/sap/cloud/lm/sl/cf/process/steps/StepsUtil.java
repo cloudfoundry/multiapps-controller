@@ -81,7 +81,7 @@ public class StepsUtil {
     }
 
     public static String determineCurrentUser(VariableScope scope) {
-        String user = (String) scope.getVariable(Constants.VAR_USER);
+        String user = VariableHandling.get(scope, Variables.USER);
         if (user == null) {
             throw new SLException(Messages.CANT_DETERMINE_CURRENT_USER);
         }
@@ -183,8 +183,7 @@ public class StepsUtil {
 
     static CloudApplication getUpdatedServiceBrokerSubscriber(ProcessContext context) {
         List<CloudApplication> apps = context.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS);
-        int index = (Integer) context.getExecution()
-                                     .getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
+        int index = context.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
         return apps.get(index);
     }
 
@@ -367,10 +366,6 @@ public class StepsUtil {
         return "[" + name.substring(name.lastIndexOf('.') + 1) + "] ";
     }
 
-    public static void setArchiveFileId(VariableScope scope, String uploadedMtarId) {
-        scope.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedMtarId);
-    }
-
     public static void incrementVariable(VariableScope scope, String name) {
         int value = getInteger(scope, name);
         scope.setVariable(name, value + 1);
@@ -388,24 +383,20 @@ public class StepsUtil {
         return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, context.getStepLogger());
     }
 
-    static String getGitRepoRef(VariableScope scope) {
-        Object gitRepoConfigObject = scope.getVariable(Constants.VAR_GIT_REPOSITORY_CONFIG_MAP);
-        if (gitRepoConfigObject == null) {
-            return (String) scope.getVariable(Constants.PARAM_GIT_REF);
+    static String getGitRepoRef(ProcessContext context) {
+        Map<String, String> gitRepoConfigMap = context.getVariable(Variables.GIT_REPOSITORY_CONFIG_MAP);
+        if (gitRepoConfigMap != null) {
+            return gitRepoConfigMap.get(Variables.GIT_REF.getName());
         }
-        @SuppressWarnings("unchecked")
-        Map<String, String> gitRepoConfigMap = (Map<String, String>) gitRepoConfigObject;
-        return gitRepoConfigMap.get(Constants.PARAM_GIT_REF);
+        return context.getVariable(Variables.GIT_REF);
     }
 
-    static String getGitRepoUri(VariableScope scope) {
-        Object gitRepoConfigObject = scope.getVariable(Constants.VAR_GIT_REPOSITORY_CONFIG_MAP);
-        if (gitRepoConfigObject == null) {
-            return (String) scope.getVariable(Constants.PARAM_GIT_URI);
+    static String getGitRepoUri(ProcessContext context) {
+        Map<String, String> gitRepoConfigMap = context.getVariable(Variables.GIT_REPOSITORY_CONFIG_MAP);
+        if (gitRepoConfigMap != null) {
+            return gitRepoConfigMap.get(Variables.GIT_URI.getName());
         }
-        @SuppressWarnings("unchecked")
-        Map<String, String> gitRepoConfigMap = (Map<String, String>) gitRepoConfigObject;
-        return gitRepoConfigMap.get(Constants.PARAM_GIT_URI);
+        return context.getVariable(Variables.GIT_URI);
     }
 
     public static void setServicesData(VariableScope scope, List<CloudServiceExtended> servicesData) {
@@ -626,18 +617,6 @@ public class StepsUtil {
                 return classOfT;
             }
         };
-    }
-
-    public static String getServiceOffering(VariableScope scope) {
-        return (String) scope.getVariable(Constants.VAR_SERVICE_OFFERING);
-    }
-
-    public static void setServiceOffering(VariableScope scope, String variableName, String value) {
-        scope.setVariable(variableName, value);
-    }
-
-    public static boolean getKeepOriginalAppNamesAfterDeploy(VariableScope scope) {
-        return (boolean) scope.getVariable(Constants.PARAM_KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY);
     }
 
 }

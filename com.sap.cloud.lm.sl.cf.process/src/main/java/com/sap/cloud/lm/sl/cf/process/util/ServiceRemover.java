@@ -20,11 +20,11 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
@@ -105,7 +105,7 @@ public class ServiceRemover {
             return null;
         }
         if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
-            StepsUtil.setServiceOffering(context.getExecution(), Constants.VAR_SERVICE_OFFERING, label);
+            context.setVariable(Variables.SERVICE_OFFERING, label);
             return new CloudServiceBrokerException(e);
         }
         return new CloudControllerException(e);

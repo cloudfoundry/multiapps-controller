@@ -34,7 +34,7 @@ public class UpdateServiceBrokerSubscriberStep extends CreateOrUpdateServiceBrok
             } else {
                 serviceBroker = ImmutableCloudServiceBroker.copyOf(serviceBroker)
                                                            .withMetadata(existingServiceBroker.getMetadata());
-                updateServiceBroker(context.getExecution(), serviceBroker, client);
+                updateServiceBroker(context, serviceBroker, client);
             }
             return StepPhase.DONE;
         } catch (CloudOperationException coe) {

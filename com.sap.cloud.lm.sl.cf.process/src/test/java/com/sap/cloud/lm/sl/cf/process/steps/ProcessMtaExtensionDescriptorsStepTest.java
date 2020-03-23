@@ -19,7 +19,6 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.builders.ExtensionDescriptorChainBuilder;
@@ -74,7 +73,7 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
     private void prepare(List<String> extensionDescriptors) throws FileStorageException {
         Map<String, String> fileIdToExtensionDescriptor = generateIds(extensionDescriptors);
 
-        execution.setVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, String.join(",", fileIdToExtensionDescriptor.keySet()));
+        context.setVariable(Variables.EXT_DESCRIPTOR_FILE_ID, String.join(",", fileIdToExtensionDescriptor.keySet()));
         context.setVariable(Variables.SPACE_ID, SPACE_ID);
         DeploymentDescriptor descriptor = DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass());
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);

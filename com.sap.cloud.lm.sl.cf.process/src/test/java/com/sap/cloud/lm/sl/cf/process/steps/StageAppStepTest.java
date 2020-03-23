@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
@@ -82,8 +83,7 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
     @Test
     public void testGetTimeoutCustomValue() {
         int timeout = 10;
-        Mockito.when(execution.getVariable(Constants.PARAM_START_TIMEOUT))
-               .thenReturn(timeout);
+        context.setVariable(Variables.START_TIMEOUT, timeout);
         Assertions.assertEquals(timeout, step.getTimeout(context));
     }
 

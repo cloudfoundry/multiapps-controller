@@ -63,9 +63,45 @@ public interface Variables {
     Variable<String> APP_ARCHIVE_ID = ImmutableVariable.<String> builder()
                                                        .name(Constants.PARAM_APP_ARCHIVE_ID)
                                                        .build();
+    Variable<String> EXT_DESCRIPTOR_FILE_ID = ImmutableVariable.<String> builder()
+                                                               .name(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID)
+                                                               .build();
     Variable<String> MTA_ID = ImmutableVariable.<String> builder()
                                                .name(Constants.PARAM_MTA_ID)
                                                .build();
+    Variable<String> GIT_URI = ImmutableVariable.<String> builder()
+                                                .name(Constants.PARAM_GIT_URI)
+                                                .build();
+    Variable<String> GIT_REF = ImmutableVariable.<String> builder()
+                                                .name(Constants.PARAM_GIT_REF)
+                                                .build();
+    Variable<String> GIT_REPO_PATH = ImmutableVariable.<String> builder()
+                                                      .name(Constants.PARAM_GIT_REPO_PATH)
+                                                      .build();
+    Variable<String> CTS_PROCESS_ID = ImmutableVariable.<String> builder()
+                                                       .name(Constants.PARAM_CTS_PROCESS_ID)
+                                                       .build();
+    Variable<String> DEPLOY_URI = ImmutableVariable.<String> builder()
+                                                   .name(Constants.PARAM_DEPLOY_URI)
+                                                   .build();
+    Variable<String> USERNAME = ImmutableVariable.<String> builder()
+                                                 .name(Constants.PARAM_USERNAME)
+                                                 .build();
+    Variable<String> PASSWORD = ImmutableVariable.<String> builder()
+                                                 .name(Constants.PARAM_PASSWORD)
+                                                 .build();
+    Variable<String> TRANSFER_TYPE = ImmutableVariable.<String> builder()
+                                                      .name(Constants.PARAM_TRANSFER_TYPE)
+                                                      .build();
+    Variable<String> APPLICATION_TYPE = ImmutableVariable.<String> builder()
+                                                         .name(Constants.PARAM_APPLICATION_TYPE)
+                                                         .build();
+    Variable<String> USER = ImmutableVariable.<String> builder()
+                                             .name(Constants.VAR_USER)
+                                             .build();
+    Variable<String> SERVICE_OFFERING = ImmutableVariable.<String> builder()
+                                                         .name(Constants.VAR_SERVICE_OFFERING)
+                                                         .build();
     Variable<Integer> MTA_MAJOR_SCHEMA_VERSION = ImmutableVariable.<Integer> builder()
                                                                   .name(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION)
                                                                   .build();
@@ -73,6 +109,12 @@ public interface Variables {
                                                        .name(Constants.PARAM_START_TIMEOUT)
                                                        .defaultValue(Constants.DEFAULT_START_TIMEOUT)
                                                        .build();
+    Variable<Integer> UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = ImmutableVariable.<Integer> builder()
+                                                                                  .name(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT)
+                                                                                  .build();
+    Variable<Integer> UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX = ImmutableVariable.<Integer> builder()
+                                                                                  .name(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX)
+                                                                                  .build();
     Variable<Boolean> SKIP_MANAGE_SERVICE_BROKER = ImmutableVariable.<Boolean> builder()
                                                                     .name(Constants.VAR_SKIP_MANAGE_SERVICE_BROKER)
                                                                     .build();
@@ -131,6 +173,39 @@ public interface Variables {
                                                              .name(Constants.PARAM_DELETE_SERVICE_KEYS)
                                                              .defaultValue(false)
                                                              .build();
+    Variable<Boolean> DELETE_SERVICE_BROKERS = ImmutableVariable.<Boolean> builder()
+                                                                .name(Constants.PARAM_DELETE_SERVICE_BROKERS)
+                                                                .defaultValue(false)
+                                                                .build();
+    Variable<Boolean> NO_START = ImmutableVariable.<Boolean> builder()
+                                                  .name(Constants.PARAM_NO_START)
+                                                  .defaultValue(false)
+                                                  .build();
+    Variable<Boolean> KEEP_FILES = ImmutableVariable.<Boolean> builder()
+                                                    .name(Constants.PARAM_KEEP_FILES)
+                                                    .defaultValue(false)
+                                                    .build();
+    Variable<Boolean> NO_CONFIRM = ImmutableVariable.<Boolean> builder()
+                                                    .name(Constants.PARAM_NO_CONFIRM)
+                                                    .defaultValue(false)
+                                                    .build();
+    Variable<Boolean> NO_RESTART_SUBSCRIBED_APPS = ImmutableVariable.<Boolean> builder()
+                                                                    .name(Constants.PARAM_NO_RESTART_SUBSCRIBED_APPS)
+                                                                    .defaultValue(false)
+                                                                    .build();
+    Variable<Boolean> GIT_SKIP_SSL = ImmutableVariable.<Boolean> builder()
+                                                      .name(Constants.PARAM_GIT_SKIP_SSL)
+                                                      .build();
+    Variable<Boolean> NO_FAIL_ON_MISSING_PERMISSIONS = ImmutableVariable.<Boolean> builder()
+                                                                        .name(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS)
+                                                                        .build();
+    Variable<Boolean> ABORT_ON_ERROR = ImmutableVariable.<Boolean> builder()
+                                                        .name(Constants.PARAM_ABORT_ON_ERROR)
+                                                        .defaultValue(false)
+                                                        .build();
+    Variable<Boolean> KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY = ImmutableVariable.<Boolean> builder()
+                                                                              .name(Constants.PARAM_KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY)
+                                                                              .build();
     Variable<DeploymentDescriptor> DEPLOYMENT_DESCRIPTOR = ImmutableVariable.<DeploymentDescriptor> builder()
                                                                             .name(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR)
                                                                             .type(Variable.typeReference(DeploymentDescriptor.class))
@@ -313,5 +388,16 @@ public interface Variables {
                                                                             })
                                                                             .serializationStrategy(SerializationStrategy.JSON_BINARY)
                                                                             .build();
+    Variable<Map<String, String>> GIT_REPOSITORY_CONFIG_MAP = ImmutableVariable.<Map<String, String>> builder()
+                                                                               .name(Constants.VAR_GIT_REPOSITORY_CONFIG_MAP)
+                                                                               .build();
+    Variable<List<Map<String, Map<String, String>>>> FILE_LIST = ImmutableVariable.<List<Map<String, Map<String, String>>>> builder()
+                                                                                  .name(Constants.PARAM_FILE_LIST)
+                                                                                  .defaultValue(Collections.emptyList())
+                                                                                  .build();
+    Variable<List<Map<String, Map<String, Object>>>> GIT_REPOSITORY_LIST = ImmutableVariable.<List<Map<String, Map<String, Object>>>> builder()
+                                                                                            .name(Constants.PARAM_GIT_REPOSITORY_LIST)
+                                                                                            .defaultValue(Collections.emptyList())
+                                                                                            .build();
 
 }

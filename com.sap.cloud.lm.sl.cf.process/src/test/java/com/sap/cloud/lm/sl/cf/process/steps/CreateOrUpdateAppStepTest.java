@@ -130,10 +130,9 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
         context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
         StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, execution);
         StepsUtil.setServicesToBind(execution, mapToCloudServiceExtended());
-        execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
+        context.setVariable(Variables.APP_ARCHIVE_ID, "dummy");
         execution.setVariable(Constants.VAR_MODULES_INDEX, stepInput.applicationIndex);
-        byte[] serviceKeysToInjectByteArray = JsonUtil.toJsonBinary(new HashMap<>());
-        execution.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
+        context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());
     }
 
     private List<CloudServiceExtended> mapToCloudServiceExtended() {

@@ -23,7 +23,6 @@ import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -84,7 +83,7 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
 
     private void prepareContext(List<CloudServiceKey> serviceKeys, boolean canDeleteServiceKeys, CloudServiceExtended service) {
         context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, MapUtil.asMap(SERVICE_NAME, serviceKeys));
-        execution.setVariable(Constants.PARAM_DELETE_SERVICE_KEYS, canDeleteServiceKeys);
+        context.setVariable(Variables.DELETE_SERVICE_KEYS, canDeleteServiceKeys);
         context.setVariable(Variables.SERVICE_TO_PROCESS, service);
 
     }

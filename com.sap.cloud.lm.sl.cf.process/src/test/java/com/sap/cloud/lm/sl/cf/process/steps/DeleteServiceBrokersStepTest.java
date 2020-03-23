@@ -24,8 +24,8 @@ import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.CreateOrUpdateServiceBrokerStepTest.SimpleApplication;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -126,7 +126,7 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
             expectedException.expect(expectedExceptionClass);
             shouldSucceed = false;
         }
-        execution.setVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS, shouldSucceed);
+        context.setVariable(Variables.NO_FAIL_ON_MISSING_PERMISSIONS, shouldSucceed);
         input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
     }
 

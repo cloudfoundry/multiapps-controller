@@ -271,9 +271,8 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         StepsUtil.setServicesToBind(execution, mapToCloudServices());
         context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, Collections.emptyMap());
         execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
-        execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
-        byte[] serviceKeysToInjectByteArray = JsonUtil.toJsonBinary(new HashMap<>());
-        execution.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
+        context.setVariable(Variables.APP_ARCHIVE_ID, "dummy");
+        context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());
     }
 
     private static class StepInput {

@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaDetector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -30,8 +29,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
 
         CloudControllerClient client = context.getControllerClient();
 
-        String mtaId = (String) context.getExecution()
-                                       .getVariable(Constants.PARAM_MTA_ID);
+        String mtaId = context.getVariable(Variables.MTA_ID);
         Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMta(mtaId, client);
         if (optionalDeployedMta.isPresent()) {
             DeployedMta deployedMta = optionalDeployedMta.get();

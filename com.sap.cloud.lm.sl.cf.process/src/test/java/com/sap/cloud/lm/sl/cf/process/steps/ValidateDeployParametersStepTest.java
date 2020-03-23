@@ -113,9 +113,9 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
     }
 
     private void prepareContext() {
-        execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_APP_ARCHIVE_ID, stepInput.appArchiveId);
-        execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, stepInput.extDescriptorId);
-        execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_START_TIMEOUT, stepInput.startTimeout);
+        context.setVariable(Variables.APP_ARCHIVE_ID, stepInput.appArchiveId);
+        context.setVariable(Variables.EXT_DESCRIPTOR_FILE_ID, stepInput.extDescriptorId);
+        context.setVariable(Variables.START_TIMEOUT, stepInput.startTimeout);
         execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_VERSION_RULE, stepInput.versionRule);
         context.setVariable(Variables.SPACE_ID, "space-id");
         context.setVariable(Variables.SERVICE_ID, "service-id");

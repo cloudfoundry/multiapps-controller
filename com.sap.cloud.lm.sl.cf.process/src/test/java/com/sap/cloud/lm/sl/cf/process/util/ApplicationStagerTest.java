@@ -62,10 +62,10 @@ public class ApplicationStagerTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        execution.setVariable(Constants.VAR_USER, "whatever");
+        this.context = new ProcessContext(execution, stepLogger, clientProvider);
+        context.setVariable(Variables.USER, "whatever");
         Mockito.when(clientProvider.getControllerClient(Mockito.any(), Mockito.any()))
                .thenReturn(client);
-        this.context = new ProcessContext(execution, stepLogger, clientProvider);
         this.applicationStager = new ApplicationStager(context);
         setUploadTokenVariable();
     }

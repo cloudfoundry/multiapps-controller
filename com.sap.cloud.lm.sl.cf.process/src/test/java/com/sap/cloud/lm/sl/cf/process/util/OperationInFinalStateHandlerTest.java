@@ -14,7 +14,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -97,9 +96,9 @@ public class OperationInFinalStateHandlerTest {
 
     private void prepareContext() {
         VariableHandling.set(execution, Variables.SPACE_ID, SPACE_ID);
-        execution.setVariable(Constants.PARAM_APP_ARCHIVE_ID, archiveIds);
-        execution.setVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, extensionDescriptorIds);
-        execution.setVariable(Constants.PARAM_KEEP_FILES, keepFiles);
+        VariableHandling.set(execution, Variables.APP_ARCHIVE_ID, archiveIds);
+        VariableHandling.set(execution, Variables.EXT_DESCRIPTOR_FILE_ID, extensionDescriptorIds);
+        VariableHandling.set(execution, Variables.KEEP_FILES, keepFiles);
     }
 
     @Test

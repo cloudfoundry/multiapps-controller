@@ -33,7 +33,7 @@ public class DetectApplicationsToRenameStep extends SyncFlowableStep {
         // This is set here in case of the step returning early or failing because the call activity
         // following this step needs this variable, otherwise Flowable will throw an exception
         StepsUtil.setAppsToUndeploy(execution, Collections.emptyList());
-        if (!StepsUtil.getKeepOriginalAppNamesAfterDeploy(context.getExecution())) {
+        if (!context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY)) {
             return StepPhase.DONE;
         }
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);

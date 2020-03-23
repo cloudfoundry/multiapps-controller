@@ -16,7 +16,6 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaDetector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -66,7 +65,7 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
     }
 
     private void prepareContext() {
-        execution.setVariable(Constants.PARAM_MTA_ID, MTA_ID);
+        context.setVariable(Variables.MTA_ID, MTA_ID);
     }
 
     @Override

@@ -27,7 +27,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveBuilder;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.GitRepoCloner;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -51,8 +50,7 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
         getStepLogger().info(Messages.DOWNLOADING_DEPLOYABLE);
 
         final String gitUri = getGitUri(context);
-        final String gitRepoPath = (String) context.getExecution()
-                                                   .getVariable(Constants.PARAM_GIT_REPO_PATH);
+        final String gitRepoPath = context.getVariable(Variables.GIT_REPO_PATH);
         String processId = context.getExecution()
                                   .getProcessInstanceId();
         final String repoName = extractRepoName(gitUri, processId);
@@ -98,14 +96,14 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
     private GitRepoCloner createCloner(ProcessContext context) {
         DelegateExecution execution = context.getExecution();
         GitRepoCloner cloner = new GitRepoCloner();
-        cloner.setRefName(StepsUtil.getGitRepoRef(execution));
+        cloner.setRefName(StepsUtil.getGitRepoRef(context));
         cloner.setGitConfigFilePath(generateGitConfigFilepath(execution.getProcessInstanceId()));
-        cloner.setSkipSslValidation((boolean) execution.getVariable(Constants.PARAM_GIT_SKIP_SSL));
+        cloner.setSkipSslValidation(context.getVariable(Variables.GIT_SKIP_SSL));
         return cloner;
     }
 
     protected String getGitUri(ProcessContext context) {
-        String gitUriParam = StepsUtil.getGitRepoUri(context.getExecution());
+        String gitUriParam = StepsUtil.getGitRepoUri(context);
         try {
             return new URL(gitUriParam).toString();
         } catch (MalformedURLException e) {
@@ -149,7 +147,7 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
                                      .toString();
             FileEntry entry = fileService.addFile(spaceId, serviceId, mtarName, mtarInputStream);
             String uploadedMtarId = entry.getId();
-            StepsUtil.setArchiveFileId(context.getExecution(), uploadedMtarId);
+            context.setVariable(Variables.APP_ARCHIVE_ID, uploadedMtarId);
         }
         getStepLogger().debug(Messages.MTAR_UPLOADED);
     }

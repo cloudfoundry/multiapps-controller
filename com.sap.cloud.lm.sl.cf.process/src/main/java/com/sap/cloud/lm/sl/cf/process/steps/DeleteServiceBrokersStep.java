@@ -16,10 +16,10 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("deleteServiceBrokersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -34,7 +34,7 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
         List<String> createdOrUpdatedServiceBrokers = getCreatedOrUpdatedServiceBrokerNames(context.getExecution());
 
         for (CloudApplication app : appsToUndeploy) {
-            deleteServiceBrokerIfNecessary(context.getExecution(), app, createdOrUpdatedServiceBrokers, client);
+            deleteServiceBrokerIfNecessary(context, app, createdOrUpdatedServiceBrokers, client);
         }
 
         getStepLogger().debug(Messages.SERVICE_BROKERS_DELETED);
@@ -47,8 +47,8 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessageAdditionalDescription(DelegateExecution execution) {
-        String offering = StepsUtil.getServiceOffering(execution);
+    protected String getStepErrorMessageAdditionalDescription(ProcessContext context) {
+        String offering = context.getVariable(Variables.SERVICE_OFFERING);
         return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, offering);
     }
 
@@ -56,8 +56,8 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
         return StepsUtil.getCreatedOrUpdatedServiceBrokerNames(execution);
     }
 
-    private void deleteServiceBrokerIfNecessary(DelegateExecution execution, CloudApplication app,
-                                                List<String> createdOrUpdatedServiceBrokers, CloudControllerClient client) {
+    private void deleteServiceBrokerIfNecessary(ProcessContext context, CloudApplication app, List<String> createdOrUpdatedServiceBrokers,
+                                                CloudControllerClient client) {
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
         if (!appAttributes.get(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
             return;
@@ -73,14 +73,14 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
             } catch (CloudOperationException e) {
                 switch (e.getStatusCode()) {
                     case FORBIDDEN:
-                        if (shouldSucceed(execution)) {
+                        if (shouldSucceed(context)) {
                             getStepLogger().warn(Messages.DELETE_OF_SERVICE_BROKERS_FAILED_403, name);
                             return;
                         }
-                        StepsUtil.setServiceOffering(execution, Constants.VAR_SERVICE_OFFERING, name);
+                        context.setVariable(Variables.SERVICE_OFFERING, name);
                         throw new CloudServiceBrokerException(e);
                     case BAD_GATEWAY:
-                        StepsUtil.setServiceOffering(execution, Constants.VAR_SERVICE_OFFERING, name);
+                        context.setVariable(Variables.SERVICE_OFFERING, name);
                         throw new CloudServiceBrokerException(e);
                     default:
                         throw e;
@@ -89,8 +89,8 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
         }
     }
 
-    private boolean shouldSucceed(DelegateExecution execution) {
-        return (Boolean) execution.getVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS);
+    private boolean shouldSucceed(ProcessContext context) {
+        return context.getVariable(Variables.NO_FAIL_ON_MISSING_PERMISSIONS);
     }
 
 }

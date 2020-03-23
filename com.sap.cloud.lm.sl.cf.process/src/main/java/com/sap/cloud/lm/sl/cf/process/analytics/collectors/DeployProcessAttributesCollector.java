@@ -73,7 +73,7 @@ public class DeployProcessAttributesCollector extends AbstractCommonProcessAttri
     }
 
     public BigInteger getMtaSize(DelegateExecution execution) {
-        String appArchiveId = (String) execution.getVariable(Constants.PARAM_APP_ARCHIVE_ID);
+        String appArchiveId = VariableHandling.get(execution, Variables.APP_ARCHIVE_ID);
         try {
             return computeMtaSize(appArchiveId, execution);
         } catch (FileStorageException e) {

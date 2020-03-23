@@ -162,7 +162,7 @@ public class PollExecuteAppStatusExecutionTest {
     private void prepareContext(CloudApplicationExtended application) {
         context.setVariable(Variables.APP_TO_PROCESS, application);
         StepsUtil.setAppStateActionsToExecute(execution, new HashSet<>(Collections.singletonList(ApplicationStateAction.EXECUTE)));
-        execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.VAR_USER, USER_NAME);
+        context.setVariable(Variables.USER, USER_NAME);
         execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.VAR_START_TIME, PROCESS_START_TIME);
     }
 

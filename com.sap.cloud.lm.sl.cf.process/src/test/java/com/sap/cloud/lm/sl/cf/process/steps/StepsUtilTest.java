@@ -38,8 +38,7 @@ public class StepsUtilTest {
 
     @Test
     public void testDetermineCurrentUserWithSetUser() {
-        Mockito.when(execution.getVariable(Mockito.eq(Constants.VAR_USER)))
-               .thenReturn(EXAMPLE_USER);
+        VariableHandling.set(execution, Variables.USER, EXAMPLE_USER);
         String determinedUser = StepsUtil.determineCurrentUser(execution);
         assertEquals(EXAMPLE_USER, determinedUser);
     }

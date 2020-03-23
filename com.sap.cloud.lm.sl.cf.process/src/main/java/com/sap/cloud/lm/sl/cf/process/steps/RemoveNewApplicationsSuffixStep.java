@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.core.model.BlueGreenApplicationNameSuffix;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
@@ -25,7 +24,7 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
-        if (!StepsUtil.getKeepOriginalAppNamesAfterDeploy(context.getExecution())) {
+        if (!context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY)) {
             return StepPhase.DONE;
         }
 
@@ -38,8 +37,7 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
             client.rename(appName, newName);
         }
 
-        String mtaId = (String) context.getExecution()
-                                       .getVariable(Constants.PARAM_MTA_ID);
+        String mtaId = context.getVariable(Variables.MTA_ID);
         String spaceId = context.getVariable(Variables.SPACE_ID);
         updateConfigurationSubscribers(appsToProcess, mtaId, spaceId);
 

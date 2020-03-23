@@ -23,7 +23,6 @@ import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -32,7 +31,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
@@ -85,7 +83,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         }
         StepsUtil.setServicesData(context.getExecution(), servicesData);
 
-        Map<String, ServiceOperation.Type> triggeredServiceOperations = deleteServices(context.getExecution(), client, servicesToDelete);
+        Map<String, ServiceOperation.Type> triggeredServiceOperations = deleteServices(context, client, servicesToDelete);
 
         context.getStepLogger()
                .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
@@ -101,8 +99,8 @@ public class DeleteServicesStep extends AsyncFlowableStep {
     }
 
     @Override
-    protected String getStepErrorMessageAdditionalDescription(DelegateExecution execution) {
-        String offering = StepsUtil.getServiceOffering(execution);
+    protected String getStepErrorMessageAdditionalDescription(ProcessContext context) {
+        String offering = context.getVariable(Variables.SERVICE_OFFERING);
         return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, offering);
     }
 
@@ -130,7 +128,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         return ListUtils.removeAll(servicesToDelete, servicesWithDataNames);
     }
 
-    private Map<String, ServiceOperation.Type> deleteServices(DelegateExecution execution, CloudControllerClient client,
+    private Map<String, ServiceOperation.Type> deleteServices(ProcessContext context, CloudControllerClient client,
                                                               List<String> serviceNames) {
         Map<String, ServiceOperation.Type> triggeredServiceOperations = new HashMap<>();
 
@@ -140,7 +138,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
                 deleteService(client, serviceName);
                 triggeredServiceOperations.put(serviceName, ServiceOperation.Type.DELETE);
             } catch (CloudException e) {
-                processException(execution, e, client.getServiceInstance(serviceName), serviceName);
+                processException(context, e, client.getServiceInstance(serviceName), serviceName);
             }
         }
         return triggeredServiceOperations;
@@ -187,10 +185,10 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         getStepLogger().debug(Messages.SERVICE_DELETED, serviceName);
     }
 
-    private void processException(DelegateExecution execution, Exception e, CloudServiceInstance serviceInstance, String serviceName) {
+    private void processException(ProcessContext context, Exception e, CloudServiceInstance serviceInstance, String serviceName) {
         if (e instanceof CloudOperationException) {
-            e = evaluateCloudOperationException(execution, (CloudOperationException) e, serviceName, serviceInstance.getService()
-                                                                                                                    .getLabel());
+            e = evaluateCloudOperationException(context, (CloudOperationException) e, serviceName, serviceInstance.getService()
+                                                                                                                  .getLabel());
             if (e == null) {
                 return;
             }
@@ -198,15 +196,15 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         wrapAndThrowException(e, serviceInstance, serviceName);
     }
 
-    private CloudOperationException evaluateCloudOperationException(DelegateExecution execution, CloudOperationException e,
-                                                                    String serviceName, String label) {
+    private CloudOperationException evaluateCloudOperationException(ProcessContext context, CloudOperationException e, String serviceName,
+                                                                    String label) {
         if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
             getStepLogger().warn(MessageFormat.format(Messages.COULD_NOT_DELETE_SERVICE, serviceName), e,
                                  ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, label));
             return null;
         }
         if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
-            StepsUtil.setServiceOffering(execution, Constants.VAR_SERVICE_OFFERING, label);
+            context.setVariable(Variables.SERVICE_OFFERING, label);
             return new CloudServiceBrokerException(e);
         }
         return new CloudControllerException(e);

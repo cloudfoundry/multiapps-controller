@@ -98,7 +98,7 @@ public class PollStartAppStatusExecutionTest {
     }
 
     private void prepareContext(CloudApplicationExtended application, boolean failOnCrash) {
-        execution.setVariable(Constants.VAR_USER, USER_NAME);
+        context.setVariable(Variables.USER, USER_NAME);
         execution.setVariable(Constants.VAR_START_TIME, PROCESS_START_TIME);
         context.setVariable(Variables.APP_TO_PROCESS, application);
         context.setVariable(Variables.FAIL_ON_CRASHED, failOnCrash);
