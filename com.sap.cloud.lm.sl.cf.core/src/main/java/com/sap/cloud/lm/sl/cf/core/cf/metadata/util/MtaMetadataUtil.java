@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.cf.metadata.util;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
@@ -40,11 +41,11 @@ public class MtaMetadataUtil {
         if (metadata == null || metadata.getLabels() == null) {
             return false;
         }
-        return entity.getV3Metadata()
-                     .getLabels()
-                     .keySet()
-                     .stream()
-                     .anyMatch(MTA_METADATA_LABELS::contains);
+        Set<String> metadataLabels = metadata.getLabels()
+                                             .keySet();
+        Set<String> metadataAnnotations = metadata.getAnnotations()
+                                                  .keySet();
+        return metadataLabels.containsAll(MTA_METADATA_LABELS) && metadataAnnotations.containsAll(MTA_METADATA_ANNOTATIONS);
     }
 
     public static String getHashedMtaId(String mtaId) {
