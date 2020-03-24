@@ -147,11 +147,11 @@ public class FlowableFacade {
     }
 
     private boolean isActive(String processId) {
-        return processEngine.getHistoryService()
-                            .createHistoricActivityInstanceQuery()
-                            .activityType("endEvent")
-                            .processInstanceId(processId)
-                            .singleResult() == null;
+        HistoricProcessInstance processInstance = processEngine.getHistoryService()
+                                                               .createHistoricProcessInstanceQuery()
+                                                               .processInstanceId(processId)
+                                                               .singleResult();
+        return processInstance.getEndTime() == null;
     }
 
     public String getActivityType(String processInstanceId, String executionId, String activityId) {
