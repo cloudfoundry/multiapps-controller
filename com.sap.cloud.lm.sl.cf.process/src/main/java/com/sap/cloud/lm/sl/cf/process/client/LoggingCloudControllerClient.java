@@ -173,6 +173,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public void deleteService(CloudService service) {
+        logger.debug(Messages.DELETING_SERVICE_INSTANCE_0, service.getName());
+        delegate.deleteService(service);
+    }
+
+    @Override
     public void deleteServiceBroker(String name) {
         logger.debug(Messages.DELETING_SERVICE_BROKER_0, name);
         delegate.deleteServiceBroker(name);
@@ -182,6 +188,13 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public void deleteServiceKey(String service, String serviceKey) {
         logger.debug(Messages.DELETING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1, serviceKey, service);
         delegate.deleteServiceKey(service, serviceKey);
+    }
+
+    @Override
+    public void deleteServiceKey(CloudServiceKey serviceKey) {
+        logger.debug(Messages.DELETING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1, serviceKey, serviceKey.getService()
+                                                                                                   .getName());
+        delegate.deleteServiceKey(serviceKey);
     }
 
     @Override
@@ -362,6 +375,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public List<CloudServiceKey> getServiceKeys(String serviceName) {
         logger.debug(Messages.GETTING_SERVICE_KEYS_FOR_SERVICE_INSTANCE_0, serviceName);
         return delegate.getServiceKeys(serviceName);
+    }
+
+    @Override
+    public List<CloudServiceKey> getServiceKeys(CloudService service) {
+        logger.debug(Messages.GETTING_SERVICE_KEYS_FOR_SERVICE_INSTANCE_0, service.getName());
+        return delegate.getServiceKeys(service);
     }
 
     @Override
@@ -555,6 +574,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public void unbindService(String applicationName, String serviceName) {
         logger.debug(Messages.UNBINDING_APPLICATION_0_FROM_SERVICE_INSTANCE_1, applicationName, serviceName);
         delegate.unbindService(applicationName, serviceName);
+    }
+
+    @Override
+    public void unbindService(CloudApplication application, CloudService service) {
+        logger.debug(Messages.UNBINDING_APPLICATION_0_FROM_SERVICE_INSTANCE_1, application.getName(), service.getName());
+        delegate.unbindService(application, service);
     }
 
     @Override

@@ -127,7 +127,6 @@ public class Messages {
     public static final String ERROR_CREATING_SERVICE = "Error creating service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_UPDATING_SERVICE = "Error updating service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_DELETING_SERVICE = "Error deleting service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
-    public static final String ERROR_DELETING_SERVICE_SHORT = "Error deleting service \"{0}\": {1}";
     public static final String ERROR_CREATING_OPTIONAL_SERVICE = "Error creating optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_UPDATING_OPTIONAL_SERVICE = "Error updating optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_MONITORING_OPERATIONS_OVER_SERVICES = "Error monitoring operations over services";
@@ -136,7 +135,7 @@ public class Messages {
     public static final String ERROR_RENAMING_NEW_APPLICATIONS = "Error renaming new applications";
     public static final String ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES = "Error monitoring creation or update of services";
     public static final String ERROR_MONITORING_DELETION_OF_SERVICES = "Error monitoring deletion of services";
-    public static final String SERVICES_ARE_ALREADY_DELETED = "Services \"{0}\" are already deleted";
+    public static final String SERVICE_IS_ALREADY_DELETED = "Service \"{0}\" is already deleted";
     public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE = "Error determining actions to execute on service \"{0}\"";
     public static final String ERROR_POLLING_OF_SERVICE = "Error polling last operation of service \"{0}\": {1}";
     public static final String ERROR_MERGING_ARCHIVE = "Error merging archive. Retrying...";
@@ -173,6 +172,7 @@ public class Messages {
     public static final String MISSING_SERVICE_OPERATION_STATE = "Stopping service operation polling of \"{0}\" due to missing operation state...";
     public static final String CANNOT_GET_CONTEXT_FOR_EVENT_0_AND_PROCESS_1 = "Could not get context for Flowable engine event (type: {0}, process ID: {1}).";
     public static final String SERVICE_0_IS_IN_STATE_1_AND_MAY_NOT_BE_OPERATIONAL = "Service \"{0}\" is in state \"{1}\" and may not be operational. Actions like update of credentials and binding may fail! Consider recreating it by specifying the --delete-services option.";
+    public static final String SERVICE_NOT_BE_DELETED_DUE_TO_SERVICE_BINDINGS_AND_SERVICE_KEYS = "Service \"{0}\" won't be deleted due to existing service bindings and/or service keys";
     public static final String RETRYING_PROCESS_ABORT = "Abort of process \"{0}\" failed due to an optimistic locking exception. Retrying abort...";
 
     // INFO log messages
@@ -297,8 +297,12 @@ public class Messages {
     public static final String CLOUD_APP_MODEL_BUILT = "Cloud deployment model for application built";
     public static final String ADDING_DOMAINS = "Adding domains...";
     public static final String DOMAINS_ADDED = "Domains added";
+    public static final String DELETING_DISCONTINUED_SERVICE_0 = "Deleting discontinued service \"{0}\"...";
     public static final String DELETING_SERVICES = "Deleting discontinued services...";
+    public static final String MISSING_SERVICES_TO_DELETE = "Missing services to delete.";
+    public static final String SERVICES_ARE_ALREADY_DELETED = "Services \"{0}\" are already deleted";
     public static final String SERVICES_DELETED = "Discontinued services deleted";
+    public static final String ERROR_DELETING_SERVICE_SHORT = "Error deleting service \"{0}\": {1}";
     public static final String SERVICES_TO_CREATE = "Services to create: {0}";
     public static final String CREATED_SERVICE_KEY = "Service key \"{0}\" created";
     public static final String SERVICE_BINDINGS_EXISTS = "Service bindings \"{0}\" exists";
@@ -409,7 +413,7 @@ public class Messages {
     public static final String DELETING_HISTORIC_OPERATION_EVENTS_STORED_BEFORE_0 = "Deleting historic operation events stored before \"{0}\"...";
     public static final String DELETING_DATA_FOR_NON_EXISTING_USERS = "Deleting data for no-longer existing users...";
     public static final String REGISTERED_CLEANERS_IN_CLEAN_UP_JOB_0 = "Registered cleaners in clean-up job: {0}";
-    public static final String MISSING_SERVICES_TO_DELETE = "Missing services to delete.";
+    public static final String MISSING_SERVICE_TO_DELETE = "Missing service to delete.";
     public static final String NO_CONTENT_TO_UPLOAD = "No content to upload";
     public static final String NO_BUILD_FOUND_FOR_APPLICATION = "No build found for application \"{0}\"";
     public static final String LAST_BUILD = "Last build: {0}";

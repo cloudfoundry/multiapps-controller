@@ -25,6 +25,7 @@ public class UndeployMetadataTest extends MetadataBaseTest {
         return new String[] {
             // @formatter:off
                 Constants.PARAM_DELETE_SERVICES,
+                Constants.PARAM_DELETE_SERVICE_KEYS,
                 Constants.PARAM_DELETE_SERVICE_BROKERS,
                 Constants.PARAM_MTA_ID,
                 Constants.PARAM_NO_RESTART_SUBSCRIBED_APPS,

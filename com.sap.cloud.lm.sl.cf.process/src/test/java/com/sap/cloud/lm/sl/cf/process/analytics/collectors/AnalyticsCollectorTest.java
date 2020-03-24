@@ -19,8 +19,8 @@ import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.history.HistoricProcessInstanceQuery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -32,7 +32,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -83,7 +82,7 @@ public class AnalyticsCollectorTest {
     @InjectMocks
     protected AnalyticsCollector collector;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         mockProcessStartTime();
@@ -127,11 +126,10 @@ public class AnalyticsCollectorTest {
         when(execution.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE)).thenReturn(mockedListWithObjects(3));
         when(execution.getVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS)).thenReturn(JsonUtil.toJsonBinary(TRIGGERED_SERVICE_OPERATIONS));
         when(execution.getVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE)).thenReturn(JsonUtil.toJsonBinary(Collections.emptyMap()));
-
         when(execution.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE)).thenReturn(mockedListWithObjects(2));
         when(execution.getVariable(Constants.VAR_DELETED_ENTRIES)).thenReturn(mockedListWithObjects(1));
         when(execution.getVariable(Constants.VAR_APPS_TO_UNDEPLOY)).thenReturn(mockAppsToUndeploy(3));
-        when(execution.getVariable(Constants.VAR_SERVICES_TO_DELETE)).thenReturn(mockedListAsBytesWithStrings(3));
+        when(execution.getVariable(Constants.VAR_SERVICES_TO_DELETE)).thenReturn(mockedListWithStrings(3));
         when(execution.getVariable(Constants.VAR_UPDATED_SUBSCRIBERS)).thenReturn(mockedListWithObjects(1));
         when(execution.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS)).thenReturn(mockedListWithObjects(2));
     }

@@ -141,7 +141,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
         if (shouldRecreate) {
             getStepLogger().debug("Service should be recreated");
-            context.setVariable(Variables.SERVICES_TO_DELETE, Collections.singletonList(service.getName()));
+            context.setVariable(Variables.SERVICE_TO_DELETE, service.getName());
             actions.add(ServiceAction.RECREATE);
             return actions;
         }

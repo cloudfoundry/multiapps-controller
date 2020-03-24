@@ -42,8 +42,14 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
+/**
+ * 
+ * @deprecated This class should be deleted after release of new version with new step {@link DeleteServiceStep}. This step will be used
+ *             only with old running flowable processes
+ */
 @Named("deleteServicesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+@Deprecated
 public class DeleteServicesStep extends AsyncFlowableStep {
 
     private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
@@ -63,7 +69,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
 
         CloudControllerClient client = context.getControllerClient();
 
-        List<String> servicesToDelete = new ArrayList<>(context.getVariable(Variables.SERVICES_TO_DELETE));
+        List<String> servicesToDelete = new ArrayList<>(StepsUtil.getServicesToDelete(context.getExecution()));
 
         if (servicesToDelete.isEmpty()) {
             getStepLogger().debug(Messages.MISSING_SERVICES_TO_DELETE);

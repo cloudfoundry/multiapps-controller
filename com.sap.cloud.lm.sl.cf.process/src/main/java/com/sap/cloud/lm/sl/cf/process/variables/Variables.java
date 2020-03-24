@@ -121,6 +121,10 @@ public interface Variables {
                                                          .name(Constants.PARAM_DELETE_SERVICES)
                                                          .defaultValue(false)
                                                          .build();
+    Variable<Boolean> DELETE_SERVICE_KEYS = ImmutableVariable.<Boolean> builder()
+                                                             .name(Constants.PARAM_DELETE_SERVICE_KEYS)
+                                                             .defaultValue(false)
+                                                             .build();
     Variable<DeploymentDescriptor> DEPLOYMENT_DESCRIPTOR = ImmutableVariable.<DeploymentDescriptor> builder()
                                                                             .name(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR)
                                                                             .type(Variable.typeReference(DeploymentDescriptor.class))
@@ -243,11 +247,13 @@ public interface Variables {
                                                                                            })
                                                                                            .serializationStrategy(SerializationStrategy.JSON_BINARY)
                                                                                            .build();
+    Variable<String> SERVICE_TO_DELETE = ImmutableVariable.<String> builder()
+                                                          .name(Constants.VAR_SERVICE_TO_DELETE)
+                                                          .serializationStrategy(SerializationStrategy.DIRECT)
+                                                          .build();
     Variable<List<String>> SERVICES_TO_DELETE = ImmutableVariable.<List<String>> builder()
                                                                  .name(Constants.VAR_SERVICES_TO_DELETE)
-                                                                 .type(new TypeReference<List<String>>() {
-                                                                 })
-                                                                 .serializationStrategy(SerializationStrategy.JSON_BINARY)
+                                                                 .serializationStrategy(SerializationStrategy.DIRECT)
                                                                  .build();
     Variable<List<CloudServiceExtended>> SERVICES_TO_POLL = ImmutableVariable.<List<CloudServiceExtended>> builder()
                                                                              .name(Constants.VAR_SERVICES_TO_POLL)

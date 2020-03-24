@@ -113,6 +113,7 @@ public class Constants {
     public static final String VAR_STARTED_TASK = "startedTask";
     public static final String VAR_APPS_TO_RESTART_COUNT = "appsToRestartCount";
     public static final String VAR_APPS_TO_UNDEPLOY = "appsToUndeploy";
+    public static final String VAR_SERVICE_TO_DELETE = "serviceToDelete";
     public static final String VAR_SERVICES_TO_DELETE = "servicesToDelete";
     public static final String VAR_SERVICES_DATA = "servicesData";
     public static final String VAR_CREATED_OR_UPDATED_SERVICE_BROKER = "createdOrUpdatedServiceBroker";

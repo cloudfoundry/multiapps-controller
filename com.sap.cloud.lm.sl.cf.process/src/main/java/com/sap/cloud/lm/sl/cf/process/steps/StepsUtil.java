@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -193,6 +194,22 @@ public class StepsUtil {
 
     static void setAppsToUndeploy(VariableScope scope, List<CloudApplication> apps) {
         setAsJsonStrings(scope, Constants.VAR_APPS_TO_UNDEPLOY, apps);
+    }
+
+    /**
+     * 
+     * @deprecated This method should be used for backward compatibility for one release. After that it should be used only new mechanism
+     *             with {@link Variables}
+     */
+    @Deprecated
+    public static List<String> getServicesToDelete(VariableScope scope) {
+        Object servicesToDelete = getObject(scope, Constants.VAR_SERVICES_TO_DELETE);
+        if (servicesToDelete instanceof List) {
+            return (List<String>) servicesToDelete;
+        }
+        TypeReference<List<String>> type = new TypeReference<List<String>>() {
+        };
+        return getFromJsonBinary(scope, Constants.VAR_SERVICES_TO_DELETE, type, Collections.emptyList());
     }
 
     public static CloudServiceBroker getServiceBrokersToCreateForModule(VariableScope scope, String moduleName) {
@@ -423,7 +440,7 @@ public class StepsUtil {
 
     @SuppressWarnings("unchecked")
     public static List<ServiceAction> getServiceActionsToExecute(VariableScope execution) {
-        List<String> actionStrings = (List<String>) execution.getVariable(Constants.VAR_SERVICE_ACTIONS_TO_EXCECUTE);
+        List<String> actionStrings = ListUtils.emptyIfNull((List<String>) execution.getVariable(Constants.VAR_SERVICE_ACTIONS_TO_EXCECUTE));
         return actionStrings.stream()
                             .map(ServiceAction::valueOf)
                             .collect(Collectors.toList());
@@ -623,11 +640,11 @@ public class StepsUtil {
         };
     }
 
-    static String getServiceOffering(VariableScope scope) {
+    public static String getServiceOffering(VariableScope scope) {
         return (String) scope.getVariable(Constants.VAR_SERVICE_OFFERING);
     }
 
-    static void setServiceOffering(VariableScope scope, String variableName, String value) {
+    public static void setServiceOffering(VariableScope scope, String variableName, String value) {
         scope.setVariable(variableName, value);
     }
 

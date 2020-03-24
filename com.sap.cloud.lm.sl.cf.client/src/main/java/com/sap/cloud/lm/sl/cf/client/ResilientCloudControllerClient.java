@@ -124,6 +124,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public void deleteService(CloudService service) {
+        executeWithRetry(() -> delegate.deleteService(service));
+    }
+
+    @Override
     public void deleteServiceBroker(String name) {
         executeWithRetry(() -> delegate.deleteServiceBroker(name));
     }
@@ -296,6 +301,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public void unbindService(String applicationName, String serviceName) {
         executeWithRetry(() -> delegate.unbindService(applicationName, serviceName));
+    }
+
+    @Override
+    public void unbindService(CloudApplication application, CloudService service) {
+        executeWithRetry(() -> delegate.unbindService(application, service));
     }
 
     @Override
@@ -512,6 +522,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public void deleteServiceKey(CloudServiceKey serviceKey) {
+        executeWithRetry(() -> delegate.deleteServiceKey(serviceKey));
+    }
+
+    @Override
     public void deleteSpace(String spaceName) {
         executeWithRetry(() -> delegate.deleteSpace(spaceName));
     }
@@ -624,6 +639,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public List<CloudServiceKey> getServiceKeys(String serviceName) {
         return executeWithRetry(() -> delegate.getServiceKeys(serviceName), HttpStatus.NOT_FOUND);
+    }
+
+    @Override
+    public List<CloudServiceKey> getServiceKeys(CloudService service) {
+        return executeWithRetry(() -> delegate.getServiceKeys(service), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -927,4 +947,5 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
         ResilientCloudOperationExecutor executor = new ResilientCloudOperationExecutor().withStatusesToIgnore(statusesToIgnore);
         return executor.execute(operation);
     }
+
 }
