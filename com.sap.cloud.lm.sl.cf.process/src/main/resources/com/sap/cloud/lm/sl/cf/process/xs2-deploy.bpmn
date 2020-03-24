@@ -98,7 +98,13 @@
     <sequenceFlow id="flow119" sourceRef="computeNextModulesToDeployInParallel" targetRef="deployModulesParallel"></sequenceFlow>
     <sequenceFlow id="flow120" sourceRef="deployModulesParallel" targetRef="hasParallelDeploymentCompletedGateway"></sequenceFlow>
     <sequenceFlow id="deployAppsParallelNextIterationFlow" sourceRef="hasParallelDeploymentCompletedGateway" targetRef="computeNextModulesToDeployInParallel"></sequenceFlow>
-    <callActivity id="deleteServicesCallActivity" name="Delete Services Sub Process" flowable:async="true" calledElement="deleteServicesSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
+    <callActivity id="deleteServicesCallActivity" name="Delete Services Sub Process" flowable:async="true" calledElement="deleteServiceSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+        <flowable:in sourceExpression="servicesToDeleteVariableGetter.getServicesToDelete(execution)" target="servicesToDelete"></flowable:in>
+        <flowable:in source="serviceToDelete" target="serviceToDelete"></flowable:in>
+      </extensionElements>
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="${servicesToDeleteVariableGetter.getServicesToDelete(execution)}" flowable:elementVariable="serviceToDelete"></multiInstanceLoopCharacteristics>
+    </callActivity>
     <callActivity id="createOrUpdateServicesCallActivity" name="Create or update services" flowable:async="true" calledElement="createOrUpdateServicesSubProcess" flowable:calledElementType="key" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <extensionElements>
         <flowable:in source="user" target="user"></flowable:in>
@@ -282,9 +288,9 @@
         <omgdi:waypoint x="755.9999999999934" y="141.3104693140794"></omgdi:waypoint>
         <omgdi:waypoint x="670.0" y="141.0"></omgdi:waypoint>
         <omgdi:waypoint x="670.0" y="184.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1367.9000244140625" y="184.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1367.9000244140625" y="242.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1149.9499999999614" y="242.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1367.0" y="184.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1367.0" y="242.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1149.9499999999064" y="242.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-25422585-0CF1-4EDA-A191-9FC317F996E6" id="BPMNEdge_sid-25422585-0CF1-4EDA-A191-9FC317F996E6">
         <omgdi:waypoint x="1109.95" y="419.0"></omgdi:waypoint>

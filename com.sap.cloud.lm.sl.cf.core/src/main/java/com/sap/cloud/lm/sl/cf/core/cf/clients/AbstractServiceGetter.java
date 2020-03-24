@@ -34,11 +34,6 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
         return serviceInstance != null ? (Map<String, Object>) serviceInstance.get(getEntityName()) : Collections.emptyMap();
     }
 
-    public Map<String, Object> getServiceInstance(CloudControllerClient client, String serviceName, String spaceId) {
-        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetServiceInstance(client, serviceName,
-                                                                                                                     spaceId));
-    }
-
     private Map<String, Object> attemptToGetServiceInstance(CloudControllerClient client, String serviceName, String spaceId) {
         Map<String, Object> queryParameters = buildQueryParameters(serviceName, spaceId);
         String serviceInstancesEndpoint = getUrl(client.getCloudControllerUrl()

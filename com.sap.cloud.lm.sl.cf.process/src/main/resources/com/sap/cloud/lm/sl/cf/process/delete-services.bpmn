@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
-  <process id="deleteServicesSubProcess" name="Delete Services Sub Process " isExecutable="true">
+  <process id="deleteServiceSubProcess" name="Delete Service Sub Process" isExecutable="true">
     <extensionElements>
-  	  <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
     </extensionElements>
     <startEvent id="startEvent" name="Start" flowable:initiator="initiator"></startEvent>
     <endEvent id="endevent1" name="End"></endEvent>
-    <serviceTask id="deleteServicesWithPolling" name="Delete services with polling" flowable:async="true" flowable:delegateExpression="${deleteServicesStep}"></serviceTask>
-    <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="deleteServicesWithPolling"></sequenceFlow>
+    <serviceTask id="deleteServiceWithPolling" name="Delete service with polling" flowable:async="true" flowable:delegateExpression="${deleteServiceStep}"></serviceTask>
+    <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="deleteServiceWithPolling"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent1" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="waitFlow"></exclusiveGateway>
-    <sequenceFlow id="flow2" sourceRef="deleteServicesWithPolling" targetRef="exclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="flow2" sourceRef="deleteServiceWithPolling" targetRef="exclusivegateway1"></sequenceFlow>
     <sequenceFlow id="waitFlow" name="Wait" sourceRef="exclusivegateway1" targetRef="timerintermediatecatchevent1"></sequenceFlow>
-    <sequenceFlow id="pollingFlow" name="Poll" sourceRef="timerintermediatecatchevent1" targetRef="deleteServicesWithPolling"></sequenceFlow>
+    <sequenceFlow id="pollingFlow" name="Poll" sourceRef="timerintermediatecatchevent1" targetRef="deleteServiceWithPolling"></sequenceFlow>
     <sequenceFlow id="doneFlow" name="Done" sourceRef="exclusivegateway1" targetRef="endevent1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_deleteServicesSubProcess">
-    <bpmndi:BPMNPlane bpmnElement="deleteServicesSubProcess" id="BPMNPlane_deleteServicesSubProcess">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_deleteServiceSubProcess">
+    <bpmndi:BPMNPlane bpmnElement="deleteServiceSubProcess" id="BPMNPlane_deleteServiceSubProcess">
       <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
         <omgdc:Bounds height="30.0" width="30.0" x="165.0" y="111.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
         <omgdc:Bounds height="28.0" width="28.0" x="660.0" y="115.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="deleteServicesWithPolling" id="BPMNShape_deleteServicesWithPolling">
+      <bpmndi:BPMNShape bpmnElement="deleteServiceWithPolling" id="BPMNShape_deleteServiceWithPolling">
         <omgdc:Bounds height="71.0" width="105.0" x="310.0" y="93.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent1" id="BPMNShape_timerintermediatecatchevent1">

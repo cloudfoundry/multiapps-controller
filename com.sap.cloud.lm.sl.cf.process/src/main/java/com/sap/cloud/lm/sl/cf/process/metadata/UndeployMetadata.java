@@ -20,6 +20,11 @@ public class UndeployMetadata {
                                              .defaultValue(false)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
+                                             .id(Constants.PARAM_DELETE_SERVICE_KEYS)
+                                             .type(ParameterType.BOOLEAN)
+                                             .defaultValue(false)
+                                             .build());
+        PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Constants.PARAM_DELETE_SERVICE_BROKERS)
                                              .type(ParameterType.BOOLEAN)
                                              .defaultValue(false)

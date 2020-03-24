@@ -61,7 +61,13 @@
     <serviceTask id="incrementServiceBrokerSubscribersToRestartIndexTask" name="Increment Index" flowable:async="true" flowable:delegateExpression="${incrementIndexStep}"></serviceTask>
     <sequenceFlow id="flow37" sourceRef="updateServiceBrokerSubscriberTask" targetRef="incrementServiceBrokerSubscribersToRestartIndexTask"></sequenceFlow>
     <sequenceFlow id="flow38" sourceRef="incrementServiceBrokerSubscribersToRestartIndexTask" targetRef="areAllServiceBrokerSubscribersRestartedGateway"></sequenceFlow>
-    <callActivity id="deleteServicesCallActivity" name="Delete Services Sub Process" flowable:async="true" calledElement="deleteServicesSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
+    <callActivity id="deleteServicesCallActivity" name="Delete Services Sub Process" flowable:async="true" calledElement="deleteServiceSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+        <flowable:in sourceExpression="servicesToDeleteVariableGetter.getServicesToDelete(execution)" target="servicesToDelete"></flowable:in>
+        <flowable:in source="serviceToDelete" target="serviceToDelete"></flowable:in>
+      </extensionElements>
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="${servicesToDeleteVariableGetter.getServicesToDelete(execution)}" flowable:elementVariable="serviceToDelete"></multiInstanceLoopCharacteristics>
+    </callActivity>
     <exclusiveGateway id="shouldDeleteDiscontinuedServicesGateway" name="Should Delete Discontinued Services" default="CheckServicesToDeleteFlow"></exclusiveGateway>
     <callActivity id="undeployAppsCallActivity" name="Undeploy App Call Activity" flowable:async="true" calledElement="undeployAppSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="appsToUndeploy" flowable:elementVariable="appToProcess"></multiInstanceLoopCharacteristics>
@@ -248,8 +254,8 @@
         <omgdi:waypoint x="362.1028350515464" y="407.10309278350513"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-5BEEF046-A607-4CED-B162-B249877A6578" id="BPMNEdge_sid-5BEEF046-A607-4CED-B162-B249877A6578">
-        <omgdi:waypoint x="585.0" y="314.62659123055164"></omgdi:waypoint>
-        <omgdi:waypoint x="407.0265629162142" y="249.95000000000002"></omgdi:waypoint>
+        <omgdi:waypoint x="585.0" y="292.8"></omgdi:waypoint>
+        <omgdi:waypoint x="458.95000000000005" y="243.70684210526318"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow40" id="BPMNEdge_flow40">
         <omgdi:waypoint x="526.0" y="222.5"></omgdi:waypoint>

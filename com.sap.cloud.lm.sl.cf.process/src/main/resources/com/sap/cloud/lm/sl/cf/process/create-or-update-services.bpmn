@@ -10,7 +10,12 @@
     </serviceTask>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway" default="SkipCoUFlow"></exclusiveGateway>
     <serviceTask id="CreateServiceTask" name="Create" flowable:async="true" flowable:delegateExpression="${createServiceStep}"></serviceTask>
-    <callActivity id="DeleteServiceCallActivity" name="Delete" flowable:async="true" calledElement="deleteServicesSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
+    <callActivity id="DeleteServiceCallActivity" name="Delete" flowable:async="true" calledElement="deleteServiceSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false">
+      <extensionElements>
+        <flowable:in source="servicesToDelete" target="servicesToDelete"></flowable:in>
+        <flowable:in source="serviceToDelete" target="serviceToDelete"></flowable:in>
+      </extensionElements>
+    </callActivity>
     <serviceTask id="UpdateServicePlanTask" name="Update service plan" flowable:async="true" flowable:delegateExpression="${updateServicePlanStep}"></serviceTask>
     <serviceTask id="UpdateServiceCredentialsTask" name="Update credentials" flowable:async="true" flowable:delegateExpression="${updateServiceCredentialsStep}"></serviceTask>
     <serviceTask id="UpdateServiceTagsTask" name="Update Tags" flowable:async="true" flowable:delegateExpression="${updateServiceTagsStep}"></serviceTask>

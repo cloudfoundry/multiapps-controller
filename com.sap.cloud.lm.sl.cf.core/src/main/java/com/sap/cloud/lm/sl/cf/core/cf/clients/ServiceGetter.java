@@ -22,14 +22,6 @@ public class ServiceGetter {
         this.userProvidedServiceInstanceGetter = userProvidedServiceInstanceGetter;
     }
 
-    public Map<String, Object> getServiceInstance(CloudControllerClient client, String serviceName, String spaceId) {
-        Map<String, Object> serviceInstance = serviceInstanceGetter.getServiceInstance(client, serviceName, spaceId);
-        if (serviceInstance == null || serviceInstance.isEmpty()) {
-            serviceInstance = userProvidedServiceInstanceGetter.getServiceInstance(client, serviceName, spaceId);
-        }
-        return serviceInstance;
-    }
-
     public Map<String, Object> getServiceInstanceEntity(CloudControllerClient client, String serviceName, String spaceId) {
         Map<String, Object> serviceInstance = serviceInstanceGetter.getServiceInstanceEntity(client, serviceName, spaceId);
         if (serviceInstance == null || serviceInstance.isEmpty()) {
@@ -37,4 +29,5 @@ public class ServiceGetter {
         }
         return serviceInstance;
     }
+
 }
