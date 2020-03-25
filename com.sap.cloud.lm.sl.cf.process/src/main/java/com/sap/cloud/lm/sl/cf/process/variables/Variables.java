@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -102,6 +103,17 @@ public interface Variables {
     Variable<String> SERVICE_OFFERING = ImmutableVariable.<String> builder()
                                                          .name(Constants.VAR_SERVICE_OFFERING)
                                                          .build();
+    Variable<String> INDEX_VARIABLE_NAME = ImmutableVariable.<String> builder()
+                                                            .name(Constants.VAR_INDEX_VARIABLE_NAME)
+                                                            .build();
+    Variable<String> STEP_EXECUTION = ImmutableVariable.<String> builder()
+                                                       .name(Constants.VAR_STEP_EXECUTION)
+                                                       .build();
+    // TODO: Saving booleans as strings... Really???
+    Variable<String> APP_CONTENT_CHANGED = ImmutableVariable.<String> builder()
+                                                            .name(Constants.VAR_APP_CONTENT_CHANGED)
+                                                            .defaultValue(Boolean.toString(false))
+                                                            .build();
     Variable<Integer> MTA_MAJOR_SCHEMA_VERSION = ImmutableVariable.<Integer> builder()
                                                                   .name(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION)
                                                                   .build();
@@ -115,6 +127,33 @@ public interface Variables {
     Variable<Integer> UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX = ImmutableVariable.<Integer> builder()
                                                                                   .name(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX)
                                                                                   .build();
+    Variable<Integer> MODULES_COUNT = ImmutableVariable.<Integer> builder()
+                                                       .name(Constants.VAR_MODULES_COUNT)
+                                                       .build();
+    Variable<Integer> MODULES_INDEX = ImmutableVariable.<Integer> builder()
+                                                       .name(Constants.VAR_MODULES_INDEX)
+                                                       .build();
+    Variable<Integer> MTARS_COUNT = ImmutableVariable.<Integer> builder()
+                                                     .name(Constants.VAR_MTARS_COUNT)
+                                                     .build();
+    Variable<Integer> MTARS_INDEX = ImmutableVariable.<Integer> builder()
+                                                     .name(Constants.VAR_MTARS_INDEX)
+                                                     .build();
+    Variable<Integer> TASKS_COUNT = ImmutableVariable.<Integer> builder()
+                                                     .name(Constants.VAR_TASKS_COUNT)
+                                                     .build();
+    Variable<Integer> TASKS_INDEX = ImmutableVariable.<Integer> builder()
+                                                     .name(Constants.VAR_TASKS_INDEX)
+                                                     .build();
+    Variable<Integer> SERVICES_TO_CREATE_COUNT = ImmutableVariable.<Integer> builder()
+                                                                  .name(Constants.VAR_SERVICES_TO_CREATE_COUNT)
+                                                                  .build();
+    Variable<Integer> ASYNC_STEP_EXECUTION_INDEX = ImmutableVariable.<Integer> builder()
+                                                                    .name(Constants.ASYNC_STEP_EXECUTION_INDEX)
+                                                                    .build();
+    Variable<Long> START_TIME = ImmutableVariable.<Long> builder()
+                                                 .name(Constants.VAR_START_TIME)
+                                                 .build();
     Variable<Boolean> SKIP_MANAGE_SERVICE_BROKER = ImmutableVariable.<Boolean> builder()
                                                                     .name(Constants.VAR_SKIP_MANAGE_SERVICE_BROKER)
                                                                     .build();
@@ -206,6 +245,18 @@ public interface Variables {
     Variable<Boolean> KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY = ImmutableVariable.<Boolean> builder()
                                                                               .name(Constants.PARAM_KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY)
                                                                               .build();
+    Variable<Boolean> EXECUTE_ONE_OFF_TASKS = ImmutableVariable.<Boolean> builder()
+                                                               .name(Constants.EXECUTE_ONE_OFF_TASKS)
+                                                               .build();
+    Variable<Boolean> SHOULD_UPLOAD_APPLICATION_CONTENT = ImmutableVariable.<Boolean> builder()
+                                                                           .name(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT)
+                                                                           .build();
+    Variable<Boolean> REBUILD_APP_ENV = ImmutableVariable.<Boolean> builder()
+                                                         .name(Constants.REBUILD_APP_ENV)
+                                                         .build();
+    Variable<UUID> BUILD_GUID = ImmutableVariable.<UUID> builder()
+                                                 .name(Constants.VAR_BUILD_GUID)
+                                                 .build();
     Variable<DeploymentDescriptor> DEPLOYMENT_DESCRIPTOR = ImmutableVariable.<DeploymentDescriptor> builder()
                                                                             .name(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR)
                                                                             .type(Variable.typeReference(DeploymentDescriptor.class))

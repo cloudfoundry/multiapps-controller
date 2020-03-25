@@ -31,19 +31,13 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
         List<Module> modulesToDeploy = getModulesToDeploy(context.getExecution());
 
         // Initialize the iteration over the applications list:
-        context.getExecution()
-               .setVariable(Constants.VAR_MODULES_COUNT, modulesToDeploy.size());
-        context.getExecution()
-               .setVariable(Constants.VAR_MODULES_INDEX, 0);
-        context.getExecution()
-               .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
+        context.setVariable(Variables.MODULES_COUNT, modulesToDeploy.size());
+        context.setVariable(Variables.MODULES_INDEX, 0);
+        context.setVariable(Variables.INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
 
-        context.getExecution()
-               .setVariable(Constants.REBUILD_APP_ENV, true);
-        context.getExecution()
-               .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, true);
-        context.getExecution()
-               .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, true);
+        context.setVariable(Variables.REBUILD_APP_ENV, true);
+        context.setVariable(Variables.SHOULD_UPLOAD_APPLICATION_CONTENT, true);
+        context.setVariable(Variables.EXECUTE_ONE_OFF_TASKS, true);
 
         StepsUtil.setModulesToDeploy(context.getExecution(), modulesToDeploy);
 

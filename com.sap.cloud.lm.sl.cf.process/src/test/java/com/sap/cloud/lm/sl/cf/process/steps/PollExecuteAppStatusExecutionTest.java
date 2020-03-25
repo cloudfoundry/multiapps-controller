@@ -163,7 +163,7 @@ public class PollExecuteAppStatusExecutionTest {
         context.setVariable(Variables.APP_TO_PROCESS, application);
         StepsUtil.setAppStateActionsToExecute(execution, new HashSet<>(Collections.singletonList(ApplicationStateAction.EXECUTE)));
         context.setVariable(Variables.USER, USER_NAME);
-        execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.VAR_START_TIME, PROCESS_START_TIME);
+        context.setVariable(Variables.START_TIME, PROCESS_START_TIME);
     }
 
     private void prepareRecentLogsRetriever(ApplicationLog applicationLog) {

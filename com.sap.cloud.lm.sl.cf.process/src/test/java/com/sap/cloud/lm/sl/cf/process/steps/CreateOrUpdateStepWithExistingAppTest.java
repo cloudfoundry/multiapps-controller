@@ -98,7 +98,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     public void testSkipRebindOfServices() {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString("update-app-step-input-1.json", getClass()), StepInput.class);
         prepareContext();
-        execution.setVariable(Constants.VAR_SHOULD_SKIP_SERVICE_REBINDING, true);
+        context.setVariable(Variables.SHOULD_SKIP_SERVICE_REBINDING, true);
         prepareClient();
 
         Assertions.assertDoesNotThrow(() -> step.execute(execution));
@@ -270,7 +270,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(cloudApp), execution);
         StepsUtil.setServicesToBind(execution, mapToCloudServices());
         context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, Collections.emptyMap());
-        execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
+        context.setVariable(Variables.MODULES_INDEX, 0);
         context.setVariable(Variables.APP_ARCHIVE_ID, "dummy");
         context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());
     }

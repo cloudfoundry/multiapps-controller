@@ -26,7 +26,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
 import com.sap.cloud.lm.sl.cf.process.util.ImmutableStagingState;
@@ -113,7 +112,7 @@ public class PollStageAppStatusExecutionTest {
 
     private void prepareContext(CloudApplicationExtended application) {
         context.setVariable(Variables.USER, USER_NAME);
-        execution.setVariable(Constants.VAR_START_TIME, PROCESS_START_TIME);
+        context.setVariable(Variables.START_TIME, PROCESS_START_TIME);
         context.setVariable(Variables.APP_TO_PROCESS, application);
     }
 

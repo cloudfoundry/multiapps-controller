@@ -23,9 +23,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupState;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupStateCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     extends SyncFlowableStepTest<DetermineDesiredStateAchievingActionsStep> {
@@ -81,7 +79,7 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     }
 
     private void prepareContext() {
-        execution.setVariable(Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(hasAppChanged));
+        context.setVariable(Variables.APP_CONTENT_CHANGED, Boolean.toString(hasAppChanged));
         context.setVariable(Variables.NO_START, false);
     }
 
@@ -101,12 +99,12 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
                                                                         .name(DUMMY)
                                                                         .restartParameters(restartParameters)
                                                                         .build();
-        execution.setVariable(Constants.VAR_APP_TO_PROCESS, JsonUtil.toJson(app));
+        context.setVariable(Variables.APP_TO_PROCESS, app);
         when(client.getApplication(anyString())).thenReturn(app);
         if (hasUploadToken) {
-            execution.setVariable(Constants.VAR_UPLOAD_TOKEN, JsonUtil.toJson(ImmutableUploadToken.builder()
-                                                                                                  .packageGuid(FAKE_UUID)
-                                                                                                  .build()));
+            context.setVariable(Variables.UPLOAD_TOKEN, ImmutableUploadToken.builder()
+                                                                            .packageGuid(FAKE_UUID)
+                                                                            .build());
         }
     }
 }

@@ -23,7 +23,6 @@ import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
@@ -112,7 +111,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
         if (expectedExceptionMessage != null) {
             exception.expectMessage(expectedExceptionMessage);
         }
-        execution.setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, 0);
+        context.setVariable(Variables.SERVICES_TO_CREATE_COUNT, 0);
         when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
     }
 

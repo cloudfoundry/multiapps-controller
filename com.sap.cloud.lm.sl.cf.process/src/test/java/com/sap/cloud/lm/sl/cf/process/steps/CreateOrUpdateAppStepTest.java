@@ -31,7 +31,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -131,7 +130,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
         StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, execution);
         StepsUtil.setServicesToBind(execution, mapToCloudServiceExtended());
         context.setVariable(Variables.APP_ARCHIVE_ID, "dummy");
-        execution.setVariable(Constants.VAR_MODULES_INDEX, stepInput.applicationIndex);
+        context.setVariable(Variables.MODULES_INDEX, stepInput.applicationIndex);
         context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());
     }
 

@@ -34,7 +34,6 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
@@ -115,8 +114,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         StepsUtil.setServicesToCreate(context.getExecution(), servicesToCreate);
 
         // Needed by CreateOrUpdateServicesStep, as it is used as an iteration variable:
-        context.getExecution()
-               .setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, servicesToCreate.size());
+        context.setVariable(Variables.SERVICES_TO_CREATE_COUNT, servicesToCreate.size());
 
         getStepLogger().debug(Messages.CLOUD_MODEL_BUILT);
         return StepPhase.DONE;

@@ -22,7 +22,6 @@ import org.mockito.Mock;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @RunWith(Parameterized.class)
@@ -115,8 +114,8 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
 
     private void prepareContext() {
         context.setVariable(Variables.STARTED_TASK, task);
-        execution.setVariable(Constants.VAR_TASKS_INDEX, 0);
-        execution.setVariable(Constants.VAR_START_TIME, 0L);
+        context.setVariable(Variables.TASKS_INDEX, 0);
+        context.setVariable(Variables.START_TIME, 0L);
         context.setVariable(Variables.START_TIMEOUT, START_TIMEOUT);
         StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(APPLICATION), execution);
     }

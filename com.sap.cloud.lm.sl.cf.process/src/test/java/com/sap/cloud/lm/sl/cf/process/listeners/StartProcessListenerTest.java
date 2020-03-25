@@ -25,7 +25,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
@@ -136,7 +135,7 @@ public class StartProcessListenerTest {
         VariableHandling.set(execution, Variables.SPACE_ID, SPACE_ID);
         VariableHandling.set(execution, Variables.USER, USER);
         VariableHandling.set(execution, Variables.CORRELATION_ID, processInstanceId);
-        execution.setVariable(Constants.TASK_ID, TASK_ID);
+        VariableHandling.set(execution, Variables.TASK_ID, TASK_ID);
     }
 
     private void loadParameters() {

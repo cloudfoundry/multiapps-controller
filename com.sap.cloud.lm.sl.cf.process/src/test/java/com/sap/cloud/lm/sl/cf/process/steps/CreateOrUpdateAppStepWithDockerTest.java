@@ -17,7 +17,6 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 
@@ -63,7 +62,7 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
 
     private void prepareContext() {
         context.setVariable(Variables.APP_ARCHIVE_ID, "archive_id");
-        execution.setVariable(Constants.VAR_MODULES_INDEX, stepInput.applicationIndex);
+        context.setVariable(Variables.MODULES_INDEX, stepInput.applicationIndex);
         StepsUtil.setServicesToBind(execution, Collections.emptyList());
 
         context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());

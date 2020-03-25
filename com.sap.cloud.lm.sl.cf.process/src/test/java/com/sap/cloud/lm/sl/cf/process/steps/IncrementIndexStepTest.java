@@ -12,6 +12,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @RunWith(Parameterized.class)
 public class IncrementIndexStepTest extends SyncFlowableStepTest<IncrementIndexStep> {
@@ -38,13 +39,13 @@ public class IncrementIndexStepTest extends SyncFlowableStepTest<IncrementIndexS
 
         assertStepFinishedSuccessfully();
 
-        String indexVariableName = (String) execution.getVariable(Constants.VAR_INDEX_VARIABLE_NAME);
+        String indexVariableName = context.getVariable(Variables.INDEX_VARIABLE_NAME);
         assertEquals(index + 1, execution.getVariable(indexVariableName));
     }
 
     private DelegateExecution prepareContext() {
-        execution.setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
-        execution.setVariable(Constants.VAR_MODULES_INDEX, index);
+        context.setVariable(Variables.INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
+        context.setVariable(Variables.MODULES_INDEX, index);
         return execution;
     }
 

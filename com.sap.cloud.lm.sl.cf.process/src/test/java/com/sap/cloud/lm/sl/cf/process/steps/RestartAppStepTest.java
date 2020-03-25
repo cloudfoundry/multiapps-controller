@@ -10,7 +10,6 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
@@ -20,7 +19,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     @Before
     public void setUp() {
-        execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
+        context.setVariable(Variables.MODULES_INDEX, 0);
     }
 
     @Test

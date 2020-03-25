@@ -29,7 +29,6 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -112,8 +111,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
                                                                                  .metadata(CloudMetadata.defaultMetadata())
                                                                                  .name("test-app-name")
                                                                                  .build();
-        Mockito.when(execution.getVariable(Constants.VAR_APP_TO_PROCESS))
-               .thenReturn(JsonUtil.toJson(appToProcess));
+        context.setVariable(Variables.APP_TO_PROCESS, appToProcess);
     }
 
     @Test

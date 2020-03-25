@@ -111,15 +111,16 @@ public class Constants {
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS = "updatedServiceBrokerSubscribers";
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = "updatedServiceBrokerSubscribersCount";
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX = "updatedServiceBrokerSubscribersIndex";
-    public static final String VAR_MODULES_INDEX = "modulesIndex";
     public static final String VAR_MODULES_COUNT = "modulesCount";
+    public static final String VAR_MODULES_INDEX = "modulesIndex";
     public static final String VAR_INDEX_VARIABLE_NAME = "indexVariableName";
     public static final String VAR_MTARS_COUNT = "mtarsCount";
     public static final String VAR_MTARS_INDEX = "mtarsIndex";
     public static final String VAR_TASKS_TO_EXECUTE = "tasksToExecute";
-    public static final String VAR_TASKS_INDEX = "tasksIndex";
     public static final String VAR_TASKS_COUNT = "tasksCount";
+    public static final String VAR_TASKS_INDEX = "tasksIndex";
     public static final String VAR_STARTED_TASK = "startedTask";
+    // TODO: Do we use this variable?
     public static final String VAR_APPS_TO_RESTART_COUNT = "appsToRestartCount";
     public static final String VAR_APPS_TO_UNDEPLOY = "appsToUndeploy";
     public static final String VAR_SERVICE_TO_DELETE = "serviceToDelete";
@@ -135,7 +136,9 @@ public class Constants {
     public static final String VAR_UPLOAD_TOKEN = "uploadToken";
     public static final String VAR_PUBLISHED_ENTRIES = "publishedEntries";
     public static final String VAR_DELETED_ENTRIES = "deletedEntries";
+    // TODO: Do we use this variable?
     public static final String VAR_HAS_APP_CHANGED = "hasAppChanged";
+    // TODO: Do we use this variable?
     public static final String VAR_HAS_APP_CONTENT_CHANGED = "hasAppContentChanged";
     public static final String VAR_VCAP_APP_PROPERTIES_CHANGED = "vcapAppPropertiesChanged";
     public static final String VAR_VCAP_SERVICES_PROPERTIES_CHANGED = "vcapServicesPropertiesChanged";
@@ -161,8 +164,10 @@ public class Constants {
     public static final String EXECUTE_ONE_OFF_TASKS = "executeOneOffTasks";
     public static final String SHOULD_UPLOAD_APPLICATION_CONTENT = "shouldUploadApplicationContent";
     public static final String REBUILD_APP_ENV = "rebuildAppEnv";
+    // TODO: Do we use this variable?
     public static final String ADDITIONAL_APP_ENV = "additionalAppEnv";
     public static final String ASYNC_STEP_EXECUTION_INDEX = "asyncStepExecutionIndex";
+    // TODO: Do we use this variable?
     public static final String VAR_STEP_EXECUTION = "StepExecution";
     public static final String VAR_STEP_PHASE = "stepPhase";
     public static final String VAR_APP_CONTENT_CHANGED = "appContentChanged";
