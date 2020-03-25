@@ -31,9 +31,9 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
 
         // Then:
         assertStepFinishedSuccessfully();
-        assertEquals(3, execution.getVariable(Constants.VAR_TASKS_COUNT));
-        assertEquals(0, execution.getVariable(Constants.VAR_TASKS_INDEX));
-        assertEquals(Constants.VAR_TASKS_INDEX, execution.getVariable(Constants.VAR_INDEX_VARIABLE_NAME));
+        assertEquals((Integer) 3, context.getVariable(Variables.TASKS_COUNT));
+        assertEquals((Integer) 0, context.getVariable(Variables.TASKS_INDEX));
+        assertEquals(Constants.VAR_TASKS_INDEX, context.getVariable(Variables.INDEX_VARIABLE_NAME));
         assertEquals(3, context.getVariable(Variables.TASKS_TO_EXECUTE)
                                .size());
     }

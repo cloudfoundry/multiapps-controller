@@ -5,7 +5,6 @@ import java.util.List;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -19,12 +18,10 @@ public class PrepareToRestartServiceBrokerSubscribersStep extends SyncFlowableSt
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
-        DelegateExecution execution = context.getExecution();
-
         List<CloudApplication> serviceBrokersToRestart = context.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS);
         context.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT, serviceBrokersToRestart.size());
         context.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX, 0);
-        execution.setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
+        context.setVariable(Variables.INDEX_VARIABLE_NAME, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
         return StepPhase.DONE;
     }
 

@@ -50,7 +50,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtende
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveContext;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveReader;
@@ -156,13 +155,11 @@ public class UploadAppStepTest {
                 throw e;
             }
 
-            assertCall(Constants.VAR_UPLOAD_TOKEN, JsonUtil.toJson(UPLOAD_TOKEN));
-        }
-
-        private void assertCall(String variableName, String variableValue) {
-            int numberOfCalls = shouldUpload ? 1 : 0;
-            Mockito.verify(execution, Mockito.times(numberOfCalls))
-                   .setVariable(variableName, variableValue);
+            if (shouldUpload) {
+                assertEquals(UPLOAD_TOKEN, context.getVariable(Variables.UPLOAD_TOKEN));
+            } else {
+                assertEquals(null, context.getVariable(Variables.UPLOAD_TOKEN));
+            }
         }
 
         public void loadParameters() {
@@ -182,7 +179,7 @@ public class UploadAppStepTest {
                                                                             .moduleName(APP_NAME)
                                                                             .build();
             context.setVariable(Variables.APP_TO_PROCESS, app);
-            execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
+            context.setVariable(Variables.MODULES_INDEX, 0);
             context.setVariable(Variables.APP_ARCHIVE_ID, APP_ARCHIVE);
             context.setVariable(Variables.SPACE_ID, SPACE);
             mtaArchiveElements.addModuleFileName(APP_NAME, APP_FILE);
@@ -300,7 +297,7 @@ public class UploadAppStepTest {
 
         @Before
         public void prepareContext() {
-            execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
+            context.setVariable(Variables.MODULES_INDEX, 0);
             step.initializeStepLogger(execution);
         }
 
@@ -354,7 +351,7 @@ public class UploadAppStepTest {
                                                                             .name(APP_NAME)
                                                                             .build();
             context.setVariable(Variables.APP_TO_PROCESS, app);
-            execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
+            context.setVariable(Variables.MODULES_INDEX, 0);
             context.setVariable(Variables.APP_ARCHIVE_ID, APP_ARCHIVE);
             context.setVariable(Variables.SPACE_ID, SPACE);
             MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();

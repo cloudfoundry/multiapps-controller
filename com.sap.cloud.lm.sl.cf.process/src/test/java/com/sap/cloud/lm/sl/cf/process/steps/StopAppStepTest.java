@@ -15,7 +15,6 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -81,7 +80,7 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     }
 
     private void prepareContext() {
-        execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
+        context.setVariable(Variables.MODULES_INDEX, 0);
         StepsTestUtil.mockApplicationsToDeploy(toCloudApplication(), execution);
         context.setVariable(Variables.EXISTING_APP, (existingApplication != null) ? existingApplication.toCloudApplication() : null);
     }

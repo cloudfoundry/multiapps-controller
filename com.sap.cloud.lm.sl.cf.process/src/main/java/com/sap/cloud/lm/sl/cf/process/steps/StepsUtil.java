@@ -297,8 +297,7 @@ public class StepsUtil {
 
     static CloudTask getTask(ProcessContext context) {
         List<CloudTask> tasks = context.getVariable(Variables.TASKS_TO_EXECUTE);
-        int index = (Integer) context.getExecution()
-                                     .getVariable(Constants.VAR_TASKS_INDEX);
+        int index = context.getVariable(Variables.TASKS_INDEX);
         return tasks.get(index);
     }
 

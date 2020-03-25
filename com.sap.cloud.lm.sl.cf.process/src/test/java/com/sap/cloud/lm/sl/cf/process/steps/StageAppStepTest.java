@@ -18,7 +18,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtende
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
 
@@ -38,16 +37,14 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
         ImmutableCloudApplicationExtended cloudApplicationExtended = ImmutableCloudApplicationExtended.builder()
                                                                                                       .name(applicationName)
                                                                                                       .build();
-        Mockito.when(execution.getVariable(Constants.VAR_APP_TO_PROCESS))
-               .thenReturn(JsonUtil.toJson(cloudApplicationExtended));
+        context.setVariable(Variables.APP_TO_PROCESS, cloudApplicationExtended);
     }
 
     private void mockUploadToken(UUID packageGuid) {
         UploadToken uploadToken = ImmutableUploadToken.builder()
                                                       .packageGuid(packageGuid)
                                                       .build();
-        Mockito.when(execution.getVariable(Constants.VAR_UPLOAD_TOKEN))
-               .thenReturn(JsonUtil.toJson(uploadToken));
+        context.setVariable(Variables.UPLOAD_TOKEN, uploadToken);
     }
 
     private void mockClient() {

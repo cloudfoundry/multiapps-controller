@@ -6,8 +6,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.flowable.engine.delegate.DelegateExecution;
-
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
@@ -37,7 +35,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
                                                         .build(applicationModule, moduleToDeployHelper);
         modifiedApp = ImmutableCloudApplicationExtended.builder()
                                                        .from(modifiedApp)
-                                                       .env(getApplicationEnv(context.getExecution(), modifiedApp))
+                                                       .env(getApplicationEnv(context, modifiedApp))
                                                        .uris(getApplicationUris(context, modifiedApp))
                                                        .build();
         SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
@@ -64,7 +62,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         return Messages.ERROR_BUILDING_CLOUD_APP_MODEL;
     }
 
-    protected Map<String, String> getApplicationEnv(DelegateExecution execution, CloudApplicationExtended app) {
+    protected Map<String, String> getApplicationEnv(ProcessContext context, CloudApplicationExtended app) {
         return app.getEnv();
     }
 

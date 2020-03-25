@@ -47,8 +47,7 @@ public class ProcessStepHelper {
                                                                      .getName()));
 
         processLogsPersister.persistLogs(context.getVariable(Variables.CORRELATION_ID), context.getVariable(Variables.TASK_ID));
-        context.getExecution()
-               .setVariable(Constants.VAR_STEP_EXECUTION, state.toString());
+        context.setVariable(Variables.STEP_EXECUTION, state.toString());
     }
 
     void preExecuteStep(ProcessContext context, StepPhase initialPhase) {

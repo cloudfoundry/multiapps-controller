@@ -27,14 +27,10 @@ public class PrepareAppsRestartStep extends PrepareModulesDeploymentStep {
     protected StepPhase executeStep(ProcessContext context) {
         super.executeStep(context);
 
-        context.getExecution()
-               .setVariable(Constants.REBUILD_APP_ENV, true);
-        context.getExecution()
-               .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, false);
-        context.getExecution()
-               .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
-        context.getExecution()
-               .setVariable(Constants.VAR_SHOULD_SKIP_SERVICE_REBINDING, true);
+        context.setVariable(Variables.REBUILD_APP_ENV, true);
+        context.setVariable(Variables.SHOULD_UPLOAD_APPLICATION_CONTENT, false);
+        context.setVariable(Variables.EXECUTE_ONE_OFF_TASKS, false);
+        context.setVariable(Variables.SHOULD_SKIP_SERVICE_REBINDING, true);
         context.setVariable(Variables.USE_IDLE_URIS, false);
         context.setVariable(Variables.DELETE_IDLE_URIS, true);
         context.setVariable(Variables.SKIP_UPDATE_CONFIGURATION_ENTRIES, false);

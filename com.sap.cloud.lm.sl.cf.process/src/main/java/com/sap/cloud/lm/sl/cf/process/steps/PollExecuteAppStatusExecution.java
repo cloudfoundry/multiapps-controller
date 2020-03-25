@@ -19,7 +19,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
@@ -91,8 +90,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
 
     private AppExecutionDetailedStatus getAppExecutionStatus(ProcessContext context, CloudControllerClient client,
                                                              ApplicationAttributes appAttributes, CloudApplication app) {
-        long startTime = (long) context.getExecution()
-                                       .getVariable(Constants.VAR_START_TIME);
+        long startTime = context.getVariable(Variables.START_TIME);
         Marker sm = getMarker(appAttributes, SupportedParameters.SUCCESS_MARKER, DEFAULT_SUCCESS_MARKER);
         Marker fm = getMarker(appAttributes, SupportedParameters.FAILURE_MARKER, DEFAULT_FAILURE_MARKER);
         boolean checkDeployId = appAttributes.get(SupportedParameters.CHECK_DEPLOY_ID, Boolean.class, Boolean.FALSE);

@@ -15,7 +15,6 @@ import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
@@ -35,8 +34,7 @@ public class ApplicationStager {
     }
 
     public StagingState getStagingState() {
-        UUID buildGuid = (UUID) context.getExecution()
-                                       .getVariable(Constants.VAR_BUILD_GUID);
+        UUID buildGuid = context.getVariable(Variables.BUILD_GUID);
         if (buildGuid == null) {
             return ImmutableStagingState.builder()
                                         .state(PackageState.STAGED)
@@ -129,8 +127,7 @@ public class ApplicationStager {
     }
 
     public void bindDropletToApplication(UUID appGuid) {
-        UUID buildGuid = (UUID) context.getExecution()
-                                       .getVariable(Constants.VAR_BUILD_GUID);
+        UUID buildGuid = context.getVariable(Variables.BUILD_GUID);
         client.bindDropletToApp(client.getBuild(buildGuid)
                                       .getDropletInfo()
                                       .getGuid(),
@@ -148,10 +145,9 @@ public class ApplicationStager {
 
     private StepPhase createBuild(UUID packageGuid) {
         try {
-            context.getExecution()
-                   .setVariable(Constants.VAR_BUILD_GUID, client.createBuild(packageGuid)
-                                                                .getMetadata()
-                                                                .getGuid());
+            context.setVariable(Variables.BUILD_GUID, client.createBuild(packageGuid)
+                                                            .getMetadata()
+                                                            .getGuid());
         } catch (CloudOperationException e) {
             handleCloudOperationException(e, packageGuid);
         }
@@ -173,8 +169,7 @@ public class ApplicationStager {
         if (lastBuild == null) {
             throw new CloudOperationException(HttpStatus.NOT_FOUND, format(Messages.NO_BUILDS_FOUND_FOR_PACKAGE, packageGuid));
         }
-        context.getExecution()
-               .setVariable(Constants.VAR_BUILD_GUID, lastBuild.getMetadata()
-                                                               .getGuid());
+        context.setVariable(Variables.BUILD_GUID, lastBuild.getMetadata()
+                                                           .getGuid());
     }
 }

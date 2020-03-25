@@ -18,7 +18,6 @@ import org.junit.runners.Parameterized.Parameters;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.RestartParameters;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupState;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @RunWith(Parameterized.class)
@@ -132,8 +131,8 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
 
     @Before
     public void setUpProperties() {
-        execution.setVariable(Constants.VAR_VCAP_APP_PROPERTIES_CHANGED, false);
-        execution.setVariable(Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED, false);
+        context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, false);
+        context.setVariable(Variables.VCAP_SERVICES_PROPERTIES_CHANGED, false);
         context.setVariable(Variables.USER_PROPERTIES_CHANGED, false);
     }
 
@@ -231,8 +230,8 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
 
         @Before
         public void setUpProperties() {
-            execution.setVariable(Constants.VAR_VCAP_APP_PROPERTIES_CHANGED, vcapPropertiesChanged);
-            execution.setVariable(Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED, vcapServicesChanged);
+            context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, vcapPropertiesChanged);
+            context.setVariable(Variables.VCAP_SERVICES_PROPERTIES_CHANGED, vcapServicesChanged);
             context.setVariable(Variables.USER_PROPERTIES_CHANGED, userPropertiesChanged);
         }
 

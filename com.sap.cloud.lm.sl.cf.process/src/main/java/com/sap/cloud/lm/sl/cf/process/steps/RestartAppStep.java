@@ -12,13 +12,11 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudApplication.State;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
@@ -53,9 +51,8 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
 
     private void setStartupPollingInfo(ProcessContext context, StartingInfo startingInfo) {
         context.setVariable(Variables.STARTING_INFO, startingInfo);
-        DelegateExecution execution = context.getExecution();
-        if (execution.getVariable(Constants.VAR_START_TIME) == null) {
-            execution.setVariable(Constants.VAR_START_TIME, System.currentTimeMillis());
+        if (context.getVariable(Variables.START_TIME) == null) {
+            context.setVariable(Variables.START_TIME, System.currentTimeMillis());
         }
     }
 

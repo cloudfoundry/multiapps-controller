@@ -13,9 +13,7 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @RunWith(Parameterized.class)
 public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
@@ -60,8 +58,8 @@ public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
     }
 
     private void prepareContext() {
-        execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
-        execution.setVariable(Constants.VAR_APP_TO_PROCESS, JsonUtil.toJson(application.toCloudApplication()));
+        context.setVariable(Variables.MODULES_INDEX, 0);
+        context.setVariable(Variables.APP_TO_PROCESS, application.toCloudApplication());
         context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
         context.setVariable(Variables.EXISTING_APP, (existingApplication != null) ? existingApplication.toCloudApplication() : null);
     }

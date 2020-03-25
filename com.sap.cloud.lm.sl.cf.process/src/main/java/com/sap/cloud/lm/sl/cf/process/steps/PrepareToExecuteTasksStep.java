@@ -20,12 +20,9 @@ public class PrepareToExecuteTasksStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         List<CloudTask> tasksToExecute = context.getVariable(Variables.TASKS_TO_EXECUTE);
-        context.getExecution()
-               .setVariable(Constants.VAR_TASKS_COUNT, tasksToExecute.size());
-        context.getExecution()
-               .setVariable(Constants.VAR_TASKS_INDEX, 0);
-        context.getExecution()
-               .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_TASKS_INDEX);
+        context.setVariable(Variables.TASKS_COUNT, tasksToExecute.size());
+        context.setVariable(Variables.TASKS_INDEX, 0);
+        context.setVariable(Variables.INDEX_VARIABLE_NAME, Constants.VAR_TASKS_INDEX);
         return StepPhase.DONE;
     }
 

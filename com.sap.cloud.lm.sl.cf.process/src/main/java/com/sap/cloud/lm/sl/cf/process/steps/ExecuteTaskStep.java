@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
@@ -37,8 +36,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
         getStepLogger().info(Messages.EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
         CloudTask startedTask = client.runTask(app.getName(), taskToExecute);
         context.setVariable(Variables.STARTED_TASK, startedTask);
-        context.getExecution()
-               .setVariable(Constants.VAR_START_TIME, currentTimeSupplier.getAsLong());
+        context.setVariable(Variables.START_TIME, currentTimeSupplier.getAsLong());
         return StepPhase.POLL;
     }
 

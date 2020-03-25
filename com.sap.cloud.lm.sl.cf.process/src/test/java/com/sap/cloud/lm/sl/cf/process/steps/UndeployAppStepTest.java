@@ -17,9 +17,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter;
-import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
@@ -58,7 +60,7 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     @MethodSource
     public void testExecution(String stepInputLocation, String stepOutputLocation) throws Exception {
         initializeParameters(stepInputLocation, stepOutputLocation);
-        for (CloudApplication cloudApplication : stepInput.appsToDelete) {
+        for (CloudApplicationExtended cloudApplication : stepInput.appsToDelete) {
             undeployApp(cloudApplication);
         }
 
@@ -77,8 +79,8 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
 
     protected abstract void performAfterUndeploymentValidation();
 
-    private void undeployApp(CloudApplication cloudApplication) {
-        execution.setVariable(Constants.VAR_APP_TO_PROCESS, JsonUtil.toJson(cloudApplication));
+    private void undeployApp(CloudApplicationExtended cloudApplication) {
+        context.setVariable(Variables.APP_TO_PROCESS, cloudApplication);
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
@@ -88,7 +90,7 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     protected abstract void performValidation(CloudApplication cloudApplication);
 
     private void prepareContext() {
-        StepsUtil.setAppsToUndeploy(execution, stepInput.appsToDelete);
+        StepsUtil.setAppsToUndeploy(execution, ListUtil.cast(stepInput.appsToDelete));
     }
 
     private void prepareClient() {
@@ -118,7 +120,7 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     }
 
     protected static class StepInput {
-        protected final List<CloudApplication> appsToDelete = Collections.emptyList();
+        protected final List<CloudApplicationExtended> appsToDelete = Collections.emptyList();
         protected final Map<String, List<CloudRoute>> appRoutesPerApplication = Collections.emptyMap();
         protected final Map<String, List<CloudTask>> tasksPerApplication = Collections.emptyMap();
     }

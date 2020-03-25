@@ -2,9 +2,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 
-import org.flowable.engine.delegate.DelegateExecution;
-
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public abstract class AsyncFlowableStep extends SyncFlowableStep {
 
@@ -16,8 +15,7 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
         if (stepPhase == StepPhase.POLL) {
             return executeStepExecution(context);
         }
-        context.getExecution()
-               .setVariable(Constants.ASYNC_STEP_EXECUTION_INDEX, DEFAULT_STEP_EXECUTION_INDEX);
+        context.setVariable(Variables.ASYNC_STEP_EXECUTION_INDEX, DEFAULT_STEP_EXECUTION_INDEX);
         return executeAsyncStep(context);
     }
 
@@ -34,12 +32,12 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
     }
 
     private AsyncExecution getStepExecution(ProcessContext context, List<AsyncExecution> stepOperations) {
-        Integer operationIndex = getStepExecutionIndex(context.getExecution());
+        Integer operationIndex = getStepExecutionIndex(context);
         return stepOperations.get(operationIndex);
     }
 
-    private Integer getStepExecutionIndex(DelegateExecution execution) {
-        return (Integer) execution.getVariable(Constants.ASYNC_STEP_EXECUTION_INDEX);
+    private Integer getStepExecutionIndex(ProcessContext context) {
+        return context.getVariable(Variables.ASYNC_STEP_EXECUTION_INDEX);
     }
 
     private StepPhase handleStepExecutionStatus(ProcessContext context, AsyncExecutionState stepExecutionState,
@@ -55,11 +53,11 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
         if (stepExecutionState == AsyncExecutionState.RUNNING) {
             return StepPhase.POLL;
         }
-        return determineStepPhase(context.getExecution(), stepExecutions);
+        return determineStepPhase(context, stepExecutions);
     }
 
-    private StepPhase determineStepPhase(DelegateExecution execution, List<AsyncExecution> stepExecutions) {
-        Integer stepExecutionIndex = getStepExecutionIndex(execution);
+    private StepPhase determineStepPhase(ProcessContext context, List<AsyncExecution> stepExecutions) {
+        Integer stepExecutionIndex = getStepExecutionIndex(context);
         if (stepExecutionIndex >= stepExecutions.size()) {
             return StepPhase.DONE;
         }

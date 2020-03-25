@@ -24,9 +24,8 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @RunWith(Parameterized.class)
 public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<UploadAppStep> {
@@ -118,11 +117,11 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
 
     private void prepareContext() {
         StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(application.toCloudApplication()), execution);
-        execution.setVariable(Constants.VAR_MODULES_INDEX, 0);
+        context.setVariable(Variables.MODULES_INDEX, 0);
         UploadToken uploadToken = ImmutableUploadToken.builder()
                                                       .packageGuid(PACKAGE_GUID)
                                                       .build();
-        execution.setVariable(Constants.VAR_UPLOAD_TOKEN, JsonUtil.toJson(uploadToken));
+        context.setVariable(Variables.UPLOAD_TOKEN, uploadToken);
     }
 
     @Override

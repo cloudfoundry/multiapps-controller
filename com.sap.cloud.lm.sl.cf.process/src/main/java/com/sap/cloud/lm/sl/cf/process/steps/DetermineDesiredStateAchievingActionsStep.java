@@ -20,7 +20,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupStateCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ChangedApplicationActionCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.UnchangedApplicationActionCalculator;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
@@ -73,8 +72,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
     }
 
     private boolean determineAppRestart(ProcessContext context) {
-        String appContentChangedString = StepsUtil.getString(context.getExecution(), Constants.VAR_APP_CONTENT_CHANGED,
-                                                             Boolean.toString(false));
+        String appContentChangedString = context.getVariable(Variables.APP_CONTENT_CHANGED);
         if (Boolean.parseBoolean(appContentChangedString)) {
             return true;
         }
