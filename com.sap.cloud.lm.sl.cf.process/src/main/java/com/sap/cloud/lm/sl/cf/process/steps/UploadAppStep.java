@@ -14,12 +14,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.io.FileUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.Status;
 import org.cloudfoundry.client.lib.domain.UploadToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -29,6 +30,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEnvironmentUpdater;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -43,6 +45,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 @Named("uploadAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UploadAppStep extends TimeoutAsyncFlowableStep {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UploadAppStep.class);
 
     static final int DEFAULT_APP_UPLOAD_TIMEOUT = (int) TimeUnit.HOURS.toSeconds(1);
 
@@ -128,10 +132,10 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                 UploadToken uploadToken = upload(context, client, app, filePath);
                 uploadTokenReference.set(uploadToken);
             } catch (IOException e) {
-                cleanUp(filePath);
+                FileUtils.cleanUp(filePath, LOGGER);
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, fileName);
             } catch (CloudOperationException e) {
-                cleanUp(filePath);
+                FileUtils.cleanUp(filePath, LOGGER);
                 throw e;
             }
         });
@@ -139,7 +143,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     }
 
     protected Path extractFromMtar(ApplicationArchiveContext applicationArchiveContext) {
-        return applicationZipBuilder.extractApplicationInNewArchive(applicationArchiveContext, getStepLogger());
+        return applicationZipBuilder.extractApplicationInNewArchive(applicationArchiveContext);
     }
 
     private UploadToken upload(ProcessContext context, CloudControllerClient client, CloudApplication app, Path filePath)
@@ -173,23 +177,6 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     MonitorUploadStatusCallback getMonitorUploadStatusCallback(ProcessContext context, CloudApplication app, File file) {
         return new MonitorUploadStatusCallback(context, app, file);
-    }
-
-    private void cleanUp(Path filePath) {
-        if (filePath == null) {
-            return;
-        }
-        File file = filePath.toFile();
-        if (!file.exists()) {
-            return;
-        }
-
-        try {
-            getStepLogger().debug(Messages.DELETING_TEMP_FILE, filePath);
-            FileUtils.forceDelete(file);
-        } catch (IOException e) {
-            getStepLogger().warn(Messages.ERROR_DELETING_APP_TEMP_FILE, filePath.toAbsolutePath());
-        }
     }
 
     @Override
@@ -242,7 +229,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         public boolean onProgress(String status) {
             getStepLogger().debug(Messages.UPLOAD_STATUS_0, status);
             if (status.equals(Status.READY.toString())) {
-                cleanUp(file.toPath());
+                FileUtils.cleanUp(file.toPath(), LOGGER);
                 getProcessLogsPersister().persistLogs(context.getVariable(Variables.CORRELATION_ID),
                                                       context.getVariable(Variables.TASK_ID));
             }
@@ -252,13 +239,13 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         @Override
         public void onError(Exception e) {
             getStepLogger().error(e, Messages.ERROR_UPLOADING_APP_0, app.getName());
-            cleanUp(file.toPath());
+            FileUtils.cleanUp(file.toPath(), LOGGER);
         }
 
         @Override
         public void onError(String description) {
             getStepLogger().error(Messages.ERROR_UPLOADING_APP_0_STATUS_1_DESCRIPTION_2, app.getName(), Status.FAILED, description);
-            cleanUp(file.toPath());
+            FileUtils.cleanUp(file.toPath(), LOGGER);
         }
 
     }

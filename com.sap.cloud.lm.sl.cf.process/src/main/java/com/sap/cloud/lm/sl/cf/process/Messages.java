@@ -11,7 +11,6 @@ public class Messages {
     public static final String REQUIRED_PROCESS_VARIABLE_IS_MISSING = "Required process variable \"{0}\" is missing.";
     public static final String ERROR_RETRIEVING_MTA_MODULE_CONTENT = "Error retrieving content of MTA module \"{0}\"";
     public static final String ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT = "Error retrieving content of MTA required dependency \"{0}\"";
-    public static final String ERROR_DELETING_APP_TEMP_FILE = "Error deleting temp application file \"{0}\"";
     public static final String ERROR_RETRIEVING_MTA_RESOURCE_CONTENT = "Error retrieving content of MTA resource \"{0}\"";
     public static final String ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET = "Service described by MTA resource \"{0}\" of type [{1}] does not match already existing service \"{2}\" of type [{3}] and needs to be recreated. Use command line option \"--delete-services\" to enable the deletion of the existing one.";
     public static final String MODULE_CONTENT_NA = "The content of MTA module \"{0}\" is not available";
@@ -400,7 +399,6 @@ public class Messages {
     public static final String STEP_FINISHED = "Step \"{0}\" finished";
     public static final String COMPUTING_STATE_OF_OPERATION = "Computing state of operation {0} with ID: {1}";
     public static final String ROUTES_FOR_APPLICATION = "Routes for application {0}: {1}";
-    public static final String DELETING_TEMP_FILE = "Deleting temp file: {0}";
     public static final String UPLOADING_FILE_0_FOR_APP_1 = "Uploading file \"{0}\" for application \"{1}\"";
     public static final String STARTED_ASYNC_UPLOAD_OF_APP_0 = "Started async upload of application \"{0}\"";
     public static final String DELETING_HISTORIC_PROCESS_0 = "Deleting historic process \"{0}\"...";

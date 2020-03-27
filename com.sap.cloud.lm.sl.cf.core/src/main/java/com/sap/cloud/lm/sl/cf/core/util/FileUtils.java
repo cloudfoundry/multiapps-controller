@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -11,6 +12,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.text.MessageFormat;
 
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+
+import com.sap.cloud.lm.sl.cf.core.Messages;
 
 public class FileUtils {
 
@@ -55,6 +59,22 @@ public class FileUtils {
 
     public static boolean isDirectory(String fileName) {
         return fileName.endsWith("/");
+    }
+
+    public static void cleanUp(Path filePath, Logger logger) {
+        if (filePath == null) {
+            return;
+        }
+        File file = filePath.toFile();
+        if (!file.exists()) {
+            return;
+        }
+        try {
+            logger.debug(Messages.DELETING_TEMP_FILE, filePath);
+            org.apache.commons.io.FileUtils.forceDelete(file);
+        } catch (IOException e) {
+            logger.warn(Messages.ERROR_DELETING_APP_TEMP_FILE, filePath.toAbsolutePath());
+        }
     }
 
     private static class DeleteDirVisitor extends SimpleFileVisitor<Path> {
