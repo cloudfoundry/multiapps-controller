@@ -102,7 +102,6 @@ public class Constants {
     public static final String VAR_ALL_MODULES_TO_DEPLOY = "allModulesToDeploy";
     public static final String VAR_APPS_TO_DEPLOY = "appsToDeploy";
     // TODO: Do we use this variable?
-    public static final String VAR_CONTENTS_TO_DEPLOY = "contentsToDeploy";
     public static final String VAR_DEPLOYMENT_MODE = "deploymentMode";
     public static final String VAR_ITERATED_MODULES_IN_PARALLEL = "iteratedModulesInParallel";
     public static final String VAR_MODULES_TO_ITERATE_IN_PARALLEL = "modulesToIterateInParallel";

@@ -12,6 +12,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -20,6 +22,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class ApplicationZipBuilder {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationZipBuilder.class);
     private static final int BUFFER_SIZE = 4 * 1024; // 4KB
     private final ApplicationArchiveReader applicationArchiveReader;
 
@@ -28,14 +32,14 @@ public class ApplicationZipBuilder {
         this.applicationArchiveReader = applicationArchiveReader;
     }
 
-    public Path extractApplicationInNewArchive(ApplicationArchiveContext applicationArchiveContext, StepLogger logger) {
+    public Path extractApplicationInNewArchive(ApplicationArchiveContext applicationArchiveContext) {
         Path appPath = null;
         try {
             appPath = createTempFile();
             saveAllEntries(appPath, applicationArchiveContext);
             return appPath;
         } catch (Exception e) {
-            cleanUp(appPath, logger);
+            FileUtils.cleanUp(appPath, LOGGER);
             throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, applicationArchiveContext.getModuleFileName());
         }
     }
@@ -107,18 +111,4 @@ public class ApplicationZipBuilder {
         return FilenameUtils.EXTENSION_SEPARATOR_STR + "zip";
     }
 
-    protected void cleanUp(Path appPath, StepLogger logger) {
-        // java 8 Files.exists() has poor performance
-        if (appPath == null || !appPath.toFile()
-                                       .exists()) {
-            return;
-        }
-
-        try {
-            logger.debug(Messages.DELETING_TEMP_FILE, appPath);
-            org.apache.commons.io.FileUtils.forceDelete(appPath.toFile());
-        } catch (IOException e) {
-            logger.warn(Messages.ERROR_DELETING_APP_TEMP_FILE, appPath.toAbsolutePath());
-        }
-    }
 }

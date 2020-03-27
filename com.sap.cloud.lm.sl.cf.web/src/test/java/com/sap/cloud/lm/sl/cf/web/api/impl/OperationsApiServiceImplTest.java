@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +60,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class OperationsApiServiceImplTest {
 
@@ -194,8 +194,7 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testStartOperation() {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put(Constants.PARAM_MTA_ID, "test");
+        Map<String, Object> parameters = MapUtil.asMap(Constants.PARAM_MTA_ID, "test");
         Operation operation = createOperation(null, null, parameters);
         Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
                .thenReturn("deploy");

@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
@@ -34,9 +33,6 @@ public class ApplicationZipBuilderTest {
     private static final String SAMPLE_MTAR = "com.sap.mta.sample-1.2.1-beta.mtar";
     private static final String SAMPLE_FLAT_MTAR = "com.sap.mta.sample-1.2.1-beta-flat.mtar";
     private static final long MAX_UPLOAD_FILE_SIZE = 1024 * 1024 * 1024L; // 1gb
-
-    @Mock
-    private StepLogger logger;
 
     private Path appPath = null;
 
@@ -78,7 +74,7 @@ public class ApplicationZipBuilderTest {
         ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(mtar, fileName);
         ApplicationArchiveReader reader = new ApplicationArchiveReader();
         ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader);
-        appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext, logger);
+        appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext);
         assertTrue(Files.exists(appPath));
         try (InputStream zipStream = Files.newInputStream(appPath)) {
             Set<String> zipEntriesName = getZipEntriesName(zipStream);
@@ -96,7 +92,7 @@ public class ApplicationZipBuilderTest {
         ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(mtar, fileName);
         ApplicationArchiveReader reader = new ApplicationArchiveReader();
         ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader);
-        appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext, logger);
+        appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext);
         assertTrue(Files.exists(appPath));
         Set<String> relativizedFilePaths = relativizeUploadedFilesPaths(fileName, alreadyUploadedFiles);
         try (InputStream zipStream = Files.newInputStream(appPath)) {
@@ -137,8 +133,7 @@ public class ApplicationZipBuilderTest {
 
         };
         ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(SAMPLE_MTAR, fileName);
-        Assertions.assertThrows(SLException.class,
-                                () -> appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext, logger));
+        Assertions.assertThrows(SLException.class, () -> appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext));
     }
 
 }
