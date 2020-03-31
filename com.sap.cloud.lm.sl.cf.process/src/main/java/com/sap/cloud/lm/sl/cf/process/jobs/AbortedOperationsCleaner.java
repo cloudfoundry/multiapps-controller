@@ -1,7 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.jobs;
 
 import java.text.MessageFormat;
-import java.util.Calendar;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 
@@ -40,11 +41,11 @@ public class AbortedOperationsCleaner implements Cleaner {
 
     @Override
     public void execute(Date expirationTime) {
-        Calendar now = Calendar.getInstance();
-        now.add(Calendar.MINUTE, -30);
+        Instant instant = Instant.now()
+                                 .minus(30, ChronoUnit.MINUTES);
         List<HistoricOperationEvent> abortedOperations = historicOperationEventService.createQuery()
                                                                                       .type(EventType.ABORTED)
-                                                                                      .olderThan(now.getTime())
+                                                                                      .olderThan(new Date(instant.toEpochMilli()))
                                                                                       .list();
         abortedOperations.stream()
                          .map(HistoricOperationEvent::getProcessId)
