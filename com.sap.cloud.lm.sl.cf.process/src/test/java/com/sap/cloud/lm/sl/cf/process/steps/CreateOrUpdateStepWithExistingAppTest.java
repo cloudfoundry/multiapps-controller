@@ -35,7 +35,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtende
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -318,9 +317,9 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
 
         CloudApplicationExtended toCloudApp() {
             return ImmutableCloudApplicationExtended.builder()
-                                                    .attributesUpdateStrategy(ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy.builder()
-                                                                                                                                                .shouldKeepExistingServiceBindings(shouldKeepServiceBindings)
-                                                                                                                                                .build())
+                                                    .attributesUpdateStrategy(ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder()
+                                                                                                                                       .shouldKeepExistingServiceBindings(shouldKeepServiceBindings)
+                                                                                                                                       .build())
                                                     .name(name)
                                                     .moduleName("test")
                                                     .staging(ImmutableStaging.builder()

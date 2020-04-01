@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 
 public class ApplicationAttributeUpdateStrategyParser implements ParametersParser<CloudApplicationExtended.AttributeUpdateStrategy> {
@@ -15,7 +15,7 @@ public class ApplicationAttributeUpdateStrategyParser implements ParametersParse
     @Override
     public CloudApplicationExtended.AttributeUpdateStrategy parse(List<Map<String, Object>> parametersList) {
         Map<String, Boolean> attributesUpdateStrategy = getAttributesUpdateStrategyParameter(parametersList);
-        ImmutableAttributeUpdateStrategy.Builder builder = ImmutableAttributeUpdateStrategy.builder();
+        ImmutableCloudApplicationExtended.AttributeUpdateStrategy.Builder builder = ImmutableCloudApplicationExtended.AttributeUpdateStrategy.builder();
         Boolean shouldKeepExistingEnv = shouldKeepExistingEnv(attributesUpdateStrategy);
         Boolean shouldKeepExistingRoutes = shouldKeepExistingRoutes(attributesUpdateStrategy);
         Boolean shouldKeepExistingServiceBindings = shouldKeepExistingServiceBindings(attributesUpdateStrategy);
