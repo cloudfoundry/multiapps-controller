@@ -7,12 +7,11 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
-import org.cloudfoundry.client.lib.domain.annotation.Nullable;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy;
+import com.sap.cloud.lm.sl.common.Nullable;
 
 @Value.Enclosing
 @Value.Immutable
@@ -45,8 +44,8 @@ public interface CloudApplicationExtended extends CloudApplication {
     AttributeUpdateStrategy getAttributesUpdateStrategy();
 
     @Value.Immutable
-    @JsonSerialize(as = ImmutableAttributeUpdateStrategy.class)
-    @JsonDeserialize(as = ImmutableAttributeUpdateStrategy.class)
+    @JsonSerialize(as = ImmutableCloudApplicationExtended.AttributeUpdateStrategy.class)
+    @JsonDeserialize(as = ImmutableCloudApplicationExtended.AttributeUpdateStrategy.class)
     interface AttributeUpdateStrategy {
 
         @Value.Default

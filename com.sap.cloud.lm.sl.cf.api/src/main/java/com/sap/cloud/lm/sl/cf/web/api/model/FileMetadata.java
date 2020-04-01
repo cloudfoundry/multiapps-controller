@@ -10,7 +10,7 @@ import org.immutables.value.Value;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.sap.cloud.lm.sl.cf.web.api.Nullable;
+import com.sap.cloud.lm.sl.common.Nullable;
 import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
 

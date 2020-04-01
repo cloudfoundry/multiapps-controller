@@ -5,7 +5,7 @@ import java.lang.reflect.Type;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloud.lm.sl.cf.web.api.Nullable;
+import com.sap.cloud.lm.sl.common.Nullable;
 
 @Value.Immutable
 public abstract class Variable<T> {
