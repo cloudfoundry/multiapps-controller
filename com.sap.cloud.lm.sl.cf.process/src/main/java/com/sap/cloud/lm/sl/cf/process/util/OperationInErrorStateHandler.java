@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngineConfiguration;
@@ -56,9 +57,14 @@ public class OperationInErrorStateHandler {
         releaseCloudControllerClient(event);
     }
 
-    private EventType toEventType(Throwable throwable) {
-        return throwable.getCause() instanceof ContentException ? EventType.FAILED_BY_CONTENT_ERROR
-            : EventType.FAILED_BY_INFRASTRUCTURE_ERROR;
+    EventType toEventType(Throwable throwable) {
+        return hasCause(throwable, ContentException.class) ? EventType.FAILED_BY_CONTENT_ERROR : EventType.FAILED_BY_INFRASTRUCTURE_ERROR;
+    }
+
+    private <T extends Throwable> boolean hasCause(Throwable throwable, Class<T> clazz) {
+        return ExceptionUtils.getThrowableList(throwable)
+                             .stream()
+                             .anyMatch(clazz::isInstance);
     }
 
     private void persistEvent(FlowableEngineEvent event, EventType eventType) {

@@ -1,5 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -18,12 +21,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ProgressMessageQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.common.ParsingException;
+import com.sap.cloud.lm.sl.common.SLException;
 
 public class OperationInErrorStateHandlerTest {
 
@@ -48,6 +54,22 @@ public class OperationInErrorStateHandlerTest {
         MockitoAnnotations.initMocks(this);
         Mockito.when(progressMessageServiceMock.createQuery())
                .thenReturn(progressMessageQuery);
+    }
+
+    @Test
+    public void testToEventType() {
+        OperationInErrorStateHandler handler = mockHandler();
+        Throwable throwable = new RuntimeException(new SLException(new IOException()));
+        EventType eventType = handler.toEventType(throwable);
+        assertEquals(EventType.FAILED_BY_INFRASTRUCTURE_ERROR, eventType);
+    }
+
+    @Test
+    public void testToEventTypeWithContentException() {
+        OperationInErrorStateHandler handler = mockHandler();
+        Throwable throwable = new RuntimeException(new SLException(new IOException(new ParsingException(""))));
+        EventType eventType = handler.toEventType(throwable);
+        assertEquals(EventType.FAILED_BY_CONTENT_ERROR, eventType);
     }
 
     @Test
