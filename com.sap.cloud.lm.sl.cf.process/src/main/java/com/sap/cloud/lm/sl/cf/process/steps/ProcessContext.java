@@ -57,4 +57,8 @@ public class ProcessContext {
         VariableHandling.set(execution, variable, value);
     }
 
+    public void removeVariable(Variable<?> variable) {
+        VariableHandling.remove(execution, variable);
+    }
+
 }
