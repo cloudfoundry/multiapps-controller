@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.variables;
 
 import org.flowable.common.engine.api.variable.VariableContainer;
+import org.flowable.variable.api.delegate.VariableScope;
 
 public final class VariableHandling {
 
@@ -19,6 +20,10 @@ public final class VariableHandling {
         }
         Serializer<T> serializer = variable.getSerializer();
         return serializer.deserialize(serializedValue);
+    }
+
+    public static void remove(VariableScope scope, Variable<?> variable) {
+        scope.removeVariable(variable.getName());
     }
 
 }
