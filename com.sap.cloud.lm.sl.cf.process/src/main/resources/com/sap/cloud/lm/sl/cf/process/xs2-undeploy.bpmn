@@ -63,10 +63,9 @@
     <sequenceFlow id="flow38" sourceRef="incrementServiceBrokerSubscribersToRestartIndexTask" targetRef="areAllServiceBrokerSubscribersRestartedGateway"></sequenceFlow>
     <callActivity id="deleteServicesCallActivity" name="Delete Services Sub Process" flowable:async="true" calledElement="deleteServiceSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <extensionElements>
-        <flowable:in sourceExpression="servicesToDeleteVariableGetter.getServicesToDelete(execution)" target="servicesToDelete"></flowable:in>
         <flowable:in source="serviceToDelete" target="serviceToDelete"></flowable:in>
       </extensionElements>
-      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="${servicesToDeleteVariableGetter.getServicesToDelete(execution)}" flowable:elementVariable="serviceToDelete"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToDelete" flowable:elementVariable="serviceToDelete"></multiInstanceLoopCharacteristics>
     </callActivity>
     <exclusiveGateway id="shouldDeleteDiscontinuedServicesGateway" name="Should Delete Discontinued Services" default="CheckServicesToDeleteFlow"></exclusiveGateway>
     <callActivity id="undeployAppsCallActivity" name="Undeploy App Call Activity" flowable:async="true" calledElement="undeployAppSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
@@ -74,7 +73,6 @@
     </callActivity>
     <sequenceFlow id="flow6" sourceRef="deleteDiscontinuedConfigurationEntriesTask" targetRef="shouldDeleteDiscontinuedServiceBrokersGateway"></sequenceFlow>
     <serviceTask id="CheckServicesToDeleteTask" name="Check Services to Delete" flowable:async="true" flowable:delegateExpression="${checkServicesToDeleteStep}"></serviceTask>
-    <sequenceFlow id="CheckServicesToDeleteFlow" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="CheckServicesToDeleteTask"></sequenceFlow>
     <sequenceFlow id="flow40" sourceRef="deleteServicesCallActivity" targetRef="updateSubscribersTask"></sequenceFlow>
     <exclusiveGateway id="sid-1B34E2BF-18FD-49A5-9083-4892F4E2BA5C" default="deleteDiscontinuedServicesFlow"></exclusiveGateway>
     <sequenceFlow id="sid-5C5B02D1-A40E-41A4-8C0B-C93A7E500B93" sourceRef="undeployAppsCallActivity" targetRef="shouldDeleteDiscontinuedServicesGateway"></sequenceFlow>
@@ -89,23 +87,24 @@
     </sequenceFlow>
     <sequenceFlow id="flow35" sourceRef="waitForServiceBrokerSubscribersToBeRestarted" targetRef="restartServiceBrokerSubscriberTask"></sequenceFlow>
     <sequenceFlow id="waitForServiceBrokerSubscriberToStartFlow" sourceRef="isServiceBrokerSubscriberStartedGateway" targetRef="waitForServiceBrokerSubscribersToBeRestarted"></sequenceFlow>
-    <sequenceFlow id="prepareToUndeployAppsFlow" sourceRef="shouldDeleteDiscontinuedServiceBrokersGateway" targetRef="undeployAppsCallActivity">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deleteServiceBrokers == false)}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="flow33" sourceRef="restartServiceBrokerSubscriberTask" targetRef="isServiceBrokerSubscriberStartedGateway"></sequenceFlow>
-    <sequenceFlow id="flow7" sourceRef="CheckServicesToDeleteTask" targetRef="sid-1B34E2BF-18FD-49A5-9083-4892F4E2BA5C"></sequenceFlow>
     <sequenceFlow id="flow8" sourceRef="waitForServicesToBeDeleted" targetRef="CheckServicesToDeleteTask"></sequenceFlow>
     <sequenceFlow id="allServiceBrokerSubscribersWereRestartedFlow" sourceRef="areAllServiceBrokerSubscribersRestartedGateway" targetRef="endEvent">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(updatedServiceBrokerSubscribersCount == updatedServiceBrokerSubscribersIndex)}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="detachServicesFromMtaTask" name="Detach Services from MTA" flowable:async="true" flowable:delegateExpression="${detachServicesFromMtaStep}"></serviceTask>
+    <sequenceFlow id="sid-5BEEF046-A607-4CED-B162-B249877A6578" sourceRef="detachServicesFromMtaTask" targetRef="updateSubscribersTask"></sequenceFlow>
+    <sequenceFlow id="CheckServicesToDeleteFlow" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="CheckServicesToDeleteTask"></sequenceFlow>
+    <sequenceFlow id="flow7" sourceRef="CheckServicesToDeleteTask" targetRef="sid-1B34E2BF-18FD-49A5-9083-4892F4E2BA5C"></sequenceFlow>
+    <sequenceFlow id="prepareToUndeployAppsFlow" sourceRef="shouldDeleteDiscontinuedServiceBrokersGateway" targetRef="undeployAppsCallActivity">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deleteServiceBrokers == false)}]]></conditionExpression>
+    </sequenceFlow>
     <sequenceFlow id="doNotDeleteDiscontinuedServicesFlow" name="Don't delete services" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="detachServicesFromMtaTask">
       <extensionElements>
         <flowable:executionListener event="take" delegateExpression="${doNotDeleteServicesListener}"></flowable:executionListener>
       </extensionElements>
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deleteServices == false)}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="sid-5BEEF046-A607-4CED-B162-B249877A6578" sourceRef="detachServicesFromMtaTask" targetRef="updateSubscribersTask"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_xs2-undeploy">
     <bpmndi:BPMNPlane bpmnElement="xs2-undeploy" id="BPMNPlane_xs2-undeploy">
