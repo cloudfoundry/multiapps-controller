@@ -65,8 +65,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         Set<String> mtaModules = context.getVariable(Variables.MTA_MODULES);
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
-        context.setVariable(Variables.NEW_MTA_VERSION, deploymentDescriptor.getVersion());
-
         // Build a map of service keys and save them in the context:
         Map<String, List<CloudServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(context).build();
         getStepLogger().debug(Messages.SERVICE_KEYS_TO_CREATE, secureSerializer.toJson(serviceKeys));

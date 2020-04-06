@@ -28,7 +28,6 @@ public class CtsDeployMetadataTest extends MetadataBaseTest {
                 Constants.PARAM_EXT_DESCRIPTOR_FILE_ID,
                 Constants.PARAM_NO_START,
                 Constants.PARAM_START_TIMEOUT,
-                Constants.PARAM_UPLOAD_TIMEOUT,
                 Constants.PARAM_USE_NAMESPACES,
                 Constants.PARAM_USE_NAMESPACES_FOR_SERVICES,
                 Constants.PARAM_VERSION_RULE,

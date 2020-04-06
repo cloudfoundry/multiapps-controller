@@ -171,7 +171,6 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
                     new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
         assertFalse(context.getVariable(Variables.USE_IDLE_URIS));
         assertEquals(input.customDomains, context.getVariable(Variables.CUSTOM_DOMAINS));
-        assertEquals(output.newMtaVersion, context.getVariable(Variables.NEW_MTA_VERSION));
     }
 
     protected void loadParameters() {

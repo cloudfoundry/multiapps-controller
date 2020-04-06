@@ -48,12 +48,6 @@ public interface Variables {
     Variable<String> SPACE_ID = ImmutableSimpleVariable.<String> builder()
                                                        .name(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID)
                                                        .build();
-    Variable<String> NEW_MTA_VERSION = ImmutableSimpleVariable.<String> builder()
-                                                              .name(Constants.VAR_NEW_MTA_VERSION)
-                                                              .build();
-    Variable<String> PARENT_PROCESS_ID = ImmutableSimpleVariable.<String> builder()
-                                                                .name(Constants.VAR_PARENT_PROCESS_ID)
-                                                                .build();
     Variable<String> SUBPROCESS_ID = ImmutableSimpleVariable.<String> builder()
                                                             .name(Constants.VAR_SUBPROCESS_ID)
                                                             .build();
