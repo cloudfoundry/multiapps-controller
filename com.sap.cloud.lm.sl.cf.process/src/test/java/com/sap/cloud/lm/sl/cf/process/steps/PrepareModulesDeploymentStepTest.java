@@ -78,7 +78,7 @@ public class PrepareModulesDeploymentStepTest extends SyncFlowableStepTest<Prepa
     }
 
     private DelegateExecution prepareContext() {
-        StepsUtil.setAllModulesToDeploy(execution, getDummyModules());
+        context.setVariable(Variables.ALL_MODULES_TO_DEPLOY, getDummyModules());
         return execution;
     }
 

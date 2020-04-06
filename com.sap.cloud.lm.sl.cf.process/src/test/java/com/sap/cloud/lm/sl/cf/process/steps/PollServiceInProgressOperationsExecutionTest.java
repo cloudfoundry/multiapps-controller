@@ -184,7 +184,7 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
     }
 
     private void prepareServicesData(List<CloudServiceExtended> services) {
-        StepsUtil.setServicesData(execution, services);
+        context.setVariable(Variables.SERVICES_DATA, services);
     }
 
     @Override

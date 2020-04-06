@@ -31,7 +31,7 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
 
         List<CloudApplication> appsToUndeploy = context.getVariable(Variables.APPS_TO_UNDEPLOY);
         CloudControllerClient client = context.getControllerClient();
-        List<String> createdOrUpdatedServiceBrokers = getCreatedOrUpdatedServiceBrokerNames(context.getExecution());
+        List<String> createdOrUpdatedServiceBrokers = getCreatedOrUpdatedServiceBrokerNames(context);
 
         for (CloudApplication app : appsToUndeploy) {
             deleteServiceBrokerIfNecessary(context, app, createdOrUpdatedServiceBrokers, client);
@@ -52,8 +52,8 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
         return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, offering);
     }
 
-    protected List<String> getCreatedOrUpdatedServiceBrokerNames(DelegateExecution execution) {
-        return StepsUtil.getCreatedOrUpdatedServiceBrokerNames(execution);
+    protected List<String> getCreatedOrUpdatedServiceBrokerNames(ProcessContext context) {
+        return StepsUtil.getCreatedOrUpdatedServiceBrokerNames(context);
     }
 
     private void deleteServiceBrokerIfNecessary(ProcessContext context, CloudApplication app, List<String> createdOrUpdatedServiceBrokers,

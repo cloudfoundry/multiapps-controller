@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class DeleteRemainingFilePartsTest extends SyncFlowableStepTest<DeleteRemainingFileParts> {
 
@@ -26,7 +26,7 @@ public class DeleteRemainingFilePartsTest extends SyncFlowableStepTest<DeleteRem
 
     @BeforeEach
     public void setUp() {
-        StepsUtil.setAsJsonBinaries(execution, Constants.VAR_FILE_ENTRIES, createFakeFileEntries());
+        context.setVariable(Variables.FILE_ENTRIES, createFakeFileEntries());
     }
 
     @Test

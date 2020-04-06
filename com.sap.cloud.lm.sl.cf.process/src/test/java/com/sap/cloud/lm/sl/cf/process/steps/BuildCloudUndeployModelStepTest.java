@@ -232,9 +232,9 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
 
     private void prepareContext() {
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
-        StepsUtil.setModulesToDeploy(execution, modulesToDeploy);
+        context.setVariable(Variables.MODULES_TO_DEPLOY, modulesToDeploy);
         context.setVariable(Variables.SERVICES_TO_CREATE, servicesToCreate);
-        StepsUtil.setAllModulesToDeploy(execution, modulesToDeploy);
+        context.setVariable(Variables.ALL_MODULES_TO_DEPLOY, modulesToDeploy);
         List<String> appNamesToDeploy = new ArrayList<>();
         appsToDeploy.forEach(app -> appNamesToDeploy.add(app.getName()));
         context.setVariable(Variables.APPS_TO_DEPLOY, appNamesToDeploy);

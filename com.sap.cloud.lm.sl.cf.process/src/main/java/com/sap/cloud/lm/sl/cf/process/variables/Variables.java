@@ -24,6 +24,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
+import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -410,6 +411,12 @@ public interface Variables {
                                                                                       .type(new TypeReference<List<CloudApplication>>() {
                                                                                       })
                                                                                       .build();
+    Variable<List<CloudServiceExtended>> SERVICES_DATA = ImmutableJsonBinaryVariable.<List<CloudServiceExtended>> builder()
+                                                                                    .name(Constants.VAR_SERVICES_DATA)
+                                                                                    .type(new TypeReference<List<CloudServiceExtended>>() {
+                                                                                    })
+                                                                                    .defaultValue(Collections.emptyList())
+                                                                                    .build();
     Variable<Map<String, String>> GIT_REPOSITORY_CONFIG_MAP = ImmutableSimpleVariable.<Map<String, String>> builder()
                                                                                      .name(Constants.VAR_GIT_REPOSITORY_CONFIG_MAP)
                                                                                      .build();
@@ -462,5 +469,30 @@ public interface Variables {
                                                                               .type(Variable.typeReference(Hook.class))
                                                                               .defaultValue(Collections.emptyList())
                                                                               .build();
+    Variable<List<Module>> MODULES_TO_DEPLOY = ImmutableJsonBinaryListVariable.<Module> builder()
+                                                                              .name(Constants.VAR_MODULES_TO_DEPLOY)
+                                                                              .type(Variable.typeReference(Module.class))
+                                                                              .defaultValue(Collections.emptyList())
+                                                                              .build();
+    Variable<List<Module>> ALL_MODULES_TO_DEPLOY = ImmutableJsonBinaryListVariable.<Module> builder()
+                                                                                  .name(Constants.VAR_ALL_MODULES_TO_DEPLOY)
+                                                                                  .type(Variable.typeReference(Module.class))
+                                                                                  .defaultValue(Collections.emptyList())
+                                                                                  .build();
+    Variable<List<Module>> ITERATED_MODULES_IN_PARALLEL = ImmutableJsonBinaryListVariable.<Module> builder()
+                                                                                         .name(Constants.VAR_ITERATED_MODULES_IN_PARALLEL)
+                                                                                         .type(Variable.typeReference(Module.class))
+                                                                                         .defaultValue(Collections.emptyList())
+                                                                                         .build();
+    Variable<List<Module>> MODULES_TO_ITERATE_IN_PARALLEL = ImmutableJsonBinaryListVariable.<Module> builder()
+                                                                                           .name(Constants.VAR_MODULES_TO_ITERATE_IN_PARALLEL)
+                                                                                           .type(Variable.typeReference(Module.class))
+                                                                                           .defaultValue(Collections.emptyList())
+                                                                                           .build();
+    Variable<List<FileEntry>> FILE_ENTRIES = ImmutableJsonBinaryListVariable.<FileEntry> builder()
+                                                                            .name(Constants.VAR_FILE_ENTRIES)
+                                                                            .type(Variable.typeReference(FileEntry.class))
+                                                                            .defaultValue(Collections.emptyList())
+                                                                            .build();
 
 }

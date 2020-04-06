@@ -153,7 +153,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private Path mergeArchiveParts(ProcessContext context, String[] archivePartIds) {
         List<FileEntry> archivePartEntries = getArchivePartEntries(context, archivePartIds);
-        StepsUtil.setAsJsonBinaries(context.getExecution(), Constants.VAR_FILE_ENTRIES, archivePartEntries);
+        context.setVariable(Variables.FILE_ENTRIES, archivePartEntries);
         getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
         return resilientOperationExecutor.execute(createArchiveFromParts(context.getExecution(), archivePartEntries));
     }

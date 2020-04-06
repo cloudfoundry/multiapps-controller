@@ -59,7 +59,7 @@ public class DeleteServiceStep extends AsyncFlowableStep {
             getStepLogger().info(Messages.SERVICE_IS_ALREADY_DELETED, serviceToDelete);
             return StepPhase.DONE;
         }
-        StepsUtil.setServicesData(context.getExecution(), buildCloudServiceExtendedList(serviceInstance));
+        context.setVariable(Variables.SERVICES_DATA, buildCloudServiceExtendedList(serviceInstance));
 
         List<CloudServiceKey> serviceKeys = client.getServiceKeys(serviceInstance.getService());
 

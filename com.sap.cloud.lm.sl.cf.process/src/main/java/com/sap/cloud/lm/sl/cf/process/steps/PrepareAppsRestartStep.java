@@ -7,12 +7,10 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -35,14 +33,14 @@ public class PrepareAppsRestartStep extends PrepareModulesDeploymentStep {
         context.setVariable(Variables.DELETE_IDLE_URIS, true);
         context.setVariable(Variables.SKIP_UPDATE_CONFIGURATION_ENTRIES, false);
         context.setVariable(Variables.SKIP_MANAGE_SERVICE_BROKER, false);
-        StepsUtil.setIteratedModulesInParallel(context.getExecution(), Collections.emptyList());
+        context.setVariable(Variables.ITERATED_MODULES_IN_PARALLEL, Collections.emptyList());
 
         return StepPhase.DONE;
     }
 
     @Override
-    protected List<Module> getModulesToDeploy(DelegateExecution execution) {
-        List<Module> allModulesToDeploy = StepsUtil.getAllModulesToDeploy(execution);
+    protected List<Module> getModulesToDeploy(ProcessContext context) {
+        List<Module> allModulesToDeploy = context.getVariable(Variables.ALL_MODULES_TO_DEPLOY);
         return allModulesToDeploy.stream()
                                  .filter(module -> moduleToDeployHelper.isApplication(module))
                                  .collect(Collectors.toList());

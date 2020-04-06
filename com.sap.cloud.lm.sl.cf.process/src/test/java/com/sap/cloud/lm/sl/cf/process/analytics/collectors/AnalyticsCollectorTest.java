@@ -118,7 +118,6 @@ public class AnalyticsCollectorTest {
         VariableHandling.set(execution, Variables.ORG, ORG_NAME);
 
         when(execution.getVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME)).thenReturn(Module.class.getName());
-        when(execution.getVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY)).thenReturn(mockModulesToDeploy(2));
         when(execution.getVariable(Constants.VAR_CUSTOM_DOMAINS)).thenReturn(mockedListAsBytesWithStrings(2));
         when(execution.getVariable(Constants.VAR_SERVICES_TO_CREATE)).thenReturn(mockedListWithStrings(4));
         when(execution.getVariable(Constants.VAR_APPS_TO_DEPLOY)).thenReturn(mockedListAsBytesWithStrings(1));
@@ -156,16 +155,6 @@ public class AnalyticsCollectorTest {
             list.add("{}");
         }
         return JsonUtil.toJsonBinary(list);
-    }
-
-    private List<byte[]> mockModulesToDeploy(int size) {
-        List<byte[]> list = new ArrayList<>();
-        Module module = Module.createV2();
-        for (int i = 0; i < size; i++) {
-            module.setName(Integer.toString(i));
-            list.add(JsonUtil.toJsonBinary(module));
-        }
-        return list;
     }
 
     private List<String> mockAppsToUndeploy(int size) {

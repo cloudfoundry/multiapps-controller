@@ -106,7 +106,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
         prepareServiceOperationGetter();
         context.setVariable(Variables.SERVICES_TO_CREATE, input.services);
         context.setVariable(Variables.SERVICES_TO_DELETE, Collections.emptyList());
-        StepsUtil.setServicesData(execution, Collections.emptyList());
+        context.setVariable(Variables.SERVICES_DATA, Collections.emptyList());
         context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, input.triggeredServiceOperations);
         if (expectedExceptionMessage != null) {
             exception.expectMessage(expectedExceptionMessage);
