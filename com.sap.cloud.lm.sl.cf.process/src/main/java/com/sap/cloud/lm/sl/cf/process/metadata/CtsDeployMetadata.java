@@ -32,10 +32,6 @@ public class CtsDeployMetadata {
                                              .defaultValue(Constants.DEFAULT_START_TIMEOUT)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_UPLOAD_TIMEOUT)
-                                             .type(ParameterType.INTEGER)
-                                             .build());
-        PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Constants.PARAM_USE_NAMESPACES)
                                              .type(ParameterType.BOOLEAN)
                                              .defaultValue(false)

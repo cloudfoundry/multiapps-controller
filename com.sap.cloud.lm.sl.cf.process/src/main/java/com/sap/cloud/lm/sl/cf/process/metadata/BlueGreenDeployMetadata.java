@@ -35,10 +35,6 @@ public class BlueGreenDeployMetadata {
                                              .type(ParameterType.INTEGER)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_UPLOAD_TIMEOUT)
-                                             .type(ParameterType.INTEGER)
-                                             .build());
-        PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Constants.PARAM_USE_NAMESPACES)
                                              .defaultValue(false)
                                              .type(ParameterType.BOOLEAN)

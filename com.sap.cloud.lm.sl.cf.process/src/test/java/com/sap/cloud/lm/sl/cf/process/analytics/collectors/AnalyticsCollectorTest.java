@@ -117,7 +117,6 @@ public class AnalyticsCollectorTest {
         VariableHandling.set(execution, Variables.SPACE, SPACE_NAME);
         VariableHandling.set(execution, Variables.ORG, ORG_NAME);
 
-        when(execution.getVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME)).thenReturn(Module.class.getName());
         when(execution.getVariable(Constants.VAR_CUSTOM_DOMAINS)).thenReturn(mockedListAsBytesWithStrings(2));
         when(execution.getVariable(Constants.VAR_SERVICES_TO_CREATE)).thenReturn(mockedListWithStrings(4));
         when(execution.getVariable(Constants.VAR_APPS_TO_DEPLOY)).thenReturn(mockedListAsBytesWithStrings(1));

@@ -19,12 +19,8 @@ public class Constants {
     public static final String PARAM_EXT_DESCRIPTOR_FILE_ID = "mtaExtDescriptorId";
     public static final String PARAM_NO_START = "noStart";
     public static final String PARAM_START_TIMEOUT = "startTimeout";
-    // TODO: Do we use this variable?
-    public static final String PARAM_UPLOAD_TIMEOUT = "uploadTimeout";
     public static final String PARAM_USE_NAMESPACES = "useNamespaces";
     public static final String PARAM_USE_NAMESPACES_FOR_SERVICES = "useNamespacesForServices";
-    // TODO: Do we use this variable?
-    public static final String PARAM_ALLOW_INVALID_ENV_NAMES = "allowInvalidEnvNames";
     public static final String PARAM_VERSION_RULE = "versionRule";
     public static final String PARAM_DELETE_SERVICES = "deleteServices";
     public static final String PARAM_DELETE_SERVICE_KEYS = "deleteServiceKeys";
@@ -55,8 +51,6 @@ public class Constants {
 
     public static final String VAR_USER = "user";
 
-    // TODO: Do we use this variable?
-    public static final String VAR_MTA_MANIFEST = "mtaManifest";
     public static final String VAR_MTA_DEPLOYMENT_DESCRIPTOR = "mtaDeploymentDescriptor";
     public static final String VAR_MTA_DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS = "mtaDeploymentDescriptorWithSystemParameters";
     public static final String VAR_COMPLETE_MTA_DEPLOYMENT_DESCRIPTOR = "completeMtaDeploymentDescriptor";
@@ -67,24 +61,14 @@ public class Constants {
     public static final String VAR_MTA_REQUIRES_FILE_NAME_PREFIX = "mtaRequiresFileName_";
     public static final String VAR_MTA_RESOURCE_FILE_NAME_PREFIX = "mtaResourceFileName_";
     public static final String VAR_MTA_ARCHIVE_MODULES = "mtaArchiveModules";
-    // TODO: Do we use this variable?
-    public static final String VAR_NEW_MTA_VERSION = "newMtaVersion";
     public static final String VAR_MTA_MODULES = "mtaModules";
-    // TODO: Do we use this variable?
-    public static final String MODULE_NAME_TO_MODULE_TYPE_MAP = "moduleNameToModuleTypeMap";
-    // TODO: Do we use this variable?
-    public static final String VAR_MTA_MODULES_TO_DEPLOY_ALWAYS = "mtaModulesToDeployAlways";
 
     public static final String VAR_APP_STATE_ACTIONS_TO_EXECUTE = "appStateActionsToExecute";
     public static final String VAR_DEPLOYED_MTA = "deployedMta";
-    // TODO: Do we use this variable?
-    public static final String VAR_SYSTEM_PARAMETERS = "systemParameters";
     public static final String VAR_ORG = "org";
     public static final String VAR_ORG_ID = "orgId";
     public static final String VAR_SPACE = "space";
     public static final String VAR_CUSTOM_DOMAINS = "customDomains";
-    // TODO: Do we use this variable?
-    public static final String VAR_DEPLOYED_APPS = "deployedApps";
     public static final String VAR_SERVICES_TO_CREATE = "servicesToCreate";
     public static final String VAR_SERVICE_TO_PROCESS = "serviceToProcess";
     public static final String VAR_SERVICE_TO_PROCESS_NAME = "serviceToProcessName";
@@ -96,12 +80,9 @@ public class Constants {
     public static final String VAR_SERVICES_TO_BIND = "servicesToBind";
     public static final String VAR_SERVICE_KEYS_TO_CREATE = "serviceKeysToCreate";
     public static final String VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT = "serviceKeysCredentialsToInject";
-    // TODO: Do we use this variable?
-    public static final String VAR_MODULES_TO_DEPLOY_CLASSNAME = "modulesToDeployClassname";
     public static final String VAR_MODULES_TO_DEPLOY = "modulesToDeploy";
     public static final String VAR_ALL_MODULES_TO_DEPLOY = "allModulesToDeploy";
     public static final String VAR_APPS_TO_DEPLOY = "appsToDeploy";
-    // TODO: Do we use this variable?
     public static final String VAR_DEPLOYMENT_MODE = "deploymentMode";
     public static final String VAR_ITERATED_MODULES_IN_PARALLEL = "iteratedModulesInParallel";
     public static final String VAR_MODULES_TO_ITERATE_IN_PARALLEL = "modulesToIterateInParallel";
@@ -119,8 +100,6 @@ public class Constants {
     public static final String VAR_TASKS_COUNT = "tasksCount";
     public static final String VAR_TASKS_INDEX = "tasksIndex";
     public static final String VAR_STARTED_TASK = "startedTask";
-    // TODO: Do we use this variable?
-    public static final String VAR_APPS_TO_RESTART_COUNT = "appsToRestartCount";
     public static final String VAR_APPS_TO_UNDEPLOY = "appsToUndeploy";
     public static final String VAR_SERVICE_TO_DELETE = "serviceToDelete";
     public static final String VAR_SERVICES_TO_DELETE = "servicesToDelete";
@@ -135,10 +114,6 @@ public class Constants {
     public static final String VAR_UPLOAD_TOKEN = "uploadToken";
     public static final String VAR_PUBLISHED_ENTRIES = "publishedEntries";
     public static final String VAR_DELETED_ENTRIES = "deletedEntries";
-    // TODO: Do we use this variable?
-    public static final String VAR_HAS_APP_CHANGED = "hasAppChanged";
-    // TODO: Do we use this variable?
-    public static final String VAR_HAS_APP_CONTENT_CHANGED = "hasAppContentChanged";
     public static final String VAR_VCAP_APP_PROPERTIES_CHANGED = "vcapAppPropertiesChanged";
     public static final String VAR_VCAP_SERVICES_PROPERTIES_CHANGED = "vcapServicesPropertiesChanged";
     public static final String VAR_USER_PROPERTIES_CHANGED = "vcapUserPropertiesChanged";
@@ -147,8 +122,6 @@ public class Constants {
     public static final String VAR_MODULE_TO_DEPLOY = "moduleToDeploy";
     public static final String VAR_APP_TO_PROCESS = "appToProcess";
     public static final String VAR_SUBPROCESS_ID = "subProcessId";
-    // TODO: Do we use this variable?
-    public static final String VAR_PARENT_PROCESS_ID = "parentProcessId";
     public static final String VAR_SERVICES_TO_CREATE_COUNT = "servicesToCreateCount";
     public static final String VAR_SERVICES_TO_POLL = "servicesToPoll";
     public static final String VAR_ERROR_TYPE = "errorType";
@@ -156,17 +129,13 @@ public class Constants {
     public static final String VAR_USE_IDLE_URIS = "useIdleUris";
     public static final String VAR_DELETE_IDLE_URIS = "deleteIdleUris";
     public static final String VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES = "skipUpdateConfigurationEntries";
-    // TODO: Do we use this variable?
     public static final String VAR_SKIP_MANAGE_SERVICE_BROKER = "skipManageServiceBroker";
     public static final String PROCESS_ABORTED = "__PROCESS_ABORTED";
     public static final String TASK_ID = "__TASK_ID";
     public static final String EXECUTE_ONE_OFF_TASKS = "executeOneOffTasks";
     public static final String SHOULD_UPLOAD_APPLICATION_CONTENT = "shouldUploadApplicationContent";
     public static final String REBUILD_APP_ENV = "rebuildAppEnv";
-    // TODO: Do we use this variable?
-    public static final String ADDITIONAL_APP_ENV = "additionalAppEnv";
     public static final String ASYNC_STEP_EXECUTION_INDEX = "asyncStepExecutionIndex";
-    // TODO: Do we use this variable?
     public static final String VAR_STEP_EXECUTION = "StepExecution";
     public static final String VAR_STEP_PHASE = "stepPhase";
     public static final String VAR_APP_CONTENT_CHANGED = "appContentChanged";
