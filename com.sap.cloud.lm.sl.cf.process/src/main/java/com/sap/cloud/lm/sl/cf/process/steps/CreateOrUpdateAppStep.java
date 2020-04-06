@@ -22,7 +22,6 @@ import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -218,7 +217,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         private void bindService(ProcessContext context, CloudControllerClient client, String appName, String serviceName,
                                  Map<String, Object> bindingParameters) {
-            client.bindService(appName, serviceName, bindingParameters, getApplicationServicesUpdateCallback(context.getExecution()));
+            client.bindService(appName, serviceName, bindingParameters, getApplicationServicesUpdateCallback(context));
         }
 
     }
@@ -257,7 +256,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
             Map<String, Map<String, Object>> bindingParameters = getBindingParameters(context, app);
 
-            boolean hasUpdatedServices = updateServices(context.getExecution(), app.getName(), bindingParameters, client,
+            boolean hasUpdatedServices = updateServices(context, app.getName(), bindingParameters, client,
                                                         calculateServicesForUpdate(app, existingApp.getServices()));
 
             context.setVariable(Variables.VCAP_SERVICES_PROPERTIES_CHANGED, hasUnboundServices || hasUpdatedServices);
@@ -375,9 +374,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             return !servicesToUnbind.isEmpty();
         }
 
-        private boolean updateServices(DelegateExecution execution, String applicationName,
-                                       Map<String, Map<String, Object>> bindingParameters, CloudControllerClient client,
-                                       Set<String> services) {
+        private boolean updateServices(ProcessContext context, String applicationName, Map<String, Map<String, Object>> bindingParameters,
+                                       CloudControllerClient client, Set<String> services) {
             Map<String, Map<String, Object>> serviceNamesWithBindingParameters = services.stream()
                                                                                          .collect(Collectors.toMap(String::toString,
                                                                                                                    serviceName -> getBindingParametersForService(serviceName,
@@ -386,7 +384,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                                                                                       getStepLogger()));
             List<String> updatedServices = applicationServicesUpdater.updateApplicationServices(applicationName,
                                                                                                 serviceNamesWithBindingParameters,
-                                                                                                getApplicationServicesUpdateCallback(execution));
+                                                                                                getApplicationServicesUpdateCallback(context));
 
             reportNonUpdatedServices(services, applicationName, updatedServices);
             return !updatedServices.isEmpty();
@@ -400,7 +398,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
     private Map<String, Map<String, Object>> getBindingParameters(ProcessContext context, CloudApplicationExtended app)
         throws FileStorageException {
-        List<CloudServiceExtended> services = getServices(StepsUtil.getServicesToBind(context.getExecution()), app.getServices());
+        List<CloudServiceExtended> services = getServices(context.getVariable(Variables.SERVICES_TO_BIND), app.getServices());
 
         Map<String, Map<String, Object>> descriptorProvidedBindingParameters = app.getBindingParameters();
         if (descriptorProvidedBindingParameters == null) {
@@ -469,21 +467,21 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         return bindingParameters == null ? Collections.emptyMap() : bindingParameters.getOrDefault(serviceName, Collections.emptyMap());
     }
 
-    protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(DelegateExecution execution) {
-        return new DefaultApplicationServicesUpdateCallback(execution);
+    protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(ProcessContext context) {
+        return new DefaultApplicationServicesUpdateCallback(context);
     }
 
     private class DefaultApplicationServicesUpdateCallback implements ApplicationServicesUpdateCallback {
 
-        private final DelegateExecution execution;
+        private final ProcessContext context;
 
-        private DefaultApplicationServicesUpdateCallback(DelegateExecution execution) {
-            this.execution = execution;
+        private DefaultApplicationServicesUpdateCallback(ProcessContext context) {
+            this.context = context;
         }
 
         @Override
         public void onError(CloudOperationException e, String applicationName, String serviceName) {
-            List<CloudServiceExtended> servicesToBind = StepsUtil.getServicesToBind(execution);
+            List<CloudServiceExtended> servicesToBind = context.getVariable(Variables.SERVICES_TO_BIND);
             CloudServiceExtended serviceToBind = findServiceCloudModel(servicesToBind, serviceName);
 
             if (serviceToBind != null && serviceToBind.isOptional()) {

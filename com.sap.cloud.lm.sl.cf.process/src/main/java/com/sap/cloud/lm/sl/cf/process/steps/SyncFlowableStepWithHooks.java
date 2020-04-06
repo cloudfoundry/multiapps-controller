@@ -40,7 +40,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         }
 
         StepPhase currentStepPhase = context.getVariable(Variables.STEP_PHASE);
-        List<Hook> executedHooks = executeHooksForStepPhase(context.getExecution(), moduleToDeploy, currentStepPhase);
+        List<Hook> executedHooks = executeHooksForStepPhase(context, moduleToDeploy, currentStepPhase);
         if (!executedHooks.isEmpty()) {
             return currentStepPhase;
         }
@@ -50,15 +50,15 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         if (!isInPostExecuteStepPhase(currentStepPhase)) {
             return currentStepPhase;
         }
-        executeHooksForStepPhase(context.getExecution(), moduleToDeploy, currentStepPhase);
+        executeHooksForStepPhase(context, moduleToDeploy, currentStepPhase);
 
         return currentStepPhase;
     }
 
-    private List<Hook> executeHooksForStepPhase(DelegateExecution execution, Module moduleToDeploy, StepPhase currentStepPhase) {
-        HookPhase currentHookPhaseForExecution = determineHookPhaseForCurrentStepPhase(execution, currentStepPhase);
-        List<Hook> hooksForCurrentPhase = getHooksForCurrentPhase(execution, moduleToDeploy, currentHookPhaseForExecution);
-        setHooksForExecution(execution, hooksForCurrentPhase);
+    private List<Hook> executeHooksForStepPhase(ProcessContext context, Module moduleToDeploy, StepPhase currentStepPhase) {
+        HookPhase currentHookPhaseForExecution = determineHookPhaseForCurrentStepPhase(context.getExecution(), currentStepPhase);
+        List<Hook> hooksForCurrentPhase = getHooksForCurrentPhase(context.getExecution(), moduleToDeploy, currentHookPhaseForExecution);
+        context.setVariable(Variables.HOOKS_FOR_EXECUTION, hooksForCurrentPhase);
 
         return hooksForCurrentPhase;
     }
@@ -123,10 +123,6 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
     protected ModuleHooksAggregator getModuleHooksAggregator(DelegateExecution execution, Module moduleToDeploy) {
         return new ModuleHooksAggregator(execution, moduleToDeploy);
-    }
-
-    private void setHooksForExecution(DelegateExecution execution, List<Hook> hooksForExecution) {
-        StepsUtil.setHooksForExecution(execution, hooksForExecution);
     }
 
     private boolean isInPreExecuteStepPhase(StepPhase currentStepPhase) {

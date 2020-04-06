@@ -159,8 +159,9 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
         assertStepFinishedSuccessfully();
 
-        tester.test(() -> StepsUtil.getServicesToBind(execution), new Expectation(Expectation.Type.JSON, input.servicesToBindLocation));
-        tester.test(() -> StepsUtil.getServicesToCreate(execution), new Expectation(Expectation.Type.JSON, input.servicesToCreateLocation));
+        tester.test(() -> context.getVariable(Variables.SERVICES_TO_BIND),
+                    new Expectation(Expectation.Type.JSON, input.servicesToBindLocation));
+        tester.test(() -> context.getVariable(Variables.SERVICES_TO_CREATE), new Expectation(Expectation.Type.JSON, input.servicesToCreateLocation));
         tester.test(() -> context.getVariable(Variables.SERVICE_KEYS_TO_CREATE),
                     new Expectation(Expectation.Type.JSON, input.serviceKeysLocation));
         tester.test(() -> StepsUtil.getModulesToDeploy(execution), new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));

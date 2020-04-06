@@ -117,7 +117,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         if (existingService == null) {
             getStepLogger().debug("Service should be created");
             actions.add(ServiceAction.CREATE);
-            StepsUtil.setServicesToCreate(context.getExecution(), Collections.singletonList(service));
+            context.setVariable(Variables.SERVICES_TO_CREATE, Collections.singletonList(service));
             return actions;
         }
         getStepLogger().debug("Existing service: " + secureSerializer.toJson(existingService));

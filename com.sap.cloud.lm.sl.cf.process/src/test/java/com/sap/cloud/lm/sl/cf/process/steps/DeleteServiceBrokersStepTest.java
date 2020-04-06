@@ -131,7 +131,7 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
     }
 
     private void prepareContext() {
-        StepsUtil.setAppsToUndeploy(execution, toCloudApplications(input.applicationsToUndeploy));
+        context.setVariable(Variables.APPS_TO_UNDEPLOY, toCloudApplications(input.applicationsToUndeploy));
     }
 
     private List<CloudApplication> toCloudApplications(List<SimpleApplication> applications) {

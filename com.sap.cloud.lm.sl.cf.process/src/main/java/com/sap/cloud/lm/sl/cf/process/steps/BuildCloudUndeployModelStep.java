@@ -13,7 +13,6 @@ import javax.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -57,7 +56,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         List<ConfigurationSubscription> subscriptionsToCreate = context.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE);
         Set<String> mtaModules = context.getVariable(Variables.MTA_MODULES);
         List<String> appNames = context.getVariable(Variables.APPS_TO_DEPLOY);
-        List<String> serviceNames = getServicesToCreate(context.getExecution());
+        List<String> serviceNames = getServicesToCreate(context);
 
         getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
@@ -102,11 +101,11 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                    .collect(Collectors.toList());
     }
 
-    private List<String> getServicesToCreate(DelegateExecution execution) {
-        return StepsUtil.getServicesToCreate(execution)
-                        .stream()
-                        .map(CloudServiceExtended::getName)
-                        .collect(Collectors.toList());
+    private List<String> getServicesToCreate(ProcessContext context) {
+        return context.getVariable(Variables.SERVICES_TO_CREATE)
+                      .stream()
+                      .map(CloudServiceExtended::getName)
+                      .collect(Collectors.toList());
     }
 
     private Set<String> getServicesForApplications(ProcessContext context) {
@@ -151,7 +150,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                                          List<ConfigurationSubscription> subscriptions) {
         context.setVariable(Variables.SUBSCRIPTIONS_TO_DELETE, subscriptions);
         context.setVariable(Variables.SERVICES_TO_DELETE, services);
-        StepsUtil.setAppsToUndeploy(context.getExecution(), apps);
+        context.setVariable(Variables.APPS_TO_UNDEPLOY, apps);
     }
 
     private List<String> computeServicesToDelete(List<DeployedMtaApplication> appsWithoutChange,

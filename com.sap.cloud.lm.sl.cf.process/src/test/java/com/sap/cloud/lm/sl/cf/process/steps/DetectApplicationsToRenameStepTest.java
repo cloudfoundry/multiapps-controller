@@ -67,8 +67,8 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
 
         Assertions.assertTrue(context.getVariable(Variables.APPS_TO_RENAME)
                                      .isEmpty());
-        Assertions.assertTrue(StepsUtil.getAppsToUndeploy(execution)
-                                       .isEmpty());
+        Assertions.assertTrue(context.getVariable(Variables.APPS_TO_UNDEPLOY)
+                                     .isEmpty());
     }
 
     @Test
@@ -110,8 +110,8 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
         step.execute(execution);
         assertStepFinishedSuccessfully();
 
-        Assertions.assertTrue(StepsUtil.getAppsToUndeploy(execution)
-                                       .contains(createApplication("a-live")));
+        Assertions.assertTrue(context.getVariable(Variables.APPS_TO_UNDEPLOY)
+                                     .contains(createApplication("a-live")));
         Assertions.assertTrue(context.getVariable(Variables.APPS_TO_RENAME)
                                      .contains("a"));
 
@@ -129,8 +129,8 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
 
         Assertions.assertTrue(context.getVariable(Variables.APPS_TO_RENAME)
                                      .contains("a"));
-        Assertions.assertTrue(StepsUtil.getAppsToUndeploy(execution)
-                                       .isEmpty());
+        Assertions.assertTrue(context.getVariable(Variables.APPS_TO_UNDEPLOY)
+                                     .isEmpty());
 
         List<String> appsToCheck = Arrays.asList("a-idle", "a-live");
         validateUpdatedDeployedMta(appsToCheck);
@@ -146,8 +146,8 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
 
         Assertions.assertTrue(context.getVariable(Variables.APPS_TO_RENAME)
                                      .isEmpty());
-        Assertions.assertTrue(StepsUtil.getAppsToUndeploy(execution)
-                                       .isEmpty());
+        Assertions.assertTrue(context.getVariable(Variables.APPS_TO_UNDEPLOY)
+                                     .isEmpty());
 
         List<String> appsToCheck = Arrays.asList("a-idle", "a-live");
         validateUpdatedDeployedMta(appsToCheck);

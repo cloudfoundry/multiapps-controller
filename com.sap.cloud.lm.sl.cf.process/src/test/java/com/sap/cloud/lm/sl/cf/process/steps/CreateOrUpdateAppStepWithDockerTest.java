@@ -63,7 +63,7 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
     private void prepareContext() {
         context.setVariable(Variables.APP_ARCHIVE_ID, "archive_id");
         context.setVariable(Variables.MODULES_INDEX, stepInput.applicationIndex);
-        StepsUtil.setServicesToBind(execution, Collections.emptyList());
+        context.setVariable(Variables.SERVICES_TO_BIND, Collections.emptyList());
 
         context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());
         context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());

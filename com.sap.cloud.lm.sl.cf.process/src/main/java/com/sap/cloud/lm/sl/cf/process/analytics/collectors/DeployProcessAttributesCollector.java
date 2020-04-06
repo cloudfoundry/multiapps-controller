@@ -44,7 +44,7 @@ public class DeployProcessAttributesCollector extends AbstractCommonProcessAttri
         deployProcessAttributes.setCustomDomains(
             getAttribute(execution, Constants.VAR_CUSTOM_DOMAINS, () -> VariableHandling.get(execution, Variables.CUSTOM_DOMAINS).size()));
         deployProcessAttributes.setServicesToCreate(
-            getAttribute(execution, Constants.VAR_SERVICES_TO_CREATE, () -> StepsUtil.getServicesToCreate(execution).size()));
+            getAttribute(execution, Constants.VAR_SERVICES_TO_CREATE, () -> VariableHandling.get(execution, Variables.SERVICES_TO_CREATE).size()));
         deployProcessAttributes.setAppsToDeploy(
             getAttribute(execution, Constants.VAR_APPS_TO_DEPLOY, () -> VariableHandling.get(execution, Variables.APPS_TO_DEPLOY).size()));
         deployProcessAttributes.setPublishedEntries(

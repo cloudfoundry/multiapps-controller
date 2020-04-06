@@ -10,7 +10,6 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -29,10 +28,9 @@ public class DetectApplicationsToRenameStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
-        DelegateExecution execution = context.getExecution();
         // This is set here in case of the step returning early or failing because the call activity
         // following this step needs this variable, otherwise Flowable will throw an exception
-        StepsUtil.setAppsToUndeploy(execution, Collections.emptyList());
+        context.setVariable(Variables.APPS_TO_UNDEPLOY, Collections.emptyList());
         if (!context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY)) {
             return StepPhase.DONE;
         }
@@ -71,7 +69,7 @@ public class DetectApplicationsToRenameStep extends SyncFlowableStep {
                                                     .map(app -> client.getApplication(app, false))
                                                     .filter(Objects::nonNull)
                                                     .collect(Collectors.toList());
-        StepsUtil.setAppsToUndeploy(context.getExecution(), apps);
+        context.setVariable(Variables.APPS_TO_UNDEPLOY, apps);
     }
 
     private void updateDeployedMta(ProcessContext context, DeployedMta deployedMta, List<String> appsToUpdate,

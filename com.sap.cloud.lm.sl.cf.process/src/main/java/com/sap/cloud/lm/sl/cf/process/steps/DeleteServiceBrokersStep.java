@@ -29,7 +29,7 @@ public class DeleteServiceBrokersStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.DELETING_SERVICE_BROKERS);
 
-        List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(context.getExecution());
+        List<CloudApplication> appsToUndeploy = context.getVariable(Variables.APPS_TO_UNDEPLOY);
         CloudControllerClient client = context.getControllerClient();
         List<String> createdOrUpdatedServiceBrokers = getCreatedOrUpdatedServiceBrokerNames(context.getExecution());
 

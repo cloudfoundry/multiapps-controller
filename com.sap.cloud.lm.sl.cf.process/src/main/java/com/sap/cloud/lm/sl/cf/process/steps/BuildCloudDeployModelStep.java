@@ -101,7 +101,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         List<CloudServiceExtended> servicesForBindings = servicesCloudModelBuilder.build(resourcesUsedForBindings);
 
         // Build a list of services for binding and save them in the context:
-        StepsUtil.setServicesToBind(context.getExecution(), servicesForBindings);
+        context.setVariable(Variables.SERVICES_TO_BIND, servicesForBindings);
 
         List<Resource> resourcesForDeployment = calculateResourcesForDeployment(context, deploymentDescriptor);
         List<CloudServiceExtended> servicesCalculatedForDeployment = servicesCloudModelBuilder.build(resourcesForDeployment);
@@ -111,7 +111,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
                                                                                      .filter(CloudServiceExtended::isManaged)
                                                                                      .collect(Collectors.toList());
         getStepLogger().debug(Messages.SERVICES_TO_CREATE, secureSerializer.toJson(servicesToCreate));
-        StepsUtil.setServicesToCreate(context.getExecution(), servicesToCreate);
+        context.setVariable(Variables.SERVICES_TO_CREATE, servicesToCreate);
 
         // Needed by CreateOrUpdateServicesStep, as it is used as an iteration variable:
         context.setVariable(Variables.SERVICES_TO_CREATE_COUNT, servicesToCreate.size());
