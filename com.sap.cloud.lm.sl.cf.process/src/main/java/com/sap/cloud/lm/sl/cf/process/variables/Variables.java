@@ -442,5 +442,25 @@ public interface Variables {
                                                  .name(Constants.VAR_PHASE)
                                                  .type(Phase.class)
                                                  .build();
+    Variable<List<CloudApplication>> APPS_TO_UNDEPLOY = ImmutableJsonStringListVariable.<CloudApplication> builder()
+                                                                                       .name(Constants.VAR_APPS_TO_UNDEPLOY)
+                                                                                       .type(Variable.typeReference(CloudApplication.class))
+                                                                                       .defaultValue(Collections.emptyList())
+                                                                                       .build();
+    Variable<List<CloudServiceExtended>> SERVICES_TO_BIND = ImmutableJsonStringListVariable.<CloudServiceExtended> builder()
+                                                                                           .name(Constants.VAR_SERVICES_TO_BIND)
+                                                                                           .type(Variable.typeReference(CloudServiceExtended.class))
+                                                                                           .defaultValue(Collections.emptyList())
+                                                                                           .build();
+    Variable<List<CloudServiceExtended>> SERVICES_TO_CREATE = ImmutableJsonStringListVariable.<CloudServiceExtended> builder()
+                                                                                             .name(Constants.VAR_SERVICES_TO_CREATE)
+                                                                                             .type(Variable.typeReference(CloudServiceExtended.class))
+                                                                                             .defaultValue(Collections.emptyList())
+                                                                                             .build();
+    Variable<List<Hook>> HOOKS_FOR_EXECUTION = ImmutableJsonStringListVariable.<Hook> builder()
+                                                                              .name(Constants.VAR_HOOKS_FOR_EXECUTION)
+                                                                              .type(Variable.typeReference(Hook.class))
+                                                                              .defaultValue(Collections.emptyList())
+                                                                              .build();
 
 }

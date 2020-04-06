@@ -90,7 +90,7 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     protected abstract void performValidation(CloudApplication cloudApplication);
 
     private void prepareContext() {
-        StepsUtil.setAppsToUndeploy(execution, ListUtil.cast(stepInput.appsToDelete));
+        context.setVariable(Variables.APPS_TO_UNDEPLOY, ListUtil.cast(stepInput.appsToDelete));
     }
 
     private void prepareClient() {

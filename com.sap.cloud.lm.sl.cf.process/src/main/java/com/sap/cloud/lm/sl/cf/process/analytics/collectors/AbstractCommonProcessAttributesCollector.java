@@ -6,9 +6,8 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AbstractCommonProcessAttributes;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
-import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public abstract class AbstractCommonProcessAttributesCollector<T extends AbstractCommonProcessAttributes> {
 
@@ -22,7 +21,7 @@ public abstract class AbstractCommonProcessAttributesCollector<T extends Abstrac
         commonProcessVariables.setDeletedEntries(
             getAttribute(execution, Constants.VAR_DELETED_ENTRIES, () -> VariableHandling.get(execution, Variables.DELETED_ENTRIES).size()));
         commonProcessVariables.setAppsToUndeploy(
-            getAttribute(execution, Constants.VAR_APPS_TO_UNDEPLOY, () -> StepsUtil.getAppsToUndeploy(execution).size()));
+            getAttribute(execution, Constants.VAR_APPS_TO_UNDEPLOY, () -> VariableHandling.get(execution, Variables.APPS_TO_UNDEPLOY).size()));
         commonProcessVariables.setServicesToDelete(
             getAttribute(execution, Constants.VAR_SERVICES_TO_DELETE, () -> VariableHandling.get(execution, Variables.SERVICES_TO_DELETE).size()));
         commonProcessVariables.setUpdatedSubscripers(

@@ -3,8 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.text.MessageFormat;
 import java.util.List;
 
-import org.flowable.engine.delegate.DelegateExecution;
-
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -21,8 +19,8 @@ public class PollServiceInProgressOperationsExecution extends PollServiceOperati
     }
 
     @Override
-    protected List<CloudServiceExtended> getServicesData(DelegateExecution execution) {
-        return StepsUtil.getServicesData(execution);
+    protected List<CloudServiceExtended> getServicesData(ProcessContext context) {
+        return StepsUtil.getServicesData(context.getExecution());
     }
 
     @Override

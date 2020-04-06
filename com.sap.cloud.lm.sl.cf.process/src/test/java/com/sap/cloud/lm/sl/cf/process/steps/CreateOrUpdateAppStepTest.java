@@ -16,7 +16,6 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -128,7 +127,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
         // TODO
         context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
         StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, execution);
-        StepsUtil.setServicesToBind(execution, mapToCloudServiceExtended());
+        context.setVariable(Variables.SERVICES_TO_BIND, mapToCloudServiceExtended());
         context.setVariable(Variables.APP_ARCHIVE_ID, "dummy");
         context.setVariable(Variables.MODULES_INDEX, stepInput.applicationIndex);
         context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());
@@ -199,7 +198,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
                 Mockito.verify(client)
                        .bindService(application.getName(), service,
                                     getBindingParametersForService(application.getBindingParameters(), service),
-                                    step.getApplicationServicesUpdateCallback(execution));
+                                    step.getApplicationServicesUpdateCallback(context));
             }
         }
         Mockito.verify(client)
@@ -226,7 +225,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
 
     private class CreateAppStepMock extends CreateOrUpdateAppStep {
         @Override
-        protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(DelegateExecution execution) {
+        protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(ProcessContext context) {
             return callback;
         }
     }

@@ -84,8 +84,8 @@ public class StepsUtilTest {
                                                                     .putCredential("string-value", "1")
                                                                     .build();
 
-        StepsUtil.setServicesToCreate(execution, Collections.singletonList(service));
-        List<CloudServiceExtended> actualServicesToCreate = StepsUtil.getServicesToCreate(execution);
+        VariableHandling.set(execution, Variables.SERVICES_TO_CREATE, Collections.singletonList(service));
+        List<CloudServiceExtended> actualServicesToCreate = VariableHandling.get(execution, Variables.SERVICES_TO_CREATE);
 
         assertEquals(1, actualServicesToCreate.size());
         assertFalse(actualServicesToCreate.get(0)

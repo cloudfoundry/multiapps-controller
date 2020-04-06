@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
@@ -85,7 +84,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
 
     protected List<CloudServiceExtended> computeServicesToPoll(ProcessContext context,
                                                                Map<String, ServiceOperation.Type> triggeredServiceOperations) {
-        List<CloudServiceExtended> servicesData = getServicesData(context.getExecution());
+        List<CloudServiceExtended> servicesData = getServicesData(context);
         return getServicesWithTriggeredOperations(servicesData, triggeredServiceOperations);
     }
 
@@ -138,7 +137,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
                                         .collect(Collectors.toList());
     }
 
-    protected abstract List<CloudServiceExtended> getServicesData(DelegateExecution execution);
+    protected abstract List<CloudServiceExtended> getServicesData(ProcessContext context);
 
     protected abstract void reportServiceState(ProcessContext context, CloudServiceExtended service, ServiceOperation lastOperation);
 

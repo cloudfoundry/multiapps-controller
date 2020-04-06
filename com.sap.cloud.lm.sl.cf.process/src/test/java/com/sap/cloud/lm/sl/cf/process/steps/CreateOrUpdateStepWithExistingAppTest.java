@@ -20,7 +20,6 @@ import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.ImmutableStaging;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -165,7 +164,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
                    .bindService(input.application.toCloudApp()
                                                  .getName(),
                                 serviceToBind, getBindingParametersForService(currentBindingParameters, serviceToBind),
-                                step.getApplicationServicesUpdateCallback(execution));
+                                step.getApplicationServicesUpdateCallback(context));
         }
     }
 
@@ -267,7 +266,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         // TODO
         context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
         StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(cloudApp), execution);
-        StepsUtil.setServicesToBind(execution, mapToCloudServices());
+        context.setVariable(Variables.SERVICES_TO_BIND, mapToCloudServices());
         context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, Collections.emptyMap());
         context.setVariable(Variables.MODULES_INDEX, 0);
         context.setVariable(Variables.APP_ARCHIVE_ID, "dummy");
@@ -372,7 +371,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
 
     private static class CreateAppStepMock extends CreateOrUpdateAppStep {
         @Override
-        protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(DelegateExecution execution) {
+        protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(ProcessContext context) {
             return CALLBACK;
         }
     }

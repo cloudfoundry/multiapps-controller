@@ -4,14 +4,13 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.flowable.engine.delegate.DelegateExecution;
-
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOperationsExecution implements AsyncExecution {
@@ -22,8 +21,8 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
     }
 
     @Override
-    protected List<CloudServiceExtended> getServicesData(DelegateExecution execution) {
-        List<CloudServiceExtended> allServicesToCreate = StepsUtil.getServicesToCreate(execution);
+    protected List<CloudServiceExtended> getServicesData(ProcessContext context) {
+        List<CloudServiceExtended> allServicesToCreate = context.getVariable(Variables.SERVICES_TO_CREATE);
         // There's no need to poll the creation or update of user-provided services, because it is done synchronously:
         return allServicesToCreate.stream()
                                   .filter(s -> !s.isUserProvided())

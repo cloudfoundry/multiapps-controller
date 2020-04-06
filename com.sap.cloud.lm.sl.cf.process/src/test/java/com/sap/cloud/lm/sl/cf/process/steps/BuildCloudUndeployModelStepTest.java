@@ -233,7 +233,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
     private void prepareContext() {
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
         StepsUtil.setModulesToDeploy(execution, modulesToDeploy);
-        StepsUtil.setServicesToCreate(execution, servicesToCreate);
+        context.setVariable(Variables.SERVICES_TO_CREATE, servicesToCreate);
         StepsUtil.setAllModulesToDeploy(execution, modulesToDeploy);
         List<String> appNamesToDeploy = new ArrayList<>();
         appsToDeploy.forEach(app -> appNamesToDeploy.add(app.getName()));
@@ -269,7 +269,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
 
         assertEquals(output.servicesToDelete, context.getVariable(Variables.SERVICES_TO_DELETE));
 
-        assertEquals(output.appsToUndeployNames, getNames(StepsUtil.getAppsToUndeploy(execution)));
+        assertEquals(output.appsToUndeployNames, getNames(context.getVariable(Variables.APPS_TO_UNDEPLOY)));
 
         tester.test(() -> context.getVariable(Variables.SUBSCRIPTIONS_TO_DELETE), output.subscriptionsToDeleteExpectation);
     }

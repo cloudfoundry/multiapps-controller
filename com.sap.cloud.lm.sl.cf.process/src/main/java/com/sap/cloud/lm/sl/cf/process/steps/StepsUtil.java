@@ -109,22 +109,6 @@ public class StepsUtil {
         return new HandlerFactory(majorSchemaVersion);
     }
 
-    public static List<CloudServiceExtended> getServicesToCreate(VariableScope scope) {
-        return getFromJsonStrings(scope, Constants.VAR_SERVICES_TO_CREATE, CloudServiceExtended.class);
-    }
-
-    static void setServicesToCreate(VariableScope scope, List<CloudServiceExtended> services) {
-        setAsJsonStrings(scope, Constants.VAR_SERVICES_TO_CREATE, services);
-    }
-
-    public static List<CloudServiceExtended> getServicesToBind(VariableScope scope) {
-        return getFromJsonStrings(scope, Constants.VAR_SERVICES_TO_BIND, CloudServiceExtended.class);
-    }
-
-    static void setServicesToBind(VariableScope scope, List<CloudServiceExtended> services) {
-        setAsJsonStrings(scope, Constants.VAR_SERVICES_TO_BIND, services);
-    }
-
     public static List<Module> getModulesToDeploy(VariableScope scope) {
         return getFromJsonBinaries(scope, Constants.VAR_MODULES_TO_DEPLOY, Module.class);
     }
@@ -161,14 +145,6 @@ public class StepsUtil {
         List<CloudApplication> apps = context.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS);
         int index = context.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
         return apps.get(index);
-    }
-
-    public static List<CloudApplication> getAppsToUndeploy(VariableScope scope) {
-        return getFromJsonStrings(scope, Constants.VAR_APPS_TO_UNDEPLOY, CloudApplication.class);
-    }
-
-    static void setAppsToUndeploy(VariableScope scope, List<CloudApplication> apps) {
-        setAsJsonStrings(scope, Constants.VAR_APPS_TO_UNDEPLOY, apps);
     }
 
     /**
@@ -429,10 +405,6 @@ public class StepsUtil {
         return Constants.VAR_EXECUTED_HOOKS_FOR_PREFIX + moduleName;
     }
 
-    static void setHooksForExecution(VariableScope scope, List<Hook> hooksForExecution) {
-        setAsJsonStrings(scope, Constants.VAR_HOOKS_FOR_EXECUTION, hooksForExecution);
-    }
-
     public static Boolean getBoolean(VariableScope scope, String name, Boolean defaultValue) {
         return getObject(scope, name, defaultValue);
     }
@@ -442,10 +414,6 @@ public class StepsUtil {
     }
 
     public static Integer getInteger(VariableScope scope, String name, Integer defaultValue) {
-        return getObject(scope, name, defaultValue);
-    }
-
-    public static String getString(VariableScope scope, String name, String defaultValue) {
         return getObject(scope, name, defaultValue);
     }
 
@@ -463,10 +431,6 @@ public class StepsUtil {
         return getFromJsonBinary(scope, name, toTypeReference(classOfT));
     }
 
-    public static <T> T getFromJsonBinary(VariableScope scope, String name, Class<T> classOfT, T defaultValue) {
-        return getFromJsonBinary(scope, name, toTypeReference(classOfT), defaultValue);
-    }
-
     public static <T> T getFromJsonBinary(VariableScope scope, String name, TypeReference<T> type) {
         return getFromJsonBinary(scope, name, type, null);
     }
@@ -478,28 +442,6 @@ public class StepsUtil {
         }
         String jsonString = new String(jsonBinary, StandardCharsets.UTF_8);
         return JsonUtil.fromJson(jsonString, type);
-    }
-
-    public static <T> List<T> getFromJsonStrings(VariableScope scope, String name, Class<T> classOfT) {
-        return getFromJsonStrings(scope, name, toTypeReference(classOfT));
-    }
-
-    public static <T> List<T> getFromJsonStrings(VariableScope scope, String name, Class<T> classOfT, List<T> defaultValue) {
-        return getFromJsonStrings(scope, name, toTypeReference(classOfT), defaultValue);
-    }
-
-    public static <T> List<T> getFromJsonStrings(VariableScope scope, String name, TypeReference<T> type) {
-        return getFromJsonStrings(scope, name, type, Collections.emptyList());
-    }
-
-    public static <T> List<T> getFromJsonStrings(VariableScope scope, String name, TypeReference<T> type, List<T> defaultValue) {
-        List<String> jsonStrings = getObject(scope, name);
-        if (jsonStrings == null) {
-            return defaultValue;
-        }
-        return jsonStrings.stream()
-                          .map(jsonString -> JsonUtil.fromJson(jsonString, type))
-                          .collect(Collectors.toList());
     }
 
     public static <T> List<T> getFromJsonBinaries(VariableScope scope, String name, Class<T> classOfT) {
@@ -531,17 +473,6 @@ public class StepsUtil {
         }
         byte[] jsonBinary = JsonUtil.toJsonBinary(value);
         scope.setVariable(name, jsonBinary);
-    }
-
-    public static void setAsJsonStrings(VariableScope scope, String name, List<?> values) {
-        if (values == null) {
-            scope.setVariable(name, null);
-            return;
-        }
-        List<String> jsonStrings = values.stream()
-                                         .map(JsonUtil::toJson)
-                                         .collect(Collectors.toList());
-        scope.setVariable(name, jsonStrings);
     }
 
     public static void setAsJsonBinaries(VariableScope scope, String name, List<?> values) {
