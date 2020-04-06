@@ -26,7 +26,6 @@ import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
@@ -116,22 +115,6 @@ public class StepsUtil {
         List<CloudApplication> apps = context.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS);
         int index = context.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
         return apps.get(index);
-    }
-
-    /**
-     * 
-     * @deprecated This method should be used for backward compatibility for one release. After that it should be used only new mechanism
-     *             with {@link Variables}
-     */
-    @Deprecated
-    public static List<String> getServicesToDelete(VariableScope scope) {
-        Object servicesToDelete = getObject(scope, Constants.VAR_SERVICES_TO_DELETE);
-        if (servicesToDelete instanceof List) {
-            return (List<String>) servicesToDelete;
-        }
-        TypeReference<List<String>> type = new TypeReference<List<String>>() {
-        };
-        return getFromJsonBinary(scope, Constants.VAR_SERVICES_TO_DELETE, type, Collections.emptyList());
     }
 
     public static CloudServiceBroker getServiceBrokersToCreateForModule(VariableScope scope, String moduleName) {
