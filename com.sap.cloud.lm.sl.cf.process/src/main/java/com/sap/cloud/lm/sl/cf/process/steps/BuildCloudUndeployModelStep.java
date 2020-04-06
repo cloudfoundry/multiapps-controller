@@ -109,7 +109,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     }
 
     private Set<String> getServicesForApplications(ProcessContext context) {
-        List<Module> modules = StepsUtil.getModulesToDeploy(context.getExecution());
+        List<Module> modules = context.getVariable(Variables.MODULES_TO_DEPLOY);
         if (CollectionUtils.isEmpty(modules)) {
             return Collections.emptySet();
         }

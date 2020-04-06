@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("deleteRemainingFileParts")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -18,7 +18,7 @@ public class DeleteRemainingFileParts extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
-        List<FileEntry> filesToRemove = StepsUtil.getFromJsonBinaries(context.getExecution(), Constants.VAR_FILE_ENTRIES, FileEntry.class);
+        List<FileEntry> filesToRemove = context.getVariable(Variables.FILE_ENTRIES);
         filesToRemove.forEach(this::attemptToDeleteFilePart);
         return StepPhase.DONE;
     }

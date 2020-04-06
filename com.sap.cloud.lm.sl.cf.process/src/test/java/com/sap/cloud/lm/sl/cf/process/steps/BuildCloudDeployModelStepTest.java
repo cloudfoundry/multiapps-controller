@@ -161,11 +161,13 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
         tester.test(() -> context.getVariable(Variables.SERVICES_TO_BIND),
                     new Expectation(Expectation.Type.JSON, input.servicesToBindLocation));
-        tester.test(() -> context.getVariable(Variables.SERVICES_TO_CREATE), new Expectation(Expectation.Type.JSON, input.servicesToCreateLocation));
+        tester.test(() -> context.getVariable(Variables.SERVICES_TO_CREATE),
+                    new Expectation(Expectation.Type.JSON, input.servicesToCreateLocation));
         tester.test(() -> context.getVariable(Variables.SERVICE_KEYS_TO_CREATE),
                     new Expectation(Expectation.Type.JSON, input.serviceKeysLocation));
-        tester.test(() -> StepsUtil.getModulesToDeploy(execution), new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
-        tester.test(() -> StepsUtil.getAllModulesToDeploy(execution),
+        tester.test(() -> context.getVariable(Variables.MODULES_TO_DEPLOY),
+                    new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
+        tester.test(() -> context.getVariable(Variables.ALL_MODULES_TO_DEPLOY),
                     new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
         assertFalse(context.getVariable(Variables.USE_IDLE_URIS));
         assertEquals(input.customDomains, context.getVariable(Variables.CUSTOM_DOMAINS));

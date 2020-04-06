@@ -5,7 +5,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -28,7 +27,7 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.PREPARING_MODULES_DEPLOYMENT);
 
         // Get the list of cloud modules from the context:
-        List<Module> modulesToDeploy = getModulesToDeploy(context.getExecution());
+        List<Module> modulesToDeploy = getModulesToDeploy(context);
 
         // Initialize the iteration over the applications list:
         context.setVariable(Variables.MODULES_COUNT, modulesToDeploy.size());
@@ -39,7 +38,7 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
         context.setVariable(Variables.SHOULD_UPLOAD_APPLICATION_CONTENT, true);
         context.setVariable(Variables.EXECUTE_ONE_OFF_TASKS, true);
 
-        StepsUtil.setModulesToDeploy(context.getExecution(), modulesToDeploy);
+        context.setVariable(Variables.MODULES_TO_DEPLOY, modulesToDeploy);
 
         ProcessType processType = processTypeParser.getProcessType(context.getExecution());
 
@@ -56,8 +55,8 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
         return Messages.ERROR_PREPARING_MODULES_DEPLOYMENT;
     }
 
-    protected List<Module> getModulesToDeploy(DelegateExecution execution) {
-        return StepsUtil.getAllModulesToDeploy(execution);
+    protected List<Module> getModulesToDeploy(ProcessContext context) {
+        return context.getVariable(Variables.ALL_MODULES_TO_DEPLOY);
     }
 
 }

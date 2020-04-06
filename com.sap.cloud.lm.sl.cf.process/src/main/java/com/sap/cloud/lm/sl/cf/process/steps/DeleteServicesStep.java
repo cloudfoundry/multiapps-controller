@@ -81,7 +81,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
                    .info(Messages.SERVICES_ARE_ALREADY_DELETED, servicesWithoutData);
             servicesToDelete.removeAll(servicesWithoutData);
         }
-        StepsUtil.setServicesData(context.getExecution(), servicesData);
+        context.setVariable(Variables.SERVICES_DATA, servicesData);
 
         Map<String, ServiceOperation.Type> triggeredServiceOperations = deleteServices(context, client, servicesToDelete);
 

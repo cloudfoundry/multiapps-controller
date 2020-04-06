@@ -55,7 +55,7 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
         context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, servicesOperationTypes);
 
         List<CloudServiceExtended> servicesWithData = getListOfServicesWithData(servicesInProgressState);
-        StepsUtil.setServicesData(context.getExecution(), servicesWithData);
+        context.setVariable(Variables.SERVICES_DATA, servicesWithData);
 
         return StepPhase.POLL;
     }

@@ -50,7 +50,6 @@ import com.sap.cloud.lm.sl.common.util.YamlUtil;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Hook;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class StepsUtil {
@@ -109,34 +108,6 @@ public class StepsUtil {
         return new HandlerFactory(majorSchemaVersion);
     }
 
-    public static List<Module> getModulesToDeploy(VariableScope scope) {
-        return getFromJsonBinaries(scope, Constants.VAR_MODULES_TO_DEPLOY, Module.class);
-    }
-
-    public static void setModulesToDeploy(VariableScope scope, List<? extends Module> modules) {
-        setAsJsonBinaries(scope, Constants.VAR_MODULES_TO_DEPLOY, modules);
-    }
-
-    public static List<Module> getAllModulesToDeploy(VariableScope scope) {
-        return getFromJsonBinaries(scope, Constants.VAR_ALL_MODULES_TO_DEPLOY, Module.class);
-    }
-
-    public static void setAllModulesToDeploy(VariableScope scope, List<? extends Module> modules) {
-        setAsJsonBinaries(scope, Constants.VAR_ALL_MODULES_TO_DEPLOY, modules);
-    }
-
-    public static List<Module> getIteratedModulesInParallel(VariableScope scope) {
-        return getFromJsonBinaries(scope, Constants.VAR_ITERATED_MODULES_IN_PARALLEL, Module.class);
-    }
-
-    public static void setIteratedModulesInParallel(VariableScope scope, List<? extends Module> modules) {
-        setAsJsonBinaries(scope, Constants.VAR_ITERATED_MODULES_IN_PARALLEL, modules);
-    }
-
-    public static void setModulesToIterateInParallel(VariableScope scope, List<? extends Module> modules) {
-        setAsJsonBinaries(scope, Constants.VAR_MODULES_TO_ITERATE_IN_PARALLEL, modules);
-    }
-
     public static void setDeploymentMode(VariableScope scope, DeploymentMode deploymentMode) {
         scope.setVariable(Constants.VAR_DEPLOYMENT_MODE, deploymentMode);
     }
@@ -167,10 +138,10 @@ public class StepsUtil {
         return getFromJsonBinary(scope, Constants.VAR_APP_SERVICE_BROKER_VAR_PREFIX + moduleName, CloudServiceBroker.class);
     }
 
-    public static List<String> getCreatedOrUpdatedServiceBrokerNames(VariableScope scope) {
-        List<Module> allModulesToDeploy = getAllModulesToDeploy(scope);
+    public static List<String> getCreatedOrUpdatedServiceBrokerNames(ProcessContext context) {
+        List<Module> allModulesToDeploy = context.getVariable(Variables.ALL_MODULES_TO_DEPLOY);
         return allModulesToDeploy.stream()
-                                 .map(module -> getServiceBrokersToCreateForModule(scope, module.getName()))
+                                 .map(module -> getServiceBrokersToCreateForModule(context.getExecution(), module.getName()))
                                  .filter(Objects::nonNull)
                                  .map(CloudServiceBroker::getName)
                                  .collect(Collectors.toList());
@@ -333,16 +304,6 @@ public class StepsUtil {
         return context.getVariable(Variables.GIT_URI);
     }
 
-    public static void setServicesData(VariableScope scope, List<CloudServiceExtended> servicesData) {
-        scope.setVariable(Constants.VAR_SERVICES_DATA, JsonUtil.toJsonBinary(servicesData));
-    }
-
-    public static List<CloudServiceExtended> getServicesData(VariableScope scope) {
-        TypeReference<List<CloudServiceExtended>> type = new TypeReference<List<CloudServiceExtended>>() {
-        };
-        return getFromJsonBinary(scope, Constants.VAR_SERVICES_DATA, type, Collections.emptyList());
-    }
-
     public static CloudApplication getBoundApplication(List<CloudApplication> applications, UUID appGuid) {
         return applications.stream()
                            .filter(app -> hasGuid(app, appGuid))
@@ -444,28 +405,6 @@ public class StepsUtil {
         return JsonUtil.fromJson(jsonString, type);
     }
 
-    public static <T> List<T> getFromJsonBinaries(VariableScope scope, String name, Class<T> classOfT) {
-        return getFromJsonBinaries(scope, name, toTypeReference(classOfT));
-    }
-
-    public static <T> List<T> getFromJsonBinaries(VariableScope scope, String name, Class<T> classOfT, List<T> defaultValue) {
-        return getFromJsonBinaries(scope, name, toTypeReference(classOfT), defaultValue);
-    }
-
-    public static <T> List<T> getFromJsonBinaries(VariableScope scope, String name, TypeReference<T> type) {
-        return getFromJsonBinaries(scope, name, type, Collections.emptyList());
-    }
-
-    public static <T> List<T> getFromJsonBinaries(VariableScope scope, String name, TypeReference<T> type, List<T> defaultValue) {
-        List<byte[]> jsonBinaries = getObject(scope, name);
-        if (jsonBinaries == null) {
-            return defaultValue;
-        }
-        return jsonBinaries.stream()
-                           .map(jsonBinary -> JsonUtil.fromJsonBinary(jsonBinary, type))
-                           .collect(Collectors.toList());
-    }
-
     public static void setAsJsonBinary(VariableScope scope, String name, Object value) {
         if (value == null) {
             scope.setVariable(name, null);
@@ -473,17 +412,6 @@ public class StepsUtil {
         }
         byte[] jsonBinary = JsonUtil.toJsonBinary(value);
         scope.setVariable(name, jsonBinary);
-    }
-
-    public static void setAsJsonBinaries(VariableScope scope, String name, List<?> values) {
-        if (values == null) {
-            scope.setVariable(name, null);
-            return;
-        }
-        List<byte[]> jsonBinaries = values.stream()
-                                          .map(JsonUtil::toJsonBinary)
-                                          .collect(Collectors.toList());
-        scope.setVariable(name, jsonBinaries);
     }
 
     private static <T> TypeReference<T> toTypeReference(Class<T> classOfT) {

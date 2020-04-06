@@ -11,7 +11,6 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBroker;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,7 +46,7 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
 
     private class DeleteServiceBrokersStepMock extends DeleteServiceBrokersStep {
         @Override
-        protected List<String> getCreatedOrUpdatedServiceBrokerNames(DelegateExecution execution) {
+        protected List<String> getCreatedOrUpdatedServiceBrokerNames(ProcessContext context) {
             return input.serviceBrokersToCreate;
         }
     }
