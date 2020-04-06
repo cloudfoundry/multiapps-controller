@@ -6,7 +6,8 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.ExecutionListener;
 
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("setUndeployPhase")
 public class SetUndeployPhaseListener implements ExecutionListener {
@@ -15,7 +16,7 @@ public class SetUndeployPhaseListener implements ExecutionListener {
 
     @Override
     public void notify(DelegateExecution execution) {
-        StepsUtil.setPhase(execution, Phase.UNDEPLOY);
+        VariableHandling.set(execution, Variables.PHASE, Phase.UNDEPLOY);
     }
 
 }

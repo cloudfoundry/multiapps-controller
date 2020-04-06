@@ -11,7 +11,7 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws Exception {
-        StepPhase stepPhase = StepsUtil.getStepPhase(context.getExecution());
+        StepPhase stepPhase = context.getVariable(Variables.STEP_PHASE);
         if (stepPhase == StepPhase.POLL) {
             return executeStepExecution(context);
         }
@@ -67,7 +67,7 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase getInitialStepPhase(ProcessContext context) {
-        StepPhase currentStepPhase = StepsUtil.getStepPhase(context.getExecution());
+        StepPhase currentStepPhase = context.getVariable(Variables.STEP_PHASE);
         if (currentStepPhase == StepPhase.DONE || currentStepPhase == StepPhase.RETRY) {
             return StepPhase.EXECUTE;
         }

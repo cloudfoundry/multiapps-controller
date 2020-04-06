@@ -43,7 +43,7 @@ public class SyncFlowableStepWithHooksTest {
 
     @Test
     public void testWithHooksForPreExecuteStepPhase() throws Exception {
-        StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
+        context.setVariable(Variables.STEP_PHASE, StepPhase.EXECUTE);
         Module module = Module.createV3()
                               .setName("test")
                               .setHooks(Collections.singletonList(Hook.createV3()
@@ -65,7 +65,7 @@ public class SyncFlowableStepWithHooksTest {
 
     @Test
     public void testWithHooksForPostExecuteStepPhase() throws Exception {
-        StepsUtil.setStepPhase(execution, StepPhase.DONE);
+        context.setVariable(Variables.STEP_PHASE, StepPhase.DONE);
 
         Module module = Module.createV3()
                               .setName("test")
@@ -88,7 +88,7 @@ public class SyncFlowableStepWithHooksTest {
 
     @Test
     public void testWithNoHooksForCurrentStep() throws Exception {
-        StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
+        context.setVariable(Variables.STEP_PHASE, StepPhase.EXECUTE);
 
         Module module = Module.createV3()
                               .setName("test")
@@ -115,7 +115,7 @@ public class SyncFlowableStepWithHooksTest {
 
     @Test
     public void testWithDeploymentDescriptorAndNoModuleNameInApplication() throws Exception {
-        StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
+        context.setVariable(Variables.STEP_PHASE, StepPhase.EXECUTE);
 
         Module module = Module.createV3()
                               .setName("test")
@@ -136,7 +136,7 @@ public class SyncFlowableStepWithHooksTest {
 
     @Test
     public void testWithDeploymentDescriptorAndModuleNameInApplication() throws Exception {
-        StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
+        context.setVariable(Variables.STEP_PHASE, StepPhase.EXECUTE);
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
 
         Module module = Module.createV3()
@@ -158,7 +158,7 @@ public class SyncFlowableStepWithHooksTest {
 
     @Test
     public void testWithDeploymentDescriptorWithNoModulesContainingModuleName() throws Exception {
-        StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
+        context.setVariable(Variables.STEP_PHASE, StepPhase.EXECUTE);
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
 
         prepareDeploymentDescriptor(Arrays.asList(Module.createV3()
@@ -177,7 +177,7 @@ public class SyncFlowableStepWithHooksTest {
 
     @Test
     public void testWithDeploymentDescriptorAndModuleNamesWhichHaveTheSamePrefixForNames() throws Exception {
-        StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
+        context.setVariable(Variables.STEP_PHASE, StepPhase.EXECUTE);
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
 
         Module moduleWithHooks = Module.createV3()

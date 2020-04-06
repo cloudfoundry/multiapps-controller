@@ -75,7 +75,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
             stepPhase = StepPhase.RETRY;
             handleException(context, e);
         } finally {
-            StepsUtil.setStepPhase(execution, stepPhase);
+            context.setVariable(Variables.STEP_PHASE, stepPhase);
             postExecuteStep(context, stepPhase);
         }
     }
@@ -90,7 +90,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
 
     private void handleException(ProcessContext context, Exception e) {
         try {
-            StepPhase stepPhase = StepsUtil.getStepPhase(context.getExecution());
+            StepPhase stepPhase = context.getVariable(Variables.STEP_PHASE);
             if (stepPhase == StepPhase.POLL) {
                 throw e;
             }

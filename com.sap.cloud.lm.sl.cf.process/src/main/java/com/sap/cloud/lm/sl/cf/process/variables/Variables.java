@@ -17,11 +17,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
+import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
+import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 import com.sap.cloud.lm.sl.mta.model.Module;
@@ -417,5 +421,26 @@ public interface Variables {
                                                                                                   .name(Constants.PARAM_GIT_REPOSITORY_LIST)
                                                                                                   .defaultValue(Collections.emptyList())
                                                                                                   .build();
+    Variable<ErrorType> ERROR_TYPE = ImmutableEnumVariable.<ErrorType> builder()
+                                                          .name(Constants.VAR_ERROR_TYPE)
+                                                          .type(ErrorType.class)
+                                                          .build();
+    Variable<ApplicationColor> IDLE_MTA_COLOR = ImmutableEnumVariable.<ApplicationColor> builder()
+                                                                     .name(Constants.VAR_IDLE_MTA_COLOR)
+                                                                     .type(ApplicationColor.class)
+                                                                     .build();
+    Variable<ApplicationColor> LIVE_MTA_COLOR = ImmutableEnumVariable.<ApplicationColor> builder()
+                                                                     .name(Constants.VAR_LIVE_MTA_COLOR)
+                                                                     .type(ApplicationColor.class)
+                                                                     .build();
+    Variable<StepPhase> STEP_PHASE = ImmutableEnumVariable.<StepPhase> builder()
+                                                          .name(Constants.VAR_STEP_PHASE)
+                                                          .type(StepPhase.class)
+                                                          .defaultValue(StepPhase.EXECUTE)
+                                                          .build();
+    Variable<Phase> PHASE = ImmutableEnumVariable.<Phase> builder()
+                                                 .name(Constants.VAR_PHASE)
+                                                 .type(Phase.class)
+                                                 .build();
 
 }

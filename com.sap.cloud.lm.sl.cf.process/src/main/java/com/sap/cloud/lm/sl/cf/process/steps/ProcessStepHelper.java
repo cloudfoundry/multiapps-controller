@@ -55,34 +55,35 @@ public class ProcessStepHelper {
                                .getCurrentActivityId();
         context.setVariable(Variables.TASK_ID, taskId);
 
-        deletePreviousErrorType(context.getExecution());
+        deletePreviousErrorType(context);
         stepLogger.logFlowableTask();
-        StepsUtil.setStepPhase(context.getExecution(), initialPhase);
+        context.setVariable(Variables.STEP_PHASE, initialPhase);
     }
 
-    protected void deletePreviousErrorType(DelegateExecution execution) {
-        String processId = execution.getProcessInstanceId();
-        ErrorType errorType = StepsUtil.getErrorType(execution);
+    protected void deletePreviousErrorType(ProcessContext context) {
+        String processId = context.getExecution()
+                                  .getProcessInstanceId();
+        ErrorType errorType = context.getVariable(Variables.ERROR_TYPE);
         if (errorType == null) {
             return;
         }
         LOGGER.debug(MessageFormat.format(Messages.DELETING_ERROR_TYPE_O_FOR_PROCESS_1, errorType, processId));
-        execution.removeVariable(Constants.VAR_ERROR_TYPE);
+        context.removeVariable(Variables.ERROR_TYPE);
     }
 
     protected void logExceptionAndStoreProgressMessage(ProcessContext context, Throwable t) {
-        logException(context.getExecution(), t);
+        logException(context, t);
         storeExceptionInProgressMessageService(context, t);
     }
 
-    private void logException(DelegateExecution execution, Throwable t) {
+    private void logException(ProcessContext context, Throwable t) {
         LOGGER.error(Messages.EXCEPTION_CAUGHT, t);
         getProcessLogger().error(Messages.EXCEPTION_CAUGHT, t);
 
         if (t instanceof ContentException) {
-            StepsUtil.setErrorType(execution, ErrorType.CONTENT_ERROR);
+            context.setVariable(Variables.ERROR_TYPE, ErrorType.CONTENT_ERROR);
         } else {
-            StepsUtil.setErrorType(execution, ErrorType.UNKNOWN_ERROR);
+            context.setVariable(Variables.ERROR_TYPE, ErrorType.UNKNOWN_ERROR);
         }
     }
 
