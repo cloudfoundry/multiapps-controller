@@ -156,8 +156,8 @@ public class StepsUtilTest {
     @Test
     public void testSetAndGetPhase() {
         Phase expectedPhase = Phase.UNDEPLOY;
-        StepsUtil.setPhase(execution, expectedPhase);
-        Phase actualPhase = Phase.valueOf((String) execution.getVariable(Constants.VAR_PHASE));
+        VariableHandling.set(execution, Variables.PHASE, expectedPhase);
+        Phase actualPhase = VariableHandling.get(execution, Variables.PHASE);
 
         assertEquals(expectedPhase, actualPhase);
     }

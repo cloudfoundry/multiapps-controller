@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -13,8 +14,8 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.MonitoringException;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ContentException;
 
 @RunWith(Parameterized.class)
@@ -55,8 +56,7 @@ public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProces
             step.execute(execution);
             fail();
         } catch (Exception e) {
-            Mockito.verify(execution)
-                   .setVariable(Constants.VAR_ERROR_TYPE, expectedErrorType.toString());
+            assertEquals(expectedErrorType, context.getVariable(Variables.ERROR_TYPE));
         }
     }
 

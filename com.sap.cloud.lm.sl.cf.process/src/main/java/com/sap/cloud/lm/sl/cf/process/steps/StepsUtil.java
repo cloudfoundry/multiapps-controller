@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ListUtils;
@@ -34,11 +33,8 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
-import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.core.util.ImmutableLogsOffset;
 import com.sap.cloud.lm.sl.cf.core.util.LogsOffset;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
@@ -102,26 +98,6 @@ public class StepsUtil {
 
     static void setModuleContent(VariableScope scope, String moduleName, byte[] moduleContent) {
         scope.setVariable(getModuleContentVariable(moduleName), moduleContent);
-    }
-
-    public static ApplicationColor getLiveMtaColor(VariableScope scope) {
-        return getEnum(scope, Constants.VAR_LIVE_MTA_COLOR, ApplicationColor::valueOf);
-    }
-
-    public static void setLiveMtaColor(VariableScope scope, ApplicationColor liveMtaColor) {
-        setEnum(scope, Constants.VAR_LIVE_MTA_COLOR, liveMtaColor);
-    }
-
-    public static ApplicationColor getIdleMtaColor(VariableScope scope) {
-        return getEnum(scope, Constants.VAR_IDLE_MTA_COLOR, ApplicationColor::valueOf);
-    }
-
-    public static void setIdleMtaColor(VariableScope scope, ApplicationColor mtaColor) {
-        setEnum(scope, Constants.VAR_IDLE_MTA_COLOR, mtaColor);
-    }
-
-    public static void setPhase(VariableScope scope, Phase phase) {
-        setEnum(scope, Constants.VAR_PHASE, phase);
     }
 
     private static String getModuleContentVariable(String moduleName) {
@@ -343,23 +319,6 @@ public class StepsUtil {
         execution.setVariable(com.sap.cloud.lm.sl.cf.core.Constants.LOGS_OFFSET, newOffset);
     }
 
-    public static ErrorType getErrorType(VariableScope scope) {
-        return getEnum(scope, Constants.VAR_ERROR_TYPE, ErrorType::valueOf);
-    }
-
-    static void setErrorType(VariableScope scope, ErrorType errorType) {
-        setEnum(scope, Constants.VAR_ERROR_TYPE, errorType);
-    }
-
-    static StepPhase getStepPhase(VariableScope scope) {
-        StepPhase stepPhase = getEnum(scope, Constants.VAR_STEP_PHASE, StepPhase::valueOf);
-        return stepPhase == null ? StepPhase.EXECUTE : stepPhase;
-    }
-
-    public static void setStepPhase(VariableScope scope, StepPhase stepPhase) {
-        setEnum(scope, Constants.VAR_STEP_PHASE, stepPhase);
-    }
-
     public static String getLoggerPrefix(Logger logger) {
         String name = logger.getName();
         return "[" + name.substring(name.lastIndexOf('.') + 1) + "] ";
@@ -474,11 +433,6 @@ public class StepsUtil {
         setAsJsonStrings(scope, Constants.VAR_HOOKS_FOR_EXECUTION, hooksForExecution);
     }
 
-    public static <E> E getEnum(VariableScope scope, String name, Function<String, E> factory) {
-        String value = getObject(scope, name);
-        return value == null ? null : factory.apply(value);
-    }
-
     public static Boolean getBoolean(VariableScope scope, String name, Boolean defaultValue) {
         return getObject(scope, name, defaultValue);
     }
@@ -568,14 +522,6 @@ public class StepsUtil {
         return jsonBinaries.stream()
                            .map(jsonBinary -> JsonUtil.fromJsonBinary(jsonBinary, type))
                            .collect(Collectors.toList());
-    }
-
-    public static void setEnum(VariableScope scope, String name, Object value) {
-        if (value == null) {
-            scope.setVariable(name, null);
-            return;
-        }
-        scope.setVariable(name, value.toString());
     }
 
     public static void setAsJsonBinary(VariableScope scope, String name, Object value) {

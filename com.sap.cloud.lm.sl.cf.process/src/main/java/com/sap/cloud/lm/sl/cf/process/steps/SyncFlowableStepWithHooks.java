@@ -39,7 +39,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
             return executeStepInternal(context);
         }
 
-        StepPhase currentStepPhase = StepsUtil.getStepPhase(context.getExecution());
+        StepPhase currentStepPhase = context.getVariable(Variables.STEP_PHASE);
         List<Hook> executedHooks = executeHooksForStepPhase(context.getExecution(), moduleToDeploy, currentStepPhase);
         if (!executedHooks.isEmpty()) {
             return currentStepPhase;
