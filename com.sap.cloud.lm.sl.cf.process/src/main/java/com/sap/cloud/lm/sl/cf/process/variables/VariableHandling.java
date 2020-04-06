@@ -9,6 +9,10 @@ public final class VariableHandling {
     }
 
     public static <T> void set(VariableContainer container, Variable<T> variable, T value) {
+        if (value == null) {
+            container.setVariable(variable.getName(), null);
+            return;
+        }
         Serializer<T> serializer = variable.getSerializer();
         container.setVariable(variable.getName(), serializer.serialize(value));
     }

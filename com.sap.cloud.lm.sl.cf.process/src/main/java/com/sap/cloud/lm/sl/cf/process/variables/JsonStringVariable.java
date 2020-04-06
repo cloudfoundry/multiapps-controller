@@ -16,17 +16,11 @@ public abstract class JsonStringVariable<T> implements Variable<T> {
 
             @Override
             public Object serialize(T object) {
-                if (object == null) {
-                    return null;
-                }
                 return JsonUtil.toJson(object);
             }
 
             @Override
             public T deserialize(Object serializedObject) {
-                if (serializedObject == null) {
-                    return null;
-                }
                 return JsonUtil.fromJson((String) serializedObject, getType());
             }
 
