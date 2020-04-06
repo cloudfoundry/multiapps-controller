@@ -28,16 +28,16 @@ public class ProcessHelper {
     }
 
     public Operation.State computeProcessState(String processId) {
-        if (isInReceiveTask(processId)) {
-            return State.ACTION_REQUIRED;
-        }
-
         if (isInAbortedState(processId)) {
             return State.ABORTED;
         }
 
         if (isInErrorState(processId)) {
             return State.ERROR;
+        }
+
+        if (isInReceiveTask(processId)) {
+            return State.ACTION_REQUIRED;
         }
 
         if (isInRunningState(processId)) {
