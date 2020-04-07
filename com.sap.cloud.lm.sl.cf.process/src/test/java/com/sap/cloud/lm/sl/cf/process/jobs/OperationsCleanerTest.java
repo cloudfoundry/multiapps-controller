@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.jobs;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -94,10 +95,12 @@ public class OperationsCleanerTest {
         Operation operation1 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_1)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
+                                                 .state(null)
                                                  .build();
         Operation operation2 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_2)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
+                                                 .state(null)
                                                  .build();
         List<Operation> operationsList = Arrays.asList(operation1, operation2);
 
@@ -116,14 +119,17 @@ public class OperationsCleanerTest {
         Operation operation1 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_1)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
+                                                 .state(null)
                                                  .build();
         Operation operation2 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_2)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
+                                                 .state(null)
                                                  .build();
         Operation operation3 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_3)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
+                                                 .state(null)
                                                  .build();
         List<Operation> operationsPage1 = Arrays.asList(operation1, operation2);
         List<Operation> operationsPage2 = Collections.singletonList(operation3);
@@ -138,14 +144,43 @@ public class OperationsCleanerTest {
         verify(historicOperationEventPersister).add(OPERATION_ID_3, HistoricOperationEvent.EventType.ABORTED);
     }
 
+    @Test
+    public void testPagingAllOperationsAreIterated() {
+        Operation operation1 = ImmutableOperation.builder()
+                                                 .processId(OPERATION_ID_1)
+                                                 .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
+                                                 .state(Operation.State.FINISHED)
+                                                 .build();
+        Operation operation2 = ImmutableOperation.builder()
+                                                 .processId(OPERATION_ID_2)
+                                                 .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
+                                                 .state(Operation.State.FINISHED)
+                                                 .build();
+        Operation operation3 = ImmutableOperation.builder()
+                                                 .processId(OPERATION_ID_3)
+                                                 .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
+                                                 .state(null)
+                                                 .build();
+        List<Operation> operationsPage1 = Arrays.asList(operation1, operation2);
+        List<Operation> operationsPage2 = Collections.singletonList(operation3);
+
+        when(operationService.createQuery()).thenReturn(operationQuery);
+        initQueryMockForPage(0, operationsPage1);
+        initQueryMockForPage(1, operationsPage2);
+
+        cleaner.execute(EXPIRATION_TIME);
+        verify(historicOperationEventPersister, never()).add(OPERATION_ID_1, HistoricOperationEvent.EventType.ABORTED);
+        verify(historicOperationEventPersister, never()).add(OPERATION_ID_2, HistoricOperationEvent.EventType.ABORTED);
+        verify(historicOperationEventPersister).add(OPERATION_ID_3, HistoricOperationEvent.EventType.ABORTED);
+    }
+
     private void initQueryMockForPage(int pageIndex, List<Operation> result) {
         OperationQuery queryMock = createOperationQueryMock(pageIndex);
         when(queryMock.list()).thenReturn(result);
     }
 
     private OperationQuery createOperationQueryMock(int pageIndex) {
-        return new MockBuilder<>(operationQuery).on(OperationQuery::inNonFinalState)
-                                                .on(query -> query.startedBefore(EXPIRATION_TIME))
+        return new MockBuilder<>(operationQuery).on(query -> query.startedBefore(EXPIRATION_TIME))
                                                 .on(query -> query.offsetOnSelect(pageIndex * PAGE_SIZE))
                                                 .on(query -> query.limitOnSelect(PAGE_SIZE))
                                                 .on(query -> query.orderByProcessId(any()))
