@@ -47,7 +47,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQu
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -178,7 +177,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
                .thenReturn(Collections.singletonList("test-subprocess-id"));
         HistoricVariableInstance varInstanceMock = Mockito.mock(HistoricVariableInstance.class);
-        Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES))
+        Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("test-subprocess-id", Variables.PUBLISHED_ENTRIES.getName()))
                .thenReturn(varInstanceMock);
         Mockito.when(varInstanceMock.getValue())
                .thenReturn(getBytes(getPublishedEntries()));

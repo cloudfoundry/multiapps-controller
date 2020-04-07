@@ -12,11 +12,9 @@ import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.DeployProcessAttributes;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
-import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Named("deployProcessAttributesCollector")
@@ -36,28 +34,34 @@ public class DeployProcessAttributesCollector extends AbstractCommonProcessAttri
         return new DeployProcessAttributes();
     }
 
- // @formatter:off
     @Override
     public DeployProcessAttributes collectProcessVariables(DelegateExecution execution) {
         DeployProcessAttributes deployProcessAttributes = super.collectProcessVariables(execution);
         deployProcessAttributes.setMtaSize(getMtaSize(execution).intValue());
-        deployProcessAttributes.setCustomDomains(
-            getAttribute(execution, Constants.VAR_CUSTOM_DOMAINS, () -> VariableHandling.get(execution, Variables.CUSTOM_DOMAINS).size()));
-        deployProcessAttributes.setServicesToCreate(
-            getAttribute(execution, Constants.VAR_SERVICES_TO_CREATE, () -> VariableHandling.get(execution, Variables.SERVICES_TO_CREATE).size()));
-        deployProcessAttributes.setAppsToDeploy(
-            getAttribute(execution, Constants.VAR_APPS_TO_DEPLOY, () -> VariableHandling.get(execution, Variables.APPS_TO_DEPLOY).size()));
-        deployProcessAttributes.setPublishedEntries(
-            getAttribute(execution, Constants.VAR_PUBLISHED_ENTRIES, () -> VariableHandling.get(execution, Variables.PUBLISHED_ENTRIES).size()));
-        deployProcessAttributes.setSubscriptionsToCreate(
-            getAttribute(execution, Constants.VAR_SUBSCRIPTIONS_TO_CREATE, () -> VariableHandling.get(execution, Variables.SUBSCRIPTIONS_TO_CREATE).size()));
-        deployProcessAttributes.setTriggeredServiceOperations(
-            getAttribute(execution, Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, () -> getCreatedServicesCount(VariableHandling.get(execution, Variables.TRIGGERED_SERVICE_OPERATIONS))));
-        deployProcessAttributes.setServiceKeysToCreate(
-            getAttribute(execution, Constants.VAR_SERVICE_KEYS_TO_CREATE, () -> VariableHandling.get(execution, Variables.SERVICE_KEYS_TO_CREATE).size()));
+        deployProcessAttributes.setCustomDomains(getAttribute(execution, Variables.CUSTOM_DOMAINS.getName(),
+                                                              () -> VariableHandling.get(execution, Variables.CUSTOM_DOMAINS)
+                                                                                    .size()));
+        deployProcessAttributes.setServicesToCreate(getAttribute(execution, Variables.SERVICES_TO_CREATE.getName(),
+                                                                 () -> VariableHandling.get(execution, Variables.SERVICES_TO_CREATE)
+                                                                                       .size()));
+        deployProcessAttributes.setAppsToDeploy(getAttribute(execution, Variables.APPS_TO_DEPLOY.getName(),
+                                                             () -> VariableHandling.get(execution, Variables.APPS_TO_DEPLOY)
+                                                                                   .size()));
+        deployProcessAttributes.setPublishedEntries(getAttribute(execution, Variables.PUBLISHED_ENTRIES.getName(),
+                                                                 () -> VariableHandling.get(execution, Variables.PUBLISHED_ENTRIES)
+                                                                                       .size()));
+        deployProcessAttributes.setSubscriptionsToCreate(getAttribute(execution, Variables.SUBSCRIPTIONS_TO_CREATE.getName(),
+                                                                      () -> VariableHandling.get(execution,
+                                                                                                 Variables.SUBSCRIPTIONS_TO_CREATE)
+                                                                                            .size()));
+        deployProcessAttributes.setTriggeredServiceOperations(getAttribute(execution, Variables.TRIGGERED_SERVICE_OPERATIONS.getName(),
+                                                                           () -> getCreatedServicesCount(VariableHandling.get(execution,
+                                                                                                                              Variables.TRIGGERED_SERVICE_OPERATIONS))));
+        deployProcessAttributes.setServiceKeysToCreate(getAttribute(execution, Variables.SERVICE_KEYS_TO_CREATE.getName(),
+                                                                    () -> VariableHandling.get(execution, Variables.SERVICE_KEYS_TO_CREATE)
+                                                                                          .size()));
         return deployProcessAttributes;
     }
- // @formatter:on
 
     private Integer getCreatedServicesCount(Map<String, ServiceOperation.Type> triggeredServiceOperations) {
         return getOperationsCount(triggeredServiceOperations, ServiceOperation.Type.CREATE);

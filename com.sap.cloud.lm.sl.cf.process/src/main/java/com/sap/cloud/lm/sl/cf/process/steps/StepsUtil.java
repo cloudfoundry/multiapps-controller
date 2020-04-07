@@ -132,7 +132,7 @@ public class StepsUtil {
 
     static List<ConfigurationEntry> getDeletedEntriesFromProcess(FlowableFacade flowableFacade, String processInstanceId) {
         HistoricVariableInstance deletedEntries = flowableFacade.getHistoricVariableInstance(processInstanceId,
-                                                                                             Constants.VAR_DELETED_ENTRIES);
+                                                                                             Variables.DELETED_ENTRIES.getName());
         if (deletedEntries == null) {
             return Collections.emptyList();
         }
@@ -153,7 +153,7 @@ public class StepsUtil {
 
     static List<ConfigurationEntry> getPublishedEntriesFromProcess(FlowableFacade flowableFacade, String processInstanceId) {
         HistoricVariableInstance publishedEntries = flowableFacade.getHistoricVariableInstance(processInstanceId,
-                                                                                               Constants.VAR_PUBLISHED_ENTRIES);
+                                                                                               Variables.PUBLISHED_ENTRIES.getName());
         if (publishedEntries == null) {
             return Collections.emptyList();
         }

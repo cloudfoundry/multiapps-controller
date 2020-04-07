@@ -4,11 +4,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableParameterMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata.ParameterType;
-import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
 public class DeployMetadata {
 
@@ -16,99 +16,100 @@ public class DeployMetadata {
 
     static {
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_APP_ARCHIVE_ID)
+                                             .id(Variables.APP_ARCHIVE_ID.getName())
                                              .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID)
+                                             .id(Variables.EXT_DESCRIPTOR_FILE_ID.getName())
                                              .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_NO_START)
+                                             .id(Variables.NO_START.getName())
                                              .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
+                                             .defaultValue(Variables.NO_START.getDefaultValue())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_START_TIMEOUT)
+                                             .id(Variables.START_TIMEOUT.getName())
                                              .type(ParameterType.INTEGER)
-                                             .defaultValue(Constants.DEFAULT_START_TIMEOUT)
+                                             .defaultValue(Variables.START_TIMEOUT.getDefaultValue())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_USE_NAMESPACES)
+                                             .id(Variables.USE_NAMESPACES.getName())
                                              .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
+                                             .defaultValue(Variables.USE_NAMESPACES.getDefaultValue())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES)
+                                             .id(Variables.USE_NAMESPACES_FOR_SERVICES.getName())
                                              .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
+                                             .defaultValue(Variables.USE_NAMESPACES_FOR_SERVICES.getDefaultValue())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_VERSION_RULE)
+                                             .id(Variables.VERSION_RULE.getName())
                                              .type(ParameterType.STRING)
-                                             .defaultValue(VersionRule.SAME_HIGHER.toString())
+                                             .defaultValue(Variables.VERSION_RULE.getDefaultValue()
+                                                                                 .toString())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_DELETE_SERVICES)
+                                             .id(Variables.DELETE_SERVICES.getName())
                                              .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
+                                             .defaultValue(Variables.DELETE_SERVICES.getDefaultValue())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_DELETE_SERVICE_KEYS)
+                                             .id(Variables.DELETE_SERVICE_KEYS.getName())
                                              .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
+                                             .defaultValue(Variables.DELETE_SERVICE_KEYS.getDefaultValue())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_DELETE_SERVICE_BROKERS)
+                                             .id(Variables.DELETE_SERVICE_BROKERS.getName())
                                              .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
+                                             .defaultValue(Variables.DELETE_SERVICE_BROKERS.getDefaultValue())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_FAIL_ON_CRASHED)
+                                             .id(Variables.FAIL_ON_CRASHED.getName())
                                              .type(ParameterType.BOOLEAN)
-                                             .defaultValue(true)
+                                             .defaultValue(Variables.FAIL_ON_CRASHED.getDefaultValue())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_MTA_ID)
-                                             .type(ParameterType.STRING)
-                                             .build());
-        PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_KEEP_FILES)
-                                             .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
-                                             .build());
-        PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_NO_RESTART_SUBSCRIBED_APPS)
-                                             .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
-                                             .build());
-        PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS)
-                                             .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
-                                             .build());
-        PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_GIT_URI)
-                                             .type(ParameterType.STRING)
-                                             .defaultValue("")
-                                             .build());
-        PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_GIT_REF)
+                                             .id(Variables.MTA_ID.getName())
                                              .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_GIT_REPO_PATH)
+                                             .id(Variables.KEEP_FILES.getName())
+                                             .type(ParameterType.BOOLEAN)
+                                             .defaultValue(Variables.KEEP_FILES.getDefaultValue())
+                                             .build());
+        PARAMS.add(ImmutableParameterMetadata.builder()
+                                             .id(Variables.NO_RESTART_SUBSCRIBED_APPS.getName())
+                                             .type(ParameterType.BOOLEAN)
+                                             .defaultValue(Variables.NO_RESTART_SUBSCRIBED_APPS.getDefaultValue())
+                                             .build());
+        PARAMS.add(ImmutableParameterMetadata.builder()
+                                             .id(Variables.NO_FAIL_ON_MISSING_PERMISSIONS.getName())
+                                             .type(ParameterType.BOOLEAN)
+                                             .defaultValue(Variables.NO_FAIL_ON_MISSING_PERMISSIONS.getDefaultValue())
+                                             .build());
+        PARAMS.add(ImmutableParameterMetadata.builder()
+                                             .id(Variables.GIT_URI.getName())
+                                             .type(ParameterType.STRING)
+                                             .defaultValue(Variables.GIT_URI.getDefaultValue())
+                                             .build());
+        PARAMS.add(ImmutableParameterMetadata.builder()
+                                             .id(Variables.GIT_REF.getName())
                                              .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_GIT_SKIP_SSL)
-                                             .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
+                                             .id(Variables.GIT_REPO_PATH.getName())
+                                             .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_ABORT_ON_ERROR)
+                                             .id(Variables.GIT_SKIP_SSL.getName())
                                              .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
+                                             .defaultValue(Variables.GIT_SKIP_SSL.getDefaultValue())
+                                             .build());
+        PARAMS.add(ImmutableParameterMetadata.builder()
+                                             .id(Variables.ABORT_ON_ERROR.getName())
+                                             .type(ParameterType.BOOLEAN)
+                                             .defaultValue(Variables.ABORT_ON_ERROR.getDefaultValue())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Constants.PARAM_MODULES_FOR_DEPLOYMENT)
@@ -121,9 +122,9 @@ public class DeployMetadata {
                                              .defaultValue(null)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_VERIFY_ARCHIVE_SIGNATURE)
+                                             .id(Variables.VERIFY_ARCHIVE_SIGNATURE.getName())
                                              .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
+                                             .defaultValue(Variables.VERIFY_ARCHIVE_SIGNATURE.getDefaultValue())
                                              .build());
     }
 

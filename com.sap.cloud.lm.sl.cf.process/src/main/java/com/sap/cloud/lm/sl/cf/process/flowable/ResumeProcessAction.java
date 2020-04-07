@@ -11,7 +11,7 @@ import org.flowable.engine.runtime.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 @Named
@@ -47,7 +47,7 @@ public class ResumeProcessAction extends ProcessAction {
             return;
         }
         for (Execution execution : executionsAtReceiveTask) {
-            flowableFacade.trigger(execution.getId(), MapUtil.asMap(Constants.VAR_USER, user));
+            flowableFacade.trigger(execution.getId(), MapUtil.asMap(Variables.USER.getName(), user));
         }
     }
 

@@ -20,7 +20,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -179,7 +178,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     public void testVersionRuleWithReinstallation() {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
-        execution.setVariable(Constants.PARAM_VERSION_RULE, VersionRule.HIGHER.toString());
+        context.setVariable(Variables.VERSION_RULE, VersionRule.HIGHER);
         context.setVariable(Variables.DEPLOYED_MTA, createDeployedMta("1.0.0", Collections.emptyList()));
 
         step.execute(execution);

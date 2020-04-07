@@ -4,7 +4,6 @@ import java.util.function.Supplier;
 
 import org.flowable.engine.delegate.DelegateExecution;
 
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AbstractCommonProcessAttributes;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -15,23 +14,24 @@ public abstract class AbstractCommonProcessAttributesCollector<T extends Abstrac
 
     public T collectProcessVariables(DelegateExecution execution) {
         T commonProcessVariables = getProcessAttributes();
-        commonProcessVariables.setSubscriptionsToDelete(getAttribute(execution, Constants.VAR_SUBSCRIPTIONS_TO_DELETE,
+        commonProcessVariables.setSubscriptionsToDelete(getAttribute(execution, Variables.SUBSCRIPTIONS_TO_DELETE.getName(),
                                                                      () -> VariableHandling.get(execution,
                                                                                                 Variables.SUBSCRIPTIONS_TO_DELETE)
                                                                                            .size()));
-        commonProcessVariables.setDeletedEntries(getAttribute(execution, Constants.VAR_DELETED_ENTRIES,
+        commonProcessVariables.setDeletedEntries(getAttribute(execution, Variables.DELETED_ENTRIES.getName(),
                                                               () -> VariableHandling.get(execution, Variables.DELETED_ENTRIES)
                                                                                     .size()));
-        commonProcessVariables.setAppsToUndeploy(getAttribute(execution, Constants.VAR_APPS_TO_UNDEPLOY,
+        commonProcessVariables.setAppsToUndeploy(getAttribute(execution, Variables.APPS_TO_UNDEPLOY.getName(),
                                                               () -> VariableHandling.get(execution, Variables.APPS_TO_UNDEPLOY)
                                                                                     .size()));
-        commonProcessVariables.setServicesToDelete(getAttribute(execution, Constants.VAR_SERVICES_TO_DELETE,
+        commonProcessVariables.setServicesToDelete(getAttribute(execution, Variables.SERVICES_TO_DELETE.getName(),
                                                                 () -> VariableHandling.get(execution, Variables.SERVICES_TO_DELETE)
                                                                                       .size()));
-        commonProcessVariables.setUpdatedSubscripers(getAttribute(execution, Constants.VAR_UPDATED_SUBSCRIBERS,
+        commonProcessVariables.setUpdatedSubscripers(getAttribute(execution, Variables.UPDATED_SUBSCRIBERS.getName(),
                                                                   () -> VariableHandling.get(execution, Variables.UPDATED_SUBSCRIBERS)
                                                                                         .size()));
-        commonProcessVariables.setUpdatedServiceBrokerSubscribers(getAttribute(execution, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS,
+        commonProcessVariables.setUpdatedServiceBrokerSubscribers(getAttribute(execution,
+                                                                               Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS.getName(),
                                                                                () -> VariableHandling.get(execution,
                                                                                                           Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS)
                                                                                                      .size()));

@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
@@ -24,9 +24,9 @@ public class ClientReleaser {
     }
 
     public void releaseClientFor(HistoryService historyService, String processInstanceId) {
-        String user = HistoryUtil.getVariableValue(historyService, processInstanceId, Constants.VAR_USER);
-        String spaceName = HistoryUtil.getVariableValue(historyService, processInstanceId, Constants.VAR_SPACE);
-        String orgName = HistoryUtil.getVariableValue(historyService, processInstanceId, Constants.VAR_ORG);
+        String user = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.USER.getName());
+        String spaceName = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.SPACE.getName());
+        String orgName = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.ORG.getName());
         String spaceId = HistoryUtil.getVariableValue(historyService, processInstanceId,
                                                       com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID);
 

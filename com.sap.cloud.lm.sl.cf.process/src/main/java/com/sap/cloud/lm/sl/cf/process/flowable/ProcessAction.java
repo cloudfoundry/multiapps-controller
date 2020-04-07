@@ -8,9 +8,9 @@ import javax.inject.Inject;
 import org.flowable.engine.HistoryService;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
 import com.sap.cloud.lm.sl.cf.process.util.HistoryUtil;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public abstract class ProcessAction {
 
@@ -53,13 +53,13 @@ public abstract class ProcessAction {
     protected void updateUserIfNecessary(String user, String executionId) {
         HistoryService historyService = flowableFacade.getProcessEngine()
                                                       .getHistoryService();
-        String currentUser = HistoryUtil.getVariableValue(historyService, executionId, Constants.VAR_USER);
+        String currentUser = HistoryUtil.getVariableValue(historyService, executionId, Variables.USER.getName());
         if (!user.equals(currentUser)) {
             ClientReleaser clientReleaser = new ClientReleaser(clientProvider);
             clientReleaser.releaseClientFor(historyService, executionId);
             flowableFacade.getProcessEngine()
                           .getRuntimeService()
-                          .setVariable(executionId, Constants.VAR_USER, user);
+                          .setVariable(executionId, Variables.USER.getName(), user);
         }
     }
 }

@@ -46,7 +46,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.AbortProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.flowable.ProcessAction;
@@ -55,6 +54,7 @@ import com.sap.cloud.lm.sl.cf.process.flowable.RetryProcessAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.StartProcessAction;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
@@ -194,7 +194,7 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testStartOperation() {
-        Map<String, Object> parameters = MapUtil.asMap(Constants.PARAM_MTA_ID, "test");
+        Map<String, Object> parameters = MapUtil.asMap(Variables.MTA_ID.getName(), "test");
         Operation operation = createOperation(null, null, parameters);
         Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
                .thenReturn("deploy");

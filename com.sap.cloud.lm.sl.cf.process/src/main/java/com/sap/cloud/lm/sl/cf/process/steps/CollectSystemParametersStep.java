@@ -18,7 +18,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
 import com.sap.cloud.lm.sl.cf.core.helpers.SystemParameters;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ReadOnlyParametersChecker;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -109,8 +108,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
     private void determineIsVersionAccepted(ProcessContext context, DeploymentDescriptor descriptor) {
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
-        VersionRule versionRule = VersionRule.valueOf((String) context.getExecution()
-                                                                      .getVariable(Constants.PARAM_VERSION_RULE));
+        VersionRule versionRule = context.getVariable(Variables.VERSION_RULE);
         getStepLogger().debug(Messages.VERSION_RULE, versionRule);
 
         Version mtaVersion = Version.parseVersion(descriptor.getVersion());

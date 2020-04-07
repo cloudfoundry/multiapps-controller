@@ -25,8 +25,8 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
-import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class StepsUtilTest {

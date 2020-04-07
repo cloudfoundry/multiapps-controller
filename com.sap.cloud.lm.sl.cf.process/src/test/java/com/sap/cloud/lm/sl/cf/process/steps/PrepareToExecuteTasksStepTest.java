@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareToExecuteTasksStep> {
@@ -33,7 +32,7 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
         assertStepFinishedSuccessfully();
         assertEquals((Integer) 3, context.getVariable(Variables.TASKS_COUNT));
         assertEquals((Integer) 0, context.getVariable(Variables.TASKS_INDEX));
-        assertEquals(Constants.VAR_TASKS_INDEX, context.getVariable(Variables.INDEX_VARIABLE_NAME));
+        assertEquals(Variables.TASKS_INDEX.getName(), context.getVariable(Variables.INDEX_VARIABLE_NAME));
         assertEquals(3, context.getVariable(Variables.TASKS_TO_EXECUTE)
                                .size());
     }

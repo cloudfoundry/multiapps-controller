@@ -11,7 +11,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @RunWith(Parameterized.class)
@@ -44,7 +43,7 @@ public class IncrementIndexStepTest extends SyncFlowableStepTest<IncrementIndexS
     }
 
     private DelegateExecution prepareContext() {
-        context.setVariable(Variables.INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
+        context.setVariable(Variables.INDEX_VARIABLE_NAME, Variables.MODULES_INDEX.getName());
         context.setVariable(Variables.MODULES_INDEX, index);
         return execution;
     }
