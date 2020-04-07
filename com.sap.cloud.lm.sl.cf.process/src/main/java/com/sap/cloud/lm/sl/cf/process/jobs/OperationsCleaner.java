@@ -61,28 +61,34 @@ public class OperationsCleaner implements Cleaner {
         int abortedOperations = 0;
         int pageIndex = 0;
         while (true) {
-            List<Operation> activeOperationsPage = getActiveOperationsPage(expirationTime, pageIndex);
-            for (Operation operation : activeOperationsPage) {
+            List<Operation> operationsPage = getOperationsPage(expirationTime, pageIndex);
+            for (Operation operation : operationsPage) {
+                if (inFinalState(operation)) {
+                    continue;
+                }
                 boolean abortWasSuccessful = abortSafely(operation);
                 if (abortWasSuccessful) {
                     abortedOperations++;
                 }
             }
-            if (pageSize > activeOperationsPage.size()) {
+            if (pageSize > operationsPage.size()) {
                 return abortedOperations;
             }
             pageIndex++;
         }
     }
 
-    private List<Operation> getActiveOperationsPage(Date expirationTime, int pageIndex) {
+    private List<Operation> getOperationsPage(Date expirationTime, int pageIndex) {
         return operationService.createQuery()
-                               .inNonFinalState()
                                .startedBefore(expirationTime)
                                .offsetOnSelect(pageIndex * pageSize)
                                .limitOnSelect(pageSize)
                                .orderByProcessId(OrderDirection.ASCENDING)
                                .list();
+    }
+
+    private boolean inFinalState(Operation operation) {
+        return operation.getState() != null;
     }
 
     private boolean abortSafely(Operation operation) {
