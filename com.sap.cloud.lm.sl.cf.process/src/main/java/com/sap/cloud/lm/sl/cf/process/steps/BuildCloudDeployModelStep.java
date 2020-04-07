@@ -131,7 +131,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     }
 
     private List<Resource> calculateResourcesForDeployment(ProcessContext context, DeploymentDescriptor deploymentDescriptor) {
-        CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = getResourcesCloudModelBuilderContentCalculator(context.getExecution());
+        CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = getResourcesCloudModelBuilderContentCalculator(context);
 
         return calculateResourcesForDeployment(deploymentDescriptor, resourcesCloudModelBuilderContentCalculator);
     }
@@ -183,8 +183,8 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         return resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(deploymentDescriptor.getResources());
     }
 
-    private CloudModelBuilderContentCalculator<Resource> getResourcesCloudModelBuilderContentCalculator(DelegateExecution execution) {
-        List<String> resourcesSpecifiedForDeployment = StepsUtil.getResourcesForDeployment(execution);
+    private CloudModelBuilderContentCalculator<Resource> getResourcesCloudModelBuilderContentCalculator(ProcessContext context) {
+        List<String> resourcesSpecifiedForDeployment = context.getVariable(Variables.RESOURCES_FOR_DEPLOYMENT);
         return new ResourcesCloudModelBuilderContentCalculator(resourcesSpecifiedForDeployment, getStepLogger());
     }
 
@@ -193,7 +193,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
                                                                                     Set<String> allMtaModules) {
         return new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules,
                                                              deployedModuleNames,
-                                                             StepsUtil.getModulesForDeployment(context.getExecution()),
+                                                             context.getVariable(Variables.MODULES_FOR_DEPLOYMENT),
                                                              getStepLogger(),
                                                              moduleToDeployHelper,
                                                              getModuleContentValidators(context.getControllerClient(), allMtaModules,

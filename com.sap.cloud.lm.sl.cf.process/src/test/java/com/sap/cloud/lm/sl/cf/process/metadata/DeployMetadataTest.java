@@ -45,8 +45,8 @@ public class DeployMetadataTest extends MetadataBaseTest {
                 Variables.GIT_SKIP_SSL.getName(),
                 Variables.NO_FAIL_ON_MISSING_PERMISSIONS.getName(),
                 Variables.ABORT_ON_ERROR.getName(),
-                Constants.PARAM_MODULES_FOR_DEPLOYMENT,
-                Constants.PARAM_RESOURCES_FOR_DEPLOYMENT,
+                Variables.MODULES_FOR_DEPLOYMENT.getName(),
+                Variables.RESOURCES_FOR_DEPLOYMENT.getName(),
                 Variables.VERIFY_ARCHIVE_SIGNATURE.getName(),
             // @formatter:on
         };

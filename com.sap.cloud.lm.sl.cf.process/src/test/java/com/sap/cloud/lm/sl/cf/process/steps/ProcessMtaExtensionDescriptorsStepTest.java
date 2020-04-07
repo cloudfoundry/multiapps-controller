@@ -53,7 +53,7 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
 
         step.execute(execution);
 
-        List<ExtensionDescriptor> actualExtensionDescriptorChain = StepsUtil.getExtensionDescriptorChain(execution);
+        List<ExtensionDescriptor> actualExtensionDescriptorChain = context.getVariable(Variables.MTA_EXTENSION_DESCRIPTOR_CHAIN);
         String expectedJson = JsonUtil.toJson(extensionDescriptorChain, true);
         String actualJson = JsonUtil.toJson(actualExtensionDescriptorChain, true);
 
@@ -66,7 +66,7 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
 
         step.execute(execution);
 
-        List<ExtensionDescriptor> extensionDescriptorChain = StepsUtil.getExtensionDescriptorChain(execution);
+        List<ExtensionDescriptor> extensionDescriptorChain = context.getVariable(Variables.MTA_EXTENSION_DESCRIPTOR_CHAIN);
         assertTrue(extensionDescriptorChain.isEmpty());
     }
 

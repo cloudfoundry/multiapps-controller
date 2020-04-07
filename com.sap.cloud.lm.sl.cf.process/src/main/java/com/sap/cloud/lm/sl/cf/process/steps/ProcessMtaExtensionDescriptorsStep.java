@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.inject.Named;
 
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -32,7 +31,6 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
-        DelegateExecution execution = context.getExecution();
         getStepLogger().debug(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
         List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(context);
         String spaceId = context.getVariable(Variables.SPACE_ID);
@@ -42,7 +40,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
         List<ExtensionDescriptor> extensionDescriptorChain = extensionDescriptorChainBuilder.build(deploymentDescriptor,
                                                                                                    extensionDescriptors);
 
-        StepsUtil.setExtensionDescriptorChain(execution, extensionDescriptorChain);
+        context.setVariable(Variables.MTA_EXTENSION_DESCRIPTOR_CHAIN, extensionDescriptorChain);
         getStepLogger().debug(Messages.MTA_EXTENSION_DESCRIPTORS_PROCESSED);
         return StepPhase.DONE;
     }

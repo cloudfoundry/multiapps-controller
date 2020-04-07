@@ -40,10 +40,7 @@ import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.YamlUtil;
-import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class StepsUtil {
@@ -161,37 +158,6 @@ public class StepsUtil {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
-    public static List<ExtensionDescriptor> getExtensionDescriptorChain(VariableScope scope) {
-        List<byte[]> binaryYamlList = (List<byte[]>) scope.getVariable(Constants.VAR_MTA_EXTENSION_DESCRIPTOR_CHAIN);
-        List<String> yamlList = binaryYamlList.stream()
-                                              .map(binaryYaml -> new String(binaryYaml, StandardCharsets.UTF_8))
-                                              .collect(Collectors.toList());
-        return parseExtensionDescriptors(yamlList);
-    }
-
-    private static List<ExtensionDescriptor> parseExtensionDescriptors(List<String> yamlList) {
-        DescriptorParserFacade descriptorParserFacade = new DescriptorParserFacade();
-        return yamlList.stream()
-                       .map(descriptorParserFacade::parseExtensionDescriptor)
-                       .collect(Collectors.toList());
-    }
-
-    static void setExtensionDescriptorChain(VariableScope scope, List<ExtensionDescriptor> extensionDescriptors) {
-        scope.setVariable(Constants.VAR_MTA_EXTENSION_DESCRIPTOR_CHAIN, toBinaryYamlList(extensionDescriptors));
-    }
-
-    private static List<byte[]> toBinaryYamlList(List<?> objects) {
-        return objects.stream()
-                      .map(StepsUtil::toBinaryYaml)
-                      .collect(Collectors.toList());
-    }
-
-    private static byte[] toBinaryYaml(Object object) {
-        String yaml = YamlUtil.convertToYaml(object);
-        return yaml.getBytes(StandardCharsets.UTF_8);
-    }
-
     static CloudTask getTask(ProcessContext context) {
         List<CloudTask> tasks = context.getVariable(Variables.TASKS_TO_EXECUTE);
         int index = context.getVariable(Variables.TASKS_INDEX);
@@ -278,22 +244,6 @@ public class StepsUtil {
 
     public static boolean getIsServiceUpdatedExportedVariable(VariableScope scope, String serviceName) {
         return getBoolean(scope, Constants.VAR_IS_SERVICE_UPDATED_VAR_PREFIX + serviceName, false);
-    }
-
-    public static List<String> getModulesForDeployment(VariableScope scope) {
-        return getVariableWithCommaSeparator(scope, Constants.PARAM_MODULES_FOR_DEPLOYMENT);
-    }
-
-    public static List<String> getResourcesForDeployment(VariableScope scope) {
-        return getVariableWithCommaSeparator(scope, Constants.PARAM_RESOURCES_FOR_DEPLOYMENT);
-    }
-
-    private static List<String> getVariableWithCommaSeparator(VariableScope scope, String variableName) {
-        String variableWithCommaSeparator = (String) scope.getVariable(variableName);
-        if (variableWithCommaSeparator == null) {
-            return null;
-        }
-        return variableWithCommaSeparator.isEmpty() ? Collections.emptyList() : Arrays.asList(variableWithCommaSeparator.split(","));
     }
 
     static void setExecutedHooksForModule(VariableScope scope, String moduleName, Map<String, List<String>> moduleHooks) {

@@ -48,7 +48,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, DEPLOYMENT_DESCRIPTOR);
-        StepsUtil.setExtensionDescriptorChain(execution, Collections.emptyList());
+        context.setVariable(Variables.MTA_EXTENSION_DESCRIPTOR_CHAIN, Collections.emptyList());
     }
 
     @Test
