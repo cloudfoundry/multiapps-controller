@@ -18,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
@@ -69,7 +68,7 @@ public class PrepareModulesDeploymentStepTest extends SyncFlowableStepTest<Prepa
 
         assertEquals((Integer) count, context.getVariable(Variables.MODULES_COUNT));
         assertEquals((Integer) 0, context.getVariable(Variables.MODULES_INDEX));
-        assertEquals(Constants.VAR_MODULES_INDEX, context.getVariable(Variables.INDEX_VARIABLE_NAME));
+        assertEquals(Variables.MODULES_INDEX.getName(), context.getVariable(Variables.INDEX_VARIABLE_NAME));
         assertTrue(context.getVariable(Variables.REBUILD_APP_ENV));
         assertTrue(context.getVariable(Variables.SHOULD_UPLOAD_APPLICATION_CONTENT));
         assertTrue(context.getVariable(Variables.EXECUTE_ONE_OFF_TASKS));

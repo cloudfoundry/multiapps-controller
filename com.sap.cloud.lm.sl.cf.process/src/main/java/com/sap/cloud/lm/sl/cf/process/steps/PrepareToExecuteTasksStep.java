@@ -9,7 +9,6 @@ import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
@@ -22,7 +21,7 @@ public class PrepareToExecuteTasksStep extends SyncFlowableStep {
         List<CloudTask> tasksToExecute = context.getVariable(Variables.TASKS_TO_EXECUTE);
         context.setVariable(Variables.TASKS_COUNT, tasksToExecute.size());
         context.setVariable(Variables.TASKS_INDEX, 0);
-        context.setVariable(Variables.INDEX_VARIABLE_NAME, Constants.VAR_TASKS_INDEX);
+        context.setVariable(Variables.INDEX_VARIABLE_NAME, Variables.TASKS_INDEX.getName());
         return StepPhase.DONE;
     }
 

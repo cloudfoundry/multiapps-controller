@@ -8,7 +8,6 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
@@ -21,7 +20,7 @@ public class PrepareToRestartServiceBrokerSubscribersStep extends SyncFlowableSt
         List<CloudApplication> serviceBrokersToRestart = context.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS);
         context.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT, serviceBrokersToRestart.size());
         context.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX, 0);
-        context.setVariable(Variables.INDEX_VARIABLE_NAME, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
+        context.setVariable(Variables.INDEX_VARIABLE_NAME, Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX.getName());
         return StepPhase.DONE;
     }
 

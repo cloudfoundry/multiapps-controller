@@ -44,7 +44,6 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
@@ -109,8 +108,7 @@ public class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceSte
             actionsToExecute.add(ServiceAction.RECREATE);
         }
         StepsUtil.setServiceActionsToExecute(actionsToExecute, context.getExecution());
-        context.getExecution()
-               .setVariable(Constants.PARAM_DELETE_SERVICE_KEYS, shouldDeleteServiceKeys);
+        context.setVariable(Variables.DELETE_SERVICE_KEYS, shouldDeleteServiceKeys);
     }
 
     @Test
@@ -139,8 +137,7 @@ public class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceSte
 
     private void prepareContext() {
         context.setVariable(Variables.SERVICE_TO_DELETE, SERVICE_NAME);
-        context.getExecution()
-               .setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_DELETE_SERVICES, true);
+        context.setVariable(Variables.DELETE_SERVICES, true);
     }
 
     private CloudServiceInstance createCloudServiceInstance(UUID serviceGuid, boolean hasServiceBindings) {

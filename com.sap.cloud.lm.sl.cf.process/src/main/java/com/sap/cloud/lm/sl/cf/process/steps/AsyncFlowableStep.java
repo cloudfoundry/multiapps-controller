@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public abstract class AsyncFlowableStep extends SyncFlowableStep {
@@ -43,7 +42,7 @@ public abstract class AsyncFlowableStep extends SyncFlowableStep {
     private StepPhase handleStepExecutionStatus(ProcessContext context, AsyncExecutionState stepExecutionState,
                                                 List<AsyncExecution> stepExecutions) {
         if (stepExecutionState == AsyncExecutionState.FINISHED) {
-            StepsUtil.incrementVariable(context.getExecution(), Constants.ASYNC_STEP_EXECUTION_INDEX);
+            StepsUtil.incrementVariable(context.getExecution(), Variables.ASYNC_STEP_EXECUTION_INDEX.getName());
         }
 
         if (stepExecutionState == AsyncExecutionState.ERROR) {

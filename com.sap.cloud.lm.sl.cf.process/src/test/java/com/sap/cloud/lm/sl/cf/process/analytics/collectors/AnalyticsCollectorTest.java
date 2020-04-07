@@ -31,7 +31,6 @@ import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -39,7 +38,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class AnalyticsCollectorTest {
     protected static final String PROCESS_ID = "process-instance-id";
@@ -117,19 +115,19 @@ public class AnalyticsCollectorTest {
         VariableHandling.set(execution, Variables.SPACE, SPACE_NAME);
         VariableHandling.set(execution, Variables.ORG, ORG_NAME);
 
-        when(execution.getVariable(Constants.VAR_CUSTOM_DOMAINS)).thenReturn(mockedListAsBytesWithStrings(2));
-        when(execution.getVariable(Constants.VAR_SERVICES_TO_CREATE)).thenReturn(mockedListWithStrings(4));
-        when(execution.getVariable(Constants.VAR_APPS_TO_DEPLOY)).thenReturn(mockedListAsBytesWithStrings(1));
-        when(execution.getVariable(Constants.VAR_PUBLISHED_ENTRIES)).thenReturn(mockedListWithObjects(1));
-        when(execution.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE)).thenReturn(mockedListWithObjects(3));
-        when(execution.getVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS)).thenReturn(JsonUtil.toJsonBinary(TRIGGERED_SERVICE_OPERATIONS));
-        when(execution.getVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE)).thenReturn(JsonUtil.toJsonBinary(Collections.emptyMap()));
-        when(execution.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE)).thenReturn(mockedListWithObjects(2));
-        when(execution.getVariable(Constants.VAR_DELETED_ENTRIES)).thenReturn(mockedListWithObjects(1));
-        when(execution.getVariable(Constants.VAR_APPS_TO_UNDEPLOY)).thenReturn(mockAppsToUndeploy(3));
-        when(execution.getVariable(Constants.VAR_SERVICES_TO_DELETE)).thenReturn(mockedListWithStrings(3));
-        when(execution.getVariable(Constants.VAR_UPDATED_SUBSCRIBERS)).thenReturn(mockedListWithObjects(1));
-        when(execution.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS)).thenReturn(mockedListWithObjects(2));
+        when(execution.getVariable(Variables.CUSTOM_DOMAINS.getName())).thenReturn(mockedListAsBytesWithStrings(2));
+        when(execution.getVariable(Variables.SERVICES_TO_CREATE.getName())).thenReturn(mockedListWithStrings(4));
+        when(execution.getVariable(Variables.APPS_TO_DEPLOY.getName())).thenReturn(mockedListAsBytesWithStrings(1));
+        when(execution.getVariable(Variables.PUBLISHED_ENTRIES.getName())).thenReturn(mockedListWithObjects(1));
+        when(execution.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE.getName())).thenReturn(mockedListWithObjects(3));
+        when(execution.getVariable(Variables.TRIGGERED_SERVICE_OPERATIONS.getName())).thenReturn(JsonUtil.toJsonBinary(TRIGGERED_SERVICE_OPERATIONS));
+        when(execution.getVariable(Variables.SERVICE_KEYS_TO_CREATE.getName())).thenReturn(JsonUtil.toJsonBinary(Collections.emptyMap()));
+        when(execution.getVariable(Variables.SUBSCRIPTIONS_TO_DELETE.getName())).thenReturn(mockedListWithObjects(2));
+        when(execution.getVariable(Variables.DELETED_ENTRIES.getName())).thenReturn(mockedListWithObjects(1));
+        when(execution.getVariable(Variables.APPS_TO_UNDEPLOY.getName())).thenReturn(mockAppsToUndeploy(3));
+        when(execution.getVariable(Variables.SERVICES_TO_DELETE.getName())).thenReturn(mockedListWithStrings(3));
+        when(execution.getVariable(Variables.UPDATED_SUBSCRIBERS.getName())).thenReturn(mockedListWithObjects(1));
+        when(execution.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS.getName())).thenReturn(mockedListWithObjects(2));
     }
 
     private byte[] mockedListWithObjects(int size) {

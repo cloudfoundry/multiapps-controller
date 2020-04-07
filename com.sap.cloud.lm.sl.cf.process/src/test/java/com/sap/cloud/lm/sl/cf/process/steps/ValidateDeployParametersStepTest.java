@@ -1,5 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -13,7 +16,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -94,9 +96,9 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
         throws Exception {
         initializeComponents(stepInput, isArchiveChunked);
         if (expectedExceptionMessage != null) {
-            SLException exception = Assertions.assertThrows(SLException.class, () -> step.execute(execution));
-            Assertions.assertEquals(EXCEPTION_START_MESSAGE + expectedExceptionMessage + versionOutput, exception.getMessage()
-                                                                                                                 .trim());
+            SLException exception = assertThrows(SLException.class, () -> step.execute(execution));
+            assertEquals(EXCEPTION_START_MESSAGE + expectedExceptionMessage + versionOutput, exception.getMessage()
+                                                                                                      .trim());
             return;
         }
         step.execute(execution);
@@ -116,7 +118,7 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
         context.setVariable(Variables.APP_ARCHIVE_ID, stepInput.appArchiveId);
         context.setVariable(Variables.EXT_DESCRIPTOR_FILE_ID, stepInput.extDescriptorId);
         context.setVariable(Variables.START_TIMEOUT, stepInput.startTimeout);
-        execution.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_VERSION_RULE, stepInput.versionRule);
+        execution.setVariable(Variables.VERSION_RULE.getName(), stepInput.versionRule);
         context.setVariable(Variables.SPACE_ID, "space-id");
         context.setVariable(Variables.SERVICE_ID, "service-id");
         context.setVariable(Variables.VERIFY_ARCHIVE_SIGNATURE, stepInput.shouldVerifyArchive);
@@ -168,7 +170,7 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
         if (isArchiveChunked) {
             Path mergedArchiveAbsolutePath = Paths.get(MERGED_ARCHIVE_NAME)
                                                   .toAbsolutePath();
-            Assertions.assertFalse(Files.exists(mergedArchiveAbsolutePath));
+            assertFalse(Files.exists(mergedArchiveAbsolutePath));
         }
         if (stepInput.shouldVerifyArchive) {
             List<X509Certificate> certificates = jarSignatureOperations.readCertificates(Constants.SYMANTEC_CERTIFICATE_FILE);
@@ -176,7 +178,7 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
                    .checkCertificates(any(), eq(certificates), any());
         }
         Mockito.verify(execution, Mockito.atLeastOnce())
-               .setVariable(Constants.PARAM_APP_ARCHIVE_ID, stepInput.appArchiveId);
+               .setVariable(Variables.APP_ARCHIVE_ID.getName(), stepInput.appArchiveId);
     }
 
     @Override

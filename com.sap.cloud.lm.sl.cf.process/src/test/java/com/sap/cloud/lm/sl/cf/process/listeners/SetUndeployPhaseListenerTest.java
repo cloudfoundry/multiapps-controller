@@ -8,8 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
+import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class SetUndeployPhaseListenerTest {
 
@@ -25,6 +26,6 @@ public class SetUndeployPhaseListenerTest {
     @Test
     public void testPhaseIsSet() {
         executionListener.notify(execution);
-        assertEquals(Phase.UNDEPLOY, Phase.valueOf((String) execution.getVariable(Constants.VAR_PHASE)));
+        assertEquals(Phase.UNDEPLOY, VariableHandling.get(execution, Variables.PHASE));
     }
 }

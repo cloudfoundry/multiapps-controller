@@ -27,7 +27,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -97,12 +96,12 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
                .thenReturn(Collections.singletonList("test-subprocess-id"));
         HistoricVariableInstance varInstanceMock = Mockito.mock(HistoricVariableInstance.class);
-        Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES))
+        Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("test-subprocess-id", Variables.PUBLISHED_ENTRIES.getName()))
                .thenReturn(varInstanceMock);
         Mockito.when(varInstanceMock.getValue())
                .thenReturn(getBytes(stepInput.publishedEntries));
         HistoricVariableInstance varInstanceMockDeletedEntries = Mockito.mock(HistoricVariableInstance.class);
-        Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("process-instance-id", Constants.VAR_DELETED_ENTRIES))
+        Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("process-instance-id", Variables.DELETED_ENTRIES.getName()))
                .thenReturn(varInstanceMockDeletedEntries);
         Mockito.when(varInstanceMockDeletedEntries.getValue())
                .thenReturn(getBytes(getEntriesToDelete()));

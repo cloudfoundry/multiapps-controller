@@ -43,10 +43,10 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class ServiceRemoverTest {
@@ -82,9 +82,9 @@ public class ServiceRemoverTest {
 
     private void prepareExecution() {
         when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
-        execution.setVariable(Constants.VAR_USER, TEST_USER);
-        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE);
         context = new ProcessContext(execution, stepLogger, clientProvider);
+        context.setVariable(Variables.USER, TEST_USER);
+        execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE);
     }
 
     @Test

@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableParameterMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
@@ -15,39 +16,39 @@ public class UndeployMetadata {
 
     static {
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_DELETE_SERVICES)
+                                             .id(Variables.DELETE_SERVICES.getName())
                                              .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
+                                             .defaultValue(Variables.DELETE_SERVICES.getDefaultValue())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_DELETE_SERVICE_KEYS)
+                                             .id(Variables.DELETE_SERVICE_KEYS.getName())
                                              .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
+                                             .defaultValue(Variables.DELETE_SERVICE_KEYS.getDefaultValue())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_DELETE_SERVICE_BROKERS)
+                                             .id(Variables.DELETE_SERVICE_BROKERS.getName())
                                              .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
+                                             .defaultValue(Variables.DELETE_SERVICE_BROKERS.getDefaultValue())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_MTA_ID)
+                                             .id(Variables.MTA_ID.getName())
                                              .required(true)
                                              .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_NO_RESTART_SUBSCRIBED_APPS)
-                                             .defaultValue(false)
+                                             .id(Variables.NO_RESTART_SUBSCRIBED_APPS.getName())
+                                             .defaultValue(Variables.NO_RESTART_SUBSCRIBED_APPS.getDefaultValue())
                                              .type(ParameterType.BOOLEAN)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS)
-                                             .defaultValue(false)
+                                             .id(Variables.NO_FAIL_ON_MISSING_PERMISSIONS.getName())
+                                             .defaultValue(Variables.NO_FAIL_ON_MISSING_PERMISSIONS.getDefaultValue())
                                              .type(ParameterType.BOOLEAN)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_ABORT_ON_ERROR)
+                                             .id(Variables.ABORT_ON_ERROR.getName())
                                              .type(ParameterType.BOOLEAN)
-                                             .defaultValue(false)
+                                             .defaultValue(Variables.ABORT_ON_ERROR.getDefaultValue())
                                              .build());
     }
 

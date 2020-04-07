@@ -8,7 +8,6 @@ import javax.inject.Named;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -32,7 +31,7 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
         // Initialize the iteration over the applications list:
         context.setVariable(Variables.MODULES_COUNT, modulesToDeploy.size());
         context.setVariable(Variables.MODULES_INDEX, 0);
-        context.setVariable(Variables.INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
+        context.setVariable(Variables.INDEX_VARIABLE_NAME, Variables.MODULES_INDEX.getName());
 
         context.setVariable(Variables.REBUILD_APP_ENV, true);
         context.setVariable(Variables.SHOULD_UPLOAD_APPLICATION_CONTENT, true);

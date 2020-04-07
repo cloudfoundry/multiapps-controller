@@ -19,6 +19,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.ConflictException;
@@ -100,7 +101,7 @@ public class ApplicationColorDetector {
     }
 
     private Phase getPhaseFromHistoricProcess(String processInstanceId) {
-        HistoricVariableInstance phaseVariableInstance = flowableFacade.getHistoricVariableInstance(processInstanceId, Constants.VAR_PHASE);
+        HistoricVariableInstance phaseVariableInstance = flowableFacade.getHistoricVariableInstance(processInstanceId, Variables.PHASE.getName());
         if (phaseVariableInstance == null) {
             return null;
         }
@@ -110,7 +111,7 @@ public class ApplicationColorDetector {
 
     private ApplicationColor getColorFromHistoricProcess(String processInstanceId) {
         HistoricVariableInstance colorVariableInstance = flowableFacade.getHistoricVariableInstance(processInstanceId,
-                                                                                                    Constants.VAR_IDLE_MTA_COLOR);
+                                                                                                    Variables.IDLE_MTA_COLOR.getName());
 
         if (colorVariableInstance == null) {
             return null;

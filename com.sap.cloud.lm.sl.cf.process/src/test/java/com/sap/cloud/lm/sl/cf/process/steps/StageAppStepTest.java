@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
@@ -74,7 +73,7 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
 
     @Test
     public void testGetTimeoutDefaultValue() {
-        Assertions.assertEquals(Constants.DEFAULT_START_TIMEOUT, step.getTimeout(context));
+        Assertions.assertEquals(Variables.START_TIMEOUT.getDefaultValue(), step.getTimeout(context));
     }
 
     @Test

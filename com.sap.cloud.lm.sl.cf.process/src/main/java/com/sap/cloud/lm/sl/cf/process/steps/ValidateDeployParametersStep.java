@@ -71,7 +71,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         }
         int startTimeout = (int) parameter;
         if (startTimeout < 0) {
-            throw new SLException(Messages.ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE, startTimeout, Constants.PARAM_START_TIMEOUT);
+            throw new SLException(Messages.ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE, startTimeout, Variables.START_TIMEOUT.getName());
         }
     }
 
@@ -114,14 +114,14 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private void validateVersionRule(DelegateExecution execution) {
-        String versionRuleString = (String) execution.getVariable(Constants.PARAM_VERSION_RULE);
+        String versionRuleString = (String) execution.getVariable(Variables.VERSION_RULE.getName());
         try {
             VersionRule.value(versionRuleString);
         } catch (IllegalArgumentException e) {
             throw new SLException(e,
                                   Messages.ERROR_PARAMETER_1_IS_NOT_VALID_VALID_VALUES_ARE_2,
                                   versionRuleString,
-                                  Constants.PARAM_VERSION_RULE,
+                                  Variables.VERSION_RULE.getName(),
                                   Arrays.asList(VersionRule.values()));
         }
     }

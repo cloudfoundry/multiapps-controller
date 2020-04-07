@@ -15,7 +15,6 @@ import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ReadOnlyParametersChecker;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -32,7 +31,7 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
     protected static final String MULTIAPPS_CONTROLLER_URL = "https://localhost:50010";
     protected static final String DEFAULT_DOMAIN = "localhost";
     protected static final UUID DEFAULT_DOMAIN_GUID = UUID.fromString("7b5987e9-4325-4bb6-93e2-a0b1c562e60c");
-    protected static final String VERSION_RULE = VersionRule.SAME_HIGHER.toString();
+    protected static final VersionRule VERSION_RULE = VersionRule.SAME_HIGHER;
 
     protected static final boolean DEFAULT_USE_NAMESPACES = false;
     protected static final boolean DEFAULT_USE_NAMESPACES_FOR_SERVICES = false;
@@ -54,7 +53,7 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
 
         context.setVariable(Variables.USE_NAMESPACES, DEFAULT_USE_NAMESPACES);
         context.setVariable(Variables.USE_NAMESPACES_FOR_SERVICES, DEFAULT_USE_NAMESPACES_FOR_SERVICES);
-        execution.setVariable(Constants.PARAM_VERSION_RULE, VERSION_RULE);
+        context.setVariable(Variables.VERSION_RULE, VERSION_RULE);
 
         step.credentialsGeneratorSupplier = () -> credentialsGenerator;
         step.timestampSupplier = () -> DEFAULT_TIMESTAMP;
