@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,83 +29,83 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
             // @formatter:off
             // (0)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toSet()), true, null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toList()), true, null
             },
             // (1)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, false, Collections.emptySet(), false, null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, false, Collections.emptyList(), false, null
             },
             // (2)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STAGE).collect(Collectors.toSet()), false, null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STAGE).collect(Collectors.toList()), false, null
             },
             // (3)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), false, null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toList()), false, null
             },
             // (4)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()),false , null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.EXECUTE).collect(Collectors.toList()),false , null
             },
             // (5)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toSet()),true , null
+                ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toList()),true , null
             },
             // (6)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STOP).collect(Collectors.toSet()), false, null
+                ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STOP).collect(Collectors.toList()), false, null
             },
             // (7)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toSet()), false, null
+                ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toList()), false, null
             },
             // (8)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP, ApplicationStateAction.START).collect(Collectors.toSet()), true, null
+                ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP, ApplicationStateAction.START).collect(Collectors.toList()), true, null
             },
             // (9)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, false, Collections.emptySet(), false, null
+                ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, false, Collections.emptyList(), false, null
             },
             // (10)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()),false, null
+                ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()),false, null
             },
             // (11)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()), true, null
+                ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP, ApplicationStateAction.EXECUTE).collect(Collectors.toList()), true, null
             },
             // (12)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()), false, null
+                ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.EXECUTE).collect(Collectors.toList()), false, null
             },
             // (13)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START).collect(Collectors.toSet()), false, null
+                ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START).collect(Collectors.toList()), false, null
             },
             // (14)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE).collect(Collectors.toSet()), true, null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE).collect(Collectors.toList()), true, null
             },
             // (15)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STOP).collect(Collectors.toSet()),false, null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STOP).collect(Collectors.toList()),false, null
             },
             // (16)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE).collect(Collectors.toSet()), false, null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE).collect(Collectors.toList()), false, null
             },
             // (17)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), false, null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toList()), false, null
             },
             // (18)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), false, null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toList()), false, null
             },
             // (19)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), false, null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()), false, null
             },
         });
     } 
@@ -113,7 +113,7 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
     private final Class<? extends Exception> exception;
 
     public DetermineDesiredStateAchievingActionsStepTest(ApplicationStartupState currentAppState, ApplicationStartupState desiredAppState,
-        boolean hasAppChanged, Set<ApplicationStateAction> expectedAppStateActions,  boolean hasUploadToken,
+        boolean hasAppChanged, List<ApplicationStateAction> expectedAppStateActions,  boolean hasUploadToken,
         Class<? extends Exception> exception) {
         super(currentAppState, desiredAppState, hasAppChanged, expectedAppStateActions,  hasUploadToken);
         this.exception = exception;
@@ -126,7 +126,7 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
         }
         step.execute(execution);
         assertStepFinishedSuccessfully();
-        assertEquals(expectedAppStateActions, StepsUtil.getAppStateActionsToExecute(execution));
+        assertEquals(new HashSet<>(expectedAppStateActions), new HashSet<>(context.getVariable(Variables.APP_STATE_ACTIONS_TO_EXECUTE)));
     }
 
     @Before
@@ -154,47 +154,47 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
                 // @formatter:off
                 // (0)
                 {
-                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), true, true, true, true, true, true, true
+                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()), true, true, true, true, true, true, true
                 },
                 // (1)
                 {
-                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()),true, true, false, false, true, false, false
+                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()),true, true, false, false, true, false, false
                 },
                 // (2)
                 {
-                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), true, false, true, false, false, true, false
+                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()), true, false, true, false, false, true, false
                 },
                 // (3)
                 {
-                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), true, false, false, true, false, false, true
+                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()), true, false, false, true, false, false, true
                 },
                 // (4)
                 {
-                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), true, false, false, false, false, false, false
+                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()), true, false, false, false, false, false, false
                 },
                 // (5)
                 {
-                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), true, true, false, false, false, false, false
+                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()), true, true, false, false, false, false, false
                 },
                 // (6)
                 {
-                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), true, false, true, false, false, false, false
+                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()), true, false, true, false, false, false, false
                 },
                 // (7)
                 {
-                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), true, false, false, true, false, false, false
+                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()), true, false, false, true, false, false, false
                 },
                 // (8)
                 {
-                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), true, false, false, false, true, false, false
+                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()), true, false, false, false, true, false, false
                 },
                 // (9)
                 {
-                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()),true, false, false, false, false, true, false
+                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()),true, false, false, false, false, true, false
                 },
                 // (10)
                 {
-                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), true, false, false, false, false, false, true
+                    STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()), true, false, false, false, false, false, true
                 },
             });
         }
@@ -206,7 +206,7 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
         private final boolean shouldRestartOnVcapServicesChange;
         private final boolean shouldRestartOnUserProvidedChange;
 
-        public DetermineAppRestartTest(ApplicationStartupState currentAppState, ApplicationStartupState desiredAppState, Set<ApplicationStateAction> expectedAppStateActions, boolean hasUploadToken, boolean vcapPropertiesChanged, boolean vcapServicesChanged, boolean userPropertiesChanged , boolean shouldRestartOnVcapAppChange, boolean shouldRestartOnVcapServicesChange,  boolean shouldRestartOnUserProvidedChange) {
+        public DetermineAppRestartTest(ApplicationStartupState currentAppState, ApplicationStartupState desiredAppState, List<ApplicationStateAction> expectedAppStateActions, boolean hasUploadToken, boolean vcapPropertiesChanged, boolean vcapServicesChanged, boolean userPropertiesChanged , boolean shouldRestartOnVcapAppChange, boolean shouldRestartOnVcapServicesChange,  boolean shouldRestartOnUserProvidedChange) {
             super(currentAppState, desiredAppState, HAS_APP_CHANGED, expectedAppStateActions, hasUploadToken);
             this.vcapPropertiesChanged = vcapPropertiesChanged;
             this.vcapServicesChanged = vcapServicesChanged;
@@ -220,7 +220,7 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
         public void testParameters() {
             step.execute(execution);
 
-            assertEquals(expectedAppStateActions, StepsUtil.getAppStateActionsToExecute(execution));
+            assertEquals(expectedAppStateActions, context.getVariable(Variables.APP_STATE_ACTIONS_TO_EXECUTE));
         }
 
         @Override

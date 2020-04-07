@@ -140,7 +140,7 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
     }
 
     private void validateActions() {
-        List<ServiceAction> serviceActionsToExecute = StepsUtil.getServiceActionsToExecute(execution);
+        List<ServiceAction> serviceActionsToExecute = context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE);
         if (stepInput.shouldCreateService) {
             collector.checkThat("Actions should contain " + ServiceAction.CREATE, serviceActionsToExecute.contains(ServiceAction.CREATE),
                                 Is.is(true));

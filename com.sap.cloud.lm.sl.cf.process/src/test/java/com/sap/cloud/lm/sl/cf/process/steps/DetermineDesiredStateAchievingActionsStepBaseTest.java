@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
@@ -32,7 +32,7 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     protected static final UUID FAKE_UUID = UUID.fromString("3e31fdaa-4a4e-11e9-8646-d663bd873d93");
     protected static final String DUMMY = "dummy";
 
-    protected final Set<ApplicationStateAction> expectedAppStateActions;
+    protected final List<ApplicationStateAction> expectedAppStateActions;
 
     private final ApplicationStartupState currentAppState;
     private final ApplicationStartupState desiredAppState;
@@ -50,7 +50,7 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
 
     public DetermineDesiredStateAchievingActionsStepBaseTest(ApplicationStartupState currentAppState,
                                                              ApplicationStartupState desiredAppState, boolean hasAppChanged,
-                                                             Set<ApplicationStateAction> expectedAppStateActions, boolean hasUploadToken) {
+                                                             List<ApplicationStateAction> expectedAppStateActions, boolean hasUploadToken) {
         this.currentAppState = currentAppState;
         this.desiredAppState = desiredAppState;
         this.hasAppChanged = hasAppChanged;

@@ -72,7 +72,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         List<ServiceAction> actions = determineActionsAndHandleExceptions(controllerClient, spaceId, serviceToProcess, existingService,
                                                                           serviceKeys, context);
 
-        StepsUtil.setServiceActionsToExecute(actions, context.getExecution());
+        context.setVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE, actions);
         context.setVariable(Variables.IS_SERVICE_UPDATED, false);
         context.setVariable(Variables.SERVICE_TO_PROCESS_NAME, serviceToProcess.getName());
         return StepPhase.DONE;

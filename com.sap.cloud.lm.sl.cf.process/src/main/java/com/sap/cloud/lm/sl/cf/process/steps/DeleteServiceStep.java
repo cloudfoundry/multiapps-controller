@@ -96,8 +96,8 @@ public class DeleteServiceStep extends AsyncFlowableStep {
     }
 
     private boolean isDeletePossible(ProcessContext context, List<CloudServiceBinding> serviceBindings, List<CloudServiceKey> serviceKeys) {
-        return (serviceBindings.isEmpty() || StepsUtil.getServiceActionsToExecute(context.getExecution())
-                                                      .contains(ServiceAction.RECREATE))
+        return (serviceBindings.isEmpty() || context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE)
+                                                    .contains(ServiceAction.RECREATE))
             && (serviceKeys.isEmpty() || context.getVariable(Variables.DELETE_SERVICE_KEYS));
     }
 

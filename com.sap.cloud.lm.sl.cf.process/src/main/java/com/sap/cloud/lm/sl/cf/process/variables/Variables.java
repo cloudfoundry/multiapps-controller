@@ -17,6 +17,8 @@ import org.cloudfoundry.client.lib.domain.UploadToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
+import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
@@ -26,6 +28,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Hook;
@@ -454,6 +457,19 @@ public interface Variables {
                                                               .type(VersionRule.class)
                                                               .defaultValue(VersionRule.SAME_HIGHER)
                                                               .build();
+    Variable<DeploymentMode> DEPLOYMENT_MODE = ImmutableEnumVariable.<DeploymentMode> builder()
+                                                                    .name("deploymentMode")
+                                                                    .type(DeploymentMode.class)
+                                                                    .build();
+    Variable<List<ApplicationStateAction>> APP_STATE_ACTIONS_TO_EXECUTE = ImmutableEnumListVariable.<ApplicationStateAction> builder()
+                                                                                                   .name("appStateActionsToExecute")
+                                                                                                   .type(ApplicationStateAction.class)
+                                                                                                   .build();
+    Variable<List<ServiceAction>> SERVICE_ACTIONS_TO_EXCECUTE = ImmutableEnumListVariable.<ServiceAction> builder()
+                                                                                         .name("serviceActionsToExecute")
+                                                                                         .type(ServiceAction.class)
+                                                                                         .defaultValue(Collections.emptyList())
+                                                                                         .build();
     Variable<List<CloudApplication>> APPS_TO_UNDEPLOY = ImmutableJsonStringListVariable.<CloudApplication> builder()
                                                                                        .name("appsToUndeploy")
                                                                                        .type(Variable.typeReference(CloudApplication.class))

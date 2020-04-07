@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -45,7 +46,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
                                                                                                                !appHasUnstagedContent);
         getStepLogger().debug(Messages.ACTIONS_TO_EXECUTE, appName, actionsToExecute);
 
-        StepsUtil.setAppStateActionsToExecute(context.getExecution(), actionsToExecute);
+        context.setVariable(Variables.APP_STATE_ACTIONS_TO_EXECUTE, new ArrayList<>(actionsToExecute));
         return StepPhase.DONE;
     }
 
