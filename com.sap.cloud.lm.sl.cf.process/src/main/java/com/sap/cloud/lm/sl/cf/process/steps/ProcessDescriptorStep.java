@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
@@ -36,7 +35,6 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
-        DelegateExecution execution = context.getExecution();
         getStepLogger().debug(Messages.RESOLVING_DESCRIPTOR_PROPERTIES);
 
         DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
@@ -50,7 +48,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
         context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, descriptor);
         // Set MTA modules in the context
-        List<String> modulesForDeployment = StepsUtil.getModulesForDeployment(execution);
+        List<String> modulesForDeployment = context.getVariable(Variables.MODULES_FOR_DEPLOYMENT);
         List<String> invalidModulesSpecifiedForDeployment = findInvalidModulesSpecifiedForDeployment(descriptor, modulesForDeployment);
         if (!invalidModulesSpecifiedForDeployment.isEmpty()) {
             throw new IllegalStateException(MessageFormat.format(Messages.MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES,

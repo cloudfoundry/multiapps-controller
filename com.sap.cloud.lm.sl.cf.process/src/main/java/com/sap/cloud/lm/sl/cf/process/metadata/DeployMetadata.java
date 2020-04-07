@@ -112,12 +112,12 @@ public class DeployMetadata {
                                              .defaultValue(Variables.ABORT_ON_ERROR.getDefaultValue())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_MODULES_FOR_DEPLOYMENT)
+                                             .id(Variables.MODULES_FOR_DEPLOYMENT.getName())
                                              .type(ParameterType.STRING)
                                              .defaultValue(null)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
-                                             .id(Constants.PARAM_RESOURCES_FOR_DEPLOYMENT)
+                                             .id(Variables.RESOURCES_FOR_DEPLOYMENT.getName())
                                              .type(ParameterType.STRING)
                                              .defaultValue(null)
                                              .build());

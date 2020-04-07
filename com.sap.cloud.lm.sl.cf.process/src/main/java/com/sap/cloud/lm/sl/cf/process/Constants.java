@@ -12,9 +12,6 @@ public class Constants {
     public static final String SERVICE_VERSION_1_1 = "1.1";
     public static final String SERVICE_VERSION_1_0 = "1.0";
 
-    public static final String PARAM_MODULES_FOR_DEPLOYMENT = "modulesForDeployment";
-    public static final String PARAM_RESOURCES_FOR_DEPLOYMENT = "resourcesForDeployment";
-    public static final String VAR_MTA_EXTENSION_DESCRIPTOR_CHAIN = "mtaExtensionDescriptorChain";
     public static final String VAR_MTA_MODULE_CONTENT_PREFIX = "mtaModuleContent_";
     public static final String VAR_MTA_MODULE_FILE_NAME_PREFIX = "mtaModuleFileName_";
     public static final String VAR_MTA_REQUIRES_FILE_NAME_PREFIX = "mtaRequiresFileName_";

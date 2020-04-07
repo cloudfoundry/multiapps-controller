@@ -27,7 +27,7 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.MERGING_DESCRIPTORS);
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
-        List<ExtensionDescriptor> extensionDescriptors = StepsUtil.getExtensionDescriptorChain(context.getExecution());
+        List<ExtensionDescriptor> extensionDescriptors = context.getVariable(Variables.MTA_EXTENSION_DESCRIPTOR_CHAIN);
 
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
         Platform platform = configuration.getPlatform();

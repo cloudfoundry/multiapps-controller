@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -73,7 +75,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     @Test(expected = SLException.class)
     public void testWithInvalidModulesSpecifiedForDeployment() {
         when(resolver.resolve(any())).thenReturn(DEPLOYMENT_DESCRIPTOR);
-        when(execution.getVariable(Constants.PARAM_MODULES_FOR_DEPLOYMENT)).thenReturn("foo,bar");
+        when(context.getVariable(Variables.MODULES_FOR_DEPLOYMENT)).thenReturn(Arrays.asList("foo", "bar"));
 
         step.execute(execution);
     }

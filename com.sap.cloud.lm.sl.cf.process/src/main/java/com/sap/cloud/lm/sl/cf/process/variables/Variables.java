@@ -31,6 +31,7 @@ import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
@@ -515,5 +516,15 @@ public interface Variables {
                                                                             .type(Variable.typeReference(FileEntry.class))
                                                                             .defaultValue(Collections.emptyList())
                                                                             .build();
+    Variable<List<ExtensionDescriptor>> MTA_EXTENSION_DESCRIPTOR_CHAIN = ImmutableJsonBinaryListVariable.<ExtensionDescriptor> builder()
+                                                                                                        .name("mtaExtensionDescriptorChain")
+                                                                                                        .type(Variable.typeReference(ExtensionDescriptor.class))
+                                                                                                        .build();
+    Variable<List<String>> MODULES_FOR_DEPLOYMENT = ImmutableCommaSeparatedValuesVariable.builder()
+                                                                                         .name("modulesForDeployment")
+                                                                                         .build();
+    Variable<List<String>> RESOURCES_FOR_DEPLOYMENT = ImmutableCommaSeparatedValuesVariable.builder()
+                                                                                           .name("resourcesForDeployment")
+                                                                                           .build();
 
 }
