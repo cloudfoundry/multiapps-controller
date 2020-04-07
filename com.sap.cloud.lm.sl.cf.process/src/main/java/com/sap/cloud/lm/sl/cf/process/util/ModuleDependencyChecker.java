@@ -52,7 +52,7 @@ public class ModuleDependencyChecker {
 
         return module.getDeployedAfter()
                      .isEmpty()
-            || modulesAlreadyDeployed.containsAll(module.getDeployedAfter()) || areAllDependenciesAlreadyPresent(module.getDeployedAfter());
+            || areDependenciesProcessed(module) || areAllDependenciesAlreadyPresent(module.getDeployedAfter());
     }
 
     private boolean areAllDependenciesAlreadyPresent(List<String> deployedAfter) {
@@ -81,5 +81,15 @@ public class ModuleDependencyChecker {
 
     public Set<String> getAlreadyDeployedModules() {
         return modulesAlreadyDeployed;
+    }
+
+    private boolean areDependenciesProcessed(Module module) {
+        return module.getDeployedAfter()
+                     .stream()
+                     .allMatch(this::isProcessed);
+    }
+
+    private boolean isProcessed(String moduleName) {
+        return modulesAlreadyDeployed.contains(moduleName) || modulesNotForDeployment.contains(moduleName);
     }
 }
