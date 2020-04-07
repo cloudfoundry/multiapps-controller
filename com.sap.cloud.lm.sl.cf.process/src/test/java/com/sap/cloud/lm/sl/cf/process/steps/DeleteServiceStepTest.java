@@ -107,7 +107,7 @@ public class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceSte
         if (shouldRecreateService) {
             actionsToExecute.add(ServiceAction.RECREATE);
         }
-        StepsUtil.setServiceActionsToExecute(actionsToExecute, context.getExecution());
+        context.setVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE, actionsToExecute);
         context.setVariable(Variables.DELETE_SERVICE_KEYS, shouldDeleteServiceKeys);
     }
 

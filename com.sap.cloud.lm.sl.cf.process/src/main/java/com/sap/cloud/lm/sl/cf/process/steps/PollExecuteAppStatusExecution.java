@@ -5,7 +5,6 @@ import static java.text.MessageFormat.format;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
@@ -63,7 +62,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ProcessContext context) {
-        Set<ApplicationStateAction> actions = StepsUtil.getAppStateActionsToExecute(context.getExecution());
+        List<ApplicationStateAction> actions = context.getVariable(Variables.APP_STATE_ACTIONS_TO_EXECUTE);
         if (!actions.contains(ApplicationStateAction.EXECUTE)) {
             return AsyncExecutionState.FINISHED;
         }

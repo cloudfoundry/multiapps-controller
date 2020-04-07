@@ -10,11 +10,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -27,9 +25,7 @@ import org.slf4j.Logger;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
@@ -39,7 +35,6 @@ import com.sap.cloud.lm.sl.cf.core.util.LogsOffset;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -105,10 +100,6 @@ public class StepsUtil {
     public static HandlerFactory getHandlerFactory(VariableScope scope) {
         int majorSchemaVersion = VariableHandling.get(scope, Variables.MTA_MAJOR_SCHEMA_VERSION);
         return new HandlerFactory(majorSchemaVersion);
-    }
-
-    public static void setDeploymentMode(VariableScope scope, DeploymentMode deploymentMode) {
-        scope.setVariable(Constants.VAR_DEPLOYMENT_MODE, deploymentMode);
     }
 
     static CloudApplication getUpdatedServiceBrokerSubscriber(ProcessContext context) {
@@ -207,21 +198,6 @@ public class StepsUtil {
         return tasks.get(index);
     }
 
-    static Set<ApplicationStateAction> getAppStateActionsToExecute(VariableScope scope) {
-        @SuppressWarnings("unchecked")
-        Set<String> actionsAsStrings = (Set<String>) scope.getVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE);
-        return actionsAsStrings.stream()
-                               .map(ApplicationStateAction::valueOf)
-                               .collect(Collectors.toSet());
-    }
-
-    static void setAppStateActionsToExecute(VariableScope scope, Set<ApplicationStateAction> actions) {
-        Set<String> actionsAsStrings = actions.stream()
-                                              .map(ApplicationStateAction::toString)
-                                              .collect(Collectors.toSet());
-        scope.setVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE, actionsAsStrings);
-    }
-
     static void saveAppLogs(DelegateExecution execution, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
                             CloudApplication app, Logger logger, ProcessLoggerProvider processLoggerProvider) {
         LogsOffset offset = getLogOffset(execution);
@@ -298,21 +274,6 @@ public class StepsUtil {
         return app.getMetadata()
                   .getGuid()
                   .equals(appGuid);
-    }
-
-    public static void setServiceActionsToExecute(List<ServiceAction> actions, VariableScope scope) {
-        List<String> actionsStrings = actions.stream()
-                                             .map(ServiceAction::toString)
-                                             .collect(Collectors.toList());
-        scope.setVariable(Constants.VAR_SERVICE_ACTIONS_TO_EXCECUTE, actionsStrings);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static List<ServiceAction> getServiceActionsToExecute(VariableScope execution) {
-        List<String> actionStrings = ListUtils.emptyIfNull((List<String>) execution.getVariable(Constants.VAR_SERVICE_ACTIONS_TO_EXCECUTE));
-        return actionStrings.stream()
-                            .map(ServiceAction::valueOf)
-                            .collect(Collectors.toList());
     }
 
     public static boolean getIsServiceUpdatedExportedVariable(VariableScope scope, String serviceName) {

@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -161,7 +160,7 @@ public class PollExecuteAppStatusExecutionTest {
 
     private void prepareContext(CloudApplicationExtended application) {
         context.setVariable(Variables.APP_TO_PROCESS, application);
-        StepsUtil.setAppStateActionsToExecute(execution, new HashSet<>(Collections.singletonList(ApplicationStateAction.EXECUTE)));
+        context.setVariable(Variables.APP_STATE_ACTIONS_TO_EXECUTE, Collections.singletonList(ApplicationStateAction.EXECUTE));
         context.setVariable(Variables.USER, USER_NAME);
         context.setVariable(Variables.START_TIME, PROCESS_START_TIME);
     }
@@ -181,7 +180,7 @@ public class PollExecuteAppStatusExecutionTest {
 
     @Test
     public void testStepWithoutExecuteAction() {
-        StepsUtil.setAppStateActionsToExecute(execution, Collections.emptySet());
+        context.setVariable(Variables.APP_STATE_ACTIONS_TO_EXECUTE, Collections.emptyList());
 
         AsyncExecutionState resultState = step.execute(context);
 

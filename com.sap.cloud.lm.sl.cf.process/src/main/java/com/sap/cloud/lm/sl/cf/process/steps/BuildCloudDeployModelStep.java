@@ -83,7 +83,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
         context.setVariable(Variables.APPS_TO_DEPLOY, getAppNames(modulesCalculatedForDeployment));
 
-        StepsUtil.setDeploymentMode(context.getExecution(), applicationCloudModelBuilder.getDeploymentMode());
+        context.setVariable(Variables.DEPLOYMENT_MODE, applicationCloudModelBuilder.getDeploymentMode());
         context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());
         context.setVariable(Variables.USE_IDLE_URIS, false);
 
