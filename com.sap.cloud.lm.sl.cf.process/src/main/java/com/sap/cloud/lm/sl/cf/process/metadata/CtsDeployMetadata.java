@@ -102,7 +102,7 @@ public class CtsDeployMetadata {
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.ABORT_ON_ERROR.getName())
                                              .type(ParameterType.BOOLEAN)
-                                             .defaultValue(Variables.ABORT_ON_ERROR.getDefaultValue())
+                                             .defaultValue(true)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.VERIFY_ARCHIVE_SIGNATURE.getName())
