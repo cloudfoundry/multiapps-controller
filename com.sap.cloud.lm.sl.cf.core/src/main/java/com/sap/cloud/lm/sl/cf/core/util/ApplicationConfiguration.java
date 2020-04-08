@@ -553,8 +553,11 @@ public class ApplicationConfiguration {
     }
 
     private URL getControllerUrlFromEnvironment() {
-        Map<String, Object> vcapApplicationMap = getVcapApplication();
-        String controllerUrlString = getControllerUrl(vcapApplicationMap);
+        String controllerUrlString = environment.getString("CF_API");
+        if(controllerUrlString == null || controllerUrlString.isEmpty()){
+            Map<String, Object> vcapApplicationMap = getVcapApplication();
+            controllerUrlString = getControllerUrl(vcapApplicationMap);
+        }
         try {
             URL parsedControllerUrl = MiscUtil.getURL(controllerUrlString);
             LOGGER.info(format(Messages.CONTROLLER_URL, parsedControllerUrl));
