@@ -121,6 +121,7 @@ public class ConfigurationSubscriptionServiceTest {
                                                                                                                                     null,
                                                                                                                                     null,
                                                                                                                                     null,
+                                                                                                                                    null,
                                                                                                                                     null)))
                                                                  .list()
                                                                  .size();
@@ -172,12 +173,14 @@ public class ConfigurationSubscriptionServiceTest {
     private static ConfigurationSubscription createConfigurationSubscription(long id, String mtaId, String spaceId, String appName,
                                                                              ConfigurationFilter filter, ModuleDto moduleDto,
                                                                              ResourceDto resourceDto) {
-        return new ConfigurationSubscription(id, mtaId, spaceId, appName, filter, moduleDto, resourceDto);
+        //TODO check moduleid and resourceid
+        return new ConfigurationSubscription(id, mtaId, spaceId, appName, filter, moduleDto, resourceDto, null, null);
     }
 
     private ConfigurationSubscriptionService createConfigurationSubscriptionService() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("TestDefault");
-        ConfigurationSubscriptionService configurationSubscriptionService = new ConfigurationSubscriptionService(entityManagerFactory);
+        ConfigurationSubscriptionService configurationSubscriptionService = new ConfigurationSubscriptionService(entityManagerFactory,
+                                                                                                                 new ConfigurationSubscriptionMapper());
         configurationSubscriptionService.subscriptionMapper = new ConfigurationSubscriptionMapper();
         return configurationSubscriptionService;
     }

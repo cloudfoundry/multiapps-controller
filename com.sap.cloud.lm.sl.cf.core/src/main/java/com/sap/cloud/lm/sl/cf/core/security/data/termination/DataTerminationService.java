@@ -113,8 +113,7 @@ public class DataTerminationService {
         }
         auditLogDeletion(configurationSubscriptions);
         configurationSubscriptionService.createQuery()
-                                        .spaceId(spaceId)
-                                        .delete();
+                                        .deleteAll(spaceId);
     }
 
     private void auditLogDeletion(List<? extends AuditableConfiguration> configurationEntities) {
@@ -133,8 +132,7 @@ public class DataTerminationService {
         }
         auditLogDeletion(configurationEntities);
         configurationEntryService.createQuery()
-                                 .spaceId(spaceId)
-                                 .delete();
+                                 .deleteAll(spaceId);
     }
 
     private void deleteUserOperationsOrphanData(String deleteEventSpaceId) {

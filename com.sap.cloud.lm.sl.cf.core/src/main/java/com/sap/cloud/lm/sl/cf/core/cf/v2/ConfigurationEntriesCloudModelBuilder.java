@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.collections4.MapUtils;
+
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -40,7 +42,8 @@ public class ConfigurationEntriesCloudModelBuilder {
     }
 
     private List<ConfigurationEntry> createConfigurationEntries(Module module, DeploymentDescriptor deploymentDescriptor) {
-        return getPublicProvidedDependencies(module).map(providedDependency -> createConfigurationEntry(deploymentDescriptor,
+        return getPublicProvidedDependencies(module).filter(this::hasProperties)
+                                                    .map(providedDependency -> createConfigurationEntry(deploymentDescriptor,
                                                                                                         providedDependency))
                                                     .collect(Collectors.toList());
     }
@@ -51,6 +54,10 @@ public class ConfigurationEntriesCloudModelBuilder {
                      .filter(ProvidedDependency::isPublic);
     }
 
+    private boolean hasProperties(ProvidedDependency providedDependency) {
+        return MapUtils.isNotEmpty(providedDependency.getProperties());
+    }
+
     private ConfigurationEntry createConfigurationEntry(DeploymentDescriptor deploymentDescriptor, ProvidedDependency providedDependency) {
         String providerNid = ConfigurationEntriesUtil.PROVIDER_NID;
         String providerId = ConfigurationEntriesUtil.computeProviderId(deploymentDescriptor.getId(), providedDependency.getName());
@@ -58,7 +65,7 @@ public class ConfigurationEntriesCloudModelBuilder {
         CloudTarget target = new CloudTarget(orgName, spaceName);
         String content = JsonUtil.toJson(providedDependency.getProperties());
         List<CloudTarget> visibility = getVisibilityTargets(providedDependency);
-        return new ConfigurationEntry(providerNid, providerId, version, target, content, visibility, spaceId);
+        return new ConfigurationEntry(providerNid, providerId, version, target, content, visibility, spaceId, null);
     }
 
     private List<CloudTarget> getVisibilityTargets(ProvidedDependency providedDependency) {

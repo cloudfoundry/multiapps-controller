@@ -9,6 +9,8 @@ import javax.persistence.NoResultException;
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
+import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
+import com.sap.cloud.lm.sl.cf.core.persistence.dto.ConfigurationEntryDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.ConfigurationSubscriptionDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.ConfigurationSubscriptionDto.AttributeNames;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
@@ -19,7 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscription
 public class ConfigurationSubscriptionQueryImpl extends AbstractQueryImpl<ConfigurationSubscription, ConfigurationSubscriptionQuery>
     implements ConfigurationSubscriptionQuery {
 
-    private final QueryCriteria queryCriteria = new QueryCriteria();
+    protected final QueryCriteria queryCriteria = new QueryCriteria();
     private final ConfigurationSubscriptionMapper subscriptionMapper;
     private List<ConfigurationEntry> matchingEntries;
 
@@ -79,8 +81,34 @@ public class ConfigurationSubscriptionQueryImpl extends AbstractQueryImpl<Config
     }
 
     @Override
+    public ConfigurationSubscriptionQuery moduleIdNull() {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.MODULE_ID)
+                                                                       .condition(getCriteriaBuilder()::equal)
+                                                                       .value(null)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
+    public ConfigurationSubscriptionQuery resourceIdNull() {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.RESOURCE_ID)
+                                                                       .condition(getCriteriaBuilder()::equal)
+                                                                       .value(null)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
     public ConfigurationSubscriptionQuery onSelectMatching(List<ConfigurationEntry> entries) {
         this.matchingEntries = entries;
+        return this;
+    }
+
+    @Override
+    public ConfigurationSubscriptionQuery orderById(OrderDirection orderDirection) {
+        setOrder(AttributeNames.ID, orderDirection);
         return this;
     }
 
@@ -116,6 +144,16 @@ public class ConfigurationSubscriptionQueryImpl extends AbstractQueryImpl<Config
     public int delete() {
         return executeInTransaction(manager -> createDeleteQuery(manager, queryCriteria,
                                                                  ConfigurationSubscriptionDto.class).executeUpdate());
+    }
+
+    @Override
+    public int deleteAll(String spaceId) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.SPACE_ID)
+                                                                       .condition(getCriteriaBuilder()::equal)
+                                                                       .value(spaceId)
+                                                                       .build());
+        return executeInTransaction(manager -> createDeleteQuery(manager, queryCriteria, ConfigurationEntryDto.class).executeUpdate());
     }
 
 }

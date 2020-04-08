@@ -46,6 +46,7 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_ENTRY_SPACE_ID = "space_id";
         public static final String CONFIGURATION_ENTRY_CONTENT = "content";
         public static final String CONFIGURATION_CLOUD_TARGET = "visibility";
+        public static final String CONFIGURATION_ENTRY_CONTENT_ID = "content_id";
 
         public static final String CONFIGURATION_SUBSCRIPTION_MTA_ID = "mta_id";
         public static final String CONFIGURATION_SUBSCRIPTION_ID = "id";
@@ -55,6 +56,8 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_SUBSCRIPTION_RESOURCE_NAME = "resource_name";
         public static final String CONFIGURATION_SUBSCRIPTION_MODULE = "module";
         public static final String CONFIGURATION_SUBSCRIPTION_FILTER = "filter";
+        public static final String CONFIGURATION_SUBSCRIPTION_MODULE_ID = "module_id";
+        public static final String CONFIGURATION_SUBSCRIPTION_RESOURCE_ID = "resource_id";
 
         public static final String ONGOING_OPERATION_SPACE_ID = "spaceId";
         public static final String ONGOING_OPERATION_STARTED_AT = "startedAt";

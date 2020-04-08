@@ -94,7 +94,7 @@ public class OperationInFinalStateHandler {
                                       .state(state)
                                       .endedAt(ZonedDateTime.now())
                                       .build();
-        operationService.update(operation.getProcessId(), operation);
+        operationService.update(operation, operation);
         historicOperationEventPersister.add(processInstanceId, toEventType(state));
     }
 

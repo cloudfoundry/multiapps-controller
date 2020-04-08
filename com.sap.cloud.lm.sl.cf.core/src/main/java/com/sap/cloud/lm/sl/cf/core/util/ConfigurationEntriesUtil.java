@@ -23,6 +23,7 @@ public class ConfigurationEntriesUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationEntriesUtil.class);
 
+    public static final String EMPTY_CONTENT = "{}";
     public static final String PROVIDER_NID = "mta";
     private static final String PROVIDER_ID_DELIMITER = ":";
     public static final String TARGET_DELIMITER = " ";

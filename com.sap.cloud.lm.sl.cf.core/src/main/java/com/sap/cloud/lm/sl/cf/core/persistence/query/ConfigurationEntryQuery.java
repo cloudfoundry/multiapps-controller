@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
 
 public interface ConfigurationEntryQuery extends Query<ConfigurationEntry, ConfigurationEntryQuery> {
 
@@ -19,11 +20,23 @@ public interface ConfigurationEntryQuery extends Query<ConfigurationEntry, Confi
     ConfigurationEntryQuery requiredProperties(Map<String, Object> requiredProperties);
 
     ConfigurationEntryQuery spaceId(String spaceId);
+    
+    ConfigurationEntryQuery spaceIdNotNull();
+    
+    ConfigurationEntryQuery spaceIdNull();
+    
+    ConfigurationEntryQuery content(String content);
+
+    ConfigurationEntryQuery contentIdNull();
 
     ConfigurationEntryQuery version(String version);
 
     ConfigurationEntryQuery visibilityTargets(List<CloudTarget> visibilityTargets);
 
     ConfigurationEntryQuery mtaId(String mtaId);
+    
+    ConfigurationEntryQuery orderById(OrderDirection orderDirection);
+    
+    int deleteAll(String spaceId);
 
 }

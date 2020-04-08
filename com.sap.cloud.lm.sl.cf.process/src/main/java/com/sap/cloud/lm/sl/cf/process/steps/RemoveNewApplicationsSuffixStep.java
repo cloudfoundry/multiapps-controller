@@ -59,7 +59,8 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
     }
 
     private void updateConfigurationSubscription(ConfigurationSubscription subscription, String newAppName) {
-        subscriptionService.update(subscription.getId(), createNewSubscription(subscription, newAppName));
+        ConfigurationSubscription newSubscription = createNewSubscription(subscription, newAppName);
+        subscriptionService.update(subscription, newSubscription);
     }
 
     private ConfigurationSubscription createNewSubscription(ConfigurationSubscription subscription, String newAppName) {
@@ -69,7 +70,9 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
                                              newAppName,
                                              subscription.getFilter(),
                                              subscription.getModuleDto(),
-                                             subscription.getResourceDto());
+                                             subscription.getResourceDto(),
+                                             subscription.getModuleId(),
+                                             subscription.getResourceId());
     }
 
     @Override

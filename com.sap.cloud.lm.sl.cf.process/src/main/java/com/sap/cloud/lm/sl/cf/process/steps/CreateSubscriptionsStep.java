@@ -68,7 +68,7 @@ public class CreateSubscriptionsStep extends SyncFlowableStep {
         infoSubscriptionCreation(subscription);
         ConfigurationSubscription existingSubscription = detectSubscription(subscription);
         if (existingSubscription != null) {
-            configurationSubscriptionService.update(existingSubscription.getId(), subscription);
+            configurationSubscriptionService.update(existingSubscription, subscription);
             return;
         }
         configurationSubscriptionService.add(subscription);

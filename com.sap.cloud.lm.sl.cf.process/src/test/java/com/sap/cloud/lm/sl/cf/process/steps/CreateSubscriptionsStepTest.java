@@ -121,7 +121,9 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
                                              subscription.getAppName(),
                                              subscription.getFilter(),
                                              subscription.getModuleDto(),
-                                             subscription.getResourceDto());
+                                             subscription.getResourceDto(),
+                                             subscription.getModuleId(),
+                                             subscription.getResourceId());
     }
 
     @Test
@@ -142,8 +144,9 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
         StepOutput output = new StepOutput();
 
         argumentCaptor = ArgumentCaptor.forClass(ConfigurationSubscription.class);
+        //TODO fix any()
         Mockito.verify(configurationSubscriptionService, times(input.subscriptionsToUpdate.size()))
-               .update(eq(DUMMY_ID), argumentCaptor.capture());
+               .update(Mockito.any(), argumentCaptor.capture());
         output.updatedSubscriptions = argumentCaptor.getAllValues();
 
         argumentCaptor = ArgumentCaptor.forClass(ConfigurationSubscription.class);

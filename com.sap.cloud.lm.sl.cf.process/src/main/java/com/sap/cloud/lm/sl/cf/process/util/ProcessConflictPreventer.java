@@ -35,7 +35,7 @@ public class ProcessConflictPreventer {
                                                                        .mtaId(mtaId)
                                                                        .hasAcquiredLock(true)
                                                                        .build();
-        operationService.update(currentOperation.getProcessId(), currentOperationWithAcquiredLock);
+        operationService.update(currentOperation, currentOperationWithAcquiredLock);
 
         LOGGER.info(format(Messages.ACQUIRED_LOCK, processId, mtaId));
     }
@@ -74,7 +74,7 @@ public class ProcessConflictPreventer {
                                       .from(operation)
                                       .hasAcquiredLock(false)
                                       .build();
-        operationService.update(operation.getProcessId(), operation);
+        operationService.update(operation, operation);
         LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
     }
 

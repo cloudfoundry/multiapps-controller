@@ -154,7 +154,9 @@ public class DataTerminationServiceTest {
                                                                new CloudTarget(),
                                                                "",
                                                                Collections.emptyList(),
-                                                               ""))
+                                                               "",
+                                                               //TODO check what should be instead of null
+                                                               null))
             : Collections.emptyList();
     }
 

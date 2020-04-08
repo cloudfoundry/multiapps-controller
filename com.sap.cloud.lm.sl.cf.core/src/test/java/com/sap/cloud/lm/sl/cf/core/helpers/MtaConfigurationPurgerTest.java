@@ -159,7 +159,8 @@ public class MtaConfigurationPurgerTest {
     }
 
     private ConfigurationSubscription createSubscription(int id, String applicationName) {
-        return new ConfigurationSubscription(id, null, null, applicationName, null, null, null);
+        //TODO
+        return new ConfigurationSubscription(id, null, null, applicationName, null, null, null, null, null);
     }
 
     private ConfigurationEntry createEntry(int id, String providerId) {
@@ -168,6 +169,7 @@ public class MtaConfigurationPurgerTest {
                                       providerId,
                                       Version.parseVersion("1.0.0"),
                                       new CloudTarget(TARGET_ORG, TARGET_SPACE),
+                                      null,
                                       null,
                                       null,
                                       null);

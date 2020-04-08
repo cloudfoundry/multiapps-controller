@@ -18,6 +18,7 @@ import com.sap.cloud.lm.sl.cf.core.filters.VersionFilter;
 import com.sap.cloud.lm.sl.cf.core.filters.VisibilityFilter;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.ConfigurationEntryDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.ConfigurationEntryDto.AttributeNames;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
@@ -33,7 +34,7 @@ public class ConfigurationEntryQueryImpl extends AbstractQueryImpl<Configuration
     private static final BiPredicate<CloudTarget, CloudTarget> TARGET_WILDCARD_FILTER = new TargetWildcardFilter();
     private static final BiPredicate<String, Map<String, Object>> CONTENT_FILTER = new ContentFilter();
 
-    private final QueryCriteria queryCriteria = new QueryCriteria();
+    protected final QueryCriteria queryCriteria = new QueryCriteria();
     private final ConfigurationEntryMapper entryMapper;
 
     private Map<String, Object> requiredProperties;
@@ -111,6 +112,46 @@ public class ConfigurationEntryQueryImpl extends AbstractQueryImpl<Configuration
     }
 
     @Override
+    public ConfigurationEntryQuery spaceIdNotNull() {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.SPACE_ID)
+                                                                       .condition(getCriteriaBuilder()::notEqual)
+                                                                       .value(null)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
+    public ConfigurationEntryQuery spaceIdNull() {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.SPACE_ID)
+                                                                       .condition(getCriteriaBuilder()::equal)
+                                                                       .value(null)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
+    public ConfigurationEntryQuery content(String content) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.CONTENT)
+                                                                       .condition(getCriteriaBuilder()::equal)
+                                                                       .value(content)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
+    public ConfigurationEntryQuery contentIdNull() {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.CONTENT_ID)
+                                                                       .condition(getCriteriaBuilder()::equal)
+                                                                       .value(null)
+                                                                       .build());
+        return this;
+    }
+
+    @Override
     public ConfigurationEntryQuery mtaId(String mtaId) {
         if (mtaId != null) {
             queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.<String> builder()
@@ -137,6 +178,12 @@ public class ConfigurationEntryQueryImpl extends AbstractQueryImpl<Configuration
     @Override
     public ConfigurationEntryQuery requiredProperties(Map<String, Object> requiredProperties) {
         this.requiredProperties = requiredProperties;
+        return this;
+    }
+    
+    @Override
+    public ConfigurationEntryQuery orderById(OrderDirection orderDirection) {
+        setOrder(AttributeNames.ID, orderDirection);
         return this;
     }
 
@@ -189,9 +236,19 @@ public class ConfigurationEntryQueryImpl extends AbstractQueryImpl<Configuration
     private boolean satisfiesContent(ConfigurationEntryDto entryDto) {
         return CONTENT_FILTER.test(entryDto.getContent(), requiredProperties);
     }
-
+    
     @Override
     public int delete() {
+        return executeInTransaction(manager -> createDeleteQuery(manager, queryCriteria, ConfigurationEntryDto.class).executeUpdate());
+    }
+
+    @Override
+    public int deleteAll(String spaceId) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.SPACE_ID)
+                                                                       .condition(getCriteriaBuilder()::equal)
+                                                                       .value(spaceId)
+                                                                       .build());
         return executeInTransaction(manager -> createDeleteQuery(manager, queryCriteria, ConfigurationEntryDto.class).executeUpdate());
     }
 

@@ -72,7 +72,7 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
         if (currentEntry == null) {
             return configurationEntryService.add(entry);
         } else {
-            return configurationEntryService.update(currentEntry.getId(), entry);
+            return configurationEntryService.update(currentEntry, entry);
         }
     }
 

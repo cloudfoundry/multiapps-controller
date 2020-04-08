@@ -31,10 +31,11 @@ public abstract class PersistenceService<T, D extends DtoWithPrimaryKey<P>, P> {
         return null;
     }
 
-    public T update(P primaryKey, T newObject) {
+    public T update(T oldObject, T newObject) {
+        D oldDto = getPersistenceObjectMapper().toDto(oldObject);
         D newDto = getPersistenceObjectMapper().toDto(newObject);
         try {
-            return executeInTransaction(manager -> update(primaryKey, newDto, manager));
+            return executeInTransaction(manager -> update(oldDto.getPrimaryKey(), newDto, manager));
         } catch (RollbackException e) {
             onEntityConflict(newDto, e);
         }
