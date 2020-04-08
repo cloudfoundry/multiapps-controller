@@ -65,12 +65,10 @@ public class ApplicationConfiguration {
     static final String CFG_CHANGE_LOG_LOCK_DURATION = "CHANGE_LOG_LOCK_DURATION";
     static final String CFG_CHANGE_LOG_LOCK_ATTEMPTS = "CHANGE_LOG_LOCK_ATTEMPTS";
     static final String CFG_GLOBAL_CONFIG_SPACE = "GLOBAL_CONFIG_SPACE";
-    static final String CFG_GATHER_USAGE_STATISTICS = "GATHER_USAGE_STATISTICS";
     static final String CFG_HEALTH_CHECK_SPACE_GUID = "HEALTH_CHECK_SPACE_ID";
     static final String CFG_HEALTH_CHECK_MTA_ID = "HEALTH_CHECK_MTA_ID";
     static final String CFG_HEALTH_CHECK_USER = "HEALTH_CHECK_USER";
     static final String CFG_HEALTH_CHECK_TIME_RANGE = "HEALTH_CHECK_TIME_RANGE";
-    static final String CFG_MAIL_API_URL = "MAIL_API_URL";
     static final String CFG_AUDIT_LOG_CLIENT_CORE_THREADS = "AUDIT_LOG_CLIENT_CORE_THREADS";
     static final String CFG_AUDIT_LOG_CLIENT_MAX_THREADS = "AUDIT_LOG_CLIENT_MAX_THREADS";
     static final String CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY = "AUDIT_LOG_CLIENT_QUEUE_CAPACITY";
@@ -113,7 +111,6 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_POLL_RATE = 1; // 1 minute(s)
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_DURATION = 1; // 1 minute(s)
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS = 5; // 5 minute(s)
-    public static final Boolean DEFAULT_GATHER_USAGE_STATISTICS = false;
     public static final Integer DEFAULT_HEALTH_CHECK_TIME_RANGE = (int) TimeUnit.MINUTES.toSeconds(5);
     public static final Integer DEFAULT_AUDIT_LOG_CLIENT_CORE_THREADS = 2;
     public static final Integer DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS = 8;
@@ -157,9 +154,7 @@ public class ApplicationConfiguration {
     private Integer changeLogLockDuration;
     private Integer changeLogLockAttempts;
     private String globalConfigSpace;
-    private Boolean gatherUsageStatistics;
     private HealthCheckConfiguration healthCheckConfiguration;
-    private String mailApiUrl;
     private String applicationGuid;
     private Integer applicationInstanceIndex;
     private Integer auditLogClientCoreThreads;
@@ -209,9 +204,7 @@ public class ApplicationConfiguration {
         getChangeLogLockDuration();
         getChangeLogLockAttempts();
         getGlobalConfigSpace();
-        shouldGatherUsageStatistics();
         getHealthCheckConfiguration();
-        getMailApiUrl();
         getApplicationGuid();
         getApplicationInstanceIndex();
         getAuditLogClientCoreThreads();
@@ -240,11 +233,11 @@ public class ApplicationConfiguration {
                                            CFG_BASIC_AUTH_ENABLED, CFG_GLOBAL_AUDITOR_USER, CFG_STEP_POLLING_INTERVAL_IN_SECONDS,
                                            CFG_SKIP_SSL_VALIDATION, CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE,
                                            CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE,
-                                           CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL, CFG_AUDIT_LOG_CLIENT_CORE_THREADS,
-                                           CFG_AUDIT_LOG_CLIENT_MAX_THREADS, CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY,
-                                           CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS,
-                                           CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE,
-                                           CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE, CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE));
+                                           CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS,
+                                           CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS,
+                                           CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
+                                           CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
+                                           CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE));
     }
 
     public Configuration getFileConfiguration() {
@@ -412,25 +405,11 @@ public class ApplicationConfiguration {
         return globalConfigSpace;
     }
 
-    public Boolean shouldGatherUsageStatistics() {
-        if (gatherUsageStatistics == null) {
-            gatherUsageStatistics = shouldGatherUsageStatisticsBasedOnEnvironment();
-        }
-        return gatherUsageStatistics;
-    }
-
     public HealthCheckConfiguration getHealthCheckConfiguration() {
         if (healthCheckConfiguration == null) {
             healthCheckConfiguration = getHealthCheckConfigurationFromEnvironment();
         }
         return healthCheckConfiguration;
-    }
-
-    public String getMailApiUrl() {
-        if (mailApiUrl == null) {
-            mailApiUrl = getMailApiUrlFromEnvironment();
-        }
-        return mailApiUrl;
     }
 
     public String getApplicationGuid() {
@@ -747,12 +726,6 @@ public class ApplicationConfiguration {
         return value;
     }
 
-    private Boolean shouldGatherUsageStatisticsBasedOnEnvironment() {
-        Boolean value = environment.getBoolean(CFG_GATHER_USAGE_STATISTICS, DEFAULT_GATHER_USAGE_STATISTICS);
-        LOGGER.info(format(Messages.GATHER_STATISTICS, value));
-        return value;
-    }
-
     private HealthCheckConfiguration getHealthCheckConfigurationFromEnvironment() {
         HealthCheckConfiguration healthCheckConfigurationFromEnvironment = ImmutableHealthCheckConfiguration.builder()
                                                                                                             .spaceId(getHealthCheckSpaceGuidFromEnvironment())
@@ -778,12 +751,6 @@ public class ApplicationConfiguration {
 
     private Integer getHealthCheckTimeRangeFromEnvironment() {
         return environment.getPositiveInteger(CFG_HEALTH_CHECK_TIME_RANGE, DEFAULT_HEALTH_CHECK_TIME_RANGE);
-    }
-
-    private String getMailApiUrlFromEnvironment() {
-        String value = environment.getString(CFG_MAIL_API_URL);
-        LOGGER.info(format(Messages.MAIL_API_URL, value));
-        return value;
     }
 
     private String getApplicationGuidFromEnvironment() {

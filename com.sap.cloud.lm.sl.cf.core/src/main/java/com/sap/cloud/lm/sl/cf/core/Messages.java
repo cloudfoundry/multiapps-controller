@@ -130,9 +130,7 @@ public final class Messages {
     public static final String CHANGE_LOG_LOCK_DURATION = "Change log lock duration: {0}";
     public static final String CHANGE_LOG_LOCK_ATTEMPTS = "Change log lock attempts: {0}";
     public static final String GLOBAL_CONFIG_SPACE = "Global config space: {0}";
-    public static final String GATHER_STATISTICS = "Gather statistics: {0}";
     public static final String HEALTH_CHECK_CONFIGURATION = "Health check configuration: {0}";
-    public static final String MAIL_API_URL = "Mail API URL: {0}";
     public static final String APPLICATION_GUID = "Application GUID: {0}";
     public static final String APPLICATION_INSTANCE_INDEX = "Application instance index: {0}";
     public static final String AUDIT_LOG_CLIENT_CORE_THREADS = "Audit log client core threads: {0}";

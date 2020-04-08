@@ -5,21 +5,17 @@ import java.time.ZonedDateTime;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.util.RestUtil;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.LoggingUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SafeExecutor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -43,10 +39,6 @@ public class OperationInFinalStateHandler {
     @Inject
     private FileService fileService;
     @Inject
-    private ApplicationConfiguration configuration;
-    @Inject
-    private CollectedDataSender dataSender;
-    @Inject
     private HistoricOperationEventPersister historicOperationEventPersister;
     @Inject
     private OperationTimeAggregator operationTimeAggregator;
@@ -58,22 +50,11 @@ public class OperationInFinalStateHandler {
 
     private void handleInternal(DelegateExecution execution, Operation.State state) {
         String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
-        safeExecutor.execute(() -> {
-            if (configuration.shouldGatherUsageStatistics()) {
-                sendStatistics(execution, state);
-            }
-        });
         safeExecutor.execute(() -> deleteDeploymentFiles(execution));
         safeExecutor.execute(() -> deleteCloudControllerClientForProcess(execution));
         safeExecutor.execute(() -> releaseOperationLock(correlationId));
         safeExecutor.execute(() -> setOperationState(correlationId, state));
         safeExecutor.execute(() -> operationTimeAggregator.aggregateOperationTime(correlationId));
-    }
-
-    protected void sendStatistics(DelegateExecution execution, Operation.State state) {
-        RestTemplate restTemplate = new RestUtil().createRestTemplate(null, false);
-        AnalyticsData collectedData = dataSender.collectAnalyticsData(execution, state);
-        dataSender.sendCollectedData(restTemplate, dataSender.convertCollectedAnalyticsDataToXml(execution, collectedData));
     }
 
     protected void deleteDeploymentFiles(DelegateExecution execution) throws FileStorageException {

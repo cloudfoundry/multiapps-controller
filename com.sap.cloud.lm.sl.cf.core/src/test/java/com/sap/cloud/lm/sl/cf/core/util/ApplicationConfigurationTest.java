@@ -320,14 +320,6 @@ public class ApplicationConfigurationTest {
     }
 
     @Test
-    public void testShouldGatherUsageStatistics() {
-        Mockito.when(environment.getBoolean(ApplicationConfiguration.CFG_GATHER_USAGE_STATISTICS,
-                                            ApplicationConfiguration.DEFAULT_GATHER_USAGE_STATISTICS))
-               .thenReturn(ApplicationConfiguration.DEFAULT_GATHER_USAGE_STATISTICS);
-        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_GATHER_USAGE_STATISTICS, configuration.shouldGatherUsageStatistics());
-    }
-
-    @Test
     public void testGetHealthCheckConfigurationFromEnvironment() {
         String healthCheckSpaceId = "healthCheckSpaceId";
         String healthCheckMtaId = "healthCheckMtaId";
@@ -347,14 +339,6 @@ public class ApplicationConfigurationTest {
         Assertions.assertEquals(healthCheckMtaId, healthCheckConfiguration.getMtaId());
         Assertions.assertEquals(healthCheckUserName, healthCheckConfiguration.getUserName());
         Assertions.assertEquals(healthCheckTimeRange, healthCheckConfiguration.getTimeRangeInSeconds());
-    }
-
-    @Test
-    public void testGetMailApiUrl() {
-        String mailApiUrl = "https://mail.com";
-        Mockito.when(environment.getString(ApplicationConfiguration.CFG_MAIL_API_URL))
-               .thenReturn(mailApiUrl);
-        Assertions.assertEquals(mailApiUrl, configuration.getMailApiUrl());
     }
 
     @Test
