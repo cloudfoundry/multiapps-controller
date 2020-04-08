@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.variables;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.immutables.value.Value;
@@ -19,8 +20,11 @@ public abstract class CommaSeparatedValuesVariable implements ListVariable<Strin
 
             @Override
             public List<String> deserialize(Object serializedValue) {
-                String commaSeparatedValue = (String) serializedValue;
-                return Arrays.asList(commaSeparatedValue.split(","));
+                return split((String) serializedValue);
+            }
+
+            private List<String> split(String serializedValue) {
+                return serializedValue.isEmpty() ? Collections.emptyList() : Arrays.asList(serializedValue.split(","));
             }
 
         };
