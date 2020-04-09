@@ -4,9 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.stream.Stream;
 
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.sap.cloud.lm.sl.common.ConflictException;
@@ -21,8 +23,8 @@ public class CFExceptionMapperTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testHandleException(Throwable throwable, RestResponse expectedResponse) {
-        ResponseEntity<String> response = exceptionMapper.handleException(throwable);
+    public void testHandleException(Exception exception, RestResponse expectedResponse) {
+        ResponseEntity<String> response = exceptionMapper.handleException(exception);
         assertEquals(expectedResponse.getStatus(), response.getStatusCodeValue());
         assertEquals(expectedResponse.getEntity(), response.getBody());
     }
@@ -34,7 +36,8 @@ public class CFExceptionMapperTest {
             Arguments.of(new ConflictException("Already exists"), new RestResponse(409, "Already exists")),
             Arguments.of(new ParsingException("Bad request"), new RestResponse(400, "Bad request")),
             Arguments.of(new ContentException("Bad request"), new RestResponse(400, "Bad request")),
-            Arguments.of(new SLException("SL exception"), new RestResponse(500, "SL exception"))
+            Arguments.of(new SLException("SL exception"), new RestResponse(500, "SL exception")),
+            Arguments.of(new CloudOperationException(HttpStatus.TOO_MANY_REQUESTS, HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(), "Rate limit exceeded"), new RestResponse(502, "429 Too Many Requests: Rate limit exceeded"))
         // @formatter:on
         );
     }

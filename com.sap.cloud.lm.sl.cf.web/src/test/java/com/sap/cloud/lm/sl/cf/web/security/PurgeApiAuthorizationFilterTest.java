@@ -14,10 +14,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.web.resources.ConfigurationEntriesResource;
+import com.sap.cloud.lm.sl.common.SLException;
 
 public class PurgeApiAuthorizationFilterTest {
 
@@ -70,9 +70,7 @@ public class PurgeApiAuthorizationFilterTest {
 
     @Test
     public void testExtractTargetWithMissingParameters() {
-        AuthorizationException authorizationException = assertThrows(AuthorizationException.class,
-                                                                     () -> purgeApiAuthorizationFilter.extractTarget(request));
-        assertEquals(HttpStatus.BAD_REQUEST.value(), authorizationException.getStatusCode());
+        assertThrows(SLException.class, () -> purgeApiAuthorizationFilter.extractTarget(request));
     }
 
 }

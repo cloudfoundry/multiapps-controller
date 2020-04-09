@@ -14,7 +14,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
+
+import com.sap.cloud.lm.sl.common.SLException;
 
 public class MtasApiAuthorizationFilterTest {
 
@@ -60,9 +61,7 @@ public class MtasApiAuthorizationFilterTest {
     public void testExtractSpaceGuidWithNonMatchingUri() {
         Mockito.when(request.getRequestURI())
                .thenReturn("/public/ping");
-        AuthorizationException authorizationException = assertThrows(AuthorizationException.class,
-                                                                     () -> mtasApiAuthorizationFilter.extractSpaceGuid(request));
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), authorizationException.getStatusCode());
+        assertThrows(SLException.class, () -> mtasApiAuthorizationFilter.extractSpaceGuid(request));
     }
 
 }

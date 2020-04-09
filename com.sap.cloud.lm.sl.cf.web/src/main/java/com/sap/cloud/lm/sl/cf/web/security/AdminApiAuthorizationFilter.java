@@ -5,9 +5,9 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class AdminApiAuthorizationFilter extends SpaceGuidBasedAuthorizationFilter {
@@ -29,7 +29,7 @@ public class AdminApiAuthorizationFilter extends SpaceGuidBasedAuthorizationFilt
     protected String extractSpaceGuid(HttpServletRequest request) {
         String spaceGuid = applicationConfiguration.getSpaceGuid();
         if (StringUtils.isEmpty(spaceGuid)) {
-            throw new AuthorizationException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Could not retrieve the MTA deployer's space GUID.");
+            throw new SLException("Could not retrieve the MTA deployer's space GUID.");
         }
         return spaceGuid;
     }
