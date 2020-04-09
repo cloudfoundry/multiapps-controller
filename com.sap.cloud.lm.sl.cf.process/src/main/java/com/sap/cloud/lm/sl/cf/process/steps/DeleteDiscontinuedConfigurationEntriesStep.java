@@ -10,7 +10,6 @@ import javax.inject.Named;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
@@ -33,13 +32,11 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.DELETING_PUBLISHED_DEPENDENCIES);
         String mtaId = context.getVariable(Variables.MTA_ID);
-        String org = context.getVariable(Variables.ORG);
-        String space = context.getVariable(Variables.SPACE);
-        CloudTarget target = new CloudTarget(org, space);
+        String spaceId = context.getVariable(Variables.SPACE_ID);
 
         List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacade);
 
-        List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, target, publishedEntries);
+        List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, spaceId, publishedEntries);
         for (ConfigurationEntry entry : entriesToDelete) {
             getStepLogger().info(MessageFormat.format(Messages.DELETING_DISCONTINUED_DEPENDENCY_0, entry.getProviderId()));
             int deletedEntries = configurationEntryService.createQuery()
@@ -61,18 +58,18 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
         return Messages.ERROR_DELETING_PUBLISHED_DEPENDENCIES;
     }
 
-    private List<ConfigurationEntry> getEntriesToDelete(String mtaId, CloudTarget target, List<ConfigurationEntry> publishedEntries) {
-        List<ConfigurationEntry> allEntriesForCurrentMta = getEntries(mtaId, target);
+    private List<ConfigurationEntry> getEntriesToDelete(String mtaId, String spaceId, List<ConfigurationEntry> publishedEntries) {
+        List<ConfigurationEntry> allEntriesForCurrentMta = getEntries(mtaId, spaceId);
         List<Long> publishedEntryIds = getEntryIds(publishedEntries);
         return allEntriesForCurrentMta.stream()
                                       .filter(entry -> !publishedEntryIds.contains(entry.getId()))
                                       .collect(Collectors.toList());
     }
 
-    private List<ConfigurationEntry> getEntries(String mtaId, CloudTarget target) {
+    private List<ConfigurationEntry> getEntries(String mtaId, String spaceId) {
         return configurationEntryService.createQuery()
                                         .providerNid(ConfigurationEntriesUtil.PROVIDER_NID)
-                                        .target(target)
+                                        .spaceId(spaceId)
                                         .mtaId(mtaId)
                                         .list();
     }

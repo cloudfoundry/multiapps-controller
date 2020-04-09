@@ -21,7 +21,6 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
@@ -75,12 +74,10 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
     public void setUp() {
         prepareContext();
 
-        CloudTarget target = new CloudTarget(stepInput.org, stepInput.space);
-
         doReturn(configurationEntryQuery).when(configurationEntryService)
                                          .createQuery();
         ConfigurationEntryQuery queryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(ConfigurationEntriesUtil.PROVIDER_NID))
-                                                                                      .on(query -> query.target(target))
+                                                                                      .on(query -> query.spaceId(stepInput.spaceId))
                                                                                       .on(query -> query.mtaId(stepInput.mtaId))
                                                                                       .build();
         doReturn(stepInput.entriesForMta).when(queryMock)
@@ -88,9 +85,8 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
     }
 
     private void prepareContext() {
-        context.setVariable(Variables.SPACE, stepInput.space);
-        context.setVariable(Variables.ORG, stepInput.org);
         context.setVariable(Variables.MTA_ID, stepInput.mtaId);
+        context.setVariable(Variables.SPACE_ID, stepInput.spaceId);
         Mockito.when(execution.getProcessInstanceId())
                .thenReturn("process-instance-id");
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
@@ -158,8 +154,7 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
         private List<ConfigurationEntry> entriesForMta;
         private List<ConfigurationEntry> publishedEntries;
         private String mtaId;
-        private String space;
-        private String org;
+        private String spaceId;
     }
 
     @Override
