@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+	<changeSet author="sap.com" id="db-changelog-update_configuration_registry_delete_null_space_id">
+        <delete tableName="configuration_registry">
+            <where>space_id IS NULL</where>
+        </delete>
+    </changeSet>
+    <changeSet author="sap.com" id="db-changelog-update_configuration_registry_delete_duplicated_by_space_id_and_provider_id">
+        <preConditions onFail="MARK_RAN">
+            <dbms type="postgresql" />
+        </preConditions>
+        <sql>
+  		    DELETE FROM configuration_registry
+			WHERE id IN (
+			    SELECT
+			        id
+			    FROM (
+			        SELECT
+			            id,
+			            ROW_NUMBER() OVER w AS rnum
+			        FROM configuration_registry 
+			        WINDOW w AS (
+			            PARTITION BY provider_nid, provider_id, space_id
+			            ORDER BY id DESC
+			        ) 
+			    ) t
+			WHERE t.rnum > 1);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

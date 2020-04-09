@@ -61,4 +61,6 @@
         file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_progress_message_drop_task_execution_id_column.xml" />
     <include
         file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-delete_task_startup_progress_messages.xml" />
+   <include
+        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-update_configuration_registry_clean_up_leftovers.xml" />
 </databaseChangeLog>
