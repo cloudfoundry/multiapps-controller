@@ -23,7 +23,6 @@
    		},
         "content": "{}"
     }],
-    "space": "SAP",
-    "org": "myorg",
-    "mtaId": "com.sap.example.mta"
+    "mtaId": "com.sap.example.mta",
+    "spaceId": "d48c2676-7a41-11ea-bc55-0242ac130003"
 }
