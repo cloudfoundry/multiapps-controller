@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.util;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -8,6 +10,7 @@ import java.util.Map;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.servlet.HandlerMapping;
 
@@ -47,6 +50,14 @@ public final class ServletUtil {
 
     public static String removeInvalidForwardSlashes(String uri) {
         return uri.replaceAll(TWO_OR_MORE_FORWARD_SLASHES_REGEX, SINGLE_FORWARD_SLASH);
+    }
+
+    public static void send(HttpServletResponse response, int statusCode, String body) throws IOException {
+        response.setStatus(statusCode);
+        try (PrintWriter writer = response.getWriter()) {
+            writer.print(body);
+            writer.flush();
+        }
     }
 
 }

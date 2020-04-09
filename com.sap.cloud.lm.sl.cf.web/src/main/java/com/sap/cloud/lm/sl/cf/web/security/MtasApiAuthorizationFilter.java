@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.web.security;
 
-import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,9 +7,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.http.HttpStatus;
-
 import com.sap.cloud.lm.sl.cf.web.util.ServletUtil;
+import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class MtasApiAuthorizationFilter extends SpaceGuidBasedAuthorizationFilter {
@@ -39,8 +37,7 @@ public class MtasApiAuthorizationFilter extends SpaceGuidBasedAuthorizationFilte
         if (matcher.matches()) {
             return matcher.group(1);
         }
-        throw new AuthorizationException(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                                         MessageFormat.format("Could not extract space GUID from URI \"{0}\".", uri));
+        throw new SLException("Could not extract space GUID from URI \"{0}\".", uri);
     }
 
 }

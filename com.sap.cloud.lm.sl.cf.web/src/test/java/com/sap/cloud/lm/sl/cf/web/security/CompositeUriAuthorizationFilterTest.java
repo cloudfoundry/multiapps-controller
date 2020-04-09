@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
+
+import com.sap.cloud.lm.sl.cf.web.resources.CFExceptionMapper;
+import com.sap.cloud.lm.sl.common.SLException;
 
 public class CompositeUriAuthorizationFilterTest {
 
@@ -38,7 +42,8 @@ public class CompositeUriAuthorizationFilterTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         compositeUriAuthorizationFilter = new CompositeUriAuthorizationFilter(Arrays.asList(fooUriAuthorizationFilter,
-                                                                                            barUriAuthorizationFilter));
+                                                                                            barUriAuthorizationFilter),
+                                                                              new CFExceptionMapper());
     }
 
     @Test
@@ -85,12 +90,19 @@ public class CompositeUriAuthorizationFilterTest {
         Mockito.when(request.getRequestURI())
                .thenReturn(FOO_REQUEST_URI);
         Mockito.when(fooUriAuthorizationFilter.ensureUserIsAuthorized(request, response))
-               .thenThrow(new AuthorizationException(HttpStatus.BAD_GATEWAY.value(), "..."));
+               .thenThrow(new SLException("..."));
+        PrintWriter writer = Mockito.mock(PrintWriter.class);
+        Mockito.when(response.getWriter())
+               .thenReturn(writer);
 
         assertFalse(compositeUriAuthorizationFilter.ensureUserIsAuthorized(request, response));
 
         Mockito.verify(response)
-               .sendError(HttpStatus.BAD_GATEWAY.value(), "...");
+               .setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        Mockito.verify(writer)
+               .print("...");
+        Mockito.verify(writer)
+               .flush();
     }
 
     @Test

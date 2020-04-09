@@ -10,7 +10,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 
+import com.sap.cloud.lm.sl.cf.web.resources.CFExceptionMapper;
 import com.sap.cloud.lm.sl.cf.web.util.ServletUtil;
 
 @Named("compositeUriAuthorizationFilter")
@@ -19,10 +21,12 @@ public class CompositeUriAuthorizationFilter extends AuthorizationFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompositeUriAuthorizationFilter.class);
 
     private final List<UriAuthorizationFilter> uriAuthorizationFilters;
+    private final CFExceptionMapper exceptionMapper;
 
     @Inject
-    public CompositeUriAuthorizationFilter(List<UriAuthorizationFilter> uriAuthorizationFilters) {
+    public CompositeUriAuthorizationFilter(List<UriAuthorizationFilter> uriAuthorizationFilters, CFExceptionMapper exceptionMapper) {
         this.uriAuthorizationFilters = uriAuthorizationFilters;
+        this.exceptionMapper = exceptionMapper;
     }
 
     @Override
@@ -39,8 +43,9 @@ public class CompositeUriAuthorizationFilter extends AuthorizationFilter {
             }
             LOGGER.trace("No matching authorization filter for request to \"{}\".", uri);
             return true;
-        } catch (AuthorizationException e) {
-            response.sendError(e.getStatusCode(), e.getMessage());
+        } catch (Exception e) {
+            ResponseEntity<String> responseEntity = exceptionMapper.handleException(e);
+            ServletUtil.send(response, responseEntity.getStatusCodeValue(), responseEntity.getBody());
             return false;
         }
     }

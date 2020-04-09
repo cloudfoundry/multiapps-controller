@@ -14,9 +14,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.common.SLException;
 
 public class AdminApiAuthorizationFilterTest {
 
@@ -57,9 +57,7 @@ public class AdminApiAuthorizationFilterTest {
     public void testExtractSpaceGuidWithEmptyString() {
         Mockito.when(applicationConfiguration.getSpaceGuid())
                .thenReturn("");
-        AuthorizationException authorizationException = assertThrows(AuthorizationException.class,
-                                                                     () -> adminApiAuthorizationFilter.extractSpaceGuid(request));
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), authorizationException.getStatusCode());
+        assertThrows(SLException.class, () -> adminApiAuthorizationFilter.extractSpaceGuid(request));
     }
 
 }
