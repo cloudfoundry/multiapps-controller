@@ -55,10 +55,9 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
     }
 
     private List<Module> computeApplicationsForNextIteration(List<Module> allModulesToDeploy, ModuleDependencyChecker dependencyChecker) {
-        allModulesToDeploy.removeIf(module -> dependencyChecker.getAlreadyDeployedModules()
-                                                               .contains(module.getName()));
-
         return allModulesToDeploy.stream()
+                                 .filter(module -> !dependencyChecker.getAlreadyDeployedModules()
+                                                                     .contains(module.getName()))
                                  .filter(dependencyChecker::areAllDependenciesSatisfied)
                                  .collect(Collectors.toList());
     }

@@ -1,32 +1,34 @@
 package com.sap.cloud.lm.sl.cf.core.model;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public enum HookPhase {
-    APPLICATION_BEFORE_STOP_LIVE, APPLICATION_BEFORE_STOP_IDLE, APPLICATION_AFTER_STOP_LIVE, APPLICATION_AFTER_STOP_IDLE, APPLICATION_BEFORE_UNMAP_ROUTES, NONE;
+    APPLICATION_BEFORE_STOP_LIVE("application.before-stop.live"),
+    APPLICATION_BEFORE_STOP_IDLE("application.before-stop.idle"),
+    APPLICATION_AFTER_STOP_LIVE("application.after-stop.live"),
+    APPLICATION_AFTER_STOP_IDLE("application.after-stop.idle"),
+    APPLICATION_BEFORE_UNMAP_ROUTES("application.before-unmap-routes"),
+    NONE("");
 
-    public static HookPhase fromString(String hookPhase) {
-        if (hookPhase.equals("application.after-stop.idle")) {
-            return HookPhase.APPLICATION_AFTER_STOP_IDLE;
+    private final String value;
+
+    HookPhase(String value) {
+        this.value = value;
+    }
+
+    private static Map<String, HookPhase> namesToValues = Arrays.stream(HookPhase.values())
+                                                                .collect(Collectors.toMap(hookPhase -> hookPhase.value,
+                                                                                          hookPhase -> hookPhase));
+
+    public static HookPhase fromString(String hookPhaseName) {
+        HookPhase hookPhase = namesToValues.get(hookPhaseName);
+        if (hookPhase == null) {
+            throw new IllegalStateException(MessageFormat.format("Unsupported hook phase \"{0}\"", hookPhaseName));
         }
-
-        if (hookPhase.equals("application.after-stop.live")) {
-            return HookPhase.APPLICATION_AFTER_STOP_LIVE;
-        }
-
-        if (hookPhase.equals("application.before-stop.idle")) {
-            return HookPhase.APPLICATION_BEFORE_STOP_IDLE;
-        }
-
-        if (hookPhase.equals("application.before-stop.live")) {
-            return HookPhase.APPLICATION_BEFORE_STOP_LIVE;
-        }
-
-        if (hookPhase.equals("application.before-unmap-routes")) {
-            return HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES;
-        }
-
-        throw new IllegalStateException(MessageFormat.format("Unsupported hook phase \"{0}\"", hookPhase));
+        return hookPhase;
     }
 
 }

@@ -1,17 +1,16 @@
 package com.sap.cloud.lm.sl.cf.web.api.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
+import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -20,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -35,8 +35,8 @@ import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaService;
 import com.sap.cloud.lm.sl.cf.web.api.model.Metadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.Module;
+import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.api.model.Mta;
-import com.sap.cloud.lm.sl.cf.web.security.AuthorizationChecker;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -46,13 +46,6 @@ public class MtaApiServiceImplTest {
 
     @Mock
     private CloudControllerClientProvider clientProvider;
-
-    @Mock
-    private AuthorizationChecker authorizationChecker;
-
-    @Mock
-    private HttpServletRequest request;
-
     @Mock
     private CloudControllerClient client;
 
@@ -62,18 +55,19 @@ public class MtaApiServiceImplTest {
     @InjectMocks
     private MtasApiServiceImpl testedClass;
 
-    List<CloudApplication> apps;
-    List<Mta> mtas;
+    private List<CloudApplication> apps;
+    private List<Mta> mtas;
 
     private static final String USER_NAME = "someUser";
-    private static final String SPACE_GUID = "896e6be9-8217-4a1c-b938-09b30966157a";
+    private static final String SPACE_GUID = UUID.randomUUID()
+                                                 .toString();
 
-    @Before
-    public void initialize() throws Exception {
+    @BeforeEach
+    public void initialize() {
         MockitoAnnotations.initMocks(this);
         apps = parseApps();
         mtas = parseMtas();
-        mockClient(USER_NAME);
+        mockClient();
     }
 
     private List<CloudApplication> parseApps() {
@@ -93,7 +87,7 @@ public class MtaApiServiceImplTest {
         ResponseEntity<List<Mta>> response = testedClass.getMtas(SPACE_GUID);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<Mta> responseMtas = response.getBody();
-        mtas.equals(responseMtas);
+        assertEquals(mtas, responseMtas);
     }
 
     @Test
@@ -103,7 +97,7 @@ public class MtaApiServiceImplTest {
                                                                               .getId());
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Mta responseMtas = response.getBody();
-        mtaToGet.equals(responseMtas);
+        assertEquals(mtaToGet, responseMtas);
     }
 
     @Test
@@ -111,12 +105,12 @@ public class MtaApiServiceImplTest {
         Assertions.assertThrows(NotFoundException.class, () -> testedClass.getMta(SPACE_GUID, "not_a_real_mta"));
     }
 
-    private void mockClient(String user) {
-        com.sap.cloud.lm.sl.cf.core.util.UserInfo userInfo = new com.sap.cloud.lm.sl.cf.core.util.UserInfo(null, user, null);
+    private void mockClient() {
+        UserInfo userInfo = new UserInfo(null, USER_NAME, null);
         Authentication auth = Mockito.mock(Authentication.class);
         Mockito.when(auth.getPrincipal())
                .thenReturn(userInfo);
-        org.springframework.security.core.context.SecurityContext securityContextMock = Mockito.mock(org.springframework.security.core.context.SecurityContext.class);
+        SecurityContext securityContextMock = Mockito.mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContextMock);
         Mockito.when(securityContextMock.getAuthentication())
                .thenReturn(auth);
@@ -163,7 +157,7 @@ public class MtaApiServiceImplTest {
                                               .moduleName(module.getModuleName())
                                               .providedDependencyNames(module.getProvidedDendencyNames())
                                               .uris(module.getUris())
-                                              .services(services)
+                                              .boundMtaServices(services)
                                               .build();
     }
 

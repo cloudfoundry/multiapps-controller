@@ -1,10 +1,10 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -57,11 +57,7 @@ public class MtaArchiveHelperTest {
         Set<String> mtaResources = helper.getMtaArchiveResources()
                                          .keySet();
 
-        assertEquals(descriptorResources.size(), mtaResources.size());
-
-        for (String resourceName : mtaResources) {
-            assertTrue(descriptorResources.contains(resourceName));
-        }
+        assertEquals(descriptorResources, mtaResources);
     }
 
     @Test
@@ -70,11 +66,7 @@ public class MtaArchiveHelperTest {
         Set<String> mtaDependencies = helper.getMtaRequiresDependencies()
                                             .keySet();
 
-        assertEquals(descriptorDependencies.size(), mtaDependencies.size());
-
-        for (String dependencyName : mtaDependencies) {
-            assertTrue(descriptorDependencies.contains(dependencyName));
-        }
+        assertEquals(descriptorDependencies, mtaDependencies);
     }
 
     private Set<String> getResourcesNamesFromDescriptor() {
@@ -88,8 +80,8 @@ public class MtaArchiveHelperTest {
         return descriptor.getModules()
                          .stream()
                          .map(Module::getRequiredDependencies)
-                         .flatMap(dependency -> dependency.stream()
-                                                          .map(RequiredDependency::getName))
+                         .flatMap(List::stream)
+                         .map(RequiredDependency::getName)
                          .collect(Collectors.toSet());
     }
 

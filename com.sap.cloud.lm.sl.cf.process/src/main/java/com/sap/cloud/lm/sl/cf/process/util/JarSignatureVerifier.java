@@ -10,21 +10,19 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
 import javax.inject.Named;
 
-import org.apache.commons.collections4.EnumerationUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.google.common.base.Splitter;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -33,8 +31,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class JarSignatureVerifier {
 
     private static final String META_INF = "META-INF";
-    private static final String CN = "CN";
     private static final int BUFFER_SIZE = 8 * 1024;
+    private static final Pattern X509_CERT_SUBJECT_NAME = Pattern.compile("CN=(.+), OU=(.+), O=(.+), C=(.+)");
 
     public void verify(URL jarFileUrl, List<X509Certificate> targetCertificates, String certificateCN) {
         try {
@@ -56,14 +54,13 @@ public class JarSignatureVerifier {
     }
 
     private List<JarEntry> getJarEntries(JarFile jarFile) {
-        return EnumerationUtils.toList(jarFile.entries())
-                               .stream()
-                               .map(jarEntry -> readJarEntry(jarFile, jarEntry))
-                               .filter(jarEntry -> !jarEntry.isDirectory())
-                               .collect(Collectors.toList());
+        return jarFile.stream()
+                      .map(jarEntry -> verifyJarEntry(jarFile, jarEntry))
+                      .filter(jarEntry -> !jarEntry.isDirectory())
+                      .collect(Collectors.toList());
     }
 
-    private JarEntry readJarEntry(JarFile jarFile, JarEntry jarEntry) {
+    private JarEntry verifyJarEntry(JarFile jarFile, JarEntry jarEntry) {
         FileUtils.validatePath(jarEntry.getName());
         try {
             verifySignature(jarFile, jarEntry);
@@ -119,7 +116,7 @@ public class JarSignatureVerifier {
     }
 
     private boolean isSigned(JarEntry jarEntry) {
-        return !ArrayUtils.isEmpty(jarEntry.getCertificates());
+        return ArrayUtils.isNotEmpty(jarEntry.getCertificates());
     }
 
     private String getJarEntriesNames(List<JarEntry> jarEntries) {
@@ -142,21 +139,13 @@ public class JarSignatureVerifier {
 
     private void validateCertificateChain(List<X509Certificate> targetCertificates, List<X509Certificate> candidateCertificateChain,
                                           String certificateCN) {
-        boolean certificateCNMatches = false;
-        boolean targetCertificatesMatchEntryCertificate = false;
-        for (X509Certificate certificate : candidateCertificateChain) {
-            checkValidityOfCertificate(certificate);
-            if (!certificateCNMatches) {
-                certificateCNMatches = certificateCNMatches(certificate, certificateCN);
-            }
-            if (!targetCertificatesMatchEntryCertificate) {
-                targetCertificatesMatchEntryCertificate = doTargetCertificatesMatchEntryCertificate(targetCertificates, certificate);
-            }
-        }
-        if (!certificateCNMatches) {
+        candidateCertificateChain.forEach(this::checkValidityOfCertificate);
+
+        List<String> certificateCNs = getCertificatesNames(candidateCertificateChain);
+        if (certificateCN != null && !certificateCNs.contains(certificateCN)) {
             throw new SLException(Messages.WILL_LOOK_FOR_CERTIFICATE_CN, certificateCN);
         }
-        if (!targetCertificatesMatchEntryCertificate) {
+        if (Collections.disjoint(candidateCertificateChain, targetCertificates)) {
             throw new SLException(Messages.THE_ARCHIVE_IS_NOT_SIGNED_BY_TRUSTED_CERTIFICATE_AUTHORITY,
                                   getCertificatesNames(targetCertificates));
         }
@@ -170,35 +159,33 @@ public class JarSignatureVerifier {
         }
     }
 
-    private boolean doTargetCertificatesMatchEntryCertificate(List<X509Certificate> targetCertificates, X509Certificate certificate) {
-        return targetCertificates.stream()
-                                 .anyMatch(currentCertificate -> Objects.equals(currentCertificate, certificate));
-    }
-
-    private boolean certificateCNMatches(X509Certificate certificate, String certificateCN) {
-        if (certificateCN == null) {
-            return true;
-        }
-        return Objects.equals(getCertificateCN(certificate), certificateCN);
-    }
-
-    private String getCertificateCN(X509Certificate certificate) {
-        Map<String, String> parameters = getCertificateSubjectParameters(certificate);
-        return parameters.get(CN);
-    }
-
-    private Map<String, String> getCertificateSubjectParameters(X509Certificate certificate) {
-        Pattern subjectSeparatorPattern = Pattern.compile(", *");
-        return Splitter.on(subjectSeparatorPattern)
-                       .withKeyValueSeparator("=")
-                       .split(certificate.getSubjectDN()
-                                         .getName());
-    }
-
     private List<String> getCertificatesNames(List<X509Certificate> targetCertificates) {
         return targetCertificates.stream()
                                  .map(this::getCertificateCN)
                                  .collect(Collectors.toList());
+    }
+
+    private String getCertificateCN(X509Certificate certificate) {
+        CertificateSubject certSubject = new CertificateSubject(certificate.getSubjectDN()
+                                                                           .getName());
+        return certSubject.commonName;
+    }
+
+    private static class CertificateSubject {
+        private String commonName;
+        private String organizationalUnit;
+        private String organization;
+        private String country;
+
+        CertificateSubject(String subjectName) {
+            Matcher matcher = X509_CERT_SUBJECT_NAME.matcher(subjectName);
+            if (matcher.matches()) {
+                commonName = matcher.group(1);
+                organizationalUnit = matcher.group(2);
+                organization = matcher.group(3);
+                country = matcher.group(4);
+            }
+        }
     }
 
 }

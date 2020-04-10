@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -237,8 +238,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                               .map(updater -> updater.update(existingApp, app))
                                                                               .collect(Collectors.toList());
 
-            boolean arePropertiesChanged = updateStates.stream()
-                                                       .anyMatch(updateState -> updateState == UpdateState.UPDATED);
+            boolean arePropertiesChanged = updateStates.contains(UpdateState.UPDATED);
 
             reportApplicationUpdateStatus(app, arePropertiesChanged);
             context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, arePropertiesChanged);
@@ -369,7 +369,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                .stream()
                                                .filter(serviceName -> !requiredServices.contains(serviceName))
                                                .collect(Collectors.toList());
-            servicesToUnbind.forEach(serviceName -> client.unbindServiceInstance(app.getName(), serviceName));
+            for (String serviceName : servicesToUnbind) {
+                client.unbindServiceInstance(app.getName(), serviceName);
+            }
             return !servicesToUnbind.isEmpty();
         }
 
@@ -391,7 +393,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         private void reportNonUpdatedServices(Set<String> services, String applicationName, List<String> updatedServices) {
             List<String> nonUpdatesServices = ListUtils.removeAll(services, updatedServices);
-            nonUpdatesServices.forEach(service -> getStepLogger().warn(Messages.WILL_NOT_REBIND_APP_TO_SERVICE, service, applicationName));
+            for (String service : nonUpdatesServices) {
+                getStepLogger().warn(Messages.WILL_NOT_REBIND_APP_TO_SERVICE, service, applicationName);
+            }
         }
     }
 
@@ -399,12 +403,10 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         throws FileStorageException {
         List<CloudServiceInstanceExtended> services = getServices(context.getVariable(Variables.SERVICES_TO_BIND), app.getServices());
 
-        Map<String, Map<String, Object>> descriptorProvidedBindingParameters = app.getBindingParameters();
-        if (descriptorProvidedBindingParameters == null) {
-            descriptorProvidedBindingParameters = Collections.emptyMap();
-        }
         Map<String, Map<String, Object>> fileProvidedBindingParameters = getFileProvidedBindingParameters(context, app.getModuleName(),
                                                                                                           services);
+        Map<String, Map<String, Object>> descriptorProvidedBindingParameters = ObjectUtils.defaultIfNull(app.getBindingParameters(),
+                                                                                                         Collections.emptyMap());
         Map<String, Map<String, Object>> bindingParameters = mergeBindingParameters(descriptorProvidedBindingParameters,
                                                                                     fileProvidedBindingParameters);
         getStepLogger().debug(Messages.BINDING_PARAMETERS_FOR_APPLICATION, app.getName(), secureSerializer.toJson(bindingParameters));

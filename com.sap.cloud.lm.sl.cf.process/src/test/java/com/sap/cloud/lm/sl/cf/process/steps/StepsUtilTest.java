@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.google.common.io.ByteStreams;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
@@ -43,6 +43,7 @@ public class StepsUtilTest {
         assertEquals(EXAMPLE_USER, determinedUser);
     }
 
+    @Test
     public void testDetermineCurrentUserError() {
         Assertions.assertThrows(SLException.class, () -> StepsUtil.determineCurrentUser(execution));
     }
@@ -50,29 +51,22 @@ public class StepsUtilTest {
     @Test
     public void testGetModuleContentAsStream() throws Exception {
         byte[] bytes = "example byte array".getBytes();
-        Mockito.when(execution.getVariable(Mockito.eq(constructModuleContentVariable(EXAMPLE_MODULE_NAME))))
+        Mockito.when(execution.getVariable(Mockito.eq(constructModuleContentVariable())))
                .thenReturn(bytes);
         InputStream stream = StepsUtil.getModuleContentAsStream(execution, EXAMPLE_MODULE_NAME);
-        byte[] readBytes = ByteStreams.toByteArray(stream);
-        assertByteArraysMatch(bytes, readBytes);
+        byte[] readBytes = IOUtils.toByteArray(stream);
+        Assertions.assertArrayEquals(bytes, readBytes);
     }
 
     @Test
     public void testGetModuleContentAsStreamNotFound() {
-        Mockito.when(execution.getVariable(Mockito.eq(constructModuleContentVariable(EXAMPLE_MODULE_NAME))))
+        Mockito.when(execution.getVariable(Mockito.eq(constructModuleContentVariable())))
                .thenReturn(null);
         Assertions.assertThrows(SLException.class, () -> StepsUtil.getModuleContentAsStream(execution, EXAMPLE_MODULE_NAME));
     }
 
-    private String constructModuleContentVariable(String moduleName) {
-        return Constants.VAR_MTA_MODULE_CONTENT_PREFIX + moduleName;
-    }
-
-    private void assertByteArraysMatch(byte[] expected, byte[] actual) {
-        Assertions.assertEquals(expected.length, actual.length);
-        for (int i = 0; i < expected.length; i++) {
-            Assertions.assertEquals(expected[i], actual[i]);
-        }
+    private String constructModuleContentVariable() {
+        return Constants.VAR_MTA_MODULE_CONTENT_PREFIX + StepsUtilTest.EXAMPLE_MODULE_NAME;
     }
 
     @Test

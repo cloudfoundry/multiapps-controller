@@ -1,8 +1,5 @@
 package com.sap.cloud.lm.sl.cf.web.configuration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -66,21 +63,13 @@ public class FlowableConfiguration {
         processEngineConfiguration.setDatabaseSchemaUpdate(DATABASE_SCHEMA_UPDATE);
         processEngineConfiguration.setDataSource(dataSource);
         processEngineConfiguration.setTransactionManager(transactionManager);
-        processEngineConfiguration.setDeploymentResources(getFlowableResources());
+        processEngineConfiguration.setDeploymentResources(flowableResources);
         processEngineConfiguration.setFailedJobCommandFactory(abortFailedProcessCommandFactory);
         processEngineConfiguration.setAsyncExecutor(jobExecutor);
         // By default Flowable will retry failed jobs and we don't want that.
         processEngineConfiguration.setAsyncExecutorNumberOfRetries(0);
         processEngineConfiguration.setIdGenerator(new StrongUuidGenerator());
         return processEngineConfiguration;
-    }
-
-    private Resource[] getFlowableResources() {
-        return getFlowableResourcesAsList().toArray(new Resource[0]);
-    }
-
-    protected List<Resource> getFlowableResourcesAsList() {
-        return new ArrayList<>(Arrays.asList(flowableResources));
     }
 
     @Inject

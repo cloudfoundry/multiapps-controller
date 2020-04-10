@@ -21,7 +21,6 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFac
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -49,7 +48,6 @@ public class ServiceRemover {
         } catch (CloudException e) {
             processException(context, e, serviceInstance);
         }
-
     }
 
     private void unbindService(CloudControllerClient client, StepLogger stepLogger, CloudServiceInstance serviceInstance,
@@ -58,13 +56,9 @@ public class ServiceRemover {
             return;
         }
         stepLogger.debug(Messages.SERVICE_BINDINGS_EXISTS, secureSerializer.toJson(serviceBindings));
-        List<CloudApplication> applications = client.getApplications();
-        for (CloudServiceBinding serviceBinding : serviceBindings) {
-            CloudApplication application = StepsUtil.getBoundApplication(applications, serviceBinding.getApplicationGuid());
-            if (application == null) {
-                throw new IllegalStateException(MessageFormat.format(Messages.COULD_NOT_FIND_APPLICATION_WITH_GUID_0,
-                                                                     serviceBinding.getApplicationGuid()));
-            }
+        for (CloudServiceBinding binding : serviceBindings) {
+            CloudApplication application = client.getApplication(binding.getApplicationGuid());
+
             stepLogger.info(Messages.UNBINDING_SERVICE_FROM_APP, serviceInstance, application.getName());
             client.unbindServiceInstance(application, serviceInstance);
         }
