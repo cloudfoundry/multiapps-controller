@@ -1,16 +1,16 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.Attributes;
@@ -18,8 +18,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
@@ -39,12 +39,10 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 public class MtaArchiveBuilder {
 
-    static final String MTA_ASSEMBLY_DIR = "mta-assembly";
+    private static final String MTA_ASSEMBLY_DIR = "mta-assembly";
     private static final String META_INF_DIR = "META-INF/";
     private static final String MTAD_YAML = "mtad.yaml";
     static final String DEPLOYMENT_DESCRIPTOR_ARCHIVE_PATH = META_INF_DIR + MTAD_YAML;
-
-    private static final int BUFFER_SIZE = 4 * 1024;
 
     private final Path mtaDir;
     private Path deploymentDescriptorFile;
@@ -108,8 +106,7 @@ public class MtaArchiveBuilder {
                 .putAll(manifestEntries);
 
         Path mtaArchive = mtaAssemblyDir.resolve(mtaDir.getFileName()
-                                                       .toString()
-            + ".mtar");
+                                                       .toString() + ".mtar");
         try (JarOutputStream jarOutputStream = new JarOutputStream(Files.newOutputStream(mtaArchive), manifest)) {
             for (Path source : jarEntries) {
                 addJarEntry(source, jarOutputStream);
@@ -128,7 +125,6 @@ public class MtaArchiveBuilder {
         manifestEntries.put(DEPLOYMENT_DESCRIPTOR_ARCHIVE_PATH, new Attributes());
         prepareModules();
         prepareResourceEntries(deploymentDescriptor);
-
     }
 
     private void prepareModules() {
@@ -224,10 +220,9 @@ public class MtaArchiveBuilder {
             JarEntry entry = createJarEntry(source);
             out.putNextEntry(entry);
             out.closeEntry();
-            try (Stream<Path> dirStream = Files.list(source)) {
-                Iterator<Path> nestedFilesIterator = dirStream.iterator();
-                while (nestedFilesIterator.hasNext()) {
-                    addJarEntry(nestedFilesIterator.next(), out);
+            try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(source)) {
+                for (Path path : dirStream) {
+                    addJarEntry(path, out);
                 }
             }
             return;
@@ -235,15 +230,8 @@ public class MtaArchiveBuilder {
 
         JarEntry entry = createJarEntry(source);
         out.putNextEntry(entry);
-
-        try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(source))) {
-            int read = 0;
-            byte[] buffer = new byte[BUFFER_SIZE];
-            while ((read = in.read(buffer)) > -1) {
-                out.write(buffer, 0, read);
-            }
-            out.closeEntry();
-        }
+        Files.copy(source, out);
+        out.closeEntry();
     }
 
     private JarEntry createJarEntry(Path source) throws IOException {
@@ -270,31 +258,25 @@ public class MtaArchiveBuilder {
     }
 
     private Path findDeploymentDescriptor(Path mtaDirectory) {
-        try (Stream<Path> mtaDirContents = Files.list(mtaDirectory)) {
-            return mtaDirContents.filter(path -> MTAD_YAML.equals(path.getFileName()
-                                                                      .toString()))
-                                 .findFirst()
-                                 .orElseThrow(() -> new SLException(Messages.DIRECTORY_0_DOES_NOT_CONTAIN_MANDATORY_DEPLOYMENT_DESCRIPTOR_FILE_1,
-                                                                    mtaDirectory.getFileName()
-                                                                                .toString(),
-                                                                    MTAD_YAML));
-
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(mtaDirectory)) {
+            for (Path path : dirStream) {
+                if (MTAD_YAML.equals(path.getFileName()
+                                         .toString())) {
+                    return path;
+                }
+            }
+            throw new SLException(Messages.DIRECTORY_0_DOES_NOT_CONTAIN_MANDATORY_DEPLOYMENT_DESCRIPTOR_FILE_1,
+                                  mtaDirectory.getFileName()
+                                              .toString(),
+                                  MTAD_YAML);
         } catch (IOException e) {
             throw new SLException(e, Messages.FAILED_TO_LIST_MULTI_TARGET_APP_DIRECTORY_0, mtaDirectory);
         }
     }
 
     private Map<String, List<Module>> createModulesMap(List<Module> modules) {
-        Map<String, List<Module>> modulesMap = new HashMap<>();
-        modules.forEach(module -> putModuleEntry(modulesMap, module));
-        return modulesMap;
-    }
-
-    private void putModuleEntry(Map<String, List<Module>> map, Module module) {
-        String modulePath = module.getPath();
-        if (modulePath != null) {
-            map.computeIfAbsent(modulePath, k -> new ArrayList<>())
-               .add(module);
-        }
+        return modules.stream()
+                      .filter(module -> module.getPath() != null)
+                      .collect(Collectors.groupingBy(Module::getPath));
     }
 }

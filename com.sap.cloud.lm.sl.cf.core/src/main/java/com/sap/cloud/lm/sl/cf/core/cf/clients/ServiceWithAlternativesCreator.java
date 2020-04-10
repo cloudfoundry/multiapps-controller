@@ -5,12 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
@@ -63,17 +61,20 @@ public class ServiceWithAlternativesCreator {
         return attemptToFindServiceOfferingAndCreateService(client, serviceInstance, validServiceOfferings);
     }
 
-    private List<CloudServicePlan> retrievePlanListFromServicePlan(CloudServiceInstanceExtended serviceInstance,
-                                                                   List<CloudServicePlan>... listOfPlans) {
+    private List<CloudServicePlan> retrievePlanListFromServicePlan(CloudServiceInstanceExtended serviceInstance, List<CloudServicePlan> v1Plans,
+                                                                   List<CloudServicePlan> v2Plans) {
         String servicePlanName = serviceInstance.getPlan();
-        if (ArrayUtils.isEmpty(listOfPlans)) {
+        if (v1Plans.isEmpty() || v2Plans.isEmpty()) {
             throw new SLException(Messages.EMPTY_SERVICE_PLANS_LIST_FOUND, servicePlanName);
         }
 
-        return Stream.of(listOfPlans)
-                     .filter(plans -> containsPlan(plans, servicePlanName))
-                     .findFirst()
-                     .orElse(listOfPlans[0]);
+        if (containsPlan(v1Plans, servicePlanName)) {
+            return v1Plans;
+        }
+        if (containsPlan(v2Plans, servicePlanName)) {
+            return v2Plans;
+        }
+        return v1Plans;
     }
 
     private boolean containsPlan(List<CloudServicePlan> plans, String servicePlanName) {

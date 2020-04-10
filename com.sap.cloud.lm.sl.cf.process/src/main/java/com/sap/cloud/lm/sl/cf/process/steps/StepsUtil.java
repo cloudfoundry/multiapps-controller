@@ -32,6 +32,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.ImmutableLogsOffset;
 import com.sap.cloud.lm.sl.cf.core.util.LogsOffset;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -168,15 +169,18 @@ public class StepsUtil {
                             CloudApplication app, Logger logger, ProcessLoggerProvider processLoggerProvider) {
         LogsOffset offset = getLogOffset(execution);
         List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogsSafely(client, app.getName(), offset);
-        if (!recentLogs.isEmpty()) {
-            recentLogs.forEach(log -> appLog(execution, app.getName(), log.toString(), logger, processLoggerProvider));
-            setLogOffset(recentLogs.get(recentLogs.size() - 1), execution);
+        if (recentLogs.isEmpty()) {
+            return;
         }
+        ProcessLogger processLogger = processLoggerProvider.getLogger(execution, app.getName());
+        for (ApplicationLog log : recentLogs) {
+            saveAppLog(processLogger, app.getName(), log.toString(), logger);
+        }
+        setLogOffset(recentLogs.get(recentLogs.size() - 1), execution);
     }
 
-    static void appLog(DelegateExecution execution, String appName, String message, Logger logger,
-                       ProcessLoggerProvider processLoggerProvider) {
-        getLogger(execution, appName, processLoggerProvider).debug(getLoggerPrefix(logger) + "[" + appName + "] " + message);
+    static void saveAppLog(ProcessLogger processLogger, String appName, String message, Logger logger) {
+        processLogger.debug(getLoggerPrefix(logger) + "[" + appName + "] " + message);
     }
 
     static LogsOffset getLogOffset(DelegateExecution execution) {
@@ -227,19 +231,6 @@ public class StepsUtil {
             return gitRepoConfigMap.get(Variables.GIT_URI.getName());
         }
         return context.getVariable(Variables.GIT_URI);
-    }
-
-    public static CloudApplication getBoundApplication(List<CloudApplication> applications, UUID appGuid) {
-        return applications.stream()
-                           .filter(app -> hasGuid(app, appGuid))
-                           .findFirst()
-                           .orElse(null);
-    }
-
-    private static boolean hasGuid(CloudApplication app, UUID appGuid) {
-        return app.getMetadata()
-                  .getGuid()
-                  .equals(appGuid);
     }
 
     public static boolean getIsServiceUpdatedExportedVariable(VariableScope scope, String serviceName) {

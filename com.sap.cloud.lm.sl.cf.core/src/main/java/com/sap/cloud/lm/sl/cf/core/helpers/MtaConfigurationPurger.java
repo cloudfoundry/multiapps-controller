@@ -4,10 +4,10 @@ import static com.sap.cloud.lm.sl.cf.core.cf.metadata.util.MtaMetadataUtil.hasEn
 import static com.sap.cloud.lm.sl.cf.core.cf.metadata.util.MtaMetadataUtil.hasMtaMetadata;
 
 import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -110,19 +110,18 @@ public class MtaConfigurationPurger {
 
     private List<ConfigurationEntry> getStillRelevantConfigurationEntries(List<CloudApplication> apps) {
         return apps.stream()
-                   .flatMap(app -> getStillRelevantConfigurationEntries(app).stream())
+                   .flatMap(this::getStillRelevantConfigurationEntries)
                    .collect(Collectors.toList());
     }
 
-    private List<ConfigurationEntry> getStillRelevantConfigurationEntries(CloudApplication app) {
+    private Stream<ConfigurationEntry> getStillRelevantConfigurationEntries(CloudApplication app) {
         MtaMetadata metadata = getMtaMetadata(app);
         if (metadata == null) {
-            return Collections.emptyList();
+            return Stream.empty();
         }
         return getDeployedMtaApplication(app).getProvidedDependencyNames()
                                              .stream()
-                                             .map(providedDependencyName -> toConfigurationEntry(metadata, providedDependencyName))
-                                             .collect(Collectors.toList());
+                                             .map(providedDependencyName -> toConfigurationEntry(metadata, providedDependencyName));
     }
 
     private MtaMetadata getMtaMetadata(CloudApplication app) {

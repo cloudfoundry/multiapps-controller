@@ -31,7 +31,6 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceKey;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -85,18 +84,6 @@ public class ServiceRemoverTest {
         execution.setVariable(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE);
     }
 
-    @Test
-    public void testMissingApplicationWhileUnbindService() {
-        CloudServiceInstance serviceInstance = buildServiceInstance();
-        UUID applicationBindingGuid = UUID.randomUUID();
-        CloudServiceBinding serviceBinding = buildServiceBinding(applicationBindingGuid);
-        prepareClient(Collections.emptyList(), serviceInstance, serviceBinding, applicationBindingGuid);
-
-        assertThrows(IllegalStateException.class,
-                     () -> serviceRemover.deleteService(context, serviceInstance, Collections.singletonList(serviceBinding),
-                                                        Collections.emptyList()));
-    }
-
     static Stream<Arguments> testControllerErrorHandling() {
         return Stream.of(
         // @formatter:off
@@ -117,7 +104,7 @@ public class ServiceRemoverTest {
 
         CloudApplication application = buildApplication(applicationBindingGuid);
         CloudServiceBinding serviceBinding = buildServiceBinding(applicationBindingGuid);
-        prepareClient(Collections.singletonList(application), serviceInstance, serviceBinding, applicationBindingGuid);
+        prepareClient(application, serviceInstance, serviceBinding);
 
         doThrow(new CloudOperationException(httpStatusToThrow)).when(client)
                                                                .deleteServiceInstance(any(CloudServiceInstance.class));
@@ -161,8 +148,7 @@ public class ServiceRemoverTest {
         if (hasServiceBinding) {
             serviceBinding = buildServiceBinding(applicationBindingGuid);
         }
-
-        prepareClient(Collections.singletonList(application), serviceInstance, serviceBinding, applicationBindingGuid);
+        prepareClient(application, serviceInstance, serviceBinding);
 
         if (hasServiceBinding) {
             serviceRemover.deleteService(context, serviceInstance, Collections.singletonList(serviceBinding), serviceKeys);
@@ -203,9 +189,9 @@ public class ServiceRemoverTest {
         return Collections.emptyList();
     }
 
-    private void prepareClient(List<CloudApplication> applications, CloudServiceInstance serviceInstance,
-                               CloudServiceBinding serviceBinding, UUID boundApplicationGuid) {
-        when(client.getApplications()).thenReturn(applications);
+    private void prepareClient(CloudApplication application, CloudServiceInstance serviceInstance, CloudServiceBinding serviceBinding) {
+        when(client.getApplication(application.getMetadata()
+                                              .getGuid())).thenReturn(application);
         when(client.getServiceInstance(anyString())).thenReturn(serviceInstance);
         if (serviceBinding != null) {
             when(client.getServiceBindings(serviceInstance.getMetadata()

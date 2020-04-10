@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.cf.metadata.entity.processor;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -98,12 +99,12 @@ public class MtaMetadataEntityAggregator {
 
     private List<DeployedMtaService> getUserProvidedServices(List<DeployedMtaApplication> applications,
                                                              List<DeployedMtaService> existingServices) {
-        List<String> existingServiceNames = existingServices.stream()
-                                                            .map(CloudServiceInstance::getName)
-                                                            .collect(Collectors.toList());
+        Set<String> existingServiceNames = existingServices.stream()
+                                                           .map(CloudServiceInstance::getName)
+                                                           .collect(Collectors.toSet());
         return applications.stream()
-                           .flatMap(application -> application.getBoundMtaServices()
-                                                              .stream())
+                           .map(DeployedMtaApplication::getBoundMtaServices)
+                           .flatMap(List::stream)
                            .filter(serviceName -> !existingServiceNames.contains(serviceName))
                            .map(this::buildUserProvidedService)
                            .collect(Collectors.toList());

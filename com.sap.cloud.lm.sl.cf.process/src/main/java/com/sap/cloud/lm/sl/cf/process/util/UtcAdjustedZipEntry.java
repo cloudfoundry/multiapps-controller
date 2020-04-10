@@ -1,20 +1,19 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import java.util.TimeZone;
+import java.time.OffsetDateTime;
 import java.util.zip.ZipEntry;
 
 public class UtcAdjustedZipEntry extends ZipEntry {
 
-    private final int utcOffset = TimeZone.getDefault()
-                                          .getOffset(System.currentTimeMillis());
-
     public UtcAdjustedZipEntry(String name) {
         super(name);
-        setTime(System.currentTimeMillis() - utcOffset);
+        setTime(OffsetDateTime.now()
+                              .toEpochSecond());
     }
 
     public UtcAdjustedZipEntry(ZipEntry e) {
         super(e);
-        setTime(System.currentTimeMillis() - utcOffset);
+        setTime(OffsetDateTime.now()
+                              .toEpochSecond());
     }
 }

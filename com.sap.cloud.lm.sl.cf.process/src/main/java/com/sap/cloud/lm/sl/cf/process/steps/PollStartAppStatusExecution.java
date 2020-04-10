@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,6 +14,7 @@ import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -72,7 +72,10 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             long crashedInstances = getInstanceCount(appInstances, InstanceState.CRASHED);
             long startingInstances = getInstanceCount(appInstances, InstanceState.STARTING);
 
-            showInstancesStatus(context, app.getName(), appInstances, runningInstances, expectedInstances);
+            String states = composeStatesMessage(appInstances);
+
+            context.getStepLogger()
+                   .debug(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, app.getName(), runningInstances, expectedInstances, states);
 
             if (runningInstances == expectedInstances) {
                 return StartupStatus.STARTED;
@@ -119,39 +122,22 @@ public class PollStartAppStatusExecution implements AsyncExecution {
                .error(message, arguments);
     }
 
-    private void showInstancesStatus(ProcessContext context, String appName, List<InstanceInfo> instances, long runningInstances,
-                                     int expectedInstances) {
-
-        // Determine state counts
-        Map<String, Integer> stateCounts = new HashMap<>();
+    private String composeStatesMessage(List<InstanceInfo> instances) {
+        Map<String, Long> stateCounts;
         if (instances.isEmpty()) {
-            stateCounts.put(InstanceState.STARTING.toString(), 0);
+            stateCounts = MapUtil.asMap(InstanceState.STARTING.toString(), 0L);
         } else {
-            for (InstanceInfo instance : instances) {
-                String state = instance.getState()
-                                       .toString();
-                incrementStateCount(stateCounts, state);
-            }
+            stateCounts = instances.stream()
+                                   .collect(Collectors.groupingBy(instance -> instance.getState()
+                                                                                      .toString(), Collectors.counting()));
         }
-
-        // Compose state strings
-        String states = stateCounts.entrySet()
-                                   .stream()
-                                   .map(this::formatStateString)
-                                   .collect(Collectors.joining(","));
-
-        // Print message
-        String message = format(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, appName, runningInstances, expectedInstances, states);
-        context.getStepLogger()
-               .debug(message);
+        return stateCounts.entrySet()
+                          .stream()
+                          .map(this::formatStateString)
+                          .collect(Collectors.joining(","));
     }
 
-    private void incrementStateCount(Map<String, Integer> stateCounts, String state) {
-        int stateCount = stateCounts.getOrDefault(state, 1);
-        stateCounts.put(state, stateCount + 1);
-    }
-
-    private String formatStateString(Map.Entry<String, Integer> entry) {
+    private String formatStateString(Map.Entry<String, Long> entry) {
         return format("{0} {1}", entry.getValue(), entry.getKey()
                                                         .toLowerCase());
     }

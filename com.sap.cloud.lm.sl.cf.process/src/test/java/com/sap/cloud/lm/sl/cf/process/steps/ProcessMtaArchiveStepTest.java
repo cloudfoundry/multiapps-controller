@@ -2,24 +2,18 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -30,11 +24,9 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
-@RunWith(Parameterized.class)
 public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveStep> {
 
     private static final String SPACE_ID = "0";
@@ -43,18 +35,12 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
 
     private final StepInput input;
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-            // (0)
-            { "process-mta-archive-step-1.json" } });
+    public ProcessMtaArchiveStepTest() throws ParsingException {
+        String json = TestUtil.getResourceAsString("process-mta-archive-step-1.json", getClass());
+        this.input = JsonUtil.fromJson(json, StepInput.class);
     }
 
-    public ProcessMtaArchiveStepTest(String input) throws ParsingException {
-        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, ProcessMtaArchiveStepTest.class), StepInput.class);
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         prepareContext();
         prepareFileService();
@@ -85,7 +71,7 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
@@ -98,10 +84,7 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
     private void testModules() {
         Set<String> actualModules = context.getVariable(Variables.MTA_ARCHIVE_MODULES);
 
-        assertEquals(input.expectedModules.size(), actualModules.size());
-        for (String actualModuleName : actualModules) {
-            assertTrue(input.expectedModules.contains(actualModuleName));
-        }
+        assertEquals(input.expectedModules, actualModules);
     }
 
     private void testResources() {
@@ -133,21 +116,12 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
         protected MtaArchiveHelper getHelper(Manifest manifest) {
             MtaArchiveHelper helper = Mockito.mock(MtaArchiveHelper.class);
             when(helper.getMtaArchiveModules()).thenReturn(input.expectedModules.stream()
-                                                                                .collect(Collectors.toMap(m -> m, Function.identity())));
+                                                                                .collect(Collectors.toMap(m -> m, m -> m)));
             when(helper.getMtaArchiveResources()).thenReturn(input.expectedResources.stream()
-                                                                                    .collect(Collectors.toMap(r -> r,
-                                                                                                              Function.identity())));
+                                                                                    .collect(Collectors.toMap(r -> r, r -> r)));
             when(helper.getMtaRequiresDependencies()).thenReturn(input.expectedRequiredDependencies.stream()
                                                                                                    .collect(Collectors.toMap(d -> d,
-                                                                                                                             Function.identity())));
-
-            try {
-                doAnswer(a -> null).when(helper)
-                                   .init();
-            } catch (SLException e) {
-                // Ignore...
-            }
-
+                                                                                                                             d -> d)));
             return helper;
         }
 

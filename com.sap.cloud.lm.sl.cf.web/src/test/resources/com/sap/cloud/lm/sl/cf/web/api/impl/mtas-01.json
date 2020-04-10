@@ -9,7 +9,7 @@
         "moduleName": "mta-module-1",
         "appName": "mta-1-application",
         "services": [],
-        "providedDependencyNames": [
+        "providedDendencyNames": [
           "mta-provided-dependency-1",
           "mta-provided-dependency-2"
         ],
@@ -26,12 +26,12 @@
     "modules": [
       {
         "moduleName": "mta-module-2",
-        "appName": "mta-1-application",
+        "appName": "mta-2-application",
         "services": [
           "service-1",
           "service-2"
         ],
-        "providedDependencyNames": [],
+        "providedDendencyNames": [],
         "uris": []
       }
     ],

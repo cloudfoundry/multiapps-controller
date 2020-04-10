@@ -3,9 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,9 +14,11 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -105,7 +105,7 @@ public class MtaArchiveBuilderTest {
     }
 
     @Test
-    public void test() throws Exception {
+    public void test() throws IOException {
         initMtaArchiveBuilder(Paths.get(path));
         Path mtaArchiveFile = mtaArchiveBuilder.buildMtaArchive();
 
@@ -146,11 +146,11 @@ public class MtaArchiveBuilderTest {
         }
 
         assertExistingJarFile(mtaArchiveFile, MtaArchiveBuilder.DEPLOYMENT_DESCRIPTOR_ARCHIVE_PATH,
-                              new String(Files.readAllBytes(Paths.get("src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/mtad.yaml"))));
+                              Files.readAllBytes(Paths.get("src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/mtad.yaml")));
         assertExistingJarDirectory(mtaArchiveFile, "db/");
         assertExistingJarDirectory(mtaArchiveFile, "db/src/");
         assertExistingJarFile(mtaArchiveFile, "db/package.json",
-                              new String(Files.readAllBytes(Paths.get("src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/package.json"))));
+                              Files.readAllBytes(Paths.get("src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/package.json")));
     }
 
     private void prepareException(String message) {
@@ -176,7 +176,7 @@ public class MtaArchiveBuilderTest {
                      .startsWith("Windows");
     }
 
-    private void assertExistingJarDirectory(Path mtaArchiveFile, String dirName) throws Exception {
+    private void assertExistingJarDirectory(Path mtaArchiveFile, String dirName) throws IOException {
         try (JarInputStream in = new JarInputStream(Files.newInputStream(mtaArchiveFile))) {
             for (ZipEntry e; (e = in.getNextEntry()) != null;) {
                 if (dirName.equals(e.getName()) && e.isDirectory()) {
@@ -187,18 +187,11 @@ public class MtaArchiveBuilderTest {
         }
     }
 
-    private void assertExistingJarFile(Path mtaArchiveFile, String fileName, String expectedContent) throws Exception {
+    private void assertExistingJarFile(Path mtaArchiveFile, String fileName, byte[] expectedContent) throws IOException {
         try (JarInputStream in = new JarInputStream(Files.newInputStream(mtaArchiveFile))) {
             for (ZipEntry e; (e = in.getNextEntry()) != null;) {
                 if (fileName.equals(e.getName()) && !e.isDirectory()) {
-                    StringBuilder textBuilder = new StringBuilder();
-                    try (Reader reader = new BufferedReader(new InputStreamReader(in))) {
-                        int c = 0;
-                        while ((c = reader.read()) != -1) {
-                            textBuilder.append((char) c);
-                        }
-                    }
-                    assertEquals(expectedContent, textBuilder.toString());
+                    Assertions.assertArrayEquals(expectedContent, IOUtils.toByteArray(in));
                     return;
                 }
             }
