@@ -31,7 +31,7 @@ public class EscapeSequencesReplacer implements SimplePropertyVisitor {
             matcher.appendReplacement(result, replacement);
         }
         matcher.appendTail(result);
-        return (result.toString());
+        return result.toString();
     }
 
     @Override

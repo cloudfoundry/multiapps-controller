@@ -13,8 +13,8 @@ import java.util.Map;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -77,8 +77,8 @@ public class MtaConfigurationPurgerTest {
     private final List<Query<?, ?>> queriesToVerifyDeleteCallOn = new ArrayList<>();
     private final List<Query<?, ?>> queriesToVerifyNoDeleteCallOn = new ArrayList<>();
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         AuditLoggingProvider.setFacade(auditLoggingFacade);
         initApplicationsMock();
@@ -116,7 +116,7 @@ public class MtaConfigurationPurgerTest {
         }
     }
 
-    private void initApplicationsMock() throws IOException {
+    private void initApplicationsMock() {
         List<CloudApplication> applications = new ArrayList<>();
         applications.add(createApplication(APPLICATION_NAME_TO_KEEP, getApplicationEnvFromFile(RESOURCE_LOCATION)));
         applications.add(createApplication("app-2", new HashMap<>()));
@@ -154,7 +154,7 @@ public class MtaConfigurationPurgerTest {
     }
 
     private Map<String, Object> getApplicationEnvFromFile(String path) {
-        String envJson = TestUtil.getResourceAsString(path, MtaConfigurationPurgerTest.class);
+        String envJson = TestUtil.getResourceAsString(path, getClass());
         return JsonUtil.convertJsonToMap(envJson);
     }
 

@@ -2,8 +2,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.net.URL;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
@@ -37,8 +37,8 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
     private ReadOnlyParametersChecker readOnlyParametersChecker;
 
     protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = CredentialsGenerator::new;
-    protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance()
-                                                                                                               .getTime());
+    protected Supplier<String> timestampSupplier = () -> DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                                                                          .format(ZonedDateTime.now());
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {

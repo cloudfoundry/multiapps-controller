@@ -755,9 +755,9 @@ public class ApplicationConfiguration {
 
     private String getApplicationGuidFromEnvironment() {
         Map<String, Object> vcapApplicationMap = getVcapApplication();
-        String applicationGuid = (String) vcapApplicationMap.get("application_id");
-        LOGGER.info(format(Messages.APPLICATION_GUID, applicationGuid));
-        return applicationGuid;
+        String applicationId = (String) vcapApplicationMap.get("application_id");
+        LOGGER.info(format(Messages.APPLICATION_GUID, applicationId));
+        return applicationId;
     }
 
     private Integer getApplicationInstanceIndexFromEnvironment() {

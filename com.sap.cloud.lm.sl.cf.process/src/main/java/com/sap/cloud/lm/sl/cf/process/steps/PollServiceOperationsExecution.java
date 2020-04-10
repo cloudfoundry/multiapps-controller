@@ -78,7 +78,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
     protected List<CloudServiceInstanceExtended> getServicesWithTriggeredOperations(Collection<CloudServiceInstanceExtended> services,
                                                                             Map<String, ServiceOperation.Type> triggeredServiceOperations) {
         return services.stream()
-                       .filter(e -> triggeredServiceOperations.containsKey(e.getName()))
+                       .filter(cloudService -> triggeredServiceOperations.containsKey(cloudService.getName()))
                        .collect(Collectors.toList());
     }
 

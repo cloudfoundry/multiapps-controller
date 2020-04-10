@@ -59,8 +59,7 @@ public class OperationsCleaner implements Cleaner {
 
     private int abortActiveOperations(Date expirationTime) {
         int abortedOperations = 0;
-        int pageIndex = 0;
-        while (true) {
+        for (int pageIndex = 0;; pageIndex++) {
             List<Operation> operationsPage = getOperationsPage(expirationTime, pageIndex);
             for (Operation operation : operationsPage) {
                 if (inFinalState(operation)) {
@@ -74,7 +73,6 @@ public class OperationsCleaner implements Cleaner {
             if (pageSize > operationsPage.size()) {
                 return abortedOperations;
             }
-            pageIndex++;
         }
     }
 

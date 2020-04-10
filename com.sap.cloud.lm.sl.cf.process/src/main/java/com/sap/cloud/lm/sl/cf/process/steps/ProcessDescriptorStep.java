@@ -27,8 +27,6 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
-import liquibase.util.StringUtils;
-
 @Named("processDescriptorStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessDescriptorStep extends SyncFlowableStep {
@@ -57,7 +55,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         List<String> invalidModulesSpecifiedForDeployment = findInvalidModulesSpecifiedForDeployment(descriptor, modulesForDeployment);
         if (!invalidModulesSpecifiedForDeployment.isEmpty()) {
             throw new IllegalStateException(MessageFormat.format(Messages.MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES,
-                                                                 StringUtils.join(invalidModulesSpecifiedForDeployment, ", ")));
+                                                                 String.join(", ", invalidModulesSpecifiedForDeployment)));
         }
         Set<String> mtaModules = getModuleNames(descriptor, modulesForDeployment);
         getStepLogger().debug("MTA Modules: {0}", mtaModules);

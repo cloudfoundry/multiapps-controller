@@ -24,7 +24,6 @@ import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
@@ -49,22 +48,6 @@ public class StepsUtil {
     public static final String DEPLOY_ID_PREFIX = "deploy-";
 
     protected StepsUtil() {
-    }
-
-    public static org.apache.log4j.Logger getLogger(DelegateExecution execution, String name, ProcessLoggerProvider processLoggerProvider) {
-        return processLoggerProvider.getLogger(execution, name);
-    }
-
-    static CloudControllerClient getControllerClient(DelegateExecution execution, CloudControllerClientProvider clientProvider) {
-        String userName = determineCurrentUser(execution);
-        String spaceId = VariableHandling.get(execution, Variables.SPACE_ID);
-        return clientProvider.getControllerClient(userName, spaceId);
-    }
-
-    static CloudControllerClient getControllerClient(DelegateExecution execution, CloudControllerClientProvider clientProvider, String org,
-                                                     String space) {
-        String userName = determineCurrentUser(execution);
-        return clientProvider.getControllerClient(userName, org, space, execution.getProcessInstanceId());
     }
 
     public static String determineCurrentUser(VariableScope scope) {

@@ -1,8 +1,8 @@
 package com.sap.cloud.lm.sl.cf.core.validators.parameters.v2;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParametersValidator;
@@ -41,11 +41,9 @@ public class DescriptorParametersValidator extends ParametersValidator<Deploymen
     }
 
     protected List<Module> validateModules(List<Module> modules) {
-        List<Module> validModules = new ArrayList<>();
-        for (Module module : modules) {
-            validModules.add(validate(module));
-        }
-        return validModules;
+        return modules.stream()
+                      .map(this::validate)
+                      .collect(Collectors.toList());
     }
 
     protected Module validate(Module module) {
@@ -53,11 +51,9 @@ public class DescriptorParametersValidator extends ParametersValidator<Deploymen
     }
 
     protected List<Resource> validateResources(List<Resource> resources) {
-        List<Resource> validResources = new ArrayList<>();
-        for (Resource resource : resources) {
-            validResources.add(validate(resource));
-        }
-        return validResources;
+        return resources.stream()
+                        .map(this::validate)
+                        .collect(Collectors.toList());
     }
 
     protected Resource validate(Resource resource) {

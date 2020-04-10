@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.Attributes;
@@ -60,8 +59,9 @@ public class MtaArchiveHelper {
             String fileName = entry.getKey();
             MtaPathValidator.validatePath(fileName);
             if (attributeName.equals(ATTR_MTA_MODULE)) {
-                Arrays.asList(attributeValue.split(Constants.MODULE_SEPARATOR))
-                      .forEach(module -> result.put(module.trim(), fileName));
+                for (String module : attributeValue.split(Constants.MODULE_SEPARATOR)) {
+                    result.put(module.trim(), fileName);
+                }
             } else {
                 result.put(attributeValue, fileName);
             }

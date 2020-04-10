@@ -126,7 +126,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         if (!destinationGroups.isEmpty()) {
             addToGroups(groups, destinationGroups, subgroupName, properties);
         } else {
-            properties.forEach(env::put);
+            env.putAll(properties);
         }
     }
 

@@ -10,6 +10,7 @@ import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -35,13 +36,6 @@ public class ApplicationArchiveReaderTest {
         // @formatter:on
     }
 
-    public static Stream<Arguments> testBadAbsolutePathRead() {
-        // @formatter:off
-        return Stream.of(
-            Arguments.of(SAMPLE_MTAR_WITH_JAR_ENTRY_ABSOLUTE_PATH, "/web/", MessageFormat.format(FileUtils.PATH_SHOULD_NOT_BE_ABSOLUTE, "/web/"), MAX_UPLOAD_FILE_SIZE));
-        // @formatter:on
-    }
-
     @ParameterizedTest
     @MethodSource
     public void testFailingCalculateDigest(String mtar, String fileName, String expectedException, long maxFileUploadSize) {
@@ -51,9 +45,13 @@ public class ApplicationArchiveReaderTest {
         assertEquals(expectedException, exception.getMessage());
     }
 
-    @ParameterizedTest
-    @MethodSource
-    public void testBadAbsolutePathRead(String mtar, String fileName, String expectedException, long maxFileUploadSize) {
+    @Test
+    public void testBadAbsolutePathRead() {
+        String mtar = SAMPLE_MTAR_WITH_JAR_ENTRY_ABSOLUTE_PATH;
+        String fileName = "/web/";
+        String expectedException = MessageFormat.format(FileUtils.PATH_SHOULD_NOT_BE_ABSOLUTE, "/web/");
+        long maxFileUploadSize = MAX_UPLOAD_FILE_SIZE;
+
         ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(mtar, fileName, maxFileUploadSize);
         ApplicationArchiveReader reader = getApplicationArchiveReaderForAbsolutePath();
         Exception exception = Assertions.assertThrows(Exception.class, () -> reader.calculateApplicationDigest(applicationArchiveContext));

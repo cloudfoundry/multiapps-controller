@@ -20,6 +20,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -195,14 +196,12 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         List<Module> modules = descriptor.getModules();
         assertEquals(1, modules.size());
         Module foo = modules.get(0);
-        assertEquals("bar", foo.getParameters()
-                               .get(SupportedParameters.APP_NAME));
+        assertEquals("bar", NameUtil.getApplicationName(foo));
 
         List<Resource> resources = descriptor.getResources();
         assertEquals(1, resources.size());
         Resource baz = resources.get(0);
-        assertEquals("qux", baz.getParameters()
-                               .get(SupportedParameters.SERVICE_NAME));
+        assertEquals("qux", NameUtil.getServiceName(baz));
     }
 
 }

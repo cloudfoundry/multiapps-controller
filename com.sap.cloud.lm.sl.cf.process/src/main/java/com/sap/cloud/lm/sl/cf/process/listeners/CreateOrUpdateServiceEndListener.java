@@ -22,7 +22,7 @@ public class CreateOrUpdateServiceEndListener implements ExecutionListener {
         boolean isServiceUpdated = VariableHandling.get(execution, Variables.IS_SERVICE_UPDATED);
         String serviceName = VariableHandling.get(execution, Variables.SERVICE_TO_PROCESS_NAME);
         if (serviceName == null) {
-            throw new IllegalStateException("Not able to determine service update status.");
+            throw new IllegalStateException("Unable to determine service update status.");
         }
         String exportedVariableName = Constants.VAR_IS_SERVICE_UPDATED_VAR_PREFIX + serviceName;
 

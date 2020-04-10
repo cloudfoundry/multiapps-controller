@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -79,11 +80,11 @@ public class ServiceWithAlternativesCreator {
 
     private boolean containsPlan(List<CloudServicePlan> plans, String servicePlanName) {
         return plans.stream()
-                    .anyMatch(p -> servicePlanName.equalsIgnoreCase(p.getName()));
+                    .anyMatch(servicePlan -> servicePlanName.equalsIgnoreCase(servicePlan.getName()));
     }
 
     private List<String> computePossibleServiceOfferings(CloudServiceInstanceExtended serviceInstance) {
-        List<String> possibleServiceOfferings = new ArrayList<>(serviceInstance.getAlternativeLabels());
+        List<String> possibleServiceOfferings = new LinkedList<>(serviceInstance.getAlternativeLabels());
         possibleServiceOfferings.add(0, serviceInstance.getLabel());
         return possibleServiceOfferings;
     }
@@ -103,9 +104,9 @@ public class ServiceWithAlternativesCreator {
             if (!existingCloudServicePlan.isPresent()) {
                 userMessageLogger.warnWithoutProgressMessage("Service offering \"{0}\" does not provide service plan \"{1}\"",
                                                              possibleServiceOffering, desiredServicePlan);
-                continue;
+            } else {
+                validServiceOfferings.add(possibleServiceOffering);
             }
-            validServiceOfferings.add(possibleServiceOffering);
         }
         return validServiceOfferings;
     }

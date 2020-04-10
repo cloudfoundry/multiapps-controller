@@ -130,7 +130,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
     private List<String> getAppNames(List<Module> modulesCalculatedForDeployment) {
         return modulesCalculatedForDeployment.stream()
-                                             .filter(module -> moduleToDeployHelper.isApplication(module))
+                                             .filter(moduleToDeployHelper::isApplication)
                                              .map(NameUtil::getApplicationName)
                                              .collect(Collectors.toList());
     }
@@ -239,7 +239,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     private List<String> getDomainsFromApps(ProcessContext context, DeploymentDescriptor descriptor,
                                             ApplicationCloudModelBuilder applicationCloudModelBuilder, List<? extends Module> modules,
                                             ModuleToDeployHelper moduleToDeployHelper) {
-
         String defaultDomain = (String) descriptor.getParameters()
                                                   .get(SupportedParameters.DEFAULT_DOMAIN);
 

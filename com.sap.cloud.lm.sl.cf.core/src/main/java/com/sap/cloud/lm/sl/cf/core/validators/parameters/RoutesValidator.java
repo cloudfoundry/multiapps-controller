@@ -34,18 +34,20 @@ public class RoutesValidator implements ParameterValidator {
         }
 
         for (Map<String, Object> routesElement : routesList) {
-
-            boolean hasUnsupportedOrInvalidElement = routesElement.keySet()
+            boolean hasUnsupportedOrInvalidElement = routesElement.entrySet()
                                                                   .stream()
-                                                                  .anyMatch(key -> validators.get(key) == null || !validators.get(key)
-                                                                                                                             .isValid(routesElement.get(key)));
-
+                                                                  .anyMatch(this::isElementUnsupportedOrInvalid);
             if (hasUnsupportedOrInvalidElement) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    private boolean isElementUnsupportedOrInvalid(Entry<String, Object> entry) {
+        ParameterValidator validator = validators.get(entry.getKey());
+        return validator == null || !validator.isValid(entry.getValue());
     }
 
     @Override

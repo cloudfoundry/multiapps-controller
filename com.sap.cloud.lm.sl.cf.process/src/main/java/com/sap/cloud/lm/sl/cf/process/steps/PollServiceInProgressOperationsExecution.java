@@ -26,14 +26,13 @@ public class PollServiceInProgressOperationsExecution extends PollServiceOperati
 
     @Override
     protected void reportServiceState(ProcessContext context, CloudServiceInstanceExtended service, ServiceOperation lastServiceOperation) {
+        if (lastServiceOperation.getState() == ServiceOperation.State.FAILED) {
+            throw new SLException(getFailureMessage(service, lastServiceOperation));
+        }
+
         if (lastServiceOperation.getState() == ServiceOperation.State.SUCCEEDED) {
             context.getStepLogger()
                    .debug(getSuccessMessage(service, lastServiceOperation.getType()));
-            return;
-        }
-
-        if (lastServiceOperation.getState() == ServiceOperation.State.FAILED) {
-            throw new SLException(getFailureMessage(service, lastServiceOperation));
         }
     }
 

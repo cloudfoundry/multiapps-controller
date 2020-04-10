@@ -89,10 +89,7 @@ public class ConfigurationEntriesCloudModelBuilder {
     }
 
     private String getElement(Map<String, Object> map, String elementName) {
-        if (!map.containsKey(elementName)) {
-            return "*";
-        }
-        return (String) map.get(elementName);
+        return (String) map.getOrDefault(elementName, "*");
     }
 
     private List<CloudTarget> getDefaultVisibility() {

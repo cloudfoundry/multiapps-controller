@@ -47,12 +47,13 @@ public class FssMonitor {
     }
 
     private long getUsedSpace(File path) {
-        final long startTime = System.currentTimeMillis();
         LOGGER.debug("Calculating space for path {}.", path);
         updateTimesMap.put(path, LocalDateTime.now());
+        long startTime = System.currentTimeMillis();
         long usedSpace = FileUtils.sizeOf(path);
+        long endTime = System.currentTimeMillis();
+        LOGGER.info("Calculated space for path {} : {} bytes in {} ms", path, usedSpace, endTime - startTime);
         usedSpaceMap.put(path, usedSpace);
-        LOGGER.info("Calculated space for path {} : {} bytes in {} ms", path, usedSpace, System.currentTimeMillis() - startTime);
         return usedSpace;
     }
 }

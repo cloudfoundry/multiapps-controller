@@ -33,10 +33,9 @@ public class EscapeSequenceToReplace {
         // If there is an unescaped escape character then the character following it is escaped and
         // should be replaced with its proper value. Otherwise it should be left untouched:
         if (hasUnescapedEscapeCharacter(escapeCharacters)) {
-            return replacement + (markerCharacter.getReplacement());
-        } else {
-            return replacement + "${markerCharacter}";
+            return replacement + markerCharacter.getReplacement();
         }
+        return replacement + "${markerCharacter}";
     }
 
     private int getEscapedEscapeCharactersCount(String escapeCharacters) {

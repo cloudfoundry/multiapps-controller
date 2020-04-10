@@ -104,14 +104,15 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
         List<CloudServiceBinding> serviceBindings = getControllerClient().getServiceBindings(getGuid(serviceInstance));
         getLogger().debug(Messages.LOOKING_FOR_SERVICE_BINDINGS, getGuid(application), getGuid(serviceInstance),
                           JsonUtil.convertToJson(serviceBindings, true));
-        return serviceBindings.stream()
-                              .filter(serviceBinding -> application.getMetadata()
-                                                                   .getGuid()
-                                                                   .equals(serviceBinding.getApplicationGuid()))
-                              .findFirst()
-                              .orElseThrow(() -> new IllegalStateException(MessageFormat.format(Messages.APPLICATION_UNBOUND_IN_PARALLEL,
-                                                                                                application.getName(),
-                                                                                                serviceInstance.getName())));
+        for (CloudServiceBinding serviceBinding : serviceBindings) {
+            if (application.getMetadata()
+                           .getGuid()
+                           .equals(serviceBinding.getApplicationGuid())) {
+                return serviceBinding;
+            }
+        }
+        throw new IllegalStateException(MessageFormat.format(Messages.APPLICATION_UNBOUND_IN_PARALLEL, application.getName(),
+                                                             serviceInstance.getName()));
     }
 
     private void bindServices(List<String> addServices, String applicationName,

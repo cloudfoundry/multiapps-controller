@@ -127,12 +127,12 @@ public class AuthorizationChecker {
     }
 
     private boolean isUserInSpaceDevelopersUsingCache(CloudControllerClient client, UUID userGuid, UUID spaceGuid) {
-        return spaceDevelopersCache.get(spaceGuid, (() -> client.getSpaceDevelopers(spaceGuid)))
+        return spaceDevelopersCache.get(spaceGuid, () -> client.getSpaceDevelopers(spaceGuid))
                                    .contains(userGuid);
     }
 
     private boolean isUserInSpaceDevelopersAfterCacheRefresh(CloudControllerClient client, UUID userGuid, UUID spaceGuid) {
-        return spaceDevelopersCache.forceRefresh(spaceGuid, (() -> client.getSpaceDevelopers(spaceGuid)))
+        return spaceDevelopersCache.forceRefresh(spaceGuid, () -> client.getSpaceDevelopers(spaceGuid))
                                    .contains(userGuid);
     }
 

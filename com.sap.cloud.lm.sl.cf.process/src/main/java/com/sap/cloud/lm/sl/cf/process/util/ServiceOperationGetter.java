@@ -60,7 +60,7 @@ public class ServiceOperationGetter {
         List<CloudEvent> serviceEvent = eventsGetter.getEvents(uuid, context.getControllerClient());
         return serviceEvent.stream()
                            .filter(Objects::nonNull)
-                           .anyMatch(e -> eventsGetter.isDeleteEvent(e.getType()));
+                           .anyMatch(cloudEvent -> eventsGetter.isDeleteEvent(cloudEvent.getType()));
     }
 
     @SuppressWarnings("unchecked")

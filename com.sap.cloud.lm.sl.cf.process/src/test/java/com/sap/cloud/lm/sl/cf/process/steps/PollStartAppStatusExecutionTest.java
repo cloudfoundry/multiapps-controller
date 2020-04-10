@@ -38,7 +38,7 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 public class PollStartAppStatusExecutionTest {
 
     private static final String USER_NAME = "testUsername";
-    private static final String APP_NAME = "testApplcaition";
+    private static final String APP_NAME = "testApplication";
     private static final long PROCESS_START_TIME = new GregorianCalendar(2019, Calendar.JANUARY, 1).toInstant()
                                                                                                    .toEpochMilli();
 
@@ -52,13 +52,12 @@ public class PollStartAppStatusExecutionTest {
     private CloudControllerClient client;
 
     private ProcessContext context;
-    private DelegateExecution execution;
     private PollStartAppStatusExecution step;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        execution = MockDelegateExecution.createSpyInstance();
+        DelegateExecution execution = MockDelegateExecution.createSpyInstance();
         context = new ProcessContext(execution, stepLogger, clientProvider);
         step = new PollStartAppStatusExecution(recentLogsRetriever);
     }

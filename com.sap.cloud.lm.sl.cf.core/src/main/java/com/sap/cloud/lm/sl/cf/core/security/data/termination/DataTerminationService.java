@@ -1,14 +1,14 @@
 package com.sap.cloud.lm.sl.cf.core.security.data.termination;
 
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.cloudfoundry.client.lib.CloudControllerClientImpl;
 import org.cloudfoundry.client.lib.CloudCredentials;
 import org.slf4j.Logger;
@@ -95,11 +95,10 @@ public class DataTerminationService {
     }
 
     private String getDateBeforeDays(int numberOfDays) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        long currentDateInMillis = new Date().getTime();
-        long timeInMillisBeforeTwoDays = currentDateInMillis - numberOfDays * DateUtils.MILLIS_PER_DAY;
-        Date dateBeforeTwoDays = new Date(timeInMillisBeforeTwoDays);
-        String result = sdf.format(dateBeforeTwoDays);
+        ZonedDateTime dateBeforeTwoDays = ZonedDateTime.now()
+                                                       .minus(Duration.ofDays(numberOfDays));
+        String result = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                                         .format(dateBeforeTwoDays);
         LOGGER.info(MessageFormat.format(Messages.PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES, result));
         return result;
     }

@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.flowable.engine.delegate.DelegateExecution;
 
@@ -32,12 +33,15 @@ public class ProcessContext {
     }
 
     public CloudControllerClient getControllerClient() {
-        CloudControllerClient delegate = StepsUtil.getControllerClient(execution, clientProvider);
+        String userName = StepsUtil.determineCurrentUser(execution);
+        String spaceId = getVariable(Variables.SPACE_ID);
+        CloudControllerClient delegate = clientProvider.getControllerClient(userName, spaceId);
         return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 
     public CloudControllerClient getControllerClient(String org, String space) {
-        CloudControllerClient delegate = StepsUtil.getControllerClient(execution, clientProvider, org, space);
+        String userName = StepsUtil.determineCurrentUser(execution);
+        CloudControllerClient delegate = clientProvider.getControllerClient(userName, org, space, execution.getProcessInstanceId());
         return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 
