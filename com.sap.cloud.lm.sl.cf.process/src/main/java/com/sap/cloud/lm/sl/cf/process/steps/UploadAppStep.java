@@ -28,6 +28,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadStatusCallbackExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEnvironmentUpdater;
+import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
@@ -36,7 +37,6 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveContext;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveReader;
-import com.sap.cloud.lm.sl.cf.process.util.ApplicationDigestDetector;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationZipBuilder;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -154,9 +154,9 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     private boolean detectApplicationFileDigestChanges(ProcessContext context, CloudApplication appWithUpdatedEnvironment,
                                                        CloudControllerClient client, String newApplicationDigest) {
-        ApplicationDigestDetector digestDetector = new ApplicationDigestDetector(appWithUpdatedEnvironment);
-        String currentApplicationDigest = digestDetector.getExistingApplicationDigest();
-        boolean contentChanged = digestDetector.hasApplicationContentDigestChanged(newApplicationDigest, currentApplicationDigest);
+        ApplicationFileDigestDetector digestDetector = new ApplicationFileDigestDetector(appWithUpdatedEnvironment.getEnv());
+        String currentApplicationDigest = digestDetector.detectCurrentAppFileDigest();
+        boolean contentChanged = !newApplicationDigest.equals(currentApplicationDigest);
         if (contentChanged) {
             attemptToUpdateApplicationDigest(client, appWithUpdatedEnvironment, newApplicationDigest);
         }

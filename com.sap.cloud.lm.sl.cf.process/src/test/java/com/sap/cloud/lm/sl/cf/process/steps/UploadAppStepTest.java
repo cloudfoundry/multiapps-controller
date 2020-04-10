@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static java.text.MessageFormat.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -96,7 +97,7 @@ public class UploadAppStepTest {
                 },
                 // (02)
                 {
-                    null, createException(CO_EXCEPTION).getMessage(), true, null
+                    null, format(Messages.CF_ERROR, CO_EXCEPTION.getMessage()), true, null
                 },
                 // (03)
                 {
@@ -104,13 +105,13 @@ public class UploadAppStepTest {
                 },
                 // (04)
                 {
-                    null, null, true, Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), 
-                                                    createCloudBuild(State.FAILED, parseDate("21-03-2018"), null))
+                    null, null, true, Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018")),
+                                                    createCloudBuild(State.FAILED, parseDate("21-03-2018")))
                 },
                 // (05)
                 {
-                    null, null, false, Arrays.asList(createCloudBuild(State.FAILED, parseDate("20-03-2018"), null), 
-                                                     createCloudBuild(State.STAGED, parseDate("21-03-2018"), null))
+                    null, null, false, Arrays.asList(createCloudBuild(State.FAILED, parseDate("20-03-2018")),
+                                                     createCloudBuild(State.STAGED, parseDate("21-03-2018")))
                 },
 // @formatter:on
             });
@@ -149,8 +150,7 @@ public class UploadAppStepTest {
         public void test() {
             try {
                 step.execute(execution);
-            } catch (Throwable e) {
-                e.printStackTrace();
+            } catch (Exception e) {
                 assertFalse(appFile.exists());
                 throw e;
             }
@@ -158,7 +158,7 @@ public class UploadAppStepTest {
             if (shouldUpload) {
                 assertEquals(UPLOAD_TOKEN, context.getVariable(Variables.UPLOAD_TOKEN));
             } else {
-                assertEquals(null, context.getVariable(Variables.UPLOAD_TOKEN));
+                assertNull(context.getVariable(Variables.UPLOAD_TOKEN));
             }
         }
 
@@ -193,32 +193,31 @@ public class UploadAppStepTest {
                 when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenReturn(UPLOAD_TOKEN);
             } else if (expectedIOExceptionMessage != null) {
                 when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(IO_EXCEPTION);
-            } else if (expectedCFExceptionMessage != null) {
+            } else {
                 when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(CO_EXCEPTION);
             }
 
-            ImmutableCloudApplicationExtended application = createApplication(APP_NAME, 2, cloudBuilds == null ? null : MODULE_DIGEST);
+            CloudApplicationExtended application = createApplication(cloudBuilds == null ? null : MODULE_DIGEST);
             when(client.getApplication(APP_NAME)).thenReturn(application);
             when(client.getBuildsForApplication(application.getMetadata()
                                                            .getGuid())).thenReturn(cloudBuilds);
         }
 
-        private ImmutableCloudApplicationExtended createApplication(String appName, int instances, String digest) {
+        private CloudApplicationExtended createApplication(String digest) {
             Map<String, Object> deployAttributes = new HashMap<>();
             deployAttributes.put(com.sap.cloud.lm.sl.cf.core.Constants.ATTR_APP_CONTENT_DIGEST, digest);
             return ImmutableCloudApplicationExtended.builder()
                                                     .metadata(ImmutableCloudMetadata.builder()
                                                                                     .guid(UUID.randomUUID())
                                                                                     .build())
-                                                    .name(appName)
-                                                    .moduleName(appName)
+                                                    .name(UploadAppStepParameterizedTest.APP_NAME)
+                                                    .moduleName(UploadAppStepParameterizedTest.APP_NAME)
                                                     .putEnv(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES,
                                                             JsonUtil.toJson(deployAttributes))
-                                                    .instances(instances)
                                                     .build();
         }
 
-        private static CloudBuild createCloudBuild(State state, Date createdAt, String error) {
+        private static CloudBuild createCloudBuild(State state, Date createdAt) {
             return ImmutableCloudBuild.builder()
                                       .metadata(ImmutableCloudMetadata.builder()
                                                                       .guid(UUID.randomUUID())
@@ -228,7 +227,6 @@ public class UploadAppStepTest {
                                                                        .guid(UUID.randomUUID())
                                                                        .build())
                                       .state(state)
-                                      .error(error)
                                       .build();
         }
 
@@ -236,7 +234,6 @@ public class UploadAppStepTest {
             try {
                 return new SimpleDateFormat(DATE_PATTERN).parse(date);
             } catch (ParseException e) {
-                e.printStackTrace();
                 throw new RuntimeException("Invalid Date!");
             }
         }
@@ -283,10 +280,6 @@ public class UploadAppStepTest {
         @Override
         protected UploadAppStep createStep() {
             return new UploadAppStepMock();
-        }
-
-        private static SLException createException(CloudOperationException e) {
-            return new SLException(e, Messages.CF_ERROR, e.getMessage());
         }
 
     }
