@@ -112,7 +112,7 @@ public class ApplicationZipBuilderTest {
         Set<String> zipEntriesName = new HashSet<>();
         try (ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
             for (ZipEntry zipEntry; (zipEntry = zipInputStream.getNextEntry()) != null;) {
-                if (!FileUtils.isDirectory(zipEntry.getName())) {
+                if (!zipEntry.isDirectory()) {
                     zipEntriesName.add(zipEntry.getName());
                 }
             }

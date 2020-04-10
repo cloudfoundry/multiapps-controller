@@ -57,10 +57,6 @@ public class FileUtils {
                     .toString();
     }
 
-    public static boolean isDirectory(String fileName) {
-        return fileName.endsWith("/");
-    }
-
     public static void cleanUp(Path filePath, Logger logger) {
         if (filePath == null) {
             return;

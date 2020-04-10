@@ -29,7 +29,7 @@ public class ApplicationArchiveReader {
         String moduleFileName = applicationArchiveContext.getModuleFileName();
         ZipEntry zipEntry = getFirstZipEntry(applicationArchiveContext);
         do {
-            if (isFile(zipEntry.getName())) {
+            if (!zipEntry.isDirectory()) {
                 calculateDigestFromArchive(applicationArchiveContext);
             }
         } while ((zipEntry = getNextEntryByName(moduleFileName, applicationArchiveContext)) != null);
@@ -75,10 +75,6 @@ public class ApplicationArchiveReader {
 
     protected void validateEntry(ZipEntry entry) {
         FileUtils.validatePath(entry.getName());
-    }
-
-    private boolean isFile(String fileName) {
-        return !FileUtils.isDirectory(fileName);
     }
 
 }
