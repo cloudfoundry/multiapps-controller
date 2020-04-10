@@ -3,8 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.function.Supplier;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -28,7 +28,8 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep {
 
-    protected Supplier<ApplicationStartupStateCalculator> appStateCalculatorSupplier = ApplicationStartupStateCalculator::new;
+    @Inject
+    private ApplicationStartupStateCalculator startupStateCalculator;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -36,7 +37,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
                                 .getName();
         CloudControllerClient client = context.getControllerClient();
         CloudApplication app = client.getApplication(appName);
-        ApplicationStartupState currentState = computeCurrentState(app);
+        ApplicationStartupState currentState = startupStateCalculator.computeCurrentState(app);
         getStepLogger().debug(Messages.CURRENT_STATE, appName, currentState);
         ApplicationStartupState desiredState = computeDesiredState(context, app);
         getStepLogger().debug(Messages.DESIRED_STATE, appName, desiredState);
@@ -56,15 +57,9 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
                                                                                                  .getName());
     }
 
-    private ApplicationStartupState computeCurrentState(CloudApplication app) {
-        return appStateCalculatorSupplier.get()
-                                         .computeCurrentState(app);
-    }
-
     private ApplicationStartupState computeDesiredState(ProcessContext context, CloudApplication app) {
         boolean shouldNotStartAnyApp = context.getVariable(Variables.NO_START);
-        return appStateCalculatorSupplier.get()
-                                         .computeDesiredState(app, shouldNotStartAnyApp);
+        return startupStateCalculator.computeDesiredState(app, shouldNotStartAnyApp);
     }
 
     private ActionCalculator getActionsCalculator(ProcessContext context) {

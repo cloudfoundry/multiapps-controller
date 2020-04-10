@@ -5,6 +5,9 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 
+import javax.inject.Named;
+
+@Named
 public class ApplicationStartupStateCalculator {
 
     public ApplicationStartupState computeDesiredState(CloudApplication app, boolean shouldNotStartAnyApp) {
