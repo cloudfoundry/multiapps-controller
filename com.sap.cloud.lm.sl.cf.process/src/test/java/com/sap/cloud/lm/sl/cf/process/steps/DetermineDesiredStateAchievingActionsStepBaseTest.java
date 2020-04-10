@@ -74,7 +74,6 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     protected abstract RestartParameters getRestartParameters();
 
     private void prepareStep() {
-        step.appStateCalculatorSupplier = () -> appStateCalculator;
         step.configuration = configuration;
     }
 
