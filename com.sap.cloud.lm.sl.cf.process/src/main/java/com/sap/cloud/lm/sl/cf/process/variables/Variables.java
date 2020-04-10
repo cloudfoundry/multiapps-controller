@@ -114,10 +114,9 @@ public interface Variables {
     Variable<String> STEP_EXECUTION = ImmutableSimpleVariable.<String> builder()
                                                              .name("StepExecution")
                                                              .build();
-    // TODO: Saving booleans as strings... Really???
-    Variable<String> APP_CONTENT_CHANGED = ImmutableSimpleVariable.<String> builder()
+    Variable<Boolean> APP_CONTENT_CHANGED = ImmutableSimpleVariable.<Boolean> builder()
                                                                   .name("appContentChanged")
-                                                                  .defaultValue(Boolean.toString(false))
+                                                                  .defaultValue(false)
                                                                   .build();
     Variable<Integer> MTA_MAJOR_SCHEMA_VERSION = ImmutableSimpleVariable.<Integer> builder()
                                                                         .name("mtaMajorSchemaVersion")
