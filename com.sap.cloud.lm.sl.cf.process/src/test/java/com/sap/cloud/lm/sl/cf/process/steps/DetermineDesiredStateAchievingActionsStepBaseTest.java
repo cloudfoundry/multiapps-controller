@@ -79,7 +79,7 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     }
 
     private void prepareContext() {
-        context.setVariable(Variables.APP_CONTENT_CHANGED, Boolean.toString(hasAppChanged));
+        context.setVariable(Variables.APP_CONTENT_CHANGED, hasAppChanged);
         context.setVariable(Variables.NO_START, false);
     }
 

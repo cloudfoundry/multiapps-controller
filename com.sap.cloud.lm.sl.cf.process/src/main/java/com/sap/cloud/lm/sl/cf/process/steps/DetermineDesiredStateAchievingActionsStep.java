@@ -73,8 +73,8 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
     }
 
     private boolean determineAppRestart(ProcessContext context) {
-        String appContentChangedString = context.getVariable(Variables.APP_CONTENT_CHANGED);
-        if (Boolean.parseBoolean(appContentChangedString)) {
+        boolean appContentChanged = context.getVariable(Variables.APP_CONTENT_CHANGED);
+        if (appContentChanged) {
             return true;
         }
         boolean appPropertiesChanged = context.getVariable(Variables.VCAP_APP_PROPERTIES_CHANGED);

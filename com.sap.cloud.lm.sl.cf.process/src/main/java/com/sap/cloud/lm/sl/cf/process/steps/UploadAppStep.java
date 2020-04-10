@@ -172,7 +172,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     }
 
     private void setAppContentChanged(ProcessContext context, boolean appContentChanged) {
-        context.setVariable(Variables.APP_CONTENT_CHANGED, Boolean.toString(appContentChanged));
+        context.setVariable(Variables.APP_CONTENT_CHANGED, appContentChanged);
     }
 
     MonitorUploadStatusCallback getMonitorUploadStatusCallback(ProcessContext context, CloudApplication app, File file) {
