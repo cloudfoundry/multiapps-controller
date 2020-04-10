@@ -52,8 +52,6 @@ public class MtaDescriptorPropertiesResolverTest {
     private ApplicationConfiguration configuration;
     @Mock
     private ConfigurationEntryService configurationEntryService;
-    @Mock
-    private CloudTarget cloudTarget;
 
     @BeforeEach
     public void init() {

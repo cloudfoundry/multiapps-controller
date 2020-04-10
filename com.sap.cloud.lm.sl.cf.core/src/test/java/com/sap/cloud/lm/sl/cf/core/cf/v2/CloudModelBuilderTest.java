@@ -35,7 +35,6 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
-import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorMerger;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.mergers.PlatformMerger;
@@ -58,7 +57,6 @@ public class CloudModelBuilderTest {
     protected final Tester tester = Tester.forClass(getClass());
     protected final DescriptorParser descriptorParser = getDescriptorParser();
     protected final ConfigurationParser configurationParser = new ConfigurationParser();
-    protected final DescriptorHandler descriptorHandler = getDescriptorHandler();
     protected DeploymentDescriptor deploymentDescriptor;
 
     protected final String deploymentDescriptorLocation;
@@ -506,10 +504,6 @@ public class CloudModelBuilderTest {
         return module.getParameters();
     }
 
-    protected DescriptorHandler getDescriptorHandler() {
-        return getHandlerFactory().getDescriptorHandler();
-    }
-
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
         return new ServicesCloudModelBuilder(deploymentDescriptor);
     }
@@ -526,7 +520,7 @@ public class CloudModelBuilderTest {
                                                 Mockito.mock(UserMessageLogger.class));
     }
 
-    protected PlatformMerger getPlatformMerger(Platform platform, DescriptorHandler handler) {
+    protected PlatformMerger getPlatformMerger(Platform platform) {
         return getHandlerFactory().getPlatformMerger(platform);
     }
 
@@ -542,7 +536,7 @@ public class CloudModelBuilderTest {
         DeployedMta deployedMta = loadDeployedMta();
 
         deploymentDescriptor = getDescriptorMerger().merge(deploymentDescriptor, Collections.singletonList(extensionDescriptor));
-        PlatformMerger platformMerger = getPlatformMerger(platform, descriptorHandler);
+        PlatformMerger platformMerger = getPlatformMerger(platform);
         platformMerger.mergeInto(deploymentDescriptor);
 
         String defaultDomain = getDefaultDomain(platform.getName());
