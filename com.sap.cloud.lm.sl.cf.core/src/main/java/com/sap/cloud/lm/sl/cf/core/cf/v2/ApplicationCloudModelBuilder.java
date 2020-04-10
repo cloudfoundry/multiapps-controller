@@ -49,9 +49,6 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 public class ApplicationCloudModelBuilder {
 
-    public static final String DEPENDENCY_TYPE_SOFT = "soft";
-    public static final String DEPENDENCY_TYPE_HARD = "hard";
-
     private static final int MTA_MAJOR_VERSION = 2;
 
     protected final DescriptorHandler handler;

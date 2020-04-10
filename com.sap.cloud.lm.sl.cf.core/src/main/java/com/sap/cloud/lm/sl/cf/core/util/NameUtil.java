@@ -40,11 +40,6 @@ public class NameUtil {
         return namespace + ".";
     }
 
-    public static String getWithoutNamespacePrefix(String name) {
-        int i = name.lastIndexOf('.');
-        return (i >= 0) ? name.substring(i + 1) : name;
-    }
-
     public static boolean isValidName(String name, String namePattern) {
         return name.matches(namePattern);
     }

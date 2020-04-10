@@ -28,7 +28,6 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     extends SyncFlowableStepTest<DetermineDesiredStateAchievingActionsStep> {
 
-    protected static final String FAKE_ERROR = "Fake Error";
     protected static final UUID FAKE_UUID = UUID.fromString("3e31fdaa-4a4e-11e9-8646-d663bd873d93");
     protected static final String DUMMY = "dummy";
 

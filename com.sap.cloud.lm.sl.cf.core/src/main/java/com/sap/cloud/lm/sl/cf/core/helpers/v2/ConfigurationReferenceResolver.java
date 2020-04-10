@@ -14,7 +14,6 @@ import java.util.TreeMap;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
-import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -27,7 +26,6 @@ public class ConfigurationReferenceResolver {
 
     protected final ConfigurationEntryService configurationEntryService;
     protected final ApplicationConfiguration configuration;
-    protected Map<String, ResolvedConfigurationReference> resolvedReferences = new TreeMap<>();
 
     public ConfigurationReferenceResolver(ConfigurationEntryService configurationEntryService, ApplicationConfiguration configuration) {
         this.configurationEntryService = configurationEntryService;
