@@ -1,15 +1,8 @@
 package com.sap.cloud.lm.sl.cf.web.monitoring;
 
 import java.lang.Thread.State;
-import java.text.MessageFormat;
-import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class FlowableThreadInformation {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlowableThreadInformation.class);
+public class FlowableThreadInformation extends ThreadInformation {
 
     private static final String JOB_EXECUTOR_PREFIX = "flowable-async-job-executor-thread-";
     private static final String ASYNC_EXECUTOR_PREFIX = "asyncExecutor-";
@@ -24,18 +17,12 @@ public class FlowableThreadInformation {
 
     public static FlowableThreadInformation get() {
         FlowableThreadInformation threadMonitor = new FlowableThreadInformation();
-        LOGGER.trace("Fetching stack trace information...");
-        long beforeTime = System.currentTimeMillis();
-        Map<Thread, StackTraceElement[]> allThreads = Thread.getAllStackTraces();
-        LOGGER.trace(MessageFormat.format("Stack trace information retrieved in {0} milliseconds.",
-                                          System.currentTimeMillis() - beforeTime));
-        for (Thread thread : allThreads.keySet()) {
-            threadMonitor.processThreadInformation(thread.getName(), thread.getState());
-        }
+        threadMonitor.processThreadsInformation();
         return threadMonitor;
     }
 
-    private void processThreadInformation(String name, State state) {
+    @Override
+    protected void processThreadInformation(String name, State state) {
         if (name.startsWith(JOB_EXECUTOR_PREFIX)) {
             totalJobExecutors++;
             if (state.equals(State.RUNNABLE)) {
