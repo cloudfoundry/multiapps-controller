@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.http.HttpStatus;
@@ -39,8 +38,7 @@ public class ConfigurationEntriesResource {
     private EnvMtaMetadataParser envMtaMetadataParser;
 
     @PostMapping("/purge")
-    public ResponseEntity<Void> purgeConfigurationRegistry(HttpServletRequest request,
-                                                           @RequestParam(REQUEST_PARAM_ORGANIZATION) String organization,
+    public ResponseEntity<Void> purgeConfigurationRegistry(@RequestParam(REQUEST_PARAM_ORGANIZATION) String organization,
                                                            @RequestParam(REQUEST_PARAM_SPACE) String space) {
         CloudControllerClient client = createClient(organization, space);
         MtaConfigurationPurger configurationPurger = new MtaConfigurationPurger(client,

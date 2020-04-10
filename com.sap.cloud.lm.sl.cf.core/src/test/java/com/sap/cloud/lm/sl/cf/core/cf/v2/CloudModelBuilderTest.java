@@ -607,15 +607,13 @@ public class CloudModelBuilderTest {
     }
 
     private String computeAppName(DeploymentDescriptor descriptor, Module module) {
-        String appName = (String) module.getParameters()
-                                        .get(SupportedParameters.APP_NAME);
+        String appName = NameUtil.getApplicationName(module);
         appName = appName != null ? appName : module.getName();
         return NameUtil.computeValidApplicationName(appName, descriptor.getId(), useNamespaces);
     }
 
     private String computeServiceName(DeploymentDescriptor descriptor, Resource resource) {
-        String serviceName = (String) resource.getParameters()
-                                              .get(SupportedParameters.SERVICE_NAME);
+        String serviceName = NameUtil.getServiceName(resource);
         serviceName = serviceName != null ? serviceName : resource.getName();
         return NameUtil.computeValidServiceName(serviceName, descriptor.getId(), useNamespaces, useNamespacesForServices);
     }

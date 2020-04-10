@@ -22,7 +22,7 @@ public class ApplicationAttributesTest {
     private static final String APP_NAME = "foo";
 
     @Test
-    public void testGet() throws Exception {
+    public void testGet() {
         ApplicationAttributes appAttributes = createApplicationAttributesFromJsonFile("application-with-valid-deploy-attributes.json");
         assertEquals("username", appAttributes.get("service-broker-username", String.class));
         assertEquals("password", appAttributes.get("service-broker-password", String.class));
@@ -33,7 +33,7 @@ public class ApplicationAttributesTest {
     }
 
     @Test
-    public void testGetWithInvalidType() throws Exception {
+    public void testGetWithInvalidType() {
         ApplicationAttributes appAttributes = createApplicationAttributesFromJsonFile("application-with-invalid-deploy-attributes.json");
 
         String attributeName = "create-service-broker";

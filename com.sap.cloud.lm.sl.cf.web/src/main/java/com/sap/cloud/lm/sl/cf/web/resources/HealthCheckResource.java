@@ -23,7 +23,7 @@ public class HealthCheckResource {
 
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
     public Health getHealth() {
-        return CACHED_RESPONSE.get(() -> healthRetriever.getHealth());
+        return CACHED_RESPONSE.get(healthRetriever::getHealth);
     }
 
 }

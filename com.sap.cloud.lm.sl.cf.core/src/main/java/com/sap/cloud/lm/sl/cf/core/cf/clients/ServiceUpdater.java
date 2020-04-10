@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -9,6 +8,7 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
@@ -110,23 +110,16 @@ public class ServiceUpdater extends CloudServiceOperator {
         String cloudControllerUrl = getCloudControllerUrl(client);
         String updateServiceUrl = getUrl(cloudControllerUrl, getUpdateServiceUrl(serviceUrl, serviceInstance.getMetadata()
                                                                                                             .getGuid()
-                                                                                                            .toString(),
-                                                                                 ACCEPTS_INCOMPLETE_TRUE));
+                                                                                                            .toString()));
 
-        Map<String, Object> serviceRequest = createUpdateServiceRequest(parameterName, parameter);
+        Map<String, Object> serviceRequest = MapUtil.asMap(parameterName, parameter);
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(serviceRequest);
         ResponseEntity<String> response = restTemplate.exchange(updateServiceUrl, HttpMethod.PUT, requestEntity, String.class);
         return MethodExecution.fromResponseEntity(response);
     }
 
-    private Map<String, Object> createUpdateServiceRequest(String requestParameter, Object parameter) {
-        Map<String, Object> updateServiceParametersRequest = new HashMap<>();
-        updateServiceParametersRequest.put(requestParameter, parameter);
-        return updateServiceParametersRequest;
-    }
-
-    private String getUpdateServiceUrl(String serviceUrl, String serviceGuid, String acceptsIncomplete) {
-        return serviceUrl + "/" + serviceGuid + acceptsIncomplete;
+    private String getUpdateServiceUrl(String serviceUrl, String serviceGuid) {
+        return serviceUrl + "/" + serviceGuid + ServiceUpdater.ACCEPTS_INCOMPLETE_TRUE;
     }
 
     private void assertServiceAttributes(String serviceName, Object parameters) {

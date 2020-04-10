@@ -46,13 +46,12 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
 
-        List<String> deploymentDescriptorModules = getDeploymentDescriptorModules(context);
-
         if (deployedMta == null) {
             setComponentsToUndeploy(context, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
             return StepPhase.DONE;
         }
 
+        List<String> deploymentDescriptorModules = getDeploymentDescriptorModules(context);
         List<ConfigurationSubscription> subscriptionsToCreate = context.getVariable(Variables.SUBSCRIPTIONS_TO_CREATE);
         Set<String> mtaModules = context.getVariable(Variables.MTA_MODULES);
         List<String> appNames = context.getVariable(Variables.APPS_TO_DEPLOY);
@@ -116,10 +115,9 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         Set<String> servicesForApplications = new HashSet<>();
         ApplicationCloudModelBuilder applicationCloudModelBuilder = getApplicationCloudModelBuilder(context);
         for (Module module : modules) {
-            if (!moduleToDeployHelper.isApplication(module)) {
-                continue;
+            if (moduleToDeployHelper.isApplication(module)) {
+                servicesForApplications.addAll(applicationCloudModelBuilder.getAllApplicationServices(module));
             }
-            servicesForApplications.addAll(applicationCloudModelBuilder.getAllApplicationServices(module));
         }
         return servicesForApplications;
     }

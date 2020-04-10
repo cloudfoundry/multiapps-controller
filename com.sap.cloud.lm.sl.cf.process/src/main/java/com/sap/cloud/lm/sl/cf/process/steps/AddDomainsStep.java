@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
@@ -19,8 +19,6 @@ public class AddDomainsStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
-        CloudControllerClient client = context.getControllerClient();
-
         List<String> customDomains = context.getVariable(Variables.CUSTOM_DOMAINS);
         getStepLogger().debug("Custom domains: " + customDomains);
         if (customDomains.isEmpty()) {
@@ -28,6 +26,8 @@ public class AddDomainsStep extends SyncFlowableStep {
         }
 
         getStepLogger().debug(Messages.ADDING_DOMAINS);
+
+        CloudControllerClient client = context.getControllerClient();
 
         List<CloudDomain> existingDomains = client.getDomains();
         List<String> existingDomainNames = getDomainNames(existingDomains);
@@ -45,11 +45,9 @@ public class AddDomainsStep extends SyncFlowableStep {
     }
 
     private List<String> getDomainNames(List<CloudDomain> domains) {
-        List<String> domainNames = new ArrayList<>();
-        for (CloudDomain domain : domains) {
-            domainNames.add(domain.getName());
-        }
-        return domainNames;
+        return domains.stream()
+                      .map(CloudDomain::getName)
+                      .collect(Collectors.toList());
     }
 
     private void addDomains(CloudControllerClient client, List<String> domainNames, List<String> existingDomainNames) {

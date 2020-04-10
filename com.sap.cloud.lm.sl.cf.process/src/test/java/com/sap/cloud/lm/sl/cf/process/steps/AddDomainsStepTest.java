@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudDomain;
 import org.junit.Before;
@@ -83,13 +84,7 @@ public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
     }
 
     private List<String> getNonExistingDomainsList() {
-        List<String> result = new ArrayList<>();
-        for (String customDomain : customDomains) {
-            if (!existingDomains.contains(customDomain)) {
-                result.add(customDomain);
-            }
-        }
-        return result;
+        return ListUtils.removeAll(customDomains, existingDomains);
     }
 
     @Override

@@ -33,7 +33,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
     private EnvMtaMetadataParser envMtaMetadataParser;
 
     @Override
-    protected StepPhase executeStep(ProcessContext context) throws Exception {
+    protected StepPhase executeStep(ProcessContext context) {
         Module moduleToDeploy = determineModuleToDeploy(context);
 
         if (moduleToDeploy == null) {
@@ -232,7 +232,9 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
         private void updateExecutedHooks(Map<String, List<String>> alreadyExecutedHooks, HookPhase currentHookPhaseForExecution,
                                          List<Hook> hooksForExecution) {
-            hooksForExecution.forEach(hook -> updateHook(alreadyExecutedHooks, currentHookPhaseForExecution, hook));
+            for (Hook hook : hooksForExecution) {
+                updateHook(alreadyExecutedHooks, currentHookPhaseForExecution, hook);
+            }
         }
 
         private void updateHook(Map<String, List<String>> alreadyExecutedHooks, HookPhase currentHookPhaseForExecution, Hook hook) {

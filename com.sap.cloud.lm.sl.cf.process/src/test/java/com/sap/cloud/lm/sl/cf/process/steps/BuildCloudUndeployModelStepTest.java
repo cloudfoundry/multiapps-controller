@@ -257,7 +257,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
 
     private List<ConfigurationSubscription> filter(List<ConfigurationSubscription> existingSubscriptions) {
         return existingSubscriptions.stream()
-                                    .filter((subscription) -> SPACE_ID.equals(subscription.getSpaceId()))
+                                    .filter(subscription -> SPACE_ID.equals(subscription.getSpaceId()))
                                     .collect(Collectors.toList());
     }
 

@@ -77,14 +77,10 @@ public class ApplicationCloudModelBuilder {
     }
 
     public CloudApplicationExtended build(Module moduleToDeploy, ModuleToDeployHelper moduleToDeployHelper) {
-        if (isApplication(moduleToDeploy, moduleToDeployHelper)) {
+        if (moduleToDeployHelper.isApplication(moduleToDeploy)) {
             return getApplication(moduleToDeploy);
         }
         return null;
-    }
-
-    private boolean isApplication(Module moduleToDeploy, ModuleToDeployHelper moduleToDeployHelper) {
-        return moduleToDeployHelper.isApplication(moduleToDeploy);
     }
 
     protected CloudApplicationExtended getApplication(Module module) {

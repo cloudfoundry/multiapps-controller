@@ -88,8 +88,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     private List<ServiceAction>
             determineActionsAndHandleExceptions(CloudControllerClient client, String spaceId, CloudServiceInstanceExtended service,
                                                 CloudServiceInstance existingService, Map<String, List<CloudServiceKey>> serviceKeys,
-                                                ProcessContext context)
-                throws FileStorageException {
+                                                ProcessContext context) {
         try {
             return determineActions(client, spaceId, service, existingService, serviceKeys, context);
         } catch (CloudOperationException e) {
@@ -224,7 +223,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     }
 
     private CloudServiceInstanceExtended setServiceParameters(ProcessContext context, CloudServiceInstanceExtended service,
-                                                              final String appArchiveId, final String fileName)
+                                                              String appArchiveId, String fileName)
         throws FileStorageException {
         AtomicReference<CloudServiceInstanceExtended> serviceReference = new AtomicReference<>();
         FileContentProcessor parametersFileProcessor = appArchiveStream -> {

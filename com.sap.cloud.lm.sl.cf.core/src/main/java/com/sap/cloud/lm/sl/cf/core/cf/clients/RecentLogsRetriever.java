@@ -2,10 +2,10 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
-import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 
@@ -24,7 +24,12 @@ public class RecentLogsRetriever {
 
     public List<ApplicationLog> getRecentLogs(CloudControllerClient client, String appName, LogsOffset offset) {
         List<ApplicationLog> appLogs = client.getRecentLogs(appName);
-        return offset == null ? appLogs : ListUtils.select(appLogs, appLog -> isLogNew(appLog, offset));
+        if (offset == null) {
+            return appLogs;
+        }
+        return appLogs.stream()
+                      .filter(appLog -> isLogNew(appLog, offset))
+                      .collect(Collectors.toList());
     }
 
     private boolean isLogNew(ApplicationLog log, LogsOffset offset) {

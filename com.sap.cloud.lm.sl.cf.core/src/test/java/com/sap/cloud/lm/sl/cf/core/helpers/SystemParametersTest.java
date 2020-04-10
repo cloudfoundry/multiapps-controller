@@ -7,13 +7,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -46,7 +46,7 @@ public class SystemParametersTest {
 
     private static final String XS_TYPE = "CF";
 
-    @Before
+    @BeforeEach
     public void initialize() {
         MockitoAnnotations.initMocks(this);
 
@@ -85,7 +85,6 @@ public class SystemParametersTest {
         testedClass.injectInto(descriptor);
 
         assertCustomValueMap(descriptorParameterFields, descriptor.getParameters());
-
     }
 
     @Test
@@ -98,7 +97,7 @@ public class SystemParametersTest {
         testModuleParameters(true);
     }
 
-    private void testModuleParameters(Boolean reserveTemporaryRoutes) throws Exception {
+    private void testModuleParameters(boolean reserveTemporaryRoutes) throws Exception {
         SystemParameters testedClass = createSystemParameters(reserveTemporaryRoutes);
         Module moduleOne = Module.createV3()
                                  .setName("first");
@@ -109,8 +108,9 @@ public class SystemParametersTest {
                                                               .setModules(Arrays.asList(moduleOne, moduleTwo));
         testedClass.injectInto(descriptor);
 
-        descriptor.getModules()
-                  .forEach(module -> verifyModuleParameters(module.getName(), module.getParameters(), reserveTemporaryRoutes));
+        for (Module module : descriptor.getModules()) {
+            verifyModuleParameters(module.getName(), module.getParameters(), reserveTemporaryRoutes);
+        }
     }
 
     @Test
@@ -142,11 +142,12 @@ public class SystemParametersTest {
                                                               .setResources(Arrays.asList(resourceOne, resourceTwo));
         testedClass.injectInto(descriptor);
 
-        descriptor.getResources()
-                  .forEach(resource -> verifyResourceParameters(resource.getName(), resource.getParameters(), false));
+        for (Resource resource : descriptor.getResources()) {
+            verifyResourceParameters(resource.getName(), resource.getParameters());
+        }
     }
 
-    private void verifyResourceParameters(String name, Map<String, Object> parameters, boolean b) {
+    private void verifyResourceParameters(String name, Map<String, Object> parameters) {
         assertEquals("${default-service-name}", parameters.get(SupportedParameters.SERVICE_NAME));
         assertEquals(name, parameters.get(SupportedParameters.DEFAULT_SERVICE_NAME));
         assertEquals(NameUtil.computeValidContainerName(ORGANIZATION_NAME, SPACE_NAME, name),
@@ -172,16 +173,17 @@ public class SystemParametersTest {
     }
 
     private Map<String, Object> createParametersMap(List<String> fields) {
-        Map<String, Object> customParameters = new HashMap<>();
-        fields.forEach(field -> customParameters.put(field, DESCRIPTOR_DEFINED_VALUE));
-        return customParameters;
+        return fields.stream()
+                     .collect(Collectors.toMap(field -> field, f -> DESCRIPTOR_DEFINED_VALUE));
     }
 
     private void assertCustomValueMap(List<String> fields, Map<String, Object> parametersMap) {
-        fields.forEach(field -> assertEquals(DESCRIPTOR_DEFINED_VALUE, parametersMap.get(field)));
+        for (String field : fields) {
+            assertEquals(DESCRIPTOR_DEFINED_VALUE, parametersMap.get(field));
+        }
     }
 
-    private void verifyModuleParameters(String moduleName, Map<String, Object> moduleParameters, Boolean reserveTemporaryRoutes) {
+    private void verifyModuleParameters(String moduleName, Map<String, Object> moduleParameters, boolean reserveTemporaryRoutes) {
         assertFalse(moduleParameters.containsKey(SupportedParameters.DEFAULT_DOMAIN));
         assertEquals("${default-domain}", moduleParameters.get(SupportedParameters.DOMAIN));
 
@@ -219,7 +221,7 @@ public class SystemParametersTest {
         assertEquals(DEPLOY_SERVICE_URL, descriptorParameters.get(SupportedParameters.DEPLOY_SERVICE_URL));
     }
 
-    public SystemParameters createSystemParameters(Boolean reserveTemporaryRoutes) throws MalformedURLException {
+    public SystemParameters createSystemParameters(boolean reserveTemporaryRoutes) throws MalformedURLException {
         return new SystemParameters.Builder().authorizationEndpoint(AUTHORIZATION_ENDPOINT)
                                              .controllerUrl(new URL(CONTROLLER_URL))
                                              .credentialsGenerator(credentialsGenerator)

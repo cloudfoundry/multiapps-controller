@@ -1,9 +1,9 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -27,7 +27,7 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
     private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Inject
-    ConfigurationEntryService configurationEntryService;
+    private ConfigurationEntryService configurationEntryService;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -58,12 +58,9 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
     }
 
     private List<ConfigurationEntry> publish(List<ConfigurationEntry> entriesToPublish) {
-        List<ConfigurationEntry> publishedEntries = new ArrayList<>();
-        for (ConfigurationEntry entry : entriesToPublish) {
-            ConfigurationEntry publishedConfigurationEntry = publishConfigurationEntry(entry);
-            publishedEntries.add(publishedConfigurationEntry);
-        }
-        return publishedEntries;
+        return entriesToPublish.stream()
+                               .map(this::publishConfigurationEntry)
+                               .collect(Collectors.toList());
     }
 
     private ConfigurationEntry publishConfigurationEntry(ConfigurationEntry entry) {

@@ -30,9 +30,9 @@ public class GitRepoCloner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitRepoCloner.class);
 
-    final CloneCommand cloneCommand;
+    private final CloneCommand cloneCommand;
     private String refName;
-    private Path gitconfigFilePath;
+    private Path gitConfigFilePath;
     private boolean skipSslValidation;
 
     public GitRepoCloner() {
@@ -78,11 +78,11 @@ public class GitRepoCloner {
             return;
         }
         LOGGER.debug("Skipping https ssl validation");
-        if (gitconfigFilePath.toFile()
+        if (gitConfigFilePath.toFile()
                              .exists()) {
-            Files.delete(gitconfigFilePath);
+            Files.delete(gitConfigFilePath);
         }
-        File userConfigFile = gitconfigFilePath.toFile();
+        File userConfigFile = gitConfigFilePath.toFile();
         try (PrintWriter configWriter = new PrintWriter(userConfigFile, "UTF-8")) {
             configWriter.println("[http]");
             configWriter.println("\t" + "sslVerify = false");
@@ -146,7 +146,7 @@ public class GitRepoCloner {
     }
 
     public void setGitConfigFilePath(Path gitConfigFilePath) {
-        this.gitconfigFilePath = gitConfigFilePath;
+        this.gitConfigFilePath = gitConfigFilePath;
 
     }
 

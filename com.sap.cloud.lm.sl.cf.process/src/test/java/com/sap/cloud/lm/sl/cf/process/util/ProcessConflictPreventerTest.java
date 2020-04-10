@@ -31,7 +31,7 @@ public class ProcessConflictPreventerTest {
     @BeforeEach
     public void setUp() throws SLException {
         operationServiceMock = getOperationServiceMock();
-        processConflictPreventerMock = new ProcessConflictPreventerMock(operationServiceMock);
+        processConflictPreventerMock = new ProcessConflictPreventer(operationServiceMock);
     }
 
     @Test
@@ -80,9 +80,4 @@ public class ProcessConflictPreventerTest {
                                  .build();
     }
 
-    private class ProcessConflictPreventerMock extends ProcessConflictPreventer {
-        public ProcessConflictPreventerMock(OperationService operationService) {
-            super(operationServiceMock);
-        }
-    }
 }

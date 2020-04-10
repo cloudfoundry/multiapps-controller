@@ -85,10 +85,9 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         prepareContext();
         prepareConfigurationEntryService();
-        step.configurationEntryService = configurationEntryService;
     }
 
     public void prepareConfigurationEntryService() {
@@ -115,7 +114,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     }
 
     @Test
-    public void test() throws Exception {
+    public void test() {
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
@@ -140,7 +139,6 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
         for (ConfigurationEntry entry : entries) {
             assertContainsEntry(expectedEntries, entry);
         }
-
     }
 
     private List<ConfigurationEntry> getCreatedEntries() {

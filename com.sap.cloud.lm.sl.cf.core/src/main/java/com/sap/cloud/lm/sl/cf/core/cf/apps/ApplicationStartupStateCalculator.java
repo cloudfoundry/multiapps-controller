@@ -17,7 +17,7 @@ public class ApplicationStartupStateCalculator {
 
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
         boolean shouldNotStartApp = appAttributes.get(SupportedParameters.NO_START, Boolean.class, shouldNotStartAnyApp);
-        return (shouldNotStartApp) ? ApplicationStartupState.STOPPED : ApplicationStartupState.STARTED;
+        return shouldNotStartApp ? ApplicationStartupState.STOPPED : ApplicationStartupState.STARTED;
     }
 
     public ApplicationStartupState computeCurrentState(CloudApplication app) {
@@ -38,18 +38,14 @@ public class ApplicationStartupStateCalculator {
         return appAttributes.get(SupportedParameters.EXECUTE_APP, Boolean.class, false);
     }
 
-    private org.cloudfoundry.client.lib.domain.CloudApplication.State getRequestedState(CloudApplication app) {
-        return app.getState();
-    }
-
     private boolean isStarted(CloudApplication app) {
-        return app.getRunningInstances() == app.getInstances() && app.getInstances() != 0
-            && getRequestedState(app).equals(org.cloudfoundry.client.lib.domain.CloudApplication.State.STARTED);
+        return app.getRunningInstances() == app.getInstances() && app.getInstances() != 0 && app.getState()
+                                                                                                .equals(CloudApplication.State.STARTED);
     }
 
     private boolean isStopped(CloudApplication app) {
-        return app.getRunningInstances() == 0
-            && getRequestedState(app).equals(org.cloudfoundry.client.lib.domain.CloudApplication.State.STOPPED);
+        return app.getRunningInstances() == 0 && app.getState()
+                                                    .equals(CloudApplication.State.STOPPED);
     }
 
 }

@@ -44,7 +44,6 @@ public class Messages {
     public static final String COULD_NOT_DELETE_PROCESS_LOGS_MODIFIED_BEFORE_0 = "Could not delete process logs modified before {0}";
     public static final String MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES = "Modules {0}, specified for deployment, are not part of deployment descriptor modules";
     public static final String SERVICE_BROKER_0_DOES_NOT_EXIST = "Service broker \"{0}\" does not exist";
-    public static final String COULD_NOT_FIND_APPLICATION_WITH_GUID_0 = "Could not find application with guid \"{0}\"";
     public static final String GIT_URI_IS_NOT_SPECIFIED = "Git URI is not specified";
     public static final String PARAMETERS_OF_TASK_HOOK_0_ARE_INCOMPLETE = "Parameters of hook {0} with type \"task\" are incomplete. Expected at least \"command\".";
     public static final String CANNOT_DETERMINE_MODULE_NAME = "Cannot determine module name";
