@@ -12,11 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudService;
-import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudService;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,7 +26,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -173,24 +169,20 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
 
     private void prepareClient() {
         if (stepInput.existingService != null) {
-            CloudService existingService = stepInput.getCloudService(stepInput.existingService);
-            CloudServiceInstance existingServiceInstance = stepInput.getCloudServiceInstance(stepInput.existingService);
-            Mockito.when(client.getService(stepInput.existingService.getName(), false))
-                   .thenReturn(existingService);
             Mockito.when(client.getServiceInstance(stepInput.existingService.getName(), false))
-                   .thenReturn(existingServiceInstance);
-            Mockito.when(client.getServiceParameters(UUID.fromString("beeb5e8d-4ab9-46ee-9205-455a278743f0")))
+                   .thenReturn(stepInput.existingService);
+            Mockito.when(client.getServiceInstanceParameters(UUID.fromString("beeb5e8d-4ab9-46ee-9205-455a278743f0")))
                    .thenThrow(new CloudOperationException(HttpStatus.BAD_REQUEST));
-            Mockito.when(client.getServiceParameters(UUID.fromString("400bfc4d-5fce-4a41-bae7-765345e1ce27")))
-                   .thenReturn(existingServiceInstance.getCredentials());
+            Mockito.when(client.getServiceInstanceParameters(UUID.fromString("400bfc4d-5fce-4a41-bae7-765345e1ce27")))
+                   .thenReturn(stepInput.existingService.getCredentials());
         }
     }
 
     private static class StepInput {
 
         // ServiceData - Input
-        CloudServiceExtended service;
-        CloudServiceExtended existingService;
+        CloudServiceInstanceExtended service;
+        CloudServiceInstanceExtended existingService;
         ServiceOperation lastOperationForExistingService;
 
         // ServiceData - Expectation
@@ -210,20 +202,6 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
             Map<String, List<CloudServiceKey>> result = new HashMap<>();
             result.put(service.getName(), serviceKeysToCreate);
             return result;
-        }
-
-        public CloudService getCloudService(CloudServiceExtended service) {
-            return ImmutableCloudService.builder()
-                                        .from(service)
-                                        .build();
-        }
-
-        public CloudServiceInstance getCloudServiceInstance(CloudServiceExtended service) {
-            return ImmutableCloudServiceInstance.builder()
-                                                .metadata(service.getMetadata())
-                                                .name(service.getName())
-                                                .credentials(service.getCredentials())
-                                                .build();
         }
 
         public Map<String, Object> getExistingServiceInstanceEntity() {

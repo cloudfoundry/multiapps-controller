@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
-import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
@@ -31,7 +30,6 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudEvent;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudEvent.ImmutableParticipant;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBinding;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceKey;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,7 +39,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -92,9 +90,9 @@ public class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceSte
         prepareActionsToExecute(shouldRecreateService, shouldDeleteServiceKeys);
         UUID serviceGuid = UUID.fromString(SERVICE_GUID);
         prepareContext();
-        CloudServiceInstance cloudServiceInstance = createCloudServiceInstance(serviceGuid, hasServiceBindings);
-        List<CloudServiceKey> serviceKeys = createServiceKeys(cloudServiceInstance.getService(), hasServiceKeys);
-        prepareClient(cloudServiceInstance, serviceKeys);
+        CloudServiceInstance cloudServiceInstance = createCloudService(serviceGuid);
+        List<CloudServiceKey> serviceKeys = createServiceKeys(cloudServiceInstance, hasServiceKeys);
+        prepareClient(cloudServiceInstance, serviceKeys, hasServiceBindings);
 
         step.execute(context.getExecution());
 
@@ -123,8 +121,8 @@ public class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceSte
     public void testServicePolling() {
         UUID serviceGuid = UUID.fromString(SERVICE_GUID);
         prepareContext();
-        CloudServiceInstance cloudServiceInstance = createCloudServiceInstance(serviceGuid, false);
-        prepareClient(cloudServiceInstance, Collections.emptyList());
+        CloudServiceInstance serviceInstance = createCloudService(serviceGuid);
+        prepareClient(serviceInstance, Collections.emptyList(), false);
 
         prepareEventsGetter(false, serviceGuid);
         step.execute(context.getExecution());
@@ -140,14 +138,22 @@ public class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceSte
         context.setVariable(Variables.DELETE_SERVICES, true);
     }
 
-    private CloudServiceInstance createCloudServiceInstance(UUID serviceGuid, boolean hasServiceBindings) {
-        ImmutableCloudServiceInstance.Builder cloudServiceInstance = ImmutableCloudServiceInstance.builder()
-                                                                                                  .service(createCloudService(serviceGuid));
-        if (hasServiceBindings) {
-            cloudServiceInstance.addBinding(createServiceBinding());
-        }
+    private CloudServiceInstance createCloudService(UUID serviceGuid) {
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .metadata(ImmutableCloudMetadata.builder()
+                                                                                    .guid(serviceGuid)
+                                                                                    .build())
+                                                    .name(SERVICE_NAME)
+                                                    .build();
+    }
 
-        return cloudServiceInstance.build();
+    private void prepareClient(CloudServiceInstance serviceInstance, List<CloudServiceKey> serviceKeys, boolean hasServiceBindings) {
+        when(client.getServiceInstance(eq(SERVICE_NAME), anyBoolean())).thenReturn(serviceInstance);
+        when(client.getServiceKeys(serviceInstance)).thenReturn(serviceKeys);
+        if (hasServiceBindings) {
+            when(client.getServiceBindings(serviceInstance.getMetadata()
+                                                          .getGuid())).thenReturn(Collections.singletonList(createServiceBinding()));
+        }
     }
 
     private CloudServiceBinding createServiceBinding() {
@@ -156,25 +162,11 @@ public class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceSte
                                            .build();
     }
 
-    private CloudService createCloudService(UUID serviceGuid) {
-        return ImmutableCloudServiceExtended.builder()
-                                            .metadata(ImmutableCloudMetadata.builder()
-                                                                            .guid(serviceGuid)
-                                                                            .build())
-                                            .name(SERVICE_NAME)
-                                            .build();
-    }
-
-    private void prepareClient(CloudServiceInstance cloudServiceInstance, List<CloudServiceKey> serviceKeys) {
-        when(client.getServiceInstance(eq(SERVICE_NAME), anyBoolean())).thenReturn(cloudServiceInstance);
-        when(client.getServiceKeys(eq(cloudServiceInstance.getService()))).thenReturn(serviceKeys);
-    }
-
-    private List<CloudServiceKey> createServiceKeys(CloudService service, boolean hasServiceKeys) {
+    private List<CloudServiceKey> createServiceKeys(CloudServiceInstance serviceInstance, boolean hasServiceKeys) {
         if (hasServiceKeys) {
             return Collections.singletonList(ImmutableCloudServiceKey.builder()
                                                                      .name(SEVICE_KEY_NAME)
-                                                                     .service(service)
+                                                                     .serviceInstance(serviceInstance)
                                                                      .build());
         }
         return Collections.emptyList();
@@ -243,7 +235,7 @@ public class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceSte
 
     private void assertServiceRemoverCall(StepPhase expectedStepPhase) {
         int callTimes = expectedStepPhase.equals(StepPhase.DONE) ? 0 : 1;
-        verify(serviceRemover, times(callTimes)).deleteService(any(), any(), anyList());
+        verify(serviceRemover, times(callTimes)).deleteService(any(), any(), anyList(), anyList());
     }
 
     @Override

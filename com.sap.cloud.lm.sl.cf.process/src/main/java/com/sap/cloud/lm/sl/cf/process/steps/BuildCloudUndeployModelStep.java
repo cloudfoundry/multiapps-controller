@@ -16,7 +16,7 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
@@ -104,7 +104,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     private List<String> getServicesToCreate(ProcessContext context) {
         return context.getVariable(Variables.SERVICES_TO_CREATE)
                       .stream()
-                      .map(CloudServiceExtended::getName)
+                      .map(CloudServiceInstanceExtended::getName)
                       .collect(Collectors.toList());
     }
 

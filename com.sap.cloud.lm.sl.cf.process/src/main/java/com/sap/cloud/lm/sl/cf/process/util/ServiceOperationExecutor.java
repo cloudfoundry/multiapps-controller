@@ -9,20 +9,20 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 
 @Named
 public class ServiceOperationExecutor {
 
-    public void executeServiceOperation(CloudServiceExtended service, Runnable serviceOperation, StepLogger stepLogger) {
+    public void executeServiceOperation(CloudServiceInstanceExtended service, Runnable serviceOperation, StepLogger stepLogger) {
         executeServiceOperation(service, () -> {
             serviceOperation.run();
             return null;
         }, stepLogger);
     }
 
-    public <T> T executeServiceOperation(CloudServiceExtended service, Supplier<T> serviceOperation, StepLogger stepLogger) {
+    public <T> T executeServiceOperation(CloudServiceInstanceExtended service, Supplier<T> serviceOperation, StepLogger stepLogger) {
         try {
             return serviceOperation.get();
         } catch (CloudOperationException e) {

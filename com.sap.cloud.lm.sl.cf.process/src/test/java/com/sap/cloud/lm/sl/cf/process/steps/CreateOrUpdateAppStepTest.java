@@ -27,9 +27,9 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -133,22 +133,22 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
         context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, new HashMap<>());
     }
 
-    private List<CloudServiceExtended> mapToCloudServiceExtended() {
+    private List<CloudServiceInstanceExtended> mapToCloudServiceExtended() {
         return application.getServices()
                           .stream()
                           .map(this::extracted)
                           .collect(Collectors.toList());
     }
 
-    private CloudServiceExtended extracted(String serviceName) {
+    private CloudServiceInstanceExtended extracted(String serviceName) {
         for (SimpleService simpleService : stepInput.services) {
             if (simpleService.name.equals(serviceName)) {
                 return simpleService.toCloudServiceExtended();
             }
         }
-        return ImmutableCloudServiceExtended.builder()
-                                            .name(serviceName)
-                                            .build();
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .name(serviceName)
+                                                    .build();
     }
 
     private void prepareClient() {
@@ -163,9 +163,9 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
         }
 
         for (SimpleService simpleService : stepInput.services) {
-            CloudServiceExtended service = simpleService.toCloudServiceExtended();
+            CloudServiceInstanceExtended service = simpleService.toCloudServiceExtended();
             if (!service.isOptional()) {
-                Mockito.when(client.getService(service.getName()))
+                Mockito.when(client.getServiceInstance(service.getName()))
                        .thenReturn(service);
             }
         }
@@ -176,7 +176,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
                                                         HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                                                         expectedExceptionMessage + "Something happened!"))
                    .when(client)
-                   .bindService(eq(entry.getKey()), eq(serviceName), Mockito.any(), Mockito.any());
+                   .bindServiceInstance(eq(entry.getKey()), eq(serviceName), Mockito.any(), Mockito.any());
         }
 
         for (Map.Entry<String, List<CloudServiceKey>> entry : stepInput.existingServiceKeys.entrySet()) {
@@ -196,9 +196,9 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
         for (String service : application.getServices()) {
             if (!isOptional(service)) {
                 Mockito.verify(client)
-                       .bindService(application.getName(), service,
-                                    getBindingParametersForService(application.getBindingParameters(), service),
-                                    step.getApplicationServicesUpdateCallback(context));
+                       .bindServiceInstance(application.getName(), service,
+                                            getBindingParametersForService(application.getBindingParameters(), service),
+                                            step.getApplicationServicesUpdateCallback(context));
             }
         }
         Mockito.verify(client)

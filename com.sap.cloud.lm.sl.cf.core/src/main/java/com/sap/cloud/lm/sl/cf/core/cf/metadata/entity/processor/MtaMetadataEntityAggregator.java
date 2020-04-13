@@ -10,7 +10,7 @@ import javax.inject.Named;
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
-import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.ImmutableMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadata;
@@ -90,8 +90,8 @@ public class MtaMetadataEntityAggregator {
 
     private List<DeployedMtaService> getServices(List<CloudEntity> entities) {
         return entities.stream()
-                       .filter(CloudService.class::isInstance)
-                       .map(CloudService.class::cast)
+                       .filter(CloudServiceInstance.class::isInstance)
+                       .map(CloudServiceInstance.class::cast)
                        .map(mtaMetadataParser::parseDeployedMtaService)
                        .collect(Collectors.toList());
     }
@@ -99,7 +99,7 @@ public class MtaMetadataEntityAggregator {
     private List<DeployedMtaService> getUserProvidedServices(List<DeployedMtaApplication> applications,
                                                              List<DeployedMtaService> existingServices) {
         List<String> existingServiceNames = existingServices.stream()
-                                                            .map(CloudService::getName)
+                                                            .map(CloudServiceInstance::getName)
                                                             .collect(Collectors.toList());
         return applications.stream()
                            .flatMap(application -> application.getBoundMtaServices()

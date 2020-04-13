@@ -11,7 +11,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,18 +70,20 @@ public class ServiceUpdater extends CloudServiceOperator {
                                                                                                                           parameters));
     }
 
-    private MethodExecution<String> attemptToUpdateServicePlan(CloudControllerClient client, String serviceName, String servicePlanName) {
-        CloudService service = client.getService(serviceName);
-        CloudServicePlan servicePlan = findPlanForService(client, service, servicePlanName);
+    private MethodExecution<String> attemptToUpdateServicePlan(CloudControllerClient client, String serviceInstanceName,
+                                                               String servicePlanName) {
+        CloudServiceInstance serviceInstance = client.getServiceInstance(serviceInstanceName);
+        CloudServicePlan servicePlan = findPlanForService(client, serviceInstance, servicePlanName);
         String servicePlanGuid = servicePlan.getMetadata()
                                             .getGuid()
                                             .toString();
-        return attemptToUpdateServiceParameter(client, service, SERVICE_INSTANCES_URL, SERVICE_PLAN_GUID, servicePlanGuid);
+        return attemptToUpdateServiceParameter(client, serviceInstance, SERVICE_INSTANCES_URL, SERVICE_PLAN_GUID, servicePlanGuid);
     }
 
-    private MethodExecution<String> attemptToUpdateServiceTags(CloudControllerClient client, String serviceName, List<String> serviceTags) {
-        CloudService service = client.getService(serviceName);
-        return attemptToUpdateServiceParameter(client, service, SERVICE_INSTANCES_URL, SERVICE_TAGS, serviceTags);
+    private MethodExecution<String> attemptToUpdateServiceTags(CloudControllerClient client, String serviceInstanceName,
+                                                               List<String> serviceTags) {
+        CloudServiceInstance serviceInstance = client.getServiceInstance(serviceInstanceName);
+        return attemptToUpdateServiceParameter(client, serviceInstance, SERVICE_INSTANCES_URL, SERVICE_TAGS, serviceTags);
     }
 
     private String getCloudControllerUrl(CloudControllerClient client) {
@@ -92,22 +94,23 @@ public class ServiceUpdater extends CloudServiceOperator {
     private MethodExecution<String> attemptToUpdateServiceParameters(CloudControllerClient client, String serviceName,
                                                                      Map<String, Object> parameters) {
         assertServiceAttributes(serviceName, parameters);
-        CloudService service = client.getService(serviceName);
+        CloudServiceInstance serviceInstance = client.getServiceInstance(serviceName);
 
-        if (service.isUserProvided()) {
-            return attemptToUpdateServiceParameter(client, service, USER_PROVIDED_SERVICE_INSTANCES_URL, SERVICE_CREDENTIALS, parameters);
+        if (serviceInstance.isUserProvided()) {
+            return attemptToUpdateServiceParameter(client, serviceInstance, USER_PROVIDED_SERVICE_INSTANCES_URL, SERVICE_CREDENTIALS,
+                                                   parameters);
         }
 
-        return attemptToUpdateServiceParameter(client, service, SERVICE_INSTANCES_URL, SERVICE_PARAMETERS, parameters);
+        return attemptToUpdateServiceParameter(client, serviceInstance, SERVICE_INSTANCES_URL, SERVICE_PARAMETERS, parameters);
     }
 
-    private MethodExecution<String> attemptToUpdateServiceParameter(CloudControllerClient client, CloudService service, String serviceUrl,
-                                                                    String parameterName, Object parameter) {
+    private MethodExecution<String> attemptToUpdateServiceParameter(CloudControllerClient client, CloudServiceInstance serviceInstance,
+                                                                    String serviceUrl, String parameterName, Object parameter) {
         RestTemplate restTemplate = getRestTemplate(client);
         String cloudControllerUrl = getCloudControllerUrl(client);
-        String updateServiceUrl = getUrl(cloudControllerUrl, getUpdateServiceUrl(serviceUrl, service.getMetadata()
-                                                                                                    .getGuid()
-                                                                                                    .toString(),
+        String updateServiceUrl = getUrl(cloudControllerUrl, getUpdateServiceUrl(serviceUrl, serviceInstance.getMetadata()
+                                                                                                            .getGuid()
+                                                                                                            .toString(),
                                                                                  ACCEPTS_INCOMPLETE_TRUE));
 
         Map<String, Object> serviceRequest = createUpdateServiceRequest(parameterName, parameter);

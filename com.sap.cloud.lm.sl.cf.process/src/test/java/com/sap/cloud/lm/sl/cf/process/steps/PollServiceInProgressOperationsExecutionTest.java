@@ -24,8 +24,8 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
@@ -129,7 +129,7 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
     @Before
     public void setUp() {
         context.setVariable(Variables.SPACE_ID, TEST_SPACE_ID);
-        List<CloudServiceExtended> services = generateCloudServicesExtended();
+        List<CloudServiceInstanceExtended> services = generateCloudServicesExtended();
         prepareServiceOperationGetter(services);
         prepareServicesData(services);
         prepareTriggeredServiceOperations();
@@ -139,9 +139,9 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
         }
     }
 
-    private void prepareServiceOperationGetter(List<CloudServiceExtended> services) {
+    private void prepareServiceOperationGetter(List<CloudServiceInstanceExtended> services) {
         for (int i = 0; i < services.size(); i++) {
-            CloudServiceExtended service = services.get(i);
+            CloudServiceInstanceExtended service = services.get(i);
             ServiceOperation.Type serviceOperationType = servicesOperationTypes.get(i);
             ServiceOperation.State serviceOperationState = servicesOperationStates.get(i);
             if (serviceOperationType != null && serviceOperationState != null) {
@@ -165,25 +165,25 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
         context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, triggeredServiceOperations);
     }
 
-    private List<CloudServiceExtended> generateCloudServicesExtended() {
+    private List<CloudServiceInstanceExtended> generateCloudServicesExtended() {
         return serviceNames.stream()
                            .map(this::buildCloudServiceExtended)
                            .collect(Collectors.toList());
     }
 
-    private ImmutableCloudServiceExtended buildCloudServiceExtended(String serviceName) {
-        return ImmutableCloudServiceExtended.builder()
-                                            .name(serviceName)
-                                            .provider(TEST_PROVIDER)
-                                            .plan(TEST_PLAN)
-                                            .version(TEST_VERSION)
-                                            .metadata(ImmutableCloudMetadata.builder()
-                                                                            .guid(UUID.randomUUID())
-                                                                            .build())
-                                            .build();
+    private ImmutableCloudServiceInstanceExtended buildCloudServiceExtended(String serviceName) {
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .name(serviceName)
+                                                    .provider(TEST_PROVIDER)
+                                                    .plan(TEST_PLAN)
+                                                    .version(TEST_VERSION)
+                                                    .metadata(ImmutableCloudMetadata.builder()
+                                                                                    .guid(UUID.randomUUID())
+                                                                                    .build())
+                                                    .build();
     }
 
-    private void prepareServicesData(List<CloudServiceExtended> services) {
+    private void prepareServicesData(List<CloudServiceInstanceExtended> services) {
         context.setVariable(Variables.SERVICES_DATA, services);
     }
 

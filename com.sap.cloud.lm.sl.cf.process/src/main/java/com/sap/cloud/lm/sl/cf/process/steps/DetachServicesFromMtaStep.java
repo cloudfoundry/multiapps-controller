@@ -50,7 +50,7 @@ public class DetachServicesFromMtaStep extends SyncFlowableStep {
             getStepLogger().info(MessageFormat.format(Messages.DETACHING_SERVICE_0_FROM_MTA, serviceToDetachFromMta.getName()));
             UUID serviceGuid = serviceToDetachFromMta.getMetadata()
                                                      .getGuid();
-            client.updateServiceMetadata(serviceGuid, getMetadataWithoutMtaFields(serviceMetadata));
+            client.updateServiceInstanceMetadata(serviceGuid, getMetadataWithoutMtaFields(serviceMetadata));
         }
     }
 

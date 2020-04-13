@@ -22,7 +22,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
@@ -38,7 +38,7 @@ public class ServiceOperationGetterTest {
     @Mock
     private ProcessContext context;
     @Mock
-    private CloudServiceExtended service;
+    private CloudServiceInstanceExtended service;
 
     private ServiceOperationGetter serviceOperationGetter;
 

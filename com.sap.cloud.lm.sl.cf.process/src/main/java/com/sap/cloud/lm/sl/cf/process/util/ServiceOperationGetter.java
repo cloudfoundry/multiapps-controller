@@ -12,7 +12,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
@@ -31,7 +31,7 @@ public class ServiceOperationGetter {
         this.eventsGetter = eventsGetter;
     }
 
-    public ServiceOperation getLastServiceOperation(ProcessContext context, CloudServiceExtended service) {
+    public ServiceOperation getLastServiceOperation(ProcessContext context, CloudServiceInstanceExtended service) {
         Map<String, Object> serviceInstanceEntity = getServiceInstanceEntity(context, service);
 
         if (MapUtils.isEmpty(serviceInstanceEntity)) {
@@ -41,12 +41,12 @@ public class ServiceOperationGetter {
         return getLastServiceOperation(serviceInstanceEntity);
     }
 
-    private Map<String, Object> getServiceInstanceEntity(ProcessContext context, CloudServiceExtended service) {
+    private Map<String, Object> getServiceInstanceEntity(ProcessContext context, CloudServiceInstanceExtended service) {
         CloudControllerClient client = context.getControllerClient();
         return serviceGetter.getServiceInstanceEntity(client, service.getName(), context.getVariable(Variables.SPACE_ID));
     }
 
-    private ServiceOperation getLastDeleteServiceOperation(ProcessContext context, CloudServiceExtended service) {
+    private ServiceOperation getLastDeleteServiceOperation(ProcessContext context, CloudServiceInstanceExtended service) {
         if (service.getMetadata() == null) {
             return null;
         }

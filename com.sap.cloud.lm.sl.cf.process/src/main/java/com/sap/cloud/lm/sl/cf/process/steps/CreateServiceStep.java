@@ -12,13 +12,13 @@ import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudService;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceWithAlternativesCreator;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
@@ -38,11 +38,12 @@ public class CreateServiceStep extends ServiceStep {
 
     @Override
     protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
-                                                       CloudServiceExtended service) {
+                                                       CloudServiceInstanceExtended service) {
         return createService(context, controllerClient, service);
     }
 
-    private MethodExecution<String> createService(ProcessContext context, CloudControllerClient controllerClient, CloudServiceExtended service) {
+    private MethodExecution<String> createService(ProcessContext context, CloudControllerClient controllerClient,
+                                                  CloudServiceInstanceExtended service) {
         getStepLogger().info(Messages.CREATING_SERVICE_FROM_MTA_RESOURCE, service.getName(), service.getResourceName());
 
         try {
@@ -57,36 +58,36 @@ public class CreateServiceStep extends ServiceStep {
     }
 
     private MethodExecution<String> createCloudService(DelegateExecution execution, CloudControllerClient client,
-                                                       CloudServiceExtended service) {
+                                                       CloudServiceInstanceExtended service) {
 
         if (serviceExists(service, client)) {
             getStepLogger().info(com.sap.cloud.lm.sl.cf.core.Messages.SERVICE_ALREADY_EXISTS, service.getName());
             return new MethodExecution<>(null, ExecutionState.FINISHED);
         }
         if (service.isUserProvided()) {
-            return createUserProvidedService(client, service);
+            return createUserProvidedServiceInstance(client, service);
         }
-        return createManagedService(execution, client, service);
+        return createManagedServiceInstance(execution, client, service);
     }
 
-    private MethodExecution<String> createUserProvidedService(CloudControllerClient client, CloudServiceExtended service) {
-        client.createUserProvidedService(service, service.getCredentials());
+    private MethodExecution<String> createUserProvidedServiceInstance(CloudControllerClient client, CloudServiceInstanceExtended service) {
+        client.createUserProvidedServiceInstance(service, service.getCredentials());
         return new MethodExecution<>(null, ExecutionState.FINISHED);
     }
 
-    private boolean serviceExists(CloudServiceExtended cloudServiceExtended, CloudControllerClient client) {
-        return client.getService(cloudServiceExtended.getName(), false) != null;
+    private boolean serviceExists(CloudServiceInstanceExtended cloudServiceExtended, CloudControllerClient client) {
+        return client.getServiceInstance(cloudServiceExtended.getName(), false) != null;
     }
 
-    private MethodExecution<String> createManagedService(DelegateExecution execution, CloudControllerClient client,
-                                                         CloudServiceExtended service) {
+    private MethodExecution<String> createManagedServiceInstance(DelegateExecution execution, CloudControllerClient client,
+                                                                 CloudServiceInstanceExtended service) {
         MethodExecution<String> createService = serviceCreatorFactory.createInstance(getStepLogger())
                                                                      .createService(client, service);
         updateServiceMetadata(service, client);
         return createService;
     }
 
-    private void processServiceCreationFailure(ProcessContext context, CloudServiceExtended service, CloudOperationException e) {
+    private void processServiceCreationFailure(ProcessContext context, CloudServiceInstanceExtended service, CloudOperationException e) {
         if (!service.isOptional()) {
             String detailedDescription = MessageFormat.format(Messages.ERROR_CREATING_SERVICE, service.getName(), service.getLabel(),
                                                               service.getPlan(), e.getDescription());
@@ -100,14 +101,14 @@ public class CreateServiceStep extends ServiceStep {
                              ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, service.getLabel()));
     }
 
-    private void updateServiceMetadata(CloudServiceExtended serviceToProcess, CloudControllerClient client) {
-        ImmutableCloudService serviceWithMetadata = ImmutableCloudService.copyOf(serviceToProcess);
-        CloudMetadata serviceMeta = client.getService(serviceWithMetadata.getName())
+    private void updateServiceMetadata(CloudServiceInstanceExtended serviceToProcess, CloudControllerClient client) {
+        ImmutableCloudServiceInstance serviceWithMetadata = ImmutableCloudServiceInstance.copyOf(serviceToProcess);
+        CloudMetadata serviceMeta = client.getServiceInstance(serviceWithMetadata.getName())
                                           .getMetadata();
         serviceWithMetadata = serviceWithMetadata.withMetadata(serviceMeta);
-        client.updateServiceMetadata(serviceWithMetadata.getMetadata()
-                                                        .getGuid(),
-                                     serviceWithMetadata.getV3Metadata());
+        client.updateServiceInstanceMetadata(serviceWithMetadata.getMetadata()
+                                                                .getGuid(),
+                                             serviceWithMetadata.getV3Metadata());
         getStepLogger().debug("updated service metadata name: " + serviceWithMetadata + " metadata: "
             + JsonUtil.toJson(serviceWithMetadata.getV3Metadata(), true));
     }

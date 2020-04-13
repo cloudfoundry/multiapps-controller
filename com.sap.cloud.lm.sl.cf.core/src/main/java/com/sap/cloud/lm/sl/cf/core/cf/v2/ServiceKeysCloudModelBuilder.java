@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceKey;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
@@ -52,9 +52,9 @@ public class ServiceKeysCloudModelBuilder {
         return ImmutableCloudServiceKey.builder()
                                        .name(serviceKeyName)
                                        .credentials(parameters)
-                                       .service(ImmutableCloudServiceExtended.builder()
-                                                                             .name(serviceName)
-                                                                             .build())
+                                       .serviceInstance(ImmutableCloudServiceInstanceExtended.builder()
+                                                                                             .name(serviceName)
+                                                                                             .build())
                                        .build();
     }
 

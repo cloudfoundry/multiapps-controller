@@ -469,6 +469,7 @@ public class Messages {
     public static final String GETTING_RECENT_LOGS_OF_APPLICATION_0 = "Getting recent logs of application \"{0}\"...";
     public static final String GETTING_ROUTES_WITH_DOMAIN_0 = "Getting routes with domain \"{0}\"...";
     public static final String GETTING_SERVICE_INSTANCE_0 = "Getting service instance \"{0}\"...";
+    public static final String GETTING_BINDINGS_OF_SERVICE_INSTANCE_0 = "Getting bindings of service instance \"{0}\"...";
     public static final String GETTING_SERVICE_BROKER_0 = "Getting service broker \"{0}\"...";
     public static final String GETTING_SERVICE_BROKERS = "Getting service brokers...";
     public static final String GETTING_PARAMETERS_OF_SERVICE_INSTANCE_0 = "Getting parameters of service instance \"{0}\"...";

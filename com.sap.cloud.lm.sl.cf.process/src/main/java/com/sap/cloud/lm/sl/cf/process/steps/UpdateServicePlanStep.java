@@ -10,7 +10,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
 
@@ -20,11 +20,11 @@ public class UpdateServicePlanStep extends ServiceStep {
 
     @Override
     protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
-                                                       CloudServiceExtended service) {
+                                                       CloudServiceInstanceExtended service) {
         return updateServicePlan(controllerClient, service);
     }
 
-    private MethodExecution<String> updateServicePlan(CloudControllerClient controllerClient, CloudServiceExtended service) {
+    private MethodExecution<String> updateServicePlan(CloudControllerClient controllerClient, CloudServiceInstanceExtended service) {
         getStepLogger().debug(MessageFormat.format("Updating service plan of a service {0} with new plan: {1}", service.getName(),
                                                    service.getPlan()));
         if (service.shouldIgnoreUpdateErrors()) {

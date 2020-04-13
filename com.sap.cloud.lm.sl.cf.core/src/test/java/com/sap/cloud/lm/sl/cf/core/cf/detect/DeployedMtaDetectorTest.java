@@ -10,10 +10,10 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudService;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.client.v3.Metadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -115,7 +115,7 @@ public class DeployedMtaDetectorTest {
     public void testGetAllDeployedMtas(String appsResourceLocation, String servicesResourceLocation, Expectation expectation)
         throws IOException {
         List<CloudApplication> apps = parseApps(appsResourceLocation);
-        List<CloudService> services = parseServices(servicesResourceLocation);
+        List<CloudServiceInstance> services = parseServices(servicesResourceLocation);
         prepareClient(apps, services);
         tester.test(() -> deployedMtaDetector.detectDeployedMtas(client), expectation);
     }
@@ -130,7 +130,7 @@ public class DeployedMtaDetectorTest {
         return toCloudApplications(testApps);
     }
 
-    private List<CloudService> parseServices(String servicesResourceLocation) throws IOException {
+    private List<CloudServiceInstance> parseServices(String servicesResourceLocation) throws IOException {
         if (servicesResourceLocation == null) {
             return Collections.emptyList();
         }
@@ -146,19 +146,19 @@ public class DeployedMtaDetectorTest {
                                  .collect(Collectors.toList());
     }
 
-    private List<CloudService> toCloudServices(List<TestCloudService> simpleApplications) {
+    private List<CloudServiceInstance> toCloudServices(List<TestCloudService> simpleApplications) {
         return simpleApplications.stream()
                                  .map(TestCloudService::toCloudService)
                                  .collect(Collectors.toList());
     }
 
-    private void prepareClient(List<CloudApplication> apps, List<CloudService> services) {
+    private void prepareClient(List<CloudApplication> apps, List<CloudServiceInstance> services) {
         Mockito.doReturn(apps)
                .when(client)
                .getApplicationsByMetadataLabelSelector(Matchers.anyString());
         Mockito.doReturn(services)
                .when(client)
-               .getServicesByMetadataLabelSelector(Matchers.anyString());
+               .getServiceInstancesByMetadataLabelSelector(Matchers.anyString());
     }
 
     private static class TestCloudApplication {
@@ -185,19 +185,19 @@ public class DeployedMtaDetectorTest {
         private String name;
         private Map<String, Map<String, String>> metadata;
 
-        private CloudService toCloudService() {
+        private CloudServiceInstance toCloudService() {
             final Map<String, String> annotations = metadata == null ? null : metadata.get("annotations");
             final Map<String, String> labels = metadata == null ? null : metadata.get("labels");
-            return ImmutableCloudService.builder()
-                                        .metadata(ImmutableCloudMetadata.builder()
-                                                                        .guid(NameUtil.getUUID(name))
-                                                                        .build())
-                                        .name(name)
-                                        .v3Metadata(Metadata.builder()
-                                                            .annotations(annotations)
-                                                            .labels(labels)
-                                                            .build())
-                                        .build();
+            return ImmutableCloudServiceInstance.builder()
+                                                .metadata(ImmutableCloudMetadata.builder()
+                                                                                .guid(NameUtil.getUUID(name))
+                                                                                .build())
+                                                .name(name)
+                                                .v3Metadata(Metadata.builder()
+                                                                    .annotations(annotations)
+                                                                    .labels(labels)
+                                                                    .build())
+                                                .build();
         }
     }
 }

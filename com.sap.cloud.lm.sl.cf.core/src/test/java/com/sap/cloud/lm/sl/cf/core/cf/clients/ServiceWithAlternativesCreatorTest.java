@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -69,14 +69,14 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
         Mockito.verify(mockClient, Mockito.times(callsForAllOfferings))
                .getServiceOfferings();
         Mockito.verify(mockClient)
-               .createService(input.expectedService);
+               .createServiceInstance(input.expectedService);
     }
 
     private void throwExceptionIfNeeded() {
         if (input.errorStatusCode != null) {
             Mockito.doThrow(new CloudOperationException(HttpStatus.resolve(input.errorStatusCode)))
                    .when(getMockedClient())
-                   .createService(any());
+                   .createServiceInstance(any());
         }
     }
 
@@ -89,8 +89,8 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     }
 
     private static class Input {
-        private CloudServiceExtended actualService;
-        private CloudServiceExtended expectedService;
+        private CloudServiceInstanceExtended actualService;
+        private CloudServiceInstanceExtended expectedService;
         private Integer errorStatusCode;
     }
 

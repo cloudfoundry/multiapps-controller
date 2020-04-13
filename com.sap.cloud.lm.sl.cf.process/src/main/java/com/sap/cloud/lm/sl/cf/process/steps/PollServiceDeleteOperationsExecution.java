@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.text.MessageFormat;
 import java.util.List;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
@@ -20,17 +20,17 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
     }
 
     @Override
-    protected List<CloudServiceExtended> getServicesData(ProcessContext context) {
+    protected List<CloudServiceInstanceExtended> getServicesData(ProcessContext context) {
         return context.getVariable(Variables.SERVICES_DATA);
     }
 
     @Override
-    protected void handleMissingOperationState(StepLogger stepLogger, CloudServiceExtended service) {
+    protected void handleMissingOperationState(StepLogger stepLogger, CloudServiceInstanceExtended service) {
         throw new SLException(Messages.CANNOT_RETRIEVE_INSTANCE_OF_SERVICE, service.getName());
     }
 
     @Override
-    protected void reportServiceState(ProcessContext context, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
+    protected void reportServiceState(ProcessContext context, CloudServiceInstanceExtended service, ServiceOperation lastServiceOperation) {
         if (lastServiceOperation.getState() == ServiceOperation.State.SUCCEEDED) {
             context.getStepLogger()
                    .debug(getSuccessMessage(service));
@@ -42,11 +42,11 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
         }
     }
 
-    private String getSuccessMessage(CloudServiceExtended service) {
+    private String getSuccessMessage(CloudServiceInstanceExtended service) {
         return MessageFormat.format(Messages.SERVICE_DELETED, service.getName());
     }
 
-    private String getFailureMessage(CloudServiceExtended service, ServiceOperation lastServiceOperation) {
+    private String getFailureMessage(CloudServiceInstanceExtended service, ServiceOperation lastServiceOperation) {
         return MessageFormat.format(Messages.ERROR_DELETING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
                                     lastServiceOperation.getDescription());
     }

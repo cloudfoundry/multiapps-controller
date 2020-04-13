@@ -19,15 +19,15 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.v3.Metadata;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
@@ -57,11 +57,11 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     protected StepPhase executeStep(ProcessContext context) throws Exception {
         CloudControllerClient controllerClient = context.getControllerClient();
         String spaceId = context.getVariable(Variables.SPACE_ID);
-        CloudServiceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
+        CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
 
         context.getStepLogger()
                .info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
-        CloudService existingService = controllerClient.getService(serviceToProcess.getName(), false);
+        CloudServiceInstance existingService = controllerClient.getServiceInstance(serviceToProcess.getName(), false);
 
         Map<String, List<CloudServiceKey>> serviceKeys = context.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
 
@@ -85,10 +85,11 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                                            .getName());
     }
 
-    private List<ServiceAction> determineActionsAndHandleExceptions(CloudControllerClient client, String spaceId,
-                                                                    CloudServiceExtended service, CloudService existingService,
-                                                                    Map<String, List<CloudServiceKey>> serviceKeys, ProcessContext context)
-        throws FileStorageException {
+    private List<ServiceAction>
+            determineActionsAndHandleExceptions(CloudControllerClient client, String spaceId, CloudServiceInstanceExtended service,
+                                                CloudServiceInstance existingService, Map<String, List<CloudServiceKey>> serviceKeys,
+                                                ProcessContext context)
+                throws FileStorageException {
         try {
             return determineActions(client, spaceId, service, existingService, serviceKeys, context);
         } catch (CloudOperationException e) {
@@ -98,13 +99,13 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
     }
 
-    private void setServiceParameters(ProcessContext context, CloudServiceExtended service) throws FileStorageException {
+    private void setServiceParameters(ProcessContext context, CloudServiceInstanceExtended service) throws FileStorageException {
         service = prepareServiceParameters(context, service);
         context.setVariable(Variables.SERVICE_TO_PROCESS, service);
     }
 
-    private List<ServiceAction> determineActions(CloudControllerClient client, String spaceId, CloudServiceExtended service,
-                                                 CloudService existingService, Map<String, List<CloudServiceKey>> serviceKeys,
+    private List<ServiceAction> determineActions(CloudControllerClient client, String spaceId, CloudServiceInstanceExtended service,
+                                                 CloudServiceInstance existingService, Map<String, List<CloudServiceKey>> serviceKeys,
                                                  ProcessContext context) {
         List<ServiceAction> actions = new ArrayList<>();
 
@@ -183,7 +184,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return null;
     }
 
-    private SLException getServiceRecreationNeededException(CloudServiceExtended service, CloudService existingService) {
+    private SLException getServiceRecreationNeededException(CloudServiceInstanceExtended service, CloudServiceInstance existingService) {
         return new SLException(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET,
                                service.getResourceName(),
                                buildServiceType(service),
@@ -191,7 +192,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                                buildServiceType(existingService));
     }
 
-    private String buildServiceType(CloudService service) {
+    private String buildServiceType(CloudServiceInstance service) {
         if (service.isUserProvided()) {
             return ResourceType.USER_PROVIDED_SERVICE.toString();
         }
@@ -201,7 +202,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return label + "/" + plan;
     }
 
-    private boolean shouldUpdateMetadata(CloudServiceExtended service, CloudService existingService) {
+    private boolean shouldUpdateMetadata(CloudServiceInstanceExtended service, CloudServiceInstance existingService) {
         Metadata existingMetadata = existingService.getV3Metadata();
         Metadata newMetadata = service.getV3Metadata();
         if (existingMetadata != null && newMetadata != null) {
@@ -210,7 +211,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return newMetadata != null;
     }
 
-    private CloudServiceExtended prepareServiceParameters(ProcessContext context, CloudServiceExtended service)
+    private CloudServiceInstanceExtended prepareServiceParameters(ProcessContext context, CloudServiceInstanceExtended service)
         throws FileStorageException {
         MtaArchiveElements mtaArchiveElements = context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS);
         String fileName = mtaArchiveElements.getResourceFileName(service.getResourceName());
@@ -222,10 +223,10 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return service;
     }
 
-    private CloudServiceExtended setServiceParameters(ProcessContext context, CloudServiceExtended service, final String appArchiveId,
-                                                      final String fileName)
+    private CloudServiceInstanceExtended setServiceParameters(ProcessContext context, CloudServiceInstanceExtended service,
+                                                              final String appArchiveId, final String fileName)
         throws FileStorageException {
-        AtomicReference<CloudServiceExtended> serviceReference = new AtomicReference<>();
+        AtomicReference<CloudServiceInstanceExtended> serviceReference = new AtomicReference<>();
         FileContentProcessor parametersFileProcessor = appArchiveStream -> {
             try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, configuration.getMaxManifestSize())) {
                 serviceReference.set(mergeCredentials(service, is));
@@ -237,31 +238,31 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return serviceReference.get();
     }
 
-    private CloudServiceExtended mergeCredentials(CloudServiceExtended service, InputStream credentialsJson) {
+    private CloudServiceInstanceExtended mergeCredentials(CloudServiceInstanceExtended service, InputStream credentialsJson) {
         Map<String, Object> existingCredentials = service.getCredentials();
         Map<String, Object> credentials = JsonUtil.convertJsonToMap(credentialsJson);
         if (existingCredentials == null) {
             existingCredentials = Collections.emptyMap();
         }
         Map<String, Object> result = PropertiesUtil.mergeExtensionProperties(credentials, existingCredentials);
-        return ImmutableCloudServiceExtended.copyOf(service)
-                                            .withCredentials(result);
+        return ImmutableCloudServiceInstanceExtended.copyOf(service)
+                                                    .withCredentials(result);
     }
 
-    private List<String> getServiceTags(CloudControllerClient client, String spaceId, CloudService service) {
-        if (service instanceof CloudServiceExtended) {
-            CloudServiceExtended serviceExtended = (CloudServiceExtended) service;
+    private List<String> getServiceTags(CloudControllerClient client, String spaceId, CloudServiceInstance service) {
+        if (service instanceof CloudServiceInstanceExtended) {
+            CloudServiceInstanceExtended serviceExtended = (CloudServiceInstanceExtended) service;
             return serviceExtended.getTags();
         }
         Map<String, Object> serviceInstance = serviceInstanceGetter.getServiceInstanceEntity(client, service.getName(), spaceId);
         return MiscUtil.cast(serviceInstance.get("tags"));
     }
 
-    private boolean shouldUpdateKeys(CloudServiceExtended service, List<CloudServiceKey> serviceKeys) {
+    private boolean shouldUpdateKeys(CloudServiceInstanceExtended service, List<CloudServiceKey> serviceKeys) {
         return !(service.isUserProvided() || CollectionUtils.isEmpty(serviceKeys));
     }
 
-    private boolean shouldUpdatePlan(CloudServiceExtended service, CloudService existingService) {
+    private boolean shouldUpdatePlan(CloudServiceInstanceExtended service, CloudServiceInstance existingService) {
         return !Objects.equals(service.getPlan(), existingService.getPlan());
     }
 
@@ -281,7 +282,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return serviceOperation.getState() == ServiceOperation.State.FAILED;
     }
 
-    private boolean haveDifferentTypesOrLabels(CloudServiceExtended service, CloudService existingService) {
+    private boolean haveDifferentTypesOrLabels(CloudServiceInstanceExtended service, CloudServiceInstance existingService) {
         boolean haveDifferentTypes = service.isUserProvided() ^ existingService.isUserProvided();
         if (existingService.isUserProvided()) {
             return haveDifferentTypes;
@@ -290,7 +291,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return haveDifferentTypes || haveDifferentLabels;
     }
 
-    private boolean shouldUpdateTags(CloudServiceExtended service, List<String> existingServiceTags) {
+    private boolean shouldUpdateTags(CloudServiceInstanceExtended service, List<String> existingServiceTags) {
         if (service.isUserProvided()) {
             return false;
         }
@@ -298,10 +299,11 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return !existingServiceTags.equals(service.getTags());
     }
 
-    private boolean shouldUpdateCredentials(CloudServiceExtended service, CloudService existingService, CloudControllerClient client) {
+    private boolean shouldUpdateCredentials(CloudServiceInstanceExtended service, CloudServiceInstance existingService,
+                                            CloudControllerClient client) {
         try {
-            Map<String, Object> serviceParameters = client.getServiceParameters(existingService.getMetadata()
-                                                                                               .getGuid());
+            Map<String, Object> serviceParameters = client.getServiceInstanceParameters(existingService.getMetadata()
+                                                                                                       .getGuid());
             getStepLogger().debug("Existing service parameters: " + secureSerializer.toJson(serviceParameters));
             return !Objects.equals(service.getCredentials(), serviceParameters);
         } catch (CloudOperationException e) {

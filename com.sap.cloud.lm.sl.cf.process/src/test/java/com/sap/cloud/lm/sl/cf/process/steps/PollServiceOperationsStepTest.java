@@ -21,7 +21,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
@@ -123,7 +123,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
                 continue;
             }
             Map<String, Object> serviceOperationAsMap = (Map<String, Object>) serviceInstanceResponse.get(ServiceOperation.LAST_SERVICE_OPERATION);
-            CloudServiceExtended service = getCloudServiceExtended(response);
+            CloudServiceInstanceExtended service = getCloudServiceExtended(response);
 
             when(serviceOperationGetter.getLastServiceOperation(any(),
                                                                 eq(service))).thenReturn(ServiceOperation.fromMap(serviceOperationAsMap));
@@ -131,7 +131,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
         }
     }
 
-    private CloudServiceExtended getCloudServiceExtended(Entry<String, Object> response) {
+    private CloudServiceInstanceExtended getCloudServiceExtended(Entry<String, Object> response) {
         return input.services.stream()
                              .filter(serviceToFind -> serviceToFind.getName()
                                                                    .equals(response.getKey()))
@@ -145,7 +145,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     }
 
     private static class StepInput {
-        List<CloudServiceExtended> services;
+        List<CloudServiceInstanceExtended> services;
         Map<String, ServiceOperation.Type> triggeredServiceOperations;
         Map<String, Object> serviceInstanceResponse;
         String expectedStatus;
