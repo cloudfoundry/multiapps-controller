@@ -9,7 +9,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
-import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.v3.Metadata;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
@@ -61,13 +61,13 @@ public class MtaMetadataParser extends BaseMtaMetadataParser {
                                               .build();
     }
 
-    public DeployedMtaService parseDeployedMtaService(CloudService service) {
-        mtaMetadataValidator.validate(service);
-        String resourceName = parseNameAttribute(service.getV3Metadata()
-                                                        .getAnnotations(),
+    public DeployedMtaService parseDeployedMtaService(CloudServiceInstance serviceInstance) {
+        mtaMetadataValidator.validate(serviceInstance);
+        String resourceName = parseNameAttribute(serviceInstance.getV3Metadata()
+                                                                .getAnnotations(),
                                                  MtaMetadataAnnotations.MTA_RESOURCE);
         return ImmutableDeployedMtaService.builder()
-                                          .from(service)
+                                          .from(serviceInstance)
                                           .resourceName(resourceName)
                                           .build();
     }

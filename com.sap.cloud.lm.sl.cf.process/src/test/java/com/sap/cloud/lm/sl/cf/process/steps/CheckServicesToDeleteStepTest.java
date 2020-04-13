@@ -16,16 +16,16 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudService;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -63,7 +63,7 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
                             Map<String, ServiceOperation.State> servicesOperationState, List<String> expectedServicesOperations,
                             String expectedStatus) {
         prepareContext(serviceNames);
-        List<CloudService> services = getServices(existingServiceNames);
+        List<CloudServiceInstance> services = getServices(existingServiceNames);
         prepareClient(services);
         prepareServiceOperationGetter(servicesOperationState);
 
@@ -77,21 +77,21 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
         context.setVariable(Variables.SERVICES_TO_DELETE, serviceNames);
     }
 
-    private List<CloudService> getServices(List<String> existingServiceNames) {
+    private List<CloudServiceInstance> getServices(List<String> existingServiceNames) {
         return existingServiceNames.stream()
-                                   .map(serviceName -> ImmutableCloudService.builder()
-                                                                            .name(serviceName)
-                                                                            .metadata(ImmutableCloudMetadata.builder()
-                                                                                                            .guid(UUID.randomUUID())
-                                                                                                            .build())
-                                                                            .build())
+                                   .map(serviceName -> ImmutableCloudServiceInstance.builder()
+                                                                                    .name(serviceName)
+                                                                                    .metadata(ImmutableCloudMetadata.builder()
+                                                                                                                    .guid(UUID.randomUUID())
+                                                                                                                    .build())
+                                                                                    .build())
                                    .collect(Collectors.toList());
 
     }
 
-    private void prepareClient(List<CloudService> services) {
-        for (CloudService service : services) {
-            when(client.getService(service.getName(), false)).thenReturn(service);
+    private void prepareClient(List<CloudServiceInstance> serviceInstances) {
+        for (CloudServiceInstance serviceInstance : serviceInstances) {
+            when(client.getServiceInstance(serviceInstance.getName(), false)).thenReturn(serviceInstance);
         }
     }
 
@@ -119,7 +119,7 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
         return new CheckServicesToDeleteStep();
     }
 
-    private static class CloudServiceExtendedMatcher implements ArgumentMatcher<CloudServiceExtended> {
+    private static class CloudServiceExtendedMatcher implements ArgumentMatcher<CloudServiceInstanceExtended> {
 
         private final String serviceName;
 
@@ -128,7 +128,7 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
         }
 
         @Override
-        public boolean matches(CloudServiceExtended service) {
+        public boolean matches(CloudServiceInstanceExtended service) {
             return service != null && service.getName()
                                              .equals(serviceName);
         }

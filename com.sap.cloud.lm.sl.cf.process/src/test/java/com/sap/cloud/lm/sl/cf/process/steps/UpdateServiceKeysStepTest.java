@@ -21,8 +21,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -53,7 +53,7 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
     @MethodSource
     public void testCreateUpdateServiceKeysStep(List<String> serviceKeysNames, List<String> existingServiceKeysNames,
                                                 boolean canDeleteServiceKeys, List<String> updatedServiceKeys) {
-        CloudServiceExtended service = buildService();
+        CloudServiceInstanceExtended service = buildService();
         List<CloudServiceKey> serviceKeys = buildServiceKeys(serviceKeysNames, updatedServiceKeys, service);
         List<CloudServiceKey> existingServiceKeys = buildServiceKeys(existingServiceKeysNames, Collections.emptyList(), service);
         prepareContext(serviceKeys, canDeleteServiceKeys, service);
@@ -67,39 +67,39 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
         assertStepFinishedSuccessfully();
     }
 
-    private CloudServiceExtended buildService() {
-        return ImmutableCloudServiceExtended.builder()
-                                            .resourceName(SERVICE_NAME)
-                                            .name(SERVICE_NAME)
-                                            .build();
+    private CloudServiceInstanceExtended buildService() {
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .resourceName(SERVICE_NAME)
+                                                    .name(SERVICE_NAME)
+                                                    .build();
     }
 
     private List<CloudServiceKey> buildServiceKeys(List<String> serviceKeysNames, List<String> updatedServiceKeys,
-                                                   CloudServiceExtended service) {
+                                                   CloudServiceInstanceExtended service) {
         return serviceKeysNames.stream()
                                .map(serviceKeyName -> buildCloudServiceKey(service, updatedServiceKeys, serviceKeyName))
                                .collect(Collectors.toList());
     }
 
-    private void prepareContext(List<CloudServiceKey> serviceKeys, boolean canDeleteServiceKeys, CloudServiceExtended service) {
+    private void prepareContext(List<CloudServiceKey> serviceKeys, boolean canDeleteServiceKeys, CloudServiceInstanceExtended service) {
         context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, MapUtil.asMap(SERVICE_NAME, serviceKeys));
         context.setVariable(Variables.DELETE_SERVICE_KEYS, canDeleteServiceKeys);
         context.setVariable(Variables.SERVICE_TO_PROCESS, service);
 
     }
 
-    private ImmutableCloudServiceKey buildCloudServiceKey(CloudServiceExtended service, List<String> updatedServiceKeys,
+    private ImmutableCloudServiceKey buildCloudServiceKey(CloudServiceInstanceExtended service, List<String> updatedServiceKeys,
                                                           String serviceKeyName) {
         if (updatedServiceKeys.contains(serviceKeyName)) {
             return ImmutableCloudServiceKey.builder()
                                            .name(serviceKeyName)
-                                           .service(service)
+                                           .serviceInstance(service)
                                            .credentials(MapUtil.asMap("name", "new-value"))
                                            .build();
         }
         return ImmutableCloudServiceKey.builder()
                                        .name(serviceKeyName)
-                                       .service(service)
+                                       .serviceInstance(service)
                                        .build();
     }
 

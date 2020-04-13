@@ -12,12 +12,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
@@ -36,14 +36,14 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
-        List<CloudServiceExtended> servicesToProcess = getServicesToProcess(context);
+        List<CloudServiceInstanceExtended> servicesToProcess = getServicesToProcess(context);
 
-        List<CloudServiceExtended> existingServices = getExistingServices(context.getControllerClient(), servicesToProcess);
+        List<CloudServiceInstanceExtended> existingServices = getExistingServices(context.getControllerClient(), servicesToProcess);
         if (existingServices.isEmpty()) {
             return StepPhase.DONE;
         }
 
-        Map<CloudServiceExtended, ServiceOperation> servicesInProgressState = getServicesInProgressState(context, existingServices);
+        Map<CloudServiceInstanceExtended, ServiceOperation> servicesInProgressState = getServicesInProgressState(context, existingServices);
         if (servicesInProgressState.isEmpty()) {
             return StepPhase.DONE;
         }
@@ -54,39 +54,40 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
         getStepLogger().debug(Messages.SERVICES_IN_PROGRESS, JsonUtil.toJson(servicesOperationTypes, true));
         context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, servicesOperationTypes);
 
-        List<CloudServiceExtended> servicesWithData = getListOfServicesWithData(servicesInProgressState);
+        List<CloudServiceInstanceExtended> servicesWithData = getListOfServicesWithData(servicesInProgressState);
         context.setVariable(Variables.SERVICES_DATA, servicesWithData);
 
         return StepPhase.POLL;
     }
 
-    protected List<CloudServiceExtended> getServicesToProcess(ProcessContext context) {
+    protected List<CloudServiceInstanceExtended> getServicesToProcess(ProcessContext context) {
         return Collections.singletonList(context.getVariable(Variables.SERVICE_TO_PROCESS));
     }
 
-    private List<CloudServiceExtended> getExistingServices(CloudControllerClient cloudControllerClient,
-                                                           List<CloudServiceExtended> servicesToProcess) {
+    private List<CloudServiceInstanceExtended> getExistingServices(CloudControllerClient cloudControllerClient,
+                                                                   List<CloudServiceInstanceExtended> servicesToProcess) {
         return servicesToProcess.parallelStream()
                                 .map(service -> getExistingService(cloudControllerClient, service))
                                 .filter(Objects::nonNull)
                                 .collect(Collectors.toList());
     }
 
-    private CloudServiceExtended getExistingService(CloudControllerClient cloudControllerClient, CloudServiceExtended service) {
-        CloudService existingService = cloudControllerClient.getService(service.getName(), false);
+    private CloudServiceInstanceExtended getExistingService(CloudControllerClient cloudControllerClient,
+                                                            CloudServiceInstanceExtended service) {
+        CloudServiceInstance existingService = cloudControllerClient.getServiceInstance(service.getName(), false);
         if (existingService != null) {
-            return ImmutableCloudServiceExtended.builder()
-                                                .from(service)
-                                                .metadata(existingService.getMetadata())
-                                                .build();
+            return ImmutableCloudServiceInstanceExtended.builder()
+                                                        .from(service)
+                                                        .metadata(existingService.getMetadata())
+                                                        .build();
         }
         return null;
     }
 
-    private Map<CloudServiceExtended, ServiceOperation> getServicesInProgressState(ProcessContext context,
-                                                                                   List<CloudServiceExtended> existingServices) {
-        Map<CloudServiceExtended, ServiceOperation> servicesOperation = new HashMap<>();
-        for (CloudServiceExtended existingService : existingServices) {
+    private Map<CloudServiceInstanceExtended, ServiceOperation>
+            getServicesInProgressState(ProcessContext context, List<CloudServiceInstanceExtended> existingServices) {
+        Map<CloudServiceInstanceExtended, ServiceOperation> servicesOperation = new HashMap<>();
+        for (CloudServiceInstanceExtended existingService : existingServices) {
             ServiceOperation lastServiceOperation = serviceOperationGetter.getLastServiceOperation(context, existingService);
             if (isServiceOperationInProgress(lastServiceOperation)) {
                 servicesOperation.put(existingService, lastServiceOperation);
@@ -100,7 +101,7 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
     }
 
     private Map<String, ServiceOperation.Type>
-            getServicesOperationTypes(Map<CloudServiceExtended, ServiceOperation> servicesInProgressState) {
+            getServicesOperationTypes(Map<CloudServiceInstanceExtended, ServiceOperation> servicesInProgressState) {
         return servicesInProgressState.entrySet()
                                       .stream()
                                       .collect(Collectors.toMap(serviceName -> serviceName.getKey()
@@ -109,7 +110,8 @@ public class CheckForOperationsInProgressStep extends AsyncFlowableStep {
                                                                                                             .getType()));
     }
 
-    private List<CloudServiceExtended> getListOfServicesWithData(Map<CloudServiceExtended, ServiceOperation> servicesInProgressState) {
+    private List<CloudServiceInstanceExtended>
+            getListOfServicesWithData(Map<CloudServiceInstanceExtended, ServiceOperation> servicesInProgressState) {
         return new ArrayList<>(servicesInProgressState.keySet());
     }
 

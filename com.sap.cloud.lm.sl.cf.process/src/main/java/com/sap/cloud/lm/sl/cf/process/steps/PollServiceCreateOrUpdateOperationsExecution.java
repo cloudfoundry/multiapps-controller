@@ -4,7 +4,7 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
@@ -21,8 +21,8 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
     }
 
     @Override
-    protected List<CloudServiceExtended> getServicesData(ProcessContext context) {
-        List<CloudServiceExtended> allServicesToCreate = context.getVariable(Variables.SERVICES_TO_CREATE);
+    protected List<CloudServiceInstanceExtended> getServicesData(ProcessContext context) {
+        List<CloudServiceInstanceExtended> allServicesToCreate = context.getVariable(Variables.SERVICES_TO_CREATE);
         // There's no need to poll the creation or update of user-provided services, because it is done synchronously:
         return allServicesToCreate.stream()
                                   .filter(s -> !s.isUserProvided())
@@ -31,7 +31,7 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
 
     @Override
     protected ServiceOperation mapOperationState(StepLogger stepLogger, ServiceOperation lastServiceOperation,
-                                                 CloudServiceExtended service) {
+                                                 CloudServiceInstanceExtended service) {
         lastServiceOperation = super.mapOperationState(stepLogger, lastServiceOperation, service);
         // Be fault tolerant on failure on update of service
         if (lastServiceOperation.getType() == ServiceOperation.Type.UPDATE
@@ -45,7 +45,7 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
     }
 
     @Override
-    protected void handleMissingOperationState(StepLogger stepLogger, CloudServiceExtended service) {
+    protected void handleMissingOperationState(StepLogger stepLogger, CloudServiceInstanceExtended service) {
         if (!service.isOptional()) {
             throw new SLException(Messages.CANNOT_RETRIEVE_INSTANCE_OF_SERVICE, service.getName());
         }
@@ -56,7 +56,7 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
     }
 
     @Override
-    protected void reportServiceState(ProcessContext context, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
+    protected void reportServiceState(ProcessContext context, CloudServiceInstanceExtended service, ServiceOperation lastServiceOperation) {
         if (lastServiceOperation.getState() == ServiceOperation.State.SUCCEEDED) {
             context.getStepLogger()
                    .debug(getSuccessMessage(service, lastServiceOperation.getType()));
@@ -68,7 +68,7 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
         }
     }
 
-    private String getSuccessMessage(CloudServiceExtended service, ServiceOperation.Type type) {
+    private String getSuccessMessage(CloudServiceInstanceExtended service, ServiceOperation.Type type) {
         switch (type) {
             case CREATE:
                 return MessageFormat.format(Messages.SERVICE_CREATED, service.getName());
@@ -80,18 +80,18 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
         }
     }
 
-    private void handleFailedState(StepLogger stepLogger, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
+    private void handleFailedState(StepLogger stepLogger, CloudServiceInstanceExtended service, ServiceOperation lastServiceOperation) {
         if (shouldFail(service)) {
             throw new SLException(getFailureMessage(service, lastServiceOperation));
         }
         stepLogger.warn(getWarningMessage(service, lastServiceOperation));
     }
 
-    private boolean shouldFail(CloudServiceExtended service) {
+    private boolean shouldFail(CloudServiceInstanceExtended service) {
         return !service.isOptional();
     }
 
-    private String getFailureMessage(CloudServiceExtended service, ServiceOperation operation) {
+    private String getFailureMessage(CloudServiceInstanceExtended service, ServiceOperation operation) {
         switch (operation.getType()) {
             case CREATE:
                 return MessageFormat.format(Messages.ERROR_CREATING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
@@ -105,7 +105,7 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
         }
     }
 
-    private String getWarningMessage(CloudServiceExtended service, ServiceOperation operation) {
+    private String getWarningMessage(CloudServiceInstanceExtended service, ServiceOperation operation) {
         switch (operation.getType()) {
             case CREATE:
                 return MessageFormat.format(Messages.ERROR_CREATING_OPTIONAL_SERVICE, service.getName(), service.getLabel(),

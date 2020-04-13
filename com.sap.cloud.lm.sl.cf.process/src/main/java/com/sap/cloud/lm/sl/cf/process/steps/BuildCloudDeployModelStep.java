@@ -16,7 +16,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.flowable.engine.delegate.DelegateExecution;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.util.CloudModelBuilderContentCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.util.DeployedAfterModulesContentValidator;
@@ -96,17 +96,17 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         ServicesCloudModelBuilder servicesCloudModelBuilder = getServicesCloudModelBuilder(context);
 
         List<Resource> resourcesUsedForBindings = calculateResourcesUsedForBindings(deploymentDescriptor, modulesCalculatedForDeployment);
-        List<CloudServiceExtended> servicesForBindings = servicesCloudModelBuilder.build(resourcesUsedForBindings);
+        List<CloudServiceInstanceExtended> servicesForBindings = servicesCloudModelBuilder.build(resourcesUsedForBindings);
 
         // Build a list of services for binding and save them in the context:
         context.setVariable(Variables.SERVICES_TO_BIND, servicesForBindings);
 
         List<Resource> resourcesForDeployment = calculateResourcesForDeployment(context, deploymentDescriptor);
-        List<CloudServiceExtended> servicesCalculatedForDeployment = servicesCloudModelBuilder.build(resourcesForDeployment);
+        List<CloudServiceInstanceExtended> servicesCalculatedForDeployment = servicesCloudModelBuilder.build(resourcesForDeployment);
 
         // Build a list of services for creation and save them in the context:
-        List<CloudServiceExtended> servicesToCreate = servicesCalculatedForDeployment.stream()
-                                                                                     .filter(CloudServiceExtended::isManaged)
+        List<CloudServiceInstanceExtended> servicesToCreate = servicesCalculatedForDeployment.stream()
+                                                                                     .filter(CloudServiceInstanceExtended::isManaged)
                                                                                      .collect(Collectors.toList());
         getStepLogger().debug(Messages.SERVICES_TO_CREATE, secureSerializer.toJson(servicesToCreate));
         context.setVariable(Variables.SERVICES_TO_CREATE, servicesToCreate);

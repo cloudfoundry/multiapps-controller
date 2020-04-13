@@ -21,13 +21,11 @@ import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudService;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceKey;
@@ -89,10 +87,14 @@ public class ServiceRemoverTest {
 
     @Test
     public void testMissingApplicationWhileUnbindService() {
-        CloudServiceInstance serviceInstance = buildServiceInstance(true, UUID.randomUUID());
-        prepareClient(Collections.emptyList(), serviceInstance);
+        CloudServiceInstance serviceInstance = buildServiceInstance();
+        UUID applicationBindingGuid = UUID.randomUUID();
+        CloudServiceBinding serviceBinding = buildServiceBinding(applicationBindingGuid);
+        prepareClient(Collections.emptyList(), serviceInstance, serviceBinding, applicationBindingGuid);
 
-        assertThrows(IllegalStateException.class, () -> serviceRemover.deleteService(context, serviceInstance, Collections.emptyList()));
+        assertThrows(IllegalStateException.class,
+                     () -> serviceRemover.deleteService(context, serviceInstance, Collections.singletonList(serviceBinding),
+                                                        Collections.emptyList()));
     }
 
     static Stream<Arguments> testControllerErrorHandling() {
@@ -111,20 +113,24 @@ public class ServiceRemoverTest {
     public void testControllerErrorHandling(HttpStatus httpStatusToThrow, Class<? extends Exception> expectedExceptionType,
                                             String expectedExceptionMessage) {
         UUID applicationBindingGuid = UUID.randomUUID();
-        CloudServiceInstance serviceInstance = buildServiceInstance(true, applicationBindingGuid);
+        CloudServiceInstance serviceInstance = buildServiceInstance();
 
         CloudApplication application = buildApplication(applicationBindingGuid);
-        prepareClient(Collections.singletonList(application), serviceInstance);
+        CloudServiceBinding serviceBinding = buildServiceBinding(applicationBindingGuid);
+        prepareClient(Collections.singletonList(application), serviceInstance, serviceBinding, applicationBindingGuid);
 
         doThrow(new CloudOperationException(httpStatusToThrow)).when(client)
-                                                               .deleteService(any(CloudService.class));
+                                                               .deleteServiceInstance(any(CloudServiceInstance.class));
 
         if (expectedExceptionType == null) {
-            assertDoesNotThrow(() -> serviceRemover.deleteService(context, serviceInstance, Collections.emptyList()));
+            assertDoesNotThrow(() -> serviceRemover.deleteService(context, serviceInstance, Collections.singletonList(serviceBinding),
+                                                                  Collections.emptyList()));
             return;
         }
         Exception wrappedException = assertThrows(SLException.class,
-                                                  () -> serviceRemover.deleteService(context, serviceInstance, Collections.emptyList()));
+                                                  () -> serviceRemover.deleteService(context, serviceInstance,
+                                                                                     Collections.singletonList(serviceBinding),
+                                                                                     Collections.emptyList()));
         assertEquals(expectedExceptionType, wrappedException.getCause()
                                                             .getClass());
         assertEquals(MessageFormat.format(Messages.ERROR_DELETING_SERVICE, SERVICE_NAME, SERVICE_LABEL, SERVICE_PLAN,
@@ -147,38 +153,64 @@ public class ServiceRemoverTest {
     @MethodSource
     public void testDeleteServices(boolean hasServiceBinding, boolean hasServiceKey) {
         UUID applicationBindingGuid = UUID.randomUUID();
-        CloudServiceInstance serviceInstance = buildServiceInstance(hasServiceBinding, applicationBindingGuid);
+        CloudServiceInstance serviceInstance = buildServiceInstance();
         List<CloudServiceKey> serviceKeys = buildServiceKeys(serviceInstance, hasServiceKey);
 
         CloudApplication application = buildApplication(applicationBindingGuid);
-        prepareClient(Collections.singletonList(application), serviceInstance);
+        CloudServiceBinding serviceBinding = null;
+        if (hasServiceBinding) {
+            serviceBinding = buildServiceBinding(applicationBindingGuid);
+        }
 
-        serviceRemover.deleteService(context, serviceInstance, serviceKeys);
+        prepareClient(Collections.singletonList(application), serviceInstance, serviceBinding, applicationBindingGuid);
+
+        if (hasServiceBinding) {
+            serviceRemover.deleteService(context, serviceInstance, Collections.singletonList(serviceBinding), serviceKeys);
+        } else {
+            serviceRemover.deleteService(context, serviceInstance, Collections.emptyList(), serviceKeys);
+        }
 
         assertClientOperations(hasServiceBinding, hasServiceKey);
     }
 
     private void assertClientOperations(boolean hasServiceBinding, boolean hasServiceKey) {
         int callingUnbindServiceCount = hasServiceBinding ? 1 : 0;
-        verify(client, times(callingUnbindServiceCount)).unbindService(any(CloudApplication.class), any(CloudService.class));
+        verify(client, times(callingUnbindServiceCount)).unbindServiceInstance(any(CloudApplication.class),
+                                                                               any(CloudServiceInstance.class));
 
         int callingDeleteServiceKeyCount = hasServiceKey ? 1 : 0;
         verify(client, times(callingDeleteServiceKeyCount)).deleteServiceKey(any(CloudServiceKey.class));
     }
 
-    private CloudServiceInstance buildServiceInstance(boolean hasServiceBinding, UUID applicationBindingGuid) {
-        ImmutableCloudServiceInstance.Builder serviceInstance = ImmutableCloudServiceInstance.builder()
-                                                                                             .name(SERVICE_NAME)
-                                                                                             .service(ImmutableCloudService.builder()
-                                                                                                                           .name(SERVICE_NAME)
-                                                                                                                           .label(SERVICE_LABEL)
-                                                                                                                           .plan(SERVICE_PLAN)
-                                                                                                                           .build());
-        if (hasServiceBinding) {
-            CloudServiceBinding serviceBinding = buildServiceBinding(applicationBindingGuid);
-            serviceInstance.addBinding(serviceBinding);
+    private CloudServiceInstance buildServiceInstance() {
+        return ImmutableCloudServiceInstance.builder()
+                                            .metadata(ImmutableCloudMetadata.builder()
+                                                                            .guid(UUID.randomUUID())
+                                                                            .build())
+                                            .name(SERVICE_NAME)
+                                            .label(SERVICE_LABEL)
+                                            .plan(SERVICE_PLAN)
+                                            .build();
+    }
+
+    private List<CloudServiceKey> buildServiceKeys(CloudServiceInstance service, boolean hasServiceKey) {
+        if (hasServiceKey) {
+            return Collections.singletonList(ImmutableCloudServiceKey.builder()
+                                                                     .name(SERVICE_KEY_NAME)
+                                                                     .serviceInstance(service)
+                                                                     .build());
         }
-        return serviceInstance.build();
+        return Collections.emptyList();
+    }
+
+    private void prepareClient(List<CloudApplication> applications, CloudServiceInstance serviceInstance,
+                               CloudServiceBinding serviceBinding, UUID boundApplicationGuid) {
+        when(client.getApplications()).thenReturn(applications);
+        when(client.getServiceInstance(anyString())).thenReturn(serviceInstance);
+        if (serviceBinding != null) {
+            when(client.getServiceBindings(serviceInstance.getMetadata()
+                                                          .getGuid())).thenReturn(Collections.singletonList(serviceBinding));
+        }
     }
 
     private CloudServiceBinding buildServiceBinding(UUID applicationBindingGuid) {
@@ -186,21 +218,6 @@ public class ServiceRemoverTest {
                                            .name(BINDING_NAME)
                                            .applicationGuid(applicationBindingGuid)
                                            .build();
-    }
-
-    private List<CloudServiceKey> buildServiceKeys(CloudServiceInstance service, boolean hasServiceKey) {
-        if (hasServiceKey) {
-            return Collections.singletonList(ImmutableCloudServiceKey.builder()
-                                                                     .name(SERVICE_KEY_NAME)
-                                                                     .service(service.getService())
-                                                                     .build());
-        }
-        return Collections.emptyList();
-    }
-
-    private void prepareClient(List<CloudApplication> applications, CloudServiceInstance serviceInstance) {
-        when(client.getApplications()).thenReturn(applications);
-        when(client.getServiceInstance(anyString())).thenReturn(serviceInstance);
     }
 
     private CloudApplication buildApplication(UUID applicationBindingGuid) {

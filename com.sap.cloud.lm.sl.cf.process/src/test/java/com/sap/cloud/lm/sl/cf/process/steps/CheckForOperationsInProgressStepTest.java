@@ -16,8 +16,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
@@ -53,12 +53,12 @@ public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<C
     @MethodSource
     public void testExecute(String serviceName, boolean serviceExist, ServiceOperation serviceOperation,
                             ServiceOperation.Type expectedTriggeredServiceOperation, String expectedStatus) {
-        CloudServiceExtended service = ImmutableCloudServiceExtended.builder()
-                                                                    .name(serviceName)
-                                                                    .metadata(ImmutableCloudMetadata.builder()
-                                                                                                    .guid(UUID.randomUUID())
-                                                                                                    .build())
-                                                                    .build();
+        CloudServiceInstanceExtended service = ImmutableCloudServiceInstanceExtended.builder()
+                                                                                    .name(serviceName)
+                                                                                    .metadata(ImmutableCloudMetadata.builder()
+                                                                                                                    .guid(UUID.randomUUID())
+                                                                                                                    .build())
+                                                                                    .build();
         prepareContext(service);
         prepareClient(service, serviceExist);
         prepareServiceInstanceGetter(service, serviceOperation);
@@ -67,18 +67,18 @@ public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<C
         validateExecution(serviceName, expectedTriggeredServiceOperation, expectedStatus);
     }
 
-    private void prepareClient(CloudServiceExtended service, boolean serviceExist) {
+    private void prepareClient(CloudServiceInstanceExtended service, boolean serviceExist) {
         if (serviceExist) {
-            when(client.getService(service.getName(), false)).thenReturn(service);
+            when(client.getServiceInstance(service.getName(), false)).thenReturn(service);
         }
     }
 
-    protected void prepareContext(CloudServiceExtended service) {
+    protected void prepareContext(CloudServiceInstanceExtended service) {
         context.setVariable(Variables.SPACE_ID, TEST_SPACE_ID);
         context.setVariable(Variables.SERVICE_TO_PROCESS, service);
     }
 
-    private void prepareServiceInstanceGetter(CloudServiceExtended service, ServiceOperation serviceOperation) {
+    private void prepareServiceInstanceGetter(CloudServiceInstanceExtended service, ServiceOperation serviceOperation) {
         if (serviceOperation != null) {
             when(serviceOperationGetter.getLastServiceOperation(any(), eq(service))).thenReturn(serviceOperation);
         }

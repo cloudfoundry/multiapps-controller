@@ -27,7 +27,7 @@ import org.mockito.Mockito;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
@@ -151,7 +151,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
 
     protected List<Module> modulesToDeploy;
     private List<CloudApplicationExtended> deployedApps;
-    private List<CloudServiceExtended> servicesToCreate;
+    private List<CloudServiceInstanceExtended> servicesToCreate;
     private List<CloudApplicationExtended> appsToDeploy;
     private List<ConfigurationSubscription> subscriptionsToCreate;
     private List<ConfigurationSubscription> existingSubscriptions;
@@ -210,7 +210,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         });
         deployedApps = JsonUtil.fromJson(deployedAppsString, new TypeReference<List<CloudApplicationExtended>>() {
         });
-        servicesToCreate = JsonUtil.fromJson(servicesToCreateString, new TypeReference<List<CloudServiceExtended>>() {
+        servicesToCreate = JsonUtil.fromJson(servicesToCreateString, new TypeReference<List<CloudServiceInstanceExtended>>() {
         });
         appsToDeploy = JsonUtil.fromJson(appsToDeployString, new TypeReference<List<CloudApplicationExtended>>() {
         });

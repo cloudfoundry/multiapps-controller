@@ -8,7 +8,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
-import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.Messages;
@@ -60,10 +60,10 @@ public class MtaMetadataValidator {
         }
     }
 
-    public void validate(CloudService service) {
-        validateHasCommonMetadata(service);
-        validateAnnotationsArePresent(service, MtaMetadataUtil.MTA_METADATA_SERVICE_ANNOTATIONS);
-        validateAttributeContainsName(service, MtaMetadataAnnotations.MTA_RESOURCE);
+    public void validate(CloudServiceInstance serviceInstance) {
+        validateHasCommonMetadata(serviceInstance);
+        validateAnnotationsArePresent(serviceInstance, MtaMetadataUtil.MTA_METADATA_SERVICE_ANNOTATIONS);
+        validateAttributeContainsName(serviceInstance, MtaMetadataAnnotations.MTA_RESOURCE);
     }
 
 }

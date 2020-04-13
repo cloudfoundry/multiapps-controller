@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.springframework.http.HttpStatus;
@@ -24,8 +24,8 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
         super(restTemplateFactory);
     }
 
-    protected CloudServicePlan findPlanForService(CloudControllerClient client, CloudService service, String newPlan) {
-        List<CloudServiceOffering> offerings = getServiceOfferings(client, service);
+    protected CloudServicePlan findPlanForService(CloudControllerClient client, CloudServiceInstance serviceInstance, String newPlan) {
+        List<CloudServiceOffering> offerings = getServiceOfferings(client, serviceInstance);
         for (CloudServiceOffering offering : offerings) {
             for (CloudServicePlan plan : offering.getServicePlans()) {
                 if (plan.getName()
@@ -36,11 +36,11 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
         }
         throw new CloudOperationException(HttpStatus.NOT_FOUND,
                                           HttpStatus.NOT_FOUND.getReasonPhrase(),
-                                          MessageFormat.format(Messages.NO_SERVICE_PLAN_FOUND, service.getName(), newPlan,
-                                                               service.getLabel()));
+                                          MessageFormat.format(Messages.NO_SERVICE_PLAN_FOUND, serviceInstance.getName(), newPlan,
+                                                               serviceInstance.getLabel()));
     }
 
-    private List<CloudServiceOffering> getServiceOfferings(CloudControllerClient client, CloudService service) {
+    private List<CloudServiceOffering> getServiceOfferings(CloudControllerClient client, CloudServiceInstance service) {
         return client.getServiceOfferings()
                      .stream()
                      .filter(offering -> isSameLabel(offering, service.getLabel()))

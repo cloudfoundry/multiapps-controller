@@ -14,8 +14,8 @@ import org.cloudfoundry.client.lib.domain.ServiceInstanceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
@@ -35,14 +35,14 @@ public class ServicesCloudModelBuilder {
         this.deploymentDescriptor = deploymentDescriptor;
     }
 
-    public List<CloudServiceExtended> build(List<Resource> resourcesToProcess) {
+    public List<CloudServiceInstanceExtended> build(List<Resource> resourcesToProcess) {
         return resourcesToProcess.stream()
                                  .map(this::getService)
                                  .filter(Objects::nonNull)
                                  .collect(Collectors.toList());
     }
 
-    protected CloudServiceExtended getService(Resource resource) {
+    protected CloudServiceInstanceExtended getService(Resource resource) {
         boolean isOptional = isOptional(resource);
         boolean shouldIgnoreUpdateErrors = (boolean) resource.getParameters()
                                                              .getOrDefault(SupportedParameters.IGNORE_UPDATE_ERRORS, false);
@@ -53,7 +53,7 @@ public class ServicesCloudModelBuilder {
         return false;
     }
 
-    protected CloudServiceExtended createService(Resource resource, boolean isOptional, boolean shouldIgnoreUpdateErrors) {
+    protected CloudServiceInstanceExtended createService(Resource resource, boolean isOptional, boolean shouldIgnoreUpdateErrors) {
         String serviceName = NameUtil.getServiceName(resource);
         ResourceType serviceType = getResourceType(resource.getParameters());
         if (serviceType.equals(ResourceType.MANAGED_SERVICE)) {
@@ -67,32 +67,32 @@ public class ServicesCloudModelBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    protected CloudServiceExtended createManagedService(Resource resource, String serviceName, boolean isOptional,
-                                                        boolean shouldIgnoreUpdateErrors) {
+    protected CloudServiceInstanceExtended createManagedService(Resource resource, String serviceName, boolean isOptional,
+                                                                boolean shouldIgnoreUpdateErrors) {
         Map<String, Object> parameters = resource.getParameters();
         SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(serviceName, ResourceType.MANAGED_SERVICE, parameters);
-        return ImmutableCloudServiceExtended.builder()
-                                            .name(serviceName)
-                                            .resourceName(resource.getName())
-                                            .label((String) parameters.get(SupportedParameters.SERVICE))
-                                            .plan((String) parameters.get(SupportedParameters.SERVICE_PLAN))
-                                            .type(ServiceInstanceType.MANAGED)
-                                            .provider((String) parameters.get(SupportedParameters.SERVICE_PROVIDER))
-                                            .version((String) parameters.get(SupportedParameters.SERVICE_VERSION))
-                                            .tags((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_TAGS,
-                                                                                         Collections.emptyList()))
-                                            .credentials(getServiceParameters(serviceName, parameters))
-                                            .alternativeLabels((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES,
-                                                                                                      Collections.emptyList()))
-                                            .isOptional(isOptional)
-                                            .isManaged(true)
-                                            .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
-                                            .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, resource))
-                                            .build();
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .name(serviceName)
+                                                    .resourceName(resource.getName())
+                                                    .label((String) parameters.get(SupportedParameters.SERVICE))
+                                                    .plan((String) parameters.get(SupportedParameters.SERVICE_PLAN))
+                                                    .type(ServiceInstanceType.MANAGED)
+                                                    .provider((String) parameters.get(SupportedParameters.SERVICE_PROVIDER))
+                                                    .version((String) parameters.get(SupportedParameters.SERVICE_VERSION))
+                                                    .tags((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_TAGS,
+                                                                                                 Collections.emptyList()))
+                                                    .credentials(getServiceParameters(serviceName, parameters))
+                                                    .alternativeLabels((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES,
+                                                                                                              Collections.emptyList()))
+                                                    .isOptional(isOptional)
+                                                    .isManaged(true)
+                                                    .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
+                                                    .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, resource))
+                                                    .build();
     }
 
-    protected CloudServiceExtended createUserProvidedService(Resource resource, String serviceName, boolean isOptional,
-                                                             boolean shouldIgnoreUpdateErrors) {
+    protected CloudServiceInstanceExtended createUserProvidedService(Resource resource, String serviceName, boolean isOptional,
+                                                                     boolean shouldIgnoreUpdateErrors) {
         Map<String, Object> parameters = resource.getParameters();
         SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(serviceName, ResourceType.USER_PROVIDED_SERVICE, parameters);
         Map<String, Object> credentials = getServiceParameters(serviceName, parameters);
@@ -100,26 +100,26 @@ public class ServicesCloudModelBuilder {
         if (label != null) {
             LOGGER.warn(MessageFormat.format(Messages.IGNORING_LABEL_FOR_USER_PROVIDED_SERVICE, label, serviceName));
         }
-        return ImmutableCloudServiceExtended.builder()
-                                            .name(serviceName)
-                                            .resourceName(resource.getName())
-                                            .type(ServiceInstanceType.USER_PROVIDED)
-                                            .credentials(credentials)
-                                            .isOptional(isOptional)
-                                            .isManaged(true)
-                                            .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
-                                            .build();
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .name(serviceName)
+                                                    .resourceName(resource.getName())
+                                                    .type(ServiceInstanceType.USER_PROVIDED)
+                                                    .credentials(credentials)
+                                                    .isOptional(isOptional)
+                                                    .isManaged(true)
+                                                    .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
+                                                    .build();
     }
 
-    protected CloudServiceExtended createExistingService(Resource resource, String serviceName, boolean isOptional,
-                                                         boolean shouldIgnoreUpdateErrors) {
-        return ImmutableCloudServiceExtended.builder()
-                                            .name(serviceName)
-                                            .resourceName(resource.getName())
-                                            .isOptional(isOptional)
-                                            .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
-                                            .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, resource))
-                                            .build();
+    protected CloudServiceInstanceExtended createExistingService(Resource resource, String serviceName, boolean isOptional,
+                                                                 boolean shouldIgnoreUpdateErrors) {
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .name(serviceName)
+                                                    .resourceName(resource.getName())
+                                                    .isOptional(isOptional)
+                                                    .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
+                                                    .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, resource))
+                                                    .build();
     }
 
     @SuppressWarnings("unchecked")

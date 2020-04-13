@@ -47,7 +47,7 @@ public class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachSe
     private void validateServicesDetached(List<SimpleServiceInstance> servicesToDetach) {
         for (SimpleServiceInstance serviceToDetach : servicesToDetach) {
             Mockito.verify(client)
-                   .updateServiceMetadata(eq(serviceToDetach.guid), eq(getMetadataWithoutMtaFields()));
+                   .updateServiceInstanceMetadata(eq(serviceToDetach.guid), eq(getMetadataWithoutMtaFields()));
         }
     }
 

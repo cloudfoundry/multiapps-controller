@@ -10,7 +10,7 @@ import javax.inject.Named;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
@@ -34,7 +34,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
 
     @Override
     protected StepPhase executeAsyncStep(ProcessContext context) {
-        CloudServiceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
+        CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
         MethodExecution<String> methodExecution = executeOperationAndHandleExceptions(context, context.getControllerClient(),
                                                                                       serviceToProcess);
         if (methodExecution.getState()
@@ -59,7 +59,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     }
 
     private MethodExecution<String> executeOperationAndHandleExceptions(ProcessContext context, CloudControllerClient controllerClient,
-                                                                        CloudServiceExtended service) {
+                                                                        CloudServiceInstanceExtended service) {
         try {
             return executeOperation(context, controllerClient, service);
         } catch (CloudOperationException e) {
@@ -69,7 +69,7 @@ public abstract class ServiceStep extends AsyncFlowableStep {
     }
 
     protected abstract MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
-                                                                CloudServiceExtended service);
+                                                                CloudServiceInstanceExtended service);
 
     protected abstract ServiceOperation.Type getOperationType();
 

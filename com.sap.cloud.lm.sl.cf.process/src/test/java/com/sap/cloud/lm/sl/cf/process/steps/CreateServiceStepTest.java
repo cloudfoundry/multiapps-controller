@@ -10,10 +10,8 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
-import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudService;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ServiceInstanceType;
 import org.junit.jupiter.api.Assertions;
@@ -25,7 +23,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceWithAlternativesCreator;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
@@ -89,8 +87,8 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
     @Test
     public void testWhenServiceAlreadyExists() {
         initializeInput("create-service-step-input-1.json", null);
-        CloudService cloudService = Mockito.mock(CloudService.class);
-        Mockito.when(client.getService(any(), eq(false)))
+        CloudServiceInstance cloudService = Mockito.mock(CloudServiceInstance.class);
+        Mockito.when(client.getServiceInstance(any(), eq(false)))
                .thenReturn(cloudService);
         step.execute(execution);
         Assertions.assertEquals(DONE_EXECUTION_STATUS, getExecutionStatus());
@@ -126,11 +124,9 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
         CloudServiceInstance cloudService = createServiceInstance(service);
         Mockito.when(client.getServiceInstance(service.name))
                .thenReturn(cloudService);
-        Mockito.when(client.getService(service.name))
-               .thenReturn(cloudService.getService());
         Mockito.doNothing()
                .when(client)
-               .createUserProvidedService(any(CloudServiceExtended.class), any(Map.class));
+               .createUserProvidedServiceInstance(any(CloudServiceInstanceExtended.class), any(Map.class));
 
     }
 
@@ -164,13 +160,11 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
                                                               .guid(UUID.fromString(service.guid))
                                                               .build();
         return ImmutableCloudServiceInstance.builder()
-                                            .service(ImmutableCloudService.builder()
-                                                                          .name(service.name)
-                                                                          .plan(service.plan)
-                                                                          .label(service.label)
-                                                                          .metadata(serviceMetadata)
-                                                                          .type(ServiceInstanceType.valueOfWithDefault(service.type))
-                                                                          .build())
+                                            .name(service.name)
+                                            .plan(service.plan)
+                                            .label(service.label)
+                                            .metadata(serviceMetadata)
+                                            .type(ServiceInstanceType.valueOfWithDefault(service.type))
                                             .build();
     }
 

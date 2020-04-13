@@ -8,8 +8,8 @@ import java.util.Map;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 
 public abstract class CreateOrUpdateAppStepBaseTest extends SyncFlowableStepTest<CreateOrUpdateAppStep> {
 
@@ -28,11 +28,11 @@ public abstract class CreateOrUpdateAppStepBaseTest extends SyncFlowableStepTest
         String name;
         boolean isOptional;
 
-        CloudServiceExtended toCloudServiceExtended() {
-            return ImmutableCloudServiceExtended.builder()
-                                                .name(name)
-                                                .isOptional(isOptional)
-                                                .build();
+        CloudServiceInstanceExtended toCloudServiceExtended() {
+            return ImmutableCloudServiceInstanceExtended.builder()
+                                                        .name(name)
+                                                        .isOptional(isOptional)
+                                                        .build();
         }
     }
 }

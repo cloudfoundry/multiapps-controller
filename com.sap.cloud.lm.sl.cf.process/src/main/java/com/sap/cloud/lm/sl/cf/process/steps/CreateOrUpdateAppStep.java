@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
@@ -186,7 +186,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             Map<String, Map<String, Object>> bindingParameters = getBindingParameters(context, app);
             for (String serviceName : services) {
                 Map<String, Object> bindingParametersForCurrentService = getBindingParametersForService(serviceName, bindingParameters);
-                bindService(context, client, app.getName(), serviceName, bindingParametersForCurrentService);
+                bindServiceInstance(context, client, app.getName(), serviceName, bindingParametersForCurrentService);
             }
             context.setVariable(Variables.VCAP_SERVICES_PROPERTIES_CHANGED, true);
         }
@@ -215,9 +215,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                              app.getV3Metadata());
         }
 
-        private void bindService(ProcessContext context, CloudControllerClient client, String appName, String serviceName,
-                                 Map<String, Object> bindingParameters) {
-            client.bindService(appName, serviceName, bindingParameters, getApplicationServicesUpdateCallback(context));
+        private void bindServiceInstance(ProcessContext context, CloudControllerClient client, String appName, String serviceName,
+                                         Map<String, Object> bindingParameters) {
+            client.bindServiceInstance(appName, serviceName, bindingParameters, getApplicationServicesUpdateCallback(context));
         }
 
     }
@@ -370,7 +370,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                .stream()
                                                .filter(serviceName -> !requiredServices.contains(serviceName))
                                                .collect(Collectors.toList());
-            servicesToUnbind.forEach(serviceName -> client.unbindService(app.getName(), serviceName));
+            servicesToUnbind.forEach(serviceName -> client.unbindServiceInstance(app.getName(), serviceName));
             return !servicesToUnbind.isEmpty();
         }
 
@@ -398,7 +398,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
     private Map<String, Map<String, Object>> getBindingParameters(ProcessContext context, CloudApplicationExtended app)
         throws FileStorageException {
-        List<CloudServiceExtended> services = getServices(context.getVariable(Variables.SERVICES_TO_BIND), app.getServices());
+        List<CloudServiceInstanceExtended> services = getServices(context.getVariable(Variables.SERVICES_TO_BIND), app.getServices());
 
         Map<String, Map<String, Object>> descriptorProvidedBindingParameters = app.getBindingParameters();
         if (descriptorProvidedBindingParameters == null) {
@@ -412,17 +412,17 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         return bindingParameters;
     }
 
-    private static List<CloudServiceExtended> getServices(List<CloudServiceExtended> services, List<String> serviceNames) {
+    private static List<CloudServiceInstanceExtended> getServices(List<CloudServiceInstanceExtended> services, List<String> serviceNames) {
         return services.stream()
                        .filter(service -> serviceNames.contains(service.getName()))
                        .collect(Collectors.toList());
     }
 
     private Map<String, Map<String, Object>> getFileProvidedBindingParameters(ProcessContext context, String moduleName,
-                                                                              List<CloudServiceExtended> services)
+                                                                              List<CloudServiceInstanceExtended> services)
         throws FileStorageException {
         Map<String, Map<String, Object>> result = new TreeMap<>();
-        for (CloudServiceExtended service : services) {
+        for (CloudServiceInstanceExtended service : services) {
             String requiredDependencyName = ValidatorUtil.getPrefixedName(moduleName, service.getResourceName(),
                                                                           com.sap.cloud.lm.sl.cf.core.Constants.MTA_ELEMENT_SEPARATOR);
             addFileProvidedBindingParameters(context, service.getName(), requiredDependencyName, result);
@@ -481,8 +481,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void onError(CloudOperationException e, String applicationName, String serviceName) {
-            List<CloudServiceExtended> servicesToBind = context.getVariable(Variables.SERVICES_TO_BIND);
-            CloudServiceExtended serviceToBind = findServiceCloudModel(servicesToBind, serviceName);
+            List<CloudServiceInstanceExtended> servicesToBind = context.getVariable(Variables.SERVICES_TO_BIND);
+            CloudServiceInstanceExtended serviceToBind = findServiceCloudModel(servicesToBind, serviceName);
 
             if (serviceToBind != null && serviceToBind.isOptional()) {
                 getStepLogger().warn(e, Messages.COULD_NOT_BIND_APP_TO_OPTIONAL_SERVICE, applicationName, serviceName);
@@ -491,7 +491,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             throw new SLException(e, Messages.COULD_NOT_BIND_APP_TO_SERVICE, applicationName, serviceName, e.getMessage());
         }
 
-        private CloudServiceExtended findServiceCloudModel(List<CloudServiceExtended> servicesCloudModel, String serviceName) {
+        private CloudServiceInstanceExtended findServiceCloudModel(List<CloudServiceInstanceExtended> servicesCloudModel,
+                                                                   String serviceName) {
             return servicesCloudModel.stream()
                                      .filter(service -> service.getName()
                                                                .equals(serviceName))

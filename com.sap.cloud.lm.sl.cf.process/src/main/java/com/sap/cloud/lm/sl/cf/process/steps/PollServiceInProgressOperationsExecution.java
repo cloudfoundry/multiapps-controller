@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.text.MessageFormat;
 import java.util.List;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
@@ -20,12 +20,12 @@ public class PollServiceInProgressOperationsExecution extends PollServiceOperati
     }
 
     @Override
-    protected List<CloudServiceExtended> getServicesData(ProcessContext context) {
+    protected List<CloudServiceInstanceExtended> getServicesData(ProcessContext context) {
         return context.getVariable(Variables.SERVICES_DATA);
     }
 
     @Override
-    protected void reportServiceState(ProcessContext context, CloudServiceExtended service, ServiceOperation lastServiceOperation) {
+    protected void reportServiceState(ProcessContext context, CloudServiceInstanceExtended service, ServiceOperation lastServiceOperation) {
         if (lastServiceOperation.getState() == ServiceOperation.State.SUCCEEDED) {
             context.getStepLogger()
                    .debug(getSuccessMessage(service, lastServiceOperation.getType()));
@@ -38,11 +38,11 @@ public class PollServiceInProgressOperationsExecution extends PollServiceOperati
     }
 
     @Override
-    protected void handleMissingOperationState(StepLogger stepLogger, CloudServiceExtended service) {
+    protected void handleMissingOperationState(StepLogger stepLogger, CloudServiceInstanceExtended service) {
         stepLogger.warnWithoutProgressMessage(Messages.MISSING_SERVICE_OPERATION_STATE, service.getName());
     }
 
-    private String getSuccessMessage(CloudServiceExtended service, ServiceOperation.Type type) {
+    private String getSuccessMessage(CloudServiceInstanceExtended service, ServiceOperation.Type type) {
         switch (type) {
             case CREATE:
                 return MessageFormat.format(Messages.SERVICE_CREATED, service.getName());
@@ -56,7 +56,7 @@ public class PollServiceInProgressOperationsExecution extends PollServiceOperati
         }
     }
 
-    private String getFailureMessage(CloudServiceExtended service, ServiceOperation lastServiceOperation) {
+    private String getFailureMessage(CloudServiceInstanceExtended service, ServiceOperation lastServiceOperation) {
         switch (lastServiceOperation.getType()) {
             case CREATE:
                 return MessageFormat.format(Messages.ERROR_CREATING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),

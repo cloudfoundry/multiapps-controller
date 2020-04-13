@@ -10,7 +10,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
@@ -26,18 +26,18 @@ public class UpdateServiceCredentialsStep extends ServiceStep {
 
     @Override
     protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
-                                                       CloudServiceExtended service) {
+                                                       CloudServiceInstanceExtended service) {
         return updateServiceCredentials(controllerClient, service);
     }
 
-    private MethodExecution<String> updateServiceCredentials(CloudControllerClient client, CloudServiceExtended service) {
+    private MethodExecution<String> updateServiceCredentials(CloudControllerClient client, CloudServiceInstanceExtended service) {
         getStepLogger().info(Messages.UPDATING_SERVICE, service.getName());
         MethodExecution<String> methodExecution = updateService(client, service);
         getStepLogger().debug(Messages.SERVICE_UPDATED, service.getName());
         return methodExecution;
     }
 
-    private MethodExecution<String> updateService(CloudControllerClient client, CloudServiceExtended service) {
+    private MethodExecution<String> updateService(CloudControllerClient client, CloudServiceInstanceExtended service) {
         if (service.shouldIgnoreUpdateErrors()) {
             return serviceUpdater.updateServiceParametersQuietly(client, service.getName(), service.getCredentials());
         }

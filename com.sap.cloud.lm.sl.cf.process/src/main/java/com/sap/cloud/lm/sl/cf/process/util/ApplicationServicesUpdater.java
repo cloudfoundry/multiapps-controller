@@ -68,8 +68,7 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
             Map<String, Object> newServiceBindingParameters = getNewServiceBindingParameters(serviceNamesWithBindingParameters,
                                                                                              serviceInstance);
             if (hasServiceBindingsChanged(application, serviceInstance, newServiceBindingParameters)) {
-                servicesToRebind.add(serviceInstance.getService()
-                                                    .getName());
+                servicesToRebind.add(serviceInstance.getName());
             }
         }
         return servicesToRebind;
@@ -77,8 +76,7 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
 
     private Map<String, Object> getNewServiceBindingParameters(Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
                                                                CloudServiceInstance serviceInstance) {
-        return serviceNamesWithBindingParameters.get(serviceInstance.getService()
-                                                                    .getName());
+        return serviceNamesWithBindingParameters.get(serviceInstance.getName());
     }
 
     private boolean hasServiceBindingsChanged(CloudApplication application, CloudServiceInstance serviceInstance,
@@ -88,18 +86,17 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
     }
 
     private CloudServiceBinding getServiceBindingForApplication(CloudApplication application, CloudServiceInstance serviceInstance) {
+        List<CloudServiceBinding> serviceBindings = getControllerClient().getServiceBindings(getGuid(serviceInstance));
         getLogger().debug(Messages.LOOKING_FOR_SERVICE_BINDINGS, getGuid(application), getGuid(serviceInstance),
-                          JsonUtil.convertToJson(serviceInstance.getBindings(), true));
-        return serviceInstance.getBindings()
-                              .stream()
+                          JsonUtil.convertToJson(serviceBindings, true));
+        return serviceBindings.stream()
                               .filter(serviceBinding -> application.getMetadata()
                                                                    .getGuid()
                                                                    .equals(serviceBinding.getApplicationGuid()))
                               .findFirst()
                               .orElseThrow(() -> new IllegalStateException(MessageFormat.format(Messages.APPLICATION_UNBOUND_IN_PARALLEL,
                                                                                                 application.getName(),
-                                                                                                serviceInstance.getService()
-                                                                                                               .getName())));
+                                                                                                serviceInstance.getName())));
     }
 
     private void bindServices(List<String> addServices, String applicationName,
@@ -107,14 +104,14 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
                               ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         for (String serviceName : addServices) {
             Map<String, Object> bindingParameters = serviceNamesWithBindingParameters.get(serviceName);
-            getControllerClient().bindService(applicationName, serviceName, bindingParameters, applicationServicesUpdateCallback);
+            getControllerClient().bindServiceInstance(applicationName, serviceName, bindingParameters, applicationServicesUpdateCallback);
         }
     }
 
     private void unbindServices(List<String> deleteServices, String applicationName,
                                 ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         for (String serviceName : deleteServices) {
-            getControllerClient().unbindService(applicationName, serviceName, applicationServicesUpdateCallback);
+            getControllerClient().unbindServiceInstance(applicationName, serviceName, applicationServicesUpdateCallback);
         }
     }
 
@@ -123,8 +120,8 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
                                 ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         for (String serviceName : rebindServices) {
             Map<String, Object> bindingParameters = serviceNamesWithBindingParameters.get(serviceName);
-            getControllerClient().unbindService(applicationName, serviceName, applicationServicesUpdateCallback);
-            getControllerClient().bindService(applicationName, serviceName, bindingParameters, applicationServicesUpdateCallback);
+            getControllerClient().unbindServiceInstance(applicationName, serviceName, applicationServicesUpdateCallback);
+            getControllerClient().bindServiceInstance(applicationName, serviceName, bindingParameters, applicationServicesUpdateCallback);
         }
     }
 

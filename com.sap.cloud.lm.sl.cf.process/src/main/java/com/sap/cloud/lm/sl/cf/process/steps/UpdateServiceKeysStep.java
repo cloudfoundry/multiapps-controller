@@ -13,7 +13,7 @@ import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution.ExecutionState;
@@ -34,7 +34,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
     }
 
     private MethodExecution<String> createOrUpdateServiceKeys(ProcessContext context, CloudControllerClient client,
-                                                              CloudServiceExtended service) {
+                                                              CloudServiceInstanceExtended service) {
         MethodExecution<String> methodExecution = new MethodExecution<>(null, ExecutionState.FINISHED);
         Map<String, List<CloudServiceKey>> serviceKeysMap = context.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
         List<CloudServiceKey> serviceKeys = serviceKeysMap.get(service.getResourceName());
@@ -58,10 +58,12 @@ public class UpdateServiceKeysStep extends ServiceStep {
             deleteServiceKeys(client, serviceKeysToUpdate);
             createServiceKeys(client, serviceKeysToUpdate);
         } else {
-            serviceKeysToDelete.forEach(key -> getStepLogger().warn(Messages.WILL_NOT_DELETE_SERVICE_KEY, key.getName(), key.getService()
-                                                                                                                            .getName()));
-            serviceKeysToUpdate.forEach(key -> getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_KEY, key.getName(), key.getService()
-                                                                                                                            .getName()));
+            serviceKeysToDelete.forEach(key -> getStepLogger().warn(Messages.WILL_NOT_DELETE_SERVICE_KEY, key.getName(),
+                                                                    key.getServiceInstance()
+                                                                       .getName()));
+            serviceKeysToUpdate.forEach(key -> getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_KEY, key.getName(),
+                                                                    key.getServiceInstance()
+                                                                       .getName()));
         }
         createServiceKeys(client, serviceKeysToCreate);
         return methodExecution;
@@ -123,18 +125,18 @@ public class UpdateServiceKeysStep extends ServiceStep {
     }
 
     private void createServiceKey(CloudControllerClient client, CloudServiceKey key) {
-        getStepLogger().info(Messages.CREATING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService()
+        getStepLogger().info(Messages.CREATING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getServiceInstance()
                                                                                           .getName());
-        client.createServiceKey(key.getService()
+        client.createServiceKey(key.getServiceInstance()
                                    .getName(),
                                 key.getName(), key.getCredentials());
         getStepLogger().debug(Messages.CREATED_SERVICE_KEY, key.getName());
     }
 
     private void deleteServiceKey(CloudControllerClient client, CloudServiceKey key) {
-        getStepLogger().info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService()
+        getStepLogger().info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getServiceInstance()
                                                                                           .getName());
-        client.deleteServiceKey(key.getService()
+        client.deleteServiceKey(key.getServiceInstance()
                                    .getName(),
                                 key.getName());
     }
@@ -146,7 +148,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
 
     @Override
     protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
-                                                       CloudServiceExtended service) {
+                                                       CloudServiceInstanceExtended service) {
         return createOrUpdateServiceKeys(context, controllerClient, service);
     }
 }

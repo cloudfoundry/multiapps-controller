@@ -13,13 +13,13 @@ import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
-import com.sap.cloud.lm.sl.cf.process.util.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceRemover;
@@ -61,10 +61,12 @@ public class DeleteServiceStep extends AsyncFlowableStep {
         }
         context.setVariable(Variables.SERVICES_DATA, buildCloudServiceExtendedList(serviceInstance));
 
-        List<CloudServiceKey> serviceKeys = client.getServiceKeys(serviceInstance.getService());
+        List<CloudServiceKey> serviceKeys = client.getServiceKeys(serviceInstance);
 
-        if (isDeletePossible(context, serviceInstance.getBindings(), serviceKeys)) {
-            serviceRemover.deleteService(context, serviceInstance, serviceKeys);
+        List<CloudServiceBinding> serviceBindings = client.getServiceBindings(serviceInstance.getMetadata()
+                                                                                             .getGuid());
+        if (isDeletePossible(context, serviceBindings, serviceKeys)) {
+            serviceRemover.deleteService(context, serviceInstance, serviceBindings, serviceKeys);
             context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, MapUtil.asMap(serviceToDelete, ServiceOperation.Type.DELETE));
             return StepPhase.POLL;
         }
@@ -85,14 +87,14 @@ public class DeleteServiceStep extends AsyncFlowableStep {
         return ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, offering);
     }
 
-    private List<CloudServiceExtended> buildCloudServiceExtendedList(CloudServiceInstance serviceInstanceData) {
+    private List<CloudServiceInstanceExtended> buildCloudServiceExtendedList(CloudServiceInstance serviceInstanceData) {
         return Collections.singletonList(buildCloudServiceExtended(serviceInstanceData));
     }
 
-    private ImmutableCloudServiceExtended buildCloudServiceExtended(CloudServiceInstance service) {
-        return ImmutableCloudServiceExtended.builder()
-                                            .from(service.getService())
-                                            .build();
+    private CloudServiceInstanceExtended buildCloudServiceExtended(CloudServiceInstance service) {
+        return ImmutableCloudServiceInstanceExtended.builder()
+                                                    .from(service)
+                                                    .build();
     }
 
     private boolean isDeletePossible(ProcessContext context, List<CloudServiceBinding> serviceBindings, List<CloudServiceKey> serviceKeys) {

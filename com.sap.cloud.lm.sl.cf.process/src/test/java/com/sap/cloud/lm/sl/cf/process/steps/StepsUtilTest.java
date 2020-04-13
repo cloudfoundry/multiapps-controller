@@ -19,9 +19,9 @@ import org.mockito.Mockito;
 
 import com.google.common.io.ByteStreams;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
@@ -77,7 +77,7 @@ public class StepsUtilTest {
 
     @Test
     public void testGetServicesToCreateWithCredentials() {
-        CloudServiceExtended service = ImmutableCloudServiceExtended.builder()
+        CloudServiceInstanceExtended service = ImmutableCloudServiceInstanceExtended.builder()
                                                                     .name("my-service")
                                                                     .putCredential("integer-value", 1)
                                                                     .putCredential("double-value", 1.4)
@@ -85,7 +85,7 @@ public class StepsUtilTest {
                                                                     .build();
 
         VariableHandling.set(execution, Variables.SERVICES_TO_CREATE, Collections.singletonList(service));
-        List<CloudServiceExtended> actualServicesToCreate = VariableHandling.get(execution, Variables.SERVICES_TO_CREATE);
+        List<CloudServiceInstanceExtended> actualServicesToCreate = VariableHandling.get(execution, Variables.SERVICES_TO_CREATE);
 
         assertEquals(1, actualServicesToCreate.size());
         assertFalse(actualServicesToCreate.get(0)

@@ -18,8 +18,8 @@ import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
@@ -33,38 +33,39 @@ public class ServiceWithAlternativesCreator {
         this.userMessageLogger = userMessageLogger;
     }
 
-    public MethodExecution<String> createService(CloudControllerClient client, CloudServiceExtended service) {
-        assertServiceAttributes(service);
-        if (CollectionUtils.isEmpty(service.getAlternativeLabels())) {
-            return createServiceInternal(client, service);
+    public MethodExecution<String> createService(CloudControllerClient client, CloudServiceInstanceExtended serviceInstance) {
+        assertServiceAttributes(serviceInstance);
+        if (CollectionUtils.isEmpty(serviceInstance.getAlternativeLabels())) {
+            return createServiceInternal(client, serviceInstance);
         }
         userMessageLogger.debug("Service \"{0}\" has defined service offering alternatives \"{1}\" for default service offering \"{2}\"",
-                                service.getName(), service.getAlternativeLabels(), service.getLabel());
-        List<String> possibleServiceOfferings = computePossibleServiceOfferings(service);
+                                serviceInstance.getName(), serviceInstance.getAlternativeLabels(), serviceInstance.getLabel());
+        List<String> possibleServiceOfferings = computePossibleServiceOfferings(serviceInstance);
         List<CloudServiceOffering> serviceOfferings = client.getServiceOfferings();
         Map<String, List<CloudServicePlan>> existingServiceOfferings = serviceOfferings.stream()
                                                                                        .collect(Collectors.toMap(CloudServiceOffering::getName,
                                                                                                                  CloudServiceOffering::getServicePlans,
                                                                                                                  (v1,
-                                                                                                                  v2) -> retrievePlanListFromServicePlan(service,
+                                                                                                                  v2) -> retrievePlanListFromServicePlan(serviceInstance,
                                                                                                                                                          v1,
                                                                                                                                                          v2)));
 
-        List<String> validServiceOfferings = computeValidServiceOfferings(possibleServiceOfferings, service.getPlan(),
+        List<String> validServiceOfferings = computeValidServiceOfferings(possibleServiceOfferings, serviceInstance.getPlan(),
                                                                           existingServiceOfferings);
 
         if (CollectionUtils.isEmpty(validServiceOfferings)) {
             throw new SLException(Messages.CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN,
-                                  service.getName(),
+                                  serviceInstance.getName(),
                                   possibleServiceOfferings,
-                                  service.getPlan());
+                                  serviceInstance.getPlan());
         }
 
-        return attemptToFindServiceOfferingAndCreateService(client, service, validServiceOfferings);
+        return attemptToFindServiceOfferingAndCreateService(client, serviceInstance, validServiceOfferings);
     }
 
-    private List<CloudServicePlan> retrievePlanListFromServicePlan(CloudServiceExtended service, List<CloudServicePlan>... listOfPlans) {
-        String servicePlanName = service.getPlan();
+    private List<CloudServicePlan> retrievePlanListFromServicePlan(CloudServiceInstanceExtended serviceInstance,
+                                                                   List<CloudServicePlan>... listOfPlans) {
+        String servicePlanName = serviceInstance.getPlan();
         if (ArrayUtils.isEmpty(listOfPlans)) {
             throw new SLException(Messages.EMPTY_SERVICE_PLANS_LIST_FOUND, servicePlanName);
         }
@@ -80,9 +81,9 @@ public class ServiceWithAlternativesCreator {
                     .anyMatch(p -> servicePlanName.equalsIgnoreCase(p.getName()));
     }
 
-    private List<String> computePossibleServiceOfferings(CloudServiceExtended service) {
-        List<String> possibleServiceOfferings = new ArrayList<>(service.getAlternativeLabels());
-        possibleServiceOfferings.add(0, service.getLabel());
+    private List<String> computePossibleServiceOfferings(CloudServiceInstanceExtended serviceInstance) {
+        List<String> possibleServiceOfferings = new ArrayList<>(serviceInstance.getAlternativeLabels());
+        possibleServiceOfferings.add(0, serviceInstance.getLabel());
         return possibleServiceOfferings;
     }
 
@@ -108,26 +109,27 @@ public class ServiceWithAlternativesCreator {
         return validServiceOfferings;
     }
 
-    private MethodExecution<String> attemptToFindServiceOfferingAndCreateService(CloudControllerClient client, CloudServiceExtended service,
+    private MethodExecution<String> attemptToFindServiceOfferingAndCreateService(CloudControllerClient client,
+                                                                                 CloudServiceInstanceExtended serviceInstance,
                                                                                  List<String> validServiceOfferings) {
         for (String validServiceOffering : validServiceOfferings) {
             try {
-                CloudServiceExtended serviceWithCorrectLabel = ImmutableCloudServiceExtended.copyOf(service)
-                                                                                            .withLabel(validServiceOffering);
+                CloudServiceInstanceExtended serviceWithCorrectLabel = ImmutableCloudServiceInstanceExtended.copyOf(serviceInstance)
+                                                                                                            .withLabel(validServiceOffering);
                 return createServiceInternal(client, serviceWithCorrectLabel);
             } catch (CloudOperationException e) {
                 if (!shouldIgnoreException(e)) {
                     throw e;
                 }
-                userMessageLogger.warn("Service \"{0}\" creation with service offering \"{1}\" failed with \"{2}\"", service.getName(),
-                                       validServiceOffering, e.getMessage());
+                userMessageLogger.warn("Service \"{0}\" creation with service offering \"{1}\" failed with \"{2}\"",
+                                       serviceInstance.getName(), validServiceOffering, e.getMessage());
             }
         }
-        throw new SLException(Messages.CANT_CREATE_SERVICE, service.getName(), validServiceOfferings);
+        throw new SLException(Messages.CANT_CREATE_SERVICE, serviceInstance.getName(), validServiceOfferings);
     }
 
-    private MethodExecution<String> createServiceInternal(CloudControllerClient client, CloudServiceExtended service) {
-        client.createService(service);
+    private MethodExecution<String> createServiceInternal(CloudControllerClient client, CloudServiceInstanceExtended serviceInstance) {
+        client.createServiceInstance(serviceInstance);
         return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
     }
 
@@ -136,7 +138,7 @@ public class ServiceWithAlternativesCreator {
                 .equals(HttpStatus.FORBIDDEN);
     }
 
-    private void assertServiceAttributes(CloudServiceExtended service) {
+    private void assertServiceAttributes(CloudServiceInstanceExtended service) {
         Assert.notNull(service, "Service must not be null");
         Assert.notNull(service.getName(), "Service name must not be null");
         Assert.notNull(service.getLabel(), "Service label must not be null");

@@ -20,7 +20,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.util.ModulesCloudModelBuilderContentCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
@@ -118,7 +118,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
     protected List<Module> modulesToDeploy;
     protected DeployedMta deployedMta;
-    protected List<CloudServiceExtended> servicesToBind;
+    protected List<CloudServiceInstanceExtended> servicesToBind;
     protected Map<String, List<CloudServiceKey>> serviceKeys;
 
     @Mock
@@ -179,7 +179,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         });
 
         String servicesToBindString = TestUtil.getResourceAsString(input.servicesToBindLocation, getClass());
-        servicesToBind = JsonUtil.fromJson(servicesToBindString, new TypeReference<List<CloudServiceExtended>>() {
+        servicesToBind = JsonUtil.fromJson(servicesToBindString, new TypeReference<List<CloudServiceInstanceExtended>>() {
         });
 
         String serviceKeysString = TestUtil.getResourceAsString(input.serviceKeysLocation, getClass());
