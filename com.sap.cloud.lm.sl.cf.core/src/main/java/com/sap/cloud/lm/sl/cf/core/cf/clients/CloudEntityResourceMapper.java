@@ -128,6 +128,9 @@ public class CloudEntityResourceMapper {
         if (targetClass == String.class) {
             return (T) String.valueOf(value);
         }
+        if (targetClass == Integer.class || targetClass == Boolean.class || targetClass == Map.class || targetClass == List.class) {
+            return (T) value;
+        }
         if (targetClass == UUID.class && value instanceof String) {
             return (T) parseGuid((String) value);
         }
