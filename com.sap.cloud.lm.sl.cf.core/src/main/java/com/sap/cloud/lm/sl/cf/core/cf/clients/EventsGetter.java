@@ -12,7 +12,6 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
-import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
 import org.springframework.web.client.RestTemplate;
 
 @Named
@@ -48,7 +47,7 @@ public class EventsGetter extends CustomControllerClient {
 
         return resources.stream()
                         .filter(Objects::nonNull)
-                        .map(map -> resourceMapper.mapResource(map, CloudEvent.class))
+                        .map(resourceMapper::mapEventResource)
                         .collect(Collectors.toList());
     }
 

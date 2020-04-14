@@ -438,8 +438,8 @@ public class Messages {
     public static final String ADDING_ROUTE_WITH_HOST_0_DOMAIN_1_AND_PATH_2 = "Adding route with host \"{0}\", domain \"{1}\" and path \"{2}\"...";
     public static final String BINDING_APPLICATION_0_TO_SERVICE_INSTANCE_1 = "Binding application \"{0}\" to service instance \"{1}\"...";
     public static final String BINDING_APPLICATION_0_TO_SERVICE_INSTANCE_1_WITH_PARAMETERS_2 = "Binding application \"{0}\" to service instance \"{1}\" with parameters: {2}";
-    public static final String CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_SERVICES_3_AND_STAGING_4 = "Creating application \"{0}\" with memory \"{1}\", URIs \"{2}\", services \"{3}\" and staging: {4}";
-    public static final String CREATING_APPLICATION_0_WITH_DISK_QUOTA_1_MEMORY_2_URIS_3_SERVICES_4_AND_STAGING_5 = "Creating application \"{0}\" with disk quota \"{1}\", memory \"{2}\", URIs \"{3}\", services \"{4}\" and staging: {5}";
+    public static final String CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3 = "Creating application \"{0}\" with memory \"{1}\", URIs \"{2}\" and staging: {3}";
+    public static final String CREATING_APPLICATION_0_WITH_DISK_QUOTA_1_MEMORY_2_URIS_3_AND_STAGING_4 = "Creating application \"{0}\" with disk quota \"{1}\", memory \"{2}\", URIs \"{3}\" and staging: {4}";
     public static final String CREATING_SERVICE_INSTANCE_0 = "Creating service instance: {0}";
     public static final String CREATING_SERVICE_BROKER_0 = "Creating service broker: {0}";
     public static final String CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2 = "Creating service key \"{0}\" for service instance \"{1}\" with parameters: {2}";
