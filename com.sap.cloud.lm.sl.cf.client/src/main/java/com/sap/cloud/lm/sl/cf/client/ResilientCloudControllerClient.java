@@ -12,7 +12,6 @@ import java.util.function.Supplier;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerClientImpl;
-import org.cloudfoundry.client.lib.CloudCredentials;
 import org.cloudfoundry.client.lib.RestLogCallback;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.UploadStatusCallback;
@@ -23,9 +22,7 @@ import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
-import org.cloudfoundry.client.lib.domain.CloudQuota;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
-import org.cloudfoundry.client.lib.domain.CloudSecurityGroup;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
@@ -34,7 +31,6 @@ import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.domain.CloudStack;
 import org.cloudfoundry.client.lib.domain.CloudTask;
-import org.cloudfoundry.client.lib.domain.CloudUser;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
@@ -85,8 +81,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, List<String> uris,
-                                  List<String> serviceInstanceNames, DockerInfo dockerInfo) {
-        executeWithRetry(() -> delegate.createApplication(applicationName, staging, disk, memory, uris, serviceInstanceNames, dockerInfo));
+                                  DockerInfo dockerInfo) {
+        executeWithRetry(() -> delegate.createApplication(applicationName, staging, disk, memory, uris, dockerInfo));
     }
 
     @Override
@@ -398,94 +394,13 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void associateAuditorWithSpace(String spaceName) {
-        executeWithRetry(() -> delegate.associateAuditorWithSpace(spaceName));
-    }
-
-    @Override
-    public void associateAuditorWithSpace(String organizationName, String spaceName) {
-        executeWithRetry(() -> delegate.associateAuditorWithSpace(organizationName, spaceName));
-    }
-
-    @Override
-    public void associateAuditorWithSpace(String organizationName, String spaceName, String userGuid) {
-        executeWithRetry(() -> delegate.associateAuditorWithSpace(organizationName, spaceName, userGuid));
-    }
-
-    @Override
-    public void associateDeveloperWithSpace(String spaceName) {
-        executeWithRetry(() -> delegate.associateDeveloperWithSpace(spaceName));
-    }
-
-    @Override
-    public void associateDeveloperWithSpace(String organizationName, String spaceName) {
-        executeWithRetry(() -> delegate.associateDeveloperWithSpace(organizationName, spaceName));
-    }
-
-    @Override
-    public void associateDeveloperWithSpace(String organizationName, String spaceName, String userGuid) {
-        executeWithRetry(() -> delegate.associateDeveloperWithSpace(organizationName, spaceName, userGuid));
-    }
-
-    @Override
-    public void associateManagerWithSpace(String spaceName) {
-        executeWithRetry(() -> delegate.associateManagerWithSpace(spaceName));
-    }
-
-    @Override
-    public void associateManagerWithSpace(String organizationName, String spaceName) {
-        executeWithRetry(() -> delegate.associateManagerWithSpace(organizationName, spaceName));
-    }
-
-    @Override
-    public void associateManagerWithSpace(String organizationName, String spaceName, String userGuid) {
-        executeWithRetry(() -> delegate.associateManagerWithSpace(organizationName, spaceName, userGuid));
-    }
-
-    @Override
-    public void bindRunningSecurityGroup(String securityGroupName) {
-        executeWithRetry(() -> delegate.bindRunningSecurityGroup(securityGroupName));
-    }
-
-    @Override
-    public void bindSecurityGroup(String organizationName, String spaceName, String securityGroupName) {
-        executeWithRetry(() -> delegate.bindSecurityGroup(organizationName, spaceName, securityGroupName));
-    }
-
-    @Override
-    public void bindStagingSecurityGroup(String securityGroupName) {
-        executeWithRetry(() -> delegate.bindStagingSecurityGroup(securityGroupName));
-    }
-
-    @Override
-    public void createApplication(String applicationName, Staging staging, Integer memory, List<String> uris,
-                                  List<String> serviceInstanceNames) {
-        executeWithRetry(() -> delegate.createApplication(applicationName, staging, memory, uris, serviceInstanceNames));
-    }
-
-    @Override
-    public void createQuota(CloudQuota quota) {
-        executeWithRetry(() -> delegate.createQuota(quota));
-    }
-
-    @Override
-    public void createSecurityGroup(CloudSecurityGroup securityGroup) {
-        executeWithRetry(() -> delegate.createSecurityGroup(securityGroup));
-    }
-
-    @Override
-    public void createSecurityGroup(String name, InputStream jsonRulesFile) {
-        executeWithRetry(() -> delegate.createSecurityGroup(name, jsonRulesFile));
+    public void createApplication(String applicationName, Staging staging, Integer memory, List<String> uris) {
+        executeWithRetry(() -> delegate.createApplication(applicationName, staging, memory, uris));
     }
 
     @Override
     public CloudServiceKey createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
         return executeWithRetry(() -> delegate.createServiceKey(serviceInstanceName, serviceKeyName, parameters));
-    }
-
-    @Override
-    public void createSpace(String spaceName) {
-        executeWithRetry(() -> delegate.createSpace(spaceName));
     }
 
     @Override
@@ -505,16 +420,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void deleteQuota(String quotaName) {
-        executeWithRetry(() -> delegate.deleteQuota(quotaName));
-    }
-
-    @Override
-    public void deleteSecurityGroup(String securityGroupName) {
-        executeWithRetry(() -> delegate.deleteSecurityGroup(securityGroupName));
-    }
-
-    @Override
     public void deleteServiceKey(String serviceInstanceName, String serviceKeyName) {
         executeWithRetry(() -> delegate.deleteServiceKey(serviceInstanceName, serviceKeyName));
     }
@@ -522,11 +427,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public void deleteServiceKey(CloudServiceKey serviceKey) {
         executeWithRetry(() -> delegate.deleteServiceKey(serviceKey));
-    }
-
-    @Override
-    public void deleteSpace(String spaceName) {
-        executeWithRetry(() -> delegate.deleteSpace(spaceName));
     }
 
     @Override
@@ -555,83 +455,13 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public Map<String, String> getCrashLogs(String applicationName) {
-        return executeWithRetry(() -> delegate.getCrashLogs(applicationName), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
     public List<CloudEvent> getEvents() {
         return executeWithRetry(delegate::getEvents, HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public String getFile(String applicationName, int instanceIndex, String filePath) {
-        return executeWithRetry(() -> delegate.getFile(applicationName, instanceIndex, filePath));
-    }
-
-    @Override
-    public String getFile(String applicationName, int instanceIndex, String filePath, int startPosition) {
-        return executeWithRetry(() -> delegate.getFile(applicationName, instanceIndex, filePath, startPosition));
-    }
-
-    @Override
-    public String getFile(String applicationName, int instanceIndex, String filePath, int startPosition, int endPosition) {
-        return executeWithRetry(() -> delegate.getFile(applicationName, instanceIndex, filePath, startPosition, endPosition));
-    }
-
-    @Override
-    public String getFileTail(String applicationName, int instanceIndex, String filePath, int length) {
-        return executeWithRetry(() -> delegate.getFileTail(applicationName, instanceIndex, filePath, length));
-    }
-
-    @Override
-    public Map<String, String> getLogs(String applicationName) {
-        return executeWithRetry(() -> delegate.getLogs(applicationName), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public Map<String, CloudUser> getOrganizationUsers(String organizationName) {
-        return executeWithRetry(() -> delegate.getOrganizationUsers(organizationName), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
     public List<CloudOrganization> getOrganizations() {
         return executeWithRetry(delegate::getOrganizations, HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public CloudQuota getQuota(String quotaName) {
-        return executeWithRetry(() -> delegate.getQuota(quotaName));
-    }
-
-    @Override
-    public CloudQuota getQuota(String quotaName, boolean required) {
-        return executeWithRetry(() -> delegate.getQuota(quotaName, required));
-    }
-
-    @Override
-    public List<CloudQuota> getQuotas() {
-        return executeWithRetry(delegate::getQuotas, HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<CloudSecurityGroup> getRunningSecurityGroups() {
-        return executeWithRetry(delegate::getRunningSecurityGroups, HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public CloudSecurityGroup getSecurityGroup(String securityGroupName) {
-        return executeWithRetry(() -> delegate.getSecurityGroup(securityGroupName));
-    }
-
-    @Override
-    public CloudSecurityGroup getSecurityGroup(String securityGroupName, boolean required) {
-        return executeWithRetry(() -> delegate.getSecurityGroup(securityGroupName, required));
-    }
-
-    @Override
-    public List<CloudSecurityGroup> getSecurityGroups() {
-        return executeWithRetry(delegate::getSecurityGroups, HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -710,11 +540,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<CloudSpace> getSpacesBoundToSecurityGroup(String securityGroupName) {
-        return executeWithRetry(() -> delegate.getSpacesBoundToSecurityGroup(securityGroupName), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
     public CloudStack getStack(String name) {
         return executeWithRetry(() -> delegate.getStack(name));
     }
@@ -730,11 +555,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<CloudSecurityGroup> getStagingSecurityGroups() {
-        return executeWithRetry(delegate::getStagingSecurityGroups, HttpStatus.NOT_FOUND);
-    }
-
-    @Override
     public OAuth2AccessToken login() {
         return executeWithRetry(delegate::login);
     }
@@ -745,23 +565,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void register(String email, String password) {
-        executeWithRetry(() -> delegate.register(email, password));
-    }
-
-    @Override
     public void registerRestLogListener(RestLogCallback callBack) {
         executeWithRetry(() -> delegate.registerRestLogListener(callBack));
-    }
-
-    @Override
-    public void removeDomain(String domainName) {
-        executeWithRetry(() -> delegate.removeDomain(domainName));
-    }
-
-    @Override
-    public void setQuotaToOrganization(String organizationName, String quotaName) {
-        executeWithRetry(() -> delegate.setQuotaToOrganization(organizationName, quotaName));
     }
 
     @Override
@@ -772,51 +577,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public void unRegisterRestLogListener(RestLogCallback callBack) {
         executeWithRetry(() -> delegate.unRegisterRestLogListener(callBack));
-    }
-
-    @Override
-    public void unbindRunningSecurityGroup(String securityGroupName) {
-        executeWithRetry(() -> delegate.unbindRunningSecurityGroup(securityGroupName));
-    }
-
-    @Override
-    public void unbindSecurityGroup(String organizationName, String spaceName, String securityGroupName) {
-        executeWithRetry(() -> delegate.unbindSecurityGroup(organizationName, spaceName, securityGroupName));
-    }
-
-    @Override
-    public void unbindStagingSecurityGroup(String securityGroupName) {
-        executeWithRetry(() -> delegate.unbindStagingSecurityGroup(securityGroupName));
-    }
-
-    @Override
-    public void unregister() {
-        executeWithRetry(delegate::unregister);
-    }
-
-    @Override
-    public void updatePassword(String newPassword) {
-        executeWithRetry(() -> delegate.updatePassword(newPassword));
-    }
-
-    @Override
-    public void updatePassword(CloudCredentials credentials, String newPassword) {
-        executeWithRetry(() -> delegate.updatePassword(credentials, newPassword));
-    }
-
-    @Override
-    public void updateQuota(CloudQuota quota, String name) {
-        executeWithRetry(() -> delegate.updateQuota(quota, name));
-    }
-
-    @Override
-    public void updateSecurityGroup(CloudSecurityGroup securityGroup) {
-        executeWithRetry(() -> delegate.updateSecurityGroup(securityGroup));
-    }
-
-    @Override
-    public void updateSecurityGroup(String name, InputStream jsonRulesFile) {
-        executeWithRetry(() -> delegate.updateSecurityGroup(name, jsonRulesFile));
     }
 
     @Override

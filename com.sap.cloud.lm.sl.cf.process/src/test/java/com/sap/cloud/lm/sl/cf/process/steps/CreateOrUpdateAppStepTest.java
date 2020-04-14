@@ -192,7 +192,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
 
         Mockito.verify(client)
                .createApplication(eq(application.getName()), argThat(GenericArgumentMatcher.forObject(application.getStaging())),
-                                  eq(diskQuota), eq(memory), eq(application.getUris()), eq(Collections.emptyList()), eq(null));
+                                  eq(diskQuota), eq(memory), eq(application.getUris()), eq(null));
         for (String service : application.getServices()) {
             if (!isOptional(service)) {
                 Mockito.verify(client)

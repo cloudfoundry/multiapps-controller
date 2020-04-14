@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudCredentials;
 import org.cloudfoundry.client.lib.RestLogCallback;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.UploadStatusCallback;
@@ -21,9 +20,7 @@ import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
-import org.cloudfoundry.client.lib.domain.CloudQuota;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
-import org.cloudfoundry.client.lib.domain.CloudSecurityGroup;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
@@ -32,7 +29,6 @@ import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.domain.CloudStack;
 import org.cloudfoundry.client.lib.domain.CloudTask;
-import org.cloudfoundry.client.lib.domain.CloudUser;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
@@ -85,19 +81,18 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createApplication(String applicationName, Staging staging, Integer memory, List<String> uris,
-                                  List<String> serviceInstanceNames) {
-        logger.debug(Messages.CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_SERVICES_3_AND_STAGING_4, applicationName, memory, uris,
-                     serviceInstanceNames, SERIALIZATION.toJson(staging));
-        delegate.createApplication(applicationName, staging, memory, uris, serviceInstanceNames);
+    public void createApplication(String applicationName, Staging staging, Integer memory, List<String> uris) {
+        logger.debug(Messages.CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3, applicationName, memory, uris,
+                     SERIALIZATION.toJson(staging));
+        delegate.createApplication(applicationName, staging, memory, uris);
     }
 
     @Override
     public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, List<String> uris,
-                                  List<String> serviceInstanceNames, DockerInfo dockerInfo) {
-        logger.debug(Messages.CREATING_APPLICATION_0_WITH_DISK_QUOTA_1_MEMORY_2_URIS_3_SERVICES_4_AND_STAGING_5, applicationName, memory,
-                     uris, serviceInstanceNames, SERIALIZATION.toJson(staging));
-        delegate.createApplication(applicationName, staging, disk, memory, uris, serviceInstanceNames, dockerInfo);
+                                  DockerInfo dockerInfo) {
+        logger.debug(Messages.CREATING_APPLICATION_0_WITH_DISK_QUOTA_1_MEMORY_2_URIS_3_AND_STAGING_4, applicationName, memory, uris,
+                     SERIALIZATION.toJson(staging));
+        delegate.createApplication(applicationName, staging, disk, memory, uris, dockerInfo);
     }
 
     @Override
@@ -287,12 +282,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public CloudOrganization getOrganization(String organizationName, boolean required) {
         logger.debug(Messages.GETTING_ORGANIZATION_0, organizationName);
         return delegate.getOrganization(organizationName, required);
-    }
-
-    @Override
-    public Map<String, CloudUser> getOrganizationUsers(String organizationName) {
-        logger.debug(Messages.GETTING_USERS_OF_ORGANIZATION_0, organizationName);
-        return delegate.getOrganizationUsers(organizationName);
     }
 
     @Override
@@ -530,12 +519,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void removeDomain(String domainName) {
-        logger.debug(Messages.DELETING_DOMAIN_0, domainName);
-        delegate.removeDomain(domainName);
-    }
-
-    @Override
     public void rename(String applicationName, String newName) {
         logger.debug(Messages.RENAMING_APPLICATION_0_TO_1, applicationName, newName);
         delegate.rename(applicationName, newName);
@@ -753,101 +736,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void associateAuditorWithSpace(String spaceName) {
-        delegate.associateAuditorWithSpace(spaceName);
-    }
-
-    @Override
-    public void associateAuditorWithSpace(String organizationName, String spaceName) {
-        delegate.associateAuditorWithSpace(organizationName, spaceName);
-    }
-
-    @Override
-    public void associateAuditorWithSpace(String organizationName, String spaceName, String userGuid) {
-        delegate.associateAuditorWithSpace(organizationName, spaceName, userGuid);
-    }
-
-    @Override
-    public void associateDeveloperWithSpace(String spaceName) {
-        delegate.associateDeveloperWithSpace(spaceName);
-    }
-
-    @Override
-    public void associateDeveloperWithSpace(String organizationName, String spaceName) {
-        delegate.associateDeveloperWithSpace(organizationName, spaceName);
-    }
-
-    @Override
-    public void associateDeveloperWithSpace(String organizationName, String spaceName, String userGuid) {
-        delegate.associateDeveloperWithSpace(organizationName, spaceName, userGuid);
-    }
-
-    @Override
-    public void associateManagerWithSpace(String spaceName) {
-        delegate.associateManagerWithSpace(spaceName);
-    }
-
-    @Override
-    public void associateManagerWithSpace(String organizationName, String spaceName) {
-        delegate.associateManagerWithSpace(organizationName, spaceName);
-    }
-
-    @Override
-    public void associateManagerWithSpace(String organizationName, String spaceName, String userGuid) {
-        delegate.associateManagerWithSpace(organizationName, spaceName, userGuid);
-    }
-
-    @Override
-    public void bindRunningSecurityGroup(String securityGroupName) {
-        delegate.bindRunningSecurityGroup(securityGroupName);
-    }
-
-    @Override
-    public void bindSecurityGroup(String organizationName, String spaceName, String securityGroupName) {
-        delegate.bindSecurityGroup(organizationName, spaceName, securityGroupName);
-    }
-
-    @Override
-    public void bindStagingSecurityGroup(String securityGroupName) {
-        delegate.bindStagingSecurityGroup(securityGroupName);
-    }
-
-    @Override
-    public void createQuota(CloudQuota quota) {
-        delegate.createQuota(quota);
-    }
-
-    @Override
-    public void createSecurityGroup(CloudSecurityGroup securityGroup) {
-        delegate.createSecurityGroup(securityGroup);
-    }
-
-    @Override
-    public void createSecurityGroup(String name, InputStream jsonRulesFile) {
-        delegate.createSecurityGroup(name, jsonRulesFile);
-    }
-
-    @Override
-    public void createSpace(String spaceName) {
-        delegate.createSpace(spaceName);
-    }
-
-    @Override
-    public void deleteQuota(String quotaName) {
-        delegate.deleteQuota(quotaName);
-    }
-
-    @Override
-    public void deleteSecurityGroup(String securityGroupName) {
-        delegate.deleteSecurityGroup(securityGroupName);
-    }
-
-    @Override
-    public void deleteSpace(String spaceName) {
-        delegate.deleteSpace(spaceName);
-    }
-
-    @Override
     public URL getCloudControllerUrl() {
         return delegate.getCloudControllerUrl();
     }
@@ -855,81 +743,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     @Override
     public CloudInfo getCloudInfo() {
         return delegate.getCloudInfo();
-    }
-
-    @Override
-    public Map<String, String> getCrashLogs(String applicationName) {
-        return delegate.getCrashLogs(applicationName);
-    }
-
-    @Override
-    public String getFile(String applicationName, int instanceIndex, String filePath) {
-        return delegate.getFile(applicationName, instanceIndex, filePath);
-    }
-
-    @Override
-    public String getFile(String applicationName, int instanceIndex, String filePath, int startPosition) {
-        return delegate.getFile(applicationName, instanceIndex, filePath, startPosition);
-    }
-
-    @Override
-    public String getFile(String applicationName, int instanceIndex, String filePath, int startPosition, int endPosition) {
-        return delegate.getFile(applicationName, instanceIndex, filePath, startPosition, endPosition);
-    }
-
-    @Override
-    public String getFileTail(String applicationName, int instanceIndex, String filePath, int length) {
-        return delegate.getFileTail(applicationName, instanceIndex, filePath, length);
-    }
-
-    @Override
-    public Map<String, String> getLogs(String applicationName) {
-        return delegate.getLogs(applicationName);
-    }
-
-    @Override
-    public CloudQuota getQuota(String quotaName) {
-        return delegate.getQuota(quotaName);
-    }
-
-    @Override
-    public CloudQuota getQuota(String quotaName, boolean required) {
-        return delegate.getQuota(quotaName, required);
-    }
-
-    @Override
-    public List<CloudQuota> getQuotas() {
-        return delegate.getQuotas();
-    }
-
-    @Override
-    public List<CloudSecurityGroup> getRunningSecurityGroups() {
-        return delegate.getRunningSecurityGroups();
-    }
-
-    @Override
-    public CloudSecurityGroup getSecurityGroup(String securityGroupName) {
-        return delegate.getSecurityGroup(securityGroupName);
-    }
-
-    @Override
-    public CloudSecurityGroup getSecurityGroup(String securityGroupName, boolean required) {
-        return delegate.getSecurityGroup(securityGroupName, required);
-    }
-
-    @Override
-    public List<CloudSecurityGroup> getSecurityGroups() {
-        return delegate.getSecurityGroups();
-    }
-
-    @Override
-    public List<CloudSpace> getSpacesBoundToSecurityGroup(String securityGroupName) {
-        return delegate.getSpacesBoundToSecurityGroup(securityGroupName);
-    }
-
-    @Override
-    public List<CloudSecurityGroup> getStagingSecurityGroups() {
-        return delegate.getStagingSecurityGroups();
     }
 
     @Override
@@ -943,18 +756,8 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void register(String email, String password) {
-        delegate.register(email, password);
-    }
-
-    @Override
     public void registerRestLogListener(RestLogCallback callBack) {
         delegate.registerRestLogListener(callBack);
-    }
-
-    @Override
-    public void setQuotaToOrganization(String organizationName, String quotaName) {
-        delegate.setQuotaToOrganization(organizationName, quotaName);
     }
 
     @Override
@@ -965,51 +768,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     @Override
     public void unRegisterRestLogListener(RestLogCallback callBack) {
         delegate.unRegisterRestLogListener(callBack);
-    }
-
-    @Override
-    public void unbindRunningSecurityGroup(String securityGroupName) {
-        delegate.unbindRunningSecurityGroup(securityGroupName);
-    }
-
-    @Override
-    public void unbindSecurityGroup(String organizationName, String spaceName, String securityGroupName) {
-        delegate.unbindSecurityGroup(organizationName, spaceName, securityGroupName);
-    }
-
-    @Override
-    public void unbindStagingSecurityGroup(String securityGroupName) {
-        delegate.unbindStagingSecurityGroup(securityGroupName);
-    }
-
-    @Override
-    public void unregister() {
-        delegate.unregister();
-    }
-
-    @Override
-    public void updatePassword(String newPassword) {
-        delegate.updatePassword(newPassword);
-    }
-
-    @Override
-    public void updatePassword(CloudCredentials credentials, String newPassword) {
-        delegate.updatePassword(credentials, newPassword);
-    }
-
-    @Override
-    public void updateQuota(CloudQuota quota, String name) {
-        delegate.updateQuota(quota, name);
-    }
-
-    @Override
-    public void updateSecurityGroup(CloudSecurityGroup securityGroup) {
-        delegate.updateSecurityGroup(securityGroup);
-    }
-
-    @Override
-    public void updateSecurityGroup(String name, InputStream jsonRulesFile) {
-        delegate.updateSecurityGroup(name, jsonRulesFile);
     }
 
 }

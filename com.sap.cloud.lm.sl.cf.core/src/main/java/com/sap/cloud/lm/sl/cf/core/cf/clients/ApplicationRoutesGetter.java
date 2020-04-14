@@ -11,7 +11,6 @@ import javax.inject.Named;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
-import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
 import org.springframework.web.client.RestTemplate;
 
 @Named
@@ -49,7 +48,7 @@ public class ApplicationRoutesGetter extends CustomControllerClient {
 
     private List<CloudRoute> toCloudRoutes(List<Map<String, Object>> resources) {
         return resources.stream()
-                        .map(resource -> resourceMapper.mapResource(resource, CloudRoute.class))
+                        .map(resourceMapper::mapRouteResource)
                         .collect(Collectors.toList());
     }
 
