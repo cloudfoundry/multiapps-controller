@@ -308,7 +308,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             return !Objects.equals(service.getCredentials(), serviceParameters);
         } catch (CloudOperationException e) {
             if (HttpStatus.NOT_IMPLEMENTED == e.getStatusCode() || HttpStatus.BAD_REQUEST == e.getStatusCode()) {
-                getStepLogger().warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_SERVICE_PARAMETERS, service.getName());
+                getStepLogger().warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_SERVICE_INSTANCE_PARAMETERS, service.getName());
                 // TODO: Optimization (Hack) that should be deprecated at some point. So here is a todo for that.
                 return !MapUtils.isEmpty(service.getCredentials());
             }

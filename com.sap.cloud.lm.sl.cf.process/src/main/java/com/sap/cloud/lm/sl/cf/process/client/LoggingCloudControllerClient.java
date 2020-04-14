@@ -357,6 +357,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public Map<String, Object> getServiceBindingParameters(UUID guid) {
+        logger.debug(Messages.GETTING_PARAMETERS_OF_SERVICE_BINDING_0, guid);
+        return delegate.getServiceBindingParameters(guid);
+    }
+
+    @Override
     public List<CloudServiceKey> getServiceKeys(String serviceInstanceName) {
         logger.debug(Messages.GETTING_SERVICE_KEYS_FOR_SERVICE_INSTANCE_0, serviceInstanceName);
         return delegate.getServiceKeys(serviceInstanceName);

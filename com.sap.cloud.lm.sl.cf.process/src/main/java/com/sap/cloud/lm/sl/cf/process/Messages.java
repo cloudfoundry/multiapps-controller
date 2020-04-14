@@ -141,7 +141,8 @@ public class Messages {
     public static final String ERROR_DELETING_OPERATION_WITH_ID = "Error deleting operation with ID \"{0}\"";
 
     // WARN log messages
-    public static final String CANNOT_RETRIEVE_SERVICE_PARAMETERS = "Cannot retrieve service parameters of service \"{0}\"";
+    public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_PARAMETERS = "Cannot retrieve service instance parameters of service \"{0}\"";
+    public static final String CANNOT_RETRIEVE_SERVICE_BINDING_PARAMETERS = "Cannot retrieve service binding parameters of service \"{0}\"";
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service \"{0}\"";
     public static final String CANNOT_RETRIEVE_INSTANCE_OF_SERVICE = "Cannot retrieve service instance of service \"{0}\"";
     public static final String COULD_NOT_DELETE_PROVIDED_DEPENDENCY = "Could not delete published provided dependency \"{0}\" from configuration registry";
@@ -473,6 +474,7 @@ public class Messages {
     public static final String GETTING_SERVICE_BROKER_0 = "Getting service broker \"{0}\"...";
     public static final String GETTING_SERVICE_BROKERS = "Getting service brokers...";
     public static final String GETTING_PARAMETERS_OF_SERVICE_INSTANCE_0 = "Getting parameters of service instance \"{0}\"...";
+    public static final String GETTING_PARAMETERS_OF_SERVICE_BINDING_0 = "Getting parameters of service binding \"{0}\"...";
     public static final String GETTING_SERVICE_KEYS_FOR_SERVICE_INSTANCE_0 = "Getting service keys for service instance \"{0}\"...";
     public static final String GETTING_SERVICE_OFFERINGS = "Getting service offerings...";
     public static final String GETTING_SERVICE_INSTANCES = "Getting service instances...";

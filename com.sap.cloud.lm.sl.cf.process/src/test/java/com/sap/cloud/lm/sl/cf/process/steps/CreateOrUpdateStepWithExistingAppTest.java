@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -210,6 +211,8 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
             for (SimpleBinding simpleBinding : input.existingServiceBindings.get(serviceName)) {
                 serviceBindings.add(simpleBinding.toCloudServiceBinding());
             }
+            Mockito.when(client.getServiceBindingParameters(Mockito.any()))
+                   .thenReturn(null);
             Mockito.when(client.getServiceBindings(Mockito.any()))
                    .thenReturn(serviceBindings);
             Mockito.when(cloudServiceInstance.getName())
@@ -287,6 +290,9 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
 
         CloudServiceBinding toCloudServiceBinding() {
             return ImmutableCloudServiceBinding.builder()
+                                               .metadata(ImmutableCloudMetadata.builder()
+                                                                               .guid(UUID.randomUUID())
+                                                                               .build())
                                                .applicationGuid(NameUtil.getUUID(applicationName))
                                                .bindingOptions(bindingOptions)
                                                .build();

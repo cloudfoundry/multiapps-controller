@@ -10,11 +10,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.util.JsonUtil;
+import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.process.Messages;
 
@@ -82,7 +84,20 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
     private boolean hasServiceBindingsChanged(CloudApplication application, CloudServiceInstance serviceInstance,
                                               Map<String, Object> newServiceBindingParameters) {
         CloudServiceBinding bindingForApplication = getServiceBindingForApplication(application, serviceInstance);
-        return !Objects.equals(bindingForApplication.getBindingParameters(), newServiceBindingParameters);
+        Map<String, Object> bindingParameters = getBindingParameters(bindingForApplication);
+        return !Objects.equals(bindingParameters, newServiceBindingParameters);
+    }
+
+    private Map<String, Object> getBindingParameters(CloudServiceBinding bindingForApplication) {
+        try {
+            return getControllerClient().getServiceBindingParameters(getGuid(bindingForApplication));
+        } catch (CloudOperationException e) {
+            if (HttpStatus.NOT_IMPLEMENTED == e.getStatusCode() || HttpStatus.BAD_REQUEST == e.getStatusCode()) {
+                getLogger().warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_SERVICE_BINDING_PARAMETERS, bindingForApplication);
+                return null;
+            }
+            throw e;
+        }
     }
 
     private CloudServiceBinding getServiceBindingForApplication(CloudApplication application, CloudServiceInstance serviceInstance) {

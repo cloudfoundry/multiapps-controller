@@ -241,6 +241,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
+    public Map<String, Object> getServiceBindingParameters(UUID guid) {
+        return executeWithRetry(() -> delegate.getServiceBindingParameters(guid));
+    }
+
+    @Override
     public List<CloudDomain> getSharedDomains() {
         return executeWithRetry(delegate::getSharedDomains, HttpStatus.NOT_FOUND);
     }
