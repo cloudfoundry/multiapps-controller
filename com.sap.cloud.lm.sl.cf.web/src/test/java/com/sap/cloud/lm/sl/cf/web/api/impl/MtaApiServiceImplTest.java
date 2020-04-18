@@ -129,7 +129,7 @@ public class MtaApiServiceImplTest {
         Mockito.when(deployedMtaDetector.detectDeployedMta(mtas.get(1)
                                                                .getMetadata()
                                                                .getId(),
-                                                           client))
+                                                           client, true))
                .thenReturn(Optional.of(getDeployedMta(mtas.get(1))));
     }
 
