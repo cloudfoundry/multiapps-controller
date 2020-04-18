@@ -56,7 +56,7 @@ public class DeployedMtaDetector {
                                      .collect(Collectors.toList());
     }
 
-    public Optional<DeployedMta> detectDeployedMta(String mtaId, CloudControllerClient client) {
+    public Optional<DeployedMta> detectDeployedMta(String mtaId, CloudControllerClient client, boolean envDetectionEnabled) {
         MtaMetadataCriteria selectionCriteria = MtaMetadataCriteriaBuilder.builder()
                                                                           .label(MtaMetadataLabels.MTA_ID)
                                                                           .haveValue(MtaMetadataUtil.getHashedMtaId(mtaId))
@@ -66,7 +66,10 @@ public class DeployedMtaDetector {
             return deployedMtasByMetadata.stream()
                                          .findFirst();
         }
-        return deployedMtaEnvDetector.detectDeployedMta(mtaId, client);
+        if (envDetectionEnabled) {
+            return deployedMtaEnvDetector.detectDeployedMta(mtaId, client);
+        }
+        return Optional.empty();
     }
 
 }

@@ -30,7 +30,9 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         CloudControllerClient client = context.getControllerClient();
 
         String mtaId = context.getVariable(Variables.MTA_ID);
-        Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMta(mtaId, client);
+        boolean envDetectionEnabled = context.getVariable(Variables.ENABLE_ENV_DETECTION);
+
+        Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMta(mtaId, client, envDetectionEnabled);
         if (optionalDeployedMta.isPresent()) {
             DeployedMta deployedMta = optionalDeployedMta.get();
             context.setVariable(Variables.DEPLOYED_MTA, deployedMta);

@@ -50,6 +50,12 @@ public class UndeployMetadata {
                                              .type(ParameterType.BOOLEAN)
                                              .defaultValue(Variables.ABORT_ON_ERROR.getDefaultValue())
                                              .build());
+        PARAMS.add(ImmutableParameterMetadata.builder()
+                                             .id(Variables.ENABLE_ENV_DETECTION.getName())
+                                             .type(ParameterType.BOOLEAN)
+                                             .defaultValue(Variables.ENABLE_ENV_DETECTION.getDefaultValue())
+                                             .required(false)
+                                             .build());
     }
 
     private UndeployMetadata() {

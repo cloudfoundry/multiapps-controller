@@ -48,7 +48,7 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     @Override
     public ResponseEntity<Mta> getMta(String spaceGuid, String mtaId) {
-        Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMta(mtaId, getCloudFoundryClient(spaceGuid));
+        Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMta(mtaId, getCloudFoundryClient(spaceGuid), true);
         DeployedMta deployedMta = optionalDeployedMta.orElseThrow(() -> new NotFoundException(Messages.MTA_NOT_FOUND, mtaId));
         return ResponseEntity.ok()
                              .body(getMta(deployedMta));
