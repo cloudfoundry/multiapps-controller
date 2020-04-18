@@ -66,7 +66,7 @@ public class DeployedMtaDetector {
             return deployedMtasByMetadata.stream()
                                          .findFirst();
         }
-        if (envDetectionEnabled) {
+        if(envDetectionEnabled){
             return deployedMtaEnvDetector.detectDeployedMta(mtaId, client);
         }
         return Optional.empty();

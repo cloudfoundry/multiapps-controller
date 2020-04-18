@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.Functions;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.junit.Before;
 import org.junit.Test;
