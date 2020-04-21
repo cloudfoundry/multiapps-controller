@@ -130,7 +130,7 @@ public class ServiceWithAlternativesCreator {
 
     private MethodExecution<String> createServiceInternal(CloudControllerClient client, CloudServiceInstanceExtended serviceInstance) {
         client.createServiceInstance(serviceInstance);
-        return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
+        return new MethodExecution<>(null, MethodExecution.ExecutionState.EXECUTING);
     }
 
     private boolean shouldIgnoreException(CloudOperationException e) {
