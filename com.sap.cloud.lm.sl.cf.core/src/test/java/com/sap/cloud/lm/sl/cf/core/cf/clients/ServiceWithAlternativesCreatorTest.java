@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.util.stream.Stream;
@@ -15,6 +16,8 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
+import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
+import com.sap.cloud.lm.sl.cf.core.util.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -63,7 +66,8 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
             return;
         }
         CloudControllerClient mockClient = getMockedClient();
-        serviceWithAlternativesCreator.createService(mockClient, input.actualService);
+        MethodExecution<String> actualMethodExecution = serviceWithAlternativesCreator.createService(mockClient, input.actualService);
+        assertEquals(ExecutionState.EXECUTING, actualMethodExecution.getState());
         int callsForAllOfferings = input.actualService.getAlternativeLabels()
                                                       .isEmpty() ? 0 : 1;
         Mockito.verify(mockClient, Mockito.times(callsForAllOfferings))
