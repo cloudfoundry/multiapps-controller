@@ -16,6 +16,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.util.MtaMetadataUtil;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -105,7 +106,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
     }
 
     private DeployedMtaApplication getDeployedMtaApplication(CloudApplication app) {
-        if (app.getV3Metadata() == null) {
+        if (!MtaMetadataUtil.hasMtaMetadata(app)) {
             return envMtaMetadataParser.parseDeployedMtaApplication(app);
         }
         return mtaMetadataParser.parseDeployedMtaApplication(app);
