@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.sap.cloud.lm.sl.cf.web.Messages;
 import com.sap.cloud.lm.sl.common.ConflictException;
@@ -32,6 +33,11 @@ public class CFExceptionMapper {
             status = HttpStatus.CONFLICT;
         }
         String message = t.getMessage();
+        if (t instanceof ResponseStatusException) {
+            ResponseStatusException rse = (ResponseStatusException) t;
+            status = rse.getStatus();
+            message = rse.getReason();
+        }
 
         LOGGER.error(Messages.ERROR_EXECUTING_REST_API_CALL, t);
         return ResponseEntity.status(status)
