@@ -11,10 +11,13 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
@@ -43,6 +46,8 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.model.Resource;
 
+@Named("buildCloudDeployModelStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
     @Inject
