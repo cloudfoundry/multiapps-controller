@@ -8,4 +8,9 @@
             <where>space_id IS NULL</where>
         </delete>
     </changeSet>
+    <changeSet author="sap.com" id="db-changelog-update_configuration_registry_delete_empty_content">
+	    <delete tableName="configuration_registry">
+	        <where>content='{}'</where>
+	    </delete>
+	</changeSet>
 </databaseChangeLog>

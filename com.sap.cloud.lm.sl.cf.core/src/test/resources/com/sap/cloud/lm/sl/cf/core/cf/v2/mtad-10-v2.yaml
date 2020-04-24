@@ -8,6 +8,9 @@ modules:
     provides:
       - name: foo
         public: true
+        properties:
+          a: b
+          c: d
       - name: bar
   - name: module-2
     type: module-2
