@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.collections4.MapUtils;
+
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -40,9 +42,14 @@ public class ConfigurationEntriesCloudModelBuilder {
     }
 
     private List<ConfigurationEntry> createConfigurationEntries(Module module, DeploymentDescriptor deploymentDescriptor) {
-        return getPublicProvidedDependencies(module).map(providedDependency -> createConfigurationEntry(deploymentDescriptor,
+        return getPublicProvidedDependencies(module).filter(this::hasProperties)
+                                                    .map(providedDependency -> createConfigurationEntry(deploymentDescriptor,
                                                                                                         providedDependency))
                                                     .collect(Collectors.toList());
+    }
+    
+    private boolean hasProperties(ProvidedDependency providedDependency) {
+        return MapUtils.isNotEmpty(providedDependency.getProperties());
     }
 
     private Stream<ProvidedDependency> getPublicProvidedDependencies(Module module) {

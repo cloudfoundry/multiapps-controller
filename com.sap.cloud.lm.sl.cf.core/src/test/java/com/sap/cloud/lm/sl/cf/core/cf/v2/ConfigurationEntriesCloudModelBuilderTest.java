@@ -24,25 +24,25 @@ public class ConfigurationEntriesCloudModelBuilderTest {
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
-            // (0) Test that provided dependencies from version 2 are public by default:
+            // (0) Test that provided dependencies without properties from version 2 that are public by default do not result in configuration entries:
             {
-                "mtad-07-v2.yaml", 2, "some-org", "some-space", new Expectation(Expectation.Type.JSON, "expected-configuration-entries-01.json"),
+                "mtad-07-v2.yaml", 2, "some-org", "some-space", new Expectation(Expectation.Type.JSON, "expected-configuration-entries-00.json"),
             },
-            // (1) Test that provided dependencies from version 3 are not public by default:
+            // (1) Test that provided dependencies without properties from version 3 that are not public by default do not result in configuration entries:
             {
-                "mtad-07-v2.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.JSON, "expected-configuration-entries-02.json"),
+                "mtad-07-v2.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.JSON, "expected-configuration-entries-00.json"),
             },
-            // (2) Test that explicitly public provided dependencies are converted to configuration entries:
+            // (2) Test that explicitly public provided dependencies without properties do not result in configuration entries:
             {
-                "mtad-08-v2.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.JSON, "expected-configuration-entries-03.json"),
+                "mtad-08-v2.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.JSON, "expected-configuration-entries-00.json"),
             },
-            // (3) Test that public provided dependencies from all modules are converted to configuration entries:
+            // (3) Test that provided dependencies with properties from version 2 that are public by default are converted in configuration entries:
             {
-                "mtad-09-v2.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.JSON, "expected-configuration-entries-04.json"),
+                "mtad-09-v2.yaml", 2, "some-org", "some-space", new Expectation(Expectation.Type.JSON, "expected-configuration-entries-01.json"),
             },
-            // (4) Test that the provided dependencies' properties are added in the created configuration entries:
+            // (4) Test that public provided dependencies with properties from all modules are converted to configuration entries:
             {
-                "mtad-10-v2.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.JSON, "expected-configuration-entries-05.json"),
+                "mtad-10-v2.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.JSON, "expected-configuration-entries-02.json"),
             },
 // @formatter:on
         });
