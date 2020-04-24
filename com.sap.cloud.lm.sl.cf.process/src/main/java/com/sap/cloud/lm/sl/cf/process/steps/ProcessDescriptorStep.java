@@ -8,8 +8,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
@@ -26,6 +29,8 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 
 import liquibase.util.StringUtils;
 
+@Named("processDescriptorStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessDescriptorStep extends SyncFlowableStep {
 
     protected final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();

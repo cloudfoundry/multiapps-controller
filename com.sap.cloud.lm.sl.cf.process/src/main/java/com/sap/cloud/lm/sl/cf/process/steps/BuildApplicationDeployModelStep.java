@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
@@ -19,6 +23,8 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
+@Named("buildApplicationDeployModelStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BuildApplicationDeployModelStep extends SyncFlowableStep {
 
     @Inject
@@ -35,7 +41,6 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
                                                         .build(applicationModule, moduleToDeployHelper);
         modifiedApp = ImmutableCloudApplicationExtended.builder()
                                                        .from(modifiedApp)
-                                                       .env(getApplicationEnv(context, modifiedApp))
                                                        .uris(getApplicationUris(context, modifiedApp))
                                                        .build();
         SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
@@ -60,10 +65,6 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
     @Override
     protected String getStepErrorMessage(ProcessContext context) {
         return Messages.ERROR_BUILDING_CLOUD_APP_MODEL;
-    }
-
-    protected Map<String, String> getApplicationEnv(ProcessContext context, CloudApplicationExtended app) {
-        return app.getEnv();
     }
 
     private List<String> getApplicationUris(ProcessContext context, CloudApplicationExtended modifiedApp) {
