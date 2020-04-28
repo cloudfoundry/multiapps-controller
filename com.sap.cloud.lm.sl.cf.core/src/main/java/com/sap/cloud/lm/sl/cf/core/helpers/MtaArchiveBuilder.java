@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -19,7 +18,6 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
