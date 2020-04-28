@@ -147,6 +147,11 @@ public class MockDelegateExecution implements DelegateExecution {
     }
 
     @Override
+    public String getPropagatedStageInstanceId() {
+        return null;
+    }
+
+    @Override
     public String getProcessInstanceId() {
         return "1";
     }
