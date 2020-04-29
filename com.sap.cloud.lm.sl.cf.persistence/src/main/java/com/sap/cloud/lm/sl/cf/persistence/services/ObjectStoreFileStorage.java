@@ -101,7 +101,7 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     @Override
-    public void processFileContent(String space, String id, FileContentProcessor fileContentProcessor) throws FileStorageException {
+    public <T> T processFileContent(String space, String id, FileContentProcessor<T> fileContentProcessor) throws FileStorageException {
         FileEntry fileEntry = createFileEntry(space, id);
         try {
             Blob blob = getBlobWithRetries(fileEntry, 3);
@@ -110,7 +110,7 @@ public class ObjectStoreFileStorage implements FileStorage {
                                                                     fileEntry.getSpace()));
             }
             Payload payload = blob.getPayload();
-            processContent(fileContentProcessor, payload);
+            return processContent(fileContentProcessor, payload);
         } catch (Exception e) {
             throw new FileStorageException(e);
         }
@@ -123,9 +123,9 @@ public class ObjectStoreFileStorage implements FileStorage {
                                  .build();
     }
 
-    private void processContent(FileContentProcessor fileContentProcessor, Payload payload) throws FileStorageException {
+    private <T> T processContent(FileContentProcessor<T> fileContentProcessor, Payload payload) throws FileStorageException {
         try (InputStream fileContentStream = payload.openStream()) {
-            fileContentProcessor.processFileContent(fileContentStream);
+            return fileContentProcessor.process(fileContentStream);
         } catch (Exception e) {
             throw new FileStorageException(e);
         }

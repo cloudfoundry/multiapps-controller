@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileContentConsumer;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -74,10 +74,10 @@ public class ArchiveMerger {
     }
 
     private void mergeFileParts(List<FileEntry> sortedArchiveParts, FilePartsMerger filePartsMerger) throws FileStorageException {
-        FileContentProcessor archivePartProcessor = filePartsMerger::merge;
+        FileContentConsumer archivePartConsumer = filePartsMerger::merge;
         for (FileEntry archivePart : sortedArchiveParts) {
             stepLogger.debug(Messages.MERGING_ARCHIVE_PART, archivePart.getId(), archivePart.getName());
-            fileService.processFileContent(VariableHandling.get(execution, Variables.SPACE_ID), archivePart.getId(), archivePartProcessor);
+            fileService.consumeFileContent(VariableHandling.get(execution, Variables.SPACE_ID), archivePart.getId(), archivePartConsumer);
         }
     }
 

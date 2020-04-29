@@ -4,16 +4,16 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * An interface for processing the content of a file.
+ * An interface for consuming the content of a file.
  *
  */
-public interface FileContentProcessor<T> {
+public interface FileContentConsumer {
 
     /**
-     * Process the content of a file.
+     * Consume the content of a file.
      *
      * @param inputStream an input stream representing the file content
      */
-    T process(InputStream inputStream) throws IOException;
+    void consume(InputStream inputStream) throws IOException;
 
 }

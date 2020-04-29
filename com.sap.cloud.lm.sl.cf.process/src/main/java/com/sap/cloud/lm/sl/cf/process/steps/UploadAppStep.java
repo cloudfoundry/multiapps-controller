@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -100,17 +99,15 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     }
 
     private String getNewApplicationDigest(ProcessContext context, String appArchiveId, String fileName) throws FileStorageException {
-        StringBuilder digestStringBuilder = new StringBuilder();
-        fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId,
-                                       createDigestCalculatorFileContentProcessor(digestStringBuilder, fileName));
-        return digestStringBuilder.toString();
+        return fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId,
+                                              createDigestCalculatorFileContentProcessor(fileName));
     }
 
-    private FileContentProcessor createDigestCalculatorFileContentProcessor(StringBuilder digestStringBuilder, String fileName) {
+    private FileContentProcessor<String> createDigestCalculatorFileContentProcessor(String fileName) {
         return appArchiveStream -> {
             long maxSize = configuration.getMaxResourceFileSize();
             ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(appArchiveStream, fileName, maxSize);
-            digestStringBuilder.append(applicationArchiveReader.calculateApplicationDigest(applicationArchiveContext));
+            return applicationArchiveReader.calculateApplicationDigest(applicationArchiveContext);
         };
     }
 
@@ -121,16 +118,14 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     private UploadToken asyncUploadFiles(ProcessContext context, CloudControllerClient client, CloudApplication app, String appArchiveId,
                                          String fileName)
         throws FileStorageException {
-        AtomicReference<UploadToken> uploadTokenReference = new AtomicReference<>();
 
-        fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId, appArchiveStream -> {
+        return fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId, appArchiveStream -> {
             Path filePath = null;
             long maxSize = configuration.getMaxResourceFileSize();
             try {
                 ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(appArchiveStream, fileName, maxSize);
                 filePath = extractFromMtar(applicationArchiveContext);
-                UploadToken uploadToken = upload(context, client, app, filePath);
-                uploadTokenReference.set(uploadToken);
+                return upload(context, client, app, filePath);
             } catch (IOException e) {
                 FileUtils.cleanUp(filePath, LOGGER);
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, fileName);
@@ -139,7 +134,6 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                 throw e;
             }
         });
-        return uploadTokenReference.get();
     }
 
     protected Path extractFromMtar(ApplicationArchiveContext applicationArchiveContext) {

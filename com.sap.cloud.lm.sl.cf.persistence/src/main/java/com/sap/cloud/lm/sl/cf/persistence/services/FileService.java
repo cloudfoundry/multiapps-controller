@@ -119,14 +119,15 @@ public class FileService {
         }
     }
 
-    /**
-     * Reads file from the storage.
-     *
-     * @param fileDownloadProcessor file processor
-     * @throws FileStorageException
-     */
-    public void processFileContent(String space, String id, FileContentProcessor fileContentProcessor) throws FileStorageException {
-        fileStorage.processFileContent(space, id, fileContentProcessor);
+    public void consumeFileContent(String space, String id, FileContentConsumer fileContentConsumer) throws FileStorageException {
+        processFileContent(space, id, inputStream -> {
+            fileContentConsumer.consume(inputStream);
+            return null;
+        });
+    }
+
+    public <T> T processFileContent(String space, String id, FileContentProcessor<T> fileContentProcessor) throws FileStorageException {
+        return fileStorage.processFileContent(space, id, fileContentProcessor);
     }
 
     public int deleteBySpaceAndNamespace(String space, String namespace) throws FileStorageException {

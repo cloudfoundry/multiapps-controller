@@ -20,7 +20,7 @@ import org.mockito.stubbing.Answer;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileContentConsumer;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ParsingException;
@@ -60,14 +60,14 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
             @Override
             public Void answer(InvocationOnMock invocation) throws Exception {
                 String fileId = (String) invocation.getArguments()[1];
-                FileContentProcessor fileContentProcessor = invocation.getArgument(2);
+                FileContentConsumer fileContentConsumer = invocation.getArgument(2);
 
-                fileContentProcessor.processFileContent(getClass().getResourceAsStream(input.archiveFileLocations.get(Integer.parseInt(fileId))));
+                fileContentConsumer.consume(getClass().getResourceAsStream(input.archiveFileLocations.get(Integer.parseInt(fileId))));
                 return null;
             }
 
         }).when(fileService)
-          .processFileContent(any(), any(), any());
+          .consumeFileContent(any(), any(), any());
     }
 
     @Test

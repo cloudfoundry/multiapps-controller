@@ -182,7 +182,7 @@ public abstract class SqlFileQueryProvider {
         };
     }
 
-    public SqlQuery<Void> getProcessFileWithContentQuery(String space, String id, FileContentProcessor fileContentProcessor) {
+    public <T> SqlQuery<T> getProcessFileWithContentQuery(String space, String id, FileContentProcessor<T> fileContentProcessor) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
@@ -192,7 +192,7 @@ public abstract class SqlFileQueryProvider {
                 statement.setString(2, space);
                 resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    processFileContent(resultSet, fileContentProcessor);
+                    return processFileContent(resultSet, fileContentProcessor);
                 } else {
                     throw new SQLException(MessageFormat.format(Messages.FILE_NOT_FOUND, id));
                 }
@@ -200,7 +200,6 @@ public abstract class SqlFileQueryProvider {
                 JdbcUtil.closeQuietly(resultSet);
                 JdbcUtil.closeQuietly(statement);
             }
-            return null;
         };
     }
 
@@ -343,10 +342,10 @@ public abstract class SqlFileQueryProvider {
         return dataSourceDialect;
     }
 
-    private void processFileContent(ResultSet resultSet, FileContentProcessor fileContentProcessor) throws SQLException {
+    private <T> T processFileContent(ResultSet resultSet, FileContentProcessor<T> fileContentProcessor) throws SQLException {
         InputStream fileStream = getContentBinaryStream(resultSet, getContentColumnName());
         try {
-            fileContentProcessor.processFileContent(fileStream);
+            return fileContentProcessor.process(fileStream);
         } catch (Exception e) {
             throw new SQLException(e.getMessage(), e);
         } finally {

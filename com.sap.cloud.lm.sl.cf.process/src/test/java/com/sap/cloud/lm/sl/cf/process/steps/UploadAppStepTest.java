@@ -238,13 +238,13 @@ public class UploadAppStepTest {
             }
         }
 
+        @SuppressWarnings("rawtypes")
         public void prepareFileService() throws Exception {
             tempDir.create();
             appFile = tempDir.newFile(APP_FILE);
-            doAnswer((Answer<Void>) invocation -> {
+            doAnswer((Answer) invocation -> {
                 FileContentProcessor contentProcessor = invocation.getArgument(2);
-                contentProcessor.processFileContent(null);
-                return null;
+                return contentProcessor.process(null);
             }).when(fileService)
               .processFileContent(Mockito.anyString(), Mockito.anyString(), Mockito.any());
         }

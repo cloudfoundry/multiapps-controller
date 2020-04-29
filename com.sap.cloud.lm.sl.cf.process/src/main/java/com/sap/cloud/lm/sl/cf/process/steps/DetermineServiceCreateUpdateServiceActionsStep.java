@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -225,16 +224,14 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     private CloudServiceInstanceExtended setServiceParameters(ProcessContext context, CloudServiceInstanceExtended service,
                                                               String appArchiveId, String fileName)
         throws FileStorageException {
-        AtomicReference<CloudServiceInstanceExtended> serviceReference = new AtomicReference<>();
-        FileContentProcessor parametersFileProcessor = appArchiveStream -> {
+        FileContentProcessor<CloudServiceInstanceExtended> parametersFileProcessor = appArchiveStream -> {
             try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, configuration.getMaxManifestSize())) {
-                serviceReference.set(mergeCredentials(service, is));
+                return mergeCredentials(service, is);
             } catch (IOException e) {
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
             }
         };
-        fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId, parametersFileProcessor);
-        return serviceReference.get();
+        return fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId, parametersFileProcessor);
     }
 
     private CloudServiceInstanceExtended mergeCredentials(CloudServiceInstanceExtended service, InputStream credentialsJson) {
