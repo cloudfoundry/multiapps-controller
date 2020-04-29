@@ -20,6 +20,6 @@ public interface FileStorage {
 
     int deleteFilesModifiedBefore(Date modificationTime) throws FileStorageException;
 
-    void processFileContent(String space, String id, FileContentProcessor fileContentProcessor) throws FileStorageException;
+    <T> T processFileContent(String space, String id, FileContentProcessor<T> fileContentProcessor) throws FileStorageException;
 
 }

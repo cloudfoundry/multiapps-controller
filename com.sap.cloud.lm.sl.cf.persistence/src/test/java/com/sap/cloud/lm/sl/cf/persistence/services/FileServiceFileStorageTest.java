@@ -161,17 +161,22 @@ public class FileServiceFileStorageTest {
             final byte[] digest = calculateFileDigest(contentStream);
             assertEquals(expectedFileChecksum, DatatypeConverter.printHexBinary(digest)
                                                                 .toLowerCase());
+            return null;
         });
     }
 
-    private byte[] calculateFileDigest(InputStream contentStream) throws NoSuchAlgorithmException, IOException {
-        MessageDigest md = MessageDigest.getInstance(DIGEST_METHOD);
-        int read = 0;
-        byte[] buffer = new byte[4 * 1024];
-        while ((read = contentStream.read(buffer)) > -1) {
-            md.update(buffer, 0, read);
+    private byte[] calculateFileDigest(InputStream contentStream) throws IOException {
+        try {
+            MessageDigest md = MessageDigest.getInstance(DIGEST_METHOD);
+            int read = 0;
+            byte[] buffer = new byte[4 * 1024];
+            while ((read = contentStream.read(buffer)) > -1) {
+                md.update(buffer, 0, read);
+            }
+            return md.digest();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
         }
-        return md.digest();
     }
 
     private FileEntry addFile(String pathString) throws Exception {

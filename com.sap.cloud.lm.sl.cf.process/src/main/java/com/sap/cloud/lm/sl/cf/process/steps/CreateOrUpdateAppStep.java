@@ -426,28 +426,28 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         for (CloudServiceInstanceExtended service : services) {
             String requiredDependencyName = ValidatorUtil.getPrefixedName(moduleName, service.getResourceName(),
                                                                           com.sap.cloud.lm.sl.cf.core.Constants.MTA_ELEMENT_SEPARATOR);
-            addFileProvidedBindingParameters(context, service.getName(), requiredDependencyName, result);
+            Map<String, Object> bindingParameters = getFileProvidedBindingParameters(context, requiredDependencyName);
+            result.put(service.getName(), bindingParameters);
         }
         return result;
     }
 
-    private void addFileProvidedBindingParameters(ProcessContext context, String serviceName, String requiredDependencyName,
-                                                  Map<String, Map<String, Object>> result)
+    private Map<String, Object> getFileProvidedBindingParameters(ProcessContext context, String requiredDependencyName)
         throws FileStorageException {
         String archiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
         MtaArchiveElements mtaArchiveElements = context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS);
         String fileName = mtaArchiveElements.getRequiredDependencyFileName(requiredDependencyName);
         if (fileName == null) {
-            return;
+            return Collections.emptyMap();
         }
-        FileContentProcessor fileProcessor = archive -> {
+        FileContentProcessor<Map<String, Object>> fileProcessor = archive -> {
             try (InputStream file = ArchiveHandler.getInputStream(archive, fileName, configuration.getMaxManifestSize())) {
-                MapUtil.addNonNull(result, serviceName, JsonUtil.convertJsonToMap(file));
+                return JsonUtil.convertJsonToMap(file);
             } catch (IOException e) {
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
             }
         };
-        fileService.processFileContent(context.getVariable(Variables.SPACE_ID), archiveId, fileProcessor);
+        return fileService.processFileContent(context.getVariable(Variables.SPACE_ID), archiveId, fileProcessor);
     }
 
     private static Map<String, Map<String, Object>>

@@ -46,15 +46,15 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
     }
 
     public String getLogContent(String space, String namespace, String logName) throws FileStorageException {
-        final StringBuilder builder = new StringBuilder();
         List<String> logIds = getSortedByTimestampFileIds(space, namespace, logName);
         if (logIds.isEmpty()) {
             throw new NotFoundException(MessageFormat.format(Messages.ERROR_LOG_FILE_NOT_FOUND, logName, namespace, space));
         }
 
-        FileContentProcessor streamProcessor = is -> builder.append(IOUtils.toString(is, Charset.defaultCharset()));
+        StringBuilder builder = new StringBuilder();
         for (String logId : logIds) {
-            processFileContent(space, logId, streamProcessor);
+            String content = processFileContent(space, logId, inputStream -> IOUtils.toString(inputStream, Charset.defaultCharset()));
+            builder.append(content);
         }
         return builder.toString();
     }

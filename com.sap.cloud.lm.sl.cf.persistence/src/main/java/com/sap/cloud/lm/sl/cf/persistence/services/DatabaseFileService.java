@@ -26,9 +26,9 @@ public class DatabaseFileService extends FileService {
     }
 
     @Override
-    public void processFileContent(String space, String id, FileContentProcessor fileContentProcessor) throws FileStorageException {
+    public <T> T processFileContent(String space, String id, FileContentProcessor<T> fileContentProcessor) throws FileStorageException {
         try {
-            getSqlQueryExecutor().execute(getSqlFileQueryProvider().getProcessFileWithContentQuery(space, id, fileContentProcessor));
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getProcessFileWithContentQuery(space, id, fileContentProcessor));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }

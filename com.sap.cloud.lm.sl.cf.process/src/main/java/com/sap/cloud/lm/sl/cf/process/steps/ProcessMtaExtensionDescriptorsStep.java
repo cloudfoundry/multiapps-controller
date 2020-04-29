@@ -11,7 +11,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
-import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileContentConsumer;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -62,12 +62,12 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
         try {
             List<ExtensionDescriptor> extensionDescriptors = new ArrayList<>();
 
-            FileContentProcessor extensionDescriptorProcessor = extensionDescriptorStream -> {
+            FileContentConsumer extensionDescriptorConsumer = extensionDescriptorStream -> {
                 ExtensionDescriptor extensionDescriptor = descriptorParserFacade.parseExtensionDescriptor(extensionDescriptorStream);
                 extensionDescriptors.add(extensionDescriptor);
             };
             for (String extensionDescriptorFileId : fileIds) {
-                fileService.processFileContent(spaceId, extensionDescriptorFileId, extensionDescriptorProcessor);
+                fileService.consumeFileContent(spaceId, extensionDescriptorFileId, extensionDescriptorConsumer);
             }
             getStepLogger().debug(Messages.EXTENSION_DESCRIPTORS, secureSerializationFacade.toJson(extensionDescriptors));
             return extensionDescriptors;

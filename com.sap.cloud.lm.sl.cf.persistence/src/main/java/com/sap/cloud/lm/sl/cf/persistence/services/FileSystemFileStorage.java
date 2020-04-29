@@ -129,14 +129,14 @@ public class FileSystemFileStorage implements FileStorage {
     }
 
     @Override
-    public void processFileContent(String space, String id, FileContentProcessor fileContentProcessor) throws FileStorageException {
+    public <T> T processFileContent(String space, String id, FileContentProcessor<T> fileContentProcessor) throws FileStorageException {
         FileEntry fileEntry = createFileEntry(space, id);
         if (!hasContent(fileEntry)) {
             throw new FileStorageException(MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(),
                                                                 fileEntry.getSpace()));
         }
         try (InputStream fileContentStream = getFileContentStream(fileEntry)) {
-            fileContentProcessor.processFileContent(fileContentStream);
+            return fileContentProcessor.process(fileContentStream);
         } catch (Exception e) {
             throw new FileStorageException(e);
         }

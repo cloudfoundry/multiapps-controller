@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
-import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileContentConsumer;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
@@ -42,13 +42,13 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     }
 
     private void processApplicationArchive(ProcessContext context, String appArchiveId) throws FileStorageException {
-        fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId,
-                                       createDeploymentDescriptorFileContentProcessor(context));
-        fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId,
-                                       createManifestFileContentProcessor(context, appArchiveId));
+        fileService.consumeFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId,
+                                       createDeploymentDescriptorFileContentConsumer(context));
+        fileService.consumeFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId,
+                                       createManifestFileContentConsumer(context, appArchiveId));
     }
 
-    private FileContentProcessor createDeploymentDescriptorFileContentProcessor(ProcessContext context) {
+    private FileContentConsumer createDeploymentDescriptorFileContentConsumer(ProcessContext context) {
         return appArchiveStream -> {
             String descriptorString = ArchiveHandler.getDescriptor(appArchiveStream, configuration.getMaxMtaDescriptorSize());
             DescriptorParserFacade descriptorParserFacade = new DescriptorParserFacade();
@@ -57,7 +57,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         };
     }
 
-    private FileContentProcessor createManifestFileContentProcessor(ProcessContext context, String appArchiveId) {
+    private FileContentConsumer createManifestFileContentConsumer(ProcessContext context, String appArchiveId) {
         return appArchiveStream -> {
             MtaArchiveHelper helper = createInitializedMtaArchiveHelper(appArchiveStream);
             getStepLogger().debug("MTA Archive ID: {0}", appArchiveId);
