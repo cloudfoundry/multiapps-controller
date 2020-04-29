@@ -13,7 +13,6 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -47,7 +46,7 @@ public class CreateServiceStep extends ServiceStep {
         getStepLogger().info(Messages.CREATING_SERVICE_FROM_MTA_RESOURCE, service.getName(), service.getResourceName());
 
         try {
-            MethodExecution<String> createServiceMethodExecution = createCloudService(context.getExecution(), controllerClient, service);
+            MethodExecution<String> createServiceMethodExecution = createCloudService(controllerClient, service);
             getStepLogger().debug(Messages.SERVICE_CREATED, service.getName());
             return createServiceMethodExecution;
         } catch (CloudOperationException e) {
@@ -57,9 +56,7 @@ public class CreateServiceStep extends ServiceStep {
         return new MethodExecution<>(null, ExecutionState.FINISHED);
     }
 
-    private MethodExecution<String> createCloudService(DelegateExecution execution, CloudControllerClient client,
-                                                       CloudServiceInstanceExtended service) {
-
+    private MethodExecution<String> createCloudService(CloudControllerClient client, CloudServiceInstanceExtended service) {
         if (serviceExists(service, client)) {
             getStepLogger().info(com.sap.cloud.lm.sl.cf.core.Messages.SERVICE_ALREADY_EXISTS, service.getName());
             return new MethodExecution<>(null, ExecutionState.FINISHED);
@@ -67,7 +64,7 @@ public class CreateServiceStep extends ServiceStep {
         if (service.isUserProvided()) {
             return createUserProvidedServiceInstance(client, service);
         }
-        return createManagedServiceInstance(execution, client, service);
+        return createManagedServiceInstance(client, service);
     }
 
     private MethodExecution<String> createUserProvidedServiceInstance(CloudControllerClient client, CloudServiceInstanceExtended service) {
@@ -79,8 +76,7 @@ public class CreateServiceStep extends ServiceStep {
         return client.getServiceInstance(cloudServiceExtended.getName(), false) != null;
     }
 
-    private MethodExecution<String> createManagedServiceInstance(DelegateExecution execution, CloudControllerClient client,
-                                                                 CloudServiceInstanceExtended service) {
+    private MethodExecution<String> createManagedServiceInstance(CloudControllerClient client, CloudServiceInstanceExtended service) {
         MethodExecution<String> createService = serviceCreatorFactory.createInstance(getStepLogger())
                                                                      .createService(client, service);
         updateServiceMetadata(service, client);
