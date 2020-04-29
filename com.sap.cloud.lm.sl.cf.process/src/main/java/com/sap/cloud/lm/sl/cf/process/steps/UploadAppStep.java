@@ -15,7 +15,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.Status;
 import org.cloudfoundry.client.lib.domain.UploadToken;
@@ -134,7 +133,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             } catch (IOException e) {
                 FileUtils.cleanUp(filePath, LOGGER);
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, fileName);
-            } catch (CloudOperationException e) {
+            } catch (Exception e) {
                 FileUtils.cleanUp(filePath, LOGGER);
                 throw e;
             }
