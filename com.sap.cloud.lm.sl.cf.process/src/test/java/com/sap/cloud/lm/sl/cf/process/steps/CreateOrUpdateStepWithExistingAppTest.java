@@ -152,7 +152,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         }
         if (input.updateEnv) {
             Mockito.verify(client)
-                   .updateApplicationEnv(appName, cloudApp.getEnv());
+                   .updateApplicationEnv(appName, cloudApp.getEnv(), sensitiveVariables);
         }
     }
 

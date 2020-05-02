@@ -240,7 +240,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
         getStepLogger().info(Messages.UPDATING_SUBSCRIBER, subscription.getAppName(), subscription.getMtaId(),
                              getRequiredDependency(subscription).getName());
-        client.updateApplicationEnv(existingApplication.getName(), currentEnvironment);
+        client.updateApplicationEnv(existingApplication.getName(), currentEnvironment, Collections.emptyList());
         return existingApplication;
     }
 

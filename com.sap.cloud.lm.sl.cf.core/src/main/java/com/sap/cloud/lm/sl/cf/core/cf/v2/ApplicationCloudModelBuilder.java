@@ -102,6 +102,7 @@ public class ApplicationCloudModelBuilder {
                                                 .services(getAllApplicationServices(module))
                                                 .serviceKeysToInject(getServicesKeysToInject(module))
                                                 .env(applicationEnvCloudModelBuilder.build(module, getApplicationServices(module)))
+                                                .sensitiveEnvVariableNames(getSensitivePropertyNames(module))
                                                 .bindingParameters(getBindingParameters(module))
                                                 .tasks(getTasks(parametersList))
                                                 .domains(getApplicationDomains(parametersList, module))
@@ -112,6 +113,7 @@ public class ApplicationCloudModelBuilder {
                                                                                              getApplicationServices(module)))
                                                 .build();
     }
+
 
     private AttributeUpdateStrategy getApplicationAttributesUpdateStrategy(List<Map<String, Object>> parametersList) {
         return parseParameters(parametersList, new ApplicationAttributeUpdateStrategyParser());
@@ -210,6 +212,15 @@ public class ApplicationCloudModelBuilder {
                                     ValidatorUtil.getPrefixedName(prefix, SupportedParameters.SERVICE_BINDING_CONFIG),
                                     Map.class.getSimpleName(), bindingParameters.getClass()
                                                                                 .getSimpleName());
+    }
+
+    private List<String> getSensitivePropertyNames(final Module module) {
+        Predicate<String> filter = (property) -> module.getPropertiesMetadata().getSensitiveMetadata(property);
+        return module.getProperties()
+                .keySet()
+                .stream()
+                .filter(filter)
+                .collect(Collectors.toList());
     }
 
     protected List<String> getApplicationServices(Module module, Predicate<ResourceAndResourceType> filterRule) {

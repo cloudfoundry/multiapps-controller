@@ -1,10 +1,12 @@
 package com.sap.cloud.lm.sl.cf.core.security.serialization;
 
+import com.sap.cloud.lm.sl.common.util.ListUtil;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-
-import org.apache.commons.lang3.StringUtils;
 
 public class SecureSerializerConfiguration {
 
@@ -46,4 +48,8 @@ public class SecureSerializerConfiguration {
                                          .anyMatch(name -> StringUtils.containsIgnoreCase(value, name));
     }
 
+    public void addSensitiveElementNames(Collection<String> extraElementNames) {
+        this.sensitiveElementNames = new ArrayList<>(this.sensitiveElementNames);
+        this.sensitiveElementNames.addAll(extraElementNames);
+    }
 }

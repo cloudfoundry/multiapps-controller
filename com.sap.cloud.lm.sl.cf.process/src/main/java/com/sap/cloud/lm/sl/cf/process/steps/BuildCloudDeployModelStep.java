@@ -15,6 +15,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.cloudfoundry.client.lib.util.JsonUtil;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -72,6 +73,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
         // Build a map of service keys and save them in the context:
         Map<String, List<CloudServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(context).build();
+
         getStepLogger().debug(Messages.SERVICE_KEYS_TO_CREATE, secureSerializer.toJson(serviceKeys));
 
         context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, serviceKeys);
@@ -80,6 +82,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         List<Module> modulesCalculatedForDeployment = calculateModulesForDeployment(context, deploymentDescriptor, mtaArchiveModules,
                                                                                     deployedModuleNames, mtaModules);
 
+        //TODO - for some reason in the followng line the secure serializer does not mask sensitive properties
         getStepLogger().debug(Messages.MODULES_TO_DEPLOY, secureSerializer.toJson(modulesCalculatedForDeployment));
         context.setVariable(Variables.ALL_MODULES_TO_DEPLOY, modulesCalculatedForDeployment);
         context.setVariable(Variables.MODULES_TO_DEPLOY, modulesCalculatedForDeployment);

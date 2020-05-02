@@ -23,6 +23,11 @@ public class SecureSerializationFacade {
         return this;
     }
 
+    public SecureSerializationFacade addSensitiveElementNames(Collection<String> extraElementNames) {
+        this.configuration.addSensitiveElementNames(extraElementNames);
+        return this;
+    }
+
     public SecureSerializationFacade setSensitiveElementPaths(Collection<String> sensitiveElementPaths) {
         this.configuration.setSensitiveElementPaths(sensitiveElementPaths);
         return this;

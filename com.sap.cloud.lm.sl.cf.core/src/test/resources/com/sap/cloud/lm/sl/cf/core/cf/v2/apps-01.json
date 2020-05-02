@@ -54,6 +54,7 @@
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
-    }
+    },
+    "sensitiveEnvVariableNames" : [ ]
   }
 ]

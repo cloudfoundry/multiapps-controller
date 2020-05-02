@@ -202,7 +202,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
             }
         }
         Mockito.verify(client)
-               .updateApplicationEnv(application.getName(), application.getEnv());
+               .updateApplicationEnv(application.getName(), application.getEnv(), sensitiveVariables);
     }
 
     private Map<String, Object> getBindingParametersForService(Map<String, Map<String, Object>> bindingParameters, String serviceName) {

@@ -103,7 +103,7 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
                .createApplication(eq(application.getName()), argThat(GenericArgumentMatcher.forObject(application.getStaging())),
                                   eq(diskQuota), eq(memory), eq(application.getUris()), eq(DOCKER_INFO));
         Mockito.verify(client)
-               .updateApplicationEnv(eq(application.getName()), eq(application.getEnv()));
+               .updateApplicationEnv(eq(application.getName()), eq(application.getEnv()), sensitiveVariables);
     }
 
     @Override

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -574,9 +575,14 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void updateApplicationEnv(String applicationName, Map<String, String> env) {
-        logger.debug(Messages.UPDATING_ENVIRONMENT_OF_APPLICATION_0_TO_1, applicationName, SERIALIZATION.toJson(env));
-        delegate.updateApplicationEnv(applicationName, env);
+    public void updateApplicationEnv(String applicationName, Map<String, String> env, Collection<String> sensitiveVariables) {
+        String envForLogging = new SecureSerializationFacade().addSensitiveElementNames(sensitiveVariables)
+                                                              .setFormattedOutput(true)
+                                                              .toJson(env);
+
+        logger.debug("known sensitive variables: {0}", sensitiveVariables);
+        logger.debug(Messages.UPDATING_ENVIRONMENT_OF_APPLICATION_0_TO_1, applicationName, envForLogging);
+        delegate.updateApplicationEnv(applicationName, env, sensitiveVariables);
     }
 
     @Override

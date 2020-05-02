@@ -65,4 +65,5 @@ public interface CloudApplicationExtended extends CloudApplication {
 
     }
 
+    List<String> getSensitiveEnvVariableNames();
 }

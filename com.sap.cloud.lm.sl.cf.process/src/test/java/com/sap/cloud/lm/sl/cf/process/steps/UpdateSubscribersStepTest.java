@@ -254,7 +254,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         if (!userHasPermissions(subscriber.app.getSpace(), UserPermission.WRITE)) {
             doThrow(new CloudOperationException(HttpStatus.FORBIDDEN)).when(client)
                                                                       .updateApplicationEnv(eq(subscriber.subscription.getAppName()),
-                                                                                            any(Map.class));
+                                                                                            any(Map.class), sensitiveVariables);
         }
     }
 
@@ -323,7 +323,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
     private List<CloudApplication> getCallArgumentsOfUpdateApplicationEnvMethod(CloudSpace space, CloudControllerClient client) {
         ArgumentCaptor<Map> appEnvCaptor = ArgumentCaptor.forClass(Map.class);
         ArgumentCaptor<String> appNameCaptor = ArgumentCaptor.forClass(String.class);
-        verify(client, Mockito.atLeast(0)).updateApplicationEnv(appNameCaptor.capture(), appEnvCaptor.capture());
+        verify(client, Mockito.atLeast(0)).updateApplicationEnv(appNameCaptor.capture(), appEnvCaptor.capture(), sensitiveVariables);
 
         List<Map> appEnvs = appEnvCaptor.getAllValues();
         List<String> appNames = appNameCaptor.getAllValues();

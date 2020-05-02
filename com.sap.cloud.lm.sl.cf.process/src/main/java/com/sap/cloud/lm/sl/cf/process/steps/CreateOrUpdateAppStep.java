@@ -193,7 +193,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationEnv() {
-            client.updateApplicationEnv(app.getName(), app.getEnv());
+            client.updateApplicationEnv(app.getName(), app.getEnv(), app.getSensitiveEnvVariableNames());
             context.setVariable(Variables.USER_PROPERTIES_CHANGED, true);
         }
 

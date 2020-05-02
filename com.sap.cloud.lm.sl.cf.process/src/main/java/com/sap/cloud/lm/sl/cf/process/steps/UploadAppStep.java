@@ -158,6 +158,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     }
 
     private void attemptToUpdateApplicationDigest(CloudControllerClient client, CloudApplication app, String newApplicationDigest) {
+        //The application here is probably not extended or is detected from env instead of built from a module, as it does not contain the metadata...
         new ApplicationEnvironmentUpdater(app,
                                           client).updateApplicationEnvironment(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES,
                                                                                com.sap.cloud.lm.sl.cf.core.Constants.ATTR_APP_CONTENT_DIGEST,

@@ -2,9 +2,9 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import static com.sap.cloud.lm.sl.common.util.MapUtil.cast;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
@@ -15,11 +15,17 @@ public class ApplicationEnvironmentUpdater {
 
     private final CloudApplication app;
     private final CloudControllerClient client;
+    private final Collection<String> sensitiveVariables;
     private boolean prettyPrinting = true;
 
     public ApplicationEnvironmentUpdater(CloudApplication app, CloudControllerClient client) {
         this.app = app;
         this.client = client;
+        if( app instanceof CloudApplicationExtended ){
+            this.sensitiveVariables = ((CloudApplicationExtended) app).getSensitiveEnvVariableNames();
+        }else {
+            this.sensitiveVariables = Collections.emptyList();
+        }
     }
 
     protected ApplicationEnvironmentUpdater withPrettyPrinting(boolean prettyPrinting) {
@@ -52,8 +58,9 @@ public class ApplicationEnvironmentUpdater {
     }
 
     private void updateEnvironment(Map<String, Object> updatedEnv) {
-        Map<String, String> asEnv = new MapToEnvironmentConverter(prettyPrinting).asEnv(updatedEnv);
-        client.updateApplicationEnv(app.getName(), asEnv);
+        Map<String, String> env = new MapToEnvironmentConverter(prettyPrinting).asEnv(updatedEnv);
+        //TODO do the same here so the environment can be printed inside the client.
+        client.updateApplicationEnv(app.getName(), env, sensitiveVariables);
     }
 
 }

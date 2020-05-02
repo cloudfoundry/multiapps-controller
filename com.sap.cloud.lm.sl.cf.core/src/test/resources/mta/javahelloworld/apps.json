@@ -166,5 +166,6 @@
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     }
-  }
+  },
+  "sensitiveEnvVariableNames" : [ ]
 ]
