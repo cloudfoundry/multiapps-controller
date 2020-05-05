@@ -5,11 +5,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,25 +45,17 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
     }
 
     public String getLogContent(String space, String namespace, String logName) throws FileStorageException {
-        List<String> logIds = getSortedByTimestampFileIds(space, namespace, logName);
-        if (logIds.isEmpty()) {
+        List<FileEntry> logFiles = listFiles(space, namespace, logName);
+        if (logFiles.isEmpty()) {
             throw new NotFoundException(MessageFormat.format(Messages.ERROR_LOG_FILE_NOT_FOUND, logName, namespace, space));
         }
 
         StringBuilder builder = new StringBuilder();
-        for (String logId : logIds) {
-            String content = processFileContent(space, logId, inputStream -> IOUtils.toString(inputStream, Charset.defaultCharset()));
+        for (FileEntry file : logFiles) {
+            String content = processFileContent(space, file.getId(), inputStream -> IOUtils.toString(inputStream, StandardCharsets.UTF_8));
             builder.append(content);
         }
         return builder.toString();
-    }
-
-    private List<String> getSortedByTimestampFileIds(String space, String namespace, String fileName) throws FileStorageException {
-        List<FileEntry> listFiles = listFiles(space, namespace, fileName);
-        return listFiles.stream()
-                        .sorted(Comparator.comparing(FileEntry::getModified))
-                        .map(FileEntry::getId)
-                        .collect(Collectors.toList());
     }
 
     private List<FileEntry> listFiles(final String space, final String namespace, final String fileName) throws FileStorageException {
