@@ -30,10 +30,6 @@ public class OperationInFinalStateHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationInFinalStateHandler.class);
 
-    public static Logger getLogger() {
-        return LOGGER;
-    }
-
     @Inject
     private OperationService operationService;
     @Inject

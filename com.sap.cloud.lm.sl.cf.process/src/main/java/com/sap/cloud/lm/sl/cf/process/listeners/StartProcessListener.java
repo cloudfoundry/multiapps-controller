@@ -10,8 +10,6 @@ import javax.inject.Named;
 import javax.persistence.NoResultException;
 
 import org.flowable.engine.delegate.DelegateExecution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
@@ -35,7 +33,6 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessListener.class);
 
     @Inject
     private OperationService operationService;
@@ -110,11 +107,6 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
                                                 .namespace(VariableHandling.get(execution, Variables.MTA_NAMESPACE))
                                                 .build();
         operationService.add(operation);
-    }
-
-    @Override
-    protected Logger getLogger() {
-        return LOGGER;
     }
 
 }
