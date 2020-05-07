@@ -96,6 +96,8 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
 
     protected abstract void notifyInternal(DelegateExecution execution) throws Exception;
 
-    protected abstract org.slf4j.Logger getLogger();
+    protected Logger getLogger() {
+        return LoggerFactory.getLogger(getClass());
+    }
 
 }

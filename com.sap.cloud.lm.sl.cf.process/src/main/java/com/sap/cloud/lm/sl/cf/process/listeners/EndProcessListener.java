@@ -4,7 +4,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.flowable.engine.delegate.DelegateExecution;
-import org.slf4j.Logger;
 
 import com.sap.cloud.lm.sl.cf.process.util.OperationInFinalStateHandler;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -26,11 +25,6 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
         if (isRootProcess(execution)) {
             eventHandler.handle(execution, Operation.State.FINISHED);
         }
-    }
-
-    @Override
-    protected Logger getLogger() {
-        return OperationInFinalStateHandler.getLogger();
     }
 
 }
