@@ -28,11 +28,8 @@ public class EnvironmentApplicationAttributeUpdater extends ApplicationAttribute
     }
 
     private Map<String, String> applyUpdateStrategy(Map<String, String> existingEnv, Map<String, String> env) {
-        getLogger().debug(Messages.EXISTING_ENV_0, JsonUtil.toJson(existingEnv, true));
-        getLogger().debug(Messages.APPLYING_UPDATE_STRATEGY_0_TO_ENV_1, updateStrategy, JsonUtil.toJson(env, true));
-        Map<String, String> result = getElementUpdater().updateMap(existingEnv, env);
-        getLogger().debug(Messages.RESULT_0, JsonUtil.toJson(result, true));
-        return result;
+        getLogger().debug(Messages.APPLYING_UPDATE_STRATEGY_0_TO_ENV, updateStrategy);
+        return getElementUpdater().updateMap(existingEnv, env);
     }
 
 }

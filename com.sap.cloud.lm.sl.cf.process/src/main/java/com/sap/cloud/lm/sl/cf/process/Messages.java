@@ -142,7 +142,7 @@ public class Messages {
 
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_PARAMETERS = "Cannot retrieve service instance parameters of service \"{0}\"";
-    public static final String CANNOT_RETRIEVE_SERVICE_BINDING_PARAMETERS = "Cannot retrieve service binding parameters of service \"{0}\"";
+    public static final String CANNOT_RETRIEVE_SERVICE_BINDING_PARAMETERS_BINDING_0_OF_APP_1 = "Cannot retrieve service binding parameters of service. Binding \"{0}\", of app: {1} ";
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service \"{0}\"";
     public static final String CANNOT_RETRIEVE_INSTANCE_OF_SERVICE = "Cannot retrieve service instance of service \"{0}\"";
     public static final String COULD_NOT_DELETE_PROVIDED_DEPENDENCY = "Could not delete published provided dependency \"{0}\" from configuration registry";
@@ -372,7 +372,6 @@ public class Messages {
     public static final String MODULES_TO_DEPLOY = "Modules to deploy: {0}";
     public static final String CONFIGURATION_ENTRIES_TO_PUBLISH = "Configuration entries to publish: {0}";
     public static final String SERVICE_KEYS_TO_CREATE = "Service keys to create: {0}";
-    public static final String APP_WITH_UPDATED_ENVIRONMENT = "App with updated environment: {0}";
     public static final String UPLOADING_MTAR = "Uploading MTAR...";
     public static final String MTAR_UPLOADED = "MTAR uploaded.";
     public static final String CLONING_REPOSITORY = "Cloning repository {0}";
@@ -429,9 +428,8 @@ public class Messages {
     public static final String UPDATING_APP_NAMES_WITH_NEW_SUFFIX = "Updating application names in deployment descriptor with 'new' suffix";
     public static final String UPDATING_CONFIGURATION_SUBSCRIPTION_0_WITH_NAME_1 = "Updating configuration subscription \"{0}\" with name \"{1}\"";
     public static final String CONTENT_OF_APPLICATION_0_IS_NOT_CHANGED = "Content of application \"{0}\" is not changed - upload will be skipped.";
-    public static final String EXISTING_ENV_0 = "Existing env: {0}";
     public static final String EXISTING_URIS_0 = "Existing URIs: {0}";
-    public static final String APPLYING_UPDATE_STRATEGY_0_TO_ENV_1 = "Applying update strategy \"{0}\" to env: {1}";
+    public static final String APPLYING_UPDATE_STRATEGY_0_TO_ENV = "Applying update strategy \"{0}\" to env";
     public static final String APPLYING_UPDATE_STRATEGY_0_TO_URIS_1 = "Applying update strategy \"{0}\" to URIs: {1}";
     public static final String RESULT_0 = "Result: {0}";
     public static final String SHUTTING_DOWN_FLOWABLE_JOB_EXECUTOR = "Shutting down Flowable job executor...";
@@ -500,7 +498,7 @@ public class Messages {
     public static final String STOPPING_APPLICATION_0 = "Stopping application \"{0}\"...";
     public static final String UNBINDING_APPLICATION_0_FROM_SERVICE_INSTANCE_1 = "Unbinding application \"{0}\" from service instance \"{1}\"...";
     public static final String UPDATING_DISK_QUOTA_OF_APPLICATION_0_TO_1 = "Updating disk quota of application \"{0}\" to: {1}";
-    public static final String UPDATING_ENVIRONMENT_OF_APPLICATION_0_TO_1 = "Updating environment of application \"{0}\" to: {1}";
+    public static final String UPDATING_ENVIRONMENT_OF_APPLICATION_0 = "Updating environment of application \"{0}\"";
     public static final String UPDATING_INSTANCES_OF_APPLICATION_0_TO_1 = "Updating instances of application \"{0}\" to: {1}";
     public static final String UPDATING_MEMORY_OF_APPLICATION_0_TO_1 = "Updating memory of application \"{0}\" to: {1}";
     public static final String UPDATING_STAGING_OF_APPLICATION_0_TO_1 = "Updating staging of application \"{0}\" to: {1}";
