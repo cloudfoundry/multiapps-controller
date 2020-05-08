@@ -79,8 +79,10 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         // Build a list of applications for deployment and save them in the context:
         List<Module> modulesCalculatedForDeployment = calculateModulesForDeployment(context, deploymentDescriptor, mtaArchiveModules,
                                                                                     deployedModuleNames, mtaModules);
-
-        getStepLogger().debug(Messages.MODULES_TO_DEPLOY, secureSerializer.toJson(modulesCalculatedForDeployment));
+        List<String> moduleJsons = modulesCalculatedForDeployment.stream()
+                                                                 .map(secureSerializer::toJson)
+                                                                 .collect(Collectors.toList());
+        getStepLogger().debug(Messages.MODULES_TO_DEPLOY, moduleJsons.toString());
         context.setVariable(Variables.ALL_MODULES_TO_DEPLOY, modulesCalculatedForDeployment);
         context.setVariable(Variables.MODULES_TO_DEPLOY, modulesCalculatedForDeployment);
 
