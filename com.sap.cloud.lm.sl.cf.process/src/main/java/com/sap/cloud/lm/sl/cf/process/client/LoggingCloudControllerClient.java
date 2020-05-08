@@ -575,7 +575,7 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void updateApplicationEnv(String applicationName, Map<String, String> env) {
-        logger.debug(Messages.UPDATING_ENVIRONMENT_OF_APPLICATION_0_TO_1, applicationName, SERIALIZATION.toJson(env));
+        logger.debug(Messages.UPDATING_ENVIRONMENT_OF_APPLICATION_0, applicationName);
         delegate.updateApplicationEnv(applicationName, env);
     }
 

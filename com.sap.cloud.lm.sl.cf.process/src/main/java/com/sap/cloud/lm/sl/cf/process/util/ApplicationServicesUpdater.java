@@ -93,7 +93,7 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
             return getControllerClient().getServiceBindingParameters(getGuid(bindingForApplication));
         } catch (CloudOperationException e) {
             if (HttpStatus.NOT_IMPLEMENTED == e.getStatusCode() || HttpStatus.BAD_REQUEST == e.getStatusCode()) {
-                getLogger().warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_SERVICE_BINDING_PARAMETERS, bindingForApplication);
+                getLogger().warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_SERVICE_BINDING_PARAMETERS_BINDING_0_OF_APP_1, bindingForApplication.getName(), bindingForApplication.getApplicationGuid());
                 return null;
             }
             throw e;
