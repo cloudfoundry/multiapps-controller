@@ -43,9 +43,6 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
                                                        .from(modifiedApp)
                                                        .uris(getApplicationUris(context, modifiedApp))
                                                        .build();
-        SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
-        String appJson = secureSerializationFacade.toJson(modifiedApp);
-        getStepLogger().debug(Messages.APP_WITH_UPDATED_ENVIRONMENT, appJson);
         context.setVariable(Variables.APP_TO_PROCESS, modifiedApp);
 
         buildConfigurationEntries(context, modifiedApp);

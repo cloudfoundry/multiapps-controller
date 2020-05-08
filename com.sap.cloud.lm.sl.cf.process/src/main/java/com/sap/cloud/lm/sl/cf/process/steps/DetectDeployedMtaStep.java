@@ -36,7 +36,6 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         if (optionalDeployedMta.isPresent()) {
             DeployedMta deployedMta = optionalDeployedMta.get();
             context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
-            getStepLogger().debug(Messages.DEPLOYED_MTA, JsonUtil.toJson(deployedMta, true));
             getStepLogger().info(MessageFormat.format(Messages.DEPLOYED_MTA_DETECTED_WITH_VERSION, deployedMta.getMetadata()
                                                                                                               .getId(),
                                                       deployedMta.getMetadata()
