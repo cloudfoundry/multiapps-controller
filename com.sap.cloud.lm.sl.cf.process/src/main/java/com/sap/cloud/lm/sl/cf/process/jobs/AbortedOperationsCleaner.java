@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.persistence.NoResultException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +56,18 @@ public class AbortedOperationsCleaner implements Cleaner {
     }
 
     private boolean isInActiveState(String operationId) {
-        return operationService.createQuery()
-                               .processId(operationId)
-                               .singleResult()
-                               .getState() == null;
+        Operation operation = getOperation(operationId);
+        return operation != null && operation.getState() == null;
+    }
+
+    private Operation getOperation(String operationId) {
+        try {
+            return operationService.createQuery()
+                                   .processId(operationId)
+                                   .singleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     private void deleteProcessInstance(String processInstanceId) {
