@@ -1,15 +1,22 @@
 package com.sap.cloud.lm.sl.cf.core.persistence.service;
 
+import java.text.MessageFormat;
 import java.util.function.Function;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.RollbackException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.persistence.TransactionalExecutor;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.DtoWithPrimaryKey;
 
 public abstract class PersistenceService<T, D extends DtoWithPrimaryKey<P>, P> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceService.class);
 
     private final EntityManagerFactory entityManagerFactory;
 
@@ -26,6 +33,7 @@ public abstract class PersistenceService<T, D extends DtoWithPrimaryKey<P>, P> {
             });
             return getPersistenceObjectMapper().fromDto(newDto);
         } catch (RollbackException e) {
+            LOGGER.error(MessageFormat.format(Messages.ERROR_WHILE_EXECUTING_TRANSACTION, e.getMessage()));
             onEntityConflict(dto, e);
         }
         return null;
@@ -36,6 +44,7 @@ public abstract class PersistenceService<T, D extends DtoWithPrimaryKey<P>, P> {
         try {
             return executeInTransaction(manager -> update(primaryKey, newDto, manager));
         } catch (RollbackException e) {
+            LOGGER.error(MessageFormat.format(Messages.ERROR_WHILE_EXECUTING_TRANSACTION, e.getMessage()));
             onEntityConflict(newDto, e);
         }
         return null;

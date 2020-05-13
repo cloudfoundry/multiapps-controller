@@ -83,6 +83,7 @@ public final class Messages {
     public static final String HISTORIC_OPERATION_EVENT_ALREADY_EXISTS = "Historic operation event for process \"{0}\" with ID \"{1}\" already exist";
     public static final String DELETING_TEMP_FILE = "Deleting temp file: {0}";
     public static final String ERROR_DELETING_APP_TEMP_FILE = "Error deleting temp application file \"{0}\"";
+    public static final String ERROR_WHILE_EXECUTING_TRANSACTION = "Error while executing database transaction \"{0}\"";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";
