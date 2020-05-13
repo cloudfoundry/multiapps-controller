@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 @Named
-@Order(20)
+@Order(5)
 public class AbortedOperationsCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbortedOperationsCleaner.class);
