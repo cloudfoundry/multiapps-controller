@@ -1,12 +1,13 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.List;
 
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -16,14 +17,14 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("stopApplicationUndeploymentStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StopApplicationUndeploymentStep extends UndeployAppStep {
+public class StopApplicationUndeploymentStep extends UndeployAppStep implements BeforeStepHookPhaseProvider, AfterStepHookPhaseProvider {
 
     @Override
-    protected StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy) {
+    public StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy,
+                                         ProcessContext context) {
         getStepLogger().info(Messages.STOPPING_APP, cloudApplicationToUndeploy.getName());
         client.stopApplication(cloudApplicationToUndeploy.getName());
         getStepLogger().debug(Messages.APP_STOPPED, cloudApplicationToUndeploy.getName());
-
         return StepPhase.DONE;
     }
 
@@ -34,13 +35,12 @@ public class StopApplicationUndeploymentStep extends UndeployAppStep {
     }
 
     @Override
-    protected HookPhase getHookPhaseBeforeStep(DelegateExecution execution) {
-        return HookPhase.APPLICATION_BEFORE_STOP_LIVE;
+    public List<HookPhase> getHookPhasesBeforeStep(ProcessContext context) {
+        return Collections.singletonList(HookPhase.APPLICATION_BEFORE_STOP_LIVE);
     }
 
     @Override
-    protected HookPhase getHookPhaseAfterStep(DelegateExecution execution) {
-        return HookPhase.APPLICATION_AFTER_STOP_LIVE;
+    public List<HookPhase> getHookPhasesAfterStep(ProcessContext context) {
+        return Collections.singletonList(HookPhase.APPLICATION_AFTER_STOP_LIVE);
     }
-
 }

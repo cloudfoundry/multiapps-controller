@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -220,11 +219,11 @@ public class StepsUtil {
         return getBoolean(scope, Constants.VAR_IS_SERVICE_UPDATED_VAR_PREFIX + serviceName, false);
     }
 
-    static void setExecutedHooksForModule(VariableScope scope, String moduleName, Map<String, List<String>> moduleHooks) {
+    public static void setExecutedHooksForModule(VariableScope scope, String moduleName, Map<String, List<String>> moduleHooks) {
         setAsJsonBinary(scope, getExecutedHooksForModuleVariableName(moduleName), moduleHooks);
     }
 
-    static Map<String, List<String>> getExecutedHooksForModule(VariableScope scope, String moduleName) {
+    public static Map<String, List<String>> getExecutedHooksForModule(VariableScope scope, String moduleName) {
         TypeReference<Map<String, List<String>>> type = new TypeReference<Map<String, List<String>>>() {
         };
         return getFromJsonBinary(scope, getExecutedHooksForModuleVariableName(moduleName), type, Collections.emptyMap());

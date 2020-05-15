@@ -8,13 +8,13 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 public abstract class UndeployAppStep extends SyncFlowableStepWithHooks {
 
     @Override
-    protected StepPhase executeStepInternal(ProcessContext context) {
+    public StepPhase executeStepInternal(ProcessContext context) {
         CloudApplication cloudApplicationToUndeploy = context.getVariable(Variables.APP_TO_PROCESS);
         CloudControllerClient client = context.getControllerClient();
 
-        return undeployApplication(client, cloudApplicationToUndeploy);
+        return undeployApplication(client, cloudApplicationToUndeploy, context);
     }
 
-    protected abstract StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy);
+    protected abstract StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy, ProcessContext context);
 
 }

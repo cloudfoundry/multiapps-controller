@@ -21,7 +21,8 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 public class DeleteApplicationStep extends UndeployAppStep {
 
     @Override
-    protected StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy) {
+    protected StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy,
+                                            ProcessContext context) {
         String applicationName = cloudApplicationToUndeploy.getName();
         try {
             cancelRunningTasks(client, applicationName);

@@ -7,15 +7,29 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
+import com.sap.cloud.lm.sl.cf.process.util.HooksPhaseGetter;
+import com.sap.cloud.lm.sl.cf.process.util.HooksExecutor;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class DeleteApplicationStepTest extends UndeployAppStepTest {
+
+    @Mock
+    private MtaMetadataParser mtaMetadataParser;
+    @Mock
+    private EnvMtaMetadataParser envMtaMetadataParser;
+    @Mock
+    private HooksPhaseGetter hooksPhaseGetter;
+    @Mock
+    private HooksExecutor hooksExecutor;
 
     @Test
     public void testApplicationNotFoundExceptionThrown() {

@@ -10,7 +10,6 @@ import javax.inject.Named;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -25,19 +24,15 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("deleteApplicationRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteApplicationRoutesStep extends UndeployAppStep {
-
-    private ApplicationRoutesGetter applicationRoutesGetter;
+public class DeleteApplicationRoutesStep extends UndeployAppStep implements BeforeStepHookPhaseProvider {
 
     @Inject
-    public DeleteApplicationRoutesStep(ApplicationRoutesGetter applicationRoutesGetter) {
-        this.applicationRoutesGetter = applicationRoutesGetter;
-    }
+    private ApplicationRoutesGetter applicationRoutesGetter;
 
     @Override
-    protected StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy) {
+    protected StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy,
+                                            ProcessContext context) {
         deleteApplicationRoutes(client, cloudApplicationToUndeploy);
-
         return StepPhase.DONE;
     }
 
@@ -75,8 +70,7 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep {
     }
 
     @Override
-    protected HookPhase getHookPhaseBeforeStep(DelegateExecution execution) {
-        return HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES;
+    public List<HookPhase> getHookPhasesBeforeStep(ProcessContext context) {
+        return Collections.singletonList(HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES);
     }
-
 }
