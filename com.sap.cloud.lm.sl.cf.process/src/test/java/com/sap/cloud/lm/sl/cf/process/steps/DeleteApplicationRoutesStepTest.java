@@ -6,10 +6,28 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
+import java.util.List;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
-public class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
+import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
+import com.sap.cloud.lm.sl.cf.process.util.HooksExecutor;
+import com.sap.cloud.lm.sl.cf.process.util.HooksPhaseGetter;
+
+class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
+
+    @Mock
+    private MtaMetadataParser mtaMetadataParser;
+    @Mock
+    private EnvMtaMetadataParser envMtaMetadataParser;
+    @Mock
+    private HooksPhaseGetter hooksPhaseGetter;
+    @Mock
+    private HooksExecutor hooksExecutor;
 
     @Override
     protected void performValidation(CloudApplication cloudApplication) {
@@ -34,9 +52,16 @@ public class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
         assertEquals("A number of routes were not deleted: ", 0, routesToDeleteCount);
     }
 
+    @Test
+    void testGetHookPhaseBefore() {
+        List<HookPhase> expectedPhases = Collections.singletonList(HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES);
+        List<HookPhase> hookPhasesBeforeStep = ((BeforeStepHookPhaseProvider) step).getHookPhasesBeforeStep(context);
+        assertEquals(expectedPhases, hookPhasesBeforeStep);
+    }
+
     @Override
     protected UndeployAppStep createStep() {
-        return new DeleteApplicationRoutesStep(applicationRoutesGetter);
+        return new DeleteApplicationRoutesStep();
     }
 
 }

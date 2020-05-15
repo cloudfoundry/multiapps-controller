@@ -31,4 +31,7 @@ public enum HookPhase {
         return hookPhase;
     }
 
+    public String getValue() {
+        return value;
+    }
 }

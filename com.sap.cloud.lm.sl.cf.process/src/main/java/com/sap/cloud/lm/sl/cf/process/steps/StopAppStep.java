@@ -1,6 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -8,10 +10,11 @@ import javax.inject.Named;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudApplication.State;
-import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
+import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
@@ -20,13 +23,17 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 
 @Named("stopAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StopAppStep extends SyncFlowableStepWithHooks {
+public class StopAppStep extends SyncFlowableStepWithHooks implements BeforeStepHookPhaseProvider, AfterStepHookPhaseProvider {
 
     @Inject
     private ProcessTypeParser processTypeParser;
+    @Inject
+    private MtaMetadataParser mtaMetadataParser;
+    @Inject
+    private EnvMtaMetadataParser envMtaMetadataParser;
 
     @Override
-    protected StepPhase executeStepInternal(ProcessContext context) {
+    public StepPhase executeStepInternal(ProcessContext context) {
         // Get the next cloud application from the context
         CloudApplication app = context.getVariable(Variables.APP_TO_PROCESS);
 
@@ -47,7 +54,6 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
         } else {
             getStepLogger().debug("Application \"{0}\" already stopped", app.getName());
         }
-
         return StepPhase.DONE;
     }
 
@@ -58,25 +64,23 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
     }
 
     @Override
-    protected HookPhase getHookPhaseBeforeStep(DelegateExecution execution) {
-        ProcessType processType = processTypeParser.getProcessType(execution);
-        if (ProcessType.BLUE_GREEN_DEPLOY.getName()
-                                         .equals(processType.getName())) {
-            return HookPhase.APPLICATION_BEFORE_STOP_IDLE;
+    public List<HookPhase> getHookPhasesBeforeStep(ProcessContext context) {
+        ProcessType processType = processTypeParser.getProcessType(context.getExecution());
+        if (ProcessType.BLUE_GREEN_DEPLOY.equals(processType)) {
+            return Collections.singletonList(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
         }
 
-        return HookPhase.APPLICATION_BEFORE_STOP_LIVE;
+        return Collections.singletonList(HookPhase.APPLICATION_BEFORE_STOP_LIVE);
     }
 
     @Override
-    protected HookPhase getHookPhaseAfterStep(DelegateExecution execution) {
-        ProcessType processType = processTypeParser.getProcessType(execution);
-        if (ProcessType.BLUE_GREEN_DEPLOY.getName()
-                                         .equals(processType.getName())) {
-            return HookPhase.APPLICATION_AFTER_STOP_IDLE;
+    public List<HookPhase> getHookPhasesAfterStep(ProcessContext context) {
+        ProcessType processType = processTypeParser.getProcessType(context.getExecution());
+        if (ProcessType.BLUE_GREEN_DEPLOY.equals(processType)) {
+            return Collections.singletonList(HookPhase.APPLICATION_AFTER_STOP_IDLE);
         }
 
-        return HookPhase.APPLICATION_AFTER_STOP_LIVE;
+        return Collections.singletonList(HookPhase.APPLICATION_AFTER_STOP_LIVE);
     }
 
 }
