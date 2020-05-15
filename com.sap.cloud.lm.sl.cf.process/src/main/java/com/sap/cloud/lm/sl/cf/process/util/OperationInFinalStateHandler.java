@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
+import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 
 import javax.inject.Inject;
@@ -16,6 +17,7 @@ import com.sap.cloud.lm.sl.cf.core.util.LoggingUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SafeExecutor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -52,7 +54,6 @@ public class OperationInFinalStateHandler {
         String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
         safeExecutor.execute(() -> deleteDeploymentFiles(execution));
         safeExecutor.execute(() -> deleteCloudControllerClientForProcess(execution));
-        safeExecutor.execute(() -> releaseOperationLock(correlationId));
         safeExecutor.execute(() -> setOperationState(correlationId, state));
         safeExecutor.execute(() -> operationTimeAggregator.aggregateOperationTime(correlationId));
     }
@@ -80,21 +81,20 @@ public class OperationInFinalStateHandler {
         clientProvider.releaseClient(user, spaceId);
     }
 
-    private void releaseOperationLock(String processInstanceId) {
-        ProcessConflictPreventer processConflictPreventer = new ProcessConflictPreventer(operationService);
-        processConflictPreventer.releaseLock(processInstanceId);
-    }
-
     protected void setOperationState(String processInstanceId, Operation.State state) {
         Operation operation = operationService.createQuery()
                                               .processId(processInstanceId)
                                               .singleResult();
+        LOGGER.info(MessageFormat.format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(),
+                                         operation.getMtaId(), operation.getSpaceId()));
         operation = ImmutableOperation.builder()
                                       .from(operation)
                                       .state(state)
+                                      .hasAcquiredLock(false)
                                       .endedAt(ZonedDateTime.now())
                                       .build();
         operationService.update(operation.getProcessId(), operation);
+        LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
         historicOperationEventPersister.add(processInstanceId, toEventType(state));
     }
 
