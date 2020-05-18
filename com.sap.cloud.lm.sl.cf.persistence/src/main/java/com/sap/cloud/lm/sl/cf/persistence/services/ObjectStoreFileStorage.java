@@ -168,7 +168,6 @@ public class ObjectStoreFileStorage implements FileStorage {
     private Map<String, String> createFileEntryMetadata(FileEntry fileEntry) {
         Map<String, String> metadata = new HashMap<>();
         metadata.put(Constants.FILE_ENTRY_SPACE.toLowerCase(), fileEntry.getSpace());
-        metadata.put(Constants.FILE_ENTRY_NAME.toLowerCase(), fileEntry.getName());
         metadata.put(Constants.FILE_ENTRY_MODIFIED.toLowerCase(), Long.toString(fileEntry.getModified()
                                                                                          .getTime()));
         if (fileEntry.getNamespace() != null) {
