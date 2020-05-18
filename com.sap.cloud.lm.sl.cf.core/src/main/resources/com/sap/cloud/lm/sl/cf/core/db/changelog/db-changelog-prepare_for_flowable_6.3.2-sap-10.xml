@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+    <changeSet author="sap" id="use_column_store_for_act_hi_actinst" failOnError="false">
+        <preConditions onFail="MARK_RAN">
+            <dbms type="hanadb" />
+        </preConditions>
+        <sql>
+            ALTER TABLE ACT_HI_ACTINST COLUMN;
+        </sql>
+    </changeSet>
+    <changeSet author="sap" id="use_column_store_for_act_hi_procinst" failOnError="false">
+        <preConditions onFail="MARK_RAN">
+            <dbms type="hanadb" />
+        </preConditions>
+        <sql>
+            ALTER TABLE ACT_HI_PROCINST COLUMN;
+        </sql>
+    </changeSet>
+</databaseChangeLog>
