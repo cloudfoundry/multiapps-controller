@@ -447,7 +447,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
             }
         };
-        return fileService.processFileContent(context.getVariable(Variables.SPACE_ID), archiveId, fileProcessor);
+        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), archiveId, fileProcessor);
     }
 
     private static Map<String, Map<String, Object>>

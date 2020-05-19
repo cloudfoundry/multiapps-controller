@@ -73,7 +73,7 @@ public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckSer
     }
 
     private void prepareContext(List<String> serviceNames) {
-        context.setVariable(Variables.SPACE_ID, TEST_SPACE_ID);
+        context.setVariable(Variables.SPACE_GUID, TEST_SPACE_ID);
         context.setVariable(Variables.SERVICES_TO_DELETE, serviceNames);
     }
 

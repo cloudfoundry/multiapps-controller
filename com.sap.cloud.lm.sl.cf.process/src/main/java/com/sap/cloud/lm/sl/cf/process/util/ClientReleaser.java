@@ -25,14 +25,13 @@ public class ClientReleaser {
 
     public void releaseClientFor(HistoryService historyService, String processInstanceId) {
         String user = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.USER.getName());
-        String spaceName = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.SPACE.getName());
-        String orgName = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.ORG.getName());
-        String spaceId = HistoryUtil.getVariableValue(historyService, processInstanceId,
-                                                      com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID);
+        String organizationName = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.ORGANIZATION_NAME.getName());
+        String spaceName = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.SPACE_NAME.getName());
+        String spaceGuid = HistoryUtil.getVariableValue(historyService, processInstanceId, Variables.SPACE_GUID.getName());
 
         try {
-            clientProvider.releaseClient(user, orgName, spaceName);
-            clientProvider.releaseClient(user, spaceId);
+            clientProvider.releaseClient(user, organizationName, spaceName);
+            clientProvider.releaseClient(user, spaceGuid);
         } catch (SLException e) {
             LOGGER.warn(e.getMessage());
         }

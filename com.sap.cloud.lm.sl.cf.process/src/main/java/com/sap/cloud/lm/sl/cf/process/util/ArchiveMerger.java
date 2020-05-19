@@ -77,7 +77,7 @@ public class ArchiveMerger {
         FileContentConsumer archivePartConsumer = filePartsMerger::merge;
         for (FileEntry archivePart : sortedArchiveParts) {
             stepLogger.debug(Messages.MERGING_ARCHIVE_PART, archivePart.getId(), archivePart.getName());
-            fileService.consumeFileContent(VariableHandling.get(execution, Variables.SPACE_ID), archivePart.getId(), archivePartConsumer);
+            fileService.consumeFileContent(VariableHandling.get(execution, Variables.SPACE_GUID), archivePart.getId(), archivePartConsumer);
         }
     }
 

@@ -50,7 +50,7 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
 
     private void prepareContext() {
         context.setVariable(Variables.APP_ARCHIVE_ID, FILE_ID);
-        context.setVariable(Variables.SPACE_ID, SPACE_ID);
+        context.setVariable(Variables.SPACE_GUID, SPACE_ID);
         step.conflictPreventerSupplier = service -> mock(ProcessConflictPreventer.class);
     }
 

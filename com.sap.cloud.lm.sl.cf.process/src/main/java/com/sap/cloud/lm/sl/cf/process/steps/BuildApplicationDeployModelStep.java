@@ -16,7 +16,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -88,10 +87,10 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
     }
 
     private ConfigurationEntriesCloudModelBuilder getConfigurationEntriesCloudModelBuilder(ProcessContext context) {
-        String orgName = context.getVariable(Variables.ORG);
-        String spaceName = context.getVariable(Variables.SPACE);
-        String spaceId = context.getVariable(Variables.SPACE_ID);
-        return new ConfigurationEntriesCloudModelBuilder(orgName, spaceName, spaceId);
+        String organizationName = context.getVariable(Variables.ORGANIZATION_NAME);
+        String spaceName = context.getVariable(Variables.SPACE_NAME);
+        String spaceGuid = context.getVariable(Variables.SPACE_GUID);
+        return new ConfigurationEntriesCloudModelBuilder(organizationName, spaceName, spaceGuid);
     }
 
 }

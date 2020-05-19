@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.domain.CloudEntity;
+import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
@@ -245,16 +247,15 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         Map<String, Object> parameters = new HashMap<>(operation.getParameters());
         CloudControllerClient client = getCloudFoundryClient(spaceGuid);
         CloudSpace space = client.getSpace(UUID.fromString(spaceGuid));
-        parameters.put(Constants.VARIABLE_NAME_SPACE_ID, spaceGuid);
+        CloudOrganization organization = space.getOrganization();
         parameters.put(Constants.VARIABLE_NAME_SERVICE_ID, processDefinitionKey);
-        parameters.put(Variables.ORG.getName(), space.getOrganization()
-                                                     .getName());
-        parameters.put(Variables.SPACE.getName(), space.getName());
         parameters.put(Variables.USER.getName(), user);
-        parameters.put(Variables.ORG_ID.getName(), space.getOrganization()
-                                                        .getMetadata()
-                                                        .getGuid()
-                                                        .toString());
+        parameters.put(Variables.SPACE_NAME.getName(), space.getName());
+        parameters.put(Variables.SPACE_GUID.getName(), spaceGuid);
+        parameters.put(Variables.ORGANIZATION_NAME.getName(), organization.getName());
+        parameters.put(Variables.ORGANIZATION_GUID.getName(), organization.getMetadata()
+                                                                          .getGuid()
+                                                                          .toString());
         return ImmutableOperation.copyOf(operation)
                                  .withParameters(parameters);
     }

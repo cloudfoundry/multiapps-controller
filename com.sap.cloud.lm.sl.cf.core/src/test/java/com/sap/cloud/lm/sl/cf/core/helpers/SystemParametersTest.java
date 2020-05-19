@@ -35,7 +35,9 @@ public class SystemParametersTest {
     private static final String PROTOCOL = "http";
 
     private static final String ORGANIZATION_NAME = "testOrg123";
+    private static final String ORGANIZATION_GUID = "1247566c-7bfd-48f3-a74e-d82711dc1180";
     private static final String SPACE_NAME = "testSpace456";
+    private static final String SPACE_GUID = "98f099c0-41d4-455e-affc-b072f5b2b06f";
     private static final String USER_NAME = "someUser123";
     private static final String DEFAULT_DOMAIN = "cfapps.domain.com";
     private static final String CONTROLLER_URL = "http://api.cf.domain.com";
@@ -75,9 +77,9 @@ public class SystemParametersTest {
     public void testDescriptorOverridesDefaults() throws Exception {
         SystemParameters testedClass = createSystemParameters(false);
 
-        List<String> descriptorParameterFields = Arrays.asList(SupportedParameters.ORG, SupportedParameters.USER, SupportedParameters.SPACE,
-                                                               SupportedParameters.DEFAULT_DOMAIN, SupportedParameters.CONTROLLER_URL,
-                                                               SupportedParameters.AUTHORIZATION_URL,
+        List<String> descriptorParameterFields = Arrays.asList(SupportedParameters.ORGANIZATION_NAME, SupportedParameters.SPACE_NAME,
+                                                               SupportedParameters.USER, SupportedParameters.DEFAULT_DOMAIN,
+                                                               SupportedParameters.CONTROLLER_URL, SupportedParameters.AUTHORIZATION_URL,
                                                                SupportedParameters.DEPLOY_SERVICE_URL);
 
         DeploymentDescriptor descriptor = DeploymentDescriptor.createV3()
@@ -204,9 +206,11 @@ public class SystemParametersTest {
     }
 
     private void verifyGeneralParameters(Map<String, Object> descriptorParameters, Boolean reserveTemporaryRoutes) {
-        assertEquals(ORGANIZATION_NAME, descriptorParameters.get(SupportedParameters.ORG));
+        assertEquals(ORGANIZATION_NAME, descriptorParameters.get(SupportedParameters.ORGANIZATION_NAME));
+        assertEquals(ORGANIZATION_GUID, descriptorParameters.get(SupportedParameters.ORGANIZATION_GUID));
+        assertEquals(SPACE_NAME, descriptorParameters.get(SupportedParameters.SPACE_NAME));
+        assertEquals(SPACE_GUID, descriptorParameters.get(SupportedParameters.SPACE_GUID));
         assertEquals(USER_NAME, descriptorParameters.get(SupportedParameters.USER));
-        assertEquals(SPACE_NAME, descriptorParameters.get(SupportedParameters.SPACE));
         assertEquals(DEFAULT_DOMAIN, descriptorParameters.get(SupportedParameters.DEFAULT_DOMAIN));
 
         if (reserveTemporaryRoutes) {
@@ -227,8 +231,10 @@ public class SystemParametersTest {
                                              .credentialsGenerator(credentialsGenerator)
                                              .defaultDomain(DEFAULT_DOMAIN)
                                              .deployServiceUrl(DEPLOY_SERVICE_URL)
-                                             .organization(ORGANIZATION_NAME)
-                                             .space(SPACE_NAME)
+                                             .organizationName(ORGANIZATION_NAME)
+                                             .organizationGuid(ORGANIZATION_GUID)
+                                             .spaceName(SPACE_NAME)
+                                             .spaceGuid(SPACE_GUID)
                                              .timestampSupplier(timestampSupplier)
                                              .reserveTemporaryRoutes(reserveTemporaryRoutes)
                                              .user(USER_NAME)

@@ -87,10 +87,10 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         this.stepLogger = Mockito.spy(new StepLogger(execution, progressMessageService, processLoggerProvider, LOGGER));
         this.context = step.createProcessContext(execution);
         when(stepLoggerFactory.create(any(), any(), any(), any())).thenReturn(stepLogger);
-        context.setVariable(Variables.SPACE, SPACE_NAME);
-        context.setVariable(Variables.SPACE_ID, SPACE_GUID);
+        context.setVariable(Variables.SPACE_NAME, SPACE_NAME);
+        context.setVariable(Variables.SPACE_GUID, SPACE_GUID);
         context.setVariable(Variables.USER, USER_NAME);
-        context.setVariable(Variables.ORG, ORG_NAME);
+        context.setVariable(Variables.ORGANIZATION_NAME, ORG_NAME);
         when(clientProvider.getControllerClient(any(), any(), any(), any())).thenReturn(client);
         when(clientProvider.getControllerClient(any(), any())).thenReturn(client);
         execution.setVariable("correlationId", getCorrelationId());

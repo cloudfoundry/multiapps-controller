@@ -95,7 +95,7 @@ public class OperationInFinalStateHandlerTest {
     }
 
     private void prepareContext() {
-        VariableHandling.set(execution, Variables.SPACE_ID, SPACE_ID);
+        VariableHandling.set(execution, Variables.SPACE_GUID, SPACE_ID);
         VariableHandling.set(execution, Variables.APP_ARCHIVE_ID, archiveIds);
         VariableHandling.set(execution, Variables.EXT_DESCRIPTOR_FILE_ID, extensionDescriptorIds);
         VariableHandling.set(execution, Variables.KEEP_FILES, keepFiles);

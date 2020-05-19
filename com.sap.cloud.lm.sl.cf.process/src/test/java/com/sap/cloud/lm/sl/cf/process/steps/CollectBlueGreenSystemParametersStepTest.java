@@ -56,7 +56,7 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
 
     private void validateIdleHostBasedModuleParameters(Module module) {
         Map<String, Object> parameters = module.getParameters();
-        String expectedIdleHost = String.format("%s-%s-%s-idle", ORG, SPACE, module.getName());
+        String expectedIdleHost = String.format("%s-%s-%s-idle", ORGANIZATION_NAME, SPACE_NAME, module.getName());
         assertEquals("${default-idle-domain}", parameters.get(SupportedParameters.IDLE_DOMAIN));
         assertEquals(expectedIdleHost, parameters.get(SupportedParameters.DEFAULT_IDLE_HOST));
         assertEquals("${default-idle-host}", parameters.get(SupportedParameters.IDLE_HOST));

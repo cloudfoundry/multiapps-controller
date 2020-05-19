@@ -66,19 +66,19 @@ public class OperationInFinalStateHandler {
         String extensionDescriptorFileIds = VariableHandling.get(execution, Variables.EXT_DESCRIPTOR_FILE_ID);
         String appArchiveFileIds = VariableHandling.get(execution, Variables.APP_ARCHIVE_ID);
 
-        FileSweeper fileSweeper = new FileSweeper(VariableHandling.get(execution, Variables.SPACE_ID), fileService);
+        FileSweeper fileSweeper = new FileSweeper(VariableHandling.get(execution, Variables.SPACE_GUID), fileService);
         fileSweeper.sweep(extensionDescriptorFileIds);
         fileSweeper.sweep(appArchiveFileIds);
     }
 
     private void deleteCloudControllerClientForProcess(DelegateExecution execution) {
         String user = StepsUtil.determineCurrentUser(execution);
-        String space = VariableHandling.get(execution, Variables.SPACE);
-        String org = VariableHandling.get(execution, Variables.ORG);
-        String spaceId = VariableHandling.get(execution, Variables.SPACE_ID);
+        String organizationName = VariableHandling.get(execution, Variables.ORGANIZATION_NAME);
+        String spaceName = VariableHandling.get(execution, Variables.SPACE_NAME);
+        String spaceGuid = VariableHandling.get(execution, Variables.SPACE_GUID);
 
-        clientProvider.releaseClient(user, org, space);
-        clientProvider.releaseClient(user, spaceId);
+        clientProvider.releaseClient(user, organizationName, spaceName);
+        clientProvider.releaseClient(user, spaceGuid);
     }
 
     protected void setOperationState(String processInstanceId, Operation.State state) {

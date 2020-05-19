@@ -98,7 +98,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     }
 
     private String getNewApplicationDigest(ProcessContext context, String appArchiveId, String fileName) throws FileStorageException {
-        return fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId,
+        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId,
                                               createDigestCalculatorFileContentProcessor(fileName));
     }
 
@@ -118,7 +118,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                                          String fileName)
         throws FileStorageException {
 
-        return fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId, appArchiveStream -> {
+        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId, appArchiveStream -> {
             Path filePath = null;
             long maxSize = configuration.getMaxResourceFileSize();
             try {

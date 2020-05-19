@@ -31,7 +31,7 @@ public class VisibilityValidator implements ParameterValidator {
                 return false;
             }
         }
-        return target.containsKey(SupportedParameters.ORG);
+        return target.containsKey(SupportedParameters.ORGANIZATION_NAME);
     }
 
     @Override

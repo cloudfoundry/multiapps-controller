@@ -239,7 +239,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         appsToDeploy.forEach(app -> appNamesToDeploy.add(app.getName()));
         context.setVariable(Variables.APPS_TO_DEPLOY, appNamesToDeploy);
         context.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, subscriptionsToCreate);
-        context.setVariable(Variables.SPACE_ID, SPACE_ID);
+        context.setVariable(Variables.SPACE_GUID, SPACE_ID);
         context.setVariable(Variables.MTA_MODULES, input.mtaModules);
         context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
     }

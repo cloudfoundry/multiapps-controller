@@ -140,7 +140,7 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
         getStepLogger().debug("uploading file " + mtarZip.toAbsolutePath()
                                                          .toString()
             + " to DB");
-        String spaceId = context.getVariable(Variables.SPACE_ID);
+        String spaceId = context.getVariable(Variables.SPACE_GUID);
         try (InputStream mtarInputStream = Files.newInputStream(mtarZip)) {
             String serviceId = context.getVariable(Variables.SERVICE_ID);
             String mtarName = mtarZip.getFileName()

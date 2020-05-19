@@ -55,7 +55,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     @Override
     protected StepPhase executeStep(ProcessContext context) throws Exception {
         CloudControllerClient controllerClient = context.getControllerClient();
-        String spaceId = context.getVariable(Variables.SPACE_ID);
+        String spaceId = context.getVariable(Variables.SPACE_GUID);
         CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
 
         context.getStepLogger()
@@ -231,7 +231,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
             }
         };
-        return fileService.processFileContent(context.getVariable(Variables.SPACE_ID), appArchiveId, parametersFileProcessor);
+        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId, parametersFileProcessor);
     }
 
     private CloudServiceInstanceExtended mergeCredentials(CloudServiceInstanceExtended service, InputStream credentialsJson) {

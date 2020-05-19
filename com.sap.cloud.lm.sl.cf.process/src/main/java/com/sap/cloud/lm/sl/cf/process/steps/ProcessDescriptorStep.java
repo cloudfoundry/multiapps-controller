@@ -78,8 +78,8 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
     private MtaDescriptorPropertiesResolverContext buildMtaDescriptorPropertiesResolverContext(ProcessContext context) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
-        CloudTarget cloudTarget = new CloudTarget(context.getVariable(Variables.ORG), context.getVariable(Variables.SPACE));
-        String currentSpaceId = context.getVariable(Variables.SPACE_ID);
+        CloudTarget cloudTarget = new CloudTarget(context.getVariable(Variables.ORGANIZATION_NAME), context.getVariable(Variables.SPACE_NAME));
+        String currentSpaceId = context.getVariable(Variables.SPACE_GUID);
         boolean useNamespacesForServices = context.getVariable(Variables.USE_NAMESPACES_FOR_SERVICES);
         boolean useNamespaces = context.getVariable(Variables.USE_NAMESPACES);
         boolean setIdleRoutes = context.getVariable(Variables.USE_IDLE_URIS);
