@@ -12,6 +12,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
 
+import com.sap.cloud.lm.sl.cf.core.changes.IndexProcessIdsOfHistoricOperationEventChange;
 import com.sap.cloud.lm.sl.cf.core.changes.IndexSpaceIdOfOperationChange;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
@@ -118,6 +119,11 @@ public class DatabaseConfiguration {
     @Bean
     public IndexSpaceIdOfOperationChange indexSpaceIdOfOperationChange() {
         return new IndexSpaceIdOfOperationChange();
+    }
+
+    @Bean
+    public IndexProcessIdsOfHistoricOperationEventChange indexProcessIdsOfHistoricOperationEventChange() {
+        return new IndexProcessIdsOfHistoricOperationEventChange();
     }
 
 }
