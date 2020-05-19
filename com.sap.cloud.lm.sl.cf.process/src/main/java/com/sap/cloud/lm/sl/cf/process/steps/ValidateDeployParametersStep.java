@@ -44,9 +44,9 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.VALIDATING_PARAMETERS);
 
         validateParameters(context);
-        String space = context.getVariable(Variables.SPACE);
-        String org = context.getVariable(Variables.ORG);
-        getStepLogger().info(Messages.DEPLOYING_IN_ORG_0_AND_SPACE_1, org, space);
+        String spaceName = context.getVariable(Variables.SPACE_NAME);
+        String organizationName = context.getVariable(Variables.ORGANIZATION_NAME);
+        getStepLogger().info(Messages.DEPLOYING_IN_ORG_0_AND_SPACE_1, organizationName, spaceName);
 
         getStepLogger().debug(Messages.PARAMETERS_VALIDATED);
         return StepPhase.DONE;
@@ -90,10 +90,10 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private FileEntry findFile(ProcessContext context, String fileId) {
         try {
-            String space = context.getVariable(Variables.SPACE_ID);
-            FileEntry fileEntry = fileService.getFile(space, fileId);
+            String spaceGuid = context.getVariable(Variables.SPACE_GUID);
+            FileEntry fileEntry = fileService.getFile(spaceGuid, fileId);
             if (fileEntry == null) {
-                throw new SLException(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1, fileId, space);
+                throw new SLException(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1, fileId, spaceGuid);
             }
             return fileEntry;
         } catch (FileStorageException e) {
@@ -204,7 +204,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private FileEntry persistArchive(Path archivePath, ProcessContext context) {
         try {
-            return fileService.addFile(context.getVariable(Variables.SPACE_ID), context.getVariable(Variables.SERVICE_ID),
+            return fileService.addFile(context.getVariable(Variables.SPACE_GUID), context.getVariable(Variables.SERVICE_ID),
                                        archivePath.getFileName()
                                                   .toString(),
                                        archivePath.toFile());

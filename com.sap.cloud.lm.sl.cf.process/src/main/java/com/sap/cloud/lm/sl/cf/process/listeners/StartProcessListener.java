@@ -80,8 +80,8 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private void logProcessVariables(DelegateExecution execution, ProcessType processType) {
         getStepLogger().debug(Messages.CURRENT_USER, StepsUtil.determineCurrentUser(execution));
-        getStepLogger().debug(Messages.CLIENT_SPACE, VariableHandling.get(execution, Variables.SPACE));
-        getStepLogger().debug(Messages.CLIENT_ORG, VariableHandling.get(execution, Variables.ORG));
+        getStepLogger().debug(Messages.CLIENT_SPACE, VariableHandling.get(execution, Variables.SPACE_NAME));
+        getStepLogger().debug(Messages.CLIENT_ORGANIZATION, VariableHandling.get(execution, Variables.ORGANIZATION_NAME));
         Map<String, Object> processVariables = findProcessVariables(execution, processType);
         getStepLogger().debug(Messages.PROCESS_VARIABLES, JsonUtil.toJson(processVariables, true));
     }
@@ -103,7 +103,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
                                                 .processId(correlationId)
                                                 .processType(processType)
                                                 .startedAt(currentTimeSupplier.get())
-                                                .spaceId(VariableHandling.get(execution, Variables.SPACE_ID))
+                                                .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
                                                 .user(StepsUtil.determineCurrentUser(execution))
                                                 .hasAcquiredLock(false)
                                                 .build();

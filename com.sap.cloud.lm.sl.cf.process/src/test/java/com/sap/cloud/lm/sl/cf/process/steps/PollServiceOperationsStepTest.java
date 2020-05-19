@@ -102,7 +102,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
 
     @Before
     public void setUp() {
-        context.setVariable(Variables.SPACE_ID, TEST_SPACE_ID);
+        context.setVariable(Variables.SPACE_GUID, TEST_SPACE_ID);
         prepareServiceOperationGetter();
         context.setVariable(Variables.SERVICES_TO_CREATE, input.services);
         context.setVariable(Variables.SERVICES_TO_DELETE, Collections.emptyList());

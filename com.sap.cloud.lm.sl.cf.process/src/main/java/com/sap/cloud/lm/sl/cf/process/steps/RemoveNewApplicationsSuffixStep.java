@@ -38,7 +38,7 @@ public class RemoveNewApplicationsSuffixStep extends SyncFlowableStep {
         }
 
         String mtaId = context.getVariable(Variables.MTA_ID);
-        String spaceId = context.getVariable(Variables.SPACE_ID);
+        String spaceId = context.getVariable(Variables.SPACE_GUID);
         updateConfigurationSubscribers(appsToProcess, mtaId, spaceId);
 
         return StepPhase.DONE;

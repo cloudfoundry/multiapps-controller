@@ -43,7 +43,7 @@ public class ServiceOperationGetter {
 
     private Map<String, Object> getServiceInstanceEntity(ProcessContext context, CloudServiceInstanceExtended service) {
         CloudControllerClient client = context.getControllerClient();
-        return serviceGetter.getServiceInstanceEntity(client, service.getName(), context.getVariable(Variables.SPACE_ID));
+        return serviceGetter.getServiceInstanceEntity(client, service.getName(), context.getVariable(Variables.SPACE_GUID));
     }
 
     private ServiceOperation getLastDeleteServiceOperation(ProcessContext context, CloudServiceInstanceExtended service) {

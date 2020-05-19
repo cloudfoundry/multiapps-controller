@@ -1,9 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.model;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,6 +27,10 @@ public class SupportedParameters {
     public static final String GENERATED_PASSWORD = "generated-password";
     public static final String DEFAULT_IDLE_DOMAIN = "default-idle-domain";
     public static final String ENABLE_PARALLEL_DEPLOYMENTS = "enable-parallel-deployments";
+    public static final String ORGANIZATION_NAME = "org";
+    public static final String ORGANIZATION_GUID = "org-guid";
+    public static final String SPACE_NAME = "space";
+    public static final String SPACE_GUID = "space-guid";
 
     // Module / module type parameters:
     public static final String APP_NAME = "app-name";
@@ -135,10 +137,6 @@ public class SupportedParameters {
     public static final String MTA_MODULE = "mta-module";
     public static final String MTA_PROVIDES_DEPENDENCY = "mta-provides-dependency";
 
-    // Platform / platform type parameters:
-    public static final String ORG = "org";
-    public static final String SPACE = "space";
-
     public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Stream.of(PROVIDER_NID, PROVIDER_ID, TARGET, VERSION, MTA_ID,
                                                                                    MTA_VERSION, MTA_PROVIDES_DEPENDENCY)
                                                                                .collect(Collectors.collectingAndThen(Collectors.toSet(),
@@ -167,7 +165,8 @@ public class SupportedParameters {
     }
 
     public static final Set<String> READ_ONLY_SYSTEM_PARAMETERS = Stream.of(AUTHORIZATION_URL, CONTROLLER_URL, DEFAULT_DOMAIN,
-                                                                            DEFAULT_IDLE_DOMAIN, ORG, SPACE, USER, XS_TYPE)
+                                                                            DEFAULT_IDLE_DOMAIN, ORGANIZATION_NAME, ORGANIZATION_GUID,
+                                                                            SPACE_NAME, SPACE_GUID, USER, XS_TYPE)
                                                                         .collect(Collectors.collectingAndThen(Collectors.toSet(),
                                                                                                               Collections::unmodifiableSet));
 

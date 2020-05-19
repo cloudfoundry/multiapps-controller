@@ -161,9 +161,9 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
     }
 
     private void prepareContext() {
-        context.setVariable(Variables.SPACE, input.currentSpace.getName());
-        context.setVariable(Variables.ORG, input.currentSpace.getOrganization()
-                                                             .getName());
+        context.setVariable(Variables.SPACE_NAME, input.currentSpace.getName());
+        context.setVariable(Variables.ORGANIZATION_NAME, input.currentSpace.getOrganization()
+                                                                           .getName());
 
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, majorSchemaVersion);
         context.setVariable(Variables.USE_NAMESPACES, false);

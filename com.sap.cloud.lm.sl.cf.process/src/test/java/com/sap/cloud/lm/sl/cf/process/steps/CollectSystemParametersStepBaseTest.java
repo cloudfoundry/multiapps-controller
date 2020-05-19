@@ -24,8 +24,10 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
 
     protected static final String DEFAULT_TIMESTAMP = "19700101";
     protected static final String USER = "admin";
-    protected static final String ORG = "my-org";
-    protected static final String SPACE = "my-space";
+    protected static final String ORGANIZATION_NAME = "my-org";
+    protected static final String ORGANIZATION_GUID = "1247566c-7bfd-48f3-a74e-d82711dc1180";
+    protected static final String SPACE_NAME = "my-space";
+    protected static final String SPACE_GUID = "98f099c0-41d4-455e-affc-b072f5b2b06f";
     protected static final String AUTHORIZATION_URL = "https://localhost:30032/uaa-security";
     protected static final String CONTROLLER_URL = "https://localhost:30030";
     protected static final String MULTIAPPS_CONTROLLER_URL = "https://localhost:50010";
@@ -48,8 +50,10 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
         when(configuration.getDeployServiceUrl()).thenReturn(MULTIAPPS_CONTROLLER_URL);
 
         context.setVariable(Variables.USER, USER);
-        context.setVariable(Variables.ORG, ORG);
-        context.setVariable(Variables.SPACE, SPACE);
+        context.setVariable(Variables.ORGANIZATION_NAME, ORGANIZATION_NAME);
+        context.setVariable(Variables.ORGANIZATION_GUID, ORGANIZATION_GUID);
+        context.setVariable(Variables.SPACE_NAME, SPACE_NAME);
+        context.setVariable(Variables.SPACE_GUID, SPACE_GUID);
 
         context.setVariable(Variables.USE_NAMESPACES, DEFAULT_USE_NAMESPACES);
         context.setVariable(Variables.USE_NAMESPACES_FOR_SERVICES, DEFAULT_USE_NAMESPACES_FOR_SERVICES);

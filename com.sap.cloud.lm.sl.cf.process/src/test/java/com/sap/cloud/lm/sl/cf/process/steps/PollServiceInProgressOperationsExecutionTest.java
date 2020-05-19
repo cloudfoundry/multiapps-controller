@@ -128,7 +128,7 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
 
     @Before
     public void setUp() {
-        context.setVariable(Variables.SPACE_ID, TEST_SPACE_ID);
+        context.setVariable(Variables.SPACE_GUID, TEST_SPACE_ID);
         List<CloudServiceInstanceExtended> services = generateCloudServicesExtended();
         prepareServiceOperationGetter(services);
         prepareServicesData(services);

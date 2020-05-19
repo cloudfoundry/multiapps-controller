@@ -43,8 +43,10 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
         Map<String, Object> generalParameters = descriptor.getParameters();
         assertEquals(USER, generalParameters.get(SupportedParameters.USER));
-        assertEquals(ORG, generalParameters.get(SupportedParameters.ORG));
-        assertEquals(SPACE, generalParameters.get(SupportedParameters.SPACE));
+        assertEquals(ORGANIZATION_NAME, generalParameters.get(SupportedParameters.ORGANIZATION_NAME));
+        assertEquals(ORGANIZATION_GUID, generalParameters.get(SupportedParameters.ORGANIZATION_GUID));
+        assertEquals(SPACE_NAME, generalParameters.get(SupportedParameters.SPACE_NAME));
+        assertEquals(SPACE_GUID, generalParameters.get(SupportedParameters.SPACE_GUID));
         assertEquals(DEFAULT_DOMAIN, generalParameters.get(SupportedParameters.DEFAULT_DOMAIN));
         assertEquals(AUTHORIZATION_URL, generalParameters.get(SupportedParameters.XS_AUTHORIZATION_ENDPOINT));
         assertEquals(AUTHORIZATION_URL, generalParameters.get(SupportedParameters.AUTHORIZATION_URL));
@@ -118,7 +120,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     }
 
     private String computeExpectedDefaultHost(Module module) {
-        return String.format("%s-%s-%s", ORG, SPACE, module.getName());
+        return String.format("%s-%s-%s", ORGANIZATION_NAME, SPACE_NAME, module.getName());
     }
 
     private String computeExpectedDefaultUri(String path) {

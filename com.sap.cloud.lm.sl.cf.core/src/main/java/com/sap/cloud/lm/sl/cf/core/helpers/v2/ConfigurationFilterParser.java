@@ -66,9 +66,9 @@ public class ConfigurationFilterParser {
     }
 
     private CloudTarget parseSpaceTarget(Map<String, Object> target) {
-        String org = getRequiredParameter(target, SupportedParameters.ORG);
-        String space = getRequiredParameter(target, SupportedParameters.SPACE);
-        return new CloudTarget(org, space);
+        String organizationName = getRequiredParameter(target, SupportedParameters.ORGANIZATION_NAME);
+        String spaceName = getRequiredParameter(target, SupportedParameters.SPACE_NAME);
+        return new CloudTarget(organizationName, spaceName);
     }
 
     public Map<String, Object> getParameters(Resource resource) {

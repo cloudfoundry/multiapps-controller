@@ -93,8 +93,10 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         URL controllerUrl = configuration.getControllerUrl();
         String deployServiceUrl = configuration.getDeployServiceUrl();
 
-        return new SystemParameters.Builder().organization(context.getVariable(Variables.ORG))
-                                             .space(context.getVariable(Variables.SPACE))
+        return new SystemParameters.Builder().organizationName(context.getVariable(Variables.ORGANIZATION_NAME))
+                                             .organizationGuid(context.getVariable(Variables.ORGANIZATION_GUID))
+                                             .spaceName(context.getVariable(Variables.SPACE_NAME))
+                                             .spaceGuid(context.getVariable(Variables.SPACE_GUID))
                                              .user(user)
                                              .defaultDomain(defaultDomain)
                                              .controllerUrl(controllerUrl)

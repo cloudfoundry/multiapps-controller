@@ -40,8 +40,8 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 2);
 
         conflictPreventerSupplier.apply(operationService)
-                                 .acquireLock(mtaId, context.getVariable(Variables.SPACE_ID), context.getExecution()
-                                                                                                     .getProcessInstanceId());
+                                 .acquireLock(mtaId, context.getVariable(Variables.SPACE_GUID), context.getExecution()
+                                                                                                       .getProcessInstanceId());
 
         getStepLogger().debug(Messages.COMPONENTS_TO_UNDEPLOY_DETECTED);
 
