@@ -34,8 +34,8 @@ public class ProcessContext {
 
     public CloudControllerClient getControllerClient() {
         String userName = StepsUtil.determineCurrentUser(execution);
-        String spaceId = getVariable(Variables.SPACE_ID);
-        CloudControllerClient delegate = clientProvider.getControllerClient(userName, spaceId);
+        String spaceGuid = getVariable(Variables.SPACE_GUID);
+        CloudControllerClient delegate = clientProvider.getControllerClient(userName, spaceGuid);
         return new LoggingCloudControllerClient(delegate, stepLogger);
     }
 

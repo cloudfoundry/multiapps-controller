@@ -189,7 +189,7 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
 
     private void prepareContext() {
         context.setVariable(Variables.APP_TO_PROCESS, input.application.toCloudApplication());
-        context.setVariable(Variables.SPACE_ID, input.spaceGuid);
+        context.setVariable(Variables.SPACE_GUID, input.spaceGuid);
     }
 
     private void prepareClient() {

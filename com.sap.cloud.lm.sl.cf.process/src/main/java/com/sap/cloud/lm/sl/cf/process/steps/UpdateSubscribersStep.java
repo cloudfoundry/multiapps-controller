@@ -207,8 +207,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(configurationEntryService,
                                                                                                      new DummyConfigurationFilterParser(subscription.getFilter()),
-                                                                                                     new CloudTarget(context.getVariable(Variables.ORG),
-                                                                                                                     context.getVariable(Variables.SPACE)),
+                                                                                                     new CloudTarget(context.getVariable(Variables.ORGANIZATION_NAME),
+                                                                                                                     context.getVariable(Variables.SPACE_NAME)),
                                                                                                      configuration);
         resolver.resolve(dummyDescriptor);
         getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(dummyDescriptor));

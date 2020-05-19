@@ -33,7 +33,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
         List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(context);
-        String spaceId = context.getVariable(Variables.SPACE_ID);
+        String spaceId = context.getVariable(Variables.SPACE_GUID);
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
 
         List<ExtensionDescriptor> extensionDescriptors = parseExtensionDescriptors(spaceId, extensionDescriptorFileIds);

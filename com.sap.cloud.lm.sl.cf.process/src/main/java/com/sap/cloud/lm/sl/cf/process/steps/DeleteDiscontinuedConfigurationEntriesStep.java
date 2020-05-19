@@ -32,7 +32,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.DELETING_PUBLISHED_DEPENDENCIES);
         String mtaId = context.getVariable(Variables.MTA_ID);
-        String spaceId = context.getVariable(Variables.SPACE_ID);
+        String spaceId = context.getVariable(Variables.SPACE_GUID);
 
         List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacade);
 

@@ -269,7 +269,7 @@ public class Messages {
     public static final String PROCESS_VARIABLES = "Process variables: {0}";
     public static final String CURRENT_USER = "Current user: {0}";
     public static final String CLIENT_SPACE = "Client space: {0}";
-    public static final String CLIENT_ORG = "Client org: {0}";
+    public static final String CLIENT_ORGANIZATION = "Client organization: {0}";
     public static final String EXECUTING_TASK = "Executing task \"{0}\" of process \"{1}\"...";
     public static final String VALIDATING_PARAMETERS = "Validating parameters...";
     public static final String PARAMETERS_VALIDATED = "Parameters validated";

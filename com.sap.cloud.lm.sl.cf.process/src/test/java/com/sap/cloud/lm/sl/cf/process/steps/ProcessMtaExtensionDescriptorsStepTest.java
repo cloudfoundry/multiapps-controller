@@ -74,7 +74,7 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
         Map<String, String> fileIdToExtensionDescriptor = generateIds(extensionDescriptors);
 
         context.setVariable(Variables.EXT_DESCRIPTOR_FILE_ID, String.join(",", fileIdToExtensionDescriptor.keySet()));
-        context.setVariable(Variables.SPACE_ID, SPACE_ID);
+        context.setVariable(Variables.SPACE_GUID, SPACE_ID);
         DeploymentDescriptor descriptor = DescriptorTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass());
         context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, descriptor);
 

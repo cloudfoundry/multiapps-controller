@@ -28,8 +28,10 @@ public class SystemParameters {
 
     private final CredentialsGenerator credentialsGenerator;
     private final String targetName;
-    private final String organization;
-    private final String space;
+    private final String organizationName;
+    private final String organizationGuid;
+    private final String spaceName;
+    private final String spaceGuid;
     private final String user;
     private final String defaultDomain;
     private final URL controllerUrl;
@@ -39,9 +41,11 @@ public class SystemParameters {
     private final Supplier<String> timestampSupplier;
 
     public SystemParameters(Builder builder) {
-        this.targetName = builder.organization + " " + builder.space;
-        this.organization = builder.organization;
-        this.space = builder.space;
+        this.targetName = builder.organizationName + " " + builder.spaceName;
+        this.organizationName = builder.organizationName;
+        this.organizationGuid = builder.organizationGuid;
+        this.spaceName = builder.spaceName;
+        this.spaceGuid = builder.spaceGuid;
         this.user = builder.user;
         this.defaultDomain = builder.defaultDomain;
         this.controllerUrl = builder.controllerUrl;
@@ -69,9 +73,11 @@ public class SystemParameters {
         Map<String, Object> systemParameters = new HashMap<>();
 
         systemParameters.put(SupportedParameters.DEPLOY_TARGET, targetName);
-        systemParameters.put(SupportedParameters.ORG, organization);
+        systemParameters.put(SupportedParameters.ORGANIZATION_NAME, organizationName);
+        systemParameters.put(SupportedParameters.ORGANIZATION_GUID, organizationGuid);
+        systemParameters.put(SupportedParameters.SPACE_NAME, spaceName);
+        systemParameters.put(SupportedParameters.SPACE_GUID, spaceGuid);
         systemParameters.put(SupportedParameters.USER, user);
-        systemParameters.put(SupportedParameters.SPACE, space);
         systemParameters.put(SupportedParameters.DEFAULT_DOMAIN, defaultDomain);
         if (reserveTemporaryRoutes) {
             systemParameters.put(SupportedParameters.DEFAULT_IDLE_DOMAIN, defaultDomain);
@@ -162,7 +168,7 @@ public class SystemParameters {
         resourceSystemParameters.put(SupportedParameters.DEFAULT_SERVICE_NAME, resource.getName());
         resourceSystemParameters.put(SupportedParameters.SERVICE_NAME, referenceToParameter(SupportedParameters.DEFAULT_SERVICE_NAME));
         resourceSystemParameters.put(SupportedParameters.DEFAULT_CONTAINER_NAME,
-                                     NameUtil.computeValidContainerName(organization, space, resource.getName()));
+                                     NameUtil.computeValidContainerName(organizationName, spaceName, resource.getName()));
         resourceSystemParameters.put(SupportedParameters.DEFAULT_XS_APP_NAME, NameUtil.computeValidXsAppName(resource.getName()));
 
         resourceSystemParameters.put(SupportedParameters.GENERATED_USER, credentialsGenerator.next(GENERATED_CREDENTIALS_LENGTH));
@@ -191,8 +197,10 @@ public class SystemParameters {
     public static class Builder {
 
         private CredentialsGenerator credentialsGenerator;
-        private String organization;
-        private String space;
+        private String organizationName;
+        private String organizationGuid;
+        private String spaceName;
+        private String spaceGuid;
         private String user;
         private String defaultDomain;
         private URL controllerUrl;
@@ -206,13 +214,23 @@ public class SystemParameters {
             return this;
         }
 
-        public Builder organization(String organization) {
-            this.organization = organization;
+        public Builder organizationName(String organizationName) {
+            this.organizationName = organizationName;
             return this;
         }
 
-        public Builder space(String space) {
-            this.space = space;
+        public Builder organizationGuid(String organizationGuid) {
+            this.organizationGuid = organizationGuid;
+            return this;
+        }
+
+        public Builder spaceName(String spaceName) {
+            this.spaceName = spaceName;
+            return this;
+        }
+
+        public Builder spaceGuid(String spaceGuid) {
+            this.spaceGuid = spaceGuid;
             return this;
         }
 

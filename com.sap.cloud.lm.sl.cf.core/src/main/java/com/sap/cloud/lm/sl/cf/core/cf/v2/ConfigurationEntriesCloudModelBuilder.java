@@ -24,14 +24,14 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class ConfigurationEntriesCloudModelBuilder {
 
-    private final String orgName;
+    private final String organizationName;
     private final String spaceName;
-    private final String spaceId;
+    private final String spaceGuid;
 
-    public ConfigurationEntriesCloudModelBuilder(String orgName, String spaceName, String spaceId) {
-        this.orgName = orgName;
+    public ConfigurationEntriesCloudModelBuilder(String organizationName, String spaceName, String spaceGuid) {
+        this.organizationName = organizationName;
         this.spaceName = spaceName;
-        this.spaceId = spaceId;
+        this.spaceGuid = spaceGuid;
     }
 
     public Map<String, List<ConfigurationEntry>> build(DeploymentDescriptor deploymentDescriptor) {
@@ -47,7 +47,7 @@ public class ConfigurationEntriesCloudModelBuilder {
                                                                                                         providedDependency))
                                                     .collect(Collectors.toList());
     }
-    
+
     private boolean hasProperties(ProvidedDependency providedDependency) {
         return MapUtils.isNotEmpty(providedDependency.getProperties());
     }
@@ -62,10 +62,10 @@ public class ConfigurationEntriesCloudModelBuilder {
         String providerNid = ConfigurationEntriesUtil.PROVIDER_NID;
         String providerId = ConfigurationEntriesUtil.computeProviderId(deploymentDescriptor.getId(), providedDependency.getName());
         Version version = Version.parseVersion(deploymentDescriptor.getVersion());
-        CloudTarget target = new CloudTarget(orgName, spaceName);
+        CloudTarget target = new CloudTarget(organizationName, spaceName);
         String content = JsonUtil.toJson(providedDependency.getProperties());
         List<CloudTarget> visibility = getVisibilityTargets(providedDependency);
-        return new ConfigurationEntry(providerNid, providerId, version, target, content, visibility, spaceId);
+        return new ConfigurationEntry(providerNid, providerId, version, target, content, visibility, spaceGuid);
     }
 
     private List<CloudTarget> getVisibilityTargets(ProvidedDependency providedDependency) {
@@ -74,11 +74,11 @@ public class ConfigurationEntriesCloudModelBuilder {
             return getDefaultVisibility();
         }
         Set<CloudTarget> visibility = new HashSet<>();
-        visibility.add(new CloudTarget(orgName, spaceName));
+        visibility.add(new CloudTarget(organizationName, spaceName));
 
         for (Map<String, Object> visibleTarget : visibleTargets) {
-            visibility.add(new CloudTarget(getElement(visibleTarget, SupportedParameters.ORG),
-                                           getElement(visibleTarget, SupportedParameters.SPACE)));
+            visibility.add(new CloudTarget(getElement(visibleTarget, SupportedParameters.ORGANIZATION_NAME),
+                                           getElement(visibleTarget, SupportedParameters.SPACE_NAME)));
         }
         return new ArrayList<>(visibility);
     }
@@ -93,6 +93,6 @@ public class ConfigurationEntriesCloudModelBuilder {
     }
 
     private List<CloudTarget> getDefaultVisibility() {
-        return Collections.singletonList(new CloudTarget(orgName, "*"));
+        return Collections.singletonList(new CloudTarget(organizationName, "*"));
     }
 }

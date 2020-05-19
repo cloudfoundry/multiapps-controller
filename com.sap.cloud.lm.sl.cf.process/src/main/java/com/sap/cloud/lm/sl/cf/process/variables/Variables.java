@@ -41,18 +41,18 @@ public interface Variables {
     Variable<String> CORRELATION_ID = ImmutableSimpleVariable.<String> builder()
                                                              .name("correlationId")
                                                              .build();
-    Variable<String> ORG = ImmutableSimpleVariable.<String> builder()
-                                                  .name("org")
-                                                  .build();
-    Variable<String> SPACE = ImmutableSimpleVariable.<String> builder()
-                                                    .name("space")
-                                                    .build();
-    Variable<String> ORG_ID = ImmutableSimpleVariable.<String> builder()
-                                                     .name("orgId")
-                                                     .build();
-    Variable<String> SPACE_ID = ImmutableSimpleVariable.<String> builder()
-                                                       .name(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID)
-                                                       .build();
+    Variable<String> ORGANIZATION_NAME = ImmutableSimpleVariable.<String> builder()
+                                                                .name("org")
+                                                                .build();
+    Variable<String> ORGANIZATION_GUID = ImmutableSimpleVariable.<String> builder()
+                                                                .name("orgId")
+                                                                .build();
+    Variable<String> SPACE_NAME = ImmutableSimpleVariable.<String> builder()
+                                                         .name("space")
+                                                         .build();
+    Variable<String> SPACE_GUID = ImmutableSimpleVariable.<String> builder()
+                                                         .name(com.sap.cloud.lm.sl.cf.persistence.Constants.VARIABLE_NAME_SPACE_ID)
+                                                         .build();
     Variable<String> SUBPROCESS_ID = ImmutableSimpleVariable.<String> builder()
                                                             .name("subProcessId")
                                                             .build();
@@ -115,9 +115,9 @@ public interface Variables {
                                                              .name("StepExecution")
                                                              .build();
     Variable<Boolean> APP_CONTENT_CHANGED = ImmutableSimpleVariable.<Boolean> builder()
-                                                                  .name("appContentChanged")
-                                                                  .defaultValue(false)
-                                                                  .build();
+                                                                   .name("appContentChanged")
+                                                                   .defaultValue(false)
+                                                                   .build();
     Variable<Integer> MTA_MAJOR_SCHEMA_VERSION = ImmutableSimpleVariable.<Integer> builder()
                                                                         .name("mtaMajorSchemaVersion")
                                                                         .build();
@@ -287,9 +287,9 @@ public interface Variables {
                                                                                    .defaultValue(new MtaArchiveElements())
                                                                                    .build();
     Variable<CloudServiceInstanceExtended> SERVICE_TO_PROCESS = ImmutableJsonStringVariable.<CloudServiceInstanceExtended> builder()
-                                                                                   .name("serviceToProcess")
-                                                                                   .type(Variable.typeReference(CloudServiceInstanceExtended.class))
-                                                                                   .build();
+                                                                                           .name("serviceToProcess")
+                                                                                           .type(Variable.typeReference(CloudServiceInstanceExtended.class))
+                                                                                           .build();
     Variable<UploadToken> UPLOAD_TOKEN = ImmutableJsonStringVariable.<UploadToken> builder()
                                                                     .name("uploadToken")
                                                                     .type(Variable.typeReference(UploadToken.class))
@@ -372,10 +372,10 @@ public interface Variables {
                                                                        .name("servicesToDelete")
                                                                        .build();
     Variable<List<CloudServiceInstanceExtended>> SERVICES_TO_POLL = ImmutableJsonBinaryVariable.<List<CloudServiceInstanceExtended>> builder()
-                                                                                       .name("servicesToPoll")
-                                                                                       .type(new TypeReference<List<CloudServiceInstanceExtended>>() {
-                                                                                       })
-                                                                                       .build();
+                                                                                               .name("servicesToPoll")
+                                                                                               .type(new TypeReference<List<CloudServiceInstanceExtended>>() {
+                                                                                               })
+                                                                                               .build();
     Variable<CloudTask> STARTED_TASK = ImmutableJsonBinaryVariable.<CloudTask> builder()
                                                                   .name("startedTask")
                                                                   .type(Variable.typeReference(CloudTask.class))
@@ -415,11 +415,11 @@ public interface Variables {
                                                                                       })
                                                                                       .build();
     Variable<List<CloudServiceInstanceExtended>> SERVICES_DATA = ImmutableJsonBinaryVariable.<List<CloudServiceInstanceExtended>> builder()
-                                                                                    .name("servicesData")
-                                                                                    .type(new TypeReference<List<CloudServiceInstanceExtended>>() {
-                                                                                    })
-                                                                                    .defaultValue(Collections.emptyList())
-                                                                                    .build();
+                                                                                            .name("servicesData")
+                                                                                            .type(new TypeReference<List<CloudServiceInstanceExtended>>() {
+                                                                                            })
+                                                                                            .defaultValue(Collections.emptyList())
+                                                                                            .build();
     Variable<Map<String, String>> GIT_REPOSITORY_CONFIG_MAP = ImmutableSimpleVariable.<Map<String, String>> builder()
                                                                                      .name("gitRepositoryConfigMap")
                                                                                      .build();
@@ -476,15 +476,15 @@ public interface Variables {
                                                                                        .defaultValue(Collections.emptyList())
                                                                                        .build();
     Variable<List<CloudServiceInstanceExtended>> SERVICES_TO_BIND = ImmutableJsonStringListVariable.<CloudServiceInstanceExtended> builder()
-                                                                                           .name("servicesToBind")
-                                                                                           .type(Variable.typeReference(CloudServiceInstanceExtended.class))
-                                                                                           .defaultValue(Collections.emptyList())
-                                                                                           .build();
+                                                                                                   .name("servicesToBind")
+                                                                                                   .type(Variable.typeReference(CloudServiceInstanceExtended.class))
+                                                                                                   .defaultValue(Collections.emptyList())
+                                                                                                   .build();
     Variable<List<CloudServiceInstanceExtended>> SERVICES_TO_CREATE = ImmutableJsonStringListVariable.<CloudServiceInstanceExtended> builder()
-                                                                                             .name("servicesToCreate")
-                                                                                             .type(Variable.typeReference(CloudServiceInstanceExtended.class))
-                                                                                             .defaultValue(Collections.emptyList())
-                                                                                             .build();
+                                                                                                     .name("servicesToCreate")
+                                                                                                     .type(Variable.typeReference(CloudServiceInstanceExtended.class))
+                                                                                                     .defaultValue(Collections.emptyList())
+                                                                                                     .build();
     Variable<List<Hook>> HOOKS_FOR_EXECUTION = ImmutableJsonStringListVariable.<Hook> builder()
                                                                               .name("hooksForExecution")
                                                                               .type(Variable.typeReference(Hook.class))

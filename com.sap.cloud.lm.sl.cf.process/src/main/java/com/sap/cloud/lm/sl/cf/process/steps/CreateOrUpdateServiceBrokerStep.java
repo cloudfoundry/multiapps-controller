@@ -140,7 +140,7 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
 
     private String getServiceBrokerSpaceGuid(ProcessContext context, ApplicationAttributes appAttributes) {
         boolean isSpaceScoped = appAttributes.get(SupportedParameters.SERVICE_BROKER_SPACE_SCOPED, Boolean.class, false);
-        return isSpaceScoped ? context.getVariable(Variables.SPACE_ID) : null;
+        return isSpaceScoped ? context.getVariable(Variables.SPACE_GUID) : null;
     }
 
     public static List<String> getServiceBrokerNames(List<? extends CloudServiceBroker> serviceBrokers) {
