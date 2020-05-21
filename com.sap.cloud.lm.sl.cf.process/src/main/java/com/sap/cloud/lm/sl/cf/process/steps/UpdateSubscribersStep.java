@@ -47,7 +47,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.RequiredDepen
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -84,8 +84,6 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     private static final String SCHEMA_VERSION = "2.1.0";
 
     private static final String DUMMY_VERSION = "1.0.0";
-
-    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     protected BiFunction<ClientHelper, String, CloudTarget> targetCalculator = ClientHelper::computeTarget;
 
@@ -211,11 +209,11 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
                                                                                                                      context.getVariable(Variables.SPACE_NAME)),
                                                                                                      configuration);
         resolver.resolve(dummyDescriptor);
-        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(dummyDescriptor));
+        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(dummyDescriptor));
         dummyDescriptor = handlerFactory.getDescriptorReferenceResolver(dummyDescriptor, new ResolverBuilder(), new ResolverBuilder(),
                                                                         new ResolverBuilder())
                                         .resolve();
-        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(dummyDescriptor));
+        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(dummyDescriptor));
 
         ApplicationCloudModelBuilder applicationCloudModelBuilder = handlerFactory.getApplicationCloudModelBuilder(dummyDescriptor,
                                                                                                                    shouldUsePrettyPrinting(),

@@ -31,7 +31,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -49,8 +49,6 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
     @Inject
     private ServiceGetter serviceInstanceGetter;
-
-    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws Exception {
@@ -119,7 +117,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             context.setVariable(Variables.SERVICES_TO_CREATE, Collections.singletonList(service));
             return actions;
         }
-        getStepLogger().debug("Existing service: " + secureSerializer.toJson(existingService));
+        getStepLogger().debug("Existing service: " + SecureSerialization.toJson(existingService));
 
         boolean shouldRecreate = false;
         if (haveDifferentTypesOrLabels(service, existingService)) {
@@ -161,13 +159,13 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
         if (shouldUpdateCredentials(service, existingService, client)) {
             getStepLogger().debug("Service parameters should be updated");
-            getStepLogger().debug("New parameters: " + secureSerializer.toJson(service.getCredentials()));
+            getStepLogger().debug("New parameters: " + SecureSerialization.toJson(service.getCredentials()));
             actions.add(ServiceAction.UPDATE_CREDENTIALS);
         }
 
         if (shouldUpdateMetadata(service, existingService)) {
             getStepLogger().debug("Service metadata should be updated");
-            getStepLogger().debug("New metadata: " + secureSerializer.toJson(service.getV3Metadata()));
+            getStepLogger().debug("New metadata: " + SecureSerialization.toJson(service.getV3Metadata()));
             actions.add(ServiceAction.UPDATE_METADATA);
         }
 
@@ -300,7 +298,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         try {
             Map<String, Object> serviceParameters = client.getServiceInstanceParameters(existingService.getMetadata()
                                                                                                        .getGuid());
-            getStepLogger().debug("Existing service parameters: " + secureSerializer.toJson(serviceParameters));
+            getStepLogger().debug("Existing service parameters: " + SecureSerialization.toJson(serviceParameters));
             return !Objects.equals(service.getCredentials(), serviceParameters);
         } catch (CloudOperationException e) {
             if (HttpStatus.NOT_IMPLEMENTED == e.getStatusCode() || HttpStatus.BAD_REQUEST == e.getStatusCode()) {

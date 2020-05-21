@@ -34,7 +34,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -53,8 +53,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     @Inject
     private ModuleToDeployHelper moduleToDeployHelper;
 
-    protected final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.BUILDING_CLOUD_MODEL);
@@ -72,7 +70,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
         // Build a map of service keys and save them in the context:
         Map<String, List<CloudServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(context).build();
-        getStepLogger().debug(Messages.SERVICE_KEYS_TO_CREATE, secureSerializer.toJson(serviceKeys));
+        getStepLogger().debug(Messages.SERVICE_KEYS_TO_CREATE, SecureSerialization.toJson(serviceKeys));
 
         context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, serviceKeys);
 
@@ -80,7 +78,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         List<Module> modulesCalculatedForDeployment = calculateModulesForDeployment(context, deploymentDescriptor, mtaArchiveModules,
                                                                                     deployedModuleNames, mtaModules);
         List<String> moduleJsons = modulesCalculatedForDeployment.stream()
-                                                                 .map(secureSerializer::toJson)
+                                                                 .map(SecureSerialization::toJson)
                                                                  .collect(Collectors.toList());
         getStepLogger().debug(Messages.MODULES_TO_DEPLOY, moduleJsons.toString());
         context.setVariable(Variables.ALL_MODULES_TO_DEPLOY, modulesCalculatedForDeployment);
@@ -113,9 +111,9 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
         // Build a list of services for creation and save them in the context:
         List<CloudServiceInstanceExtended> servicesToCreate = servicesCalculatedForDeployment.stream()
-                                                                                     .filter(CloudServiceInstanceExtended::isManaged)
-                                                                                     .collect(Collectors.toList());
-        getStepLogger().debug(Messages.SERVICES_TO_CREATE, secureSerializer.toJson(servicesToCreate));
+                                                                                             .filter(CloudServiceInstanceExtended::isManaged)
+                                                                                             .collect(Collectors.toList());
+        getStepLogger().debug(Messages.SERVICES_TO_CREATE, SecureSerialization.toJson(servicesToCreate));
         context.setVariable(Variables.SERVICES_TO_CREATE, servicesToCreate);
 
         // Needed by CreateOrUpdateServicesStep, as it is used as an iteration variable:

@@ -10,7 +10,7 @@ import javax.inject.Named;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentConsumer;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -25,7 +25,6 @@ import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
 
-    protected final SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
     protected DescriptorParserFacade descriptorParserFacade = new DescriptorParserFacade();
     protected ExtensionDescriptorChainBuilder extensionDescriptorChainBuilder = new ExtensionDescriptorChainBuilder(false);
 
@@ -69,7 +68,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
             for (String extensionDescriptorFileId : fileIds) {
                 fileService.consumeFileContent(spaceId, extensionDescriptorFileId, extensionDescriptorConsumer);
             }
-            getStepLogger().debug(Messages.EXTENSION_DESCRIPTORS, secureSerializationFacade.toJson(extensionDescriptors));
+            getStepLogger().debug(Messages.EXTENSION_DESCRIPTORS, SecureSerialization.toJson(extensionDescriptors));
             return extensionDescriptors;
         } catch (FileStorageException e) {
             throw new SLException(e, e.getMessage());

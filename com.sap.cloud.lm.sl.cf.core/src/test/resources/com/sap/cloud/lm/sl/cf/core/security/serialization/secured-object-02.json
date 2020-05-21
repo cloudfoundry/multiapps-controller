@@ -1,4 +1,4 @@
 {
   "name" : "jobscheduler",
-  "env" : [ "MTA_MODULE_METADATA={\"name\":\"jobscheduler-broker\"}", "MTA_MODULE_PROVIDED=[\"name\":\"jobscheduler-broker\"]", "BROKER_USER=6gx56t7HmkS)8hVj", "MTA_SERVICES=[\"jobscheduler-db-container\",\"jobscheduler-sbss\"]", "********", "********" ]
+  "env" : [ "MTA_MODULE_METADATA={\"name\":\"jobscheduler-broker\"}", "MTA_MODULE_PROVIDED=[\"name\":\"jobscheduler-broker\"]", "MTA_SERVICES=[\"jobscheduler-db-container\",\"jobscheduler-sbss\"]", "********", "********", "********" ]
 }

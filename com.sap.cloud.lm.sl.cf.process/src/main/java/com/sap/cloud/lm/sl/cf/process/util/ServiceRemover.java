@@ -17,7 +17,7 @@ import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
@@ -27,8 +27,6 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class ServiceRemover {
-
-    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     private ApplicationConfiguration configuration;
 
@@ -55,7 +53,7 @@ public class ServiceRemover {
         if (serviceBindings.isEmpty()) {
             return;
         }
-        stepLogger.debug(Messages.SERVICE_BINDINGS_EXISTS, secureSerializer.toJson(serviceBindings));
+        stepLogger.debug(Messages.SERVICE_BINDINGS_EXISTS, SecureSerialization.toJson(serviceBindings));
         for (CloudServiceBinding binding : serviceBindings) {
             CloudApplication application = client.getApplication(binding.getApplicationGuid());
 
