@@ -38,13 +38,11 @@ import org.cloudfoundry.client.v3.Metadata;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.web.client.ResponseErrorHandler;
 
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 
 public class LoggingCloudControllerClient implements CloudControllerClient {
-
-    private static final SecureSerializationFacade SERIALIZATION = new SecureSerializationFacade();
 
     private final CloudControllerClient delegate;
     private final UserMessageLogger logger;
@@ -76,14 +74,14 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public void bindServiceInstance(String applicationName, String serviceInstanceName, Map<String, Object> parameters,
                                     ApplicationServicesUpdateCallback updateServicesCallback) {
         logger.debug(Messages.BINDING_APPLICATION_0_TO_SERVICE_INSTANCE_1_WITH_PARAMETERS_2, applicationName, serviceInstanceName,
-                     SERIALIZATION.toJson(parameters));
+                     SecureSerialization.toJson(parameters));
         delegate.bindServiceInstance(applicationName, serviceInstanceName, parameters, updateServicesCallback);
     }
 
     @Override
     public void createApplication(String applicationName, Staging staging, Integer memory, List<String> uris) {
         logger.debug(Messages.CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3, applicationName, memory, uris,
-                     SERIALIZATION.toJson(staging));
+                     SecureSerialization.toJson(staging));
         delegate.createApplication(applicationName, staging, memory, uris);
     }
 
@@ -91,39 +89,39 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, List<String> uris,
                                   DockerInfo dockerInfo) {
         logger.debug(Messages.CREATING_APPLICATION_0_WITH_DISK_QUOTA_1_MEMORY_2_URIS_3_AND_STAGING_4, applicationName, memory, uris,
-                     SERIALIZATION.toJson(staging));
+                     SecureSerialization.toJson(staging));
         delegate.createApplication(applicationName, staging, disk, memory, uris, dockerInfo);
     }
 
     @Override
     public void createServiceInstance(CloudServiceInstance serviceInstance) {
-        logger.debug(Messages.CREATING_SERVICE_INSTANCE_0, SERIALIZATION.toJson(serviceInstance));
+        logger.debug(Messages.CREATING_SERVICE_INSTANCE_0, SecureSerialization.toJson(serviceInstance));
         delegate.createServiceInstance(serviceInstance);
     }
 
     @Override
     public void createServiceBroker(CloudServiceBroker serviceBroker) {
-        logger.debug(Messages.CREATING_SERVICE_BROKER_0, SERIALIZATION.toJson(serviceBroker));
+        logger.debug(Messages.CREATING_SERVICE_BROKER_0, SecureSerialization.toJson(serviceBroker));
         delegate.createServiceBroker(serviceBroker);
     }
 
     @Override
     public CloudServiceKey createServiceKey(String serviceInstanceName, String serviceKeyName, Map<String, Object> parameters) {
         logger.debug(Messages.CREATING_SERVICE_KEY_0_FOR_SERVICE_INSTANCE_1_WITH_PARAMETERS_2, serviceKeyName, serviceInstanceName,
-                     SERIALIZATION.toJson(parameters));
+                     SecureSerialization.toJson(parameters));
         return delegate.createServiceKey(serviceInstanceName, serviceKeyName, parameters);
     }
 
     @Override
     public void createUserProvidedServiceInstance(CloudServiceInstance serviceInstance, Map<String, Object> credentials) {
-        logger.debug(Messages.CREATING_USER_PROVIDED_SERVICE_INSTANCE_0, SERIALIZATION.toJson(serviceInstance));
+        logger.debug(Messages.CREATING_USER_PROVIDED_SERVICE_INSTANCE_0, SecureSerialization.toJson(serviceInstance));
         delegate.createUserProvidedServiceInstance(serviceInstance, credentials);
     }
 
     @Override
     public void createUserProvidedServiceInstance(CloudServiceInstance serviceInstance, Map<String, Object> credentials,
                                                   String syslogDrainUrl) {
-        logger.debug(Messages.CREATING_USER_PROVIDED_SERVICE_INSTANCE_0, SERIALIZATION.toJson(serviceInstance));
+        logger.debug(Messages.CREATING_USER_PROVIDED_SERVICE_INSTANCE_0, SecureSerialization.toJson(serviceInstance));
         delegate.createUserProvidedServiceInstance(serviceInstance, credentials, syslogDrainUrl);
     }
 
@@ -593,7 +591,7 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void updateApplicationStaging(String applicationName, Staging staging) {
-        logger.debug(Messages.UPDATING_STAGING_OF_APPLICATION_0_TO_1, applicationName, SERIALIZATION.toJson(staging));
+        logger.debug(Messages.UPDATING_STAGING_OF_APPLICATION_0_TO_1, applicationName, SecureSerialization.toJson(staging));
         delegate.updateApplicationStaging(applicationName, staging);
     }
 
@@ -605,7 +603,7 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void updateServiceBroker(CloudServiceBroker serviceBroker) {
-        logger.debug(Messages.UPDATING_SERVICE_BROKER_TO_0, SERIALIZATION.toJson(serviceBroker));
+        logger.debug(Messages.UPDATING_SERVICE_BROKER_TO_0, SecureSerialization.toJson(serviceBroker));
         delegate.updateServiceBroker(serviceBroker);
     }
 
@@ -677,7 +675,7 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
 
     @Override
     public CloudTask runTask(String applicationName, CloudTask task) {
-        logger.debug(Messages.RUNNING_TASK_1_ON_APPLICATION_0, applicationName, SERIALIZATION.toJson(task));
+        logger.debug(Messages.RUNNING_TASK_1_ON_APPLICATION_0, applicationName, SecureSerialization.toJson(task));
         return delegate.runTask(applicationName, task);
     }
 
@@ -725,7 +723,7 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void updateApplicationMetadata(UUID guid, Metadata metadata) {
-        logger.debug(Messages.UPDATING_METADATA_OF_APPLICATION_0_TO_1, guid, SERIALIZATION.toJson(metadata));
+        logger.debug(Messages.UPDATING_METADATA_OF_APPLICATION_0_TO_1, guid, SecureSerialization.toJson(metadata));
         delegate.updateApplicationMetadata(guid, metadata);
     }
 
@@ -737,7 +735,7 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void updateServiceInstanceMetadata(UUID guid, Metadata metadata) {
-        logger.debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_TO_1, guid, SERIALIZATION.toJson(metadata));
+        logger.debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_TO_1, guid, SecureSerialization.toJson(metadata));
         delegate.updateServiceInstanceMetadata(guid, metadata);
     }
 

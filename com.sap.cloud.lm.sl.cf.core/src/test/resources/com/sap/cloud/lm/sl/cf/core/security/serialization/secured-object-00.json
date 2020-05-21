@@ -3,9 +3,9 @@
     "name" : "foo",
     "type" : "foo",
     "properties" : {
-      "username" : "i318495",
+      "username" : "********",
       "password" : "********",
-      "USERNAME" : "i318495",
+      "USERNAME" : "********",
       "PASSWORD" : "********",
       "other-passwords" : "********",
       "test" : "xxx"
@@ -23,10 +23,10 @@
   }, {
     "pass" : "********"
   }, {
-    "user" : "i318495"
+    "user" : "********"
   }, {
     "PASS" : "********"
   }, {
-    "USER" : "i318495"
+    "USER" : "********"
   } ]
 }

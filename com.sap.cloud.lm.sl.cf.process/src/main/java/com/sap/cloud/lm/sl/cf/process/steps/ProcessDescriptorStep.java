@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableMtaDescriptorPropertiesResolverContext;
 import com.sap.cloud.lm.sl.cf.core.model.MtaDescriptorPropertiesResolverContext;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -30,8 +30,6 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 @Named("processDescriptorStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessDescriptorStep extends SyncFlowableStep {
-
-    protected final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Inject
     private ConfigurationEntryService configurationEntryService;
@@ -46,7 +44,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         descriptor = resolver.resolve(descriptor);
 
         List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
-        getStepLogger().debug(Messages.SUBSCRIPTIONS, secureSerializer.toJson(subscriptions));
+        getStepLogger().debug(Messages.SUBSCRIPTIONS, SecureSerialization.toJson(subscriptions));
         context.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, subscriptions);
 
         context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, descriptor);
@@ -61,7 +59,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         getStepLogger().debug("MTA Modules: {0}", mtaModules);
         context.setVariable(Variables.MTA_MODULES, mtaModules);
 
-        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(descriptor));
+        getStepLogger().debug(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(descriptor));
         getStepLogger().debug(Messages.DESCRIPTOR_PROPERTIES_RESOLVED);
 
         return StepPhase.DONE;

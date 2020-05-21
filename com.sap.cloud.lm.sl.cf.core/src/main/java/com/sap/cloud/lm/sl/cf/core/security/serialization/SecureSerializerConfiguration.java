@@ -41,7 +41,7 @@ public class SecureSerializerConfiguration {
         this.formattedOutput = formattedOutput;
     }
 
-    public boolean apply(String value) {
+    public boolean isSensitive(String value) {
         return getSensitiveElementNames().stream()
                                          .anyMatch(name -> StringUtils.containsIgnoreCase(value, name));
     }

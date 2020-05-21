@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
@@ -30,8 +30,6 @@ import com.sap.cloud.lm.sl.common.NotFoundException;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
 
-    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
     @Override
     protected StepPhase executeStep(ProcessContext context) {
         getStepLogger().debug(Messages.CREATING_SERVICE_BROKERS);
@@ -40,7 +38,7 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
         if (serviceBroker == null) {
             return StepPhase.DONE;
         }
-        getStepLogger().debug(MessageFormat.format(Messages.SERVICE_BROKER, secureSerializer.toJson(serviceBroker)));
+        getStepLogger().debug(MessageFormat.format(Messages.SERVICE_BROKER, SecureSerialization.toJson(serviceBroker)));
 
         CloudControllerClient client = context.getControllerClient();
         List<CloudServiceBroker> existingServiceBrokers = client.getServiceBrokers();

@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
 import com.sap.cloud.lm.sl.cf.core.helpers.SystemParameters;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ReadOnlyParametersChecker;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -30,8 +30,6 @@ import com.sap.cloud.lm.sl.mta.model.VersionRule;
 @Named("collectSystemParametersStep") // rename to collect system parameters and allocate ports?
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CollectSystemParametersStep extends SyncFlowableStep {
-
-    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Inject
     private ReadOnlyParametersChecker readOnlyParametersChecker;
@@ -55,7 +53,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         checkForOverwrittenReadOnlyParameters(descriptor);
         SystemParameters systemParameters = createSystemParameters(context, client, defaultDomainName, reserveTemporaryRoutes);
         systemParameters.injectInto(descriptor);
-        getStepLogger().debug(Messages.DESCRIPTOR_WITH_SYSTEM_PARAMETERS, secureSerializer.toJson(descriptor));
+        getStepLogger().debug(Messages.DESCRIPTOR_WITH_SYSTEM_PARAMETERS, SecureSerialization.toJson(descriptor));
 
         determineIsVersionAccepted(context, descriptor);
 

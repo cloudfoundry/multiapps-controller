@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorMerger;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorValidator;
@@ -17,7 +17,6 @@ public class MtaDescriptorMerger {
     private final HandlerFactory handlerFactory;
     private final Platform platform;
     private final UserMessageLogger userMessageLogger;
-    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     public MtaDescriptorMerger(HandlerFactory handlerFactory, Platform platform) {
         this(handlerFactory, platform, null);
@@ -46,7 +45,7 @@ public class MtaDescriptorMerger {
 
         deploymentDescriptor = handlerFactory.getDescriptorParametersCompatabilityValidator(mergedDescriptor, userMessageLogger)
                                              .validate();
-        logDebug(Messages.MERGED_DESCRIPTOR, secureSerializer.toJson(deploymentDescriptor));
+        logDebug(Messages.MERGED_DESCRIPTOR, SecureSerialization.toJson(deploymentDescriptor));
 
         return deploymentDescriptor;
     }

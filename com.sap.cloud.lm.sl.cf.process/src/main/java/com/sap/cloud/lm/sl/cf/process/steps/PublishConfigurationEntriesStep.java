@@ -16,15 +16,13 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 @Named("publishProvidedDependenciesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PublishConfigurationEntriesStep extends SyncFlowableStep {
-
-    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Inject
     private ConfigurationEntryService configurationEntryService;
@@ -45,7 +43,7 @@ public class PublishConfigurationEntriesStep extends SyncFlowableStep {
 
         List<ConfigurationEntry> publishedEntries = publish(entriesToPublish);
 
-        getStepLogger().debug(Messages.PUBLISHED_ENTRIES, secureSerializer.toJson(publishedEntries));
+        getStepLogger().debug(Messages.PUBLISHED_ENTRIES, SecureSerialization.toJson(publishedEntries));
         context.setVariable(Variables.PUBLISHED_ENTRIES, publishedEntries);
 
         getStepLogger().debug(Messages.PUBLIC_PROVIDED_DEPENDENCIES_PUBLISHED);

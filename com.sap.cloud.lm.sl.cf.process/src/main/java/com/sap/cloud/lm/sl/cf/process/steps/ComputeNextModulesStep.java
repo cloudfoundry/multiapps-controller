@@ -9,7 +9,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ModuleDependencyChecker;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -19,8 +19,6 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 @Named("computeNextModulesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ComputeNextModulesStep extends SyncFlowableStep {
-
-    protected final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -45,7 +43,7 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
         // Mark next iteration data as computed
         context.setVariable(Variables.ITERATED_MODULES_IN_PARALLEL, ListUtils.union(completedModules, modulesForNextIteration));
 
-        getStepLogger().debug(Messages.COMPUTED_NEXT_MODULES_FOR_PARALLEL_ITERATION, secureSerializer.toJson(modulesForNextIteration));
+        getStepLogger().debug(Messages.COMPUTED_NEXT_MODULES_FOR_PARALLEL_ITERATION, SecureSerialization.toJson(modulesForNextIteration));
         return StepPhase.DONE;
     }
 

@@ -33,7 +33,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtende
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -58,8 +58,6 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 @Named("createOrUpdateAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateOrUpdateAppStep extends SyncFlowableStep {
-
-    private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     protected BooleanSupplier shouldPrettyPrint = () -> true;
 
@@ -409,7 +407,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                                                          Collections.emptyMap());
         Map<String, Map<String, Object>> bindingParameters = mergeBindingParameters(descriptorProvidedBindingParameters,
                                                                                     fileProvidedBindingParameters);
-        getStepLogger().debug(Messages.BINDING_PARAMETERS_FOR_APPLICATION, app.getName(), secureSerializer.toJson(bindingParameters));
+        getStepLogger().debug(Messages.BINDING_PARAMETERS_FOR_APPLICATION, app.getName(), SecureSerialization.toJson(bindingParameters));
         return bindingParameters;
     }
 

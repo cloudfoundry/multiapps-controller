@@ -35,7 +35,7 @@ public abstract class SecureSerializer<E extends Element> {
     }
 
     private boolean isSensitive(String value) {
-        return configuration.apply(value);
+        return configuration.isSensitive(value);
     }
 
     private void modifySensitiveElements(CompositeElement element) {
