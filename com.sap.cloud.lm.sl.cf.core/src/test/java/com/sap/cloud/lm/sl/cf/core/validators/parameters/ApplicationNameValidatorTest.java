@@ -20,7 +20,6 @@ public class ApplicationNameValidatorTest {
 
     @Test
     public void testCorrectionWithNoNamespaces() {
-        boolean useNamespaces = false;
         ApplicationNameValidator applicationNameValidator = new ApplicationNameValidator(NAMESPACE, false);
         String result = (String) applicationNameValidator.attemptToCorrect(APPLICATION_NAME);
         assertEquals(APPLICATION_NAME, result);
@@ -28,7 +27,6 @@ public class ApplicationNameValidatorTest {
 
     @Test
     public void testCorrectionWithNamespaces() {
-        boolean useNamespaces = true;
         ApplicationNameValidator applicationNameValidator = new ApplicationNameValidator(NAMESPACE, true);
         String result = (String) applicationNameValidator.attemptToCorrect(APPLICATION_NAME);
         assertEquals(String.format("%s.%s", NAMESPACE, APPLICATION_NAME), result);

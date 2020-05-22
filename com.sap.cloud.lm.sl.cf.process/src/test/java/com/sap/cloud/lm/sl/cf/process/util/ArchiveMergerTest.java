@@ -14,10 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
-import org.slf4j.Logger;
 
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
@@ -42,10 +39,6 @@ public class ArchiveMergerTest {
     private StepLogger stepLogger;
     @Mock
     private DelegateExecution execution;
-    @Mock
-    private Logger logger;
-    @Spy
-    private ApplicationConfiguration configuration;
 
     public ArchiveMergerTest() {
         MockitoAnnotations.initMocks(this);

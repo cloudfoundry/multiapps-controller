@@ -1,114 +1,66 @@
 package com.sap.cloud.lm.sl.cf.core.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.common.ContentException;
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 
-@RunWith(Parameterized.class)
-public class MemoryParametersParserTest {
+class MemoryParametersParserTest {
 
-    private final String memoryString;
-    private final Integer expectedParsedMemory;
-    private final Class<? extends RuntimeException> expectedExceptionClass;
-    private final List<Map<String, Object>> parametersList = new ArrayList<>();
     private static final Integer DEFAULT_MEMORY = 100;
     private final MemoryParametersParser parser = new MemoryParametersParser(SupportedParameters.MEMORY, "100");
 
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    private static Stream<Arguments> testParameters() {
+        return Stream.of(
 // @formatter:off
-            {
-                "2m", 2, null
-            },
-            {
-                "4M", 4, null
-            },
-            {
-                "5mb", 5, null
-            },
-            {
-                "10MB", 10, null
-            },
-            {
-                "5mB", 5, null
-            },
-            {
-                "2g", 2 * 1024, null
-            },
-            {
-                "3gb", 3 * 1024, null
-            },
-            {
-                "5G", 5 * 1024, null
-            },
-            {
-                "6GB", 6 * 1024, null
-            },
-            {
-                "12gB", 12 * 1024, null
-            },
-            {
-                "100", 100, null
-            },
-            {
-                "test-mb", null, ContentException.class
-            },
-            {
-                null, DEFAULT_MEMORY, null
-            }
+            Arguments.of("2m", 2, null),
+            Arguments.of("4M", 4, null),
+            Arguments.of("5mb", 5, null),
+            Arguments.of("10MB", 10, null),
+            Arguments.of("5mB", 5, null),
+            Arguments.of("2g", 2 * 1024, null),
+            Arguments.of("3gb", 3 * 1024, null),
+            Arguments.of("5G", 5 * 1024, null),
+            Arguments.of("6GB", 6 * 1024, null),
+            Arguments.of("12gB", 12 * 1024, null),
+            Arguments.of("100", 100, null)
 // @formatter:on
-        });
+        );
     }
 
-    public MemoryParametersParserTest(String memoryString, Integer expectedParsedMemory,
-                                      Class<? extends RuntimeException> expectedExceptionClass) {
-        this.memoryString = memoryString;
-        this.expectedParsedMemory = expectedParsedMemory;
-        this.expectedExceptionClass = expectedExceptionClass;
-    }
+    @ParameterizedTest
+    @MethodSource("testParameters")
+    void testMemoryParsing(String memoryStr, Integer expectedParsedMemory) {
+        List<Map<String, Object>> parametersList = Collections.singletonList(MapUtil.asMap(SupportedParameters.MEMORY, memoryStr));
 
-    @Before
-    public void setUp() {
-        Map<String, Object> memoryParameterMap = new HashMap<>();
-        memoryParameterMap.put(SupportedParameters.MEMORY, this.memoryString);
-        parametersList.add(memoryParameterMap);
-    }
-
-    @Test
-    public void testMemoryParsing() {
-        assumeTrue(memoryString != null);
-        if (expectedExceptionClass != null) {
-            expectedException.expect(expectedExceptionClass);
-        }
         Integer memory = parser.parse(parametersList);
-        assertEquals(expectedParsedMemory, memory);
 
+        assertEquals(expectedParsedMemory, memory);
     }
 
     @Test
-    public void testDefaultMemoryParsing() {
-        assumeTrue(memoryString == null);
-        Integer memory = parser.parse(new ArrayList<>());
+    void testInvalidMemoryParsing() {
+        List<Map<String, Object>> parametersList = Collections.singletonList(MapUtil.asMap(SupportedParameters.MEMORY, "test-mb"));
+
+        assertThrows(ContentException.class, () -> parser.parse(parametersList));
+    }
+
+    @Test
+    void testDefaultMemoryParsing() {
+        Integer memory = parser.parse(Collections.emptyList());
+
         assertEquals(DEFAULT_MEMORY, memory);
     }
 }

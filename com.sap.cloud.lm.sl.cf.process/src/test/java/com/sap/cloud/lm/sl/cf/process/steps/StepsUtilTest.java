@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.util.Collections;
@@ -159,7 +160,9 @@ public class StepsUtilTest {
     @Test
     public void testShouldVerifyArchiveSignatureSet() {
         VariableHandling.set(execution, Variables.VERIFY_ARCHIVE_SIGNATURE, true);
-        VariableHandling.get(execution, Variables.VERIFY_ARCHIVE_SIGNATURE);
+        Boolean result = VariableHandling.get(execution, Variables.VERIFY_ARCHIVE_SIGNATURE);
+
+        assertTrue(result);
     }
 
 }
