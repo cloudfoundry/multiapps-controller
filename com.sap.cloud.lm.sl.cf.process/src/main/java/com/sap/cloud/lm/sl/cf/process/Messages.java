@@ -141,8 +141,8 @@ public class Messages {
 
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_PARAMETERS = "Cannot retrieve service instance parameters of service \"{0}\"";
-    public static final String CANNOT_RETRIEVE_PARAMETERS_OF_SERVICE_BINDING_WITH_NAME_0_FOR_APPLICATION = "Cannot retrieve parameters of service binding with name \"{0}\" for application \"{1}\"";
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service \"{0}\"";
+    public static final String CANNOT_RETRIEVE_PARAMETERS_OF_BINDING_BETWEEN_APPLICATION_0_AND_SERVICE_INSTANCE_1 = "Cannot retrieve parameters of binding between application \"{0}\" and service instance \"{1}\"";
     public static final String CANNOT_RETRIEVE_INSTANCE_OF_SERVICE = "Cannot retrieve service instance of service \"{0}\"";
     public static final String COULD_NOT_DELETE_PROVIDED_DEPENDENCY = "Could not delete published provided dependency \"{0}\" from configuration registry";
     public static final String COULD_NOT_DELETE_SERVICE = "Could not delete service \"{0}\", as it does not exist";
