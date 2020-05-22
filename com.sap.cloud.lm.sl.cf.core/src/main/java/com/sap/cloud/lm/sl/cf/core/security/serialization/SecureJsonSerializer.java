@@ -2,22 +2,21 @@ package com.sap.cloud.lm.sl.cf.core.security.serialization;
 
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
-public class SecureJsonSerializer extends SecureSerializer<JsonElement<Object>> {
+public class SecureJsonSerializer extends SecureSerializer {
 
     public SecureJsonSerializer(SecureSerializerConfiguration configuration) {
         super(configuration);
     }
 
     @Override
-    protected JsonElement<Object> toTree(Object object) {
-        Object tree = JsonUtil.getObjectMapper()
-                              .convertValue(object, Object.class);
-        return new JsonElement<>("", "", tree);
+    protected Object toTree(Object object) {
+        return JsonUtil.getObjectMapper()
+                       .convertValue(object, Object.class);
     }
 
     @Override
-    protected String toString(JsonElement<Object> element) {
-        return JsonUtil.toJson(element.getObject(), configuration.formattedOutputIsEnabled());
+    protected String serializeTree(Object object) {
+        return JsonUtil.toJson(object, configuration.formattedOutputIsEnabled());
     }
 
 }

@@ -1,88 +1,75 @@
 package com.sap.cloud.lm.sl.cf.core.security.serialization;
 
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-public abstract class SecureSerializer<E extends Element> {
+public abstract class SecureSerializer {
 
     protected final SecureSerializerConfiguration configuration;
-
-    public SecureSerializer() {
-        this(new SecureSerializerConfiguration());
-    }
 
     public SecureSerializer(SecureSerializerConfiguration configuration) {
         this.configuration = configuration;
     }
 
     public String serialize(Object object) {
-        E objectTree = toTree(object);
-        modifySensitiveElements(objectTree);
-        return toString(objectTree);
+        Object objectTree = toTree(object);
+        objectTree = maskSensitiveElements(objectTree);
+        return serializeTree(objectTree);
     }
 
-    private boolean hasSensitiveValues(Element element) {
-        return element.isScalar() && isSensitive(element.asString());
+    private Object maskSensitiveElements(Object object) {
+        return maskSensitiveElements("", object);
     }
 
-    private boolean hasSensitiveNaming(Element element) {
-        return isSensitive(element.getName());
-    }
-
-    private boolean isSensitive(Element element) {
-        return hasSensitiveNaming(element) || hasSensitiveValues(element);
-    }
-
-    private boolean isSensitive(String value) {
-        return configuration.isSensitive(value);
-    }
-
-    private void modifySensitiveElements(CompositeElement element) {
-        List<Element> elementsToModify = new LinkedList<>();
-        for (Element nestedElement : element.getMembers()) {
-            if (isSensitive(nestedElement)) {
-                elementsToModify.add(0, nestedElement);
-            } else {
-                modifySensitiveElements(nestedElement);
-            }
+    private Object maskSensitiveElements(String objectName, Object object) {
+        if (objectName == null || object == null) {
+            return null;
         }
-        modifyElements(element, elementsToModify);
+        if (isSensitive(objectName) || isSensitive(object)) {
+            return SecureSerializerConfiguration.SECURE_SERIALIZATION_MASK;
+        }
+        if (object instanceof Collection) {
+            return maskSensitiveElements((Collection<?>) object);
+        }
+        if (object instanceof Map) {
+            return maskSensitiveElements((Map<?, ?>) object);
+        }
+        return object;
     }
 
-    private void modifyElements(CompositeElement element, Collection<Element> elementsToModify) {
-        if (element.isMap()) {
-            modifyElements(element.asMapElement(), elementsToModify);
-        } else {
-            modifyElements(element.asListElement(), elementsToModify);
-        }
+    private Object maskSensitiveElements(Collection<?> collection) {
+        return collection.stream()
+                         .map(this::maskSensitiveElements)
+                         .collect(Collectors.toList());
     }
 
-    private void modifyElements(MapElement mapElement, Collection<Element> membersToModify) {
-        for (Element element : membersToModify) {
-            mapElement.add(element.getName(), SecureSerializerConfiguration.SECURE_SERIALIZATION_MASK);
+    private Object maskSensitiveElements(Map<?, ?> map) {
+        // Do not refactor this loop into a stream. Collectors.toMap has a known bug (https://bugs.openjdk.java.net/browse/JDK-8148463) and
+        // throws NullPointerExceptions when trying to insert null values in the map.
+        Map<String, Object> result = new LinkedHashMap<>();
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
+            Object maskedValue = maskSensitiveElements((String) entry.getKey(), entry.getValue());
+            result.put((String) entry.getKey(), maskedValue);
         }
+        return result;
     }
 
-    private void modifyElements(ListElement seqElement, Collection<Element> membersToModify) {
-        for (Element element : membersToModify) {
-            seqElement.remove(Integer.parseInt(element.getName()));
-            seqElement.add(SecureSerializerConfiguration.SECURE_SERIALIZATION_MASK);
-        }
+    private boolean isSensitive(Object object) {
+        return isScalar(object) && isSensitive(object.toString());
     }
 
-    private void modifySensitiveElements(Element element) {
-        if (element.isMap()) {
-            modifySensitiveElements(element.asMapElement());
-            return;
-        }
-        if (element.isList()) {
-            modifySensitiveElements(element.asListElement());
-        }
+    private boolean isSensitive(String string) {
+        return configuration.isSensitive(string);
     }
 
-    protected abstract String toString(E element);
+    private boolean isScalar(Object object) {
+        return !(object instanceof Collection) && !(object instanceof Map);
+    }
 
-    protected abstract E toTree(Object object);
+    protected abstract String serializeTree(Object object);
+
+    protected abstract Object toTree(Object object);
 
 }
