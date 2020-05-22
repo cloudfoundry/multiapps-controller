@@ -15,9 +15,9 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
-import org.cloudfoundry.client.lib.util.JsonUtil;
 import org.springframework.http.HttpStatus;
 
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 
 public class ApplicationServicesUpdater extends ControllerClientFacade {
@@ -93,7 +93,8 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
             return getControllerClient().getServiceBindingParameters(getGuid(bindingForApplication));
         } catch (CloudOperationException e) {
             if (HttpStatus.NOT_IMPLEMENTED == e.getStatusCode() || HttpStatus.BAD_REQUEST == e.getStatusCode()) {
-                getLogger().warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_SERVICE_BINDING_PARAMETERS_BINDING_0_OF_APP_1, bindingForApplication.getName(), bindingForApplication.getApplicationGuid());
+                getLogger().warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_PARAMETERS_OF_SERVICE_BINDING_WITH_NAME_0_FOR_APPLICATION,
+                                                       bindingForApplication.getName(), bindingForApplication.getApplicationGuid());
                 return null;
             }
             throw e;
@@ -103,7 +104,7 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
     private CloudServiceBinding getServiceBindingForApplication(CloudApplication application, CloudServiceInstance serviceInstance) {
         List<CloudServiceBinding> serviceBindings = getControllerClient().getServiceBindings(getGuid(serviceInstance));
         getLogger().debug(Messages.LOOKING_FOR_SERVICE_BINDINGS, getGuid(application), getGuid(serviceInstance),
-                          JsonUtil.convertToJson(serviceBindings, true));
+                          SecureSerialization.toJson(serviceBindings));
         for (CloudServiceBinding serviceBinding : serviceBindings) {
             if (application.getMetadata()
                            .getGuid()

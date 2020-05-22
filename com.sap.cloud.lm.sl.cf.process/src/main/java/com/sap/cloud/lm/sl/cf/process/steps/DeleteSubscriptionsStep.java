@@ -12,9 +12,9 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("deleteSubscriptionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -28,7 +28,7 @@ public class DeleteSubscriptionsStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.DELETING_SUBSCRIPTIONS);
 
         List<ConfigurationSubscription> subscriptionsToDelete = context.getVariable(Variables.SUBSCRIPTIONS_TO_DELETE);
-        getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, JsonUtil.toJson(subscriptionsToDelete, true));
+        getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, SecureSerialization.toJson(subscriptionsToDelete));
         for (ConfigurationSubscription subscription : subscriptionsToDelete) {
             infoSubscriptionDeletion(subscription);
             int removedSubscriptions = configurationSubscriptionService.createQuery()

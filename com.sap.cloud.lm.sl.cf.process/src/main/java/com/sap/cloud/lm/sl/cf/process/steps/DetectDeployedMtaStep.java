@@ -12,9 +12,9 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaDetector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("detectDeployedMtaStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -36,6 +36,7 @@ public class DetectDeployedMtaStep extends SyncFlowableStep {
         if (optionalDeployedMta.isPresent()) {
             DeployedMta deployedMta = optionalDeployedMta.get();
             context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
+            getStepLogger().debug(Messages.DEPLOYED_MTA, SecureSerialization.toJson(deployedMta));
             getStepLogger().info(MessageFormat.format(Messages.DEPLOYED_MTA_DETECTED_WITH_VERSION, deployedMta.getMetadata()
                                                                                                               .getId(),
                                                       deployedMta.getMetadata()

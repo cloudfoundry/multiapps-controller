@@ -16,9 +16,9 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -83,7 +83,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         context.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, updatedModuleNames);
         context.setVariable(Variables.SKIP_UPDATE_CONFIGURATION_ENTRIES, false);
 
-        getStepLogger().debug(Messages.CONFIGURATION_ENTRIES_TO_PUBLISH, JsonUtil.toJson(updatedModuleNames, true));
+        getStepLogger().debug(Messages.CONFIGURATION_ENTRIES_TO_PUBLISH, SecureSerialization.toJson(updatedModuleNames));
     }
 
     private ConfigurationEntriesCloudModelBuilder getConfigurationEntriesCloudModelBuilder(ProcessContext context) {

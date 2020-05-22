@@ -88,7 +88,7 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     @Override
     public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, List<String> uris,
                                   DockerInfo dockerInfo) {
-        logger.debug(Messages.CREATING_APPLICATION_0_WITH_DISK_QUOTA_1_MEMORY_2_URIS_3_AND_STAGING_4, applicationName, memory, uris,
+        logger.debug(Messages.CREATING_APPLICATION_0_WITH_DISK_QUOTA_1_MEMORY_2_URIS_3_AND_STAGING_4, applicationName, disk, memory, uris,
                      SecureSerialization.toJson(staging));
         delegate.createApplication(applicationName, staging, disk, memory, uris, dockerInfo);
     }

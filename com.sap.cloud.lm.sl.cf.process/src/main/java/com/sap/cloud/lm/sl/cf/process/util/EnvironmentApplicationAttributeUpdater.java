@@ -6,7 +6,6 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateStrategy;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class EnvironmentApplicationAttributeUpdater extends ApplicationAttributeUpdater {
 

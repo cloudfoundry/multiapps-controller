@@ -26,7 +26,6 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("createServiceStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -105,8 +104,6 @@ public class CreateServiceStep extends ServiceStep {
         client.updateServiceInstanceMetadata(serviceWithMetadata.getMetadata()
                                                                 .getGuid(),
                                              serviceWithMetadata.getV3Metadata());
-        getStepLogger().debug("updated service metadata name: " + serviceWithMetadata + " metadata: "
-            + JsonUtil.toJson(serviceWithMetadata.getV3Metadata(), true));
     }
 
     @Override
