@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -32,7 +33,7 @@ public class JdbcUtilTest {
     @Test
     public void closeQuietlyResultSetWithNull() {
         ResultSet resultSet = null;
-        JdbcUtil.closeQuietly(resultSet);
+        Assertions.assertDoesNotThrow(() -> JdbcUtil.closeQuietly(resultSet));
     }
 
     @Test
@@ -57,7 +58,7 @@ public class JdbcUtilTest {
     @Test
     public void closeQuietlyStatementWithNull() {
         Statement statement = null;
-        JdbcUtil.closeQuietly(statement);
+        Assertions.assertDoesNotThrow(() -> JdbcUtil.closeQuietly(statement));
     }
 
     @Test
@@ -82,7 +83,7 @@ public class JdbcUtilTest {
     @Test
     public void closeQuietlyConnectionWithNull() {
         Connection connection = null;
-        JdbcUtil.closeQuietly(connection);
+        Assertions.assertDoesNotThrow(() -> JdbcUtil.closeQuietly(connection));
     }
 
     @Test
