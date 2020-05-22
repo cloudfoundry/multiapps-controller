@@ -9,14 +9,14 @@ import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
-class SetUndeployPhaseListenerTest {
+class SetAfterResumePhaseListenerTest {
 
+    private final ExecutionListener setResumePhaseListener = new SetAfterResumePhaseListener();
     private final DelegateExecution delegateExecution = MockDelegateExecution.createSpyInstance();
-    private final ExecutionListener setUndeployPhaseListener = new SetUndeployPhaseListener();
 
     @Test
     void testNotify() {
-        setUndeployPhaseListener.notify(delegateExecution);
-        Assertions.assertEquals(Phase.UNDEPLOY.toString(), delegateExecution.getVariable(Variables.PHASE.getName()));
+        setResumePhaseListener.notify(delegateExecution);
+        Assertions.assertEquals(Phase.AFTER_RESUME.toString(), delegateExecution.getVariable(Variables.PHASE.getName()));
     }
 }

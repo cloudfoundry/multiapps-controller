@@ -17,18 +17,24 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
+import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
+import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.process.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 
 @Named("restartAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class RestartAppStep extends TimeoutAsyncFlowableStep {
+public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements BeforeStepHookPhaseProvider {
 
     @Inject
     protected RecentLogsRetriever recentLogsRetriever;
+    @Inject
+    private ProcessTypeParser processTypeParser;
 
     @Override
-    public StepPhase executeAsyncStep(ProcessContext context) {
+    public StepPhase executePollingStep(ProcessContext context) {
         CloudApplication app = getAppToRestart(context);
         CloudControllerClient client = context.getControllerClient();
 
@@ -79,6 +85,15 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
     private StartingInfo startApp(CloudControllerClient client, CloudApplication app) {
         getStepLogger().info(Messages.STARTING_APP, app.getName());
         return client.startApplication(app.getName());
+    }
+
+    @Override
+    public List<HookPhase> getHookPhasesBeforeStep(ProcessContext context) {
+        ProcessType processType = processTypeParser.getProcessType(context.getExecution());
+        if (ProcessType.BLUE_GREEN_DEPLOY.equals(processType) && context.getVariable(Variables.PHASE) != Phase.AFTER_RESUME) {
+            return Arrays.asList(HookPhase.APPLICATION_BEFORE_START_IDLE, HookPhase.APPLICATION_BEFORE_START);
+        }
+        return Arrays.asList(HookPhase.APPLICATION_BEFORE_START_LIVE, HookPhase.APPLICATION_BEFORE_START);
     }
 
     @Override

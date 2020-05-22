@@ -13,8 +13,6 @@ import org.cloudfoundry.client.lib.domain.CloudApplication.State;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
-import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
-import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
@@ -27,10 +25,6 @@ public class StopAppStep extends SyncFlowableStepWithHooks implements BeforeStep
 
     @Inject
     private ProcessTypeParser processTypeParser;
-    @Inject
-    private MtaMetadataParser mtaMetadataParser;
-    @Inject
-    private EnvMtaMetadataParser envMtaMetadataParser;
 
     @Override
     public StepPhase executeStepInternal(ProcessContext context) {

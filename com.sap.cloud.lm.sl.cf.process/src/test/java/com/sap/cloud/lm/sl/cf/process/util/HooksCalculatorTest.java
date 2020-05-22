@@ -21,6 +21,38 @@ class HooksCalculatorTest {
     private final ProcessContext context = createContext();
 
     @Test
+    void testExecuteHooksForPhaseBeforeStartIdle() {
+        HooksCalculator hooksHelper = createHooksCalculator(HookPhase.APPLICATION_BEFORE_START_IDLE, HookPhase.NONE);
+        Module moduleToDeploy = createModule("module-to-deploy");
+        Hook beforeStartIdleHook = createHook("before-start-idle", Collections.singletonList("application.before-start.idle"));
+        moduleToDeploy.setHooks(Collections.singletonList(beforeStartIdleHook));
+        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE);
+        Assertions.assertEquals(1, hooksForCurrentPhase.size());
+        Assertions.assertEquals(1, hooksForCurrentPhase.get(0)
+                .getPhases()
+                .size());
+        Assertions.assertEquals(HookPhase.APPLICATION_BEFORE_START_IDLE.getValue(), hooksForCurrentPhase.get(0)
+                .getPhases()
+                .get(0));
+    }
+
+    @Test
+    void testExecuteHooksForPhaseBeforeStartLive() {
+        HooksCalculator hooksHelper = createHooksCalculator(HookPhase.APPLICATION_BEFORE_START_LIVE, HookPhase.NONE);
+        Module moduleToDeploy = createModule("module-to-deploy");
+        Hook beforeStartLiveHook = createHook("before-start-live", Collections.singletonList("application.before-start.live"));
+        moduleToDeploy.setHooks(Collections.singletonList(beforeStartLiveHook));
+        List<Hook> hooksForCurrentPhase = hooksHelper.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE);
+        Assertions.assertEquals(1, hooksForCurrentPhase.size());
+        Assertions.assertEquals(1, hooksForCurrentPhase.get(0)
+                                                       .getPhases()
+                                                       .size());
+        Assertions.assertEquals(HookPhase.APPLICATION_BEFORE_START_LIVE.getValue(), hooksForCurrentPhase.get(0)
+                                                                                                        .getPhases()
+                                                                                                        .get(0));
+    }
+
+    @Test
     void testExecuteHooksForPhaseBeforeStopIdle() {
         HooksCalculator hooksHelper = createHooksCalculator(HookPhase.APPLICATION_BEFORE_STOP_IDLE, HookPhase.NONE);
         Module moduleToDeploy = createModule("module-to-deploy");
