@@ -201,7 +201,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         HandlerFactory handlerFactory = new HandlerFactory(MAJOR_SCHEMA_VERSION);
 
         DeploymentDescriptor dummyDescriptor = buildDummyDescriptor(subscription, handlerFactory);
-        getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.Messages.DEPLOYMENT_DESCRIPTOR, toJson(dummyDescriptor, true));
+        getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.Messages.DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(dummyDescriptor));
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(configurationEntryService,
                                                                                                      new DummyConfigurationFilterParser(subscription.getFilter()),

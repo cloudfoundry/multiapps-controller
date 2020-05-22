@@ -12,11 +12,11 @@ import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("deleteDiscontinuedConfigurationEntriesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -46,7 +46,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep
                 getStepLogger().warn(Messages.COULD_NOT_DELETE_PROVIDED_DEPENDENCY, entry.getProviderId());
             }
         }
-        getStepLogger().debug(Messages.DELETED_ENTRIES, JsonUtil.toJson(entriesToDelete, true));
+        getStepLogger().debug(Messages.DELETED_ENTRIES, SecureSerialization.toJson(entriesToDelete));
         context.setVariable(Variables.DELETED_ENTRIES, entriesToDelete);
 
         getStepLogger().debug(Messages.PUBLISHED_DEPENDENCIES_DELETED);

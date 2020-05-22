@@ -16,6 +16,7 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
@@ -57,7 +58,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         reportOverallProgress(context, new ArrayList<>(servicesWithLastOperation.values()), triggeredServiceOperations);
         List<CloudServiceInstanceExtended> remainingServicesToPoll = getRemainingServicesToPoll(servicesWithLastOperation);
         context.getStepLogger()
-               .debug(Messages.REMAINING_SERVICES_TO_POLL, JsonUtil.toJson(remainingServicesToPoll, true));
+               .debug(Messages.REMAINING_SERVICES_TO_POLL, SecureSerialization.toJson(remainingServicesToPoll));
         context.setVariable(Variables.SERVICES_TO_POLL, remainingServicesToPoll);
 
         if (remainingServicesToPoll.isEmpty()) {

@@ -141,7 +141,7 @@ public class Messages {
 
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_PARAMETERS = "Cannot retrieve service instance parameters of service \"{0}\"";
-    public static final String CANNOT_RETRIEVE_SERVICE_BINDING_PARAMETERS_BINDING_0_OF_APP_1 = "Cannot retrieve service binding parameters of service. Binding \"{0}\", of app: {1} ";
+    public static final String CANNOT_RETRIEVE_PARAMETERS_OF_SERVICE_BINDING_WITH_NAME_0_FOR_APPLICATION = "Cannot retrieve parameters of service binding with name \"{0}\" for application \"{1}\"";
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service \"{0}\"";
     public static final String CANNOT_RETRIEVE_INSTANCE_OF_SERVICE = "Cannot retrieve service instance of service \"{0}\"";
     public static final String COULD_NOT_DELETE_PROVIDED_DEPENDENCY = "Could not delete published provided dependency \"{0}\" from configuration registry";
@@ -519,7 +519,7 @@ public class Messages {
     public static final String GETTING_APPLICATIONS_BY_METADATA_LABEL_SELECTOR_0 = "Getting applications by metadata label selector \"{0}\"...";
     public static final String UPDATING_METADATA_OF_APPLICATION_0_TO_1 = "Updating metadata of application \"{0}\" to: {1}";
     public static final String GETTING_SERVICE_INSTANCES_BY_METADATA_LABEL_SELECTOR_0 = "Getting service instances by metadata label selector \"{0}\"...";
-    public static final String UPDATING_METADATA_OF_SERVICE_INSTANCE_0_TO_1 = "Updating metadata of service instance \"{0}\": {1}";
+    public static final String UPDATING_METADATA_OF_SERVICE_INSTANCE_0_TO_1 = "Updating metadata of service instance \"{0}\" to: {1}";
 
     protected Messages() {
     }

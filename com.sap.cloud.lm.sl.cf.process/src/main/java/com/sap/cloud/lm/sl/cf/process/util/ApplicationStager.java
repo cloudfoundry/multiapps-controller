@@ -15,11 +15,11 @@ import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class ApplicationStager {
 
@@ -123,7 +123,7 @@ public class ApplicationStager {
 
     private void logMessages(CloudApplication app, CloudBuild build) {
         logger.info(Messages.APPLICATION_NOT_STAGED_CORRECTLY, app.getName());
-        logger.debug(Messages.LAST_BUILD, JsonUtil.toJson(build));
+        logger.debug(Messages.LAST_BUILD, SecureSerialization.toJson(build));
     }
 
     public void bindDropletToApplication(UUID appGuid) {

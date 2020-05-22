@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.mta.model.DeploymentType;
 import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
-@Named("collectSystemParametersStep") // rename to collect system parameters and allocate ports?
+@Named("collectSystemParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CollectSystemParametersStep extends SyncFlowableStep {
 
