@@ -69,7 +69,7 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
             CloudServiceInstance serviceInstance = getControllerClient().getServiceInstance(serviceName);
             Map<String, Object> newServiceBindingParameters = getNewServiceBindingParameters(serviceNamesWithBindingParameters,
                                                                                              serviceInstance);
-            if (hasServiceBindingsChanged(application, serviceInstance, newServiceBindingParameters)) {
+            if (hasServiceBindingChanged(application, serviceInstance, newServiceBindingParameters)) {
                 servicesToRebind.add(serviceInstance.getName());
             }
         }
@@ -81,27 +81,27 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
         return serviceNamesWithBindingParameters.get(serviceInstance.getName());
     }
 
-    private boolean hasServiceBindingsChanged(CloudApplication application, CloudServiceInstance serviceInstance,
-                                              Map<String, Object> newServiceBindingParameters) {
-        CloudServiceBinding bindingForApplication = getServiceBindingForApplication(application, serviceInstance);
-        Map<String, Object> bindingParameters = getBindingParameters(bindingForApplication);
-        return !Objects.equals(bindingParameters, newServiceBindingParameters);
+    private boolean hasServiceBindingChanged(CloudApplication application, CloudServiceInstance serviceInstance,
+                                             Map<String, Object> newServiceBindingParameters) {
+        Map<String, Object> currentBindingParameters = getServiceBindingParameters(application, serviceInstance);
+        return !Objects.equals(currentBindingParameters, newServiceBindingParameters);
     }
 
-    private Map<String, Object> getBindingParameters(CloudServiceBinding bindingForApplication) {
+    private Map<String, Object> getServiceBindingParameters(CloudApplication application, CloudServiceInstance serviceInstance) {
+        CloudServiceBinding serviceBinding = getServiceBinding(application, serviceInstance);
         try {
-            return getControllerClient().getServiceBindingParameters(getGuid(bindingForApplication));
+            return getControllerClient().getServiceBindingParameters(getGuid(serviceBinding));
         } catch (CloudOperationException e) {
             if (HttpStatus.NOT_IMPLEMENTED == e.getStatusCode() || HttpStatus.BAD_REQUEST == e.getStatusCode()) {
-                getLogger().warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_PARAMETERS_OF_SERVICE_BINDING_WITH_NAME_0_FOR_APPLICATION,
-                                                       bindingForApplication.getName(), bindingForApplication.getApplicationGuid());
+                getLogger().warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_PARAMETERS_OF_BINDING_BETWEEN_APPLICATION_0_AND_SERVICE_INSTANCE_1,
+                                                       application.getName(), serviceInstance.getName());
                 return null;
             }
             throw e;
         }
     }
 
-    private CloudServiceBinding getServiceBindingForApplication(CloudApplication application, CloudServiceInstance serviceInstance) {
+    private CloudServiceBinding getServiceBinding(CloudApplication application, CloudServiceInstance serviceInstance) {
         List<CloudServiceBinding> serviceBindings = getControllerClient().getServiceBindings(getGuid(serviceInstance));
         getLogger().debug(Messages.LOOKING_FOR_SERVICE_BINDINGS, getGuid(application), getGuid(serviceInstance),
                           SecureSerialization.toJson(serviceBindings));
