@@ -11,6 +11,9 @@ public enum HookPhase {
     APPLICATION_AFTER_STOP_LIVE("application.after-stop.live"),
     APPLICATION_AFTER_STOP_IDLE("application.after-stop.idle"),
     APPLICATION_BEFORE_UNMAP_ROUTES("application.before-unmap-routes"),
+    APPLICATION_BEFORE_START_IDLE("application.before-start.idle"),
+    APPLICATION_BEFORE_START_LIVE("application.before-start.live"),
+    APPLICATION_BEFORE_START("application.before-start"),
     NONE("");
 
     private final String value;
