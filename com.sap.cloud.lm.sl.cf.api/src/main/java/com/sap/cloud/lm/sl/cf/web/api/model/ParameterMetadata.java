@@ -11,23 +11,17 @@ import com.sap.cloud.lm.sl.common.Nullable;
 @JsonDeserialize(as = ImmutableParameterMetadata.class)
 public interface ParameterMetadata {
 
-    @Nullable
     String getId();
 
     @Nullable
     Object getDefaultValue();
 
-    @Nullable
     @Value.Default
-    default Boolean getRequired() {
+    default boolean getRequired() {
         return false;
     }
 
-    @Nullable
-    @Value.Default
-    default ParameterType getType() {
-        return ParameterType.STRING;
-    }
+    ParameterType getType();
 
     enum ParameterType {
         STRING, INTEGER, BOOLEAN, TABLE
