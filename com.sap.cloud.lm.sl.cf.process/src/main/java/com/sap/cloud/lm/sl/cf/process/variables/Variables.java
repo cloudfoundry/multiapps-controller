@@ -77,7 +77,6 @@ public interface Variables {
                                                      .build();
     Variable<String> GIT_URI = ImmutableSimpleVariable.<String> builder()
                                                       .name("gitUri")
-                                                      .defaultValue("")
                                                       .build();
     Variable<String> GIT_REF = ImmutableSimpleVariable.<String> builder()
                                                       .name("gitRef")
