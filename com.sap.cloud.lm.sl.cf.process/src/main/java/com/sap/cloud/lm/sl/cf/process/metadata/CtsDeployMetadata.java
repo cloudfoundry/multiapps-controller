@@ -18,9 +18,11 @@ public class CtsDeployMetadata {
     static {
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.APP_ARCHIVE_ID.getName())
+                                             .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.EXT_DESCRIPTOR_FILE_ID.getName())
+                                             .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.NO_START.getName())
@@ -44,6 +46,7 @@ public class CtsDeployMetadata {
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.VERSION_RULE.getName())
+                                             .type(ParameterType.STRING)
                                              .defaultValue(VersionRule.ALL.toString())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
@@ -68,6 +71,7 @@ public class CtsDeployMetadata {
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.MTA_ID.getName())
+                                             .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.KEEP_FILES.getName())
@@ -81,13 +85,16 @@ public class CtsDeployMetadata {
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.GIT_URI.getName())
+                                             .type(ParameterType.STRING)
                                              .defaultValue(Variables.GIT_URI.getDefaultValue())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.GIT_REF.getName())
+                                             .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.GIT_REPO_PATH.getName())
+                                             .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.GIT_SKIP_SSL.getName())
@@ -113,6 +120,7 @@ public class CtsDeployMetadata {
         // Special CTS+ parameters:
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.CTS_PROCESS_ID.getName())
+                                             .type(ParameterType.STRING)
                                              .required(true)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
@@ -121,18 +129,23 @@ public class CtsDeployMetadata {
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.DEPLOY_URI.getName())
+                                             .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.CTS_USERNAME.getName())
+                                             .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.CTS_PASSWORD.getName())
+                                             .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.APPLICATION_TYPE.getName())
+                                             .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.TRANSFER_TYPE.getName())
+                                             .type(ParameterType.STRING)
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.GIT_REPOSITORY_LIST.getName())
