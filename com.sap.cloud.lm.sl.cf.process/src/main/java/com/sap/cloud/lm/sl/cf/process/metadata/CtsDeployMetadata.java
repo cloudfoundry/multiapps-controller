@@ -9,6 +9,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableParameterMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata.ParameterType;
+import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
 public class CtsDeployMetadata {
 
@@ -43,8 +44,7 @@ public class CtsDeployMetadata {
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.VERSION_RULE.getName())
-                                             .defaultValue(Variables.VERSION_RULE.getDefaultValue()
-                                                                                 .toString())
+                                             .defaultValue(VersionRule.ALL.toString())
                                              .build());
         PARAMS.add(ImmutableParameterMetadata.builder()
                                              .id(Variables.DELETE_SERVICES.getName())
