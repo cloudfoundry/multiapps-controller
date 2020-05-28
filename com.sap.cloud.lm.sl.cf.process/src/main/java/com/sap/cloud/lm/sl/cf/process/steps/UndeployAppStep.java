@@ -15,6 +15,7 @@ public abstract class UndeployAppStep extends SyncFlowableStepWithHooks {
         return undeployApplication(client, cloudApplicationToUndeploy, context);
     }
 
-    protected abstract StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy, ProcessContext context);
+    protected abstract StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy,
+                                                     ProcessContext context);
 
 }

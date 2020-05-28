@@ -71,6 +71,6 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
 
     @Override
     public List<HookPhase> getHookPhasesBeforeStep(ProcessContext context) {
-        return Collections.singletonList(HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES);
+        return hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_UNMAP_ROUTES), context);
     }
 }

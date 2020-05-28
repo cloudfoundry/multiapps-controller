@@ -11,7 +11,9 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.process.util.HooksCalculator;
 import com.sap.cloud.lm.sl.cf.process.util.HooksExecutor;
 import com.sap.cloud.lm.sl.cf.process.util.ModuleDeterminer;
+import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -23,14 +25,18 @@ class SyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<SyncFlowabl
     private HooksCalculator hooksCalculator;
     @Mock
     private HooksExecutor hooksExecutor;
+    @Mock
+    private ProcessTypeParser processTypeParser;
 
     @Test
     void testExecuteStepPhaseWithHooksBefore() {
+        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+               .thenReturn(ProcessType.DEPLOY);
         Module moduleToDeploy = createModule("test-module");
         Mockito.when(moduleDeterminer.determineModuleToDeploy(context))
                .thenReturn(moduleToDeploy);
         List<Hook> hooksForExecution = Collections.singletonList(createHook("test-hook"));
-        Mockito.when(hooksExecutor.executeBeforeStepHooks(hooksCalculator, moduleToDeploy, context.getVariable(Variables.STEP_PHASE)))
+        Mockito.when(hooksExecutor.executeBeforeStepHooks(StepPhase.EXECUTE))
                .thenReturn(hooksForExecution);
         Assertions.assertEquals(StepPhase.EXECUTE, step.executeStep(context));
     }
@@ -41,7 +47,7 @@ class SyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<SyncFlowabl
         Mockito.when(moduleDeterminer.determineModuleToDeploy(context))
                .thenReturn(moduleToDeploy);
         List<Hook> hooksForExecution = Collections.singletonList(createHook("test-hook"));
-        Mockito.when(hooksExecutor.executeAfterStepHooks(hooksCalculator, moduleToDeploy, context.getVariable(Variables.STEP_PHASE)))
+        Mockito.when(hooksExecutor.executeAfterStepHooks(context.getVariable(Variables.STEP_PHASE)))
                .thenReturn(hooksForExecution);
         Assertions.assertEquals(StepPhase.DONE, step.executeStep(context));
     }
@@ -81,6 +87,11 @@ class SyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<SyncFlowabl
         @Override
         protected StepPhase executeStepInternal(ProcessContext context) {
             return StepPhase.DONE;
+        }
+
+        @Override
+        protected HooksExecutor getHooksExecutor(HooksCalculator hooksCalculator, Module moduleToDeploy) {
+            return hooksExecutor;
         }
     }
 }

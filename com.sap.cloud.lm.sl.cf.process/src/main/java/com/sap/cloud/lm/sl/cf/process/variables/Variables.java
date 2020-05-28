@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import com.sap.cloud.lm.sl.cf.core.model.SubprocessPhase;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
@@ -452,6 +453,10 @@ public interface Variables {
                                                  .name("phase")
                                                  .type(Phase.class)
                                                  .build();
+    Variable<SubprocessPhase> SUBPROCESS_PHASE = ImmutableEnumVariable.<SubprocessPhase> builder()
+                                                            .name("subprocessPhase")
+                                                            .type(SubprocessPhase.class)
+                                                            .build();
     Variable<VersionRule> VERSION_RULE = ImmutableEnumVariable.<VersionRule> builder()
                                                               .name("versionRule")
                                                               .type(VersionRule.class)

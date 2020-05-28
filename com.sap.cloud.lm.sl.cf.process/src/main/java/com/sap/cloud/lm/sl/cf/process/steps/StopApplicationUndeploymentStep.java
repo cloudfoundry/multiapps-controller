@@ -36,11 +36,11 @@ public class StopApplicationUndeploymentStep extends UndeployAppStep implements 
 
     @Override
     public List<HookPhase> getHookPhasesBeforeStep(ProcessContext context) {
-        return Collections.singletonList(HookPhase.APPLICATION_BEFORE_STOP_LIVE);
+        return hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_STOP), context);
     }
 
     @Override
     public List<HookPhase> getHookPhasesAfterStep(ProcessContext context) {
-        return Collections.singletonList(HookPhase.APPLICATION_AFTER_STOP_LIVE);
+        return hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.AFTER_STOP), context);
     }
 }

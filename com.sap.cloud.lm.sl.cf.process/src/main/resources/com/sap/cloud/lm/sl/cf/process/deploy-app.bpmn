@@ -34,9 +34,6 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('STAGE')}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="doNotStageAppFlow" sourceRef="exclusivegateway2" targetRef="shouldStartAppGateway"></sequenceFlow>
-    <sequenceFlow id="startAppFlow" sourceRef="shouldStartAppGateway" targetRef="startAppTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('START')}]]></conditionExpression>
-    </sequenceFlow>
     <exclusiveGateway id="exclusivegateway3" name="Does App Exist" default="uploadAppContentFlow"></exclusiveGateway>
     <sequenceFlow id="uploadAppContentFlow" sourceRef="exclusivegateway3" targetRef="uploadAppTask"></sequenceFlow>
     <sequenceFlow id="flow82" name="Do not upload application content" sourceRef="exclusivegateway3" targetRef="scaleAppTask">
@@ -73,9 +70,6 @@
     <exclusiveGateway id="shouldUpdateConfigurations" name="Should Update Configurations" default="updateConfigurationsFlow"></exclusiveGateway>
     <exclusiveGateway id="shouldDeleteIdleRoutes" name="Should Delete Idle Routes" default="skipDeleteIdleRoutesFlow"></exclusiveGateway>
     <serviceTask id="deleteIdleRoutesTask" name="Delete Idle Routes" flowable:async="true" flowable:delegateExpression="${deleteIdleRoutesStep}"></serviceTask>
-    <sequenceFlow id="stopAppFlow" sourceRef="shouldStopAppGateway" targetRef="stopAppTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('STOP')}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="updateConfigurationsFlow" sourceRef="shouldUpdateConfigurations" targetRef="publishProvidedDependenciesTask"></sequenceFlow>
     <sequenceFlow id="deleteIdleRoutesFlow" sourceRef="shouldDeleteIdleRoutes" targetRef="deleteIdleRoutesTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${deleteIdleUris}]]></conditionExpression>
@@ -123,6 +117,18 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${execution.getVariable('hooksForExecution') != null}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="sid-E6050369-B93F-4433-8CDB-D7572FD2F525" sourceRef="sid-70329A91-339F-4215-9AB6-41ED6C769C40" targetRef="stopAppTask"></sequenceFlow>
+    <sequenceFlow id="stopAppFlow" sourceRef="shouldStopAppGateway" targetRef="stopAppTask">
+      <extensionElements>
+        <flowable:executionListener event="take" delegateExpression="${setBeforeApplicationStopPhase}"></flowable:executionListener>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('STOP')}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="startAppFlow" sourceRef="shouldStartAppGateway" targetRef="startAppTask">
+      <extensionElements>
+        <flowable:executionListener event="take" delegateExpression="${setBeforeApplicationStartPhase}"></flowable:executionListener>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('START')}]]></conditionExpression>
+    </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_deployAppSubProcess">
     <bpmndi:BPMNPlane bpmnElement="deployAppSubProcess" id="BPMNPlane_deployAppSubProcess">
@@ -259,13 +265,13 @@
         <omgdi:waypoint x="658.5" y="1320.5"></omgdi:waypoint>
         <omgdi:waypoint x="658.5" y="1229.45"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="startAppFlow" id="BPMNEdge_startAppFlow">
-        <omgdi:waypoint x="162.88146470955627" y="898.0623437500001"></omgdi:waypoint>
-        <omgdi:waypoint x="250.0" y="898.3354231974922"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-4433C2BB-6626-4F02-8061-F70191657A5A" id="BPMNEdge_sid-4433C2BB-6626-4F02-8061-F70191657A5A">
         <omgdi:waypoint x="592.949999999968" y="491.34852546916886"></omgdi:waypoint>
         <omgdi:waypoint x="703.0534759358259" y="491.05334224598926"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="startAppFlow" id="BPMNEdge_startAppFlow">
+        <omgdi:waypoint x="162.88146470955627" y="898.0623437500001"></omgdi:waypoint>
+        <omgdi:waypoint x="250.0" y="898.3354231974922"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="skipDeleteIdleRoutesFlow" id="BPMNEdge_skipDeleteIdleRoutesFlow">
         <omgdi:waypoint x="945.9463069230897" y="1340.5"></omgdi:waypoint>
@@ -330,20 +336,20 @@
         <omgdi:waypoint x="1196.0" y="1234.95"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow84" id="BPMNEdge_flow84">
-        <omgdi:waypoint x="754.499995746629" y="1005.5000000000001"></omgdi:waypoint>
-        <omgdi:waypoint x="302.5" y="1005.5000000000001"></omgdi:waypoint>
-        <omgdi:waypoint x="302.5" y="925.9499999999999"></omgdi:waypoint>
+        <omgdi:waypoint x="754.5000070136338" y="1005.4834401802698"></omgdi:waypoint>
+        <omgdi:waypoint x="302.0" y="1005.0"></omgdi:waypoint>
+        <omgdi:waypoint x="302.37089201877933" y="925.9499999999999"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="stopAppFlow" id="BPMNEdge_stopAppFlow">
         <omgdi:waypoint x="162.8783311560947" y="491.0651960784314"></omgdi:waypoint>
         <omgdi:waypoint x="242.99999999999676" y="491.32786885245906"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="appExecutedFlow" id="BPMNEdge_appExecutedFlow">
-        <omgdi:waypoint x="789.9466680111012" y="898.5000000000001"></omgdi:waypoint>
-        <omgdi:waypoint x="1069.2708129882815" y="898.5000000000001"></omgdi:waypoint>
-        <omgdi:waypoint x="1069.2708129882815" y="1051.77783203125"></omgdi:waypoint>
-        <omgdi:waypoint x="140.5" y="1051.77783203125"></omgdi:waypoint>
-        <omgdi:waypoint x="140.5" y="1179.0"></omgdi:waypoint>
+        <omgdi:waypoint x="789.9166944908183" y="898.4666110183643"></omgdi:waypoint>
+        <omgdi:waypoint x="1069.0" y="898.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1069.0" y="1051.0"></omgdi:waypoint>
+        <omgdi:waypoint x="140.0" y="1051.0"></omgdi:waypoint>
+        <omgdi:waypoint x="140.0" y="1178.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
         <omgdi:waypoint x="662.0" y="369.447504302926"></omgdi:waypoint>

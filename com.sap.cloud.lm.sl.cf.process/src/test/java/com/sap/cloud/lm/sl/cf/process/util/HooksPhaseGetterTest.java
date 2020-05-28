@@ -38,7 +38,7 @@ class HooksPhaseGetterTest {
 
     @Test
     void testGetHookPhasesBeforeStop() {
-        List<HookPhase> hookPhases = Collections.singletonList(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
+        List<HookPhase> hookPhases = Collections.singletonList(HookPhase.BEFORE_STOP);
         StopAppStep beforeStepHookPhaseProvider = Mockito.mock(StopAppStep.class);
         Mockito.when(beforeStepHookPhaseProvider.getHookPhasesBeforeStep(context))
                .thenReturn(hookPhases);
@@ -49,7 +49,7 @@ class HooksPhaseGetterTest {
 
     @Test
     void testGetHookPhasesAfterStop() {
-        List<HookPhase> hookPhases = Collections.singletonList(HookPhase.APPLICATION_AFTER_STOP_IDLE);
+        List<HookPhase> hookPhases = Collections.singletonList(HookPhase.AFTER_STOP);
         StopAppStep afterStepHookPhaseProvider = Mockito.mock(StopAppStep.class);
         Mockito.when(afterStepHookPhaseProvider.getHookPhasesAfterStep(context))
                .thenReturn(hookPhases);

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -15,9 +16,11 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
-import com.sap.cloud.lm.sl.cf.process.util.HooksPhaseGetter;
 import com.sap.cloud.lm.sl.cf.process.util.HooksExecutor;
+import com.sap.cloud.lm.sl.cf.process.util.HooksPhaseGetter;
+import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class DeleteApplicationStepTest extends UndeployAppStepTest {
@@ -30,6 +33,14 @@ public class DeleteApplicationStepTest extends UndeployAppStepTest {
     private HooksPhaseGetter hooksPhaseGetter;
     @Mock
     private HooksExecutor hooksExecutor;
+    @Mock
+    private ProcessTypeParser processTypeParser;
+
+    @BeforeEach
+    void setUp() {
+        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+               .thenReturn(ProcessType.DEPLOY);
+    }
 
     @Test
     public void testApplicationNotFoundExceptionThrown() {

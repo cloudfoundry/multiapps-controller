@@ -8,6 +8,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.process.util.HooksCalculator;
 import com.sap.cloud.lm.sl.cf.process.util.HooksExecutor;
+import com.sap.cloud.lm.sl.cf.process.util.HooksPhaseBuilder;
 import com.sap.cloud.lm.sl.cf.process.util.HooksPhaseGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ImmutableHooksCalculator;
 import com.sap.cloud.lm.sl.cf.process.util.ImmutableModuleDeterminer;
@@ -25,7 +26,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
     @Inject
     private HooksPhaseGetter hooksPhaseGetter;
     @Inject
-    private HooksExecutor hooksExecutor;
+    protected HooksPhaseBuilder hooksPhaseBuilder;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) {
@@ -33,12 +34,13 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         StepPhase currentStepPhase = context.getVariable(Variables.STEP_PHASE);
         Module moduleToDeploy = moduleDeterminer.determineModuleToDeploy(context);
         HooksCalculator hooksCalculator = getHooksCalculator(context);
-        List<Hook> executedHooks = hooksExecutor.executeBeforeStepHooks(hooksCalculator, moduleToDeploy, currentStepPhase);
+        HooksExecutor hooksExecutor = getHooksExecutor(hooksCalculator, moduleToDeploy);
+        List<Hook> executedHooks = hooksExecutor.executeBeforeStepHooks(currentStepPhase);
         if (!executedHooks.isEmpty()) {
             return currentStepPhase;
         }
         currentStepPhase = executeStepInternal(context);
-        hooksExecutor.executeAfterStepHooks(hooksCalculator, moduleToDeploy, currentStepPhase);
+        hooksExecutor.executeAfterStepHooks(currentStepPhase);
         return currentStepPhase;
     }
 
@@ -56,6 +58,10 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
                                        .hookPhasesBeforeStep(hooksPhaseGetter.getHookPhasesBeforeStop(this, context))
                                        .hookPhasesAfterStep(hooksPhaseGetter.getHookPhasesAfterStop(this, context))
                                        .build();
+    }
+
+    protected HooksExecutor getHooksExecutor(HooksCalculator hooksCalculator, Module moduleToDeploy) {
+        return new HooksExecutor(hooksCalculator, moduleToDeploy);
     }
 
     protected abstract StepPhase executeStepInternal(ProcessContext context);

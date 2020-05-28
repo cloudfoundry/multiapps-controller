@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.process.util.HooksCalculator;
 import com.sap.cloud.lm.sl.cf.process.util.HooksExecutor;
 import com.sap.cloud.lm.sl.cf.process.util.ModuleDeterminer;
+import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 import com.sap.cloud.lm.sl.mta.model.Module;
@@ -23,6 +24,8 @@ class TimeoutASyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<Tim
     private HooksCalculator hooksCalculator;
     @Mock
     private HooksExecutor hooksExecutor;
+    @Mock
+    private ProcessTypeParser processTypeParser;
 
     @Test
     void testExecuteStepPhaseWithHooksBefore() {
@@ -30,7 +33,7 @@ class TimeoutASyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<Tim
         Mockito.when(moduleDeterminer.determineModuleToDeploy(context))
                .thenReturn(moduleToDeploy);
         List<Hook> hooksForExecution = Collections.singletonList(createHook("test-hook"));
-        Mockito.when(hooksExecutor.executeBeforeStepHooks(hooksCalculator, moduleToDeploy, context.getVariable(Variables.STEP_PHASE)))
+        Mockito.when(hooksExecutor.executeBeforeStepHooks(context.getVariable(Variables.STEP_PHASE)))
                .thenReturn(hooksForExecution);
         Assertions.assertEquals(StepPhase.EXECUTE, step.executeAsyncStep(context));
     }
@@ -85,6 +88,11 @@ class TimeoutASyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<Tim
         @Override
         protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
             return Collections.emptyList();
+        }
+
+        @Override
+        protected HooksExecutor getHooksExecutor(HooksCalculator hooksCalculator, Module moduleToDeploy) {
+            return hooksExecutor;
         }
     }
 }

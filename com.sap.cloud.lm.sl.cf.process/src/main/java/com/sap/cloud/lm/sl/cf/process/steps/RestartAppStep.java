@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -18,11 +19,8 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
-import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 
 @Named("restartAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -30,8 +28,6 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
 
     @Inject
     protected RecentLogsRetriever recentLogsRetriever;
-    @Inject
-    private ProcessTypeParser processTypeParser;
 
     @Override
     public StepPhase executePollingStep(ProcessContext context) {
@@ -89,11 +85,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStepWithHooks implements
 
     @Override
     public List<HookPhase> getHookPhasesBeforeStep(ProcessContext context) {
-        ProcessType processType = processTypeParser.getProcessType(context.getExecution());
-        if (ProcessType.BLUE_GREEN_DEPLOY.equals(processType) && context.getVariable(Variables.PHASE) != Phase.AFTER_RESUME) {
-            return Arrays.asList(HookPhase.APPLICATION_BEFORE_START_IDLE, HookPhase.APPLICATION_BEFORE_START);
-        }
-        return Arrays.asList(HookPhase.APPLICATION_BEFORE_START_LIVE, HookPhase.APPLICATION_BEFORE_START);
+        return hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_START), context);
     }
 
     @Override

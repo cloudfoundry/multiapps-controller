@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
 import com.sap.cloud.lm.sl.cf.process.util.HooksExecutor;
+import com.sap.cloud.lm.sl.cf.process.util.HooksPhaseBuilder;
 import com.sap.cloud.lm.sl.cf.process.util.HooksPhaseGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -39,6 +40,8 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     private HooksPhaseGetter hooksPhaseGetter;
     @Mock
     private HooksExecutor hooksExecutor;
+    @Mock
+    private HooksPhaseBuilder hooksPhaseBuilder;
 
     @Mock
     private ProcessTypeParser processTypeParser;
@@ -99,33 +102,19 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     }
 
     @Test
-    void testGetHookPhaseBeforeBlueGreenProcessResumePhaseBlueGreenProcess() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
-               .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
-        List<HookPhase> expectedPhases = Collections.singletonList(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
+    void testGetHooksBeforeStep() {
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_STOP), context))
+               .thenReturn(Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE));
+        List<HookPhase> expectedPhases = Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE);
         List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesBeforeStep(context);
         assertEquals(expectedPhases, hookPhasesBeforeStep);
     }
 
     @Test
-    void testGetHookPhaseBeforeBlueGreenProcessResumePhase() {
-        List<HookPhase> expectedPhases = Collections.singletonList(HookPhase.APPLICATION_BEFORE_STOP_LIVE);
-        List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesBeforeStep(context);
-        assertEquals(expectedPhases, hookPhasesBeforeStep);
-    }
-
-    @Test
-    void testGetHookPhaseAfterBlueGreenProcessResumePhaseBlueGreenProcess() {
-        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
-               .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
-        List<HookPhase> expectedPhases = Collections.singletonList(HookPhase.APPLICATION_AFTER_STOP_IDLE);
-        List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesAfterStep(context);
-        assertEquals(expectedPhases, hookPhasesBeforeStep);
-    }
-
-    @Test
-    void testGetHookAfterBeforeBlueGreenProcessResumePhase() {
-        List<HookPhase> expectedPhases = Collections.singletonList(HookPhase.APPLICATION_AFTER_STOP_LIVE);
+    void testGetHooksAfterStep() {
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.AFTER_STOP), context))
+               .thenReturn(Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE));
+        List<HookPhase> expectedPhases = Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE);
         List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesAfterStep(context);
         assertEquals(expectedPhases, hookPhasesBeforeStep);
     }
