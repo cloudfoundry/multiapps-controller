@@ -1,6 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.metadata;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.metadata.parameters.StartTimeoutParameterConverter;
+import com.sap.cloud.lm.sl.cf.process.metadata.parameters.VersionRuleParameterConverter;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableParameterMetadata;
@@ -32,6 +34,7 @@ public class CtsDeployMetadata {
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.START_TIMEOUT.getName())
                                                                                  .type(ParameterType.INTEGER)
+                                                                                 .customConverter(new StartTimeoutParameterConverter())
                                                                                  .build())
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.USE_NAMESPACES.getName())
@@ -45,6 +48,7 @@ public class CtsDeployMetadata {
                                                                                  .id(Variables.VERSION_RULE.getName())
                                                                                  .type(ParameterType.STRING)
                                                                                  .defaultValue(VersionRule.ALL.toString())
+                                                                                 .customConverter(new VersionRuleParameterConverter())
                                                                                  .build())
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.DELETE_SERVICES.getName())

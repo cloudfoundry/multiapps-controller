@@ -53,18 +53,10 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
     // @formatter:off
     private static Stream<Arguments> testExecution() {
         return Stream.of(
-                // startTimeout parameter is negative
-                Arguments.of(new StepInput(null, null, -1, null, false),
-                        MessageFormat.format(Messages.ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE, "-1", "startTimeout"), false, ""),
-
                 // No file associated with the specified file id
                 Arguments.of(new StepInput(EXISTING_FILE_ID, NOT_EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, null, false),
                         MessageFormat.format(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1, "notExistingFileId",
                                      "space-id"), false, ""),
-
-                // Invalid version rule
-                Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, "asd", false),
-                        MessageFormat.format(Messages.ERROR_PARAMETER_1_IS_NOT_VALID_VALID_VALUES_ARE_2, "asd", "versionRule", ""), false, "[SAME_HIGHER, HIGHER, ALL]"),
 
                 // Valid parameters
                 Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, VersionRule.HIGHER.toString(), false),

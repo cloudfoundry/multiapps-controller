@@ -28,7 +28,6 @@ import com.sap.cloud.lm.sl.cf.process.util.ArchiveMerger;
 import com.sap.cloud.lm.sl.cf.process.util.JarSignatureOperations;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
 @Named("validateDeployParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -58,21 +57,8 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private void validateParameters(ProcessContext context) {
-        validateStartTimeout(context);
         validateExtensionDescriptorFileIds(context);
-        validateVersionRule(context.getExecution());
         validateArchive(context);
-    }
-
-    private void validateStartTimeout(ProcessContext context) {
-        Object parameter = context.getVariable(Variables.START_TIMEOUT);
-        if (parameter == null) {
-            return;
-        }
-        int startTimeout = (int) parameter;
-        if (startTimeout < 0) {
-            throw new SLException(Messages.ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE, startTimeout, Variables.START_TIMEOUT.getName());
-        }
     }
 
     private void validateExtensionDescriptorFileIds(ProcessContext context) {
@@ -110,19 +96,6 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
                                       .toString(),
                                   file.getName(),
                                   String.valueOf(maxSizeLimit.longValue()));
-        }
-    }
-
-    private void validateVersionRule(DelegateExecution execution) {
-        String versionRuleString = (String) execution.getVariable(Variables.VERSION_RULE.getName());
-        try {
-            VersionRule.value(versionRuleString);
-        } catch (IllegalArgumentException e) {
-            throw new SLException(e,
-                                  Messages.ERROR_PARAMETER_1_IS_NOT_VALID_VALID_VALUES_ARE_2,
-                                  versionRuleString,
-                                  Variables.VERSION_RULE.getName(),
-                                  Arrays.asList(VersionRule.values()));
         }
     }
 
