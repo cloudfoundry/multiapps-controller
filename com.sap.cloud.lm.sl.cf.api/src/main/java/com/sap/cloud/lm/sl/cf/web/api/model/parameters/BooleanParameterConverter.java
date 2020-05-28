@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.web.api.model;
+package com.sap.cloud.lm.sl.cf.web.api.model.parameters;
 
 import java.text.MessageFormat;
 

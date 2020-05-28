@@ -1,9 +1,11 @@
-package com.sap.cloud.lm.sl.cf.web.api.model;
+package com.sap.cloud.lm.sl.cf.web.api.model.parameters;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
 
 public final class ParameterConversion {
 
@@ -25,6 +27,9 @@ public final class ParameterConversion {
     }
 
     private static ParameterConverter getParameterConverter(ParameterMetadata parameterMetadata) {
+        if (parameterMetadata.getCustomConverter() != null) {
+            return parameterMetadata.getCustomConverter();
+        }
         switch (parameterMetadata.getType()) {
             case BOOLEAN:
                 return new BooleanParameterConverter();
