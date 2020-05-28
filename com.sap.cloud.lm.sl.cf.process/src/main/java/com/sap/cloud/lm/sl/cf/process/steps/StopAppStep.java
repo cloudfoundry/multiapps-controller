@@ -17,7 +17,6 @@ import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 
 @Named("stopAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -59,22 +58,12 @@ public class StopAppStep extends SyncFlowableStepWithHooks implements BeforeStep
 
     @Override
     public List<HookPhase> getHookPhasesBeforeStep(ProcessContext context) {
-        ProcessType processType = processTypeParser.getProcessType(context.getExecution());
-        if (ProcessType.BLUE_GREEN_DEPLOY.equals(processType)) {
-            return Collections.singletonList(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
-        }
-
-        return Collections.singletonList(HookPhase.APPLICATION_BEFORE_STOP_LIVE);
+        return hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_STOP), context);
     }
 
     @Override
     public List<HookPhase> getHookPhasesAfterStep(ProcessContext context) {
-        ProcessType processType = processTypeParser.getProcessType(context.getExecution());
-        if (ProcessType.BLUE_GREEN_DEPLOY.equals(processType)) {
-            return Collections.singletonList(HookPhase.APPLICATION_AFTER_STOP_IDLE);
-        }
-
-        return Collections.singletonList(HookPhase.APPLICATION_AFTER_STOP_LIVE);
+        return hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.AFTER_STOP), context);
     }
 
 }

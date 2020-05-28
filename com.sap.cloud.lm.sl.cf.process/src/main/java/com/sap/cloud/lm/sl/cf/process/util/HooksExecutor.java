@@ -3,30 +3,35 @@ package com.sap.cloud.lm.sl.cf.process.util;
 import java.util.Collections;
 import java.util.List;
 
-import javax.inject.Named;
-
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
-@Named
 public class HooksExecutor {
 
-    public List<Hook> executeBeforeStepHooks(HooksCalculator hooksCalculator, Module moduleToDeploy, StepPhase currentStepPhase) {
+    private final HooksCalculator hooksCalculator;
+    private final Module moduleToDeploy;
+
+    public HooksExecutor(HooksCalculator hooksCalculator, Module moduleToDeploy) {
+        this.hooksCalculator = hooksCalculator;
+        this.moduleToDeploy = moduleToDeploy;
+    }
+
+    public List<Hook> executeBeforeStepHooks(StepPhase currentStepPhase) {
         if (!hooksCalculator.isInPreExecuteStepPhase(currentStepPhase)) {
             return Collections.emptyList();
         }
-        return executeHooks(hooksCalculator, currentStepPhase, moduleToDeploy);
+        return executeHooks(currentStepPhase);
     }
 
-    public List<Hook> executeAfterStepHooks(HooksCalculator hooksCalculator, Module moduleToDeploy, StepPhase currentStepPhase) {
+    public List<Hook> executeAfterStepHooks(StepPhase currentStepPhase) {
         if (!hooksCalculator.isInPostExecuteStepPhase(currentStepPhase)) {
             return Collections.emptyList();
         }
-        return executeHooks(hooksCalculator, currentStepPhase, moduleToDeploy);
+        return executeHooks(currentStepPhase);
     }
 
-    private List<Hook> executeHooks(HooksCalculator hooksCalculator, StepPhase stepPhase, Module moduleToDeploy) {
+    private List<Hook> executeHooks(StepPhase stepPhase) {
         if (moduleToDeploy == null) {
             return Collections.emptyList();
         }

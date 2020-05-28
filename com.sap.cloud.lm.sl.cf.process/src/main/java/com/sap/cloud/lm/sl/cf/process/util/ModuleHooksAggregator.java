@@ -1,3 +1,4 @@
+
 package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.util.Collections;
@@ -81,7 +82,7 @@ public class ModuleHooksAggregator {
     private boolean hasAllPhasesExecuted(Map<String, List<String>> alreadyExecutedHooks, Hook hookToBeExecuted,
                                          List<HookPhase> hookPhasesForCurrentStepPhase) {
         List<HookPhase> executedHookPhasesForHook = getExecutedHookPhasesForHook(alreadyExecutedHooks, hookToBeExecuted.getName());
-        return hookPhasesForCurrentStepPhase.containsAll(executedHookPhasesForHook);
+        return executedHookPhasesForHook.containsAll(hookPhasesForCurrentStepPhase);
     }
 
     private List<HookPhase> getExecutedHookPhasesForHook(Map<String, List<String>> alreadyExecutedHooks, String hookName) {
