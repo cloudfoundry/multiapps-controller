@@ -5,7 +5,7 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableParameterMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
-import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata.ParameterType;
+import com.sap.cloud.lm.sl.cf.web.api.model.ParameterType;
 
 public class BlueGreenDeployMetadata {
 

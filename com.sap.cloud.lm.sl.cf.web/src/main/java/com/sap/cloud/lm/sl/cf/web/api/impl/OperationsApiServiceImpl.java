@@ -57,8 +57,8 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Log;
 import com.sap.cloud.lm.sl.cf.web.api.model.Message;
 import com.sap.cloud.lm.sl.cf.web.api.model.MessageType;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.cf.web.api.model.ParameterConversion;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
-import com.sap.cloud.lm.sl.cf.web.api.model.ParameterTypeFactory;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
@@ -272,8 +272,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private Operation addParameterValues(Operation operation, Set<ParameterMetadata> predefinedParameters) {
         Map<String, Object> parameters = new HashMap<>(operation.getParameters());
-        ParameterTypeFactory parameterTypeFactory = new ParameterTypeFactory(parameters, predefinedParameters);
-        parameters.putAll(parameterTypeFactory.getParametersValues());
+        parameters.putAll(ParameterConversion.toFlowableVariables(predefinedParameters, parameters));
         return ImmutableOperation.copyOf(operation)
                                  .withParameters(parameters);
     }

@@ -23,8 +23,4 @@ public interface ParameterMetadata {
 
     ParameterType getType();
 
-    enum ParameterType {
-        STRING, INTEGER, BOOLEAN, TABLE
-    }
-
 }
