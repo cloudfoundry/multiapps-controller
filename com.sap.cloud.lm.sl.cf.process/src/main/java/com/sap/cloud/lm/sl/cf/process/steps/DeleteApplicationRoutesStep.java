@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,6 +72,7 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
 
     @Override
     public List<HookPhase> getHookPhasesBeforeStep(ProcessContext context) {
-        return hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_UNMAP_ROUTES), context);
+        return hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.BEFORE_UNMAP_ROUTES, HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES),
+                                                 context);
     }
 }

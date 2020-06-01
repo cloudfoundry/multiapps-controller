@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -42,7 +43,6 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     private HooksExecutor hooksExecutor;
     @Mock
     private HooksPhaseBuilder hooksPhaseBuilder;
-
     @Mock
     private ProcessTypeParser processTypeParser;
 
@@ -103,18 +103,46 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
 
     @Test
     void testGetHooksBeforeStep() {
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_STOP), context))
-               .thenReturn(Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE));
-        List<HookPhase> expectedPhases = Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.APPLICATION_BEFORE_STOP_LIVE, HookPhase.BEFORE_STOP),
+                                                       context))
+               .thenReturn(Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_LIVE));
+        List<HookPhase> expectedPhases = Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE,
+                                                       HookPhase.APPLICATION_BEFORE_STOP_LIVE);
+        List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesBeforeStep(context);
+        assertEquals(expectedPhases, hookPhasesBeforeStep);
+    }
+
+    @Test
+    void testGetHooksBeforeStepWithBlueGreenProcess() {
+        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+               .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.APPLICATION_BEFORE_STOP_IDLE, HookPhase.BEFORE_STOP),
+                                                       context))
+               .thenReturn(Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_IDLE));
+        List<HookPhase> expectedPhases = Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE,
+                                                       HookPhase.APPLICATION_BEFORE_STOP_IDLE);
         List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesBeforeStep(context);
         assertEquals(expectedPhases, hookPhasesBeforeStep);
     }
 
     @Test
     void testGetHooksAfterStep() {
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.AFTER_STOP), context))
-               .thenReturn(Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE));
-        List<HookPhase> expectedPhases = Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.APPLICATION_AFTER_STOP_LIVE, HookPhase.AFTER_STOP), context))
+               .thenReturn(Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_LIVE));
+        List<HookPhase> expectedPhases = Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE,
+                                                       HookPhase.APPLICATION_AFTER_STOP_LIVE);
+        List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesAfterStep(context);
+        assertEquals(expectedPhases, hookPhasesBeforeStep);
+    }
+
+    @Test
+    void testGetHooksAfterStepWithBlueGreenProcess() {
+        Mockito.when(processTypeParser.getProcessType(context.getExecution()))
+               .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.APPLICATION_AFTER_STOP_IDLE, HookPhase.AFTER_STOP), context))
+               .thenReturn(Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_IDLE));
+        List<HookPhase> expectedPhases = Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE,
+                                                       HookPhase.APPLICATION_AFTER_STOP_IDLE);
         List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesAfterStep(context);
         assertEquals(expectedPhases, hookPhasesBeforeStep);
     }

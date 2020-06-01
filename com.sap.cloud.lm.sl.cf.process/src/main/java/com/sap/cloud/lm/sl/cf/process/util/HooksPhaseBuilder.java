@@ -34,6 +34,9 @@ public class HooksPhaseBuilder {
     }
 
     private String buildPhase(HookPhase hookPhase, ProcessContext context) {
+        if (HookPhase.getOldPhases().contains(hookPhase)) {
+            return hookPhase.getValue();
+        }
         String deploymentType = getDeploymentType(context);
         String fullHookPhase = deploymentType + HOOKS_DELIMITER + DEFAULT_HOOK_ENTITY + HOOKS_DELIMITER + hookPhase.getValue();
         String optionalPhaseLocator = getOptionalPhaseLocator(context);

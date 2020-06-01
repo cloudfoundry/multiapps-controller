@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -69,9 +70,13 @@ class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
 
     @Test
     void testGetHookPhaseBefore() {
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_UNMAP_ROUTES), context))
-               .thenReturn(Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_UNMAP_ROUTES_LIVE));
-        List<HookPhase> expectedPhases = Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_UNMAP_ROUTES_LIVE);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.BEFORE_UNMAP_ROUTES,
+                                                                     HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES),
+                                                       context))
+               .thenReturn(Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_UNMAP_ROUTES_LIVE,
+                                         HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES));
+        List<HookPhase> expectedPhases = Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_UNMAP_ROUTES_LIVE,
+                                                       HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES);
         List<HookPhase> hookPhasesBeforeStep = ((BeforeStepHookPhaseProvider) step).getHookPhasesBeforeStep(context);
         assertEquals(expectedPhases, hookPhasesBeforeStep);
     }

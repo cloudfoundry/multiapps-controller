@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.mockito.Mockito.verify;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -30,18 +30,21 @@ class StopApplicationUndeploymentStepTest extends UndeployAppStepTest {
 
     @Test
     void testGetHookPhaseBefore() {
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_STOP), context))
-               .thenReturn(Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE));
-        List<HookPhase> expectedHooks = Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.BEFORE_STOP, HookPhase.APPLICATION_BEFORE_STOP_LIVE),
+                                                       context))
+               .thenReturn(Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_LIVE));
+        List<HookPhase> expectedHooks = Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE,
+                                                      HookPhase.APPLICATION_BEFORE_STOP_LIVE);
         List<HookPhase> hookPhasesBeforeStep = ((StopApplicationUndeploymentStep) step).getHookPhasesBeforeStep(context);
         Assert.assertEquals(expectedHooks, hookPhasesBeforeStep);
     }
 
     @Test
     void testGetHookPhaseAfter() {
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.AFTER_STOP), context))
-               .thenReturn(Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE));
-        List<HookPhase> expectedHooks = Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.AFTER_STOP, HookPhase.APPLICATION_AFTER_STOP_LIVE), context))
+               .thenReturn(Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_LIVE));
+        List<HookPhase> expectedHooks = Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE,
+                                                      HookPhase.APPLICATION_AFTER_STOP_LIVE);
         List<HookPhase> hookPhasesBeforeStep = ((StopApplicationUndeploymentStep) step).getHookPhasesAfterStep(context);
         Assert.assertEquals(expectedHooks, hookPhasesBeforeStep);
     }

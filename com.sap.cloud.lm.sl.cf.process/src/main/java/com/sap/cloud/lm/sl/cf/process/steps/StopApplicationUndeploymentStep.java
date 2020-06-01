@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Named;
@@ -36,11 +36,11 @@ public class StopApplicationUndeploymentStep extends UndeployAppStep implements 
 
     @Override
     public List<HookPhase> getHookPhasesBeforeStep(ProcessContext context) {
-        return hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_STOP), context);
+        return hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.BEFORE_STOP, HookPhase.APPLICATION_BEFORE_STOP_LIVE), context);
     }
 
     @Override
     public List<HookPhase> getHookPhasesAfterStep(ProcessContext context) {
-        return hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.AFTER_STOP), context);
+        return hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.AFTER_STOP, HookPhase.APPLICATION_AFTER_STOP_LIVE), context);
     }
 }

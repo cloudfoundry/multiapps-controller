@@ -46,7 +46,7 @@ public class ModuleHooksAggregator {
 
     private List<Hook> collectHooksWithPhase(Module moduleToDeploy, List<HookPhase> hookPhasesForCurrentStepPhase) {
         return getModuleHooks(moduleToDeploy).stream()
-                                             .filter(hook -> shouldExecuteHook(hook.getPhases(), hookPhasesForCurrentStepPhase))
+                                             .filter(hook -> shouldCollectHook(hook.getPhases(), hookPhasesForCurrentStepPhase))
                                              .collect(Collectors.toList());
     }
 
@@ -54,7 +54,7 @@ public class ModuleHooksAggregator {
         return moduleToDeploy.getMajorSchemaVersion() < MAJOR_SCHEMA_VERSION_THREE ? Collections.emptyList() : moduleToDeploy.getHooks();
     }
 
-    private boolean shouldExecuteHook(List<String> hookPhases, List<HookPhase> hookTypeForCurrentStepPhase) {
+    private boolean shouldCollectHook(List<String> hookPhases, List<HookPhase> hookTypeForCurrentStepPhase) {
         List<HookPhase> resolvedHookPhases = mapToHookPhases(hookPhases);
         return resolvedHookPhases.stream()
                                  .anyMatch(hookTypeForCurrentStepPhase::contains);
@@ -82,7 +82,32 @@ public class ModuleHooksAggregator {
     private boolean hasAllPhasesExecuted(Map<String, List<String>> alreadyExecutedHooks, Hook hookToBeExecuted,
                                          List<HookPhase> hookPhasesForCurrentStepPhase) {
         List<HookPhase> executedHookPhasesForHook = getExecutedHookPhasesForHook(alreadyExecutedHooks, hookToBeExecuted.getName());
-        return executedHookPhasesForHook.containsAll(hookPhasesForCurrentStepPhase);
+        List<HookPhase> modifiedHookPhasesForHook = getModifiedHookPhasesForCurrentStepPhase(hookToBeExecuted,
+                                                                                             hookPhasesForCurrentStepPhase);
+        return executedHookPhasesForHook.containsAll(modifiedHookPhasesForHook);
+    }
+
+    @Deprecated
+    private List<HookPhase> getModifiedHookPhasesForCurrentStepPhase(Hook hookToBeExecuted, List<HookPhase> hookPhasesForCurrentStepPhase) {
+        if (doesHookContainOldPhases(hookToBeExecuted)) {
+            return hookPhasesForCurrentStepPhase.stream()
+                                                .filter(this::containsOldPhase)
+                                                .collect(Collectors.toList());
+        }
+        return hookPhasesForCurrentStepPhase.stream()
+                                            .filter(hookPhase -> !containsOldPhase(hookPhase))
+                                            .collect(Collectors.toList());
+    }
+
+    private boolean doesHookContainOldPhases(Hook hookToBeExecuted) {
+        return hookToBeExecuted.getPhases()
+                               .stream()
+                               .anyMatch(hookPhase -> containsOldPhase(HookPhase.fromString(hookPhase)));
+    }
+
+    private boolean containsOldPhase(HookPhase hookPhase) {
+        return HookPhase.getOldPhases()
+                        .contains(hookPhase);
     }
 
     private List<HookPhase> getExecutedHookPhasesForHook(Map<String, List<String>> alreadyExecutedHooks, String hookName) {
