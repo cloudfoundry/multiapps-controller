@@ -145,7 +145,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
                                                                              .getParameters();
         operation = addServiceParameters(operation, spaceGuid, user);
-        operation = addDefaultParameters(operation, predefinedParameters);
         operation = addParameterValues(operation, predefinedParameters);
         ensureRequiredParametersSet(operation, predefinedParameters);
         ProcessInstance processInstance = flowableFacade.startProcess(processDefinitionKey, operation.getParameters());
@@ -255,17 +254,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         parameters.put(Variables.ORGANIZATION_GUID.getName(), organization.getMetadata()
                                                                           .getGuid()
                                                                           .toString());
-        return ImmutableOperation.copyOf(operation)
-                                 .withParameters(parameters);
-    }
-
-    private Operation addDefaultParameters(Operation operation, Set<ParameterMetadata> predefinedParameters) {
-        Map<String, Object> parameters = new HashMap<>(operation.getParameters());
-        for (ParameterMetadata predefinedParameter : predefinedParameters) {
-            if (!parameters.containsKey(predefinedParameter.getId()) && predefinedParameter.getDefaultValue() != null) {
-                parameters.put(predefinedParameter.getId(), predefinedParameter.getDefaultValue());
-            }
-        }
         return ImmutableOperation.copyOf(operation)
                                  .withParameters(parameters);
     }
