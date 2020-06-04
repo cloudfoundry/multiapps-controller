@@ -8,8 +8,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class StartTimeoutParameterConverter extends IntegerParameterConverter {
 
     @Override
-    public Object convert(Object value) {
-        int startTimeout = (int) super.convert(value);
+    public Integer convert(Object value) {
+        int startTimeout = super.convert(value);
         if (startTimeout < 0) {
             throw new SLException(Messages.ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE, startTimeout, Variables.START_TIMEOUT.getName());
         }

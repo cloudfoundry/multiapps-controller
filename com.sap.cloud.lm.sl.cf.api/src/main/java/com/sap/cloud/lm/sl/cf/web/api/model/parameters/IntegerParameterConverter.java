@@ -7,7 +7,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class IntegerParameterConverter implements ParameterConverter {
 
     @Override
-    public Object convert(Object value) {
+    public Integer convert(Object value) {
         try {
             return Integer.valueOf(String.valueOf(value));
         } catch (NumberFormatException e) {
