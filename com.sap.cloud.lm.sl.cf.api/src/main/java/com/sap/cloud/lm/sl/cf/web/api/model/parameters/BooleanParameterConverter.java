@@ -7,7 +7,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class BooleanParameterConverter implements ParameterConverter {
 
     @Override
-    public Object convert(Object value) {
+    public Boolean convert(Object value) {
         String parameterValue = String.valueOf(value);
         if ("true".equals(parameterValue)) {
             return true;
