@@ -22,7 +22,7 @@ public class VersionRuleParameterConverter implements ParameterConverter {
             VersionRule.value(versionRule);
         } catch (IllegalArgumentException e) {
             throw new SLException(e,
-                                  Messages.ERROR_PARAMETER_1_IS_NOT_VALID_VALID_VALUES_ARE_2,
+                                  Messages.INVALID_VALUE_0_FOR_PARAMETER_1_VALID_VALUES_ARE_2,
                                   versionRule,
                                   Variables.VERSION_RULE.getName(),
                                   Arrays.asList(VersionRule.values()));
