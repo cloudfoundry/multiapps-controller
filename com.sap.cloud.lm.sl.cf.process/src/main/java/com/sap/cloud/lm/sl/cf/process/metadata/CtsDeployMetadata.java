@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.metadata;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.metadata.parameters.DeployStrategyParameterConverter;
 import com.sap.cloud.lm.sl.cf.process.metadata.parameters.StartTimeoutParameterConverter;
 import com.sap.cloud.lm.sl.cf.process.metadata.parameters.VersionRuleParameterConverter;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
@@ -109,6 +110,11 @@ public class CtsDeployMetadata {
                                                                                  .id(Variables.VERIFY_ARCHIVE_SIGNATURE.getName())
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.NO_CONFIRM.getName())
+                                                                                 .type(ParameterType.BOOLEAN)
+                                                                                 .defaultValue(true)
+                                                                                 .build())
                                          // Special CTS+ parameters:
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.CTS_PROCESS_ID.getName())
@@ -142,6 +148,11 @@ public class CtsDeployMetadata {
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.GIT_REPOSITORY_LIST.getName())
                                                                                  .type(ParameterType.TABLE)
+                                                                                 .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.DEPLOY_STRATEGY.getName())
+                                                                                 .type(ParameterType.STRING)
+                                                                                 .customConverter(new DeployStrategyParameterConverter())
                                                                                  .build())
                                          .build();
     }

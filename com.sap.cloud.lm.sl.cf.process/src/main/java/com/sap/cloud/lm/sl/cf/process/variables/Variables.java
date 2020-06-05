@@ -29,6 +29,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.process.DeployStrategy;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceAction;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -453,9 +454,9 @@ public interface Variables {
                                                  .type(Phase.class)
                                                  .build();
     Variable<SubprocessPhase> SUBPROCESS_PHASE = ImmutableEnumVariable.<SubprocessPhase> builder()
-                                                            .name("subprocessPhase")
-                                                            .type(SubprocessPhase.class)
-                                                            .build();
+                                                                      .name("subprocessPhase")
+                                                                      .type(SubprocessPhase.class)
+                                                                      .build();
     Variable<VersionRule> VERSION_RULE = ImmutableEnumVariable.<VersionRule> builder()
                                                               .name("versionRule")
                                                               .type(VersionRule.class)
@@ -533,4 +534,9 @@ public interface Variables {
                                                                     .name("enableEnvDetection")
                                                                     .defaultValue(true)
                                                                     .build();
+    Variable<DeployStrategy> DEPLOY_STRATEGY = ImmutableSimpleVariable.<DeployStrategy> builder()
+                                                                      .name("strategy")
+                                                                      .defaultValue(DeployStrategy.DEFAULT)
+                                                                      .build();
+
 }

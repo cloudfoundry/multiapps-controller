@@ -45,6 +45,7 @@ public class CtsDeployMetadataTest extends MetadataBaseTest {
                 Variables.GIT_SKIP_SSL.getName(),
                 Variables.NO_FAIL_ON_MISSING_PERMISSIONS.getName(),
                 Variables.ABORT_ON_ERROR.getName(),
+                Variables.NO_CONFIRM.getName(),
                 Variables.CTS_PROCESS_ID.getName(),
                 Variables.FILE_LIST.getName(),
                 Variables.DEPLOY_URI.getName(),
@@ -54,6 +55,7 @@ public class CtsDeployMetadataTest extends MetadataBaseTest {
                 Variables.TRANSFER_TYPE.getName(),
                 Variables.GIT_REPOSITORY_LIST.getName(),
                 Variables.VERIFY_ARCHIVE_SIGNATURE.getName(),
+                Variables.DEPLOY_STRATEGY.getName()
             // @formatter:on
         };
     }
