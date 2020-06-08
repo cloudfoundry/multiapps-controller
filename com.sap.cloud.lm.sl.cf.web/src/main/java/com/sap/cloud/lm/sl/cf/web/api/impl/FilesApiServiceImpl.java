@@ -78,17 +78,9 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     private List<FileEntry> uploadFiles(HttpServletRequest request, String spaceGuid)
         throws FileUploadException, IOException, FileStorageException {
-        ServletFileUpload upload = getFileUploadServlet();
-        long maxUploadSize = getConfiguration().getMaxUploadSize();
-        upload.setSizeMax(maxUploadSize);
-
         List<FileEntry> uploadedFiles = new ArrayList<>();
-        FileItemIterator fileItemIterator = null;
-        try {
-            fileItemIterator = upload.getItemIterator(request);
-        } catch (SizeLimitExceededException ex) {
-            throw new SLException(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED, maxUploadSize));
-        }
+        FileItemIterator fileItemIterator = createFileIterator(request);
+
         while (fileItemIterator.hasNext()) {
             FileItemStream item = fileItemIterator.next();
             if (item.isFormField()) {
@@ -103,12 +95,19 @@ public class FilesApiServiceImpl implements FilesApiService {
         return uploadedFiles;
     }
 
-    protected ServletFileUpload getFileUploadServlet() {
-        return new ServletFileUpload();
+    private FileItemIterator createFileIterator(HttpServletRequest request) throws IOException, FileUploadException {
+        long maxUploadSize = new Configuration().getMaxUploadSize();
+        ServletFileUpload upload = getFileUploadServlet();
+        upload.setSizeMax(maxUploadSize);
+        try {
+            return upload.getItemIterator(request);
+        } catch (SizeLimitExceededException ex) {
+            throw new SLException(MessageFormat.format(Messages.MAX_UPLOAD_SIZE_EXCEEDED, maxUploadSize));
+        }
     }
 
-    protected Configuration getConfiguration() {
-        return new Configuration();
+    protected ServletFileUpload getFileUploadServlet() {
+        return new ServletFileUpload();
     }
 
     private FileMetadata parseFileEntry(FileEntry fileEntry) {

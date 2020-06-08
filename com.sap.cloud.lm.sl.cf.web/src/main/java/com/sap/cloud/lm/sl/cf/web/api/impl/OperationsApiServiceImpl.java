@@ -15,8 +15,7 @@ import javax.inject.Named;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
@@ -176,13 +175,13 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private List<Operation.State> getStates(List<String> statusList) {
-        return ObjectUtils.defaultIfNull(statusList, Collections.<String> emptyList())
-                          .stream()
-                          .map(Operation.State::valueOf)
-                          .collect(Collectors.toList());
+        return ListUtils.emptyIfNull(statusList)
+                        .stream()
+                        .map(Operation.State::valueOf)
+                        .collect(Collectors.toList());
     }
 
-    private List<Operation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<Operation.State> statusList,
+    private List<Operation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<Operation.State> states,
                                                     String spaceGuid, String mtaId) {
         OperationQuery operationQuery = operationService.createQuery()
                                                         .orderByStartTime(OrderDirection.ASCENDING)
@@ -194,11 +193,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             operationQuery.limitOnSelect(lastRequestedOperationsCount)
                           .orderByStartTime(OrderDirection.DESCENDING);
         }
-        if (CollectionUtils.isNotEmpty(statusList) && containsOnlyFinishedStates(statusList)) {
-            operationQuery.withStateAnyOf(statusList);
+        if (!states.isEmpty() && containsOnlyFinishedStates(states)) {
+            operationQuery.withStateAnyOf(states);
         }
         List<Operation> operations = operationQuery.list();
-        return operationsHelper.findOperations(operations, statusList);
+        return operationsHelper.findOperations(operations, states);
     }
 
     private boolean containsOnlyFinishedStates(List<Operation.State> statusList) {
