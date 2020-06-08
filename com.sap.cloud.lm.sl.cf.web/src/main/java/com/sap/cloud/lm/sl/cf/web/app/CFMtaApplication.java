@@ -10,7 +10,6 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import com.sap.cloud.lm.sl.cf.web.api.CsrfTokenApi;
 import com.sap.cloud.lm.sl.cf.web.api.FilesApi;
 import com.sap.cloud.lm.sl.cf.web.api.InfoApi;
-import com.sap.cloud.lm.sl.cf.web.api.MtasApi;
 import com.sap.cloud.lm.sl.cf.web.api.OperationsApi;
 import com.sap.cloud.lm.sl.cf.web.resources.BaseResource;
 import com.sap.cloud.lm.sl.cf.web.resources.CFExceptionMapper;
@@ -23,7 +22,6 @@ public class CFMtaApplication extends Application {
         Set<Class<?>> classes = new HashSet<>();
         classes.add(BaseResource.class);
         classes.add(FilesApi.class);
-        classes.add(MtasApi.class);
         classes.add(OperationsApi.class);
         classes.add(CsrfTokenResource.class);
         classes.add(CFExceptionMapper.class);
