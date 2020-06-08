@@ -59,7 +59,6 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         String appName = app.getName();
 
         getStepLogger().info(Messages.UPLOADING_APP, appName);
-        CloudControllerClient client = context.getControllerClient();
 
         String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
         MtaArchiveElements mtaArchiveElements = context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS);
@@ -71,6 +70,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         }
 
         String newApplicationDigest = getNewApplicationDigest(context, appArchiveId, fileName);
+        CloudControllerClient client = context.getControllerClient();
+
         CloudApplication cloudApp = client.getApplication(appName);
         boolean contentChanged = detectApplicationFileDigestChanges(context, cloudApp, client, newApplicationDigest);
         if (!contentChanged && isAppStagedCorrectly(context, cloudApp)) {
