@@ -171,10 +171,6 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                                                                                         .getImage());
             }
             client.createApplication(app.getName(), app.getStaging(), diskQuota, memory, uris, app.getDockerInfo());
-            CloudApplication application = client.getApplication(app.getName());
-            client.updateApplicationMetadata(application.getMetadata()
-                                                        .getGuid(),
-                                             app.getV3Metadata());
             context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, true);
         }
 
@@ -207,9 +203,9 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationMetadata() {
-            CloudApplication application = client.getApplication(app.getName());
-            client.updateApplicationMetadata(application.getMetadata()
-                                                        .getGuid(),
+            CloudApplication appFromController = client.getApplication(app.getName());
+            client.updateApplicationMetadata(appFromController.getMetadata()
+                                                              .getGuid(),
                                              app.getV3Metadata());
         }
 
