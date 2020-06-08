@@ -15,6 +15,7 @@ import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -153,20 +154,12 @@ public class FilesApiServiceImplTest {
         return ImmutableFileEntry.builder()
                                  .id(UUID.randomUUID()
                                          .toString())
-                                 .digest(generateRandomDigest())
+                                 .digest(RandomStringUtils.random(32, DIGEST_CHARACTER_TABLE))
                                  .digestAlgorithm("MD5")
                                  .name(name)
                                  .namespace(NAMESPACE_GUID)
                                  .size(BigInteger.valueOf(new Random().nextInt(1024 * 1024 * 10)))
                                  .space(SPACE_GUID)
                                  .build();
-    }
-
-    private String generateRandomDigest() {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < 32; i++) {
-            builder.append(DIGEST_CHARACTER_TABLE.charAt(new Random().nextInt(DIGEST_CHARACTER_TABLE.length())));
-        }
-        return builder.toString();
     }
 }
