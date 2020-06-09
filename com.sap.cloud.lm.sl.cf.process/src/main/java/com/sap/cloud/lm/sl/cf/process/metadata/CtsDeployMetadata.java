@@ -115,6 +115,11 @@ public class CtsDeployMetadata {
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .defaultValue(true)
                                                                                  .build())
+                                         .addParameter(ImmutableParameterMetadata.builder()
+                                                                                 .id(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY.getName())
+                                                                                 .type(ParameterType.BOOLEAN)
+                                                                                 .defaultValue(true)
+                                                                                 .build())
                                          // Special CTS+ parameters:
                                          .addParameter(ImmutableParameterMetadata.builder()
                                                                                  .id(Variables.CTS_PROCESS_ID.getName())
