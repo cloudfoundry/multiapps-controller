@@ -46,6 +46,7 @@ public class CtsDeployMetadataTest extends MetadataBaseTest {
                 Variables.NO_FAIL_ON_MISSING_PERMISSIONS.getName(),
                 Variables.ABORT_ON_ERROR.getName(),
                 Variables.NO_CONFIRM.getName(),
+                Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY.getName(),
                 Variables.CTS_PROCESS_ID.getName(),
                 Variables.FILE_LIST.getName(),
                 Variables.DEPLOY_URI.getName(),
