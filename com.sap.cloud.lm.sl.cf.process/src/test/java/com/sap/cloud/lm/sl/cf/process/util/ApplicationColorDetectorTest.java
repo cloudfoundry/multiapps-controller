@@ -31,13 +31,17 @@ import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaService;
+import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent;
+import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaService;
+import com.sap.cloud.lm.sl.cf.core.model.ImmutableHistoricOperationEvent;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.HistoricOperationEventQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.HistoricOperationEventService;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -86,13 +90,50 @@ public class ApplicationColorDetectorTest {
     }
     // @formatter:on
 
+    // @formatter:off
+    private static Stream<Arguments> detectLiveApplicationColorWithHistoricEvents() {
+        return Stream.of(
+                Arguments.of("deployed-mta-01.json", 
+                             Arrays.asList(HistoricOperationEvent.EventType.STARTED, HistoricOperationEvent.EventType.FAILED_BY_CONTENT_ERROR, HistoricOperationEvent.EventType.ABORTED),
+                             GREEN,
+                             new Expectation(BLUE)),
+                Arguments.of("deployed-mta-01.json", 
+                             Arrays.asList(HistoricOperationEvent.EventType.STARTED, HistoricOperationEvent.EventType.FAILED_BY_CONTENT_ERROR, HistoricOperationEvent.EventType.FINISHED),
+                             BLUE,
+                             new Expectation(BLUE)),
+                Arguments.of("deployed-mta-01.json", 
+                             Arrays.asList(HistoricOperationEvent.EventType.STARTED, HistoricOperationEvent.EventType.FAILED_BY_CONTENT_ERROR),
+                             BLUE,
+                             new Expectation(BLUE)),
+                Arguments.of("deployed-mta-02.json", 
+                             Arrays.asList(HistoricOperationEvent.EventType.STARTED, HistoricOperationEvent.EventType.FAILED_BY_INFRASTRUCTURE_ERROR, HistoricOperationEvent.EventType.ABORTED),
+                             BLUE,
+                             new Expectation(GREEN)),
+                Arguments.of("deployed-mta-03.json", 
+                             Arrays.asList(HistoricOperationEvent.EventType.STARTED, HistoricOperationEvent.EventType.ABORTED),
+                             GREEN,
+                             new Expectation(BLUE)),
+                Arguments.of("deployed-mta-04.json", 
+                             Arrays.asList(HistoricOperationEvent.EventType.STARTED, HistoricOperationEvent.EventType.FAILED_BY_CONTENT_ERROR, HistoricOperationEvent.EventType.ABORTED),
+                             GREEN,
+                             new Expectation(BLUE))
+            );
+    }
+    // @formatter:on
+
     private final Tester tester = Tester.forClass(getClass());
 
     @Mock
     private OperationService operationService;
 
+    @Mock
+    private HistoricOperationEventService historicOperationEventService;
+
     @Mock(answer = Answers.RETURNS_SELF)
     private OperationQuery operationQuery;
+
+    @Mock(answer = Answers.RETURNS_SELF)
+    private HistoricOperationEventQuery historicOperationEventQuery;
 
     @Mock
     private FlowableFacade flowableFacade;
@@ -168,7 +209,8 @@ public class ApplicationColorDetectorTest {
     @ParameterizedTest
     @MethodSource
     public void detectLiveApplicationColor(String deployedMtaJsonLocation, Expectation expectations) {
-        mockOperationService(createFakeOperation(Operation.State.RUNNING), createFakeOperation(Operation.State.FINISHED));
+        mockOperationService(createFakeOperation(Operation.State.RUNNING, FAKE_PROCESS_ID),
+                             createFakeOperation(Operation.State.FINISHED, FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID));
         tester.test(() -> detectLiveApplicationColor(readResource(deployedMtaJsonLocation, DeployedMta.class)), expectations);
     }
 
@@ -183,9 +225,8 @@ public class ApplicationColorDetectorTest {
                                                            Operation.State currentOperationState, Operation.State lastOperationState,
                                                            String lastDeployedColor) {
         Expectation expectation = new Expectation(expectedColor);
-        mockOperationService(createFakeOperation(currentOperationState), createFakeOperation(lastOperationState));
-        when(flowableFacade.findHistoricProcessInstanceIdByProcessDefinitionKey(FAKE_PROCESS_ID,
-                                                                                Constants.BLUE_GREEN_DEPLOY_SERVICE_ID)).thenReturn(FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID);
+        mockOperationService(createFakeOperation(currentOperationState, FAKE_PROCESS_ID),
+                             createFakeOperation(lastOperationState, FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID));
         mockHistoricVariableInstanceColor(lastDeployedColor);
         mockHistoricVariableInstancePhase();
         tester.test(() -> detectLiveApplicationColor(readResource(deployedMtaJsonLocation, DeployedMta.class)), expectation);
@@ -194,15 +235,17 @@ public class ApplicationColorDetectorTest {
     @Test
     public void detectLiveApplicationColorPhaseNotFound() {
         Expectation expectation = new Expectation(GREEN);
-        mockOperationService(createFakeOperation(Operation.State.RUNNING), createFakeOperation(Operation.State.ABORTED));
-        mockHistoricVariableInstanceColor(GREEN);
+        mockOperationService(createFakeOperation(Operation.State.RUNNING, FAKE_PROCESS_ID),
+                             createFakeOperation(Operation.State.ABORTED, FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID));
+        mockHistoricVariableInstanceColor(BLUE);
         tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
     }
 
     @Test
     public void detectLiveApplicationColorMtaColoNotFound() {
         Expectation expectation = new Expectation(GREEN);
-        mockOperationService(createFakeOperation(Operation.State.RUNNING), createFakeOperation(Operation.State.ABORTED));
+        mockOperationService(createFakeOperation(Operation.State.RUNNING, FAKE_PROCESS_ID),
+                             createFakeOperation(Operation.State.ABORTED, FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID));
         mockHistoricVariableInstancePhase();
         tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
     }
@@ -210,8 +253,20 @@ public class ApplicationColorDetectorTest {
     @Test
     public void detectLiveApplicationColorNoOperations() {
         Expectation expectation = new Expectation(GREEN);
-        mockOperationServiceNoOtherOperations(createFakeOperation(Operation.State.RUNNING));
+        mockOperationServiceNoOtherOperations(createFakeOperation(Operation.State.RUNNING, FAKE_PROCESS_ID));
         tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void detectLiveApplicationColorWithHistoricEvents(String deployedMtaJsonLocation,
+                                                             List<HistoricOperationEvent.EventType> eventTypes, String lastDeployedColor,
+                                                             Expectation expectedColor) {
+        mockOperationService(createFakeOperation(Operation.State.RUNNING, FAKE_PROCESS_ID),
+                             createFakeOperation(null, FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID));
+        mockHistoricOperationEventService(eventTypes);
+        mockHistoricVariableInstanceColor(lastDeployedColor);
+        tester.test(() -> detectLiveApplicationColor(readResource(deployedMtaJsonLocation, DeployedMta.class)), expectedColor);
     }
 
     private DeployedMta createMta(String id, Set<String> services, List<DeployedMtaApplication> deployedMtaApplications) {
@@ -288,12 +343,28 @@ public class ApplicationColorDetectorTest {
                                                           .list();
     }
 
-    private Operation createFakeOperation(Operation.State state) {
+    private Operation createFakeOperation(Operation.State state, String processId) {
         Operation operation = mock(Operation.class);
         when(operation.getState()).thenReturn(state);
         when(operation.getMtaId()).thenReturn(FAKE_MTA_ID);
-        when(operation.getProcessId()).thenReturn(FAKE_PROCESS_ID);
+        when(operation.getProcessId()).thenReturn(processId);
         return operation;
+    }
+
+    private void mockHistoricOperationEventService(List<HistoricOperationEvent.EventType> eventTypes) {
+        when(historicOperationEventService.createQuery()).thenReturn(historicOperationEventQuery);
+        List<HistoricOperationEvent> historicOperationEvents = buildHistoricOperationEvents(eventTypes);
+        doReturn(historicOperationEvents).when(historicOperationEventQuery)
+                                         .list();
+    }
+
+    private List<HistoricOperationEvent> buildHistoricOperationEvents(List<EventType> eventTypes) {
+        return eventTypes.stream()
+                         .map(eventType -> ImmutableHistoricOperationEvent.builder()
+                                                                          .processId(FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID)
+                                                                          .type(eventType)
+                                                                          .build())
+                         .collect(Collectors.toList());
     }
 
 }

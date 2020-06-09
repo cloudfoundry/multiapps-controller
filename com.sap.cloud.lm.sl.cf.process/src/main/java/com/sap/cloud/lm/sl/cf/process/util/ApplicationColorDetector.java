@@ -1,25 +1,32 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
+import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
+import com.sap.cloud.lm.sl.cf.core.persistence.service.HistoricOperationEventService;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
+import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.ConflictException;
@@ -31,6 +38,9 @@ public class ApplicationColorDetector {
     private OperationService operationService;
 
     @Inject
+    private HistoricOperationEventService historicOperationEventService;
+
+    @Inject
     private FlowableFacade flowableFacade;
 
     public ApplicationColor detectLiveApplicationColor(DeployedMta deployedMta, String correlationId) {
@@ -38,32 +48,22 @@ public class ApplicationColorDetector {
             return null;
         }
         ApplicationColor olderApplicationColor = getOlderApplicationColor(deployedMta);
-        Operation currentOperation = operationService.createQuery()
-                                                     .processId(correlationId)
-                                                     .singleResult();
 
-        List<Operation> operations = operationService.createQuery()
-                                                     .mtaId(currentOperation.getMtaId())
-                                                     .processType(ProcessType.BLUE_GREEN_DEPLOY)
-                                                     .spaceId(currentOperation.getSpaceId())
-                                                     .inFinalState()
-                                                     .orderByEndTime(OrderDirection.DESCENDING)
-                                                     .limitOnSelect(1)
-                                                     .list();
-        if (CollectionUtils.isEmpty(operations)) {
+        Optional<Operation> operationWithFinalState = getLastOperationsWithFinalState(correlationId);
+
+        if (!operationWithFinalState.isPresent()) {
             return olderApplicationColor;
         }
 
-        if (operations.get(0)
-                      .getState() != Operation.State.ABORTED) {
+        if (operationWithFinalState.get()
+                                   .getState() != Operation.State.ABORTED) {
             return olderApplicationColor;
         }
-        String xs2BlueGreenDeployHistoricProcessInstanceId = flowableFacade.findHistoricProcessInstanceIdByProcessDefinitionKey(operations.get(0)
-                                                                                                                                          .getProcessId(),
-                                                                                                                                Constants.BLUE_GREEN_DEPLOY_SERVICE_ID);
+        String historicProcessInstanceId = operationWithFinalState.get()
+                                                                  .getProcessId();
 
-        ApplicationColor latestDeployedColor = getColorFromHistoricProcess(xs2BlueGreenDeployHistoricProcessInstanceId);
-        Phase phase = getPhaseFromHistoricProcess(xs2BlueGreenDeployHistoricProcessInstanceId);
+        ApplicationColor latestDeployedColor = getColorFromHistoricProcess(historicProcessInstanceId);
+        Phase phase = getPhaseFromHistoricProcess(historicProcessInstanceId);
 
         if (latestDeployedColor == null) {
             return olderApplicationColor;
@@ -100,13 +100,59 @@ public class ApplicationColorDetector {
                           .orElse(null);
     }
 
-    private Phase getPhaseFromHistoricProcess(String processInstanceId) {
-        HistoricVariableInstance phaseVariableInstance = flowableFacade.getHistoricVariableInstance(processInstanceId, Variables.PHASE.getName());
-        if (phaseVariableInstance == null) {
-            return null;
-        }
+    private Optional<Operation> getLastOperationsWithFinalState(String correlationId) {
+        List<Operation> operations = getOperations(correlationId);
 
-        return Phase.valueOf((String) phaseVariableInstance.getValue());
+        Map<String, List<HistoricOperationEvent>> operationsWithHistoricEvents = operations.stream()
+                                                                                           .filter(operation -> operation.getState() == null)
+                                                                                           .collect(Collectors.toMap(Operation::getProcessId,
+                                                                                                                     this::getOperationHistoricEvents));
+
+        return operations.stream()
+                         .map(operation -> getFinalState(operation, operationsWithHistoricEvents))
+                         .filter(operation -> operation.getState() != null)
+                         .sorted(Comparator.comparing(Operation::getEndedAt)
+                                           .reversed())
+                         .findFirst();
+    }
+
+    private List<Operation> getOperations(String correlationId) {
+        Operation currentOperation = operationService.createQuery()
+                                                     .processId(correlationId)
+                                                     .singleResult();
+
+        return operationService.createQuery()
+                               .mtaId(currentOperation.getMtaId())
+                               .processType(ProcessType.BLUE_GREEN_DEPLOY)
+                               .spaceId(currentOperation.getSpaceId())
+                               .orderByEndTime(OrderDirection.DESCENDING)
+                               .list();
+    }
+
+    private List<HistoricOperationEvent> getOperationHistoricEvents(Operation operation) {
+        return historicOperationEventService.createQuery()
+                                            .processId(operation.getProcessId())
+                                            .list();
+    }
+
+    private Operation getFinalState(Operation operation, Map<String, List<HistoricOperationEvent>> operationsWithHistoricEvents) {
+        List<HistoricOperationEvent> historicOperationEvents = operationsWithHistoricEvents.getOrDefault(operation.getProcessId(),
+                                                                                                         Collections.emptyList());
+        Optional<HistoricOperationEvent> finalOperationEvent = historicOperationEvents.stream()
+                                                                                      .filter(event -> event.getType() == HistoricOperationEvent.EventType.ABORTED
+                                                                                          || event.getType() == HistoricOperationEvent.EventType.FINISHED)
+                                                                                      .findFirst();
+        if (finalOperationEvent.isPresent()) {
+            return ImmutableOperation.copyOf(operation)
+                                     .withState(Operation.State.fromValue(finalOperationEvent.get()
+                                                                                             .getType()
+                                                                                             .toString()))
+                                     .withEndedAt(ZonedDateTime.ofInstant(finalOperationEvent.get()
+                                                                                             .getTimestamp()
+                                                                                             .toInstant(),
+                                                                          ZoneOffset.UTC));
+        }
+        return operation;
     }
 
     private ApplicationColor getColorFromHistoricProcess(String processInstanceId) {
@@ -118,6 +164,16 @@ public class ApplicationColorDetector {
         }
 
         return ApplicationColor.valueOf((String) colorVariableInstance.getValue());
+    }
+
+    private Phase getPhaseFromHistoricProcess(String processInstanceId) {
+        HistoricVariableInstance phaseVariableInstance = flowableFacade.getHistoricVariableInstance(processInstanceId,
+                                                                                                    Variables.PHASE.getName());
+        if (phaseVariableInstance == null) {
+            return null;
+        }
+
+        return Phase.valueOf((String) phaseVariableInstance.getValue());
     }
 
 }
