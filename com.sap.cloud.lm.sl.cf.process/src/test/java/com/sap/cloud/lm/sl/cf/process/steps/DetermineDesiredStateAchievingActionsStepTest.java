@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -220,7 +221,7 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
         public void testParameters() {
             step.execute(execution);
 
-            assertEquals(expectedAppStateActions, context.getVariable(Variables.APP_STATE_ACTIONS_TO_EXECUTE));
+            assertTrue(expectedAppStateActions.containsAll(context.getVariable(Variables.APP_STATE_ACTIONS_TO_EXECUTE)), "Not all expectedAppStateActions were returned");
         }
 
         @Override
