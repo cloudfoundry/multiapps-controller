@@ -5,6 +5,7 @@ import static java.text.MessageFormat.format;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Timer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -22,6 +23,7 @@ import org.cloudfoundry.multiapps.controller.persistence.changes.AsyncChange;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.web.Messages;
+import org.cloudfoundry.multiapps.controller.web.timers.RegularTimer;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.flowable.engine.ProcessEngine;
 import org.slf4j.Logger;
@@ -49,9 +51,12 @@ public class BootstrapServlet extends HttpServlet {
     @Inject
     @Named("fileService")
     protected FileService fileService;
-
+    
     @Autowired(required = false)
     private List<AsyncChange> asyncChanges;
+    
+    @Autowired(required = false)
+    private List<RegularTimer> regularTimers;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -63,6 +68,7 @@ public class BootstrapServlet extends HttpServlet {
             initializeFileService();
             initExtras();
             executeAsyncDatabaseChanges();
+            initTimers();
             processEngine.getProcessEngineConfiguration()
                          .getAsyncExecutor()
                          .start();
@@ -123,6 +129,18 @@ public class BootstrapServlet extends HttpServlet {
         }
         for (AsyncChange asyncChange : asyncChanges) {
             new Thread(toRunnable(asyncChange)).start();
+        }
+    }
+    
+    private void initTimers() {
+        LOGGER.warn("regulartimers: " + regularTimers);
+        if (regularTimers == null || regularTimers.isEmpty()) {
+            return;
+        }
+        Timer timer = new Timer(true);
+        for (RegularTimer regularTimer : regularTimers) {
+            LOGGER.warn("initTimers schedule taskL " + regularTimer);
+            timer.scheduleAtFixedRate(regularTimer.getTimerTask(), regularTimer.getDelay(), regularTimer.getPeriod());
         }
     }
 

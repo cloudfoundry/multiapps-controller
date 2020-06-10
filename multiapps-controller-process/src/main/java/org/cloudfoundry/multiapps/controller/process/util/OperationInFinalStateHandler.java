@@ -50,7 +50,7 @@ public class OperationInFinalStateHandler {
         safeExecutor.execute(() -> deleteDeploymentFiles(execution));
         safeExecutor.execute(() -> deleteCloudControllerClientForProcess(execution));
         safeExecutor.execute(() -> setOperationState(correlationId, state));
-        safeExecutor.execute(() -> operationTimeAggregator.aggregateOperationTime(correlationId));
+        safeExecutor.execute(() -> operationTimeAggregator.aggregateOperationTime(execution, state));
     }
 
     protected void deleteDeploymentFiles(DelegateExecution execution) throws FileStorageException {

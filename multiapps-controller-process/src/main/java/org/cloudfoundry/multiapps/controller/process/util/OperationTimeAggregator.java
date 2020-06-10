@@ -8,9 +8,14 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTimeCalculator.ProcessTime;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTimeCalculator.ProcessTimeLogger;
+import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
+import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.controller.processes.metering.MicrometerNotifier;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,14 +26,17 @@ public class OperationTimeAggregator {
 
     private ProcessTimeCalculator processTimeCalculator;
     private FlowableFacade flowableFacade;
+    private MicrometerNotifier micrometerNotifier;
 
     @Inject
-    public OperationTimeAggregator(FlowableFacade flowableFacade) {
+    public OperationTimeAggregator(FlowableFacade flowableFacade, MicrometerNotifier micrometerNotifier) {
         this.flowableFacade = flowableFacade;
         this.processTimeCalculator = new ProcessTimeCalculator(flowableFacade);
+        this.micrometerNotifier = micrometerNotifier;
     }
 
-    public void aggregateOperationTime(String correlationId) {
+    public void aggregateOperationTime(DelegateExecution execution, Operation.State state) {
+        String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
         List<String> historicSubProcesses = flowableFacade.getHistoricSubProcessIds(correlationId);
         historicSubProcesses.add(correlationId);
 
@@ -39,6 +47,7 @@ public class OperationTimeAggregator {
                 key));
 
         ProcessTime rootProcessTime = processTimesForSubProcesses.get(correlationId);
+        micrometerNotifier.recordOverallTime(execution, state, rootProcessTime.getProcessDuration());
         logOverallProcesstime(correlationId, rootProcessTime, processTimesForSubProcesses.values());
     }
 

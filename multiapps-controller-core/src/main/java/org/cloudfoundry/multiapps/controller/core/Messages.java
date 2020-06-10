@@ -119,6 +119,7 @@ public final class Messages {
     public static final String MAX_RESOURCE_FILE_SIZE = "Max resource file size is set to: {0}";
     public static final String CRON_EXPRESSION_FOR_OLD_DATA = "Cron expression for old data: {0}";
     public static final String MAX_TTL_FOR_OLD_DATA = "Max TTL for old data: {0}";
+    public static final String PERIOD_FOR_MICROMETER_REGISTRY_CLEANUP = "Period for micrometer registry cleanup: {0}";
     public static final String SPACE_GUID = "Space GUID: {0}";
     public static final String ORG_NAME = "Org name: {0}";
     public static final String BASIC_AUTH_ENABLED = "Basic authentication enabled: {0}";

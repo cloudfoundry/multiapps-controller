@@ -5,6 +5,7 @@ import org.cloudfoundry.multiapps.controller.process.mock.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.util.OperationInFinalStateHandler;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.controller.processes.metering.MicrometerNotifier;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -12,11 +13,12 @@ import org.mockito.Mockito;
 public class EndProcessListenerTest {
 
     private final OperationInFinalStateHandler eventHandler = Mockito.mock(OperationInFinalStateHandler.class);
+    private final MicrometerNotifier micrometerNotifier = Mockito.mock(MicrometerNotifier.class);
     private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
 
     @Test
     public void testNotifyInternal() {
-        EndProcessListener endProcessListener = new EndProcessListener(eventHandler);
+        EndProcessListener endProcessListener = new EndProcessListener(eventHandler, micrometerNotifier);
         // set the process as root process
         VariableHandling.set(execution, Variables.CORRELATION_ID, execution.getProcessInstanceId());
         endProcessListener.notifyInternal(execution);

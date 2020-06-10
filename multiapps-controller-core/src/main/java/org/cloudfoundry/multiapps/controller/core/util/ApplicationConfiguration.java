@@ -51,6 +51,7 @@ public class ApplicationConfiguration {
     static final String CFG_MAX_RESOURCE_FILE_SIZE = "DEFAULT_MAX_RESOURCE_FILE_SIZE";
     static final String CFG_CRON_EXPRESSION_FOR_OLD_DATA = "CRON_EXPRESSION_FOR_OLD_DATA";
     static final String CFG_MAX_TTL_FOR_OLD_DATA = "MAX_TTL_FOR_OLD_DATA";
+    static final String CFG_PERIOD_FOR_MICROMETER_REGISTRY_CLEANUP = "PERIOD_FOR_MICROMETER_REGISTRY_CLEANUP";
     static final String CFG_USE_XS_AUDIT_LOGGING = "USE_XS_AUDIT_LOGGING";
     static final String CFG_VCAP_APPLICATION = "VCAP_APPLICATION"; // Mandatory
     static final String CFG_BASIC_AUTH_ENABLED = "BASIC_AUTH_ENABLED";
@@ -108,6 +109,7 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
     public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
     public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
+    public static final long DEFAULT_PERIOD_FOR_MICROMETER_REGISTRY_CLEANUP = TimeUnit.HOURS.toMillis(1); // 1 hour
     public static final Integer DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS = 5;
     public static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
     public static final String DEFAULT_VERSION = "N/A";
@@ -145,6 +147,7 @@ public class ApplicationConfiguration {
     private Long maxResourceFileSize;
     private String cronExpressionForOldData;
     private Long maxTtlForOldData;
+    private Long periodForMicrometerRegistryCleanup;
     private Boolean useXSAuditLogging;
     private String spaceGuid;
     private String orgName;
@@ -310,6 +313,13 @@ public class ApplicationConfiguration {
             maxTtlForOldData = getMaxTtlForOldDataFromEnvironment();
         }
         return maxTtlForOldData;
+    }
+    
+    public Long getPeriodForMicrometerRegistryCleanup() {
+        if (periodForMicrometerRegistryCleanup == null) {
+            periodForMicrometerRegistryCleanup = getPeriodForMicrometerRegistryCleanupFromEnvironment();
+        }
+        return periodForMicrometerRegistryCleanup;
     }
 
     public Boolean shouldUseXSAuditLogging() {
@@ -640,6 +650,12 @@ public class ApplicationConfiguration {
         return value;
     }
 
+    private Long getPeriodForMicrometerRegistryCleanupFromEnvironment() {
+        Long value = environment.getLong(CFG_PERIOD_FOR_MICROMETER_REGISTRY_CLEANUP, DEFAULT_PERIOD_FOR_MICROMETER_REGISTRY_CLEANUP);
+        LOGGER.info(format(Messages.PERIOD_FOR_MICROMETER_REGISTRY_CLEANUP, value));
+        return value;
+    }
+    
     private Boolean shouldUseXSAuditLoggingFromEnvironment() {
         Boolean value = environment.getBoolean(CFG_USE_XS_AUDIT_LOGGING, DEFAULT_USE_XS_AUDIT_LOGGING);
         LOGGER.info(format(Messages.USE_XS_AUDIT_LOGGING, value));

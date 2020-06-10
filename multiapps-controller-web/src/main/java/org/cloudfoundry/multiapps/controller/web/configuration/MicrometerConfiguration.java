@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.processes.metering.MicrometerConstants;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.DynatraceServiceInfo;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.DynatraceServiceInfoCreator;
 import org.slf4j.Logger;
@@ -93,6 +94,7 @@ public class MicrometerConfiguration {
         DynatraceMeterRegistry registry = new DynatraceMeterRegistry(dynatraceConfig, Clock.SYSTEM);
         registry.config()
                 .meterFilter(MeterFilter.acceptNameStartsWith(CLIENT_CONNECTIONS_METRICS_PREFIX))
+                .meterFilter(MeterFilter.acceptNameStartsWith(MicrometerConstants.MULTIAPPS_METRICS_PREFIX))
                 .meterFilter(MeterFilter.deny());
         Metrics.globalRegistry.add(registry);
         return registry;

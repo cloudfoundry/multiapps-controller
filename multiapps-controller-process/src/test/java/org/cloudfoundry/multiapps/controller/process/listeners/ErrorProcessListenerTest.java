@@ -5,6 +5,7 @@ import org.cloudfoundry.multiapps.controller.process.util.OperationInErrorStateH
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTimeCalculator;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.controller.processes.metering.MicrometerNotifier;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEntityEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableExceptionEvent;
@@ -24,8 +25,8 @@ public class ErrorProcessListenerTest {
 
     private static class ErrorProcessListenerMock extends ErrorProcessListener {
 
-        public ErrorProcessListenerMock(OperationInErrorStateHandler eventHandler) {
-            super(eventHandler);
+        public ErrorProcessListenerMock(OperationInErrorStateHandler eventHandler, MicrometerNotifier micrometerNotifier) {
+            super(eventHandler, micrometerNotifier);
         }
 
         protected DelegateExecution execution;
@@ -39,6 +40,9 @@ public class ErrorProcessListenerTest {
 
     @Mock
     private OperationInErrorStateHandler eventHandler;
+    
+    @Mock
+    private MicrometerNotifier micrometerNotifier;
 
     @Mock
     private ProcessTimeCalculator processTimeCalculator;

@@ -7,6 +7,7 @@ import org.cloudfoundry.multiapps.controller.core.util.LoggingUtil;
 import org.cloudfoundry.multiapps.controller.process.util.OperationInErrorStateHandler;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.controller.processes.metering.MicrometerNotifier;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEntityEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableExceptionEvent;
@@ -22,10 +23,12 @@ public class ErrorProcessListener extends AbstractFlowableEngineEventListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(ErrorProcessListener.class);
 
     private final OperationInErrorStateHandler eventHandler;
+    private MicrometerNotifier micrometerNotifier;
 
     @Inject
-    public ErrorProcessListener(OperationInErrorStateHandler eventHandler) {
+    public ErrorProcessListener(OperationInErrorStateHandler eventHandler, MicrometerNotifier micrometerNotifier) {
         this.eventHandler = eventHandler;
+        this.micrometerNotifier = micrometerNotifier;
     }
 
     @Override
@@ -71,12 +74,15 @@ public class ErrorProcessListener extends AbstractFlowableEngineEventListener {
 
     private void handle(FlowableEngineEvent event, FlowableExceptionEvent exceptionEvent) {
         Throwable throwable = exceptionEvent.getCause();
+        DelegateExecution execution = getExecution(event);
         if (throwable == null) {
             LOGGER.error("Job execution failure detected for process \"{}\" (definition: \"{}\"), but the exception event does not contain an exception.",
                          event.getProcessInstanceId(), event.getProcessDefinitionId());
+            micrometerNotifier.recordErrorProcessEvent(execution, null);
         } else {
             LOGGER.error("Job execution failure detected for process \"{}\" (definition: \"{}\").", event.getProcessInstanceId(),
                          event.getProcessDefinitionId(), throwable);
+            micrometerNotifier.recordErrorProcessEvent(execution, throwable.getMessage());
             eventHandler.handle(event, throwable);
         }
     }

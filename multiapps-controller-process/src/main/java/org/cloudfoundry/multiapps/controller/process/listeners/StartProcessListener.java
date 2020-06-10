@@ -25,6 +25,7 @@ import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.cloudfoundry.multiapps.controller.processes.metering.MicrometerNotifier;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -41,6 +42,8 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
     @Inject
     private ApplicationConfiguration configuration;
+    @Inject
+    private MicrometerNotifier micrometerNotifier;
 
     Supplier<ZonedDateTime> currentTimeSupplier = ZonedDateTime::now;
 
@@ -56,6 +59,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
             addOperation(execution, correlationId, processType);
         }
         getHistoricOperationEventPersister().add(correlationId, EventType.STARTED);
+        micrometerNotifier.recordStartProcessEvent(execution);
         logProcessEnvironment();
         logProcessVariables(execution, processType);
     }

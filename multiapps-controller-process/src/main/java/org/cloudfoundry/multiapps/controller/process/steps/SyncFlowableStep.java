@@ -161,7 +161,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     }
 
     protected abstract String getStepErrorMessage(ProcessContext context);
-
+    
     protected abstract StepPhase executeStep(ProcessContext context) throws Exception;
 
     protected StepLogger getStepLogger() {
