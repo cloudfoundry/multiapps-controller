@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.util;
 import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,13 +67,15 @@ public class ProcessConflictPreventer {
                                .list();
     }
 
-    public void releaseLock(String processInstanceId) {
+    public void releaseLock(String processInstanceId, Operation.State state, ZonedDateTime endedAt) {
         Operation operation = getOperationByProcessId(processInstanceId);
         LOGGER.info(MessageFormat.format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(),
                                          operation.getMtaId(), operation.getSpaceId()));
         operation = ImmutableOperation.builder()
                                       .from(operation)
                                       .hasAcquiredLock(false)
+                                      .state(state)
+                                      .endedAt(endedAt)
                                       .build();
         operationService.update(operation.getProcessId(), operation);
         LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));

@@ -37,7 +37,6 @@ import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaService;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -168,7 +167,8 @@ public class ApplicationColorDetectorTest {
     @ParameterizedTest
     @MethodSource
     public void detectLiveApplicationColor(String deployedMtaJsonLocation, Expectation expectations) {
-        mockOperationService(createFakeOperation(Operation.State.RUNNING), createFakeOperation(Operation.State.FINISHED));
+        mockOperationService(createFakeOperation(Operation.State.RUNNING, FAKE_PROCESS_ID),
+                             createFakeOperation(Operation.State.FINISHED, FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID));
         tester.test(() -> detectLiveApplicationColor(readResource(deployedMtaJsonLocation, DeployedMta.class)), expectations);
     }
 
@@ -183,9 +183,8 @@ public class ApplicationColorDetectorTest {
                                                            Operation.State currentOperationState, Operation.State lastOperationState,
                                                            String lastDeployedColor) {
         Expectation expectation = new Expectation(expectedColor);
-        mockOperationService(createFakeOperation(currentOperationState), createFakeOperation(lastOperationState));
-        when(flowableFacade.findHistoricProcessInstanceIdByProcessDefinitionKey(FAKE_PROCESS_ID,
-                                                                                Constants.BLUE_GREEN_DEPLOY_SERVICE_ID)).thenReturn(FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID);
+        mockOperationService(createFakeOperation(currentOperationState, FAKE_PROCESS_ID),
+                             createFakeOperation(lastOperationState, FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID));
         mockHistoricVariableInstanceColor(lastDeployedColor);
         mockHistoricVariableInstancePhase();
         tester.test(() -> detectLiveApplicationColor(readResource(deployedMtaJsonLocation, DeployedMta.class)), expectation);
@@ -194,15 +193,17 @@ public class ApplicationColorDetectorTest {
     @Test
     public void detectLiveApplicationColorPhaseNotFound() {
         Expectation expectation = new Expectation(GREEN);
-        mockOperationService(createFakeOperation(Operation.State.RUNNING), createFakeOperation(Operation.State.ABORTED));
-        mockHistoricVariableInstanceColor(GREEN);
+        mockOperationService(createFakeOperation(Operation.State.RUNNING, FAKE_PROCESS_ID),
+                             createFakeOperation(Operation.State.ABORTED, FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID));
+        mockHistoricVariableInstanceColor(BLUE);
         tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
     }
 
     @Test
     public void detectLiveApplicationColorMtaColoNotFound() {
         Expectation expectation = new Expectation(GREEN);
-        mockOperationService(createFakeOperation(Operation.State.RUNNING), createFakeOperation(Operation.State.ABORTED));
+        mockOperationService(createFakeOperation(Operation.State.RUNNING, FAKE_PROCESS_ID),
+                             createFakeOperation(Operation.State.ABORTED, FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID));
         mockHistoricVariableInstancePhase();
         tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
     }
@@ -210,7 +211,7 @@ public class ApplicationColorDetectorTest {
     @Test
     public void detectLiveApplicationColorNoOperations() {
         Expectation expectation = new Expectation(GREEN);
-        mockOperationServiceNoOtherOperations(createFakeOperation(Operation.State.RUNNING));
+        mockOperationServiceNoOtherOperations(createFakeOperation(Operation.State.RUNNING, FAKE_PROCESS_ID));
         tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
     }
 
@@ -288,11 +289,11 @@ public class ApplicationColorDetectorTest {
                                                           .list();
     }
 
-    private Operation createFakeOperation(Operation.State state) {
+    private Operation createFakeOperation(Operation.State state, String processId) {
         Operation operation = mock(Operation.class);
         when(operation.getState()).thenReturn(state);
         when(operation.getMtaId()).thenReturn(FAKE_MTA_ID);
-        when(operation.getProcessId()).thenReturn(FAKE_PROCESS_ID);
+        when(operation.getProcessId()).thenReturn(processId);
         return operation;
     }
 

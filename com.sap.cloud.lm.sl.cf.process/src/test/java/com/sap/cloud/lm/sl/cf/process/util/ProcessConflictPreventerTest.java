@@ -2,10 +2,12 @@ package com.sap.cloud.lm.sl.cf.process.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.ZonedDateTime;
 import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +38,7 @@ public class ProcessConflictPreventerTest {
 
     @Test
     public void testAcquireLock() {
-        try {
+        SLException exception = assertThrows(SLException.class, () -> {
             Operation operation = ImmutableOperation.builder()
                                                     .processId(testProcessId)
                                                     .processType(ProcessType.DEPLOY)
@@ -51,14 +53,31 @@ public class ProcessConflictPreventerTest {
                                                .processId(testProcessId)
                                                .singleResult();
             verify(operationServiceMock).update(op.getProcessId(), op);
-        } catch (SLException e) {
-            assertEquals("Conflicting process \"test-process-id\" found for MTA \"test-mta-id\"", e.getMessage());
-        }
+        });
+        assertEquals("Conflicting process \"test-process-id\" found for MTA \"test-mta-id\"", exception.getMessage());
     }
 
     @Test
     public void testAcquireLockWithNoConflictingOperations() {
         assertDoesNotThrow(() -> processConflictPreventerMock.acquireLock(testMtaId, testSpaceId, testProcessId));
+    }
+
+    @Test
+    void testReleaseLock() {
+        Operation.State abortedState = Operation.State.ABORTED;
+        ZonedDateTime endedAt = ZonedDateTime.now();
+
+        processConflictPreventerMock.releaseLock(testProcessId, abortedState, endedAt);
+
+        Operation expectedOperation = ImmutableOperation.builder()
+                                                        .processId(testProcessId)
+                                                        .processType(ProcessType.DEPLOY)
+                                                        .mtaId(testMtaId)
+                                                        .hasAcquiredLock(false)
+                                                        .state(abortedState)
+                                                        .endedAt(endedAt)
+                                                        .build();
+        verify(operationServiceMock).update(testProcessId, expectedOperation);
     }
 
     private OperationService getOperationServiceMock() throws SLException {
