@@ -17,7 +17,6 @@ import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -58,12 +57,11 @@ public class ApplicationColorDetector {
                       .getState() != Operation.State.ABORTED) {
             return olderApplicationColor;
         }
-        String xs2BlueGreenDeployHistoricProcessInstanceId = flowableFacade.findHistoricProcessInstanceIdByProcessDefinitionKey(operations.get(0)
-                                                                                                                                          .getProcessId(),
-                                                                                                                                Constants.BLUE_GREEN_DEPLOY_SERVICE_ID);
+        String processIdOfPreviousProcess = operations.get(0)
+                                                      .getProcessId();
 
-        ApplicationColor latestDeployedColor = getColorFromHistoricProcess(xs2BlueGreenDeployHistoricProcessInstanceId);
-        Phase phase = getPhaseFromHistoricProcess(xs2BlueGreenDeployHistoricProcessInstanceId);
+        ApplicationColor latestDeployedColor = getColorFromHistoricProcess(processIdOfPreviousProcess);
+        Phase phase = getPhaseFromHistoricProcess(processIdOfPreviousProcess);
 
         if (latestDeployedColor == null) {
             return olderApplicationColor;
@@ -100,15 +98,6 @@ public class ApplicationColorDetector {
                           .orElse(null);
     }
 
-    private Phase getPhaseFromHistoricProcess(String processInstanceId) {
-        HistoricVariableInstance phaseVariableInstance = flowableFacade.getHistoricVariableInstance(processInstanceId, Variables.PHASE.getName());
-        if (phaseVariableInstance == null) {
-            return null;
-        }
-
-        return Phase.valueOf((String) phaseVariableInstance.getValue());
-    }
-
     private ApplicationColor getColorFromHistoricProcess(String processInstanceId) {
         HistoricVariableInstance colorVariableInstance = flowableFacade.getHistoricVariableInstance(processInstanceId,
                                                                                                     Variables.IDLE_MTA_COLOR.getName());
@@ -118,6 +107,16 @@ public class ApplicationColorDetector {
         }
 
         return ApplicationColor.valueOf((String) colorVariableInstance.getValue());
+    }
+
+    private Phase getPhaseFromHistoricProcess(String processInstanceId) {
+        HistoricVariableInstance phaseVariableInstance = flowableFacade.getHistoricVariableInstance(processInstanceId,
+                                                                                                    Variables.PHASE.getName());
+        if (phaseVariableInstance == null) {
+            return null;
+        }
+
+        return Phase.valueOf((String) phaseVariableInstance.getValue());
     }
 
 }
