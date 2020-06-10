@@ -67,7 +67,7 @@ public class ProcessConflictPreventer {
                                .list();
     }
 
-    public void releaseLock(String processInstanceId, Operation.State state, ZonedDateTime endedAt) {
+    public void releaseLock(String processInstanceId, Operation.State state) {
         Operation operation = getOperationByProcessId(processInstanceId);
         LOGGER.info(MessageFormat.format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(),
                                          operation.getMtaId(), operation.getSpaceId()));
@@ -75,7 +75,7 @@ public class ProcessConflictPreventer {
                                       .from(operation)
                                       .hasAcquiredLock(false)
                                       .state(state)
-                                      .endedAt(endedAt)
+                                      .endedAt(ZonedDateTime.now())
                                       .build();
         operationService.update(operation.getProcessId(), operation);
         LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));

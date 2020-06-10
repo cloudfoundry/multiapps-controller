@@ -57,11 +57,11 @@ public class ApplicationColorDetector {
                       .getState() != Operation.State.ABORTED) {
             return olderApplicationColor;
         }
-        String processIdOfPreviousProcess = operations.get(0)
-                                                      .getProcessId();
+        String previousProcessId = operations.get(0)
+                                             .getProcessId();
 
-        ApplicationColor latestDeployedColor = getColorFromHistoricProcess(processIdOfPreviousProcess);
-        Phase phase = getPhaseFromHistoricProcess(processIdOfPreviousProcess);
+        ApplicationColor latestDeployedColor = getColorFromHistoricProcess(previousProcessId);
+        Phase phase = getPhaseFromHistoricProcess(previousProcessId);
 
         if (latestDeployedColor == null) {
             return olderApplicationColor;
