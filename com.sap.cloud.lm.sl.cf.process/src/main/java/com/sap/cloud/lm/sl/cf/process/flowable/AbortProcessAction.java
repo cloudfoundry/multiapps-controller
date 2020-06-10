@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.flowable;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -31,12 +30,12 @@ public class AbortProcessAction extends ProcessAction {
     @Override
     public void executeActualProcessAction(String user, String superProcessInstanceId) {
         flowableFacade.setAbortVariable(superProcessInstanceId);
-        releaseOperationLock(superProcessInstanceId, Operation.State.ABORTED, ZonedDateTime.now());
+        releaseOperationLock(superProcessInstanceId, Operation.State.ABORTED);
         historicEventPersister.add(superProcessInstanceId, EventType.ABORTED);
     }
 
-    private void releaseOperationLock(String superProcessInstanceId, Operation.State state, ZonedDateTime endedAt) {
-        getProcessConflictPreventer().releaseLock(superProcessInstanceId, state, endedAt);
+    private void releaseOperationLock(String superProcessInstanceId, Operation.State state) {
+        getProcessConflictPreventer().releaseLock(superProcessInstanceId, state);
     }
 
     protected ProcessConflictPreventer getProcessConflictPreventer() {
