@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Value.Immutable
 @JsonSerialize(as = ImmutableDeployedMtaService.class)
 @JsonDeserialize(builder = ImmutableDeployedMtaService.Builder.class)
-public interface DeployedMtaService extends CloudServiceInstance {
+public abstract class DeployedMtaService extends CloudServiceInstance {
 
     @Nullable
-    String getResourceName();
+    public abstract String getResourceName();
 
 }

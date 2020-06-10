@@ -11,20 +11,20 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Value.Immutable
 @JsonSerialize(as = ImmutableDeployedMtaApplication.class)
 @JsonDeserialize(builder = ImmutableDeployedMtaApplication.Builder.class)
-public interface DeployedMtaApplication extends CloudApplication {
+public abstract class DeployedMtaApplication extends CloudApplication {
 
-    String getModuleName();
+    public abstract String getModuleName();
 
-    List<String> getBoundMtaServices();
+    public abstract List<String> getBoundMtaServices();
 
-    List<String> getProvidedDependencyNames();
+    public abstract List<String> getProvidedDependencyNames();
 
     @Value.Default
-    default ProductizationState getProductizationState() {
+    public ProductizationState getProductizationState() {
         return ProductizationState.LIVE;
     }
 
-    enum ProductizationState {
+    public enum ProductizationState {
         LIVE, IDLE
     }
 

@@ -12,25 +12,25 @@ import com.sap.cloud.lm.sl.common.Nullable;
 @Value.Immutable
 @JsonSerialize(as = ImmutableCloudServiceInstanceExtended.class)
 @JsonDeserialize(as = ImmutableCloudServiceInstanceExtended.class)
-public interface CloudServiceInstanceExtended extends CloudServiceInstance {
+public abstract class CloudServiceInstanceExtended extends CloudServiceInstance {
 
-    List<String> getAlternativeLabels();
+    public abstract List<String> getAlternativeLabels();
 
     @Nullable
-    String getResourceName();
+    public abstract String getResourceName();
 
     @Value.Default
-    default boolean isOptional() {
+    public boolean isOptional() {
         return false;
     }
 
     @Value.Default
-    default boolean isManaged() {
+    public boolean isManaged() {
         return false;
     }
 
     @Value.Default
-    default boolean shouldIgnoreUpdateErrors() {
+    public boolean shouldIgnoreUpdateErrors() {
         return false;
     }
 

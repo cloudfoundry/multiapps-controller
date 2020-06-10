@@ -17,36 +17,36 @@ import com.sap.cloud.lm.sl.common.Nullable;
 @Value.Immutable
 @JsonSerialize(as = ImmutableCloudApplicationExtended.class)
 @JsonDeserialize(as = ImmutableCloudApplicationExtended.class)
-public interface CloudApplicationExtended extends CloudApplication {
+public abstract class CloudApplicationExtended extends CloudApplication {
 
     @Nullable
-    String getModuleName();
+    public abstract String getModuleName();
 
-    List<String> getIdleUris();
+    public abstract List<String> getIdleUris();
 
-    Map<String, Map<String, Object>> getBindingParameters();
+    public abstract Map<String, Map<String, Object>> getBindingParameters();
 
-    List<CloudTask> getTasks();
+    public abstract List<CloudTask> getTasks();
 
-    List<CloudRoute> getRoutes();
+    public abstract List<CloudRoute> getRoutes();
 
-    List<ServiceKeyToInject> getServiceKeysToInject();
+    public abstract List<ServiceKeyToInject> getServiceKeysToInject();
 
-    List<String> getDomains();
-
-    @Nullable
-    RestartParameters getRestartParameters();
+    public abstract List<String> getDomains();
 
     @Nullable
-    DockerInfo getDockerInfo();
+    public abstract RestartParameters getRestartParameters();
 
     @Nullable
-    AttributeUpdateStrategy getAttributesUpdateStrategy();
+    public abstract DockerInfo getDockerInfo();
+
+    @Nullable
+    public abstract AttributeUpdateStrategy getAttributesUpdateStrategy();
 
     @Value.Immutable
     @JsonSerialize(as = ImmutableCloudApplicationExtended.AttributeUpdateStrategy.class)
     @JsonDeserialize(as = ImmutableCloudApplicationExtended.AttributeUpdateStrategy.class)
-    interface AttributeUpdateStrategy {
+    public interface AttributeUpdateStrategy {
 
         @Value.Default
         default boolean shouldKeepExistingEnv() {
