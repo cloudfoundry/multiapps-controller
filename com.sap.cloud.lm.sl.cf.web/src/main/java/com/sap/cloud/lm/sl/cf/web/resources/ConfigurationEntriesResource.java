@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
-import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.ID;
 import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.findConfigurationEntries;
 import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.getGlobalConfigTarget;
 import static java.text.MessageFormat.format;
@@ -17,12 +16,9 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -37,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.reflect.TypeToken;
-import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
@@ -69,12 +64,7 @@ public class ConfigurationEntriesResource {
     private static final String KEYVALUE_SEPARATOR = ":";
     private static final String PURGE_COMMAND = "Purge configuration entries and subscriptions";
 
-    private static final URL CREATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION = ConfigurationEntriesResource.class
-        .getResource("/create-configuration-entry-schema.xsd");
-    private static final URL UPDATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION = ConfigurationEntriesResource.class
-        .getResource("/update-configuration-entry-schema.xsd");
-    private static final URL CONFIGURATION_FILTER_SCHEMA_LOCATION = ConfigurationEntriesResource.class
-        .getResource("/configuration-filter-schema.xsd");
+    private static final URL CONFIGURATION_FILTER_SCHEMA_LOCATION = ConfigurationEntriesResource.class.getResource("/configuration-filter-schema.xsd");
     protected Supplier<UserInfo> userInfoSupplier = SecurityContextUtil::getUserInfo;
 
     @Inject
@@ -103,8 +93,8 @@ public class ConfigurationEntriesResource {
             CloudTarget globalConfigTarget = getGlobalConfigTarget(configuration);
             List<ConfigurationEntry> entries = findConfigurationEntries(entryDao, filter, getUserTargets(), globalConfigTarget);
             return Response.status(Response.Status.OK)
-                .entity(wrap(entries))
-                .build();
+                           .entity(wrap(entries))
+                           .build();
         } catch (IllegalArgumentException e) {
             /**
              * Thrown if the version parameter is not a valid version requirement.
@@ -117,14 +107,15 @@ public class ConfigurationEntriesResource {
         UserInfo userInfo = userInfoSupplier.get();
         CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName());
         return client.getSpaces()
-            .stream()
-            .map(this::getCloudTarget)
-            .collect(Collectors.toList());
+                     .stream()
+                     .map(this::getCloudTarget)
+                     .collect(Collectors.toList());
     }
 
     private CloudTarget getCloudTarget(CloudSpace cloudSpace) {
         return new CloudTarget(cloudSpace.getOrganization()
-            .getName(), cloudSpace.getName());
+                                         .getName(),
+                               cloudSpace.getName());
     }
 
     private ConfigurationEntriesDto wrap(List<ConfigurationEntry> entries) {
@@ -133,14 +124,6 @@ public class ConfigurationEntriesResource {
             dtos.add(new ConfigurationEntryDto(entry));
         }
         return new ConfigurationEntriesDto(dtos);
-    }
-
-    @Path("/{id}")
-    @GET
-    public Response getConfigurationEntry(@PathParam(ID) long id) {
-        return Response.status(Response.Status.OK)
-            .entity(new ConfigurationEntryDto(entryDao.find(id)))
-            .build();
     }
 
     private Map<String, Object> parseContentFilterParameter(List<String> content) {
@@ -185,62 +168,6 @@ public class ConfigurationEntriesResource {
         return parsedContent;
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_XML)
-    public Response createConfigurationEntry(String xml) {
-
-        ConfigurationEntryDto dto = parseDto(xml, CREATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION);
-        ConfigurationEntry configurationEntry = dto.toConfigurationEntry();
-        if (configurationEntry.getTargetSpace() == null) {
-            throw new ParsingException(Messages.ORG_SPACE_NOT_SPECIFIED_2);
-        }
-        ConfigurationEntry result = entryDao.add(configurationEntry);
-        AuditLoggingProvider.getFacade()
-            .logConfigCreate(result);
-        return Response.status(Response.Status.CREATED)
-            .entity(new ConfigurationEntryDto(result))
-            .build();
-        // TODO: check if this would work fine:
-        // return Response.status(Response.Status.CREATED).entity(dto).build();
-    }
-
-    @Path("/{id}")
-    @PUT
-    @Consumes(MediaType.APPLICATION_XML)
-    public Response updateConfigurationEntry(@PathParam(ID) long id, String xml) {
-        ConfigurationEntryDto dto = parseDto(xml, UPDATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION);
-        if (dto.getId() != 0 && dto.getId() != id) {
-            throw new ParsingException(Messages.CONFIGURATION_ENTRY_ID_CANNOT_BE_UPDATED, id);
-        }
-
-        ConfigurationEntry result = entryDao.update(id, dto.toConfigurationEntry());
-        AuditLoggingProvider.getFacade()
-            .logConfigUpdate(result);
-
-        return Response.status(Response.Status.OK)
-            .entity(new ConfigurationEntryDto(result))
-            .build();
-    }
-
-    private ConfigurationEntryDto parseDto(String dXml, URL schemaLocation) {
-        return XmlUtil.fromXml(dXml, ConfigurationEntryDto.class, schemaLocation);
-    }
-
-    @Path("/{id}")
-    @DELETE
-    public Response deleteConfigurationEntry(@PathParam(ID) long id) {
-        ConfigurationEntry entry = entryDao.find(id);
-        if (entry == null) {
-            return Response.status(Response.Status.NOT_FOUND)
-                .build();
-        }
-        entryDao.remove(id);
-        AuditLoggingProvider.getFacade()
-            .logConfigDelete(entry);
-        return Response.status(Response.Status.NO_CONTENT)
-            .build();
-    }
-
     @GET
     public Response getConfigurationEntries(@BeanParam ConfigurationFilterDto filterDto) {
         return filterConfigurationEntries(asConfigurationFilter(filterDto));
@@ -272,8 +199,8 @@ public class ConfigurationEntriesResource {
     public Response purgeConfigurationRegistry(@QueryParam("org") String org, @QueryParam("space") String space) {
         if (StringUtils.isEmpty(org) || StringUtils.isEmpty(space)) {
             return Response.status(Response.Status.BAD_REQUEST)
-                .entity(Messages.ORG_AND_SPACE_MUST_BE_SPECIFIED)
-                .build();
+                           .entity(Messages.ORG_AND_SPACE_MUST_BE_SPECIFIED)
+                           .build();
         }
 
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
@@ -282,6 +209,6 @@ public class ConfigurationEntriesResource {
         MtaConfigurationPurger purger = new MtaConfigurationPurger(client, spaceGetter, entryDao, subscriptionDao);
         purger.purge(org, space);
         return Response.status(Response.Status.NO_CONTENT)
-            .build();
+                       .build();
     }
 }
