@@ -14,9 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -166,11 +164,6 @@ public class ConfigurationEntriesResource {
             parsedContent.put(keyValuePair[0], keyValuePair[1]);
         }
         return parsedContent;
-    }
-
-    @GET
-    public Response getConfigurationEntries(@BeanParam ConfigurationFilterDto filterDto) {
-        return filterConfigurationEntries(asConfigurationFilter(filterDto));
     }
 
     private ConfigurationFilterDto parseFilterBean(String fXml) {
