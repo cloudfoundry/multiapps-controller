@@ -24,10 +24,9 @@ import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileInfo;
 
 public class FileUploader {
 
+    public static final String DIGEST_METHOD = "MD5";
     private static final String EXTENSION = "tmp";
     private static final String PREFIX = "fileUpload";
-    public static final String DIGEST_METHOD = "MD5";
-
     private static final Logger logger = LoggerFactory.getLogger(FileUploader.class);
 
     private FileUploader() {
@@ -66,7 +65,7 @@ public class FileUploader {
                 digest.update(buffer, 0, read);
                 size = size.add(BigInteger.valueOf(read));
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             FileUploader.deleteFile(tempFile);
             throw new FileStorageException(e);
         }
