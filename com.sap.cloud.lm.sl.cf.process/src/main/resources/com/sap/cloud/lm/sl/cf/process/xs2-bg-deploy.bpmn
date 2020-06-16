@@ -146,6 +146,8 @@
         <flowable:in source="deleteServiceKeys" target="deleteServiceKeys"></flowable:in>
         <flowable:in source="mtaArchiveElements" target="mtaArchiveElements"></flowable:in>
         <flowable:in source="appArchiveId" target="appArchiveId"></flowable:in>
+        <flowable:in source="orgId" target="orgId"></flowable:in>
+        <flowable:in source="mtaId" target="mtaId"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>
