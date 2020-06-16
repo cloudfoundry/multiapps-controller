@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudDomain;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -26,10 +26,13 @@ import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.DeploymentType;
 import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
+import org.springframework.http.HttpStatus;
 
 @Named("collectSystemParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CollectSystemParametersStep extends SyncFlowableStep {
+
+    private static final String DEFAULT_DOMAIN_PLACEHOLDER = "apps.internal";
 
     @Inject
     private ReadOnlyParametersChecker readOnlyParametersChecker;
@@ -46,7 +49,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
     protected StepPhase executeStepInternal(ProcessContext context, boolean reserveTemporaryRoutes) {
         getStepLogger().debug(Messages.COLLECTING_SYSTEM_PARAMETERS);
         CloudControllerClient client = context.getControllerClient();
-        String defaultDomainName = getDefaultDomain(client);
+        String defaultDomainName = getDefaultDomain(client, context);
         getStepLogger().debug(Messages.DEFAULT_DOMAIN, defaultDomainName);
 
         DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
@@ -68,12 +71,17 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         return Messages.ERROR_COLLECTING_SYSTEM_PARAMETERS;
     }
 
-    private String getDefaultDomain(CloudControllerClient client) {
-        CloudDomain defaultDomain = client.getDefaultDomain();
-        if (defaultDomain != null) {
-            return defaultDomain.getName();
+    private String getDefaultDomain(CloudControllerClient client, ProcessContext context) {
+        try {
+            return client.getDefaultDomain()
+                         .getName();
+        } catch (CloudOperationException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                context.setVariable(Variables.MISSING_DEFAULT_DOMAIN, true);
+                return DEFAULT_DOMAIN_PLACEHOLDER;
+            }
+            throw e;
         }
-        return null;
     }
 
     private void checkForOverwrittenReadOnlyParameters(DeploymentDescriptor descriptor) {

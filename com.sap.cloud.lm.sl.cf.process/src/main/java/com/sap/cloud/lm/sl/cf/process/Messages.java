@@ -138,6 +138,7 @@ public class Messages {
     public static final String ERROR_POLLING_OF_SERVICE = "Error polling last operation of service \"{0}\": {1}";
     public static final String ERROR_MERGING_ARCHIVE = "Error merging archive. Retrying...";
     public static final String ERROR_DELETING_OPERATION_WITH_ID = "Error deleting operation with ID \"{0}\"";
+    public static final String ERROR_MISSING_DEFAULT_DOMAIN = "Missing default domain in current org";
 
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_PARAMETERS = "Cannot retrieve service instance parameters of service \"{0}\"";

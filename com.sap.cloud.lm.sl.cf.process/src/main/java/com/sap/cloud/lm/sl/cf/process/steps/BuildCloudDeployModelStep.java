@@ -19,6 +19,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
+import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.util.CloudModelBuilderContentCalculator;
@@ -45,6 +46,7 @@ import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.model.Resource;
+import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 @Named("buildCloudDeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -240,22 +242,27 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     private List<String> getDomainsFromApps(ProcessContext context, DeploymentDescriptor descriptor,
                                             ApplicationCloudModelBuilder applicationCloudModelBuilder, List<? extends Module> modules,
                                             ModuleToDeployHelper moduleToDeployHelper) {
-        String defaultDomain = (String) descriptor.getParameters()
-                                                  .get(SupportedParameters.DEFAULT_DOMAIN);
-
         Set<String> domains = new TreeSet<>();
         for (Module module : modules) {
             if (!moduleToDeployHelper.isApplication(module)) {
                 continue;
             }
             ParametersChainBuilder parametersChainBuilder = new ParametersChainBuilder(context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR));
-            List<String> appDomains = applicationCloudModelBuilder.getApplicationDomains(parametersChainBuilder.buildModuleChain(module.getName()),
-                                                                                         module);
+            List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
+
+            boolean noRoute = (Boolean) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.NO_ROUTE, false);
+            if (!noRoute && context.getVariable(Variables.MISSING_DEFAULT_DOMAIN)) {
+                throw new SLException(Messages.ERROR_MISSING_DEFAULT_DOMAIN);
+            }
+
+            List<String> appDomains = applicationCloudModelBuilder.getApplicationDomains(parametersList, module);
             if (appDomains != null) {
                 domains.addAll(appDomains);
             }
         }
 
+        String defaultDomain = (String) descriptor.getParameters()
+                                                  .get(SupportedParameters.DEFAULT_DOMAIN);
         if (defaultDomain != null) {
             domains.remove(defaultDomain);
         }
