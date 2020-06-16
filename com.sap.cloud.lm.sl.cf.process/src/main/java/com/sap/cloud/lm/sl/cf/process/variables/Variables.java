@@ -537,5 +537,9 @@ public interface Variables {
                                                                       .name("strategy")
                                                                       .defaultValue(DeployStrategy.DEFAULT)
                                                                       .build();
+    Variable<Boolean> MISSING_DEFAULT_DOMAIN = ImmutableSimpleVariable.<Boolean> builder()
+                                                                      .name("missingDefaultDomain")
+                                                                      .defaultValue(false)
+                                                                      .build();
 
 }
