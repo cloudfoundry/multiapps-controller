@@ -44,9 +44,12 @@ public class ObjectStoreFileStorageFactoryBean implements FactoryBean<ObjectStor
         if (serviceInfo == null) {
             return null;
         }
-        blobStoreContext = ContextBuilder.newBuilder(serviceInfo.getProvider())
-                                         .credentials(serviceInfo.getIdentity(), serviceInfo.getCredential())
-                                         .buildView(BlobStoreContext.class);
+        ContextBuilder contextBuilder = ContextBuilder.newBuilder(serviceInfo.getProvider())
+                                                      .credentials(serviceInfo.getIdentity(), serviceInfo.getCredential());
+        if (serviceInfo.getEndpoint() != null) {
+            contextBuilder.endpoint(serviceInfo.getEndpoint());
+        }
+        blobStoreContext = contextBuilder.buildView(BlobStoreContext.class);
         return blobStoreContext;
     }
 

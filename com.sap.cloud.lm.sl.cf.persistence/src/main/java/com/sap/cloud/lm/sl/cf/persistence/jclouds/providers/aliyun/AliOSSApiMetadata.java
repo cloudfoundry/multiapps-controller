@@ -31,11 +31,11 @@ public class AliOSSApiMetadata extends BaseApiMetadata {
     public static class AliOSSApiMetadataBuilder extends BaseApiMetadata.Builder<AliOSSApiMetadataBuilder> {
 
         protected AliOSSApiMetadataBuilder() {
-            id(AliOSSApi.API_ID).name("AliCloud Object Storage Service API")
-                                .identityName("Access Key ID")
-                                .credentialName("Secret Access Key")
-                                .documentation(URI.create("https://help.aliyun.com/document_detail/oss/api-reference/abstract.html"))
-                                .defaultEndpoint("http://oss.aliyuncs.com")
+            id(AliOSSApi.API_ID).name(AliOSSConstants.ALI_OSS_API_NAME)
+                                .identityName(AliOSSConstants.ALI_OSS_API_IDENTITY)
+                                .credentialName(AliOSSConstants.ALI_OSS_API_CREDENTIAL)
+                                .documentation(URI.create(AliOSSConstants.ALI_OSS_API_DOCUMENTATION_URI))
+                                .defaultEndpoint(AliOSSConstants.ALI_OSS_API_DEFAULT_ENDPOINT)
                                 .defaultProperties(AliOSSApiMetadata.defaultProperties())
                                 .view(BlobStoreContextImpl.class)
                                 .defaultModule(AliOSSBlobStoreContextModule.class);
@@ -50,5 +50,16 @@ public class AliOSSApiMetadata extends BaseApiMetadata {
         protected AliOSSApiMetadataBuilder self() {
             return this;
         }
+    }
+
+    /**
+     * Contains constants that are plain metadata, which is not used in business logic.
+     */
+    public static class AliOSSConstants {
+        public static final String ALI_OSS_API_NAME = "AlibabaCloud Object Storage Service";
+        private static final String ALI_OSS_API_IDENTITY = "Access Key ID";
+        private static final String ALI_OSS_API_CREDENTIAL = "Secret Access Key";
+        private static final String ALI_OSS_API_DOCUMENTATION_URI = "https://help.aliyun.com/document_detail/oss/api-reference/abstract.html";
+        private static final String ALI_OSS_API_DEFAULT_ENDPOINT = "http://oss.aliyuncs.com";
     }
 }

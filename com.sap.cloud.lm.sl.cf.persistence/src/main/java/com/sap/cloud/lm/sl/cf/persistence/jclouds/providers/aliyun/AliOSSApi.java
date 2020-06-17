@@ -5,6 +5,7 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.google.common.base.Supplier;
 import org.jclouds.domain.Credentials;
 import org.jclouds.location.Provider;
+import org.jclouds.location.suppliers.ProviderURISupplier;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -16,21 +17,18 @@ public class AliOSSApi {
 
     private final String identity;
     private final String credential;
-    private AliOSSRegion defaultRegion;
+    private final String endpoint;
 
     @Inject
-    public AliOSSApi(@Provider Supplier<Credentials> credsSupplier, AliOSSRegion defaultRegion) {
+    public AliOSSApi(@Provider Supplier<Credentials> credsSupplier, ProviderURISupplier providerURISupplier) {
         Credentials credentials = credsSupplier.get();
         this.identity = credentials.identity;
         this.credential = credentials.credential;
-        this.defaultRegion = defaultRegion;
+        this.endpoint = providerURISupplier.get()
+                                           .toString();
     }
 
     public OSS getOSSClient() {
-        return new OSSClientBuilder().build(defaultRegion.getEndpoint(), identity, credential);
-    }
-
-    public void setDefaultRegion(AliOSSRegion aliOSSRegion) {
-        this.defaultRegion = aliOSSRegion;
+        return new OSSClientBuilder().build(endpoint, identity, credential);
     }
 }

@@ -10,6 +10,7 @@ import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.aliyun.oss.model.PutObjectResult;
 import com.google.common.base.Supplier;
+import com.google.common.collect.Sets;
 import com.sap.cloud.lm.sl.cf.persistence.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.jclouds.providers.aliyun.AliOSSApi;
 import org.apache.commons.io.IOUtils;
@@ -19,6 +20,8 @@ import org.jclouds.blobstore.domain.internal.BlobBuilderImpl;
 import org.jclouds.blobstore.options.ListContainerOptions;
 import org.jclouds.blobstore.util.BlobUtils;
 import org.jclouds.domain.Location;
+import org.jclouds.domain.LocationBuilder;
+import org.jclouds.domain.LocationScope;
 import org.jclouds.io.PayloadSlicer;
 import org.jclouds.io.internal.BasePayloadSlicer;
 import org.jclouds.location.suppliers.LocationsSupplier;
@@ -44,7 +47,12 @@ public class AliOSSBlobStoreTest {
 
     private static final String CONTAINER = "test-bucket";
     private static final String FILENAME = "test-object";
+    private static final String REGION = "oss-eu-central-1";
     private static final String PAYLOAD = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt la.";
+    private static final Location LOCATION = new LocationBuilder().id(REGION)
+                                                                  .scope(LocationScope.REGION)
+                                                                  .description(REGION)
+                                                                  .build();
 
     private AliOSSBlobStore aliOSSBlobStore;
     private OSS ossClient;
@@ -60,11 +68,8 @@ public class AliOSSBlobStoreTest {
         context = Mockito.mock(BlobStoreContext.class);
         blobUtils = Mockito.mock(BlobUtils.class);
         PayloadSlicer slicer = new BasePayloadSlicer();
-        LocationsSupplier locations = new AliOSSLocationsSupplier(new AliOSSRegionIdsSupplier());
-        Supplier<Location> defaultLocation = () -> locations.get()
-                                                            .stream()
-                                                            .findAny()
-                                                            .get();
+        LocationsSupplier locations = () -> Sets.newHashSet(LOCATION);
+        Supplier<Location> defaultLocation = () -> LOCATION;
         aliOSSBlobStore = new AliOSSBlobStore(aliOSSApi, context, blobUtils, defaultLocation, locations, slicer);
     }
 

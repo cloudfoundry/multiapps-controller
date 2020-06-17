@@ -36,7 +36,7 @@ public class AliOSSProviderMetadata extends BaseProviderMetadata {
     public static class AliOSSProviderMetadataBuilder extends BaseProviderMetadata.Builder {
 
         protected AliOSSProviderMetadataBuilder() {
-            id(AliOSSApi.API_ID).name("AliCloud Object Storage Service")
+            id(AliOSSApi.API_ID).name(AliOSSApiMetadata.AliOSSConstants.ALI_OSS_API_NAME)
                                 .apiMetadata(new AliOSSApiMetadata())
                                 .defaultProperties(AliOSSProviderMetadata.defaultProperties());
         }

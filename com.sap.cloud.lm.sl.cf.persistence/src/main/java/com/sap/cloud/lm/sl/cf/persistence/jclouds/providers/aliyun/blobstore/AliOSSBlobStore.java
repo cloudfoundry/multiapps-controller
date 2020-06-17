@@ -73,16 +73,8 @@ public class AliOSSBlobStore extends BaseBlobStore {
             ObjectListing objectListing = oss.listObjects(request);
             List<StorageMetadata> storageMetadataList = objectListing.getObjectSummaries()
                                                                      .stream()
-                                                                     .map(ossObjectSummary -> {
-                StorageType storageType = ossObjectSummary.getKey()
-                                                          .endsWith("/") ? StorageType.FOLDER : StorageType.BLOB;
-                ObjectMetadata metadata = oss.getObjectMetadata(container, ossObjectSummary.getKey());
-                URI url = getPresignedUriForObject(oss, ossObjectSummary);
-                return new StorageMetadataImpl(storageType, ossObjectSummary.getKey(), ossObjectSummary.getKey(), defaultLocation.get(),
-                                               url, ossObjectSummary.getETag(), ossObjectSummary.getLastModified(),
-                                               ossObjectSummary.getLastModified(), metadata.getUserMetadata(), ossObjectSummary.getSize(),
-                                               Tier.STANDARD);
-            }).collect(Collectors.toList());
+                                                                     .map(ossObjectSummary -> toStorageMetadata(oss, container, ossObjectSummary))
+                                                                     .collect(Collectors.toList());
             return new PageSetImpl<>(storageMetadataList, objectListing.getNextMarker());
         });
     }
@@ -159,6 +151,15 @@ public class AliOSSBlobStore extends BaseBlobStore {
         return request;
     }
 
+    private StorageMetadata toStorageMetadata(OSS oss, String container, OSSObjectSummary ossObjectSummary) {
+        ObjectMetadata metadata = oss.getObjectMetadata(container, ossObjectSummary.getKey());
+        URI url = getPresignedUriForObject(oss, ossObjectSummary);
+        return new StorageMetadataImpl(StorageType.BLOB, ossObjectSummary.getKey(), ossObjectSummary.getKey(), defaultLocation.get(),
+                                       url, ossObjectSummary.getETag(), ossObjectSummary.getLastModified(),
+                                       ossObjectSummary.getLastModified(), metadata.getUserMetadata(), ossObjectSummary.getSize(),
+                                       Tier.STANDARD);
+    }
+
     private URI getPresignedUriForObject(OSS oss, OSSObjectSummary ossObjectSummary) {
         Calendar time = Calendar.getInstance();
         time.set(Calendar.HOUR, time.get(Calendar.HOUR) + 1);
@@ -231,9 +232,9 @@ public class AliOSSBlobStore extends BaseBlobStore {
         return builder.build();
     }
 
-    // *********************************************
-    // *** UNSUPPORTED OR NOT YET SUPPORTED APIS ***
-    // *********************************************
+    /****************************************************
+    ******* UNSUPPORTED OR NOT YET SUPPORTED APIS *******
+    ****************************************************/
 
     @Override
     protected boolean deleteAndVerifyContainerGone(String container) {
