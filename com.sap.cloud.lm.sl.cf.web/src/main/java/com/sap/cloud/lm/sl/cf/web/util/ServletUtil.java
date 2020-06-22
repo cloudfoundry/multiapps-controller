@@ -2,10 +2,7 @@ package com.sap.cloud.lm.sl.cf.web.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.text.MessageFormat;
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
@@ -13,8 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.servlet.HandlerMapping;
-
-import com.sap.cloud.lm.sl.cf.web.Messages;
+import org.springframework.web.util.UriUtils;
 
 public final class ServletUtil {
 
@@ -41,11 +37,7 @@ public final class ServletUtil {
     }
 
     public static String decode(String string) {
-        try {
-            return URLDecoder.decode(string, StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(MessageFormat.format(Messages.COULD_NOT_DECODE_STRING_0, string), e);
-        }
+        return UriUtils.decode(string, StandardCharsets.UTF_8.name());
     }
 
     public static String removeInvalidForwardSlashes(String uri) {
