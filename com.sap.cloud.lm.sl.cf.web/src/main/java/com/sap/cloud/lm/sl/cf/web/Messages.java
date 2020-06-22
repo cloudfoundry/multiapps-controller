@@ -12,7 +12,6 @@ public final class Messages {
     public static final String COULD_NOT_UPLOAD_FILE_0 = "Could not upload file: {0}";
     public static final String ACTION_0_CANNOT_BE_EXECUTED_OVER_OPERATION_1_IN_STATE_2 = "Action \"{0}\" cannot be executed over operation \"{1}\" in state \"{2}\".";
     public static final String OPERATION_0_NOT_FOUND = "Operation \"{0}\" was not found.";
-    public static final String COULD_NOT_DECODE_STRING_0 = "Could not decode string \"{0}\".";
 
     // Audit log messages
 
