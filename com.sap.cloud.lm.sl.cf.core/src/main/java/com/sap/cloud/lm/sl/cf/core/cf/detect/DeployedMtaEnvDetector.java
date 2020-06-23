@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.cf.detect;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -46,7 +45,7 @@ public class DeployedMtaEnvDetector {
                                                                                                         .collect(Collectors.groupingBy(this::getQualifiedMtaId));
         return applicationsByMtaId.entrySet()
                                   .stream()
-                                  .map(entry -> toDeployedMta(entry.getKey(), entry.getValue()))
+                                  .map(entry -> toDeployedMta(entry.getValue()))
                                   .collect(Collectors.toList());
     }
 
@@ -67,7 +66,7 @@ public class DeployedMtaEnvDetector {
         return metadata.getNamespace() + Constants.NAMESPACE_SEPARATOR + metadata.getId();
     }
 
-    private DeployedMta toDeployedMta(String mtaId, List<CloudApplication> applications) {
+    private DeployedMta toDeployedMta(List<CloudApplication> applications) {
         MtaMetadata mtaMetadata = getMtaMetadata(applications);
         List<DeployedMtaApplication> apps = new ArrayList<>();
         List<DeployedMtaService> services = new ArrayList<>();

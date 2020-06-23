@@ -25,7 +25,7 @@ import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.builders.v2.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.model.Resource;
 
-public class ConfigurationFilterParserTest {
+class ConfigurationFilterParserTest {
 
     private static final String NEW_SYNTAX_FILTER = "configuration";
     private static final String OLD_SYNTAX_FILTER = "mta-provides-dependency";
@@ -44,7 +44,7 @@ public class ConfigurationFilterParserTest {
         private Map<String, Object> resourceParameters;
     }
 
-    public static Stream<Arguments> testParse() {
+    static Stream<Arguments> testParse() {
         return Stream.of(
         // @formatter:off
         // (1) Parse a filter with new syntax
@@ -59,7 +59,7 @@ public class ConfigurationFilterParserTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testParse(String inputFileLocation, Expectation expectation) {
+    void testParse(String inputFileLocation, Expectation expectation) {
         parseInput(inputFileLocation);
         initMocks();
 

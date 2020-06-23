@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
-public class MtaMetadataEntityAggregatorTest {
+class MtaMetadataEntityAggregatorTest {
     private final Tester tester = Tester.forClass(getClass());
     private List<CloudEntity> inputEntities;
 
@@ -31,7 +31,7 @@ public class MtaMetadataEntityAggregatorTest {
     private MtaMetadataParser testMtaMetadataParser;
     private MtaMetadataEntityAggregator testMtaMetadataAggregator;
 
-    public static Stream<Arguments> testAggregate() {
+    static Stream<Arguments> testAggregate() {
         return Stream.of(
         // @formatter:off
         // (1) 2 mtas in CloudEntities - first has 2 apps and 2 services (with older versions), second had only 1 app
