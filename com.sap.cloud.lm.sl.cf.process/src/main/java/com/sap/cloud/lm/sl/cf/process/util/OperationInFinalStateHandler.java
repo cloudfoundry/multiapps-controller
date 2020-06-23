@@ -93,7 +93,7 @@ public class OperationInFinalStateHandler {
                                       .hasAcquiredLock(false)
                                       .endedAt(ZonedDateTime.now())
                                       .build();
-        operationService.update(operation.getProcessId(), operation);
+        operationService.update(operation, operation);
         LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
         historicOperationEventPersister.add(processInstanceId, toEventType(state));
     }

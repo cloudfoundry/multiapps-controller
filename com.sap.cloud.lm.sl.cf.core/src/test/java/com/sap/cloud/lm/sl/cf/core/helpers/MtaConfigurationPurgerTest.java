@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -159,7 +158,7 @@ public class MtaConfigurationPurgerTest {
     }
 
     private ConfigurationSubscription createSubscription(int id, String applicationName) {
-        return new ConfigurationSubscription(id, null, null, applicationName, null, null, null);
+        return new ConfigurationSubscription(id, null, null, applicationName, null, null, null, null, null);
     }
 
     private ConfigurationEntry createEntry(int id, String providerId) {
@@ -169,6 +168,7 @@ public class MtaConfigurationPurgerTest {
                                       Version.parseVersion("1.0.0"),
                                       null,
                                       new CloudTarget(TARGET_ORG, TARGET_SPACE),
+                                      null,
                                       null,
                                       null,
                                       null);

@@ -67,4 +67,10 @@
 		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_operation_table_add_namespace_column.xml" />
 	<include
 		file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_namespace_column.xml" />
+   <include
+        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_content_id_column.xml" />
+    <include
+        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_subscription_table_add_module_id_column.xml" />
+    <include
+        file ="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_subscription_table_add_resource_id_column.xml" />
 </databaseChangeLog>

@@ -68,8 +68,72 @@
       }
     }
   ],
+  "oldSubscriptionsToBeUpdated": [
+    {
+      "id" : 5,
+      "mtaId": "com.sap.sample.mta.test-3",
+      "filter": {
+        "requiredContent": {
+          "type": "com.acme.plugin"
+        }
+      },
+      "spaceId": "test-3",
+      "appName": "test-3",
+      "moduleDto": {
+        "name": "test-3",
+        "properties": {},
+        "providedDependencies": [],
+        "requiredDependencies": [
+          {
+            "name": "plugin",
+            "list": "plugin",
+            "properties": {
+              "old": "~{var}"
+            }
+          }
+        ]
+      },
+      "resourceDto": {
+        "name": "plugin",
+        "properties": {}
+      }
+    },
+    {
+      "id" : 6,
+      "mtaId": "com.sap.sample.mta.test-4",
+      "filter": {
+        "requiredContent": {
+          "providerId": "com.sap.sample.mta.test-3:test-3",
+          "providerNid": "mta",
+          "targetSpace": "sap",
+          "providerVersion": "1.0.0"
+        }
+      },
+      "spaceId": "test-4",
+      "appName": "test-4",
+      "moduleDto": {
+        "name": "test-4",
+        "properties": {},
+        "providedDependencies": [],
+        "requiredDependencies": [
+          {
+            "name": "test",
+            "list": "list",
+            "properties": {
+              "old": "~{var}"
+            }
+          }
+        ]
+      },
+      "resourceDto": {
+        "name": "test",
+        "properties": {}
+      }
+    }
+  ],
   "subscriptionsToUpdate": [
     {
+      "id" : 5,
       "mtaId": "com.sap.sample.mta.test-3",
       "filter": {
         "requiredContent": {
@@ -102,6 +166,7 @@
       }
     },
     {
+      "id" : 6,
       "mtaId": "com.sap.sample.mta.test-4",
       "filter": {
         "requiredContent": {

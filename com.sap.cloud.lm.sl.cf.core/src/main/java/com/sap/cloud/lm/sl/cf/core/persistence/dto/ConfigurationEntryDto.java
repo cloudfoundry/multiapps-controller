@@ -46,6 +46,7 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
         public static final String SPACE_ID = "spaceId";
         public static final String CONTENT = "content";
         public static final String VISIBILITY = "visibility";
+        public static final String CONTENT_ID = "contentId";
     }
 
     @XmlElement
@@ -92,12 +93,18 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
     @Column(name = TableColumnNames.CONFIGURATION_CLOUD_TARGET)
     private String visibility;
 
+    @XmlElement(name = "content-id")
+    @Lob
+    @Column(name = TableColumnNames.CONFIGURATION_ENTRY_CONTENT_ID)
+    private String contentId;
+
     protected ConfigurationEntryDto() {
         // Required by JPA and JAXB.
     }
 
     private ConfigurationEntryDto(long id, String providerNid, String providerId, String providerVersion, String targetOrg,
-                                  String targetSpace, String content, String visibility, String spaceId, String providerNamespace) {
+                                  String targetSpace, String content, String visibility, String spaceId, String providerNamespace,
+                                  String contentId) {
         this.id = id;
         this.providerNid = providerNid;
         this.providerId = providerId;
@@ -108,6 +115,7 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
         this.visibility = visibility;
         this.spaceId = spaceId;
         this.providerNamespace = providerNamespace;
+        this.contentId = contentId;
     }
 
     @Override
@@ -139,7 +147,7 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
     public String getProviderVersion() {
         return providerVersion;
     }
-    
+
     public String getProviderNamespace() {
         return providerNamespace;
     }
@@ -154,6 +162,10 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
 
     public String getSpaceId() {
         return spaceId;
+    }
+
+    public String getContentId() {
+        return contentId;
     }
 
     public static Builder builder() {
@@ -172,6 +184,7 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
         private String spaceId;
         private String content;
         private String visibility;
+        private String contentId;
 
         public Builder id(long id) {
             this.id = id;
@@ -223,6 +236,11 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
             return this;
         }
 
+        public Builder contentId(String contentId) {
+            this.contentId = contentId;
+            return this;
+        }
+
         public ConfigurationEntryDto build() {
             return new ConfigurationEntryDto(id,
                                              providerNid,
@@ -233,7 +251,8 @@ public class ConfigurationEntryDto implements DtoWithPrimaryKey<Long> {
                                              content,
                                              visibility,
                                              spaceId,
-                                             providerNamespace);
+                                             providerNamespace,
+                                             contentId);
         }
 
     }

@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.persistence.service;
 import java.util.List;
 import java.util.Objects;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 
@@ -22,15 +21,13 @@ import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
-@Named
 public class ConfigurationEntryService extends PersistenceService<ConfigurationEntry, ConfigurationEntryDto, Long> {
 
-    @Inject
     protected ConfigurationEntryMapper entryMapper;
 
-    @Inject
-    public ConfigurationEntryService(EntityManagerFactory entityManagerFactory) {
+    public ConfigurationEntryService(EntityManagerFactory entityManagerFactory, ConfigurationEntryMapper entryMapper) {
         super(entityManagerFactory);
+        this.entryMapper = entryMapper;
     }
 
     public ConfigurationEntryQuery createQuery() {
@@ -49,6 +46,7 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
         String content = ObjectUtils.firstNonNull(newEntry.getContent(), existingEntry.getContent());
         String visibility = ObjectUtils.firstNonNull(newEntry.getVisibility(), existingEntry.getVisibility());
         String spaceId = ObjectUtils.firstNonNull(newEntry.getSpaceId(), existingEntry.getSpaceId());
+        String contentId = ObjectUtils.firstNonNull(newEntry.getContentId(), existingEntry.getContentId());
         return ConfigurationEntryDto.builder()
                                     .id(newEntry.getPrimaryKey())
                                     .providerNid(providerNid)
@@ -60,6 +58,7 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
                                     .content(content)
                                     .visibility(visibility)
                                     .spaceId(spaceId)
+                                    .contentId(contentId)
                                     .build();
     }
 
@@ -103,6 +102,7 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
             String content = dto.getContent();
             List<CloudTarget> visibility = getParsedVisibility(dto.getVisibility());
             String spaceId = dto.getSpaceId();
+            String contentId = dto.getContentId();
             return new ConfigurationEntry(id,
                                           providerNid,
                                           providerId,
@@ -111,18 +111,19 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
                                           targetSpace,
                                           content,
                                           visibility,
-                                          spaceId);
+                                          spaceId,
+                                          contentId);
         }
 
-        private String getOriginal(String source) {
+        protected String getOriginal(String source) {
             return Objects.equals(source, PersistenceMetadata.NOT_AVAILABLE) ? null : source;
         }
 
-        private Version getParsedVersion(String versionString) {
+        protected Version getParsedVersion(String versionString) {
             return versionString == null ? null : Version.parseVersion(versionString);
         }
 
-        private List<CloudTarget> getParsedVisibility(String visibility) {
+        protected List<CloudTarget> getParsedVisibility(String visibility) {
             return visibility == null ? null : JsonUtil.convertJsonToList(visibility, new TypeReference<List<CloudTarget>>() {
             });
         }
@@ -143,6 +144,7 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
             String content = entry.getContent();
             String visibility = entry.getVisibility() == null ? null : JsonUtil.toJson(entry.getVisibility());
             String spaceId = entry.getSpaceId();
+            String contentId = entry.getContentId();
             return ConfigurationEntryDto.builder()
                                         .id(id)
                                         .providerNid(providerNid)
@@ -154,6 +156,7 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
                                         .content(content)
                                         .visibility(visibility)
                                         .spaceId(spaceId)
+                                        .contentId(contentId)
                                         .build();
         }
 
@@ -162,4 +165,5 @@ public class ConfigurationEntryService extends PersistenceService<ConfigurationE
         }
 
     }
+
 }

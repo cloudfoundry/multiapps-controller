@@ -188,13 +188,14 @@ public class ConfigurationEntryServiceTest {
                                       new CloudTarget(org, space),
                                       content,
                                       Collections.emptyList(),
-                                      space);
+                                      space,
+                                      null);
     }
 
     private ConfigurationEntryService createConfigurationEntryService() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("TestDefault");
-        ConfigurationEntryService configurationEntryService = new ConfigurationEntryService(entityManagerFactory);
-        configurationEntryService.entryMapper = new ConfigurationEntryMapper();
+        ConfigurationEntryService configurationEntryService = new ConfigurationEntryService(entityManagerFactory,
+                                                                                            new ConfigurationEntryMapper());
         return configurationEntryService;
     }
 

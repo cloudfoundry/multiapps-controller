@@ -116,7 +116,7 @@ public class OperationsCleaner implements Cleaner {
                                                        .endedAt(ZonedDateTime.now())
                                                        .hasAcquiredLock(false)
                                                        .build();
-        operationService.update(operation.getProcessId(), abortedOperation);
+        operationService.update(operation, abortedOperation);
     }
 
 }

@@ -19,4 +19,6 @@ public interface ConfigurationSubscriptionQuery extends Query<ConfigurationSubsc
 
     ConfigurationSubscriptionQuery onSelectMatching(List<ConfigurationEntry> entries);
 
+    int deleteAll(String spaceId);
+
 }

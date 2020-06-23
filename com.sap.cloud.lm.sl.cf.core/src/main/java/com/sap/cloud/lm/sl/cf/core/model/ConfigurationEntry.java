@@ -25,13 +25,14 @@ public class ConfigurationEntry implements AuditableConfiguration {
     private String content;
     private List<CloudTarget> visibility;
     private String spaceId;
+    private String contentId;
 
     // Required by Jackson.
     protected ConfigurationEntry() {
     }
 
     public ConfigurationEntry(long id, String providerNid, String providerId, Version providerVersion, String providerNamespace,
-                              CloudTarget targetSpace, String content, List<CloudTarget> visibility, String spaceId) {
+                              CloudTarget targetSpace, String content, List<CloudTarget> visibility, String spaceId, String contentId) {
         this.id = id;
         this.providerNid = providerNid;
         this.providerId = providerId;
@@ -41,15 +42,16 @@ public class ConfigurationEntry implements AuditableConfiguration {
         this.content = content;
         this.visibility = visibility;
         this.spaceId = spaceId;
+        this.contentId = contentId;
     }
 
     public ConfigurationEntry(String providerNid, String providerId, Version providerVersion, String providerNamespace,
-                              CloudTarget targetSpace, String content, List<CloudTarget> cloudTargets, String spaceId) {
-        this(0, providerNid, providerId, providerVersion, providerNamespace, targetSpace, content, cloudTargets, spaceId);
+                              CloudTarget targetSpace, String content, List<CloudTarget> cloudTargets, String spaceId, String contentId) {
+        this(0, providerNid, providerId, providerVersion, providerNamespace, targetSpace, content, cloudTargets, spaceId, contentId);
     }
 
     public ConfigurationEntry(String providerId, Version providerVersion) {
-        this(0, null, providerId, providerVersion, null, null, null, null, null);
+        this(0, null, providerId, providerVersion, null, null, null, null, null, null);
     }
 
     public long getId() {
@@ -96,6 +98,14 @@ public class ConfigurationEntry implements AuditableConfiguration {
         this.spaceId = spaceId;
     }
 
+    public String getContentId() {
+        return contentId;
+    }
+
+    public void setContentId(String contentId) {
+        this.contentId = contentId;
+    }
+
     @Override
     public String getConfigurationType() {
         return "configuration entry";
@@ -116,6 +126,7 @@ public class ConfigurationEntry implements AuditableConfiguration {
         configurationIdentifiers.add(new ConfigurationIdentifier("provider target",
                                                                  targetSpace.getOrganizationName() + "/" + targetSpace.getSpaceName()));
         configurationIdentifiers.add(new ConfigurationIdentifier("configuration content", content));
+        configurationIdentifiers.add(new ConfigurationIdentifier("configuration content id", contentId));
         return configurationIdentifiers;
     }
 }

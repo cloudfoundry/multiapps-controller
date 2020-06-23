@@ -60,7 +60,7 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
     @Test
     public void testUpdatingOfConfigurationSubscriptions() {
         Mockito.when(query.list())
-               .thenReturn(Collections.singletonList(new ConfigurationSubscription(0, "", "", "a-idle", null, null, null)));
+               .thenReturn(Collections.singletonList(new ConfigurationSubscription(0, "", "", "a-idle", null, null, null, null, null)));
         Mockito.when(subscriptionService.createQuery())
                .thenReturn(query);
 
@@ -70,7 +70,7 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
         assertStepFinishedSuccessfully();
 
         Mockito.verify(subscriptionService)
-               .update(0L, new ConfigurationSubscription(0, "", "", "a", null, null, null));
+               .update(Mockito.any(), Mockito.eq(new ConfigurationSubscription(0, "", "", "a", null, null, null, null, null)));
     }
 
     private static String removeAppNameSuffix(String appName) {

@@ -16,6 +16,7 @@ import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.SequenceNames;
@@ -43,6 +44,8 @@ public class ConfigurationSubscriptionDto implements DtoWithPrimaryKey<Long> {
         public static final String MODULE = "module";
         public static final String RESOURCE_NAME = "resourceName";
         public static final String RESOURCE_PROP = "resourceProperties";
+        public static final String MODULE_ID = "moduleId";
+        public static final String RESOURCE_ID = "resourceId";
 
     }
 
@@ -75,12 +78,22 @@ public class ConfigurationSubscriptionDto implements DtoWithPrimaryKey<Long> {
     @Lob
     private String module;
 
+    @XmlElement(name = "module-id")
+    @Lob
+    @Column(name = TableColumnNames.CONFIGURATION_SUBSCRIPTION_MODULE_ID)
+    private String moduleId;
+
+    @XmlElement(name = "resource-id")
+    @Lob
+    @Column(name = TableColumnNames.CONFIGURATION_SUBSCRIPTION_RESOURCE_ID)
+    private String resourceId;
+
     protected ConfigurationSubscriptionDto() {
         // Required by JPA.
     }
 
     private ConfigurationSubscriptionDto(long id, String mtaId, String spaceId, String appName, String filter, String moduleContent,
-                                         String resourceName, String resourceProperties) {
+                                         String resourceName, String resourceProperties, String moduleId, String resourceId) {
         this.id = id;
         this.resourceProperties = resourceProperties;
         this.resourceName = resourceName;
@@ -89,6 +102,8 @@ public class ConfigurationSubscriptionDto implements DtoWithPrimaryKey<Long> {
         this.spaceId = spaceId;
         this.appName = appName;
         this.mtaId = mtaId;
+        this.moduleId = moduleId;
+        this.resourceId = resourceId;
 
         validateState();
     }
@@ -150,6 +165,14 @@ public class ConfigurationSubscriptionDto implements DtoWithPrimaryKey<Long> {
     public String getResourceName() {
         return resourceName;
     }
+    
+    public String getModuleId() {
+        return moduleId;
+    }
+    
+    public String getResourceId() {
+        return resourceId;
+    }
 
     public static Builder builder() {
         return new Builder();
@@ -165,6 +188,8 @@ public class ConfigurationSubscriptionDto implements DtoWithPrimaryKey<Long> {
         private String resourceProperties;
         private String resourceName;
         private String module;
+        private String moduleId;
+        private String resourceId;
 
         public Builder id(long id) {
             this.id = id;
@@ -206,8 +231,27 @@ public class ConfigurationSubscriptionDto implements DtoWithPrimaryKey<Long> {
             return this;
         }
 
+        public Builder moduleId(String moduleId) {
+            this.moduleId = moduleId;
+            return this;
+        }
+
+        public Builder resourceId(String resourceId) {
+            this.resourceId = resourceId;
+            return this;
+        }
+
         public ConfigurationSubscriptionDto build() {
-            return new ConfigurationSubscriptionDto(id, mtaId, spaceId, appName, filter, module, resourceName, resourceProperties);
+            return new ConfigurationSubscriptionDto(id,
+                                                    mtaId,
+                                                    spaceId,
+                                                    appName,
+                                                    filter,
+                                                    module,
+                                                    resourceName,
+                                                    resourceProperties,
+                                                    moduleId,
+                                                    resourceId);
         }
     }
 }

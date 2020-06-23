@@ -4,8 +4,6 @@ import static java.text.MessageFormat.format;
 
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -23,15 +21,13 @@ import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
-@Named
 public class ConfigurationSubscriptionService extends PersistenceService<ConfigurationSubscription, ConfigurationSubscriptionDto, Long> {
 
-    @Inject
     protected ConfigurationSubscriptionMapper subscriptionMapper;
 
-    @Inject
-    public ConfigurationSubscriptionService(EntityManagerFactory entityManagerFactory) {
+    public ConfigurationSubscriptionService(EntityManagerFactory entityManagerFactory, ConfigurationSubscriptionMapper subscriptionMapper) {
         super(entityManagerFactory);
+        this.subscriptionMapper = subscriptionMapper;
     }
 
     public ConfigurationSubscriptionQuery createQuery() {
@@ -50,6 +46,8 @@ public class ConfigurationSubscriptionService extends PersistenceService<Configu
         String resourceProperties = ObjectUtils.firstNonNull(newSubscription.getResourceProperties(),
                                                              existingSubscription.getResourceProperties());
         String resourceName = ObjectUtils.firstNonNull(newSubscription.getResourceName(), existingSubscription.getResourceName());
+        String moduleId = ObjectUtils.firstNonNull(newSubscription.getModuleId(), existingSubscription.getModuleId());
+        String resourceId = ObjectUtils.firstNonNull(newSubscription.getResourceId(), existingSubscription.getResourceId());
         return ConfigurationSubscriptionDto.builder()
                                            .id(newSubscription.getPrimaryKey())
                                            .mtaId(mtaId)
@@ -59,6 +57,8 @@ public class ConfigurationSubscriptionService extends PersistenceService<Configu
                                            .module(moduleContent)
                                            .resourceName(resourceName)
                                            .resourceProperties(resourceProperties)
+                                           .moduleId(moduleId)
+                                           .resourceId(resourceId)
                                            .build();
     }
 
@@ -82,7 +82,6 @@ public class ConfigurationSubscriptionService extends PersistenceService<Configu
         throw new NotFoundException(Messages.CONFIGURATION_SUBSCRIPTION_NOT_FOUND, id);
     }
 
-    @Named
     public static class ConfigurationSubscriptionMapper
         implements PersistenceObjectMapper<ConfigurationSubscription, ConfigurationSubscriptionDto> {
 
@@ -93,13 +92,17 @@ public class ConfigurationSubscriptionService extends PersistenceService<Configu
                 Map<String, Object> parsedResourceProperties = JsonUtil.convertJsonToMap(dto.getResourceProperties());
                 ResourceDto resourceDto = new ResourceDto(dto.getResourceName(), parsedResourceProperties);
                 ModuleDto moduleDto = JsonUtil.fromJson(dto.getModuleContent(), ModuleDto.class);
+                String moduleId = dto.getModuleId();
+                String resourceId = dto.getResourceId();
                 return new ConfigurationSubscription(dto.getPrimaryKey(),
                                                      dto.getMtaId(),
                                                      dto.getSpaceId(),
                                                      dto.getAppName(),
                                                      parsedFilter,
                                                      moduleDto,
-                                                     resourceDto);
+                                                     resourceDto,
+                                                     moduleId,
+                                                     resourceId);
             } catch (SLException e) {
                 throw new IllegalStateException(format(Messages.UNABLE_TO_PARSE_SUBSCRIPTION, e.getMessage()), e);
             }
@@ -127,6 +130,8 @@ public class ConfigurationSubscriptionService extends PersistenceService<Configu
             String appName = subscription.getAppName();
             String spaceId = subscription.getSpaceId();
             String mtaId = subscription.getMtaId();
+            String moduleId = subscription.getModuleId();
+            String resourceId = subscription.getResourceId();
             return ConfigurationSubscriptionDto.builder()
                                                .id(id)
                                                .mtaId(mtaId)
@@ -136,6 +141,8 @@ public class ConfigurationSubscriptionService extends PersistenceService<Configu
                                                .module(module)
                                                .resourceName(resourceName)
                                                .resourceProperties(resourceProperties)
+                                               .moduleId(moduleId)
+                                               .resourceId(resourceId)
                                                .build();
         }
 

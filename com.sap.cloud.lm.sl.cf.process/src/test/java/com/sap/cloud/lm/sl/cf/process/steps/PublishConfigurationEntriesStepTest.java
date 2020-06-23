@@ -127,7 +127,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
             Mockito.verify(configurationEntryService, Mockito.never())
                    .add(Mockito.any());
             Mockito.verify(configurationEntryService, Mockito.never())
-                   .update(Mockito.anyLong(), Mockito.any());
+                   .update(Mockito.any(), Mockito.any());
         }
         List<ConfigurationEntry> createdEntries = getCreatedEntries();
         List<ConfigurationEntry> updatedEntries = getUpdatedEntries();
@@ -151,7 +151,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     private List<ConfigurationEntry> getUpdatedEntries() {
         ArgumentCaptor<ConfigurationEntry> configurationEntryCaptor = ArgumentCaptor.forClass(ConfigurationEntry.class);
         Mockito.verify(configurationEntryService, Mockito.times(input.expectedUpdatedEntries.size()))
-               .update(Mockito.anyLong(), configurationEntryCaptor.capture());
+               .update(Mockito.any(), configurationEntryCaptor.capture());
         return configurationEntryCaptor.getAllValues();
     }
 

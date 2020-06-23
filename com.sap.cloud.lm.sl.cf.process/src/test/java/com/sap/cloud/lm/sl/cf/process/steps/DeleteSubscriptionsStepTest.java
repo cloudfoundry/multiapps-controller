@@ -89,7 +89,7 @@ public class DeleteSubscriptionsStepTest extends SyncFlowableStepTest<DeleteSubs
     }
 
     private ConfigurationSubscription asSubscription(Long subscriptionId) {
-        return new ConfigurationSubscription(subscriptionId, null, null, null, null, null, null);
+        return new ConfigurationSubscription(subscriptionId, null, null, null, null, null, null, null, null);
     }
 
     private void loadParameters() {
