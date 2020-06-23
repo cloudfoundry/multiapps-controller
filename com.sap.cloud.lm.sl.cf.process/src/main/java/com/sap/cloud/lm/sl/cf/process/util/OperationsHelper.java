@@ -82,7 +82,7 @@ public class OperationsHelper {
                                           .hasAcquiredLock(false)
                                           .state(state)
                                           .build();
-            operationService.update(operation.getProcessId(), operation);
+            operationService.update(operation, operation);
         }
         return ImmutableOperation.copyOf(operation)
                                  .withState(state);

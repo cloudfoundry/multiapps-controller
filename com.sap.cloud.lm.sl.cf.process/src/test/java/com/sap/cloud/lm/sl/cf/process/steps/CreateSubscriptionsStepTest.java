@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -36,8 +35,6 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
 
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
-
-    private static final long DUMMY_ID = 9L;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -98,8 +95,8 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
         when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
         doReturn(null).when(configurationSubscriptionQuery)
                       .singleResult();
-        for (int i = 0; i < input.subscriptionsToUpdate.size(); i++) {
-            ConfigurationSubscription subscription = input.subscriptionsToUpdate.get(i);
+        for (int i = 0; i < input.oldSubscriptionsToBeUpdated.size(); i++) {
+            ConfigurationSubscription subscription = input.oldSubscriptionsToBeUpdated.get(i);
             ResourceDto resourceDto = subscription.getResourceDto();
             if (resourceDto == null) {
                 continue;
@@ -109,19 +106,21 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
                                                                                                         .on(query -> query.resourceName(resourceDto.getName()))
                                                                                                         .on(query -> query.mtaId(subscription.getMtaId()))
                                                                                                         .build();
-            doReturn(setId(subscription, DUMMY_ID)).when(queryMock)
-                                                   .singleResult();
+            doReturn(setId(subscription)).when(queryMock)
+                                         .singleResult();
         }
     }
 
-    private ConfigurationSubscription setId(ConfigurationSubscription subscription, long id) {
-        return new ConfigurationSubscription(id,
+    private ConfigurationSubscription setId(ConfigurationSubscription subscription) {
+        return new ConfigurationSubscription(subscription.getId(),
                                              subscription.getMtaId(),
                                              subscription.getSpaceId(),
                                              subscription.getAppName(),
                                              subscription.getFilter(),
                                              subscription.getModuleDto(),
-                                             subscription.getResourceDto());
+                                             subscription.getResourceDto(),
+                                             subscription.getModuleId(),
+                                             subscription.getResourceId());
     }
 
     @Test
@@ -132,18 +131,22 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
 
         StepOutput output = captureStepOutput();
 
-        assertEquals(JsonUtil.toJson(output.createdSubscriptions, true), JsonUtil.toJson(input.subscriptionsToCreate, true));
-        assertEquals(JsonUtil.toJson(output.updatedSubscriptions, true), JsonUtil.toJson(input.subscriptionsToUpdate, true));
+        assertEquals(JsonUtil.toJson(input.subscriptionsToCreate, true), JsonUtil.toJson(output.createdSubscriptions, true));
+        assertEquals(JsonUtil.toJson(input.oldSubscriptionsToBeUpdated, true), JsonUtil.toJson(output.oldSubscriptionsToBeUpdated, true));
+        assertEquals(JsonUtil.toJson(input.subscriptionsToUpdate, true), JsonUtil.toJson(output.updatedSubscriptions, true));
     }
 
     private StepOutput captureStepOutput() {
         ArgumentCaptor<ConfigurationSubscription> argumentCaptor;
+        ArgumentCaptor<ConfigurationSubscription> oldSubscriptionsCaptor;
 
         StepOutput output = new StepOutput();
 
         argumentCaptor = ArgumentCaptor.forClass(ConfigurationSubscription.class);
+        oldSubscriptionsCaptor = ArgumentCaptor.forClass(ConfigurationSubscription.class);
         Mockito.verify(configurationSubscriptionService, times(input.subscriptionsToUpdate.size()))
-               .update(eq(DUMMY_ID), argumentCaptor.capture());
+               .update(oldSubscriptionsCaptor.capture(), argumentCaptor.capture());
+        output.oldSubscriptionsToBeUpdated = oldSubscriptionsCaptor.getAllValues();
         output.updatedSubscriptions = argumentCaptor.getAllValues();
 
         argumentCaptor = ArgumentCaptor.forClass(ConfigurationSubscription.class);
@@ -157,6 +160,7 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
     private static class StepInput {
 
         public List<ConfigurationSubscription> subscriptionsToCreate;
+        public List<ConfigurationSubscription> oldSubscriptionsToBeUpdated;
         public List<ConfigurationSubscription> subscriptionsToUpdate;
 
     }
@@ -164,6 +168,7 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
     private static class StepOutput {
 
         public List<ConfigurationSubscription> createdSubscriptions;
+        public List<ConfigurationSubscription> oldSubscriptionsToBeUpdated;
         public List<ConfigurationSubscription> updatedSubscriptions;
 
     }

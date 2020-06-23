@@ -1,8 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 
 import java.util.Arrays;
@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -107,8 +108,11 @@ public class OperationsHelperTest {
         Operation operation = operationsHelper.addState(mockedOperation);
         Assertions.assertEquals(Operation.State.ABORTED, operation.getState());
         Assertions.assertFalse(operation.hasAcquiredLock());
+        ArgumentCaptor<Operation> argumentCaptor = ArgumentCaptor.forClass(Operation.class);
         Mockito.verify(operationService)
-               .update(eq(PROCESS_ID), any());
+               .update(argumentCaptor.capture(), any());
+        assertEquals(PROCESS_ID, argumentCaptor.getValue()
+                                               .getProcessId());
     }
 
     @Test
@@ -121,8 +125,11 @@ public class OperationsHelperTest {
         Operation operation = operationsHelper.addState(mockedOperation);
         Assertions.assertEquals(Operation.State.FINISHED, operation.getState());
         Assertions.assertFalse(operation.hasAcquiredLock());
+        ArgumentCaptor<Operation> argumentCaptor = ArgumentCaptor.forClass(Operation.class);
         Mockito.verify(operationService)
-               .update(eq(PROCESS_ID), any());
+               .update(argumentCaptor.capture(), any());
+        assertEquals(PROCESS_ID, argumentCaptor.getValue()
+                                               .getProcessId());
     }
 
     @Test
@@ -134,7 +141,7 @@ public class OperationsHelperTest {
         Assertions.assertEquals(Operation.State.RUNNING, operation.getState());
         Assertions.assertFalse(operation.hasAcquiredLock());
         Mockito.verify(operationService, never())
-               .update(eq(PROCESS_ID), any());
+               .update(any(), any());
     }
 
     @Test

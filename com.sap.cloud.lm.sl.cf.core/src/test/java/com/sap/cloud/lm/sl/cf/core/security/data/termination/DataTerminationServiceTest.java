@@ -97,11 +97,9 @@ public class DataTerminationServiceTest {
     public static Stream<Arguments> testDeleteData() {
         return Stream.of(
 // @formatter:off                   
-                        Arguments.of(2, true, true),
-                        Arguments.of(3, false, true),
-                        Arguments.of(5, true, false),
-                        Arguments.of(0, false, false)
-                        
+				Arguments.of(2, true, true), Arguments.of(3, false, true), Arguments.of(5, true, false),
+				Arguments.of(0, false, false)
+
 // @formatter:on
         );
     }
@@ -155,7 +153,8 @@ public class DataTerminationServiceTest {
                                                                new CloudTarget(),
                                                                "",
                                                                Collections.emptyList(),
-                                                               ""))
+                                                               "",
+                                                               null))
             : Collections.emptyList();
     }
 
@@ -194,7 +193,7 @@ public class DataTerminationServiceTest {
 
     private void verifySubscriptionsDeletedBySpace(List<String> deletedSpaces, VerificationMode verificationMode) {
         for (String deletedSpace : deletedSpaces) {
-            verify(configurationSubscriptionQuery.spaceId(deletedSpace), verificationMode).delete();
+            verify(configurationSubscriptionQuery, verificationMode).deleteAll(deletedSpace);
         }
     }
 
@@ -209,7 +208,7 @@ public class DataTerminationServiceTest {
 
     private void verifyEntriesDeletedBySpace(List<String> deletedSpaces, VerificationMode verificationMode) {
         for (String deletedSpace : deletedSpaces) {
-            verify(configurationEntryQuery.spaceId(deletedSpace), verificationMode).delete();
+            verify(configurationEntryQuery, verificationMode).deleteAll(deletedSpace);
         }
     }
 

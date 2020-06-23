@@ -41,10 +41,9 @@ public class ProcessConflictPreventer {
             currentOperationWithAcquiredLock.namespace(namespace);
         }
 
-        operationService.update(currentOperation.getProcessId(), currentOperationWithAcquiredLock.build());
+        operationService.update(currentOperation, currentOperationWithAcquiredLock.build());
 
         LOGGER.info(format(Messages.ACQUIRED_LOCK, processId, StepsUtil.getQualifiedMtaId(mtaId, namespace)));
-
     }
 
     private void validateNoConflictingOperationsExist(String mtaId, String namespace, String spaceId) {
@@ -86,7 +85,7 @@ public class ProcessConflictPreventer {
                                       .state(state)
                                       .endedAt(ZonedDateTime.now())
                                       .build();
-        operationService.update(operation.getProcessId(), operation);
+        operationService.update(operation, operation);
         LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
     }
 

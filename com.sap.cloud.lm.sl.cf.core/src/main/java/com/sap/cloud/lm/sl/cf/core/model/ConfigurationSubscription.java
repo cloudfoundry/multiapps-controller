@@ -25,20 +25,24 @@ public class ConfigurationSubscription implements AuditableConfiguration {
     private String appName;
     private ModuleDto moduleDto;
     private ResourceDto resourceDto;
+    private String moduleId;
+    private String resourceId;
 
     public ConfigurationSubscription() {
         // Required by Jackson
     }
 
     public ConfigurationSubscription(long id, String mtaId, String spaceId, String appName, ConfigurationFilter filter, ModuleDto moduleDto,
-                                     ResourceDto resourceDto) {
+                                     ResourceDto resourceDto, String moduleId, String resourceId) {
         this.filter = filter;
         this.spaceId = spaceId;
         this.appName = appName;
         this.id = id;
         this.moduleDto = moduleDto;
         this.mtaId = mtaId;
+        this.moduleId = moduleId;
         this.resourceDto = resourceDto;
+        this.resourceId = resourceId;
     }
 
     public long getId() {
@@ -64,6 +68,22 @@ public class ConfigurationSubscription implements AuditableConfiguration {
     public String getSpaceId() {
         return spaceId;
     }
+    
+    public String getModuleId() {
+        return moduleId;
+    }
+    
+    public void setModuleId(String moduleId) {
+        this.moduleId = moduleId;
+    }
+    
+    public String getResourceId() {
+        return resourceId;
+    }
+    
+    public void setResourceId(String resourceId) {
+        this.resourceId = resourceId;
+    }
 
     public ModuleDto getModuleDto() {
         return moduleDto;
@@ -78,7 +98,7 @@ public class ConfigurationSubscription implements AuditableConfiguration {
         if (majorSchemaVersion == 2) {
             ResourceDto resourceDto = ResourceDto.from2(resource);
             ModuleDto moduleDto = ModuleDto.from2(module);
-            return new ConfigurationSubscription(0, mtaId, spaceId, appName, filter, moduleDto, resourceDto);
+            return new ConfigurationSubscription(0, mtaId, spaceId, appName, filter, moduleDto, resourceDto, null, null);
         }
         throw new UnsupportedOperationException(format(Messages.UNSUPPORTED_VERSION, majorSchemaVersion));
     }

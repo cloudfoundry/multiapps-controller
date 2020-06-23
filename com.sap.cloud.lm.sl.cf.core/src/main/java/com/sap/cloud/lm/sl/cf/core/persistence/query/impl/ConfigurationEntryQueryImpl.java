@@ -34,7 +34,7 @@ public class ConfigurationEntryQueryImpl extends AbstractQueryImpl<Configuration
     private static final BiPredicate<CloudTarget, CloudTarget> TARGET_WILDCARD_FILTER = new TargetWildcardFilter();
     private static final BiPredicate<String, Map<String, Object>> CONTENT_FILTER = new ContentFilter();
 
-    private final QueryCriteria queryCriteria = new QueryCriteria();
+    protected final QueryCriteria queryCriteria = new QueryCriteria();
     private final ConfigurationEntryMapper entryMapper;
 
     private Map<String, Object> requiredProperties;
@@ -218,6 +218,16 @@ public class ConfigurationEntryQueryImpl extends AbstractQueryImpl<Configuration
 
     @Override
     public int delete() {
+        return executeInTransaction(manager -> createDeleteQuery(manager, queryCriteria, ConfigurationEntryDto.class).executeUpdate());
+    }
+
+    @Override
+    public int deleteAll(String spaceId) {
+        queryCriteria.addRestriction(ImmutableQueryAttributeRestriction.builder()
+                                                                       .attribute(AttributeNames.SPACE_ID)
+                                                                       .condition(getCriteriaBuilder()::equal)
+                                                                       .value(spaceId)
+                                                                       .build());
         return executeInTransaction(manager -> createDeleteQuery(manager, queryCriteria, ConfigurationEntryDto.class).executeUpdate());
     }
 

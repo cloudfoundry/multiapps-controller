@@ -68,7 +68,15 @@ public class ConfigurationEntriesCloudModelBuilder {
         CloudTarget target = new CloudTarget(organizationName, spaceName);
         String content = JsonUtil.toJson(providedDependency.getProperties());
         List<CloudTarget> visibility = getVisibilityTargets(providedDependency);
-        return new ConfigurationEntry(providerNid, providerId, providerVersion, providerNamespace, target, content, visibility, spaceGuid);
+        return new ConfigurationEntry(providerNid,
+                                      providerId,
+                                      providerVersion,
+                                      providerNamespace,
+                                      target,
+                                      content,
+                                      visibility,
+                                      spaceGuid,
+                                      null);
     }
 
     private List<CloudTarget> getVisibilityTargets(ProvidedDependency providedDependency) {

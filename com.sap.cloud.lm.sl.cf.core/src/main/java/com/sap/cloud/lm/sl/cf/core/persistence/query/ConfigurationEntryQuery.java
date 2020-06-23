@@ -28,4 +28,6 @@ public interface ConfigurationEntryQuery extends Query<ConfigurationEntry, Confi
 
     ConfigurationEntryQuery mtaId(String mtaId);
 
+    int deleteAll(String spaceId);
+
 }

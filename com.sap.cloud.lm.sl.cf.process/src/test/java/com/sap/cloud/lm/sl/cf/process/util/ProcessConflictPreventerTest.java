@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,6 +13,7 @@ import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
@@ -57,7 +57,7 @@ public class ProcessConflictPreventerTest {
         Operation op = operationServiceMock.createQuery()
                                            .processId(testProcessId)
                                            .singleResult();
-        verify(operationServiceMock).update(op.getProcessId(), op);
+        verify(operationServiceMock).update(op, op);
     }
 
     @Test
@@ -70,8 +70,10 @@ public class ProcessConflictPreventerTest {
         Operation.State abortedState = Operation.State.ABORTED;
 
         processConflictPreventerMock.releaseLock(testProcessId, abortedState);
-
-        verify(operationServiceMock).update(eq(testProcessId), argThat(this::assertOperationAbort));
+        ArgumentCaptor<Operation> argumentCaptor = ArgumentCaptor.forClass(Operation.class);
+        verify(operationServiceMock).update(argumentCaptor.capture(), argThat(this::assertOperationAbort));
+        assertEquals(testProcessId, argumentCaptor.getValue()
+                                                  .getProcessId());
     }
 
     private OperationService getOperationServiceMock() throws SLException {
