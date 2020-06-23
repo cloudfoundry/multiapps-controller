@@ -44,7 +44,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
-public class MtasApiServiceImplTest {
+class MtasApiServiceImplTest {
 
     @Mock
     private CloudControllerClientProvider clientProvider;
@@ -65,7 +65,7 @@ public class MtasApiServiceImplTest {
                                                  .toString();
 
     @BeforeEach
-    public void initialize() {
+    void initialize() {
         MockitoAnnotations.initMocks(this);
         apps = parseApps();
         mtas = parseMtas();
@@ -85,7 +85,7 @@ public class MtasApiServiceImplTest {
     }
 
     @Test
-    public void testGetMtas() {
+    void testGetMtas() {
         Mockito.when(deployedMtaDetector.detectDeployedMtasWithoutNamespace(Mockito.any()))
                .thenReturn(getDeployedMtas(mtas));
 
@@ -96,7 +96,7 @@ public class MtasApiServiceImplTest {
     }
 
     @Test
-    public void testGetAllMtas() {
+    void testGetAllMtas() {
         Mockito.when(deployedMtaDetector.detectDeployedMtas(Mockito.any()))
                .thenReturn(getDeployedMtas(mtas));
 
@@ -107,7 +107,7 @@ public class MtasApiServiceImplTest {
     }
 
     @Test
-    public void testGetMtasByName() {
+    void testGetMtasByName() {
         Mta mtaToGet = mtas.get(1);
         Mockito.when(deployedMtaDetector.detectDeployedMtasByName(mtaToGet.getMetadata()
                                                                           .getId(),
@@ -122,7 +122,7 @@ public class MtasApiServiceImplTest {
     }
 
     @Test
-    public void testGetMtasByNamespace() {
+    void testGetMtasByNamespace() {
         Mta mtaToGet = mtas.get(0);
         Mockito.when(deployedMtaDetector.detectDeployedMtasByNamespace(mtaToGet.getMetadata()
                                                                                .getNamespace(),
@@ -138,7 +138,7 @@ public class MtasApiServiceImplTest {
     }
 
     @Test
-    public void testGetMtasByNameAndNamespace() {
+    void testGetMtasByNameAndNamespace() {
         Mta mtaToGet = mtas.get(0);
         Mockito.when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(mtaToGet.getMetadata()
                                                                                      .getId(),
@@ -157,7 +157,7 @@ public class MtasApiServiceImplTest {
     }
 
     @Test
-    public void testGetMta() {
+    void testGetMta() {
         Mta mtaToGet = mtas.get(1);
         Mockito.when(deployedMtaDetector.detectDeployedMtasByName(mtaToGet.getMetadata()
                                                                           .getId(),
@@ -172,12 +172,12 @@ public class MtasApiServiceImplTest {
     }
 
     @Test
-    public void testGetMtaNotFound() {
+    void testGetMtaNotFound() {
         Assertions.assertThrows(NotFoundException.class, () -> testedClass.getMta(SPACE_GUID, "not_a_real_mta"));
     }
 
     @Test
-    public void testGetMtaNotUniqueByName() {
+    void testGetMtaNotUniqueByName() {
         Mockito.when(deployedMtaDetector.detectDeployedMtasByName("name_thats_not_unique", client))
                .thenReturn(getDeployedMtas(mtas));
 

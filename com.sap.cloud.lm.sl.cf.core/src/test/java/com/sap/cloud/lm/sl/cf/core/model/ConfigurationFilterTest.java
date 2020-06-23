@@ -13,9 +13,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
-public class ConfigurationFilterTest {
+class ConfigurationFilterTest {
 
-    public static Stream<Arguments> testMatches() {
+    static Stream<Arguments> testMatches() {
         return Stream.of(
         // @formatter:off
         // (1) Filter checks for empty namespace with keyword 'default' and matches
@@ -38,7 +38,7 @@ public class ConfigurationFilterTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testMatches(String testInputLocation) {
+    void testMatches(String testInputLocation) {
         ConfigurationFilterTestInput input = parseInput(testInputLocation);
 
         assertEquals(input.filterResult, input.configurationFilter.matches(input.configurationEntry));
