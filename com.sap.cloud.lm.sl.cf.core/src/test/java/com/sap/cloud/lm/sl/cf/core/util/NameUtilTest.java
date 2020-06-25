@@ -17,38 +17,6 @@ import com.sap.cloud.lm.sl.cf.core.util.NameUtil.NameRequirements;
 
 public class NameUtilTest {
 
-    @Test
-    public void testIsValidXsAppNameWhenNamesAreValid() {
-        testIsValidName(Arrays.asList("Fo0", "foo.bar", "foo_bar", "foo-bar", "//foo\\"), NameRequirements.XS_APP_NAME_PATTERN, true);
-    }
-
-    @Test
-    public void testIsValidXsAppNameWhenNamesAreInvalid() {
-        String longName = StringUtils.repeat("f", NameRequirements.XS_APP_NAME_MAX_LENGTH + 1);
-
-        testIsValidName(Arrays.asList("sap_system", "sap_system_1", "foo&&bar", "foo bar", longName), NameRequirements.XS_APP_NAME_PATTERN,
-                        false);
-    }
-
-    @Test
-    public void testIsValidContainerNameWhenNamesAreValid() {
-        testIsValidName(Arrays.asList("FOO", "FOO_BAR", "1_FOO", "FOO_1_BAR"), NameRequirements.CONTAINER_NAME_PATTERN, true);
-    }
-
-    @Test
-    public void testIsValidContainerNameWhenNamesAreInvalid() {
-        String longName = StringUtils.repeat("F", NameRequirements.CONTAINER_NAME_MAX_LENGTH + 1);
-
-        testIsValidName(Arrays.asList("foo", "FOO BAR", "1-FOO", "FOO_&_BAR", "_FOO", " ", longName),
-                        NameRequirements.CONTAINER_NAME_PATTERN, false);
-    }
-
-    private void testIsValidName(List<String> names, String namePattern, boolean expectedResult) {
-        for (String name : names) {
-            assertEquals(expectedResult, NameUtil.isValidName(name, namePattern));
-        }
-    }
-
     public static Stream<Arguments> testGetNameWithProperLength() {
         return Stream.of(
         // @formatter:off
@@ -70,7 +38,7 @@ public class NameUtilTest {
         String containerName = NameUtil.computeValidContainerName("initial", "initial",
                                                                   "com.sap.cloud.lm.sl.xs2.a.very.very.long.service.name.with.illegal.container.name.characters");
         assertEquals("INITIAL_INITIAL_COM_SAP_CLOUD_LM_SL_XS2_A_VERY_VERY_LONG3AC0B612", containerName);
-        assertTrue(NameUtil.isValidName(containerName, NameRequirements.CONTAINER_NAME_PATTERN));
+        assertTrue(containerName.matches(NameRequirements.CONTAINER_NAME_PATTERN));
     }
 
     public static Stream<Arguments> testCreateValidXsAppName() {
@@ -88,7 +56,7 @@ public class NameUtilTest {
     public void testCreateValidXsAppName(String serviceName, String expectedName) {
         String xsAppName1 = NameUtil.computeValidXsAppName(serviceName);
         assertEquals(expectedName, xsAppName1);
-        assertTrue(NameUtil.isValidName(xsAppName1, NameRequirements.XS_APP_NAME_PATTERN));
+        assertTrue(xsAppName1.matches(NameRequirements.XS_APP_NAME_PATTERN));
     }
 
     public static Stream<Arguments> testComputeNamespacedNameWithLength() {

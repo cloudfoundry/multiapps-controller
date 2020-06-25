@@ -39,14 +39,6 @@ public class NameUtil {
     private NameUtil() {
     }
 
-    public static boolean isValidName(String name, String namePattern) {
-        return name.matches(namePattern);
-    }
-
-    public static boolean resolveApplyNamespaceFlag(boolean applyNamespaceGlobal, boolean applyNamespaceLocal) {
-        return applyNamespaceGlobal && applyNamespaceLocal;
-    }
-
     public static String computeValidApplicationName(String applicationName, String namespace, boolean applyNamespace) {
         return computeNamespacedNameWithLength(applicationName, namespace, applyNamespace, NameRequirements.APP_NAME_MAX_LENGTH);
     }
