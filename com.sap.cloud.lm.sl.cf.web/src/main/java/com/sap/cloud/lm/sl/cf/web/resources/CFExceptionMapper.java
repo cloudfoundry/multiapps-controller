@@ -1,5 +1,8 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
+import java.sql.SQLException;
+
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +43,9 @@ public class CFExceptionMapper {
             ResponseStatusException rse = (ResponseStatusException) e;
             status = rse.getStatus();
             message = rse.getReason();
+        }
+        if (e instanceof SQLException || e instanceof PersistenceException) {
+            message = Messages.TEMPORARY_PROBLEM_WITH_PERSISTENCE_LAYER;
         }
 
         LOGGER.error(Messages.ERROR_EXECUTING_REST_API_CALL, e);
