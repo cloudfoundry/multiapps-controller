@@ -12,10 +12,6 @@ public class Constants {
     public static final String SERVICE_VERSION_1_1 = "1.1";
     public static final String SERVICE_VERSION_1_0 = "1.0";
 
-    public static final String VAR_MTA_MODULE_CONTENT_PREFIX = "mtaModuleContent_";
-    public static final String VAR_MTA_MODULE_FILE_NAME_PREFIX = "mtaModuleFileName_";
-    public static final String VAR_MTA_REQUIRES_FILE_NAME_PREFIX = "mtaRequiresFileName_";
-    public static final String VAR_MTA_RESOURCE_FILE_NAME_PREFIX = "mtaResourceFileName_";
     public static final String VAR_IS_SERVICE_UPDATED_VAR_PREFIX = "IS_SERVICE_UPDATED_";
     public static final String VAR_APP_SERVICE_BROKER_VAR_PREFIX = "APP_SERVICE_BROKER_";
     public static final String PROCESS_ABORTED = "__PROCESS_ABORTED";

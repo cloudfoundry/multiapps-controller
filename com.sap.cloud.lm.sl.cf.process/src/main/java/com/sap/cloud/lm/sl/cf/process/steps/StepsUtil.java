@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -27,7 +25,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.ImmutableLogsOffset;
@@ -57,26 +54,6 @@ public class StepsUtil {
             throw new SLException(Messages.CANT_DETERMINE_CURRENT_USER);
         }
         return user;
-    }
-
-    static InputStream getModuleContentAsStream(VariableScope scope, String moduleName) {
-        byte[] moduleContent = getModuleContent(scope, moduleName);
-        if (moduleContent == null) {
-            throw new SLException(Messages.MODULE_CONTENT_NA, moduleName);
-        }
-        return new ByteArrayInputStream(moduleContent);
-    }
-
-    static byte[] getModuleContent(VariableScope scope, String moduleName) {
-        return getObject(scope, getModuleContentVariable(moduleName));
-    }
-
-    static void setModuleContent(VariableScope scope, String moduleName, byte[] moduleContent) {
-        scope.setVariable(getModuleContentVariable(moduleName), moduleContent);
-    }
-
-    private static String getModuleContentVariable(String moduleName) {
-        return Constants.VAR_MTA_MODULE_CONTENT_PREFIX + moduleName;
     }
 
     public static HandlerFactory getHandlerFactory(VariableScope scope) {
@@ -232,10 +209,6 @@ public class StepsUtil {
         return context.getVariable(Variables.GIT_URI);
     }
 
-    public static boolean getIsServiceUpdatedExportedVariable(VariableScope scope, String serviceName) {
-        return getBoolean(scope, Constants.VAR_IS_SERVICE_UPDATED_VAR_PREFIX + serviceName, false);
-    }
-
     public static void setExecutedHooksForModule(VariableScope scope, String moduleName, Map<String, List<String>> moduleHooks) {
         setAsJsonBinary(scope, getExecutedHooksForModuleVariableName(moduleName), moduleHooks);
     }
@@ -248,10 +221,6 @@ public class StepsUtil {
 
     private static String getExecutedHooksForModuleVariableName(String moduleName) {
         return Constants.VAR_EXECUTED_HOOKS_FOR_PREFIX + moduleName;
-    }
-
-    public static Boolean getBoolean(VariableScope scope, String name, Boolean defaultValue) {
-        return getObject(scope, name, defaultValue);
     }
 
     public static Integer getInteger(VariableScope scope, String name) {
