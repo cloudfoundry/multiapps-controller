@@ -13,7 +13,8 @@ import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
-import com.google.common.collect.Sets;
+import org.apache.commons.collections4.SetUtils;
+
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -34,9 +35,8 @@ public class ReadOnlyParametersChecker {
 
     private void checkForCommonParameters(NamedParametersContainer namedParametersContainer, Set<String> readOnlyParameters,
                                           Map<String, Set<String>> commonReadOnlyParameters) {
-        Set<String> commonParameters = Sets.intersection(namedParametersContainer.getParameters()
-                                                                                 .keySet(),
-                                                         readOnlyParameters);
+        Set<String> commonParameters = SetUtils.intersection(namedParametersContainer.getParameters()
+                                                                                     .keySet(), readOnlyParameters);
         if (!commonParameters.isEmpty()) {
             commonReadOnlyParameters.put(namedParametersContainer.getName(), commonParameters);
         }
@@ -44,17 +44,16 @@ public class ReadOnlyParametersChecker {
 
     private void checkCollectionForCommonParameters(List<? extends NamedParametersContainer> namedElementsWithParametersContainers,
                                                     Set<String> readOnlyParameters, Map<String, Set<String>> commonReadOnlyParameters) {
-        namedElementsWithParametersContainers.forEach(namedElementWithParametersContainers -> checkForCommonParameters(namedElementWithParametersContainers,
-                                                                                                                       readOnlyParameters,
-                                                                                                                       commonReadOnlyParameters));
+        for (NamedParametersContainer namedElement : namedElementsWithParametersContainers) {
+            checkForCommonParameters(namedElement, readOnlyParameters, commonReadOnlyParameters);
+        }
     }
 
     private String getFormattedOutput(Map<String, Set<String>> readOnlyParameters) {
         return System.lineSeparator() + readOnlyParameters.entrySet()
                                                           .stream()
-                                                          .map(commonReadOnlyParameter -> MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS,
-                                                                                                               commonReadOnlyParameter.getKey(),
-                                                                                                               commonReadOnlyParameter.getValue()))
+                                                          .map(entry -> MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS,
+                                                                                             entry.getKey(), entry.getValue()))
                                                           .collect(Collectors.joining(System.lineSeparator()));
     }
 

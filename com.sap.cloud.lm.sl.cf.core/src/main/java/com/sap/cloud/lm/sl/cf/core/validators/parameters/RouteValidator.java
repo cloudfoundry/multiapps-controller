@@ -70,11 +70,13 @@ public class RouteValidator implements ParameterValidator {
 
         ApplicationURI uri = new ApplicationURI(routeString);
         Map<String, Object> uriParts = uri.getURIParts();
-        boolean partsAreValid = validators.stream()
-                                          .allMatch(validator -> partIsValid(validator, uriParts));
 
-        boolean hostPresent = uriParts.containsKey(SupportedParameters.HOST);
-        return hostPresent && partsAreValid;
+        for (ParameterValidator validator : validators) {
+            if (!partIsValid(validator, uriParts)) {
+                return false;
+            }
+        }
+        return uriParts.containsKey(SupportedParameters.HOST);
     }
 
     protected boolean partIsValid(ParameterValidator validator, Map<String, Object> uriParts) {
