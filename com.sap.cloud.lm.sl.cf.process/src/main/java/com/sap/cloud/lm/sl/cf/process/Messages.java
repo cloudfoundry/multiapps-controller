@@ -13,7 +13,6 @@ public class Messages {
     public static final String ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT = "Error retrieving content of MTA required dependency \"{0}\"";
     public static final String ERROR_RETRIEVING_MTA_RESOURCE_CONTENT = "Error retrieving content of MTA resource \"{0}\"";
     public static final String ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET = "Service described by MTA resource \"{0}\" of type [{1}] does not match already existing service \"{2}\" of type [{3}] and needs to be recreated. Use command line option \"--delete-services\" to enable the deletion of the existing one.";
-    public static final String MODULE_CONTENT_NA = "The content of MTA module \"{0}\" is not available";
     public static final String SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT = "The size of the application exceeds max size limit \"{0}\"";
     public static final String CF_ERROR = "Controller operation failed: {0}";
     public static final String ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT = "Unable to retrieve required service key element \"{0}\" for service \"{1}\"";
