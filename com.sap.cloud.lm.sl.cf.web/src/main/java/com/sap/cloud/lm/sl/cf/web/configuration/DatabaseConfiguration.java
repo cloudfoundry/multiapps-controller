@@ -54,8 +54,10 @@ public class DatabaseConfiguration {
 
     @Inject
     @Bean
-    public DataSourceTransactionManager transactionManager(DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
+    public DataSourceTransactionManager transactionManager(DataSource dataSource, ApplicationConfiguration applicationConfiguration) {
+        DataSourceTransactionManager dataSourceTransactionManager = new DataSourceTransactionManager(dataSource);
+        dataSourceTransactionManager.setDefaultTimeout(applicationConfiguration.getDbTransactionTimeoutInSeconds());
+        return dataSourceTransactionManager;
     }
 
     @Inject

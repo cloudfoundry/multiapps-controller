@@ -90,6 +90,7 @@ public class ApplicationConfiguration {
     static final String CFG_CERTIFICATE_CN = "CERTIFICATE_CN";
     static final String CFG_MICROMETER_STEP_IN_SECONDS = "MICROMETER_STEP_IN_SECONDS";
     static final String CFG_MICROMETER_BATCH_SIZE = "MICROMETER_BATCH_SIZE";
+    static final String CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS = "DB_TRANSACTION_TIMEOUT_IN_SECONDS";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -130,6 +131,7 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 192;
     public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 64;
     public static final Boolean DEFAULT_SAP_INTERNAL_DELIVERY = false;
+    public static final int DEFAULT_DB_TRANSACTION_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(10);
     protected final Environment environment;
 
     // Cached configuration settings:
@@ -177,6 +179,7 @@ public class ApplicationConfiguration {
     private String certificateCN;
     private Integer micrometerStepInSeconds;
     private Integer micrometerBatchSize;
+    private Integer dbTransactionTimeoutInSeconds;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -241,7 +244,7 @@ public class ApplicationConfiguration {
                                            CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS,
                                            CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
                                            CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
-                                           CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE));
+                                           CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS));
     }
 
     public Configuration getFileConfiguration() {
@@ -547,6 +550,13 @@ public class ApplicationConfiguration {
             micrometerBatchSize = getMicrometerBatchSizeFromEnvironment();
         }
         return micrometerBatchSize;
+    }
+
+    public Integer getDbTransactionTimeoutInSeconds() {
+        if (dbTransactionTimeoutInSeconds == null) {
+            dbTransactionTimeoutInSeconds = getDbTransactionTimeoutInSecondsFromEnvironment();
+        }
+        return dbTransactionTimeoutInSeconds;
     }
 
     private URL getControllerUrlFromEnvironment() {
@@ -893,6 +903,13 @@ public class ApplicationConfiguration {
         Integer micrometerBatchSize = environment.getInteger(CFG_MICROMETER_BATCH_SIZE, null);
         LOGGER.info(format(Messages.MICROMETER_BATCH_SIZE, micrometerBatchSize));
         return micrometerBatchSize;
+    }
+
+    private Integer getDbTransactionTimeoutInSecondsFromEnvironment() {
+        Integer dbTransactionTimeout = environment.getInteger(CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS,
+                                                              DEFAULT_DB_TRANSACTION_TIMEOUT_IN_SECONDS);
+        LOGGER.info(format(Messages.DB_TRANSACTION_TIMEOUT, dbTransactionTimeout));
+        return dbTransactionTimeout;
     }
 
     public Boolean isInternalEnvironment() {

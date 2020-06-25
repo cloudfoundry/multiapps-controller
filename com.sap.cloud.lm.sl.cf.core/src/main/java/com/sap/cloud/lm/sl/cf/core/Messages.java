@@ -170,6 +170,7 @@ public final class Messages {
     public static final String CONTROLLER_CLIENT_THREAD_POOL_SIZE = "Controller client thread pool size: {0}";
     public static final String MICROMETER_STEP_IN_SECONDS = "Micrometer step in seconds: {0}";
     public static final String MICROMETER_BATCH_SIZE = "Micrometer batch size: {0}";
+    public static final String DB_TRANSACTION_TIMEOUT = "Database transaction timeout: {0} seconds";
 
     // Debug messages
     public static final String DEPLOYMENT_DESCRIPTOR = "Deployment descriptor: {0}";
