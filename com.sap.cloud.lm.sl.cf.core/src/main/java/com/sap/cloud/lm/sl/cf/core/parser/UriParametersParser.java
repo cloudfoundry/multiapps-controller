@@ -16,7 +16,6 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.RoutesValidator;
-import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class UriParametersParser implements ParametersParser<List<String>> {
 
@@ -117,9 +116,8 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     }
 
     public List<String> getApplicationRoutes(List<Map<String, Object>> parametersList) {
-        List<Map<String, Object>> routesMaps = RoutesValidator.applyRoutesType(PropertiesUtil.getPropertyValue(parametersList,
-                                                                                                               SupportedParameters.ROUTES,
-                                                                                                               null));
+        List<Map<String, Object>> routesMaps = RoutesValidator.applyRoutesType(getPropertyValue(parametersList, SupportedParameters.ROUTES,
+                                                                                                null));
 
         return routesMaps.stream()
                          .map(routesMap -> (String) routesMap.get(SupportedParameters.ROUTE))
