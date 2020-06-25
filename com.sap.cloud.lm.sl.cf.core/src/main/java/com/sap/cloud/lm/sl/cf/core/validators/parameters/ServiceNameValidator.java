@@ -49,7 +49,7 @@ public class ServiceNameValidator implements ParameterValidator {
         }
 
         boolean applyNamespaceLocal = MapUtil.parseBooleanFlag(relatedParameters, SupportedParameters.APPLY_NAMESPACE, true);
-        boolean applyNamespace = NameUtil.resolveApplyNamespaceFlag(applyNamespaceGlobal, applyNamespaceLocal);
+        boolean applyNamespace = applyNamespaceGlobal && applyNamespaceLocal;
 
         return NameUtil.computeValidServiceName((String) serviceName, namespace, applyNamespace);
     }
