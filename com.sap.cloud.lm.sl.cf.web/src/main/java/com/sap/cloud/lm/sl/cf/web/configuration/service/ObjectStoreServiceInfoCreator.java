@@ -11,6 +11,7 @@ public class ObjectStoreServiceInfoCreator extends CloudFoundryServiceInfoCreato
     private static final String OBJECT_STORE_INSTANCE_NAME = "deploy-service-os";
     private static final String OBJECT_STORE_AWS_PLAN = "s3-standard";
     private static final String OBJECT_STORE_AZURE_PLAN = "azure-standard";
+    private static final String OBJECT_STORE_ALICLOUD_PLAN = "oss-standard";
 
     public ObjectStoreServiceInfoCreator() {
         super(new Tags(OBJECT_STORE_LABEL), "");
@@ -29,7 +30,7 @@ public class ObjectStoreServiceInfoCreator extends CloudFoundryServiceInfoCreato
     }
 
     private boolean planMatches(String plan) {
-        return OBJECT_STORE_AWS_PLAN.equals(plan) || OBJECT_STORE_AZURE_PLAN.equals(plan);
+        return OBJECT_STORE_AWS_PLAN.equals(plan) || OBJECT_STORE_AZURE_PLAN.equals(plan) || OBJECT_STORE_ALICLOUD_PLAN.equals(plan);
     }
 
     @Override
@@ -41,6 +42,8 @@ public class ObjectStoreServiceInfoCreator extends CloudFoundryServiceInfoCreato
             return createServiceInfoForAws(credentials);
         } else if (plan.equals(OBJECT_STORE_AZURE_PLAN)) {
             return createServiceInfoForAzure(credentials);
+        } else if (plan.equals(OBJECT_STORE_ALICLOUD_PLAN)) {
+            return createServiceInfoForAliCloud(credentials);
         }
         throw new IllegalStateException("Unsupported service plan for object store!");
 
@@ -50,14 +53,43 @@ public class ObjectStoreServiceInfoCreator extends CloudFoundryServiceInfoCreato
         String accessKeyId = (String) credentials.get("access_key_id");
         String secretAccessKey = (String) credentials.get("secret_access_key");
         String bucket = (String) credentials.get("bucket");
-        return new ObjectStoreServiceInfo(OBJECT_STORE_INSTANCE_NAME, "aws-s3", accessKeyId, secretAccessKey, bucket);
+        return ObjectStoreServiceInfo.builder()
+                                     .id(OBJECT_STORE_INSTANCE_NAME)
+                                     .provider("aws-s3")
+                                     .identity(accessKeyId)
+                                     .credential(secretAccessKey)
+                                     .container(bucket)
+                                     .build();
     }
 
     private ObjectStoreServiceInfo createServiceInfoForAzure(Map<String, Object> credentials) {
         String accountName = (String) credentials.get("account_name");
         String sasToken = (String) credentials.get("sas_token");
         String containerName = (String) credentials.get("container_name");
-        return new ObjectStoreServiceInfo(OBJECT_STORE_INSTANCE_NAME, "azureblob", accountName, sasToken, containerName);
+        return ObjectStoreServiceInfo.builder()
+                                     .id(OBJECT_STORE_INSTANCE_NAME)
+                                     .provider("azureblob")
+                                     .identity(accountName)
+                                     .credential(sasToken)
+                                     .container(containerName)
+                                     .build();
+    }
+
+    private ObjectStoreServiceInfo createServiceInfoForAliCloud(Map<String, Object> credentials) {
+        String accessKeyId = (String) credentials.get("access_key_id");
+        String secretAccessKey = (String) credentials.get("secret_access_key");
+        String bucket = (String) credentials.get("bucket");
+        String region = (String) credentials.get("region");
+        String endpoint = (String) credentials.get("endpoint");
+        return ObjectStoreServiceInfo.builder()
+                                     .id(OBJECT_STORE_INSTANCE_NAME)
+                                     .provider("aliyun-oss")
+                                     .identity(accessKeyId)
+                                     .credential(secretAccessKey)
+                                     .container(bucket)
+                                     .endpoint(endpoint)
+                                     .region(region)
+                                     .build();
     }
 
 }
