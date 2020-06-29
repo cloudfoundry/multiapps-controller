@@ -11,6 +11,7 @@ import com.aliyun.oss.model.PutObjectRequest;
 import com.aliyun.oss.model.PutObjectResult;
 import com.google.common.base.Supplier;
 import com.sap.cloud.lm.sl.cf.persistence.jclouds.providers.aliyun.AliOSSApi;
+import com.sap.cloud.lm.sl.common.SLException;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.domain.BlobAccess;
@@ -71,10 +72,7 @@ public class AliOSSBlobStore extends BaseBlobStore {
         return doOssOperation(oss -> {
             ListObjectsRequest request = toListObjectRequest(container, options);
             ObjectListing objectListing = oss.listObjects(request);
-            List<StorageMetadata> storageMetadataList = objectListing.getObjectSummaries()
-                                                                     .stream()
-                                                                     .map(ossObjectSummary -> toStorageMetadata(oss, container, ossObjectSummary))
-                                                                     .collect(Collectors.toList());
+            List<StorageMetadata> storageMetadataList = toStorageMetadataList(oss, container, objectListing);
             return new PageSetImpl<>(storageMetadataList, objectListing.getNextMarker());
         });
     }
@@ -95,7 +93,7 @@ public class AliOSSBlobStore extends BaseBlobStore {
                 PutObjectResult result = oss.putObject(request);
                 return result.getETag();
             } catch (IOException e) {
-                throw new IllegalStateException(e);
+                throw new SLException(e);
             }
         });
     }
@@ -143,12 +141,21 @@ public class AliOSSBlobStore extends BaseBlobStore {
         }
         if (!options.getRanges()
                     .isEmpty()) {
-            String[] ranges = options.getRanges().get(0).split("-");
+            String[] ranges = options.getRanges()
+                                     .get(0)
+                                     .split("-");
             long start = Integer.parseInt(ranges[0]);
             long end = Integer.parseInt(ranges[1]);
             request.setRange(start, end);
         }
         return request;
+    }
+
+    private List<StorageMetadata> toStorageMetadataList(OSS oss, String container, ObjectListing objectListing) {
+        return objectListing.getObjectSummaries()
+                            .stream()
+                            .map(ossObjectSummary -> toStorageMetadata(oss, container, ossObjectSummary))
+                            .collect(Collectors.toList());
     }
 
     private StorageMetadata toStorageMetadata(OSS oss, String container, OSSObjectSummary ossObjectSummary) {
@@ -167,7 +174,7 @@ public class AliOSSBlobStore extends BaseBlobStore {
             return oss.generatePresignedUrl(ossObjectSummary.getBucketName(), ossObjectSummary.getKey(), time.getTime())
                 .toURI();
         } catch (URISyntaxException e) {
-            throw new IllegalStateException(e);
+            throw new SLException(e);
         }
     }
 

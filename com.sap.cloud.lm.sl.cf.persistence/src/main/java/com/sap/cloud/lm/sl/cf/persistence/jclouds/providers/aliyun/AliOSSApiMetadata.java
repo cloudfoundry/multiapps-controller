@@ -56,6 +56,11 @@ public class AliOSSApiMetadata extends BaseApiMetadata {
      * Contains constants that are plain metadata, which is not used in business logic.
      */
     public static class AliOSSConstants {
+
+        private AliOSSConstants() {
+            // Prevents instantiation
+        }
+
         public static final String ALI_OSS_API_NAME = "AlibabaCloud Object Storage Service";
         private static final String ALI_OSS_API_IDENTITY = "Access Key ID";
         private static final String ALI_OSS_API_CREDENTIAL = "Secret Access Key";
