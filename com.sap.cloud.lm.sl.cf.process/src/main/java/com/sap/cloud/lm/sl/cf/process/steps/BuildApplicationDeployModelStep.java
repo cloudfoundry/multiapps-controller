@@ -3,10 +3,12 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -17,6 +19,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -67,7 +70,18 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         if (context.getVariable(Variables.USE_IDLE_URIS)) {
             return modifiedApp.getIdleUris();
         }
+        if (context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY)) {
+            return removeSuffixFromUris(modifiedApp.getUris());
+        }
         return modifiedApp.getUris();
+    }
+
+    private List<String> removeSuffixFromUris(List<String> uris) {
+        return uris.stream()
+                   .map(ApplicationURI::new)
+                   .peek(uri -> uri.setHost(StringUtils.removeEnd(uri.getHost(), "-idle")))
+                   .map(ApplicationURI::toString)
+                   .collect(Collectors.toList());
     }
 
     private void buildConfigurationEntries(ProcessContext context, CloudApplicationExtended app) {
