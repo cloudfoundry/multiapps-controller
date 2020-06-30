@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
@@ -40,8 +41,7 @@ public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpda
     }
 
     private boolean isDockerInfoModified(DockerInfo existingDockerInfo, DockerInfo newDockerInfo) {
-        return existingDockerInfo != null && newDockerInfo != null && !existingDockerInfo.getImage()
-                                                                                         .equals(newDockerInfo.getImage());
+        return !Objects.equals(existingDockerInfo, newDockerInfo);
     }
 
     @Override
