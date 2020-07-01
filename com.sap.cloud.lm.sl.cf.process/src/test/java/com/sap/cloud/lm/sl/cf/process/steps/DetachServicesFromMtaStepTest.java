@@ -1,9 +1,11 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -14,6 +16,7 @@ import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.client.v3.Metadata;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
@@ -76,7 +79,7 @@ public class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachSe
 
     private void prepareClient(List<SimpleServiceInstance> servicesToDelete) {
         for (SimpleServiceInstance serviceInstance : servicesToDelete) {
-            Mockito.when(client.getServiceInstance(serviceInstance.name))
+            Mockito.when(client.getServiceInstance(serviceInstance.name, false))
                    .thenReturn(createServiceInstance(serviceInstance));
         }
     }
@@ -100,6 +103,19 @@ public class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachSe
 
     private static SimpleServiceInstance createSimpleServiceInstance(String name) {
         return new SimpleServiceInstance(name, UUID.randomUUID());
+    }
+
+    @Test
+    void testWithMissingService() {
+        prepareContext(Collections.singletonList("service"));
+        Mockito.when(client.getServiceInstance("service", false))
+               .thenReturn(null);
+
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+        Mockito.verify(client, Mockito.never())
+               .updateServiceInstanceMetadata(any(), any());
     }
 
     private static class SimpleServiceInstance {
