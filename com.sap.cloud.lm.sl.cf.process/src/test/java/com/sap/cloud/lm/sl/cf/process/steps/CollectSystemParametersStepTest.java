@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
@@ -10,8 +11,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.ImmutableMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadata;
@@ -23,6 +26,7 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ContentException;
+import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.Resource;
@@ -32,6 +36,7 @@ import com.sap.cloud.lm.sl.mta.model.VersionRule;
 public class CollectSystemParametersStepTest extends CollectSystemParametersStepBaseTest {
 
     private static final String DEFAULT_PROTOCOL = "https";
+    private static final String DEFAULT_DOMAIN_PLACEHOLDER = "apps.internal";
 
     @Test
     public void testGeneralParameters() {
@@ -204,6 +209,27 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         assertEquals(1, resources.size());
         Resource baz = resources.get(0);
         assertEquals("qux", NameUtil.getServiceName(baz));
+    }
+
+    @Test
+    public void testDefaultDomainNotFoundException() {
+        prepareDescriptor("system-parameters/mtad.yaml");
+        prepareClient();
+        when(client.getDefaultDomain()).thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND));
+
+        step.execute(execution);
+
+        assertTrue(context.getVariable(Variables.MISSING_DEFAULT_DOMAIN));
+        DeploymentDescriptor descriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS);
+        assertEquals(DEFAULT_DOMAIN_PLACEHOLDER, descriptor.getParameters()
+                                                           .get(SupportedParameters.DEFAULT_DOMAIN));
+    }
+
+    @Test(expected = SLException.class)
+    public void testDefaultDomainException() {
+        when(client.getDefaultDomain()).thenThrow(new CloudOperationException(HttpStatus.GATEWAY_TIMEOUT));
+
+        step.execute(execution);
     }
 
 }
