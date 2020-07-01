@@ -138,8 +138,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
 
     private boolean shouldNotDeployModule(Set<String> mtaModules, DeployedMtaApplication existingModule) {
         String existingModuleName = existingModule.getModuleName();
-        return mtaModules.stream()
-                         .noneMatch(existingModuleName::equals);
+        return !mtaModules.contains(existingModuleName);
     }
 
     private void setComponentsToUndeploy(ProcessContext context, List<String> services, List<CloudApplication> apps,
