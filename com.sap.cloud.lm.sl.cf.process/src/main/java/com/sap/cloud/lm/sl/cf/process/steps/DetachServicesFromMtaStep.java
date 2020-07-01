@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,8 @@ public class DetachServicesFromMtaStep extends SyncFlowableStep {
 
     private List<CloudServiceInstance> getServices(List<String> serviceNames, CloudControllerClient client) {
         return serviceNames.stream()
-                           .map(client::getServiceInstance)
+                           .map(service -> client.getServiceInstance(service, false))
+                           .filter(Objects::nonNull)
                            .collect(Collectors.toList());
     }
 
