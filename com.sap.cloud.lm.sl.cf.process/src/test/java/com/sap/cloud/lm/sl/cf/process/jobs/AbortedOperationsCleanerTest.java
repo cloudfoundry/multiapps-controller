@@ -1,11 +1,15 @@
 package com.sap.cloud.lm.sl.cf.process.jobs;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.flowable.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,13 +21,9 @@ import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent;
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableHistoricOperationEvent;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.HistoricOperationEventQuery;
-import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.HistoricOperationEventService;
-import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
-import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.cf.web.api.model.Operation.State;
 
 public class AbortedOperationsCleanerTest {
 
@@ -31,8 +31,6 @@ public class AbortedOperationsCleanerTest {
     private HistoricOperationEventService historicOperationEventService;
     @Mock
     private FlowableFacade flowableFacade;
-    @Mock
-    private OperationService operationService;
     @InjectMocks
     private AbortedOperationsCleaner abortedOperationsCleaner;
 
@@ -43,35 +41,35 @@ public class AbortedOperationsCleanerTest {
 
     @Test
     public void testExecuteWithNoAbortedOperations() {
-        prepareMocksWithOperations(Collections.emptyList());
+        prepareMocksWithProcesses(Collections.emptyList());
 
         abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
 
         Mockito.verify(historicOperationEventService)
                .createQuery();
-        Mockito.verifyNoInteractions(flowableFacade, operationService);
-    }
-
-    @Test
-    public void testExecuteWithOperationsInFinalState() {
-        prepareMocksWithOperations(Arrays.asList(createOperation("foo", Operation.State.FINISHED),
-                                                 createOperation("bar", Operation.State.FINISHED)));
-
-        abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
-
-        Mockito.verify(operationService, Mockito.times(2))
-               .createQuery();
         Mockito.verifyNoInteractions(flowableFacade);
     }
 
     @Test
-    public void testExecute() {
-        prepareMocksWithOperations(Arrays.asList(createOperation("foo", null), createOperation("bar", null)));
+    public void testExecuteWithOperationsInFinalState() {
+        prepareMocksWithProcesses(Arrays.asList(new CustomProcess("foo", false), new CustomProcess("bar", false)));
 
         abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
 
-        Mockito.verify(operationService, Mockito.times(2))
-               .createQuery();
+        Mockito.verify(flowableFacade, Mockito.times(2))
+               .getProcessInstance(anyString());
+        Mockito.verify(flowableFacade, never())
+               .deleteProcessInstance(anyString(), anyString());
+    }
+
+    @Test
+    public void testExecute() {
+        prepareMocksWithProcesses(Arrays.asList(new CustomProcess("foo", true), new CustomProcess("bar", true)));
+
+        abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
+
+        Mockito.verify(flowableFacade, Mockito.times(2))
+               .getProcessInstance(anyString());
         Mockito.verify(flowableFacade)
                .deleteProcessInstance("foo", Operation.State.ABORTED.name());
         Mockito.verify(flowableFacade)
@@ -80,56 +78,53 @@ public class AbortedOperationsCleanerTest {
 
     @Test
     public void testExecuteWithMixedOperations() {
-        prepareMocksWithOperations(Arrays.asList(createOperation("foo", null), createOperation("bar", Operation.State.FINISHED)));
+        prepareMocksWithProcesses(Arrays.asList(new CustomProcess("foo", true), new CustomProcess("bar", false)));
 
         abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
 
-        Mockito.verify(operationService, Mockito.times(2))
-               .createQuery();
+        Mockito.verify(flowableFacade, Mockito.times(2))
+               .getProcessInstance(anyString());
         Mockito.verify(flowableFacade)
                .deleteProcessInstance("foo", Operation.State.ABORTED.name());
         Mockito.verify(flowableFacade, Mockito.never())
                .deleteProcessInstance("bar", Operation.State.ABORTED.name());
     }
 
-    private void prepareMocksWithOperations(List<Operation> operations) {
+    private void prepareMocksWithProcesses(List<CustomProcess> customProcesses) {
         HistoricOperationEventQuery historicOperationEventQuery = Mockito.mock(HistoricOperationEventQuery.class, Mockito.RETURNS_SELF);
         Mockito.when(historicOperationEventQuery.list())
-               .thenReturn(createAbortedEvents(operations));
+               .thenReturn(createAbortedEvents(customProcesses));
         Mockito.when(historicOperationEventService.createQuery())
                .thenReturn(historicOperationEventQuery);
+        customProcesses.stream()
+                       .filter(customProcess -> customProcess.isActive)
+                       .forEach(customProcess -> Mockito.when(flowableFacade.getProcessInstance(customProcess.processId))
+                                                        .thenReturn(Mockito.mock(ProcessInstance.class)));
 
-        OperationQuery commonOperationQuery = Mockito.mock(OperationQuery.class, Mockito.RETURNS_SELF);
-        Mockito.when(operationService.createQuery())
-               .thenReturn(commonOperationQuery);
-        for (Operation operation : operations) {
-            OperationQuery operationQuery = Mockito.mock(OperationQuery.class, Mockito.RETURNS_SELF);
-            Mockito.doReturn(operation)
-                   .when(operationQuery)
-                   .singleResult();
-            Mockito.when(commonOperationQuery.processId(operation.getProcessId()))
-                   .thenReturn(operationQuery);
-        }
     }
 
-    private List<HistoricOperationEvent> createAbortedEvents(List<Operation> operations) {
-        return operations.stream()
-                         .map(this::createAbortedEvent)
-                         .collect(Collectors.toList());
+    private List<HistoricOperationEvent> createAbortedEvents(List<CustomProcess> customProcesses) {
+        return customProcesses.stream()
+                              .map(this::createAbortedEvent)
+                              .collect(Collectors.toList());
     }
 
-    private HistoricOperationEvent createAbortedEvent(Operation operation) {
+    private HistoricOperationEvent createAbortedEvent(CustomProcess customProcess) {
         return ImmutableHistoricOperationEvent.builder()
-                                              .processId(operation.getProcessId())
+                                              .processId(customProcess.processId)
                                               .type(EventType.ABORTED)
                                               .build();
     }
 
-    private Operation createOperation(String processId, State state) {
-        return ImmutableOperation.builder()
-                                 .processId(processId)
-                                 .state(state)
-                                 .build();
+    private class CustomProcess {
+        String processId;
+        boolean isActive;
+
+        public CustomProcess(String processId, boolean isActive) {
+            this.processId = processId;
+            this.isActive = isActive;
+        }
+
     }
 
 }
