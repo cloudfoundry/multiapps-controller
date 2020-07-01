@@ -269,7 +269,7 @@ public class UploadAppStepTest {
             private ApplicationZipBuilder getApplicationZipBuilder(ApplicationArchiveReader applicationArchiveReader) {
                 return new ApplicationZipBuilder(applicationArchiveReader) {
                     @Override
-                    protected Path createTempFile() {
+                    protected Path createTempFile(String filename) {
                         return appFile.toPath();
                     }
                 };

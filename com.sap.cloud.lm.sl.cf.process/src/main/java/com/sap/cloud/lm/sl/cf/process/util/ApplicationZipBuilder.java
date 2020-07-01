@@ -33,19 +33,19 @@ public class ApplicationZipBuilder {
     }
 
     public Path extractApplicationInNewArchive(ApplicationArchiveContext applicationArchiveContext) {
-        Path appPath = null;
+        Path tempFile = null;
         try {
-            appPath = createTempFile();
-            saveAllEntries(appPath, applicationArchiveContext);
-            return appPath;
+            tempFile = createTempFile(applicationArchiveContext.getModuleFileName());
+            saveAllEntries(tempFile, applicationArchiveContext);
+            return tempFile;
         } catch (Exception e) {
-            FileUtils.cleanUp(appPath, LOGGER);
+            FileUtils.cleanUp(tempFile, LOGGER);
             throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, applicationArchiveContext.getModuleFileName());
         }
     }
 
-    private void saveAllEntries(Path dirPath, ApplicationArchiveContext applicationArchiveContext) throws IOException {
-        try (OutputStream fileOutputStream = Files.newOutputStream(dirPath)) {
+    private void saveAllEntries(Path tempFile, ApplicationArchiveContext applicationArchiveContext) throws IOException {
+        try (OutputStream fileOutputStream = Files.newOutputStream(tempFile)) {
             ZipEntry zipEntry = applicationArchiveReader.getFirstZipEntry(applicationArchiveContext);
             if (zipEntry.isDirectory()) {
                 saveAsZip(fileOutputStream, applicationArchiveContext, zipEntry);
@@ -103,12 +103,12 @@ public class ApplicationZipBuilder {
         }
     }
 
-    protected Path createTempFile() throws IOException {
-        return Files.createTempFile(null, getFileExtension());
+    protected Path createTempFile(String filename) throws IOException {
+        return Files.createTempFile(FilenameUtils.getBaseName(filename), getExtension(filename));
     }
 
-    private String getFileExtension() {
-        return FilenameUtils.EXTENSION_SEPARATOR_STR + "zip";
+    private String getExtension(String filename) {
+        return FilenameUtils.EXTENSION_SEPARATOR_STR + FilenameUtils.getExtension(filename);
     }
 
 }
