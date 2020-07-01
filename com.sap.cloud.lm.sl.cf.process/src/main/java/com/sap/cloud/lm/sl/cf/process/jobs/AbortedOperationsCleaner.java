@@ -8,7 +8,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,6 @@ import org.springframework.core.annotation.Order;
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent;
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.HistoricOperationEventService;
-import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -30,14 +28,11 @@ public class AbortedOperationsCleaner implements Cleaner {
 
     private HistoricOperationEventService historicOperationEventService;
     private FlowableFacade flowableFacade;
-    private OperationService operationService;
 
     @Inject
-    public AbortedOperationsCleaner(HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade,
-                                    OperationService operationService) {
+    public AbortedOperationsCleaner(HistoricOperationEventService historicOperationEventService, FlowableFacade flowableFacade) {
         this.historicOperationEventService = historicOperationEventService;
         this.flowableFacade = flowableFacade;
-        this.operationService = operationService;
     }
 
     @Override
@@ -55,19 +50,8 @@ public class AbortedOperationsCleaner implements Cleaner {
                          .forEach(this::deleteProcessInstance);
     }
 
-    private boolean isInActiveState(String operationId) {
-        Operation operation = getOperation(operationId);
-        return operation != null && operation.getState() == null;
-    }
-
-    private Operation getOperation(String operationId) {
-        try {
-            return operationService.createQuery()
-                                   .processId(operationId)
-                                   .singleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+    private boolean isInActiveState(String processId) {
+        return flowableFacade.getProcessInstance(processId) != null;
     }
 
     private void deleteProcessInstance(String processInstanceId) {

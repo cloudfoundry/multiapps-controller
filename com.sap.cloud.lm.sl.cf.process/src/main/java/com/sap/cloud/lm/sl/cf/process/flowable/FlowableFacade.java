@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.flowable;
 import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -314,6 +315,14 @@ public class FlowableFacade {
                             .processDefinitionKey(processDefinitionKey)
                             .singleResult()
                             .getId();
+    }
+
+    public List<ProcessInstance> findAllRunningProcessInstanceStartedBefore(Date startedBefore) {
+        return processEngine.getRuntimeService()
+                            .createProcessInstanceQuery()
+                            .excludeSubprocesses(true)
+                            .startedBefore(startedBefore)
+                            .list();
     }
 
 }
