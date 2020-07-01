@@ -137,6 +137,7 @@ public class Messages {
     public static final String ERROR_POLLING_OF_SERVICE = "Error polling last operation of service \"{0}\": {1}";
     public static final String ERROR_MERGING_ARCHIVE = "Error merging archive. Retrying...";
     public static final String ERROR_DELETING_OPERATION_WITH_ID = "Error deleting operation with ID \"{0}\"";
+    public static final String ERROR_DELETING_FLOWABLE_PROCESS_WITH_ID = "Error deleting Flowable process with ID \"{0}\"";
     public static final String ERROR_MISSING_DEFAULT_DOMAIN = "Missing default domain in current org";
 
     // WARN log messages
@@ -202,6 +203,8 @@ public class Messages {
     public static final String CREATE_SUPPORT_TICKET_TO_SERVICE_BROKER_COMPONENT = "If you think the problem is in the service broker, please create a support ticket to {0} component \"{1}\".";
     public static final String CREATE_SUPPORT_TICKET_TO_CC_COMPONENT = "If you think the problem is in the controller, please create a support ticket to {0} component \"{1}\".";
     public static final String DELETING_OPERATION_WITH_ID = "Deleting operation with ID \"{0}\"";
+    public static final String DELETING_FLOWABLE_PROCESS_WITH_ID = "Deleting Flowable process with ID \"{0}\"";
+    public static final String FLOWABLE_PROCESSES_TO_DELETE = "Flowable processes to delete: {0}";
 
     // Progress messages
 
