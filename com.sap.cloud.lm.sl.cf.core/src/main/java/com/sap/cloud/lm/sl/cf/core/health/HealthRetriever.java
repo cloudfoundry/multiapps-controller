@@ -11,6 +11,7 @@ import javax.inject.Named;
 import com.sap.cloud.lm.sl.cf.core.health.model.Health;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
+import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -38,15 +39,21 @@ public class HealthRetriever {
         HealthCheckConfiguration healthCheckConfiguration = configuration.getHealthCheckConfiguration();
         ZonedDateTime currentTime = currentTimeSupplier.get();
         ZonedDateTime xSecondsAgo = currentTime.minusSeconds(healthCheckConfiguration.getTimeRangeInSeconds());
-        List<Operation> healthCheckOperations = operationService.createQuery()
-                                                                .mtaId(healthCheckConfiguration.getMtaId())
-                                                                .spaceId(healthCheckConfiguration.getSpaceId())
-                                                                .user(healthCheckConfiguration.getUserName())
-                                                                .endedAfter(Date.from(xSecondsAgo.toInstant()))
-                                                                .inFinalState()
-                                                                .orderByEndTime(OrderDirection.DESCENDING)
-                                                                .list();
+        List<Operation> healthCheckOperations = getHealthCheckOperations(healthCheckConfiguration, xSecondsAgo);
         return Health.fromOperations(healthCheckOperations);
+    }
+
+    private List<Operation> getHealthCheckOperations(HealthCheckConfiguration healthCheckConfiguration, ZonedDateTime xSecondsAgo) {
+        OperationQuery healthCheckOperationsQuery = operationService.createQuery()
+                                                                    .mtaId(healthCheckConfiguration.getMtaId())
+                                                                    .spaceId(healthCheckConfiguration.getSpaceId())
+                                                                    .endedAfter(Date.from(xSecondsAgo.toInstant()))
+                                                                    .inFinalState()
+                                                                    .orderByEndTime(OrderDirection.DESCENDING);
+        if (healthCheckConfiguration.getUserName() != null) {
+            healthCheckOperationsQuery.user(healthCheckConfiguration.getUserName());
+        }
+        return healthCheckOperationsQuery.list();
     }
 
 }

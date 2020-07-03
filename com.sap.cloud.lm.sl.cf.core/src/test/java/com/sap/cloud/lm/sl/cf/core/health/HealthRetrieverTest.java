@@ -2,7 +2,11 @@ package com.sap.cloud.lm.sl.cf.core.health;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -12,8 +16,8 @@ import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -23,13 +27,14 @@ import com.sap.cloud.lm.sl.cf.core.health.model.Health;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckOperation;
 import com.sap.cloud.lm.sl.cf.core.health.model.ImmutableHealthCheckConfiguration;
+import com.sap.cloud.lm.sl.cf.core.persistence.OrderDirection;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
-public class HealthRetrieverTest {
+class HealthRetrieverTest {
 
     private static final String SPACE_ID = "c65d042c-324f-4dc5-a925-9c806acafcfb";
     private static final String MTA_ID = "anatz";
@@ -44,37 +49,34 @@ public class HealthRetrieverTest {
     private static final ZonedDateTime CURRENT_TIME = toZonedDateTime(TimeUnit.SECONDS.toMillis(CURRENT_TIME_IN_SECONDS));
     private static final ZonedDateTime OPERATION_START_TIME = toZonedDateTime(TimeUnit.SECONDS.toMillis(OPERATION_START_TIME_IN_SECONDS));
     private static final ZonedDateTime OPERATION_END_TIME = toZonedDateTime(TimeUnit.SECONDS.toMillis(OPERATION_END_TIME_IN_SECONDS));
-
+    private final Supplier<ZonedDateTime> currentTimeSupplier = () -> CURRENT_TIME;
+    @Mock(answer = Answers.RETURNS_SELF)
+    private final OperationQuery operationQuery = Mockito.mock(OperationQuery.class);
     @Mock
     private OperationService operationService;
-    @Mock(answer = Answers.RETURNS_SELF)
-    private OperationQuery operationQuery = Mockito.mock(OperationQuery.class);
     @Mock
     private ApplicationConfiguration configuration;
-
-    private final Supplier<ZonedDateTime> currentTimeSupplier = () -> CURRENT_TIME;
+    private HealthRetriever healthRetriever;
 
     public HealthRetrieverTest() {
         MockitoAnnotations.initMocks(this);
     }
 
-    @Before
-    public void prepareConfiguration() {
-        HealthCheckConfiguration healthCheckConfiguration = ImmutableHealthCheckConfiguration.builder()
-                                                                                             .mtaId(MTA_ID)
-                                                                                             .spaceId(SPACE_ID)
-                                                                                             .userName(USER_NAME)
-                                                                                             .timeRangeInSeconds(TIME_RANGE_IN_SECONDS)
-                                                                                             .build();
+    private static ZonedDateTime toZonedDateTime(long time) {
+        return ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.of("UTC"));
+    }
+
+    private void prepareConfiguration(HealthCheckConfiguration healthCheckConfiguration) {
         Mockito.when(configuration.getHealthCheckConfiguration())
                .thenReturn(healthCheckConfiguration);
     }
 
-    @Before
-    public void prepareOperationService() {
+    @BeforeEach
+    void prepareOperationService() {
         when(operationService.createQuery()).thenReturn(operationQuery);
         doReturn(Collections.singletonList(getOperation())).when(operationQuery)
                                                            .list();
+        healthRetriever = new HealthRetriever(operationService, configuration, currentTimeSupplier);
     }
 
     private Operation getOperation() {
@@ -90,9 +92,13 @@ public class HealthRetrieverTest {
     }
 
     @Test
-    public void testGetHealth() {
-        HealthRetriever healthRetriever = new HealthRetriever(operationService, configuration, currentTimeSupplier);
-
+    void testGetHealth() {
+        prepareConfiguration(ImmutableHealthCheckConfiguration.builder()
+                                                              .mtaId(MTA_ID)
+                                                              .spaceId(SPACE_ID)
+                                                              .userName(USER_NAME)
+                                                              .timeRangeInSeconds(TIME_RANGE_IN_SECONDS)
+                                                              .build());
         Health health = healthRetriever.getHealth();
 
         assertTrue(health.isHealthy());
@@ -101,6 +107,31 @@ public class HealthRetrieverTest {
 
         HealthCheckOperation healthCheckOperation = health.getHealthCheckOperations()
                                                           .get(0);
+        validateHealthCheckOperationParameters(healthCheckOperation);
+        Mockito.verify(operationQuery, times(1))
+               .user(USER_NAME);
+        validateMandatoryParametersAreSet();
+    }
+
+    @Test
+    void testGetHealthWithoutUsername() {
+        prepareConfiguration(ImmutableHealthCheckConfiguration.builder()
+                                                              .mtaId(MTA_ID)
+                                                              .spaceId(SPACE_ID)
+                                                              .timeRangeInSeconds(TIME_RANGE_IN_SECONDS)
+                                                              .build());
+        Health health = healthRetriever.getHealth();
+
+        assertTrue(health.isHealthy());
+        HealthCheckOperation healthCheckOperation = health.getHealthCheckOperations()
+                                                          .get(0);
+        validateHealthCheckOperationParameters(healthCheckOperation);
+        Mockito.verify(operationQuery, never())
+               .user(anyString());
+        validateMandatoryParametersAreSet();
+    }
+
+    private void validateHealthCheckOperationParameters(HealthCheckOperation healthCheckOperation) {
         assertEquals(OPERATION_ID, healthCheckOperation.getId());
         assertEquals(MTA_ID, healthCheckOperation.getMtaId());
         assertEquals(USER_NAME, healthCheckOperation.getUser());
@@ -108,8 +139,17 @@ public class HealthRetrieverTest {
         assertEquals(OPERATION_END_TIME_IN_SECONDS - OPERATION_START_TIME_IN_SECONDS, healthCheckOperation.getDurationInSeconds());
     }
 
-    private static ZonedDateTime toZonedDateTime(long time) {
-        return ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.of("UTC"));
+    private void validateMandatoryParametersAreSet() {
+        Mockito.verify(operationQuery, times(1))
+               .mtaId(MTA_ID);
+        Mockito.verify(operationQuery, times(1))
+               .spaceId(SPACE_ID);
+        Mockito.verify(operationQuery, times(1))
+               .endedAfter(any());
+        Mockito.verify(operationQuery, times(1))
+               .inFinalState();
+        Mockito.verify(operationQuery, times(1))
+               .orderByEndTime(OrderDirection.DESCENDING);
     }
 
 }
