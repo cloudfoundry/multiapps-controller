@@ -13,9 +13,9 @@ import com.sap.cloud.lm.sl.cf.database.migration.executor.type.DatabaseTypeSette
 import com.sap.cloud.lm.sl.cf.database.migration.executor.type.DatabaseTypeSetterFactory;
 import com.sap.cloud.lm.sl.cf.database.migration.generator.DatabaseTableInsertQueryGenerator;
 import com.sap.cloud.lm.sl.cf.database.migration.metadata.DatabaseTableColumnMetadata;
-import com.sap.cloud.lm.sl.cf.database.migration.metadata.DatabaseTableMetadata;
+import com.sap.cloud.lm.sl.cf.database.migration.metadata.DatabaseTableData;
 import com.sap.cloud.lm.sl.cf.database.migration.metadata.ImmutableDatabaseTableColumnMetadata;
-import com.sap.cloud.lm.sl.cf.database.migration.metadata.ImmutableDatabaseTableMetadata;
+import com.sap.cloud.lm.sl.cf.database.migration.metadata.ImmutableDatabaseTableData;
 import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
 
 @Immutable
@@ -24,11 +24,11 @@ public abstract class DatabaseTableMigrationExecutor extends DatabaseMigrationEx
     @Override
     public void executeMigrationInternal(String databaseTable) throws SQLException {
         logger.info("Migrating table \"{}\"...", databaseTable);
-        DatabaseTableMetadata sourceTableMetadata = extractTableMetadataFromSourceDatabase(databaseTable);
+        DatabaseTableData sourceTableMetadata = extractTableMetadataFromSourceDatabase(databaseTable);
         transferData(databaseTable, sourceTableMetadata);
     }
 
-    private DatabaseTableMetadata extractTableMetadataFromSourceDatabase(String databaseTable) throws SQLException {
+    private DatabaseTableData extractTableMetadataFromSourceDatabase(String databaseTable) throws SQLException {
         return getSqlQueryExecutor(getSourceDataSource()).executeWithAutoCommit((connection) -> {
             PreparedStatement statement = null;
             ResultSet resultSet = null;
@@ -43,10 +43,9 @@ public abstract class DatabaseTableMigrationExecutor extends DatabaseMigrationEx
         });
     }
 
-    private DatabaseTableMetadata parseDatabaseTableMetadata(String databaseTable, ResultSetMetaData resultSetMetadata)
-        throws SQLException {
-        ImmutableDatabaseTableMetadata.Builder tableMetadataBuilder = ImmutableDatabaseTableMetadata.builder()
-                                                                                                    .tableName(databaseTable);
+    private DatabaseTableData parseDatabaseTableMetadata(String databaseTable, ResultSetMetaData resultSetMetadata) throws SQLException {
+        ImmutableDatabaseTableData.Builder tableMetadataBuilder = ImmutableDatabaseTableData.builder()
+                                                                                            .tableName(databaseTable);
         for (int currentColumnIndex = 1; currentColumnIndex <= resultSetMetadata.getColumnCount(); currentColumnIndex++) {
             tableMetadataBuilder.addTableColumnsMetadata(ImmutableDatabaseTableColumnMetadata.builder()
                                                                                              .columnName(resultSetMetadata.getColumnName(currentColumnIndex))
@@ -56,7 +55,7 @@ public abstract class DatabaseTableMigrationExecutor extends DatabaseMigrationEx
         return tableMetadataBuilder.build();
     }
 
-    private void transferData(String databaseTable, DatabaseTableMetadata sourceTableMetadata) throws SQLException {
+    private void transferData(String databaseTable, DatabaseTableData sourceTableMetadata) throws SQLException {
         logger.info("Transfering data for table \"{}\"...", databaseTable);
         String insertQuery = new DatabaseTableInsertQueryGenerator().generate(sourceTableMetadata);
         getSqlQueryExecutor(getSourceDataSource()).executeWithAutoCommit((sourceConnection) -> {
@@ -79,7 +78,7 @@ public abstract class DatabaseTableMigrationExecutor extends DatabaseMigrationEx
         });
     }
 
-    private void transferDataToTargetDatasource(Connection connection, String insertQuery, DatabaseTableMetadata sourceTableMetadata,
+    private void transferDataToTargetDatasource(Connection connection, String insertQuery, DatabaseTableData sourceTableMetadata,
                                                 ResultSet resultSet)
         throws SQLException {
         PreparedStatement insertStatement = null;

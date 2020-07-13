@@ -5,10 +5,12 @@ import java.util.List;
 import org.immutables.value.Value.Immutable;
 
 @Immutable
-public interface DatabaseTableMetadata {
-    
+public interface DatabaseTableData {
+
     String getTableName();
 
     List<DatabaseTableColumnMetadata> getTableColumnsMetadata();
+
+    List<DatabaseTableRowData> getTableRowsData();
 
 }

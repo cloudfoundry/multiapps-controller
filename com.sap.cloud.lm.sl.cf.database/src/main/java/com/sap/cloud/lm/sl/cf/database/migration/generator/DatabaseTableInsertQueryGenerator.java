@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.sap.cloud.lm.sl.cf.database.migration.metadata.DatabaseTableColumnMetadata;
-import com.sap.cloud.lm.sl.cf.database.migration.metadata.DatabaseTableMetadata;
+import com.sap.cloud.lm.sl.cf.database.migration.metadata.DatabaseTableData;
 
 public class DatabaseTableInsertQueryGenerator {
 
@@ -14,7 +14,7 @@ public class DatabaseTableInsertQueryGenerator {
     private static final String DEFAULT_STATEMENT_VALUES_SEPARATOR = ", ";
     private static final String DEFAULT_STATEMENT_PARAMETER = "?";
 
-    public String generate(DatabaseTableMetadata tableMetadata) {
+    public String generate(DatabaseTableData tableMetadata) {
         StringBuilder result = new StringBuilder();
         return result.append("INSERT INTO ")
                      .append(tableMetadata.getTableName())
