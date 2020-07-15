@@ -91,6 +91,7 @@ public class ApplicationConfiguration {
     static final String CFG_MICROMETER_STEP_IN_SECONDS = "MICROMETER_STEP_IN_SECONDS";
     static final String CFG_MICROMETER_BATCH_SIZE = "MICROMETER_BATCH_SIZE";
     static final String CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS = "DB_TRANSACTION_TIMEOUT_IN_SECONDS";
+    static final String CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS = "SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -132,6 +133,7 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 64;
     public static final Boolean DEFAULT_SAP_INTERNAL_DELIVERY = false;
     public static final int DEFAULT_DB_TRANSACTION_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(10);
+    public static final int DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS = 50;
     protected final Environment environment;
 
     // Cached configuration settings:
@@ -180,6 +182,7 @@ public class ApplicationConfiguration {
     private Integer micrometerStepInSeconds;
     private Integer micrometerBatchSize;
     private Integer dbTransactionTimeoutInSeconds;
+    private Integer snakeyamlMaxAliasesForCollections;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -219,6 +222,7 @@ public class ApplicationConfiguration {
         getAuditLogClientQueueCapacity();
         getAuditLogClientKeepAlive();
         getFssCacheUpdateTimeoutMinutes();
+        getSnakeyamlMaxAliasesForCollections();
     }
 
     protected AuditLoggingFacade getAuditLoggingFacade() {
@@ -244,7 +248,8 @@ public class ApplicationConfiguration {
                                            CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS,
                                            CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
                                            CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
-                                           CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS));
+                                           CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS,
+                                           CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS));
     }
 
     public Configuration getFileConfiguration() {
@@ -557,6 +562,13 @@ public class ApplicationConfiguration {
             dbTransactionTimeoutInSeconds = getDbTransactionTimeoutInSecondsFromEnvironment();
         }
         return dbTransactionTimeoutInSeconds;
+    }
+
+    public Integer getSnakeyamlMaxAliasesForCollections() {
+        if (snakeyamlMaxAliasesForCollections == null) {
+            snakeyamlMaxAliasesForCollections = getSnakeyamlMaxAliasesForCollectionsFromEnvironment();
+        }
+        return snakeyamlMaxAliasesForCollections;
     }
 
     private URL getControllerUrlFromEnvironment() {
@@ -910,6 +922,13 @@ public class ApplicationConfiguration {
                                                               DEFAULT_DB_TRANSACTION_TIMEOUT_IN_SECONDS);
         LOGGER.info(format(Messages.DB_TRANSACTION_TIMEOUT, dbTransactionTimeout));
         return dbTransactionTimeout;
+    }
+
+    private Integer getSnakeyamlMaxAliasesForCollectionsFromEnvironment() {
+        Integer snakeyamlMaxAliasesForCollections = environment.getInteger(CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS,
+            DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS);
+        LOGGER.info(format(Messages.SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS, snakeyamlMaxAliasesForCollections));
+        return snakeyamlMaxAliasesForCollections;
     }
 
     public Boolean isInternalEnvironment() {

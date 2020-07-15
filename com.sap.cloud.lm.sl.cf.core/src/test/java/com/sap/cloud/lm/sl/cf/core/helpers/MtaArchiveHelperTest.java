@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.YamlParser;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -43,7 +45,8 @@ public class MtaArchiveHelperTest {
         helper = new MtaArchiveHelper(ArchiveHandler.getManifest(stream, ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE));
 
         DescriptorParser parser = new DescriptorParser();
-        descriptor = parser.parseDeploymentDescriptorYaml(getClass().getResourceAsStream(deploymentDescriptorLocation));
+        Map<String, Object> deploymentDescriptorMap = new YamlParser().convertYamlToMap(getClass().getResourceAsStream(deploymentDescriptorLocation));
+        descriptor = parser.parseDeploymentDescriptor(deploymentDescriptorMap);
     }
 
     @Before

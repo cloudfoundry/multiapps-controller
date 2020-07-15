@@ -18,6 +18,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
+import com.sap.cloud.lm.sl.common.util.YamlParser;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -64,7 +65,8 @@ public class ConfigurationSubscriptionFactoryTest {
     @Test
     public void testCreate() {
         String mtadString = TestUtil.getResourceAsString(mtadFilePath, getClass());
-        DeploymentDescriptor mtad = getDescriptorParser().parseDeploymentDescriptorYaml(mtadString);
+        Map<String, Object> deploymentDescriptor = new YamlParser().convertYamlToMap(mtadString);
+        DeploymentDescriptor mtad = getDescriptorParser().parseDeploymentDescriptor(deploymentDescriptor);
         Map<String, ResolvedConfigurationReference> resolvedResources = getResolvedConfigurationReferences(mtad);
         testCreate(mtad, resolvedResources, spaceId, expectation);
     }

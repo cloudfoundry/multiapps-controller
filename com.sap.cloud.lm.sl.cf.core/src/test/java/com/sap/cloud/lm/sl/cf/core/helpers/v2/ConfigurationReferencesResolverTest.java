@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -27,6 +28,7 @@ import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
+import com.sap.cloud.lm.sl.common.util.YamlParser;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
@@ -136,7 +138,8 @@ public class ConfigurationReferencesResolverTest {
     }
 
     protected void prepareDeploymentDescriptor(String descriptorLocation) {
-        this.descriptor = getDescriptorParser().parseDeploymentDescriptorYaml(getClass().getResourceAsStream(descriptorLocation));
+        Map<String, Object> deploymentDescriptorMap = new YamlParser().convertYamlToMap(getClass().getResourceAsStream(descriptorLocation));
+        this.descriptor = getDescriptorParser().parseDeploymentDescriptor(deploymentDescriptorMap);
     }
 
     protected DescriptorParser getDescriptorParser() {

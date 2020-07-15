@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import com.sap.cloud.lm.sl.cf.core.helpers.DescriptorParserFacadeFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentConsumer;
@@ -26,6 +27,7 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 
 public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveStep> {
 
@@ -72,6 +74,10 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
 
     @Test
     public void testExecute() {
+        DescriptorParserFacadeFactory descriptorParserFactory = Mockito.mock(DescriptorParserFacadeFactory.class);
+        Mockito.when(descriptorParserFactory.getInstance())
+               .thenReturn(new DescriptorParserFacade());
+        step.descriptorParserFactory = descriptorParserFactory;
         step.execute(execution);
 
         assertStepFinishedSuccessfully();

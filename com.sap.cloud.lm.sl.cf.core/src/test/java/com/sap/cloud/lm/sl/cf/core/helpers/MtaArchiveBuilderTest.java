@@ -27,6 +27,7 @@ import org.junit.runners.Parameterized.Parameters;
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 
 @RunWith(Parameterized.class)
 public class MtaArchiveBuilderTest {
@@ -168,7 +169,7 @@ public class MtaArchiveBuilderTest {
     }
 
     private void initMtaArchiveBuilder(Path mtaDir) {
-        this.mtaArchiveBuilder = new MtaArchiveBuilder(mtaDir);
+        this.mtaArchiveBuilder = new MtaArchiveBuilder(mtaDir, new DescriptorParserFacade());
     }
 
     private static boolean isWindows() {
