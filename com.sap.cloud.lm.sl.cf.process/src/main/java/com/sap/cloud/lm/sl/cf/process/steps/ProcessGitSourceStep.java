@@ -15,6 +15,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.io.FilenameUtils;
@@ -23,6 +24,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
+import com.sap.cloud.lm.sl.cf.core.helpers.DescriptorParserFacadeFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveBuilder;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
@@ -44,6 +46,9 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
     public static final String META_INF_PATH = "META-INF";
     private static final String MANIFEST_PATH = "MANIFEST.MF";
     private static final String MTAD_PATH = "mtad.yaml";
+
+    @Inject
+    protected DescriptorParserFacadeFactory descriptorParserFactory;
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws IOException, GitAPIException, FileStorageException {
@@ -130,7 +135,7 @@ public class ProcessGitSourceStep extends SyncFlowableStep {
             getStepLogger().info("Detected manifest, will zip the provided directory and deploy it");
             return zipMtaFolder(mtaPath);
         } else {
-            MtaArchiveBuilder mtaBuilder = new MtaArchiveBuilder(mtaPath);
+            MtaArchiveBuilder mtaBuilder = new MtaArchiveBuilder(mtaPath, descriptorParserFactory.getInstance());
             return mtaBuilder.buildMtaArchive();
         }
     }

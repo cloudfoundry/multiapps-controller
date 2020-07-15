@@ -17,6 +17,7 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.RouteValidator;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
+import com.sap.cloud.lm.sl.common.util.YamlParser;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Resource;
@@ -42,7 +43,8 @@ public class DescriptorParametersValidatorTest {
     @Before
     public void setUp() {
         String descriptorYaml = TestUtil.getResourceAsString(descriptorLocation, getClass());
-        validator = createDescriptorParametersValidator(getDescriptorParser().parseDeploymentDescriptorYaml(descriptorYaml));
+        Map<String, Object> deploymentDescriptor = new YamlParser().convertYamlToMap(descriptorYaml);
+        validator = createDescriptorParametersValidator(getDescriptorParser().parseDeploymentDescriptor(deploymentDescriptor));
     }
 
     protected DescriptorParser getDescriptorParser() {

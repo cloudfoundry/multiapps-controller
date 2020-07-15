@@ -7,6 +7,7 @@ import java.util.jar.Manifest;
 
 import javax.inject.Inject;
 
+import com.sap.cloud.lm.sl.cf.core.helpers.DescriptorParserFacadeFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
@@ -23,6 +24,9 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
 
     @Inject
     private OperationService operationService;
+
+    @Inject
+    protected DescriptorParserFacadeFactory descriptorParserFactory;
 
     protected Function<OperationService, ProcessConflictPreventer> conflictPreventerSupplier = ProcessConflictPreventer::new;
 
@@ -54,7 +58,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     private FileContentConsumer createDeploymentDescriptorFileContentConsumer(ProcessContext context) {
         return appArchiveStream -> {
             String descriptorString = ArchiveHandler.getDescriptor(appArchiveStream, configuration.getMaxMtaDescriptorSize());
-            DescriptorParserFacade descriptorParserFacade = new DescriptorParserFacade();
+            DescriptorParserFacade descriptorParserFacade = descriptorParserFactory.getInstance();
             DeploymentDescriptor deploymentDescriptor = descriptorParserFacade.parseDeploymentDescriptor(descriptorString);
             context.setVariable(Variables.DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
         };

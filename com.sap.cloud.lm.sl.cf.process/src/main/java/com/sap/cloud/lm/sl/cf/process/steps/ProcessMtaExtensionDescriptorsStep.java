@@ -5,11 +5,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
+import com.sap.cloud.lm.sl.cf.core.helpers.DescriptorParserFacadeFactory;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentConsumer;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
@@ -25,7 +27,8 @@ import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
 
-    protected DescriptorParserFacade descriptorParserFacade = new DescriptorParserFacade();
+    @Inject
+    protected DescriptorParserFacadeFactory descriptorParserFactory;
     protected ExtensionDescriptorChainBuilder extensionDescriptorChainBuilder = new ExtensionDescriptorChainBuilder(false);
 
     @Override
@@ -59,6 +62,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
 
     private List<ExtensionDescriptor> parseExtensionDescriptors(String spaceId, List<String> fileIds) {
         try {
+            DescriptorParserFacade descriptorParserFacade = descriptorParserFactory.getInstance();
             List<ExtensionDescriptor> extensionDescriptors = new ArrayList<>();
 
             FileContentConsumer extensionDescriptorConsumer = extensionDescriptorStream -> {

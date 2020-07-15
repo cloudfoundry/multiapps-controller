@@ -19,9 +19,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.sap.cloud.lm.sl.cf.core.helpers.DescriptorParserFacadeFactory;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
+import org.mockito.Mockito;
 
 @RunWith(Enclosed.class)
 public class ProcessGitSourceStepTest extends SyncFlowableStepTest<ProcessGitSourceStep> {
@@ -88,6 +91,11 @@ public class ProcessGitSourceStepTest extends SyncFlowableStepTest<ProcessGitSou
 
         @Test
         public void testZipRepoContent() throws Exception {
+            DescriptorParserFacadeFactory descriptorParserFacadeFactory = Mockito.mock(DescriptorParserFacadeFactory.class);
+            Mockito.when(descriptorParserFacadeFactory.getInstance())
+                   .thenReturn(new DescriptorParserFacade());
+            step.descriptorParserFactory = descriptorParserFacadeFactory;
+
             Path repoDir = Paths.get(getClass().getResource(repository)
                                                .toURI());
             Path mtarZip = null;

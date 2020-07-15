@@ -34,6 +34,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
+import com.sap.cloud.lm.sl.common.util.YamlParser;
 import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorMerger;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
@@ -573,12 +574,14 @@ public class CloudModelBuilderTest {
 
     private DeploymentDescriptor loadDeploymentDescriptor() {
         InputStream deploymentDescriptorYaml = getClass().getResourceAsStream(deploymentDescriptorLocation);
-        return descriptorParser.parseDeploymentDescriptorYaml(deploymentDescriptorYaml);
+        Map<String, Object> deploymentDescriptorMap = new YamlParser().convertYamlToMap(deploymentDescriptorYaml);
+        return descriptorParser.parseDeploymentDescriptor(deploymentDescriptorMap);
     }
 
     private ExtensionDescriptor loadExtensionDescriptor() {
         InputStream extensionDescriptorYaml = getClass().getResourceAsStream(extensionDescriptorLocation);
-        return descriptorParser.parseExtensionDescriptorYaml(extensionDescriptorYaml);
+        Map<String, Object> extensionDescriptorMap = new YamlParser().convertYamlToMap(extensionDescriptorYaml);
+        return descriptorParser.parseExtensionDescriptor(extensionDescriptorMap);
     }
 
     private Platform loadPlatform() {

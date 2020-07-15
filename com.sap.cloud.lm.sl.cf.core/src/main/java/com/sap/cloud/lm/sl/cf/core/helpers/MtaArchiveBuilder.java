@@ -62,16 +62,16 @@ public class MtaArchiveBuilder {
         return mtaAssemblyDir;
     }
 
-    public MtaArchiveBuilder(Path mtaDirectory) {
+    public MtaArchiveBuilder(Path mtaDirectory, DescriptorParserFacade descriptorParserFacade) {
         this.mtaDir = mtaDirectory;
-        this.deploymentDescriptor = getDeploymentDescriptor(mtaDirectory);
+        this.deploymentDescriptor = getDeploymentDescriptor(mtaDirectory, descriptorParserFacade);
     }
 
-    private DeploymentDescriptor getDeploymentDescriptor(Path mtaDirectory) {
+    private DeploymentDescriptor getDeploymentDescriptor(Path mtaDirectory, DescriptorParserFacade descriptorParserFacade) {
         deploymentDescriptorFile = findDeploymentDescriptor(mtaDirectory);
         String deploymentDescriptorString = readDeploymentDescriptor(deploymentDescriptorFile);
 
-        DeploymentDescriptor parsedDeploymentDescriptor = new DescriptorParserFacade().parseDeploymentDescriptor(deploymentDescriptorString);
+        DeploymentDescriptor parsedDeploymentDescriptor = descriptorParserFacade.parseDeploymentDescriptor(deploymentDescriptorString);
         Version schemaVersion = new SchemaVersionDetector().detect(parsedDeploymentDescriptor, Collections.emptyList());
 
         if (schemaVersion.getMajor() < 2) {

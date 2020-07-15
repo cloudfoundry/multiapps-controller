@@ -171,6 +171,7 @@ public final class Messages {
     public static final String MICROMETER_STEP_IN_SECONDS = "Micrometer step in seconds: {0}";
     public static final String MICROMETER_BATCH_SIZE = "Micrometer batch size: {0}";
     public static final String DB_TRANSACTION_TIMEOUT = "Database transaction timeout: {0} seconds";
+    public static final String SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS = "SnakeYaml max aliases for collections: {0}";
 
     // Debug messages
     public static final String DEPLOYMENT_DESCRIPTOR = "Deployment descriptor: {0}";

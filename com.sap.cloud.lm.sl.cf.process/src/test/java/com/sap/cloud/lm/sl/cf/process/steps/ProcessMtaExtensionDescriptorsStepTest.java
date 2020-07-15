@@ -16,6 +16,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.sap.cloud.lm.sl.cf.core.helpers.DescriptorParserFacadeFactory;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentConsumer;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
@@ -48,7 +49,10 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
         Mockito.when(extensionDescriptorChainBuilder.build(Mockito.any(), Mockito.eq(extensionDescriptorChain)))
                .thenReturn(extensionDescriptorChain);
 
-        step.descriptorParserFacade = descriptorParserFacade;
+        DescriptorParserFacadeFactory descriptorParserFacadeFactory = Mockito.mock(DescriptorParserFacadeFactory.class);
+        Mockito.when(descriptorParserFacadeFactory.getInstance())
+               .thenReturn(descriptorParserFacade);
+        step.descriptorParserFactory = descriptorParserFacadeFactory;
         step.extensionDescriptorChainBuilder = extensionDescriptorChainBuilder;
 
         step.execute(execution);
@@ -64,6 +68,10 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
     public void testExecuteWithNoExtensionDescriptors() throws FileStorageException {
         prepare(Collections.emptyList());
 
+        DescriptorParserFacadeFactory descriptorParserFacadeFactory = Mockito.mock(DescriptorParserFacadeFactory.class);
+        Mockito.when(descriptorParserFacadeFactory.getInstance())
+               .thenReturn(new DescriptorParserFacade());
+        step.descriptorParserFactory = descriptorParserFacadeFactory;
         step.execute(execution);
 
         List<ExtensionDescriptor> extensionDescriptorChain = context.getVariable(Variables.MTA_EXTENSION_DESCRIPTOR_CHAIN);

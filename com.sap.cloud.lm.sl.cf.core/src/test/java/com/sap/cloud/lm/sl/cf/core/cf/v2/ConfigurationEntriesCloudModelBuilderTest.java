@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
 import java.io.InputStream;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -9,6 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
+import com.sap.cloud.lm.sl.common.util.YamlParser;
 import com.sap.cloud.lm.sl.mta.handlers.HandlerFactory;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -49,7 +51,8 @@ public class ConfigurationEntriesCloudModelBuilderTest {
     private DeploymentDescriptor parseDeploymentDescriptor(String deploymentDescriptorLocation, int majorSchemaVersion) {
         DescriptorParser parser = new HandlerFactory(majorSchemaVersion).getDescriptorParser();
         InputStream deploymentDescriptorStream = getClass().getResourceAsStream(deploymentDescriptorLocation);
-        return parser.parseDeploymentDescriptorYaml(deploymentDescriptorStream);
+        Map<String, Object> deploymentDescriptorMap = new YamlParser().convertYamlToMap(deploymentDescriptorStream);
+        return parser.parseDeploymentDescriptor(deploymentDescriptorMap);
     }
 
 }
