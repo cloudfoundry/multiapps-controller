@@ -132,7 +132,8 @@ public class ApplicationConfiguration {
     public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 192;
     public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 64;
     public static final Boolean DEFAULT_SAP_INTERNAL_DELIVERY = false;
-    public static final int DEFAULT_DB_TRANSACTION_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(10);
+    // Transaction timeout must be greater than Flowable process step timeout because lower value limit execution of the whole process step.
+    public static final int DEFAULT_DB_TRANSACTION_TIMEOUT_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(60);
     public static final int DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS = 50;
     protected final Environment environment;
 
@@ -926,7 +927,7 @@ public class ApplicationConfiguration {
 
     private Integer getSnakeyamlMaxAliasesForCollectionsFromEnvironment() {
         Integer snakeyamlMaxAliasesForCollections = environment.getInteger(CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS,
-            DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS);
+                                                                           DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS);
         LOGGER.info(format(Messages.SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS, snakeyamlMaxAliasesForCollections));
         return snakeyamlMaxAliasesForCollections;
     }
