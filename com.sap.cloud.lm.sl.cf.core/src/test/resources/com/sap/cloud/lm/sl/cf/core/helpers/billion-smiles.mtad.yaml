@@ -1,0 +1,11 @@
+_schema-version: 3
+ID: anatz
+version: 0.1.1
+
+modules:
+  - name: anatz
+    path: ui5Provider/buildresults
+    type: javascript.nodejs
+    properties:
+      a: &a ["lol","lol","lol","lol","lol","lol","lol","lol","lol"]
+      b: &b [*a,*a,*a,*a,*a,*a,*a,*a,*a]
