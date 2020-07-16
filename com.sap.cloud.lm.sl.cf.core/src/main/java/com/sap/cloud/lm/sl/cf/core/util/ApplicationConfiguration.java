@@ -926,8 +926,8 @@ public class ApplicationConfiguration {
     }
 
     private Integer getSnakeyamlMaxAliasesForCollectionsFromEnvironment() {
-        Integer snakeyamlMaxAliasesForCollections = environment.getInteger(CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS,
-                                                                           DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS);
+        Integer snakeyamlMaxAliasesForCollections = environment.getPositiveInteger(CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS,
+                                                                                   DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS);
         LOGGER.info(format(Messages.SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS, snakeyamlMaxAliasesForCollections));
         return snakeyamlMaxAliasesForCollections;
     }
