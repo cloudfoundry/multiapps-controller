@@ -453,6 +453,15 @@ public class ApplicationConfigurationTest {
     }
 
     @Test
+    public void testGetSnakeyamlMaxAliasesForCollections() {
+        Mockito.when(environment.getPositiveInteger(ApplicationConfiguration.CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS,
+                                                    ApplicationConfiguration.DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS))
+               .thenReturn(ApplicationConfiguration.DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS);
+        Assertions.assertEquals(ApplicationConfiguration.DEFAULT_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS,
+                                configuration.getSnakeyamlMaxAliasesForCollections());
+    }
+
+    @Test
     public void testIsInternalEnvironment() {
         Mockito.when(environment.getBoolean(ApplicationConfiguration.SAP_INTERNAL_DELIVERY,
                                             ApplicationConfiguration.DEFAULT_SAP_INTERNAL_DELIVERY))
