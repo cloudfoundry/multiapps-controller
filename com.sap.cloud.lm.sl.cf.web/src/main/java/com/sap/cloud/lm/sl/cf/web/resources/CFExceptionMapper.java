@@ -28,7 +28,7 @@ public class CFExceptionMapper {
         String message = e.getMessage();
 
         if (e instanceof CloudOperationException) {
-            status = HttpStatus.BAD_GATEWAY;
+            status = ((CloudOperationException) e).getStatusCode();
         }
         if (e instanceof ContentException || e instanceof IllegalArgumentException) {
             status = HttpStatus.BAD_REQUEST;
