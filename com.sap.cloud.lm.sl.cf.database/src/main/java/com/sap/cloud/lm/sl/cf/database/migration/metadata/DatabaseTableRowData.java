@@ -4,9 +4,10 @@ import java.util.Map;
 
 import org.immutables.value.Value;
 
+import com.sap.cloud.lm.sl.common.MultiappsImmutablesStyle;
 import com.sap.cloud.lm.sl.common.SkipNulls;
 
-@Value.Style(jdkOnly = true)
+@MultiappsImmutablesStyle
 @Value.Immutable
 public interface DatabaseTableRowData {
 
