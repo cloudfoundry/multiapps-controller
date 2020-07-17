@@ -36,9 +36,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>postgresql</groupId>
+			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -48,7 +47,6 @@
 		<dependency>
 			<groupId>io.pivotal.cfenv</groupId>
 			<artifactId>java-cfenv</artifactId>
-			<version>2.1.2.RELEASE</version>
 		</dependency>
 	</dependencies>
 </project>
