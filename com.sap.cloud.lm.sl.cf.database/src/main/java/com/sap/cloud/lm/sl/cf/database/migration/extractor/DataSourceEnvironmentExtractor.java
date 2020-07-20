@@ -15,7 +15,7 @@ public class DataSourceEnvironmentExtractor {
     private final static Logger LOGGER = LoggerFactory.getLogger(DataSourceEnvironmentExtractor.class);
 
     public DataSource extractDataSource(String serviceName) {
-        LOGGER.info("Extracting datasource for service {}...", serviceName  );
+        LOGGER.info("Extracting datasource for service {}...", serviceName);
         CfCredentials databaseServiceCredentials = extractDatabaseServiceCredentials(serviceName);
         return extractDataSource(databaseServiceCredentials);
     }
@@ -28,11 +28,11 @@ public class DataSourceEnvironmentExtractor {
 
     private PGSimpleDataSource extractDataSource(CfCredentials databaseServiceCredentials) {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
-        dataSource.setServerName(databaseServiceCredentials.getHost());
+        dataSource.setServerNames(new String[] { databaseServiceCredentials.getHost() });
         dataSource.setUser(databaseServiceCredentials.getUsername());
         dataSource.setPassword(databaseServiceCredentials.getPassword());
         dataSource.setDatabaseName(databaseServiceCredentials.getString("dbname"));
-        dataSource.setPortNumber(getPort(databaseServiceCredentials));
+        dataSource.setPortNumbers(new int[] { getPort(databaseServiceCredentials) });
         dataSource.setSsl(false);
         return dataSource;
     }
