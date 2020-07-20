@@ -14,21 +14,21 @@ class DatabaseTypeSetterFactoryTest {
     private static final String STRING_TYPE = "varchar";
 
     @Test
-    public void testGetWithNullStringParameter() {
+    void testGetWithNullStringParameter() {
         DatabaseTypeSetterFactory databaseTypeSetterFactory = new DatabaseTypeSetterFactory();
 
         Assertions.assertThrows(IllegalStateException.class, () -> databaseTypeSetterFactory.get(null));
     }
 
     @Test
-    public void testGetWithEmptyStringParameter() {
+    void testGetWithEmptyStringParameter() {
         DatabaseTypeSetterFactory databaseTypeSetterFactory = new DatabaseTypeSetterFactory();
 
         Assertions.assertThrows(IllegalStateException.class, () -> databaseTypeSetterFactory.get(""));
     }
 
     @Test
-    public void testGetWithCustomRegisteredTypeSettersAndSingleMatch() {
+    void testGetWithCustomRegisteredTypeSettersAndSingleMatch() {
         List<DatabaseTypeSetter> registeredDatabaseTypeSetters = Arrays.asList(new BooleanDatabaseTypeSetter());
         DatabaseTypeSetterFactory databaseTypeSetterFactory = new DatabaseTypeSetterFactory(registeredDatabaseTypeSetters);
 
@@ -38,7 +38,7 @@ class DatabaseTypeSetterFactoryTest {
     }
 
     @Test
-    public void testGetWithCustomRegisteredTypeSettersWhenNoMatchingTypeSetter() {
+    void testGetWithCustomRegisteredTypeSettersWhenNoMatchingTypeSetter() {
         List<DatabaseTypeSetter> registeredDatabaseTypeSetters = Collections.emptyList();
         DatabaseTypeSetterFactory databaseTypeSetterFactory = new DatabaseTypeSetterFactory(registeredDatabaseTypeSetters);
 
@@ -46,7 +46,7 @@ class DatabaseTypeSetterFactoryTest {
     }
 
     @Test
-    public void testGetWithCustomRegisteredTypeSettersWhenMultipleMatchingTypeSetters() {
+    void testGetWithCustomRegisteredTypeSettersWhenMultipleMatchingTypeSetters() {
         List<DatabaseTypeSetter> registeredDatabaseTypeSetters = Arrays.asList(new BooleanDatabaseTypeSetter(),
                                                                                new BooleanDatabaseTypeSetter());
         DatabaseTypeSetterFactory databaseTypeSetterFactory = new DatabaseTypeSetterFactory(registeredDatabaseTypeSetters);
@@ -55,7 +55,7 @@ class DatabaseTypeSetterFactoryTest {
     }
 
     @Test
-    public void testGetWithDefaultRegisteredTypeSettersWhenMatchingDefaultTypeSetters() {
+    void testGetWithDefaultRegisteredTypeSettersWhenMatchingDefaultTypeSetters() {
         DatabaseTypeSetterFactory databaseTypeSetterFactory = new DatabaseTypeSetterFactory();
 
         DatabaseTypeSetter resultDatabaseTypeSetter = databaseTypeSetterFactory.get(BOOL_TYPE);

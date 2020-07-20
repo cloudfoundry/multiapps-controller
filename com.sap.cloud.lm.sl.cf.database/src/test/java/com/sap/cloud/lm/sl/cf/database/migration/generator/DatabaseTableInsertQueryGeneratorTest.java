@@ -21,7 +21,7 @@ class DatabaseTableInsertQueryGeneratorTest {
     private DatabaseTableInsertQueryGenerator databaseTableInsertQueryGenerator = new DatabaseTableInsertQueryGenerator();
 
     @Test
-    public void testGenerateWithTestDatabaseMetadataWhenSingleColumn() {
+    void testGenerateWithTestDatabaseMetadataWhenSingleColumn() {
         DatabaseTableColumnMetadata databaseTableColumnMetadata = buildDatabaseTableColumnMetadata(TEST_COLUMN_NAME, TEST_COLUMN_TYPE);
         DatabaseTableData databaseTableMetadata = buildDatabaseTableData(Arrays.asList(databaseTableColumnMetadata), TEST_TABLE_NAME);
 
@@ -32,7 +32,7 @@ class DatabaseTableInsertQueryGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithTestDatabaseMetadataWhenMultipleColumns() {
+    void testGenerateWithTestDatabaseMetadataWhenMultipleColumns() {
         List<DatabaseTableColumnMetadata> multipleDatabaseTableColumnMetadata = Arrays.asList(buildDatabaseTableColumnMetadata(TEST_COLUMN_NAME,
                                                                                                                                TEST_COLUMN_TYPE),
                                                                                               buildDatabaseTableColumnMetadata(TEST_COLUMN_NAME_2,
