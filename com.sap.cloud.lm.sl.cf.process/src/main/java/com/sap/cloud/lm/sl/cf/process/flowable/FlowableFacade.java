@@ -155,34 +155,6 @@ public class FlowableFacade {
         return processInstance.getEndTime() == null;
     }
 
-    public String getActivityType(String processInstanceId, String executionId, String activityId) {
-        List<HistoricActivityInstance> historicInstancesList = processEngine.getHistoryService()
-                                                                            .createHistoricActivityInstanceQuery()
-                                                                            .processInstanceId(processInstanceId)
-                                                                            .activityId(activityId)
-                                                                            .executionId(executionId)
-                                                                            .orderByHistoricActivityInstanceEndTime()
-                                                                            .desc()
-                                                                            .list();
-        return !historicInstancesList.isEmpty() ? historicInstancesList.get(0)
-                                                                       .getActivityType()
-            : null;
-    }
-
-    public Execution getProcessExecution(String processInstanceId) {
-        return getExecutionsByProcessId(processInstanceId).stream()
-                                                          .filter(execution -> execution.getActivityId() != null)
-                                                          .findFirst()
-                                                          .orElse(null);
-    }
-
-    private List<Execution> getExecutionsByProcessId(String processInstanceId) {
-        return processEngine.getRuntimeService()
-                            .createExecutionQuery()
-                            .rootProcessInstanceId(processInstanceId)
-                            .list();
-    }
-
     public void executeJob(String processInstanceId) {
         List<Job> deadLetterJobs = getDeadLetterJobs(processInstanceId);
         if (deadLetterJobs.isEmpty()) {
@@ -271,19 +243,9 @@ public class FlowableFacade {
                             .list();
     }
 
-    public void activateProcessInstance(String processInstanceId) {
-        processEngine.getRuntimeService()
-                     .activateProcessInstanceById(processInstanceId);
-    }
-
     public void suspendProcessInstance(String processInstanceId) {
         processEngine.getRuntimeService()
                      .suspendProcessInstanceById(processInstanceId);
-    }
-
-    public boolean isProcessInstanceSuspended(String processInstanceId) {
-        ProcessInstance processInstance = getProcessInstance(processInstanceId);
-        return processInstance != null && processInstance.isSuspended();
     }
 
     public void shutdownJobExecutor() {
@@ -301,20 +263,6 @@ public class FlowableFacade {
 
     public ProcessEngine getProcessEngine() {
         return processEngine;
-    }
-
-    public String findHistoricProcessInstanceIdByProcessDefinitionKey(String processInstanceId, String processDefinitionKey) {
-        return findHistoricProcessInstanceIdsAndProcessDefinitionKey(new HashSet<>(getHistoricSubProcessIds(processInstanceId)),
-                                                                     processDefinitionKey);
-    }
-
-    private String findHistoricProcessInstanceIdsAndProcessDefinitionKey(Set<String> processInstanceIds, String processDefinitionKey) {
-        return processEngine.getHistoryService()
-                            .createHistoricProcessInstanceQuery()
-                            .processInstanceIds(processInstanceIds)
-                            .processDefinitionKey(processDefinitionKey)
-                            .singleResult()
-                            .getId();
     }
 
     public List<ProcessInstance> findAllRunningProcessInstanceStartedBefore(Date startedBefore) {
