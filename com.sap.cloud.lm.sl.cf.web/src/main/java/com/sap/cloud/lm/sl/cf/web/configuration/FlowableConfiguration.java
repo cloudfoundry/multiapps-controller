@@ -35,7 +35,7 @@ public class FlowableConfiguration {
 
     private static final int ASYNC_JOB_ACQUIRE_WAIT_TIME_IN_MILLIS = (int) TimeUnit.SECONDS.toMillis(3);
     private static final int JOB_EXECUTOR_LOCK_TIME_IN_MILLIS = (int) TimeUnit.MINUTES.toMillis(30);
-    private static final long JOB_EXECUTOR_SHUTDOWN_AWAIT_TIME_IN_SECONDS = (int) TimeUnit.MINUTES.toSeconds(8);
+    private static final long JOB_EXECUTOR_SHUTDOWN_AWAIT_TIME_IN_SECONDS = TimeUnit.MINUTES.toSeconds(8);
     private static final String JOB_EXECUTOR_ID_TEMPLATE = "ds-%s/%d/%s";
 
     @Value("classpath*:/com/sap/cloud/lm/sl/cf/process/*.bpmn")
