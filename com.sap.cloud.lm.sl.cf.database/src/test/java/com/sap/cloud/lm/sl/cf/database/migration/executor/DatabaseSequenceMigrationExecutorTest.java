@@ -29,7 +29,7 @@ class DatabaseSequenceMigrationExecutorTest {
     private ImmutableDatabaseSequenceMigrationExecutor databaseSequenceMigrationExecutor;
 
     @BeforeEach
-    public void initialiseDatabaseTableMigrationExecutorWithMocks() {
+    void initialiseDatabaseTableMigrationExecutorWithMocks() {
         MockitoAnnotations.initMocks(this);
         databaseSequenceMigrationExecutor = ImmutableDatabaseSequenceMigrationExecutor.builder()
                                                                                       .sourceDataSource(mockSourceDataSource)
@@ -40,7 +40,7 @@ class DatabaseSequenceMigrationExecutorTest {
     }
 
     @Test
-    public void testExecuteMigrationInternalWhenLastSequenceValueIsZero() throws SQLException {
+    void testExecuteMigrationInternalWhenLastSequenceValueIsZero() throws SQLException {
         Mockito.when(mockSourceDatabaseQueryClient.getLastSequenceValue(TEST_SEQUENCE_NAME))
                .thenReturn(0L);
 
@@ -48,7 +48,7 @@ class DatabaseSequenceMigrationExecutorTest {
     }
 
     @Test
-    public void testExecuteMigrationInternalWhenLastSequenceValueIsNegative() throws SQLException {
+    void testExecuteMigrationInternalWhenLastSequenceValueIsNegative() throws SQLException {
         Mockito.when(mockSourceDatabaseQueryClient.getLastSequenceValue(TEST_SEQUENCE_NAME))
                .thenReturn(-1L);
 
@@ -56,7 +56,7 @@ class DatabaseSequenceMigrationExecutorTest {
     }
 
     @Test
-    public void testExecuteMigrationInternalWhenLastSequenceValueIsPositive() throws SQLException {
+    void testExecuteMigrationInternalWhenLastSequenceValueIsPositive() throws SQLException {
         Mockito.when(mockSourceDatabaseQueryClient.getLastSequenceValue(TEST_SEQUENCE_NAME))
                .thenReturn(1L);
 
