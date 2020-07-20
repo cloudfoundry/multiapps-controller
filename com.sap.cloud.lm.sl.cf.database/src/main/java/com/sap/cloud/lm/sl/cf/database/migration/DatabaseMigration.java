@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.database.migration;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Arrays;
 
@@ -46,8 +48,15 @@ public class DatabaseMigration {
     }
 
     private static void configureLogger() {
-        PropertyConfigurator.configure(DatabaseMigration.class.getClassLoader()
-                                                              .getResourceAsStream("console-logger.properties"));
+        try (InputStream inputStream = DatabaseMigration.class.getClassLoader()
+                                                              .getResourceAsStream("console-logger.properties")) {
+            if (inputStream != null) {
+                PropertyConfigurator.configure(inputStream);
+            }
+        } catch (IOException e) {
+            LOGGER.warn("There was an error trying to configure the logger.", e);
+            LOGGER.info("Proceeding with default logger configuration.");
+        }
     }
 
 }
