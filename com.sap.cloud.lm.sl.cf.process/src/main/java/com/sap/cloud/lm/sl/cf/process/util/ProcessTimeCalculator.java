@@ -3,7 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.util;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.LongSupplier;
+import java.util.function.Predicate;
 
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
@@ -20,13 +21,13 @@ public class ProcessTimeCalculator {
     private static final String TIMER_EVENT_TYPE = "intermediateCatchEvent";
 
     private FlowableFacade flowableFacade;
-    private Supplier<Long> currentTimeSupplier;
+    private LongSupplier currentTimeSupplier;
 
     public ProcessTimeCalculator(FlowableFacade flowableFacade) {
         this(flowableFacade, System::currentTimeMillis);
     }
 
-    ProcessTimeCalculator(FlowableFacade flowableFacade, Supplier<Long> currentTimeSupplier) {
+    ProcessTimeCalculator(FlowableFacade flowableFacade, LongSupplier currentTimeSupplier) {
         this.flowableFacade = flowableFacade;
         this.currentTimeSupplier = currentTimeSupplier;
     }
@@ -35,10 +36,19 @@ public class ProcessTimeCalculator {
         HistoricProcessInstance rootProcessInstance = flowableFacade.getHistoricProcessById(processInstanceId);
 
         long processDuration = calculateProcessDuration(rootProcessInstance);
-        long allProcessStepsDuration = calculateAllProcessStepsDuration(processInstanceId);
+
+        List<HistoricActivityInstance> processActivities = flowableFacade.getProcessEngine()
+                                                                         .getHistoryService()
+                                                                         .createHistoricActivityInstanceQuery()
+                                                                         .processInstanceId(processInstanceId)
+                                                                         .list();
+        long processActivitiesTime = calculateFilteredProcessActivitiesTime(processActivities, inst -> true);
+        long callActivitiesTime = calculateFilteredProcessActivitiesTime(processActivities, this::isCallActivity);
+        long timerEventsTime = calculateFilteredProcessActivitiesTime(processActivities, this::isTimerEvent);
+
         return ImmutableProcessTime.builder()
                                    .processDuration(processDuration)
-                                   .delayBetweenSteps(processDuration - allProcessStepsDuration)
+                                   .delayBetweenSteps(processDuration - processActivitiesTime + callActivitiesTime + timerEventsTime)
                                    .build();
     }
 
@@ -49,28 +59,23 @@ public class ProcessTimeCalculator {
     }
 
     private Date determineProcessInstanceEndTime(HistoricProcessInstance processInstance) {
-        return processInstance.getEndTime() != null ? processInstance.getEndTime() : new Date(currentTimeSupplier.get());
+        return processInstance.getEndTime() != null ? processInstance.getEndTime() : new Date(currentTimeSupplier.getAsLong());
     }
 
-    private long calculateAllProcessStepsDuration(String processInstanceId) {
-        List<HistoricActivityInstance> processActivities = flowableFacade.getProcessEngine()
-                                                                         .getHistoryService()
-                                                                         .createHistoricActivityInstanceQuery()
-                                                                         .processInstanceId(processInstanceId)
-                                                                         .list();
+    private long calculateFilteredProcessActivitiesTime(List<HistoricActivityInstance> processActivities,
+                                                        Predicate<HistoricActivityInstance> filter) {
         return processActivities.stream()
-                                .filter(this::isNotCallActivity)
-                                .filter(this::isNotTimerEvent)
+                                .filter(filter)
                                 .mapToLong(HistoricActivityInstance::getDurationInMillis)
                                 .sum();
     }
 
-    private boolean isNotCallActivity(HistoricActivityInstance historicActivityInstance) {
-        return !CALL_ACTIVITY_TYPE.equals(historicActivityInstance.getActivityType());
+    private boolean isCallActivity(HistoricActivityInstance historicActivityInstance) {
+        return CALL_ACTIVITY_TYPE.equals(historicActivityInstance.getActivityType());
     }
 
-    private boolean isNotTimerEvent(HistoricActivityInstance historicActivityInstance) {
-        return !TIMER_EVENT_TYPE.equals(historicActivityInstance.getActivityType());
+    private boolean isTimerEvent(HistoricActivityInstance historicActivityInstance) {
+        return TIMER_EVENT_TYPE.equals(historicActivityInstance.getActivityType());
     }
 
     public static class ProcessTimeLogger {

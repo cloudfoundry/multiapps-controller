@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.util.Date;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -24,12 +24,12 @@ import com.sap.cloud.lm.sl.cf.process.util.ProcessTimeCalculator.ProcessTime;
 
 public class ProcessTimeCalculatorTest {
 
-    private static final String DEFAULT_PROCESS_ID = "process-id-wich-is-too-long-in-order-to-be-like-uuid";
+    private static final String DEFAULT_PROCESS_ID = "process-id";
     private static final String DEFAULT_ACTIVITY_ID_PREFIX = "activityIdPrefix_";
 
     private ProcessTimeCalculator processTimeCalculator;
 
-    private Supplier<Long> currentTimeSupplier = System::currentTimeMillis;
+    private LongSupplier currentTimeSupplier = System::currentTimeMillis;
 
     @Mock
     private FlowableFacade flowableFacade;
@@ -94,7 +94,7 @@ public class ProcessTimeCalculatorTest {
 
     @Test
     public void testWithNoEndTime() {
-        Long currentTime = mockProcessStartTime();
+        long currentTime = mockProcessStartTime();
         processTimeCalculator = new ProcessTimeCalculator(flowableFacade, () -> currentTime + 5 * 500);
         List<HistoricActivityInstance> processActivities = mockProcessActivities("serviceTask", 5, 500);
         Mockito.when(historicActivityInstanceQueryMock.list())
@@ -114,13 +114,13 @@ public class ProcessTimeCalculatorTest {
     }
 
     private void mockProcessStartAndEndTime(int endTimeDelay) {
-        Long date = mockProcessStartTime();
+        long date = mockProcessStartTime();
         Mockito.when(mockedProcessInstance.getEndTime())
                .thenReturn(new Date(date + endTimeDelay));
     }
 
-    private Long mockProcessStartTime() {
-        Long date = currentTimeSupplier.get();
+    private long mockProcessStartTime() {
+        long date = currentTimeSupplier.getAsLong();
         Mockito.when(mockedProcessInstance.getStartTime())
                .thenReturn(new Date(date));
         return date;
