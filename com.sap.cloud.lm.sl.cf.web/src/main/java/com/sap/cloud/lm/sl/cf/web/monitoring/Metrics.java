@@ -22,9 +22,11 @@ public class Metrics implements MetricsMBean {
     private final FssMonitor fssMonitor;
     private final CachedObject<FlowableThreadInformation> cachedFlowableThreadMonitor;
     private final CachedObject<CloudFoundryClientThreadInformation> cachedCloudFoundryClientThreadMonitor;
+    private final FlowableJobExecutorInformation flowableJobExecutorInformation;
 
     @Inject
-    public Metrics(ApplicationConfiguration appConfigurations, FssMonitor fssMonitor, FileSystemFileStorage fss) {
+    public Metrics(ApplicationConfiguration appConfigurations, FssMonitor fssMonitor, FileSystemFileStorage fss,
+                   FlowableJobExecutorInformation flowableJobExecutorInformation) {
         this.appConfigurations = appConfigurations;
         this.fssMonitor = fssMonitor;
         this.fileSystemStorage = fss;
@@ -34,6 +36,7 @@ public class Metrics implements MetricsMBean {
             LOGGER.info("No metrics for file system service will be collected - no such service found.");
         }
         LOGGER.info("Storage Path {} detected", getFssStoragePath());
+        this.flowableJobExecutorInformation = flowableJobExecutorInformation;
     }
 
     private String getFssStoragePath() {
@@ -101,6 +104,11 @@ public class Metrics implements MetricsMBean {
 
     private CloudFoundryClientThreadInformation getCloudFoundryThreadInformation() {
         return cachedCloudFoundryClientThreadMonitor.get(CloudFoundryClientThreadInformation::get);
+    }
+
+    @Override
+    public int getCurrentJobExecutorQueueSize() {
+        return flowableJobExecutorInformation.getCurrentJobExecutorQueueSize();
     }
 
 }

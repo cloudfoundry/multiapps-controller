@@ -18,4 +18,6 @@ public interface MetricsMBean {
 
     int getTotalCloudFoundryClientThreads();
 
+    int getCurrentJobExecutorQueueSize();
+
 }
