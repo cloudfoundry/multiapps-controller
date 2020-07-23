@@ -7,8 +7,7 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-
-import com.sap.cloud.lm.sl.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.Module;
 
 public class ModuleDependencyChecker {
 

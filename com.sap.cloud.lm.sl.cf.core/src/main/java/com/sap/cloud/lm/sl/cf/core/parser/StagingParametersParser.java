@@ -1,14 +1,12 @@
 package com.sap.cloud.lm.sl.cf.core.parser;
 
-import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPluralOrSingular;
-import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
-
 import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.ImmutableStaging;
 import org.cloudfoundry.client.lib.domain.Staging;
+import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 
@@ -19,14 +17,17 @@ public class StagingParametersParser implements ParametersParser<Staging> {
 
     @Override
     public Staging parse(List<Map<String, Object>> parametersList) {
-        String command = (String) getPropertyValue(parametersList, SupportedParameters.COMMAND, null);
-        List<String> buildpacks = getPluralOrSingular(parametersList, SupportedParameters.BUILDPACKS, SupportedParameters.BUILDPACK);
-        String stack = (String) getPropertyValue(parametersList, SupportedParameters.STACK, null);
-        Integer healthCheckTimeout = (Integer) getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_TIMEOUT, null);
-        String healthCheckType = (String) getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_TYPE, null);
-        String healthCheckHttpEndpoint = (String) getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_HTTP_ENDPOINT,
-                                                                   getDefaultHealthCheckHttpEndpoint(healthCheckType));
-        Boolean isSshEnabled = (Boolean) getPropertyValue(parametersList, SupportedParameters.ENABLE_SSH, null);
+        String command = (String) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.COMMAND, null);
+        List<String> buildpacks = PropertiesUtil.getPluralOrSingular(parametersList, SupportedParameters.BUILDPACKS,
+                                                                     SupportedParameters.BUILDPACK);
+        String stack = (String) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.STACK, null);
+        Integer healthCheckTimeout = (Integer) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_TIMEOUT,
+                                                                               null);
+        String healthCheckType = (String) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_TYPE, null);
+        String healthCheckHttpEndpoint = (String) PropertiesUtil.getPropertyValue(parametersList,
+                                                                                  SupportedParameters.HEALTH_CHECK_HTTP_ENDPOINT,
+                                                                                  getDefaultHealthCheckHttpEndpoint(healthCheckType));
+        Boolean isSshEnabled = (Boolean) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.ENABLE_SSH, null);
         DockerInfo dockerInfo = new DockerInfoParser().parse(parametersList);
         return ImmutableStaging.builder()
                                .command(command)

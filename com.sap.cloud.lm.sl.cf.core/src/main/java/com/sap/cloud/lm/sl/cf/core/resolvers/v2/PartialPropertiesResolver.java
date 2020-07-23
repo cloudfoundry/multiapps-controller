@@ -3,10 +3,10 @@ package com.sap.cloud.lm.sl.cf.core.resolvers.v2;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloud.lm.sl.mta.resolvers.PropertiesResolver;
-import com.sap.cloud.lm.sl.mta.resolvers.ProvidedValuesResolver;
-import com.sap.cloud.lm.sl.mta.resolvers.Reference;
-import com.sap.cloud.lm.sl.mta.resolvers.ReferencePattern;
+import org.cloudfoundry.multiapps.mta.resolvers.PropertiesResolver;
+import org.cloudfoundry.multiapps.mta.resolvers.ProvidedValuesResolver;
+import org.cloudfoundry.multiapps.mta.resolvers.Reference;
+import org.cloudfoundry.multiapps.mta.resolvers.ReferencePattern;
 
 public class PartialPropertiesResolver extends PropertiesResolver {
 

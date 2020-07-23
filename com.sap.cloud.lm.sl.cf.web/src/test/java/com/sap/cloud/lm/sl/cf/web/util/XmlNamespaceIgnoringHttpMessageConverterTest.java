@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.web.util;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import org.cloudfoundry.multiapps.common.util.Tester;
+import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -12,8 +14,6 @@ import org.springframework.http.HttpInputMessage;
 
 import com.sap.cloud.lm.sl.cf.web.util.bar.Bar;
 import com.sap.cloud.lm.sl.cf.web.util.foo.Foo;
-import com.sap.cloud.lm.sl.common.util.Tester;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 @RunWith(Parameterized.class)
 public class XmlNamespaceIgnoringHttpMessageConverterTest {

@@ -3,6 +3,11 @@ package com.sap.cloud.lm.sl.cf.core.cf;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorHandler;
+import org.cloudfoundry.multiapps.mta.mergers.PlatformMerger;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Platform;
+
 import com.sap.cloud.lm.sl.cf.core.cf.factory.HelperFactoryConstructor;
 import com.sap.cloud.lm.sl.cf.core.cf.factory.v2.HelperFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
@@ -20,12 +25,8 @@ import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParametersCompatabilityValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParametersValidator;
-import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
-import com.sap.cloud.lm.sl.mta.mergers.PlatformMerger;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Platform;
 
-public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFactory implements HelperFactoryConstructor {
+public class HandlerFactory extends org.cloudfoundry.multiapps.mta.handlers.HandlerFactory implements HelperFactoryConstructor {
 
     private HelperFactory helperDelegate;
 

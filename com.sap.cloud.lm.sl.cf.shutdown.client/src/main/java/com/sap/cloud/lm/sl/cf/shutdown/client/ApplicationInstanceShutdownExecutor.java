@@ -2,14 +2,14 @@ package com.sap.cloud.lm.sl.cf.shutdown.client;
 
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationShutdown;
 import com.sap.cloud.lm.sl.cf.shutdown.client.configuration.ShutdownClientConfiguration;
 import com.sap.cloud.lm.sl.cf.shutdown.client.configuration.ShutdownConfiguration;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MiscUtil;
 
 public class ApplicationInstanceShutdownExecutor {
 

@@ -8,11 +8,11 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;

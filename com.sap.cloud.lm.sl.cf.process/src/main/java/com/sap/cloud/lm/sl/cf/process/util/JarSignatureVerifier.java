@@ -22,10 +22,10 @@ import java.util.zip.ZipEntry;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.cloudfoundry.multiapps.common.SLException;
 
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class JarSignatureVerifier {

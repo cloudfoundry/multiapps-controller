@@ -22,6 +22,8 @@ import java.util.List;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.cloudfoundry.multiapps.common.util.DigestHelper;
+import org.cloudfoundry.multiapps.common.util.TestDataSourceProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,8 +32,6 @@ import org.mockito.MockitoAnnotations;
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
-import com.sap.cloud.lm.sl.common.util.DigestHelper;
-import com.sap.cloud.lm.sl.common.util.TestDataSourceProvider;
 
 public class DatabaseFileServiceTest {
 

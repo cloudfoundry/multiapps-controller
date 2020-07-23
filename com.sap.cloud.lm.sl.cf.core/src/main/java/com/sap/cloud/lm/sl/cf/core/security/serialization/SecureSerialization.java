@@ -1,16 +1,17 @@
 package com.sap.cloud.lm.sl.cf.core.security.serialization;
 
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
+import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
+import org.cloudfoundry.multiapps.mta.model.Resource;
+import org.cloudfoundry.multiapps.mta.model.VersionedEntity;
+
 import com.sap.cloud.lm.sl.cf.core.security.serialization.model.DeploymentDescriptorSerializer;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.model.ModuleSerializer;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.model.ProvidedDependencySerializer;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.model.RequiredDependencySerializer;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.model.ResourceSerializer;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
-import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.Resource;
-import com.sap.cloud.lm.sl.mta.model.VersionedEntity;
 
 public final class SecureSerialization {
 

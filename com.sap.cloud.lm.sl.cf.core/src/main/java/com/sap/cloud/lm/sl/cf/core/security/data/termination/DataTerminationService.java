@@ -11,6 +11,8 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClientImpl;
 import org.cloudfoundry.client.lib.CloudCredentials;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.mta.model.AuditableConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +29,6 @@ import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 
 @Named
 public class DataTerminationService {

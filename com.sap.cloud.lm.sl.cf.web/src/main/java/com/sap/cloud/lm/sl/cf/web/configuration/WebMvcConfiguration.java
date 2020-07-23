@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +21,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.sap.cloud.lm.sl.cf.web.interceptors.CustomHandlerInterceptor;
 import com.sap.cloud.lm.sl.cf.web.util.XmlNamespaceIgnoringHttpMessageConverter;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Configuration
 @EnableWebMvc

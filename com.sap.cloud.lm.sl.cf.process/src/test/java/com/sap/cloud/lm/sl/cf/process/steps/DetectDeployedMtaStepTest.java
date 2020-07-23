@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
+import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -17,9 +20,6 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedMtaDetector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaStep> {
 

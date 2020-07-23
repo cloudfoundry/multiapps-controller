@@ -2,6 +2,10 @@ package com.sap.cloud.lm.sl.cf.core.cf.factory.v3;
 
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.mta.builders.v2.ParametersChainBuilder;
+import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorHandler;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v3.ApplicationCloudModelBuilder;
@@ -14,9 +18,6 @@ import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
-import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v2.HelperFactory {
     public HelperFactory(DescriptorHandler descriptorHandler) {

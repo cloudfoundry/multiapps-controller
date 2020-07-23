@@ -1,13 +1,14 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
+import java.io.InputStream;
+
+import org.cloudfoundry.multiapps.common.ParsingException;
+import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.io.InputStream;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 public class DescriptorParserFacadeFactoryTest {
 

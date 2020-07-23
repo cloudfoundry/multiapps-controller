@@ -10,11 +10,11 @@ import org.apache.commons.collections4.map.AbstractReferenceMap.ReferenceStrengt
 import org.apache.commons.collections4.map.ReferenceMap;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.security.token.TokenService;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class CloudControllerClientProvider {

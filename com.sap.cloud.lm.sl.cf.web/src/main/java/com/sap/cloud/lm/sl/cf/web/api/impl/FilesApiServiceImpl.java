@@ -17,6 +17,7 @@ import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.time.StopWatch;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,6 @@ import com.sap.cloud.lm.sl.cf.web.api.FilesApiService;
 import com.sap.cloud.lm.sl.cf.web.api.model.FileMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableFileMetadata;
 import com.sap.cloud.lm.sl.cf.web.util.ServletUtil;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class FilesApiServiceImpl implements FilesApiService {

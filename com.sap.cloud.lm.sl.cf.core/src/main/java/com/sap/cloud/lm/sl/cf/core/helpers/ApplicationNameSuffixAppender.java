@@ -3,10 +3,11 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.cloudfoundry.multiapps.mta.model.ElementContext;
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.Visitor;
+
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.mta.model.ElementContext;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.model.Visitor;
 
 public class ApplicationNameSuffixAppender extends Visitor {
 

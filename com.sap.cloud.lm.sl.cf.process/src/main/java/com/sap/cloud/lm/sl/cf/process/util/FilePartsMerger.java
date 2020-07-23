@@ -11,8 +11,7 @@ import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-
-import com.sap.cloud.lm.sl.common.SLException;
+import org.cloudfoundry.multiapps.common.SLException;
 
 public class FilePartsMerger implements Closeable {
 

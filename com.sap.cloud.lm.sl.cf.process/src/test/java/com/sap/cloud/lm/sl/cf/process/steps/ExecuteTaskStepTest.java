@@ -10,13 +10,13 @@ import java.util.Collections;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
+import org.cloudfoundry.multiapps.common.util.GenericArgumentMatcher;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 
 public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
 

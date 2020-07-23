@@ -3,9 +3,10 @@ package com.sap.cloud.lm.sl.cf.shutdown.client.configuration;
 import java.text.MessageFormat;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class EnvironmentBasedShutdownConfiguration implements ShutdownConfiguration {
 

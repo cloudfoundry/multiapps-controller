@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
+import org.cloudfoundry.multiapps.common.ContentException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +17,6 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.process.MonitoringException;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.ContentException;
 
 @RunWith(Parameterized.class)
 public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProcessStepTest.MockStep> {

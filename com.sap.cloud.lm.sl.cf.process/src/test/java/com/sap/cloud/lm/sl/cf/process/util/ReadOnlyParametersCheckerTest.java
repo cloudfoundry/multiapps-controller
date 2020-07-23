@@ -8,16 +8,16 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.YamlParser;
+import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorParser;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.YamlParser;
-import com.sap.cloud.lm.sl.mta.handlers.v3.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 public class ReadOnlyParametersCheckerTest {
 

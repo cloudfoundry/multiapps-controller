@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 import javax.inject.Named;
 
 import org.apache.commons.io.IOUtils;
+import org.cloudfoundry.multiapps.common.NotFoundException;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.DigestHelper;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.Messages;
@@ -22,9 +25,6 @@ import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.ByteArraySqlFileQueryProvider;
-import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.DigestHelper;
 
 @Named("processLogsPersistenceService")
 public class ProcessLogsPersistenceService extends DatabaseFileService {

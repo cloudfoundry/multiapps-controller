@@ -8,8 +8,7 @@ import org.cloudfoundry.client.lib.domain.DockerCredentials;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.ImmutableDockerCredentials;
 import org.cloudfoundry.client.lib.domain.ImmutableDockerInfo;
-
-import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
+import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 
 public class DockerInfoParser implements ParametersParser<DockerInfo> {
 

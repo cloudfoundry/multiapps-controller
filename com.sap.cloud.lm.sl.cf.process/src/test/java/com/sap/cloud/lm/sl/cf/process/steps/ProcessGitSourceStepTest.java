@@ -13,18 +13,18 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.DescriptorParserFacadeFactory;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
-import org.mockito.Mockito;
 
 @RunWith(Enclosed.class)
 public class ProcessGitSourceStepTest extends SyncFlowableStepTest<ProcessGitSourceStep> {

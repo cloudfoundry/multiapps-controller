@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -17,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 
 import com.sap.cloud.lm.sl.cf.client.util.ResilientCloudOperationExecutor;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Enclosed.class)
 public class CustomControllerClientErrorHandlerTest {

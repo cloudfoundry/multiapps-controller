@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.common.SLException;
 
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class ServiceOperationUtil {
 

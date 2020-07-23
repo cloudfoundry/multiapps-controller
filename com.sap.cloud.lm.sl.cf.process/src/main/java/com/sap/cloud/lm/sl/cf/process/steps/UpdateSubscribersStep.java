@@ -1,9 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static com.sap.cloud.lm.sl.common.util.JsonUtil.convertJsonToList;
-import static com.sap.cloud.lm.sl.common.util.JsonUtil.convertJsonToMap;
-import static com.sap.cloud.lm.sl.common.util.JsonUtil.toJson;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -27,6 +23,17 @@ import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudOrganization;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudSpace;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.mta.helpers.VisitableObject;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.parsers.v2.DeploymentDescriptorParser;
+import org.cloudfoundry.multiapps.mta.parsers.v2.ModuleParser;
+import org.cloudfoundry.multiapps.mta.resolvers.Reference;
+import org.cloudfoundry.multiapps.mta.resolvers.ReferencePattern;
+import org.cloudfoundry.multiapps.mta.resolvers.ResolverBuilder;
+import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -51,16 +58,6 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.helpers.VisitableObject;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.parsers.v2.DeploymentDescriptorParser;
-import com.sap.cloud.lm.sl.mta.parsers.v2.ModuleParser;
-import com.sap.cloud.lm.sl.mta.resolvers.Reference;
-import com.sap.cloud.lm.sl.mta.resolvers.ReferencePattern;
-import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
-import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 @Named("updateSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -303,16 +300,16 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
     private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, HandlerFactory handlerFactory) {
         ModuleDto moduleDto = subscription.getModuleDto();
-        String resourceJson = toJson(subscription.getResourceDto());
-        Map<String, Object> resourceMap = convertJsonToMap(resourceJson);
+        String resourceJson = JsonUtil.toJson(subscription.getResourceDto());
+        Map<String, Object> resourceMap = JsonUtil.convertJsonToMap(resourceJson);
 
         Map<String, Object> moduleMap = new TreeMap<>();
 
         moduleMap.put(ModuleParser.NAME, moduleDto.getName());
         moduleMap.put(ModuleParser.TYPE, moduleDto.getName());
         moduleMap.put(ModuleParser.PROPERTIES, moduleDto.getProperties());
-        moduleMap.put(ModuleParser.PROVIDES, convertJsonToList(toJson(moduleDto.getProvidedDependencies())));
-        moduleMap.put(ModuleParser.REQUIRES, convertJsonToList(toJson(moduleDto.getRequiredDependencies())));
+        moduleMap.put(ModuleParser.PROVIDES, JsonUtil.convertJsonToList(JsonUtil.toJson(moduleDto.getProvidedDependencies())));
+        moduleMap.put(ModuleParser.REQUIRES, JsonUtil.convertJsonToList(JsonUtil.toJson(moduleDto.getRequiredDependencies())));
 
         Map<String, Object> dummyDescriptorMap = new TreeMap<>();
         dummyDescriptorMap.put(DeploymentDescriptorParser.SCHEMA_VERSION, SCHEMA_VERSION);

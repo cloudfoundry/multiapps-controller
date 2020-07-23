@@ -12,6 +12,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
+import org.cloudfoundry.multiapps.mta.model.Version;
 
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.ImmutableMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadata;
@@ -21,7 +22,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaService;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaService;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 @Named
 public class MtaMetadataEntityAggregator {

@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.listeners;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.ExecutionListener;
 import org.slf4j.Logger;
@@ -16,7 +17,6 @@ import com.sap.cloud.lm.sl.cf.process.util.HistoricOperationEventPersister;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public abstract class AbstractProcessExecutionListener implements ExecutionListener {
 

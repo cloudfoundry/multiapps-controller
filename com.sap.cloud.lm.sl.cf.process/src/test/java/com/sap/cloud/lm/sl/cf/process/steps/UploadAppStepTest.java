@@ -32,6 +32,9 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudBuild.ImmutableDropletIn
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.UploadToken;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -56,9 +59,6 @@ import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveContext;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveReader;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationZipBuilder;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 @RunWith(Enclosed.class)
 public class UploadAppStepTest {

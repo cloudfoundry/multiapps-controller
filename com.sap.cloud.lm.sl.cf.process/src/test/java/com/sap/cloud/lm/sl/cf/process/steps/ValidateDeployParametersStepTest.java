@@ -16,6 +16,8 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.mta.model.VersionRule;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -32,8 +34,6 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.FilePartsMerger;
 import com.sap.cloud.lm.sl.cf.process.util.JarSignatureOperations;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
 public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDeployParametersStep> {
 
@@ -65,7 +65,7 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
 
                 // [3] Max descriptor size exceeded
                 Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_BIGGER_FILE_ID, 1, VersionRule.HIGHER.toString(), false),
-                        MessageFormat.format(com.sap.cloud.lm.sl.mta.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
+                        MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
                                      "1048577", "extDescriptorFile", "1048576"), false, ""),
 
                 // [4] Process chunked file

@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
-import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +13,16 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.domain.CloudTask;
+import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
+import org.cloudfoundry.multiapps.mta.builders.v2.ParametersChainBuilder;
+import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorHandler;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
+import org.cloudfoundry.multiapps.mta.model.Resource;
+import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
+import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
@@ -36,16 +44,6 @@ import com.sap.cloud.lm.sl.cf.core.parser.TaskParametersParser;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
-import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.Resource;
-import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
-import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 public class ApplicationCloudModelBuilder {
 
@@ -101,7 +99,7 @@ public class ApplicationCloudModelBuilder {
                                                                            new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0")))
                                                 .memory(parseParameters(parametersList,
                                                                         new MemoryParametersParser(SupportedParameters.MEMORY, "0")))
-                                                .instances((Integer) getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0))
+                                                .instances((Integer) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0))
                                                 .uris(uris)
                                                 .idleUris(idleUris)
                                                 .services(getAllApplicationServices(module))
@@ -211,7 +209,7 @@ public class ApplicationCloudModelBuilder {
 
     protected String getInvalidServiceBindingConfigTypeErrorMessage(String moduleName, String dependencyName, Object bindingParameters) {
         String prefix = ValidatorUtil.getPrefixedName(moduleName, dependencyName);
-        return MessageFormat.format(com.sap.cloud.lm.sl.mta.Messages.INVALID_TYPE_FOR_KEY,
+        return MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.INVALID_TYPE_FOR_KEY,
                                     ValidatorUtil.getPrefixedName(prefix, SupportedParameters.SERVICE_BINDING_CONFIG),
                                     Map.class.getSimpleName(), bindingParameters.getClass()
                                                                                 .getSimpleName());

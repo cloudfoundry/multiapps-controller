@@ -2,12 +2,12 @@ package com.sap.cloud.lm.sl.cf.core.helpers.v3;
 
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.mta.handlers.v3.DescriptorParser;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.junit.jupiter.params.provider.Arguments;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
-import com.sap.cloud.lm.sl.mta.handlers.v3.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 public class ConfigurationReferencesResolverTest extends com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolverTest {
 
@@ -32,7 +32,9 @@ public class ConfigurationReferencesResolverTest extends com.sap.cloud.lm.sl.cf.
     @Override
     protected ConfigurationReferencesResolver getConfigurationResolver(DeploymentDescriptor deploymentDescriptor) {
         return new ConfigurationReferencesResolver(configurationEntryService,
-                                                   new ConfigurationFilterParser(getCloudTarget(), getPropertiesChainBuilder(descriptor), null),
+                                                   new ConfigurationFilterParser(getCloudTarget(),
+                                                                                 getPropertiesChainBuilder(descriptor),
+                                                                                 null),
                                                    null,
                                                    configuration);
     }

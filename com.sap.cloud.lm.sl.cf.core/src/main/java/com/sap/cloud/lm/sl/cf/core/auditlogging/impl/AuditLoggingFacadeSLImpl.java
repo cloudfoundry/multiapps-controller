@@ -7,11 +7,11 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.cloudfoundry.multiapps.mta.model.AuditableConfiguration;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
-import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 
 public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
 

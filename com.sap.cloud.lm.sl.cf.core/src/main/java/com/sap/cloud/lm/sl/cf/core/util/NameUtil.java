@@ -1,19 +1,18 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
-import static com.sap.cloud.lm.sl.mta.util.ValidatorUtil.getPrefixedName;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.Resource;
+import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class NameUtil {
 
@@ -111,7 +110,7 @@ public class NameUtil {
 
     public static String getIndexedName(String resourceName, int index, int entriesCnt, String delimiter) {
         if (entriesCnt > 1) {
-            return getPrefixedName(resourceName, Integer.toString(index), delimiter);
+            return ValidatorUtil.getPrefixedName(resourceName, Integer.toString(index), delimiter);
         }
         return resourceName;
     }

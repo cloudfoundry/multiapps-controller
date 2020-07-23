@@ -11,8 +11,14 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.DeploymentType;
+import org.cloudfoundry.multiapps.mta.model.Version;
+import org.cloudfoundry.multiapps.mta.model.VersionRule;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
 import com.sap.cloud.lm.sl.cf.core.helpers.SystemParameters;
@@ -21,12 +27,6 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ReadOnlyParametersChecker;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.DeploymentType;
-import com.sap.cloud.lm.sl.mta.model.Version;
-import com.sap.cloud.lm.sl.mta.model.VersionRule;
-import org.springframework.http.HttpStatus;
 
 @Named("collectSystemParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

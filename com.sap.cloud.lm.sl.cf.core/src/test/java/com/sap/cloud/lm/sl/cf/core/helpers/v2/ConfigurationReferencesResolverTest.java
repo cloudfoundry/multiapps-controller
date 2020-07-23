@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.helpers.v2;
 
-import static com.sap.cloud.lm.sl.common.util.TestUtil.getResourceAsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -8,6 +7,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
+import org.cloudfoundry.multiapps.common.util.Tester;
+import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.common.util.YamlParser;
+import org.cloudfoundry.multiapps.mta.builders.v2.ParametersChainBuilder;
+import org.cloudfoundry.multiapps.mta.handlers.ConfigurationParser;
+import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorParser;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,15 +34,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.Tester;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
-import com.sap.cloud.lm.sl.common.util.YamlParser;
-import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
-import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
-import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Platform;
 
 public class ConfigurationReferencesResolverTest {
 
@@ -116,8 +116,8 @@ public class ConfigurationReferencesResolverTest {
     }
 
     protected void prepareConfigurationEntries(String configurationEntriesLocation) {
-        List<ServiceMockConfiguration> serviceConfigurations = JsonUtil.fromJson(getResourceAsString(configurationEntriesLocation,
-                                                                                                     getClass()),
+        List<ServiceMockConfiguration> serviceConfigurations = JsonUtil.fromJson(TestUtil.getResourceAsString(configurationEntriesLocation,
+                                                                                                              getClass()),
                                                                                  new TypeReference<List<ServiceMockConfiguration>>() {
                                                                                  });
         for (ServiceMockConfiguration configuration : serviceConfigurations) {
@@ -148,7 +148,9 @@ public class ConfigurationReferencesResolverTest {
 
     protected ConfigurationReferencesResolver getConfigurationResolver(DeploymentDescriptor deploymentDescriptor) {
         return new ConfigurationReferencesResolver(configurationEntryService,
-                                                   new ConfigurationFilterParser(getCloudTarget(), getPropertiesChainBuilder(descriptor), null),
+                                                   new ConfigurationFilterParser(getCloudTarget(),
+                                                                                 getPropertiesChainBuilder(descriptor),
+                                                                                 null),
                                                    null,
                                                    configuration);
     }

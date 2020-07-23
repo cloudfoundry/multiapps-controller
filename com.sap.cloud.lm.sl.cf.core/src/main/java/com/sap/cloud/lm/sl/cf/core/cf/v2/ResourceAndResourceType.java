@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
-import com.sap.cloud.lm.sl.mta.model.Resource;
+import org.cloudfoundry.multiapps.mta.model.Resource;
 
 public class ResourceAndResourceType {
     private final Resource resource;

@@ -1,8 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
-
 import java.util.List;
+
+import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 
 public interface BeforeStepHookPhaseProvider {
 

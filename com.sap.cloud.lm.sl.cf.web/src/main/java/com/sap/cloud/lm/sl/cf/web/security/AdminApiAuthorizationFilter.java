@@ -5,9 +5,9 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.cloudfoundry.multiapps.common.SLException;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class AdminApiAuthorizationFilter extends SpaceGuidBasedAuthorizationFilter {

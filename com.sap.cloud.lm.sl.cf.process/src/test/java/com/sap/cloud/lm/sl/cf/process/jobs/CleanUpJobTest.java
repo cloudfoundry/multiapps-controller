@@ -3,11 +3,11 @@ package com.sap.cloud.lm.sl.cf.process.jobs;
 import java.util.Arrays;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class CleanUpJobTest {
 

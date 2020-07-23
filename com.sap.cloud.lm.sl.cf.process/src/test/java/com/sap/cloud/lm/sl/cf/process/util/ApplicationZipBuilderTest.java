@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +28,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class ApplicationZipBuilderTest {
     private static final String SAMPLE_MTAR = "com.sap.mta.sample-1.2.1-beta.mtar";

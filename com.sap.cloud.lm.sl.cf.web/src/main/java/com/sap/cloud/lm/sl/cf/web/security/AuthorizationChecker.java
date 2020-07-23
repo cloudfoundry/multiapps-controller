@@ -9,6 +9,7 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -24,7 +25,6 @@ import com.sap.cloud.lm.sl.cf.core.model.CachedMap;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class AuthorizationChecker {

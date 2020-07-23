@@ -5,14 +5,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.mta.handlers.v3.DescriptorParser;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
-import com.sap.cloud.lm.sl.mta.handlers.v3.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class ConfigurationSubscriptionFactoryTest extends com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactoryTest {

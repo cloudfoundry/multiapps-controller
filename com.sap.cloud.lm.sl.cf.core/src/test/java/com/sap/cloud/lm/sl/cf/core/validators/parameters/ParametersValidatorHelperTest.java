@@ -8,12 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 @RunWith(Parameterized.class)
 public class ParametersValidatorHelperTest {

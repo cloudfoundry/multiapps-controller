@@ -2,10 +2,11 @@ package com.sap.cloud.lm.sl.cf.core.validators.parameters.v3;
 
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
+
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParametersValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParametersValidatorHelper;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 
 public class ProvidedDependencyParameterValidator extends ParametersValidator<ProvidedDependency> {
 

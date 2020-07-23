@@ -6,15 +6,15 @@ import java.util.TreeMap;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.client.v3.Metadata.Builder;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Resource;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataAnnotations;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadataLabels;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.util.MtaMetadataUtil;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ServiceMetadataBuilder {
 

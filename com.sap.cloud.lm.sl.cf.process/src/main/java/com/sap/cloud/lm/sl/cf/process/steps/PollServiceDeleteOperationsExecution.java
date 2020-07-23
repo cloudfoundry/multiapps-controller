@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.text.MessageFormat;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.common.SLException;
+
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.Messages;
@@ -10,7 +12,6 @@ import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class PollServiceDeleteOperationsExecution extends PollServiceOperationsExecution {
 

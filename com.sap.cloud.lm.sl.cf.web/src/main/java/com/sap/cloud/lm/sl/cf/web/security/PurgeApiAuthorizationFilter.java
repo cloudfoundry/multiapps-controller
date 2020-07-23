@@ -5,11 +5,11 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.cloudfoundry.multiapps.common.SLException;
 
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.web.Messages;
 import com.sap.cloud.lm.sl.cf.web.resources.ConfigurationEntriesResource;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class PurgeApiAuthorizationFilter extends SpaceNameBasedAuthorizationFilter {

@@ -19,13 +19,13 @@ import java.util.UUID;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.io.FileUtils;
+import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
-import com.sap.cloud.lm.sl.common.util.DigestHelper;
 
 public class FileServiceFileStorageTest {
 

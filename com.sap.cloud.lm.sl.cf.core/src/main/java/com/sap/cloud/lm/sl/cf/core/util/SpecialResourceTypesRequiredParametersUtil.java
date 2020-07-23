@@ -3,9 +3,10 @@ package com.sap.cloud.lm.sl.cf.core.util;
 import java.util.Map;
 import java.util.Set;
 
+import org.cloudfoundry.multiapps.common.ContentException;
+
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
-import com.sap.cloud.lm.sl.common.ContentException;
 
 public class SpecialResourceTypesRequiredParametersUtil {
 

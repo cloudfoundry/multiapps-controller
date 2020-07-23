@@ -12,14 +12,13 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections4.MapUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class ServiceGetterTest {
 

@@ -4,10 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
+import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
+
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
-import com.sap.cloud.lm.sl.common.util.MiscUtil;
-import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 
 public class VisibilityValidator implements ParameterValidator {
 

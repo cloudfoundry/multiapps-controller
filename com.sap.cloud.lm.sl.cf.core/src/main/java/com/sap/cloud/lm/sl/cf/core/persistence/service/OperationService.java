@@ -8,6 +8,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 
+import org.cloudfoundry.multiapps.common.ConflictException;
+import org.cloudfoundry.multiapps.common.NotFoundException;
+
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.OperationDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.OperationQuery;
@@ -15,8 +18,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.impl.OperationQueryImpl;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.common.ConflictException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
 
 @Named
 public class OperationService extends PersistenceService<Operation, OperationDto, String> {

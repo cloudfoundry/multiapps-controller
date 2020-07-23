@@ -9,6 +9,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.multiapps.common.ConflictException;
+import org.cloudfoundry.multiapps.common.NotFoundException;
+import org.cloudfoundry.multiapps.mta.model.Version;
 import org.springframework.http.ResponseEntity;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
@@ -27,9 +30,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Metadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.Module;
 import com.sap.cloud.lm.sl.cf.web.api.model.Mta;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
-import com.sap.cloud.lm.sl.common.ConflictException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 @Named
 public class MtasApiServiceImpl implements MtasApiService {

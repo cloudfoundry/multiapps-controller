@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,7 +18,6 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.web.resources.ConfigurationEntriesResource;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class PurgeApiAuthorizationFilterTest {
 

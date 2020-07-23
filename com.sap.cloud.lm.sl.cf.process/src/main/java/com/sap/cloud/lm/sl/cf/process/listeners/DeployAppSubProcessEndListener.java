@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.listeners;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.ExecutionListener;
@@ -14,7 +15,6 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named("deployAppSubProcessEndListener")
 public class DeployAppSubProcessEndListener implements ExecutionListener {

@@ -5,17 +5,17 @@ import java.util.function.Supplier;
 
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.mta.handlers.SchemaVersionDetector;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
+import org.cloudfoundry.multiapps.mta.model.SupportedVersions;
+import org.cloudfoundry.multiapps.mta.model.Version;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.handlers.SchemaVersionDetector;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
-import com.sap.cloud.lm.sl.mta.model.SupportedVersions;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 @Named("detectMtaSchemaVersionStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -32,7 +32,7 @@ public class DetectMtaSchemaVersionStep extends SyncFlowableStep {
         SchemaVersionDetector detector = detectorSupplier.get();
         Version schemaVersion = detector.detect(deploymentDescriptor, extensionDescriptors);
         if (!SupportedVersions.isSupported(schemaVersion)) {
-            throw new SLException(com.sap.cloud.lm.sl.mta.Messages.UNSUPPORTED_VERSION, schemaVersion);
+            throw new SLException(org.cloudfoundry.multiapps.mta.Messages.UNSUPPORTED_VERSION, schemaVersion);
         }
         if (!SupportedVersions.isFullySupported(schemaVersion)) {
             getStepLogger().warn(Messages.UNSUPPORTED_MINOR_VERSION, schemaVersion);

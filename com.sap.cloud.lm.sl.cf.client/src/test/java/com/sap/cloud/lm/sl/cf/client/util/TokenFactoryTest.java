@@ -7,14 +7,13 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 @RunWith(Enclosed.class)
 public class TokenFactoryTest {

@@ -2,11 +2,12 @@ package com.sap.cloud.lm.sl.cf.process.metadata.parameters;
 
 import java.util.Arrays;
 
+import org.cloudfoundry.multiapps.common.SLException;
+
 import com.sap.cloud.lm.sl.cf.process.DeployStrategy;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.parameters.ParameterConverter;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class DeployStrategyParameterConverter implements ParameterConverter {
 

@@ -10,6 +10,8 @@ import java.util.GregorianCalendar;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ImmutableApplicationLog;
+import org.cloudfoundry.multiapps.common.util.Tester;
+import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -20,8 +22,6 @@ import org.springframework.web.client.HttpServerErrorException;
 
 import com.sap.cloud.lm.sl.cf.core.util.ImmutableLogsOffset;
 import com.sap.cloud.lm.sl.cf.core.util.LogsOffset;
-import com.sap.cloud.lm.sl.common.util.Tester;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 public class RecentLogsRetrieverTest {
 

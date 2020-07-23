@@ -19,6 +19,7 @@ import java.util.UUID;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.io.FileUtils;
+import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.jclouds.ContextBuilder;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.BlobStoreContext;
@@ -30,7 +31,6 @@ import org.junit.Test;
 import com.google.common.net.MediaType;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileEntry;
-import com.sap.cloud.lm.sl.common.util.DigestHelper;
 
 public class ObjectStoreFileStorageTest {
 

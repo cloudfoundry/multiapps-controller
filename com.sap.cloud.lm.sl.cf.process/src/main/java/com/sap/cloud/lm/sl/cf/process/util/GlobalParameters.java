@@ -2,8 +2,8 @@ package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.util.Map;
 
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.NamedParametersContainer;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.NamedParametersContainer;
 
 public class GlobalParameters implements NamedParametersContainer {
 

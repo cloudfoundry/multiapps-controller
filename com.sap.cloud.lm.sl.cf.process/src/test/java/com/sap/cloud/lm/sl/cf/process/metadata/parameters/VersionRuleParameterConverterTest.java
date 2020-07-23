@@ -3,9 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.metadata.parameters;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.junit.jupiter.api.Test;
-
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class VersionRuleParameterConverterTest {
 

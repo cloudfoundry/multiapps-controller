@@ -3,11 +3,12 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 import java.util.Collections;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.mta.helpers.VisitableObject;
+
 import com.sap.cloud.lm.sl.cf.core.helpers.escaping.CharacterToReplace;
 import com.sap.cloud.lm.sl.cf.core.helpers.escaping.EscapeSequenceToReplace;
 import com.sap.cloud.lm.sl.cf.core.helpers.escaping.EscapeSequencesReplacer;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.mta.helpers.VisitableObject;
 
 public class ObjectToEnvironmentValueConverter {
 

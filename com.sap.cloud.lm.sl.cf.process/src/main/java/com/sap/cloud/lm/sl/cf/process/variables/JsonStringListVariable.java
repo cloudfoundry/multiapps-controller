@@ -3,10 +3,10 @@ package com.sap.cloud.lm.sl.cf.process.variables;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Value.Immutable
 public abstract class JsonStringListVariable<T> implements ListVariable<T, List<T>> {

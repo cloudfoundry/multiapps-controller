@@ -5,6 +5,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -13,9 +16,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorStep> {
 

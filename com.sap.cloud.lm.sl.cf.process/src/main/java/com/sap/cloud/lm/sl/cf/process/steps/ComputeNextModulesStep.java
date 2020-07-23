@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.ListUtils;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -13,8 +15,6 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ModuleDependencyChecker;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 @Named("computeNextModulesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

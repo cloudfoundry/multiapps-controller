@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.lm.sl.mta.helpers.SimplePropertyVisitor;
-import com.sap.cloud.lm.sl.mta.resolvers.Reference;
-import com.sap.cloud.lm.sl.mta.resolvers.ReferencePattern;
+import org.cloudfoundry.multiapps.mta.helpers.SimplePropertyVisitor;
+import org.cloudfoundry.multiapps.mta.resolvers.Reference;
+import org.cloudfoundry.multiapps.mta.resolvers.ReferencePattern;
 
 public abstract class ReferencingPropertiesVisitor implements SimplePropertyVisitor {
 

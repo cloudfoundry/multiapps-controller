@@ -6,13 +6,13 @@ import java.util.Collections;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
+import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.TaskHookParser;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.mta.model.Hook;
 
 @Named("determineTasksFromHookStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

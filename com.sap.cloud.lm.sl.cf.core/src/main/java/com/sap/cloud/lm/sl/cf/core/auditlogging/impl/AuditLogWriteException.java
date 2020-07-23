@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.auditlogging.impl;
 
-import com.sap.cloud.lm.sl.common.SLException;
+import org.cloudfoundry.multiapps.common.SLException;
 
 public class AuditLogWriteException extends SLException {
 

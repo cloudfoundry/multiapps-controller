@@ -7,6 +7,10 @@ import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.cloudfoundry.multiapps.common.ConflictException;
+import org.cloudfoundry.multiapps.common.NotFoundException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.mta.model.Version;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.Messages;
@@ -16,10 +20,6 @@ import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.ConfigurationEntryDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.impl.ConfigurationEntryQueryImpl;
-import com.sap.cloud.lm.sl.common.ConflictException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class ConfigurationEntryService extends PersistenceService<ConfigurationEntry, ConfigurationEntryDto, Long> {
 

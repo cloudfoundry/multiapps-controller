@@ -8,12 +8,12 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
+import org.cloudfoundry.multiapps.common.util.TestDataSourceProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
-import com.sap.cloud.lm.sl.common.util.TestDataSourceProvider;
 
 public class AuditLogManagerTest {
 

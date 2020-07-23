@@ -4,6 +4,7 @@ import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class JarSignatureOperationsTest {
 

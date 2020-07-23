@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication.State;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -22,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.process.util.HooksPhaseGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 

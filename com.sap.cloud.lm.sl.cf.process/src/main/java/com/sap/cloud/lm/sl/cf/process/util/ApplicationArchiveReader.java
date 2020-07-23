@@ -6,10 +6,11 @@ import java.util.zip.ZipInputStream;
 
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.common.SLException;
+
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class ApplicationArchiveReader {
@@ -39,7 +40,7 @@ public class ApplicationArchiveReader {
         String moduleFileName = applicationArchiveContext.getModuleFileName();
         ZipEntry zipEntry = getNextEntryByName(moduleFileName, applicationArchiveContext);
         if (zipEntry == null) {
-            throw new ContentException(com.sap.cloud.lm.sl.mta.Messages.CANNOT_FIND_ARCHIVE_ENTRY, moduleFileName);
+            throw new ContentException(org.cloudfoundry.multiapps.mta.Messages.CANNOT_FIND_ARCHIVE_ENTRY, moduleFileName);
         }
         return zipEntry;
     }

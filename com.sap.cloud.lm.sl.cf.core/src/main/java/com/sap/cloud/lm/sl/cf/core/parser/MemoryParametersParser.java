@@ -1,13 +1,13 @@
 package com.sap.cloud.lm.sl.cf.core.parser;
 
-import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
-
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
+
 import com.sap.cloud.lm.sl.cf.core.Messages;
-import com.sap.cloud.lm.sl.common.ContentException;
 
 public class MemoryParametersParser implements ParametersParser<Integer> {
 
@@ -23,7 +23,7 @@ public class MemoryParametersParser implements ParametersParser<Integer> {
 
     @Override
     public Integer parse(List<Map<String, Object>> parametersList) {
-        return parseMemory((String) getPropertyValue(parametersList, parameterName, defaultMemory));
+        return parseMemory((String) PropertiesUtil.getPropertyValue(parametersList, parameterName, defaultMemory));
     }
 
     public static Integer parseMemory(String value) {

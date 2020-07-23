@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 
@@ -16,7 +17,6 @@ import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
 
 /**
  * The purpose of this class is to group logging of progress messages and process logs in a single place.

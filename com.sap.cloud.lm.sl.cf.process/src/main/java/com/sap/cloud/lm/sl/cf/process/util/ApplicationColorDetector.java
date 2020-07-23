@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.cloudfoundry.multiapps.common.ConflictException;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
@@ -21,7 +22,6 @@ import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.common.ConflictException;
 
 @Named("applicationColorDetector")
 public class ApplicationColorDetector {

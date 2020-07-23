@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.security.serialization;
 
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 
 public class SecureJsonSerializer extends SecureSerializer {
 

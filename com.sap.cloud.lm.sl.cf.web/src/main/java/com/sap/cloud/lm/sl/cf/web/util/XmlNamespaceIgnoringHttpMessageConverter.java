@@ -13,6 +13,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 
+import org.cloudfoundry.multiapps.common.ParsingException;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -22,8 +23,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
-
-import com.sap.cloud.lm.sl.common.ParsingException;
 
 public class XmlNamespaceIgnoringHttpMessageConverter implements HttpMessageConverter<Object> {
 

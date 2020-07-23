@@ -2,10 +2,11 @@ package com.sap.cloud.lm.sl.cf.core.model.adapter;
 
 import java.io.IOException;
 
+import org.cloudfoundry.multiapps.mta.model.Version;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class VersionJsonDeserializer extends StdDeserializer<Version> {
 

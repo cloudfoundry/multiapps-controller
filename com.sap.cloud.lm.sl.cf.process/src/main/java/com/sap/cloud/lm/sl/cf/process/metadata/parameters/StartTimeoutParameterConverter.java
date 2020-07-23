@@ -1,9 +1,10 @@
 package com.sap.cloud.lm.sl.cf.process.metadata.parameters;
 
+import org.cloudfoundry.multiapps.common.SLException;
+
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.parameters.IntegerParameterConverter;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class StartTimeoutParameterConverter extends IntegerParameterConverter {
 

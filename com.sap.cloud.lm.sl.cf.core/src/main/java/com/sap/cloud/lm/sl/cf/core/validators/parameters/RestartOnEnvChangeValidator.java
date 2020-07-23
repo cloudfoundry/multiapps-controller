@@ -2,9 +2,10 @@ package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
+import org.cloudfoundry.multiapps.mta.model.Module;
+
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.common.util.MiscUtil;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class RestartOnEnvChangeValidator implements ParameterValidator {
 

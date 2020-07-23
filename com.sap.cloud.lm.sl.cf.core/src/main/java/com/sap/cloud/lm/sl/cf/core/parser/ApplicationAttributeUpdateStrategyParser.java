@@ -1,10 +1,10 @@
 package com.sap.cloud.lm.sl.cf.core.parser;
 
-import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
@@ -33,9 +33,9 @@ public class ApplicationAttributeUpdateStrategyParser implements ParametersParse
 
     @SuppressWarnings("unchecked")
     private Map<String, Boolean> getAttributesUpdateStrategyParameter(List<Map<String, Object>> parametersList) {
-        return (Map<String, Boolean>) getPropertyValue(parametersList,
-                                                       SupportedParameters.KEEP_EXISTING_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY,
-                                                       Collections.emptyMap());
+        return (Map<String, Boolean>) PropertiesUtil.getPropertyValue(parametersList,
+                                                                      SupportedParameters.KEEP_EXISTING_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY,
+                                                                      Collections.emptyMap());
     }
 
     private Boolean shouldKeepExistingEnv(Map<String, Boolean> attributesUpdateStrategy) {

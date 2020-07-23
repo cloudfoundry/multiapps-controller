@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.cloudfoundry.multiapps.mta.model.AuditableConfiguration;
+import org.cloudfoundry.multiapps.mta.model.ConfigurationIdentifier;
+import org.cloudfoundry.multiapps.mta.model.Version;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.sap.cloud.lm.sl.cf.core.model.adapter.VersionJsonDeserializer;
 import com.sap.cloud.lm.sl.cf.core.model.adapter.VersionJsonSerializer;
-import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
-import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class ConfigurationEntry implements AuditableConfiguration {
 

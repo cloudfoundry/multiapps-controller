@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.util;
 
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -9,7 +10,6 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class ProcessTypeParser {
