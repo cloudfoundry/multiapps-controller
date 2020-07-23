@@ -6,9 +6,8 @@ import java.util.Objects;
 import java.util.function.BiPredicate;
 
 import org.apache.commons.collections4.MapUtils;
-
-import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.ParsingException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 
 public class ContentFilter implements BiPredicate<String, Map<String, Object>> {
 

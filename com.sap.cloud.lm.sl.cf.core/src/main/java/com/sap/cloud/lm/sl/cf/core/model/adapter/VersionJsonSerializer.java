@@ -2,10 +2,11 @@ package com.sap.cloud.lm.sl.cf.core.model.adapter;
 
 import java.io.IOException;
 
+import org.cloudfoundry.multiapps.mta.model.Version;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class VersionJsonSerializer extends StdSerializer<Version> {
 

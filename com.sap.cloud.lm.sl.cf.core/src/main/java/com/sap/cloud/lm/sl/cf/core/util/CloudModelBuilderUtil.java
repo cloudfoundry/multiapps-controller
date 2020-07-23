@@ -7,14 +7,13 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.lm.sl.cf.core.Messages;
+import org.cloudfoundry.multiapps.mta.model.Resource;
+
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.parser.ParametersParser;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class CloudModelBuilderUtil {
 

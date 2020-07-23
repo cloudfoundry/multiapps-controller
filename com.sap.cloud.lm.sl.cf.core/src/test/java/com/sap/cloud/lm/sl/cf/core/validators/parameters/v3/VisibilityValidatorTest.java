@@ -5,13 +5,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 
 @RunWith(Parameterized.class)
 public class VisibilityValidatorTest {

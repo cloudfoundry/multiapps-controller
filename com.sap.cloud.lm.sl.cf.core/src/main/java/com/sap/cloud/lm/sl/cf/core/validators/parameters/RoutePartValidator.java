@@ -1,11 +1,12 @@
 package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 
-import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.model.Module;
-
 import java.util.Locale;
 import java.util.Map;
+
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.mta.model.Module;
+
+import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 
 public abstract class RoutePartValidator implements ParameterValidator {
 

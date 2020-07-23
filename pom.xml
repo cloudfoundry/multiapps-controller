@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.cloud.lm.sl.cf</groupId>
@@ -66,7 +65,7 @@
         <aliyun-sdk-oss.version>3.9.1</aliyun-sdk-oss.version>
         <auto-service.version>1.0-rc2</auto-service.version>
         <java-cfenv.version>2.1.2.RELEASE</java-cfenv.version>
-        <com.sap.cloud.lm.sl.open.version>1.93.0</com.sap.cloud.lm.sl.open.version>
+        <multiapps.version>2.0.0</multiapps.version>
     </properties>
     <modules>
         <module>com.sap.cloud.lm.sl.cf.client</module>
@@ -255,9 +254,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.lm.sl</groupId>
-            <artifactId>com.sap.cloud.lm.sl.common</artifactId>
-            <version>${com.sap.cloud.lm.sl.open.version}</version>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-common</artifactId>
+            <version>${multiapps.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -588,8 +587,8 @@
                 <artifactId>quartz</artifactId>
                 <version>${quartz.version}</version>
                 <exclusions>
-                    <!-- C3P0 is only used if Quartz needs to create its
-                        own DataSource. Since we use Spring for that purpose, it is not required. -->
+                    <!-- C3P0 is only used if Quartz needs to create its own DataSource. Since we use Spring for that purpose, 
+                        it is not required. -->
                     <exclusion>
                         <groupId>c3p0</groupId>
                         <artifactId>c3p0</artifactId>
@@ -724,14 +723,14 @@
                 <version>${java-cfenv.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl</groupId>
-                <artifactId>com.sap.cloud.lm.sl.common</artifactId>
-                <version>${com.sap.cloud.lm.sl.open.version}</version>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-common</artifactId>
+                <version>${multiapps.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl</groupId>
-                <artifactId>com.sap.cloud.lm.sl.mta</artifactId>
-                <version>${com.sap.cloud.lm.sl.open.version}</version>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-mta</artifactId>
+                <version>${multiapps.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sap.cloud.lm.sl.cf</groupId>

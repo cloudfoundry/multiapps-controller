@@ -12,13 +12,13 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableDockerCredentials;
 import org.cloudfoundry.client.lib.domain.ImmutableDockerInfo;
+import org.cloudfoundry.multiapps.common.util.GenericArgumentMatcher;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 
 public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBaseTest {
 

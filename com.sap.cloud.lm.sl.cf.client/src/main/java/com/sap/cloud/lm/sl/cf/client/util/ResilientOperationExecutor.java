@@ -3,10 +3,9 @@ package com.sap.cloud.lm.sl.cf.client.util;
 import java.text.MessageFormat;
 import java.util.function.Supplier;
 
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sap.cloud.lm.sl.common.util.MiscUtil;
 
 public class ResilientOperationExecutor {
 

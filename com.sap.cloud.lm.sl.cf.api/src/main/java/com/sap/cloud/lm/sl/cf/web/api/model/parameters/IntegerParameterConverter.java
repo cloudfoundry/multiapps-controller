@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.web.api.model.parameters;
 
 import java.text.MessageFormat;
 
-import com.sap.cloud.lm.sl.common.SLException;
+import org.cloudfoundry.multiapps.common.SLException;
 
 public class IntegerParameterConverter implements ParameterConverter {
 

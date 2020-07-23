@@ -12,6 +12,8 @@ import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBroker;
+import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -23,8 +25,6 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
 
 @Named("createOrUpdateServiceBrokerStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

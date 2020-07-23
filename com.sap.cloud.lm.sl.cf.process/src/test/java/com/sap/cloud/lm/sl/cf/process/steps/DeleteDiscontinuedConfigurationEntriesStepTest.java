@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.cloudfoundry.multiapps.common.ParsingException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,9 +30,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
 public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowableStepTest<DeleteDiscontinuedConfigurationEntriesStep> {

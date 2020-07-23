@@ -8,13 +8,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.lm.sl.mta.Messages;
-import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
-import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
-import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.Resource;
+import org.cloudfoundry.multiapps.mta.Messages;
+import org.cloudfoundry.multiapps.mta.model.AuditableConfiguration;
+import org.cloudfoundry.multiapps.mta.model.ConfigurationIdentifier;
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
+import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
+import org.cloudfoundry.multiapps.mta.model.Resource;
 
 public class ConfigurationSubscription implements AuditableConfiguration {
 

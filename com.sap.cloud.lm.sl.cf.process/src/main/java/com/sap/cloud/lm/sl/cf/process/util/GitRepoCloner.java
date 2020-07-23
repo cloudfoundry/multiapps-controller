@@ -11,6 +11,7 @@ import java.util.Collections;
 
 import javax.net.ssl.SSLHandshakeException;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -24,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class GitRepoCloner {
 

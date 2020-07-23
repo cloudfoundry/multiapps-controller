@@ -3,10 +3,9 @@ package com.sap.cloud.lm.sl.cf.process.util;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class FilePartsMergerTest {
 

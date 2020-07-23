@@ -23,6 +23,11 @@ import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
+import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
+import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -49,11 +54,6 @@ import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationUtil;
 import com.sap.cloud.lm.sl.cf.process.util.StagingApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.cf.process.util.UrisApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
-import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 @Named("createOrUpdateAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

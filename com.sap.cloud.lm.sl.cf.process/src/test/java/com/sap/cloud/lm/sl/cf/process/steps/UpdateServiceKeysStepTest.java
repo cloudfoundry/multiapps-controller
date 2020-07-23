@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceKey;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -26,7 +27,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExt
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServiceKeysStep> {
 

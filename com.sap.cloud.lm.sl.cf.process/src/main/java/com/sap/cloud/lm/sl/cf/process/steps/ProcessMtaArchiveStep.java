@@ -7,6 +7,10 @@ import java.util.jar.Manifest;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
+import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+
 import com.sap.cloud.lm.sl.cf.core.helpers.DescriptorParserFacadeFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
@@ -16,9 +20,6 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
-import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 public class ProcessMtaArchiveStep extends SyncFlowableStep {
 

@@ -7,13 +7,12 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 class RestartOnEnvChangeValidatorTest {
     private final RestartOnEnvChangeValidator validator = new RestartOnEnvChangeValidator();

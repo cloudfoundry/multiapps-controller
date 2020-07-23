@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.mta.model.Module;
+
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.CompatabilityParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.CompatabilityParametersValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.IdleRoutesCompatabilityValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.RoutesCompatabilityValidator;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class ModuleParametersCompatabilityValidator extends CompatabilityParametersValidator<Module> {
 

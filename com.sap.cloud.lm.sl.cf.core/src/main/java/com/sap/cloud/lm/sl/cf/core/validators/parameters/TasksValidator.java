@@ -4,16 +4,16 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.common.ParsingException;
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.schema.Element.ElementBuilder;
+import org.cloudfoundry.multiapps.mta.schema.ListElement;
+import org.cloudfoundry.multiapps.mta.schema.MapElement;
+import org.cloudfoundry.multiapps.mta.schema.SchemaValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.schema.Element.ElementBuilder;
-import com.sap.cloud.lm.sl.mta.schema.ListElement;
-import com.sap.cloud.lm.sl.mta.schema.MapElement;
-import com.sap.cloud.lm.sl.mta.schema.SchemaValidator;
 
 public class TasksValidator implements ParameterValidator {
 

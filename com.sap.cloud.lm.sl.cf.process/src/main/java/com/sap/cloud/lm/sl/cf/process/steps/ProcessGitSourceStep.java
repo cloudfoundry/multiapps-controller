@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.io.FilenameUtils;
+import org.cloudfoundry.multiapps.common.ContentException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -32,7 +33,6 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.GitRepoCloner;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.ContentException;
 
 // Should be executed before ValidateDeployParametersStep as the archive ID is determined during this step execution
 @Named("processGitSourceStep")

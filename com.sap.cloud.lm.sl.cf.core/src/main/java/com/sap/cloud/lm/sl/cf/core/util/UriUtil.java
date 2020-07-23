@@ -3,9 +3,9 @@ package com.sap.cloud.lm.sl.cf.core.util;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.domain.CloudRoute;
+import org.cloudfoundry.multiapps.common.NotFoundException;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
-import com.sap.cloud.lm.sl.common.NotFoundException;
 
 public class UriUtil {
 

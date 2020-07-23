@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import javax.inject.Named;
 
-import com.sap.cloud.lm.sl.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.Module;
 
 @Named
 public class ModuleToDeployHelper {

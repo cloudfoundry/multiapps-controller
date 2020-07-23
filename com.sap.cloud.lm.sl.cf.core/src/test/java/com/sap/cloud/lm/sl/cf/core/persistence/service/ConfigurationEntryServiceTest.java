@@ -11,6 +11,8 @@ import java.util.List;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.cloudfoundry.multiapps.common.ConflictException;
+import org.cloudfoundry.multiapps.mta.model.Version;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,8 +21,6 @@ import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationEntryQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService.ConfigurationEntryMapper;
-import com.sap.cloud.lm.sl.common.ConflictException;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class ConfigurationEntryServiceTest {
 

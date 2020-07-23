@@ -4,6 +4,9 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,9 +24,6 @@ import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 class ModuleDeterminerTest {
 

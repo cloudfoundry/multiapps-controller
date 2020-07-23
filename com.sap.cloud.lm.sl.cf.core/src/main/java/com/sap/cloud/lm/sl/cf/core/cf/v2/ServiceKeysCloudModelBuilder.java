@@ -8,15 +8,15 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceKey;
+import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Resource;
+import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Resource;
-import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 public class ServiceKeysCloudModelBuilder {
 
@@ -72,7 +72,7 @@ public class ServiceKeysCloudModelBuilder {
     }
 
     protected String getInvalidServiceKeysErrorMessage(String serviceName, Object serviceConfig) {
-        return MessageFormat.format(com.sap.cloud.lm.sl.mta.Messages.INVALID_TYPE_FOR_KEY,
+        return MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.INVALID_TYPE_FOR_KEY,
                                     ValidatorUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_KEYS), Map.class.getSimpleName(),
                                     serviceConfig.getClass()
                                                  .getSimpleName());

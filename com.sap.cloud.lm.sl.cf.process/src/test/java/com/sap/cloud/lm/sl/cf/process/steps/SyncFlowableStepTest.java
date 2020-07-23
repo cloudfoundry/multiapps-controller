@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.multiapps.common.util.Tester;
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.flowable.engine.ManagementService;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.RuntimeService;
@@ -34,8 +36,6 @@ import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.Tester;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
 

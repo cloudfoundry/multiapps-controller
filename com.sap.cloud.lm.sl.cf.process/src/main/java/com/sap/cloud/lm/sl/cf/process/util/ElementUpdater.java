@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.ListUtils;
-
-import com.sap.cloud.lm.sl.common.util.MapUtil;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 
 public interface ElementUpdater {
 

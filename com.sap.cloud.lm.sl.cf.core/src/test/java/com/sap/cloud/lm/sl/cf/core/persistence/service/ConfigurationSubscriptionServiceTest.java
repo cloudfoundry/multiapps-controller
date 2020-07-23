@@ -11,6 +11,8 @@ import java.util.List;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.cloudfoundry.multiapps.common.ConflictException;
+import org.cloudfoundry.multiapps.mta.model.Version;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,8 +24,6 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ModuleDto;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscriptionService.ConfigurationSubscriptionMapper;
-import com.sap.cloud.lm.sl.common.ConflictException;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class ConfigurationSubscriptionServiceTest {
 

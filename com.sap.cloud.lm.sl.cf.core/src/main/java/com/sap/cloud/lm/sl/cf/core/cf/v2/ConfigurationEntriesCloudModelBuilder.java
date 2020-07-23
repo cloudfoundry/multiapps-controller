@@ -10,17 +10,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.MapUtils;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
+import org.cloudfoundry.multiapps.mta.model.Version;
 
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MiscUtil;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class ConfigurationEntriesCloudModelBuilder {
 

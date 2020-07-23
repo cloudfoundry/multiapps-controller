@@ -15,6 +15,7 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
@@ -23,7 +24,6 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
 import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudComponents;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class ServiceRemover {

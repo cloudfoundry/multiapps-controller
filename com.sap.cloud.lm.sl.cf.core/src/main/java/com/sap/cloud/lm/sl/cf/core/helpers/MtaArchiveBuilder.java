@@ -19,21 +19,21 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
+import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
+import org.cloudfoundry.multiapps.mta.handlers.SchemaVersionDetector;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
+import org.cloudfoundry.multiapps.mta.model.Resource;
+import org.cloudfoundry.multiapps.mta.model.Version;
+import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
-import com.sap.cloud.lm.sl.mta.handlers.SchemaVersionDetector;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.Resource;
-import com.sap.cloud.lm.sl.mta.model.Version;
-import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 public class MtaArchiveBuilder {
 
@@ -104,7 +104,8 @@ public class MtaArchiveBuilder {
                 .putAll(manifestEntries);
 
         Path mtaArchive = mtaAssemblyDir.resolve(mtaDir.getFileName()
-                                                       .toString() + ".mtar");
+                                                       .toString()
+            + ".mtar");
         try (JarOutputStream jarOutputStream = new JarOutputStream(Files.newOutputStream(mtaArchive), manifest)) {
             for (Path source : jarEntries) {
                 addJarEntry(source, jarOutputStream);

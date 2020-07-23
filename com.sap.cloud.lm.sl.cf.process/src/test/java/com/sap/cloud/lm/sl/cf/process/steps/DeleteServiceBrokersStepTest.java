@@ -11,6 +11,9 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBroker;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,9 +28,6 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.process.steps.CreateOrUpdateServiceBrokerStepTest.SimpleApplication;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
 public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteServiceBrokersStep> {

@@ -9,11 +9,11 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.mta.model.Module;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class RoutesValidator implements ParameterValidator {
 

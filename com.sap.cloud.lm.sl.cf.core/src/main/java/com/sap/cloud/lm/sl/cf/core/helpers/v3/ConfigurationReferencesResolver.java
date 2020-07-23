@@ -7,6 +7,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.ElementContext;
+import org.cloudfoundry.multiapps.mta.model.PropertiesContainer;
+import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
+import org.cloudfoundry.multiapps.mta.model.Resource;
+
 import com.sap.cloud.lm.sl.cf.core.helpers.expander.PropertiesExpander;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
@@ -14,11 +20,6 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.ElementContext;
-import com.sap.cloud.lm.sl.mta.model.PropertiesContainer;
-import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver {
 

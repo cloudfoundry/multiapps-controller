@@ -7,6 +7,10 @@ import java.util.stream.Stream;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
+import org.cloudfoundry.multiapps.common.util.Tester;
+import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -16,10 +20,6 @@ import org.mockito.MockitoAnnotations;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataValidator;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.Tester;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 class MtaMetadataEntityAggregatorTest {
     private final Tester tester = Tester.forClass(getClass());

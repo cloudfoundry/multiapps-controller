@@ -5,6 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import java.util.Collections;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.mta.model.Hook;
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -13,8 +15,6 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.mta.model.Hook;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 class HooksExecutorTest {
 

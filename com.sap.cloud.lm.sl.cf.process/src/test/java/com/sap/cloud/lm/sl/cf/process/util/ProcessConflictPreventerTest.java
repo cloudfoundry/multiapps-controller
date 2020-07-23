@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -21,7 +22,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.OperationService;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class ProcessConflictPreventerTest {
 

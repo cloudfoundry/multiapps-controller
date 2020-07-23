@@ -6,6 +6,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 
+import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -14,11 +19,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorMerger;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Platform;
 
 public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep> {
 

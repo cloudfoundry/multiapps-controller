@@ -13,6 +13,8 @@ import javax.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -27,8 +29,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationSubscription
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 @Named("buildCloudUndeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

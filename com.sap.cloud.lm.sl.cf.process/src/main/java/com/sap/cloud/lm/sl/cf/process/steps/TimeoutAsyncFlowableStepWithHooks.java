@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.multiapps.mta.model.Hook;
+import org.cloudfoundry.multiapps.mta.model.Module;
+
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.MtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.process.util.HooksCalculator;
@@ -14,8 +17,6 @@ import com.sap.cloud.lm.sl.cf.process.util.ImmutableHooksCalculator;
 import com.sap.cloud.lm.sl.cf.process.util.ImmutableModuleDeterminer;
 import com.sap.cloud.lm.sl.cf.process.util.ModuleDeterminer;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.mta.model.Hook;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 public abstract class TimeoutAsyncFlowableStepWithHooks extends TimeoutAsyncFlowableStep {
 

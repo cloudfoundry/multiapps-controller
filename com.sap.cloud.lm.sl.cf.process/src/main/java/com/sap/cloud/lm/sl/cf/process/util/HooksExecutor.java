@@ -3,9 +3,10 @@ package com.sap.cloud.lm.sl.cf.process.util;
 import java.util.Collections;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.mta.model.Hook;
+import org.cloudfoundry.multiapps.mta.model.Module;
+
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
-import com.sap.cloud.lm.sl.mta.model.Hook;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class HooksExecutor {
 

@@ -6,12 +6,12 @@ import java.util.Map;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.util.MtaMetadataUtil;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Named
 public class EnvMtaMetadataValidator {

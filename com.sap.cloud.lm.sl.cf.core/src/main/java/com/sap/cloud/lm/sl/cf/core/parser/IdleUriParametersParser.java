@@ -6,11 +6,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
+
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.RoutesValidator;
-import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class IdleUriParametersParser extends UriParametersParser {
 

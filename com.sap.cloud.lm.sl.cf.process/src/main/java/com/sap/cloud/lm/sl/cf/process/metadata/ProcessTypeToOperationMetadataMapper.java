@@ -2,10 +2,11 @@ package com.sap.cloud.lm.sl.cf.process.metadata;
 
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.common.SLException;
+
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class ProcessTypeToOperationMetadataMapper {

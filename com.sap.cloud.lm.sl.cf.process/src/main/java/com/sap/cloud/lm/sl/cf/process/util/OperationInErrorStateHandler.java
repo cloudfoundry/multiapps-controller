@@ -10,6 +10,7 @@ import javax.inject.Named;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.cloudfoundry.multiapps.common.ContentException;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngineConfiguration;
@@ -23,7 +24,6 @@ import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
-import com.sap.cloud.lm.sl.common.ContentException;
 
 @Named
 public class OperationInErrorStateHandler {

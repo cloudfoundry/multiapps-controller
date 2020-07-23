@@ -2,6 +2,10 @@ package com.sap.cloud.lm.sl.cf.core.cf.v3;
 
 import java.util.Arrays;
 
+import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.resolvers.ResolverBuilder;
+import org.cloudfoundry.multiapps.mta.resolvers.v2.DescriptorReferenceResolver;
 import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
@@ -12,10 +16,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
-import com.sap.cloud.lm.sl.mta.resolvers.v2.DescriptorReferenceResolver;
 
 public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.CloudModelBuilderTest {
 
@@ -23,9 +23,8 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
     private UserMessageLogger userMessageLogger;
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
-                                 String deployedMtaLocation, String namespace, boolean applyNamespace,
-                                 String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, Expectation expectedServices,
-                                 Expectation expectedApps) {
+                                 String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
+                                 String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps) {
         super(deploymentDescriptorLocation,
               extensionDescriptorLocation,
               platformsLocation,

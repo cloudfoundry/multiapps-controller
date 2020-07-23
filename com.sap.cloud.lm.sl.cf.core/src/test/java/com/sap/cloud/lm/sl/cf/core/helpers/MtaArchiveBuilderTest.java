@@ -15,6 +15,8 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.IOUtils;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,8 +28,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 
 @RunWith(Parameterized.class)
 public class MtaArchiveBuilderTest {

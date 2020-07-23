@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
+import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
 
 public abstract class ParametersValidator<T> {
 

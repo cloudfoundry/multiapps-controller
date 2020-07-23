@@ -7,6 +7,8 @@ import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.cloudfoundry.multiapps.common.ConflictException;
+import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.springframework.context.annotation.Primary;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
@@ -16,8 +18,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.query.impl.ProgressMessageQueryIm
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.common.ConflictException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
 
 @Named
 public class ProgressMessageService extends PersistenceService<ProgressMessage, ProgressMessageDto, Long> {

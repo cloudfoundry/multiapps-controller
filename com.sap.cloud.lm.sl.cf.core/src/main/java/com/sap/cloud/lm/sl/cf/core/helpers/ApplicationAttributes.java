@@ -4,11 +4,11 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.multiapps.common.ParsingException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.Messages;
-import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class ApplicationAttributes {
 

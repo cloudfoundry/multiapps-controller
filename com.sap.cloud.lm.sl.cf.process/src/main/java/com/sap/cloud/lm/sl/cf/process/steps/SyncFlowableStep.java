@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
+import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
@@ -28,8 +30,6 @@ import com.sap.cloud.lm.sl.cf.process.util.ExceptionMessageTailMapper.CloudCompo
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public abstract class SyncFlowableStep implements JavaDelegate {
 

@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.mta.model.Version;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -45,8 +47,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.MockBuilder;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class DataTerminationServiceTest {
 

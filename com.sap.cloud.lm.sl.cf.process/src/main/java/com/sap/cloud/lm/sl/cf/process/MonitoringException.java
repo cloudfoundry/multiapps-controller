@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process;
 
-import com.sap.cloud.lm.sl.common.SLException;
+import org.cloudfoundry.multiapps.common.SLException;
 
 public class MonitoringException extends SLException {
 

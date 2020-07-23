@@ -29,7 +29,7 @@ public class ApplicationArchiveReaderTest {
     public static Stream<Arguments> testFailingCalculateDigest() {
         // @formatter:off
         return Stream.of(
-            Arguments.of(SAMPLE_FLAT_MTAR, "xxx/", MessageFormat.format(com.sap.cloud.lm.sl.mta.Messages.CANNOT_FIND_ARCHIVE_ENTRY, "xxx/"), MAX_UPLOAD_FILE_SIZE),
+            Arguments.of(SAMPLE_FLAT_MTAR, "xxx/", MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.CANNOT_FIND_ARCHIVE_ENTRY, "xxx/"), MAX_UPLOAD_FILE_SIZE),
             Arguments.of(SAMPLE_MTAR_WITH_JAR_ENTRY_NOT_NORMALIZED_PATH, "web/", MessageFormat.format(FileUtils.PATH_SHOULD_BE_NORMALIZED, "web/../asd"), MAX_UPLOAD_FILE_SIZE),
             Arguments.of(SAMPLE_MTAR, "db/", MessageFormat.format(ERROR_SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT, 200), 200L),
             Arguments.of(SAMPLE_MTAR, "web/web-server.zip", MessageFormat.format(ERROR_SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT, 200), 200));

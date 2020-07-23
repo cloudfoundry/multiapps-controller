@@ -19,6 +19,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.cloudfoundry.multiapps.common.ParsingException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
+import org.cloudfoundry.multiapps.mta.handlers.ConfigurationParser;
+import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
@@ -30,11 +35,6 @@ import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.health.model.ImmutableHealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
-import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MiscUtil;
-import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
-import com.sap.cloud.lm.sl.mta.model.Platform;
 
 @Named
 @Lazy(false)

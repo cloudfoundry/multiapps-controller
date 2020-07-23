@@ -10,11 +10,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.util.EntityUtils;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 
 import com.sap.cloud.lm.sl.cf.core.http.CsrfHttpClient;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationShutdown;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 class ShutdownClientImpl implements ShutdownClient {
 

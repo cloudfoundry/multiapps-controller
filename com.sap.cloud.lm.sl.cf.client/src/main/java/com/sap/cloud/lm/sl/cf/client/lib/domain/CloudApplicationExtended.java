@@ -7,11 +7,11 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
+import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.sap.cloud.lm.sl.common.Nullable;
 
 @Value.Enclosing
 @Value.Immutable

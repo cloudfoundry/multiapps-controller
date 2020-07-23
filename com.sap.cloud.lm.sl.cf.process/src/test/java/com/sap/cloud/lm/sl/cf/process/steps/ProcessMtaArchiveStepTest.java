@@ -12,8 +12,12 @@ import java.util.Set;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.Test;
+import org.cloudfoundry.multiapps.common.ParsingException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
+import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -24,10 +28,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentConsumer;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 
 public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveStep> {
 

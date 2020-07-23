@@ -10,13 +10,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.cloudfoundry.multiapps.common.util.DigestHelper;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
-import com.sap.cloud.lm.sl.common.util.DigestHelper;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class ApplicationBitsChangesDetectorTest {
 

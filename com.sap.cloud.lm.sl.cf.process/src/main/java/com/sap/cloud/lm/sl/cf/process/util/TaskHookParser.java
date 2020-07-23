@@ -4,11 +4,11 @@ import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
+import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.mta.model.Hook;
 
 import com.sap.cloud.lm.sl.cf.core.parser.TaskParametersParser;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.mta.model.Hook;
 
 public class TaskHookParser {
 

@@ -13,6 +13,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +27,6 @@ import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableFileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.ExternalSqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.SqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.util.SqlQueryExecutor;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.DigestHelper;
 
 public class FileService {
 

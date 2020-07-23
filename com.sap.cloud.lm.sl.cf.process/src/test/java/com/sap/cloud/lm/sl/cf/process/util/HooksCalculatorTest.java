@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.util;
 import java.util.Collections;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.mta.model.Hook;
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,8 +21,6 @@ import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.mta.model.Hook;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 class HooksCalculatorTest {
 

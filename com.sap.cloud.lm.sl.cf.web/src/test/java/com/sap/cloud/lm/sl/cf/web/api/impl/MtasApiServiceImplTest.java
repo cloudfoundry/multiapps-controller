@@ -5,14 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.multiapps.common.ConflictException;
+import org.cloudfoundry.multiapps.common.NotFoundException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
+import org.cloudfoundry.multiapps.mta.model.Version;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -34,15 +39,10 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaService;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaService;
+import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.api.model.Metadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.Module;
-import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.api.model.Mta;
-import com.sap.cloud.lm.sl.common.ConflictException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 class MtasApiServiceImplTest {
 

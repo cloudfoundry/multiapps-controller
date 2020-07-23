@@ -7,6 +7,10 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
+import org.cloudfoundry.multiapps.common.util.Tester;
+import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,11 +18,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.Tester;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 @RunWith(Parameterized.class)
 public class ApplicationEnvironmentUpdaterTest {

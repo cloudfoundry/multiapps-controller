@@ -21,6 +21,11 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.v3.Metadata;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
+import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
+import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -37,11 +42,6 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MiscUtil;
-import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
-import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 @Named("determineServiceCreateUpdateActionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

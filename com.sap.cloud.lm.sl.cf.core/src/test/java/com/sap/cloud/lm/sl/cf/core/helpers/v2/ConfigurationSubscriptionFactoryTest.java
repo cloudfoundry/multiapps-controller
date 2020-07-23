@@ -7,6 +7,14 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.common.util.TestUtil;
+import org.cloudfoundry.multiapps.common.util.Tester;
+import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.common.util.YamlParser;
+import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorHandler;
+import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorParser;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -15,14 +23,6 @@ import org.junit.runners.Parameterized.Parameters;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.Tester;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
-import com.sap.cloud.lm.sl.common.util.YamlParser;
-import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
-import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Resource;
 
 @RunWith(Parameterized.class)
 public class ConfigurationSubscriptionFactoryTest {

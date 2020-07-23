@@ -6,15 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
+
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters.RoutingParameterSet;
 import com.sap.cloud.lm.sl.cf.core.parser.IdleUriParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.UriParametersParser;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class ApplicationUrisCloudModelBuilder {
 

@@ -8,6 +8,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.mta.model.Version;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.Messages;
@@ -15,8 +17,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.metadata.ImmutableMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.MtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaApplication;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 @Named
 public class EnvMtaMetadataParser extends BaseMtaMetadataParser {

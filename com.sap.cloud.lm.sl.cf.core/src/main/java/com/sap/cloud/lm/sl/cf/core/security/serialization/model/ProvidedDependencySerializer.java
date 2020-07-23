@@ -1,9 +1,10 @@
 package com.sap.cloud.lm.sl.cf.core.security.serialization.model;
 
+import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
+
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureJsonSerializer;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializerConfiguration;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.masking.ProvidedDependencyMasker;
-import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 
 public class ProvidedDependencySerializer extends SecureJsonSerializer {
 

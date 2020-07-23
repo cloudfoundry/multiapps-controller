@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
+import org.cloudfoundry.multiapps.mta.helpers.VisitableObject;
+import org.cloudfoundry.multiapps.mta.resolvers.Reference;
+import org.cloudfoundry.multiapps.mta.resolvers.ReferencePattern;
+
 import com.sap.cloud.lm.sl.cf.core.helpers.ReferencingPropertiesVisitor;
-import com.sap.cloud.lm.sl.common.util.MiscUtil;
-import com.sap.cloud.lm.sl.mta.helpers.VisitableObject;
-import com.sap.cloud.lm.sl.mta.resolvers.Reference;
-import com.sap.cloud.lm.sl.mta.resolvers.ReferencePattern;
 
 public class PropertiesExpander extends ReferencingPropertiesVisitor implements Expander<Map<String, Object>, Map<String, Object>> {
 

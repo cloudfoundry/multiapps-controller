@@ -4,10 +4,11 @@ import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.getIndexedName;
 
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.mta.model.Resource;
+
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ConfigurationReferenceResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferenceResolver {
 

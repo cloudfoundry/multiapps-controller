@@ -7,6 +7,11 @@ import java.util.stream.Stream;
 
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.multiapps.common.ConflictException;
+import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.common.NotFoundException;
+import org.cloudfoundry.multiapps.common.ParsingException;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -15,11 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.sap.cloud.lm.sl.cf.web.Messages;
-import com.sap.cloud.lm.sl.common.ConflictException;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class CFExceptionMapperTest {
 

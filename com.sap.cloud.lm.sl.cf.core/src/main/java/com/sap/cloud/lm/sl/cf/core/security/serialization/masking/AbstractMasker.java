@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.cloudfoundry.multiapps.mta.model.Metadata;
+import org.cloudfoundry.multiapps.mta.model.ParametersWithMetadataContainer;
+import org.cloudfoundry.multiapps.mta.model.PropertiesWithMetadataContainer;
+
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializerConfiguration;
-import com.sap.cloud.lm.sl.mta.model.Metadata;
-import com.sap.cloud.lm.sl.mta.model.ParametersWithMetadataContainer;
-import com.sap.cloud.lm.sl.mta.model.PropertiesWithMetadataContainer;
 
 public abstract class AbstractMasker<T> {
 

@@ -6,6 +6,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 
+import org.cloudfoundry.multiapps.common.ConflictException;
+import org.cloudfoundry.multiapps.common.NotFoundException;
+
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent;
 import com.sap.cloud.lm.sl.cf.core.model.HistoricOperationEvent.EventType;
@@ -13,8 +16,6 @@ import com.sap.cloud.lm.sl.cf.core.model.ImmutableHistoricOperationEvent;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.HistoricOperationEventDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.HistoricOperationEventQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.impl.HistoricOperationEventQueryImpl;
-import com.sap.cloud.lm.sl.common.ConflictException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
 
 @Named
 public class HistoricOperationEventService extends PersistenceService<HistoricOperationEvent, HistoricOperationEventDto, Long> {

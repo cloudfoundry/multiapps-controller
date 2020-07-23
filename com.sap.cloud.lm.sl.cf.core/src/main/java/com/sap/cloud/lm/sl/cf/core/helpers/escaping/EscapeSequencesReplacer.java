@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sap.cloud.lm.sl.mta.helpers.SimplePropertyVisitor;
+import org.cloudfoundry.multiapps.mta.helpers.SimplePropertyVisitor;
 
 public class EscapeSequencesReplacer implements SimplePropertyVisitor {
 

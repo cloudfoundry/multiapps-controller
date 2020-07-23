@@ -5,13 +5,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 class ConfigurationFilterTest {
 

@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ListUtils;
+import org.cloudfoundry.multiapps.mta.model.Hook;
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
-import com.sap.cloud.lm.sl.mta.model.Hook;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class ModuleHooksAggregator {
 

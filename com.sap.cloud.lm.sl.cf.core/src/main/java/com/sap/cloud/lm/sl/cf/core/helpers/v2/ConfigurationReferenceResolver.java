@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.helpers.v2;
 import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.findConfigurationEntries;
 import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.getGlobalConfigTarget;
 import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.getIndexedName;
-import static com.sap.cloud.lm.sl.common.util.MapUtil.merge;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,14 +10,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
+import org.cloudfoundry.multiapps.mta.model.Resource;
+
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ConfigurationReferenceResolver {
 
@@ -73,6 +74,6 @@ public class ConfigurationReferenceResolver {
     }
 
     protected Map<String, Object> mergeProperties(Resource resource, ConfigurationEntry configurationEntry) {
-        return merge(JsonUtil.convertJsonToMap(configurationEntry.getContent()), resource.getProperties());
+        return MapUtil.merge(JsonUtil.convertJsonToMap(configurationEntry.getContent()), resource.getProperties());
     }
 }

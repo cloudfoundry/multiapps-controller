@@ -7,6 +7,8 @@ import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -18,8 +20,6 @@ import org.junit.runners.Parameterized.Parameters;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.liquibase.AlterOperationTableTimestampStoringColumnsPostgresqlChange.OriginalOperation;
 import com.sap.cloud.lm.sl.cf.core.liquibase.AlterOperationTableTimestampStoringColumnsPostgresqlChange.TransformedOperation;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
 public class AlterOperationTableTimestampStoringColumnsTest {

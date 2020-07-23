@@ -9,6 +9,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
@@ -19,7 +20,6 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationGetter;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceProgressReporter;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public abstract class ServiceStep extends AsyncFlowableStep {
 

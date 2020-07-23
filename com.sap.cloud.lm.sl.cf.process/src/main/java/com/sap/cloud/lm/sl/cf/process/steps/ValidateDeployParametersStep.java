@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -27,7 +28,6 @@ import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ArchiveMerger;
 import com.sap.cloud.lm.sl.cf.process.util.JarSignatureOperations;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named("validateDeployParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -91,7 +91,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
         Long maxSizeLimit = configuration.getMaxMtaDescriptorSize();
         if (file.getSize()
                 .compareTo(BigInteger.valueOf(maxSizeLimit)) > 0) {
-            throw new SLException(com.sap.cloud.lm.sl.mta.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
+            throw new SLException(org.cloudfoundry.multiapps.mta.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
                                   file.getSize()
                                       .toString(),
                                   file.getName(),

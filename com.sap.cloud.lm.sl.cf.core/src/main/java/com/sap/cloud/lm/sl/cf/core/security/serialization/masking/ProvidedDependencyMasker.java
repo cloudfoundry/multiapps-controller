@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.security.serialization.masking;
 
-import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
+import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
 
 public class ProvidedDependencyMasker extends AbstractMasker<ProvidedDependency> {
 

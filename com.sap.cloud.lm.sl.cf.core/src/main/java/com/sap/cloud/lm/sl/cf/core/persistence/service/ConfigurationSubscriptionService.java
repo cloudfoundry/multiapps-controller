@@ -7,6 +7,10 @@ import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.cloudfoundry.multiapps.common.ConflictException;
+import org.cloudfoundry.multiapps.common.NotFoundException;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
@@ -16,10 +20,6 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.dto.ConfigurationSubscriptionDto;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.ConfigurationSubscriptionQuery;
 import com.sap.cloud.lm.sl.cf.core.persistence.query.impl.ConfigurationSubscriptionQueryImpl;
-import com.sap.cloud.lm.sl.common.ConflictException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class ConfigurationSubscriptionService extends PersistenceService<ConfigurationSubscription, ConfigurationSubscriptionDto, Long> {
 

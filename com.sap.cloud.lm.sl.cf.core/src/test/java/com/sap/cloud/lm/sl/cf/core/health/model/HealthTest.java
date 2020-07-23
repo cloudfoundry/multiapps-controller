@@ -3,6 +3,10 @@ package com.sap.cloud.lm.sl.cf.core.health.model;
 import java.util.Arrays;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
+import org.cloudfoundry.multiapps.common.util.Tester;
+import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,10 +15,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.Tester;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 @RunWith(Parameterized.class)
 public class HealthTest {

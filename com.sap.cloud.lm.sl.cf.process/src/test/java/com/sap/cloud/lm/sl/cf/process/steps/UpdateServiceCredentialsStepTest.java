@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,8 +20,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution.ExecutionState;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
 public class UpdateServiceCredentialsStepTest extends SyncFlowableStepTest<UpdateServiceCredentialsStep> {

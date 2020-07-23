@@ -11,15 +11,15 @@ import java.util.Objects;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlType;
 
+import org.cloudfoundry.multiapps.common.AllowNulls;
+import org.cloudfoundry.multiapps.common.Nullable;
+import org.cloudfoundry.multiapps.mta.model.AuditableConfiguration;
+import org.cloudfoundry.multiapps.mta.model.ConfigurationIdentifier;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.sap.cloud.lm.sl.common.AllowNulls;
-import com.sap.cloud.lm.sl.common.Nullable;
-import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
-import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
 
 import io.swagger.annotations.ApiModelProperty;
 

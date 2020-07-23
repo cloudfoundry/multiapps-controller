@@ -1,22 +1,22 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
-import static com.sap.cloud.lm.sl.common.util.ListUtil.asList;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.common.util.ListUtil;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
+import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
+
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
-import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
 
 public class ApplicationEnvironmentCloudModelBuilder {
 
@@ -121,7 +121,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         if (dependency.getList() != null) {
             dependency.setGroup(dependency.getList());
         }
-        addToGroupsOrEnvironment(env, groups, asList(dependency.getGroup()), dependency.getName(), dependency.getProperties());
+        addToGroupsOrEnvironment(env, groups, ListUtil.asList(dependency.getGroup()), dependency.getName(), dependency.getProperties());
     }
 
     protected void addToGroupsOrEnvironment(Map<String, Object> env, Map<String, List<Object>> groups, List<String> destinationGroups,

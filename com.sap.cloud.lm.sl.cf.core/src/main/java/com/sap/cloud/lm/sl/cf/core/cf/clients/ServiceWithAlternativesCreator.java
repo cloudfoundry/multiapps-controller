@@ -1,8 +1,8 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,6 +14,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
 
@@ -22,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceInstanceExt
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class ServiceWithAlternativesCreator {
 

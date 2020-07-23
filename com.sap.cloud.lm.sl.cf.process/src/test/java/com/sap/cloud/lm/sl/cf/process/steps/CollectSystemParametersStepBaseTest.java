@@ -10,6 +10,8 @@ import java.util.UUID;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.VersionRule;
 import org.junit.Before;
 import org.mockito.Mock;
 
@@ -17,8 +19,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
 import com.sap.cloud.lm.sl.cf.core.util.DescriptorTestUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ReadOnlyParametersChecker;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
 public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableStepTest<CollectSystemParametersStep> {
 

@@ -10,6 +10,10 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
+import org.cloudfoundry.multiapps.common.util.Tester;
+import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -23,10 +27,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.processor.EnvMtaMetadataValidator;
 import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.Tester;
-import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 public class DeployedMtaEnvDetectorTest {
 

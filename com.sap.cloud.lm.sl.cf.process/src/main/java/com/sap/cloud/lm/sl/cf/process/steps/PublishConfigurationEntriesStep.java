@@ -19,7 +19,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ConfigurationEntryService
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.process.Messages;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 
 @Named("publishProvidedDependenciesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

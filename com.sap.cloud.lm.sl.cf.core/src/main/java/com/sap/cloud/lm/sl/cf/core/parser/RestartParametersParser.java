@@ -1,10 +1,10 @@
 package com.sap.cloud.lm.sl.cf.core.parser;
 
-import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.RestartParameters;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -22,7 +22,8 @@ public class RestartParametersParser implements ParametersParser<RestartParamete
 
     @SuppressWarnings("unchecked")
     private Map<String, Boolean> getRestartParametersFromDescriptor(List<Map<String, Object>> parametersList) {
-        return (Map<String, Boolean>) getPropertyValue(parametersList, SupportedParameters.RESTART_ON_ENV_CHANGE, Collections.emptyMap());
+        return (Map<String, Boolean>) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.RESTART_ON_ENV_CHANGE,
+                                                                      Collections.emptyMap());
     }
 
 }

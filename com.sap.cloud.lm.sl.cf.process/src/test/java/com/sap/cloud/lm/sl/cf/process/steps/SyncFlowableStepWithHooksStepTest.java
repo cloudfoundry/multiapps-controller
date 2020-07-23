@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.Collections;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.mta.model.Hook;
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -14,8 +16,6 @@ import com.sap.cloud.lm.sl.cf.process.util.ModuleDeterminer;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.mta.model.Hook;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 class SyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<SyncFlowableStepWithHooks> {
 

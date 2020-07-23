@@ -3,8 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 import java.security.SecureRandom;
 
 import org.apache.commons.lang3.ArrayUtils;
-
-import com.sap.cloud.lm.sl.common.util.MiscUtil;
+import org.cloudfoundry.multiapps.common.util.MiscUtil;
 
 public class CredentialsGenerator {
 

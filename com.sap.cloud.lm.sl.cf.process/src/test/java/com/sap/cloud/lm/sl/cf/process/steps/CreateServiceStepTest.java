@@ -14,6 +14,9 @@ import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ServiceInstanceType;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,9 +31,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceWithAlternativesCreator;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution.ExecutionState;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 

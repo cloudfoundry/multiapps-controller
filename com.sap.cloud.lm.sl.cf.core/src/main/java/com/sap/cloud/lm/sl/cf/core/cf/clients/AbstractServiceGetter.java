@@ -11,10 +11,10 @@ import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.springframework.util.Assert;
 
 import com.sap.cloud.lm.sl.cf.core.Messages;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public abstract class AbstractServiceGetter extends CustomControllerClient {
 

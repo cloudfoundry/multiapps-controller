@@ -1,6 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.immutables.value.Value;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
@@ -12,8 +14,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 @Value.Immutable
 public abstract class ModuleDeterminer {

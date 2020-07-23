@@ -11,13 +11,13 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class JarSignatureVerifierTest {
 

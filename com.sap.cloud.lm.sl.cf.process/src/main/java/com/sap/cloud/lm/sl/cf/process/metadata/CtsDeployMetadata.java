@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.metadata;
 
+import org.cloudfoundry.multiapps.mta.model.VersionRule;
+
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.metadata.parameters.DeployStrategyParameterConverter;
 import com.sap.cloud.lm.sl.cf.process.metadata.parameters.StartTimeoutParameterConverter;
@@ -9,7 +11,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableParameterMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterType;
-import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
 public class CtsDeployMetadata {
 

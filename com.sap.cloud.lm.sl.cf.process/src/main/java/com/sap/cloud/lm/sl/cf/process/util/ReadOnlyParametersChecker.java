@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.SetUtils;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.NamedParametersContainer;
 
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.NamedParametersContainer;
 
 @Named
 public class ReadOnlyParametersChecker {

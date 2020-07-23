@@ -3,10 +3,11 @@ package com.sap.cloud.lm.sl.cf.core.cf.util;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.mta.model.Resource;
+
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBuilderContentCalculator<Resource> {
 

@@ -3,11 +3,11 @@ package com.sap.cloud.lm.sl.cf.core.resolvers.v3;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Resource;
-import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
-import com.sap.cloud.lm.sl.mta.resolvers.v3.ResourcePropertiesReferenceResolver;
-import com.sap.cloud.lm.sl.mta.resolvers.v3.ResourceReferenceResolver;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Resource;
+import org.cloudfoundry.multiapps.mta.resolvers.ResolverBuilder;
+import org.cloudfoundry.multiapps.mta.resolvers.v3.ResourcePropertiesReferenceResolver;
+import org.cloudfoundry.multiapps.mta.resolvers.v3.ResourceReferenceResolver;
 
 public class PartialResourceReferenceResolver extends ResourceReferenceResolver {
 

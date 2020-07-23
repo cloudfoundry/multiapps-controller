@@ -7,6 +7,9 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -19,9 +22,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceInstanceExtended;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.util.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest {
 

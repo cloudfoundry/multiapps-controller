@@ -21,6 +21,9 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudOrganization;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudSpace;
+import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.common.NotFoundException;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,9 +61,6 @@ import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import com.sap.cloud.lm.sl.cf.web.api.model.ImmutableOperation;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class OperationsApiServiceImplTest {
 

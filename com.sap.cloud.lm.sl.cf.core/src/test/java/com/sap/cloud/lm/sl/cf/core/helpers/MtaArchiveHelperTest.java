@@ -9,6 +9,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.YamlParser;
+import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
+import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorParser;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
+import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,14 +24,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.YamlParser;
-import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
-import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.Resource;
 
 @RunWith(Parameterized.class)
 public class MtaArchiveHelperTest {

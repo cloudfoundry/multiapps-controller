@@ -1,9 +1,9 @@
 package com.sap.cloud.lm.sl.cf.process.variables;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Value.Immutable
 public abstract class JsonBinaryVariable<T> implements Variable<T> {

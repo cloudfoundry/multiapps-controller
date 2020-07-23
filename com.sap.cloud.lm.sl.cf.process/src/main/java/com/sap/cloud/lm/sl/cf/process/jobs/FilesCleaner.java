@@ -7,6 +7,7 @@ import java.util.Date;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -14,7 +15,6 @@ import org.springframework.core.annotation.Order;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 @Order(20)

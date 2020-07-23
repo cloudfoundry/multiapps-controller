@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
@@ -10,7 +10,7 @@ import com.sap.cloud.lm.sl.cf.process.client.LoggingCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.cf.process.variables.Variable;
 import com.sap.cloud.lm.sl.cf.process.variables.VariableHandling;
-import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.cf.process.variables.Variables;
 
 public class ProcessContext {
 

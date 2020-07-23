@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,7 +28,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.model.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.process.steps.ProcessContext;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class ServiceOperationGetterTest {
 

@@ -2,15 +2,16 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import java.util.List;
 
+import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorMerger;
+import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorValidator;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Platform;
+
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerialization;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorMerger;
-import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorValidator;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Platform;
 
 public class MtaDescriptorMerger {
 

@@ -6,10 +6,9 @@ import java.util.List;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudDomain;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudRoute;
+import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import com.sap.cloud.lm.sl.common.NotFoundException;
 
 public class UriUtilTest {
 

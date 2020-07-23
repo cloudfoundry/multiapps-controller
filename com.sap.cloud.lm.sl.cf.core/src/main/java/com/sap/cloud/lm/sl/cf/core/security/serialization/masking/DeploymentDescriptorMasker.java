@@ -1,8 +1,8 @@
 package com.sap.cloud.lm.sl.cf.core.security.serialization.masking;
 
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.model.Resource;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.model.Resource;
 
 public class DeploymentDescriptorMasker extends AbstractMasker<DeploymentDescriptor> {
     private final ModuleMasker moduleMasker = new ModuleMasker();

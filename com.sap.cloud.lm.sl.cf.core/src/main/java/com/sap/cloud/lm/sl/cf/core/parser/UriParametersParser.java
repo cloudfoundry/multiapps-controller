@@ -1,8 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.parser;
 
-import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPluralOrSingular;
-import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -11,6 +8,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
@@ -40,7 +39,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
 
     @Override
     public List<String> parse(List<Map<String, Object>> parametersList) {
-        boolean noRoute = (Boolean) getPropertyValue(parametersList, SupportedParameters.NO_ROUTE, false);
+        boolean noRoute = (Boolean) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.NO_ROUTE, false);
         if (noRoute) {
             return Collections.emptyList();
         }
@@ -74,7 +73,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     }
 
     protected List<String> getHostValues(List<Map<String, Object>> parametersList) {
-        boolean noHostname = (Boolean) getPropertyValue(parametersList, SupportedParameters.NO_HOSTNAME, false);
+        boolean noHostname = (Boolean) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.NO_HOSTNAME, false);
         if (noHostname) {
             return Collections.emptyList();
         }
@@ -116,8 +115,9 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     }
 
     public List<String> getApplicationRoutes(List<Map<String, Object>> parametersList) {
-        List<Map<String, Object>> routesMaps = RoutesValidator.applyRoutesType(getPropertyValue(parametersList, SupportedParameters.ROUTES,
-                                                                                                null));
+        List<Map<String, Object>> routesMaps = RoutesValidator.applyRoutesType(PropertiesUtil.getPropertyValue(parametersList,
+                                                                                                               SupportedParameters.ROUTES,
+                                                                                                               null));
 
         return routesMaps.stream()
                          .map(routesMap -> (String) routesMap.get(SupportedParameters.ROUTE))
@@ -136,7 +136,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
 
     private static <T> List<T> getValuesFromSingularName(String singularParameterName, List<Map<String, Object>> parametersList) {
         String pluralParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(singularParameterName);
-        return getPluralOrSingular(parametersList, pluralParameterName, singularParameterName);
+        return PropertiesUtil.getPluralOrSingular(parametersList, pluralParameterName, singularParameterName);
     }
 
     private String appendRoutePathIfPresent(String uri) {

@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.security.token;
 
 import java.util.HashMap;
 
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -13,7 +14,6 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import com.sap.cloud.lm.sl.cf.client.uaa.UAAClient;
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.core.security.token.parsers.JwtTokenParser;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class JwtTokenParserTest {
 

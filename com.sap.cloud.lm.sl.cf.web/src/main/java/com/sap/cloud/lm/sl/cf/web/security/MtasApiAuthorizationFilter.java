@@ -7,8 +7,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
+import org.cloudfoundry.multiapps.common.SLException;
+
 import com.sap.cloud.lm.sl.cf.web.util.ServletUtil;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class MtasApiAuthorizationFilter extends SpaceGuidBasedAuthorizationFilter {

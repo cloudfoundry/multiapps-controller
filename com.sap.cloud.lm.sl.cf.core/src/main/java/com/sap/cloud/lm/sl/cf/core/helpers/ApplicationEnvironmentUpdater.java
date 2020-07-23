@@ -1,15 +1,13 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
-import static com.sap.cloud.lm.sl.common.util.MapUtil.cast;
-
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 
 public class ApplicationEnvironmentUpdater {
 
@@ -31,7 +29,7 @@ public class ApplicationEnvironmentUpdater {
         try {
             Map<String, String> env = new TreeMap<>(app.getEnv());
             if (envPropertyKey == null) {
-                Map<String, Object> updatedEnv = addToEnvironmentProperty(cast(env), key, value);
+                Map<String, Object> updatedEnv = addToEnvironmentProperty(MapUtil.cast(env), key, value);
                 updateEnvironment(updatedEnv);
                 return;
             }
@@ -39,7 +37,7 @@ public class ApplicationEnvironmentUpdater {
             String locatedEnvString = env.get(envPropertyKey);
             Map<String, Object> updatedEnv = addToEnvironmentProperty(JsonUtil.convertJsonToMap(locatedEnvString), key, value);
             env.put(envPropertyKey, JsonUtil.toJson(updatedEnv, prettyPrinting));
-            updateEnvironment(cast(env));
+            updateEnvironment(MapUtil.cast(env));
         } catch (Exception e) {
             throw new SLException(e, "Error updating environment of application");
         }

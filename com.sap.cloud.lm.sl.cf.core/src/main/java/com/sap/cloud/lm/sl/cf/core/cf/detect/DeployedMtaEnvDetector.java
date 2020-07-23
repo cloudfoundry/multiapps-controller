@@ -11,6 +11,7 @@ import javax.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.multiapps.mta.model.Version;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.metadata.ImmutableMtaMetadata;
@@ -22,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaApplication;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaService;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ImmutableDeployedMtaService;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 /**
  * Remains solely for backwards compatibility with the 'environment' approach of detecting MTAs. Once past the deprecation period this will

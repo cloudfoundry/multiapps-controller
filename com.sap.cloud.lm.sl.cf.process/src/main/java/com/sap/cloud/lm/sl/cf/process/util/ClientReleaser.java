@@ -3,13 +3,13 @@ package com.sap.cloud.lm.sl.cf.process.util;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.flowable.engine.HistoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Named
 public class ClientReleaser {

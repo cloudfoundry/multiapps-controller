@@ -6,6 +6,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.multiapps.common.ConflictException;
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -21,8 +23,6 @@ import com.sap.cloud.lm.sl.cf.process.util.ApplicationProductizationStateUpdater
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationProductizationStateUpdaterBasedOnAge;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationProductizationStateUpdaterBasedOnColor;
 import com.sap.cloud.lm.sl.cf.process.variables.Variables;
-import com.sap.cloud.lm.sl.common.ConflictException;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 @Named("renameApplicationsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

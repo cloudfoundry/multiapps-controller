@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.util;
 import java.sql.Date;
 import java.time.LocalDate;
 
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
+import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,8 +17,6 @@ import com.sap.cloud.lm.sl.cf.core.persistence.service.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.persistence.model.ImmutableProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.process.flowable.FlowableFacade;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.mta.model.Hook;
 
 public class HookProcessGetterTest {
 

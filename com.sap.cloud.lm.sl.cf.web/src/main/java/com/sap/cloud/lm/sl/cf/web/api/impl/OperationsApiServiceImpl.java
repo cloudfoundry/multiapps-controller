@@ -19,6 +19,8 @@ import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
+import org.cloudfoundry.multiapps.common.ContentException;
+import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,8 +61,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.parameters.ParameterConversion;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
 
 @Named
 public class OperationsApiServiceImpl implements OperationsApiService {

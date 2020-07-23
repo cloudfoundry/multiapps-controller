@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.auditlogging;
 
 import java.util.Map;
 
-import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
+import org.cloudfoundry.multiapps.mta.model.AuditableConfiguration;
 
 public interface AuditLoggingFacade {
 

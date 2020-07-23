@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -22,7 +23,6 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class ModuleParametersCompatabilityValidatorTest {
 

@@ -10,6 +10,7 @@ import java.util.Arrays;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cloudfoundry.multiapps.common.SLException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -19,7 +20,6 @@ import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.web.resources.CFExceptionMapper;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class CompositeUriAuthorizationFilterTest {
 

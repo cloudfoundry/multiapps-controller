@@ -2,8 +2,9 @@ package com.sap.cloud.lm.sl.cf.core.filters;
 
 import java.util.function.BiPredicate;
 
+import org.cloudfoundry.multiapps.mta.model.Version;
+
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 public class VersionFilter implements BiPredicate<ConfigurationEntry, String> {
 

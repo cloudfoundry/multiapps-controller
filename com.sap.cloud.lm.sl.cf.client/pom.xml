@@ -31,8 +31,8 @@
             <artifactId>cloudfoundry-client-lib</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.lm.sl</groupId>
-            <artifactId>com.sap.cloud.lm.sl.common</artifactId>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

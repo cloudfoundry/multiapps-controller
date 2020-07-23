@@ -4,11 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.mta.model.Module;
+
 import com.sap.cloud.lm.sl.cf.core.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class RouteValidator implements ParameterValidator {
 

@@ -9,10 +9,10 @@ import org.apache.http.client.ServiceUnavailableRetryStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultServiceUnavailableRetryStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 
 import com.sap.cloud.lm.sl.cf.core.http.CsrfHttpClient;
 import com.sap.cloud.lm.sl.cf.shutdown.client.configuration.ShutdownClientConfiguration;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class ShutdownClientFactory {
 

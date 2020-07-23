@@ -4,6 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
+import org.cloudfoundry.multiapps.mta.model.Module;
+import org.cloudfoundry.multiapps.mta.resolvers.NullPropertiesResolverBuilder;
+import org.cloudfoundry.multiapps.mta.resolvers.ReferencesUnescaper;
+import org.cloudfoundry.multiapps.mta.resolvers.ResolverBuilder;
+
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
@@ -20,11 +26,6 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.RoutesValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ServiceNameValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.TasksValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v3.VisibilityValidator;
-import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.Module;
-import com.sap.cloud.lm.sl.mta.resolvers.NullPropertiesResolverBuilder;
-import com.sap.cloud.lm.sl.mta.resolvers.ReferencesUnescaper;
-import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 
 public class MtaDescriptorPropertiesResolver {
 
