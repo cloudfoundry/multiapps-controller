@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    logicalFilePath="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-update_configuration_registry_clean_up_leftovers.xml"
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+    <changeSet author="sap.com" id="db-changelog-update_configuration_registry_delete_null_space_id">
+        <delete tableName="configuration_registry">
+            <where>space_id IS NULL</where>
+        </delete>
+    </changeSet>
+    <changeSet author="sap.com" id="db-changelog-update_configuration_registry_delete_empty_content">
+        <delete tableName="configuration_registry">
+            <where>content='{}'</where>
+        </delete>
+    </changeSet>
+</databaseChangeLog>

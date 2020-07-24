@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    logicalFilePath="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_configuration_subscription_table.xml"
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+    <changeSet author="sap.com" id="add_configuration_subscription_table">
+        <createSequence sequenceName="configuration_subscription_sequence" startValue="1" incrementBy="1" />
+        <createTable tableName="configuration_subscription">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="configuration_subscription_pk" />
+            </column>
+            <column name="mta_id" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="space_id" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="app_name" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="filter" type="CLOB">
+                <constraints nullable="false" />
+            </column>
+            <column name="module" type="CLOB">
+                <constraints nullable="false" />
+            </column>
+            <column name="resource_name" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="resource_properties" type="CLOB">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="configuration_subscription"
+            columnNames="mta_id, app_name, space_id, resource_name" constraintName="configuration_subscription_uq" />
+    </changeSet>
+</databaseChangeLog>

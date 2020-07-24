@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+    <changeSet author="sap.com" failOnError="true"
+        id="alter_configuration_registry_table_split_target_space_column">
+        <preConditions onFail="MARK_RAN">
+            <!-- The current change is a modified version of db-changelog-alter_configuration_registry_table_split_target_space_column. 
+                Here we make sure that it is only executed if its previous versions weren't. -->
+            <not>
+                <changeSetExecuted author="sap.com"
+                    id="db-changelog-alter_configuration_registry_table_split_target_space_column"
+                    changeLogFile="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_split_target_space_column.xml" />
+            </not>
+        </preConditions>
+        <customChange class="org.cloudfoundry.multiapps.controller.core.liquibase.SplitTargetSpaceColumn">
+        </customChange>
+    </changeSet>
+</databaseChangeLog>
