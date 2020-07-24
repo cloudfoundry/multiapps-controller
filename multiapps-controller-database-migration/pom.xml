@@ -21,7 +21,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.sap.cloud.lm.sl.cf.database.migration.DatabaseMigration</mainClass>
+                            <mainClass>org.cloudfoundry.multiapps.controller.database.migration.DatabaseMigration</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
