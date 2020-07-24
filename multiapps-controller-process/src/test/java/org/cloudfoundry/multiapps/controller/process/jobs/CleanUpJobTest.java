@@ -1,0 +1,44 @@
+package org.cloudfoundry.multiapps.controller.process.jobs;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.process.jobs.CleanUpJob;
+import org.cloudfoundry.multiapps.controller.process.jobs.Cleaner;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+public class CleanUpJobTest {
+
+    @Test
+    public void testExecutionResilience() {
+        Cleaner cleaner1 = Mockito.mock(Cleaner.class);
+        Cleaner cleaner2 = Mockito.mock(Cleaner.class);
+        Mockito.doThrow(new SLException("Will it work?"))
+               .when(cleaner2)
+               .execute(Mockito.any());
+        Cleaner cleaner3 = Mockito.mock(Cleaner.class);
+        List<Cleaner> cleaners = Arrays.asList(cleaner1, cleaner2, cleaner3);
+
+        CleanUpJob cleanUpJob = createCleanUpJob(new ApplicationConfiguration(), cleaners);
+        cleanUpJob.execute(null);
+
+        Mockito.verify(cleaner1)
+               .execute(Mockito.any());
+        Mockito.verify(cleaner2)
+               .execute(Mockito.any());
+        // Makes sure that all cleaners are executed even if the ones before them failed.
+        Mockito.verify(cleaner3)
+               .execute(Mockito.any());
+    }
+
+    private CleanUpJob createCleanUpJob(ApplicationConfiguration applicationConfiguration, List<Cleaner> cleaners) {
+        CleanUpJob cleanUpJob = new CleanUpJob();
+        cleanUpJob.configuration = applicationConfiguration;
+        cleanUpJob.cleaners = cleaners;
+        return cleanUpJob;
+    }
+
+}
