@@ -1,3 +1,3 @@
-com.sap.cloud.lm.sl.cf.web.configuration.service.FileSystemServiceInfoCreator
-com.sap.cloud.lm.sl.cf.web.configuration.service.ObjectStoreServiceInfoCreator
-com.sap.cloud.lm.sl.cf.web.configuration.service.DynatraceServiceInfoCreator
+org.cloudfoundry.multiapps.controller.web.configuration.service.FileSystemServiceInfoCreator
+org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfoCreator
+org.cloudfoundry.multiapps.controller.web.configuration.service.DynatraceServiceInfoCreator
