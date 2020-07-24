@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    logicalFilePath="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-index_space_id_operation.xml"
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+    <changeSet author="sap.com" id="index_space_id_of_operation">
+        <preConditions onFail="MARK_RAN">
+            <!-- See: com.sap.cloud.lm.sl.cf.core.changes.IndexSpaceIdOfOperationPostgreSQLChange -->
+            <not>
+                <dbms type="postgresql" />
+            </not>
+        </preConditions>
+        <createIndex tableName="operation" indexName="idx_operation_space_id">
+            <column name="space_id" />
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

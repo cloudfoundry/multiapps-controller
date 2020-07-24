@@ -6,11 +6,11 @@
 	<persistence-unit name="Default"
 		transaction-type="RESOURCE_LOCAL">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-		<class>com.sap.cloud.lm.sl.cf.core.persistence.dto.ConfigurationSubscriptionDto</class>
-		<class>com.sap.cloud.lm.sl.cf.core.persistence.dto.OperationDto</class>
-		<class>com.sap.cloud.lm.sl.cf.core.persistence.dto.ConfigurationEntryDto</class>
-		<class>com.sap.cloud.lm.sl.cf.core.persistence.dto.ProgressMessageDto</class>
-		<class>com.sap.cloud.lm.sl.cf.core.persistence.dto.HistoricOperationEventDto</class>
+		<class>org.cloudfoundry.multiapps.controller.core.persistence.dto.ConfigurationSubscriptionDto</class>
+		<class>org.cloudfoundry.multiapps.controller.core.persistence.dto.OperationDto</class>
+		<class>org.cloudfoundry.multiapps.controller.core.persistence.dto.ConfigurationEntryDto</class>
+		<class>org.cloudfoundry.multiapps.controller.core.persistence.dto.ProgressMessageDto</class>
+		<class>org.cloudfoundry.multiapps.controller.core.persistence.dto.HistoricOperationEventDto</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="eclipselink.weaving" value="static" />
