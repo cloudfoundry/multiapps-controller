@@ -14,7 +14,7 @@
         <description>BootstrapServlet</description>
         <display-name>BootstrapServlet</display-name>
         <servlet-name>BootstrapServlet</servlet-name>
-        <servlet-class>com.sap.cloud.lm.sl.cf.web.bootstrap.BootstrapServlet</servlet-class>
+        <servlet-class>org.cloudfoundry.multiapps.controller.web.bootstrap.BootstrapServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
@@ -40,7 +40,7 @@
 
     <!-- Must be executed before the Spring context is initialized and Liquibase changes start to run. -->
     <listener>
-        <listener-class>com.sap.cloud.lm.sl.cf.web.listeners.LiquibaseServicesRegistrator</listener-class>
+        <listener-class>org.cloudfoundry.multiapps.controller.web.listeners.LiquibaseServicesRegistrator</listener-class>
     </listener>
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
