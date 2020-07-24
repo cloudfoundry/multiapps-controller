@@ -20,6 +20,7 @@ import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
+import org.cloudfoundry.client.lib.domain.CloudPackage;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
@@ -30,6 +31,7 @@ import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.domain.CloudStack;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
+import org.cloudfoundry.client.lib.domain.DropletInfo;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.cloudfoundry.client.lib.domain.Upload;
@@ -771,6 +773,24 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     @Override
     public void unRegisterRestLogListener(RestLogCallback callBack) {
         delegate.unRegisterRestLogListener(callBack);
+    }
+
+    @Override
+    public DropletInfo getCurrentDropletForApplication(UUID applicationGuid) {
+        logger.debug(Messages.GETTING_THE_CURRENT_DROPLET_FOR_APPLICATION_0, applicationGuid);
+        return delegate.getCurrentDropletForApplication(applicationGuid);
+    }
+
+    @Override
+    public CloudPackage getPackage(UUID packageGuid) {
+        logger.debug(Messages.GETTING_PACKAGE_BY_ID_0, packageGuid);
+        return delegate.getPackage(packageGuid);
+    }
+
+    @Override
+    public List<CloudPackage> getPackagesForApplication(UUID applicationGuid) {
+        logger.debug(Messages.GETTING_PACKAGES_FOR_APPLICATION_0, applicationGuid);
+        return delegate.getPackagesForApplication(applicationGuid);
     }
 
 }

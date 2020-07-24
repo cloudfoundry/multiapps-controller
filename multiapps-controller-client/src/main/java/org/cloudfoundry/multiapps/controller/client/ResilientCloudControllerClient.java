@@ -22,6 +22,7 @@ import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
+import org.cloudfoundry.client.lib.domain.CloudPackage;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
@@ -32,6 +33,7 @@ import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.domain.CloudStack;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
+import org.cloudfoundry.client.lib.domain.DropletInfo;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.cloudfoundry.client.lib.domain.Upload;
@@ -696,6 +698,21 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public void updateServiceInstanceMetadata(UUID guid, Metadata metadata) {
         executeWithRetry(() -> delegate.updateServiceInstanceMetadata(guid, metadata));
+    }
+
+    @Override
+    public DropletInfo getCurrentDropletForApplication(UUID applicationGuid) {
+        return executeWithRetry(() -> delegate.getCurrentDropletForApplication(applicationGuid));
+    }
+
+    @Override
+    public CloudPackage getPackage(UUID packageGuid) {
+        return executeWithRetry(() -> delegate.getPackage(packageGuid));
+    }
+
+    @Override
+    public List<CloudPackage> getPackagesForApplication(UUID applicationGuid) {
+        return executeWithRetry(() -> delegate.getPackagesForApplication(applicationGuid));
     }
 
     private void executeWithRetry(Runnable operation, HttpStatus... statusesToIgnore) {

@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -15,16 +16,20 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudPackage;
+import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.Status;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.UploadStatusCallbackExtended;
+import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationEnvironmentUpdater;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationFileDigestDetector;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
+import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.FileUtils;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
@@ -33,6 +38,7 @@ import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveCont
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveReader;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationStager;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationZipBuilder;
+import org.cloudfoundry.multiapps.controller.process.util.CloudPackagesGetter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,47 +49,70 @@ import org.springframework.context.annotation.Scope;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UploadAppStep.class);
-
     static final int DEFAULT_APP_UPLOAD_TIMEOUT = (int) TimeUnit.HOURS.toSeconds(1);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(UploadAppStep.class);
     @Inject
     protected ApplicationArchiveReader applicationArchiveReader;
     @Inject
     protected ApplicationZipBuilder applicationZipBuilder;
+    @Inject
+    protected CloudPackagesGetter cloudPackagesGetter;
 
     @Override
     public StepPhase executeAsyncStep(ProcessContext context) throws FileStorageException {
-        CloudApplicationExtended app = context.getVariable(Variables.APP_TO_PROCESS);
-        String appName = app.getName();
-
-        getStepLogger().info(Messages.UPLOADING_APP, appName);
-
-        String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
+        CloudApplicationExtended applicationToProcess = context.getVariable(Variables.APP_TO_PROCESS);
+        getStepLogger().info(Messages.UPLOADING_APP, applicationToProcess.getName());
         MtaArchiveElements mtaArchiveElements = context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS);
-        String fileName = mtaArchiveElements.getModuleFileName(app.getModuleName());
-
-        if (fileName == null) {
+        String moduleFileName = mtaArchiveElements.getModuleFileName(applicationToProcess.getModuleName());
+        if (moduleFileName == null) {
             getStepLogger().debug(Messages.NO_CONTENT_TO_UPLOAD);
             return StepPhase.DONE;
         }
-
-        String newApplicationDigest = getNewApplicationDigest(context, appArchiveId, fileName);
+        String newApplicationDigest = getNewApplicationDigest(context, context.getRequiredVariable(Variables.APP_ARCHIVE_ID),
+                                                              moduleFileName);
         CloudControllerClient client = context.getControllerClient();
-
-        CloudApplication cloudApp = client.getApplication(appName);
+        CloudApplication cloudApp = client.getApplication(applicationToProcess.getName());
         boolean contentChanged = detectApplicationFileDigestChanges(context, cloudApp, client, newApplicationDigest);
-        if (!contentChanged && isAppStagedCorrectly(context, cloudApp)) {
-            getStepLogger().info(Messages.CONTENT_OF_APPLICATION_0_IS_NOT_CHANGED, appName);
-            return StepPhase.DONE;
+        if (contentChanged) {
+            return proceedWithUpload(context, applicationToProcess, moduleFileName, client);
         }
+        Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getLatestUnusedPackage(client, cloudApp.getGuid());
+        if (latestUnusedPackage.isPresent() && isCloudPackageInValidState(latestUnusedPackage.get())) {
+            return useLatestPackage(context, latestUnusedPackage.get());
+        }
+        if (latestUnusedPackage.isPresent() && !isCloudPackageInValidState(latestUnusedPackage.get())
+            || !isAppStagedCorrectly(context, cloudApp)) {
+            return proceedWithUpload(context, applicationToProcess, moduleFileName, client);
+        }
+        getStepLogger().info(Messages.CONTENT_OF_APPLICATION_0_IS_NOT_CHANGED, applicationToProcess.getName());
+        return StepPhase.DONE;
+    }
 
-        getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, fileName, appName);
-        UploadToken uploadToken = asyncUploadFiles(context, client, app, appArchiveId, fileName);
-
-        getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, appName);
+    private StepPhase proceedWithUpload(ProcessContext context, CloudApplicationExtended application, String moduleFileName,
+                                        CloudControllerClient client)
+        throws FileStorageException {
+        getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, moduleFileName, application.getName());
+        UploadToken uploadToken = asyncUploadFiles(context, client, application, context.getRequiredVariable(Variables.APP_ARCHIVE_ID),
+                                                   moduleFileName);
+        getStepLogger().info(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, application.getName());
         context.setVariable(Variables.UPLOAD_TOKEN, uploadToken);
         return StepPhase.POLL;
+    }
+
+    private StepPhase useLatestPackage(ProcessContext context, CloudPackage latestUnusedPackage) {
+        getStepLogger().debug(Messages.THE_NEWEST_PACKAGE_WILL_BE_USED_0, SecureSerialization.toJson(latestUnusedPackage));
+        context.setVariable(Variables.UPLOAD_TOKEN, ImmutableUploadToken.builder()
+                                                                        .packageGuid(latestUnusedPackage.getGuid())
+                                                                        .build());
+        return StepPhase.POLL;
+    }
+
+    private boolean isCloudPackageInValidState(CloudPackage cloudPackage) {
+        LOGGER.info(MessageFormat.format(Messages.PACKAGE_STATUS_0_IS_IN_STATE_1, cloudPackage.getMetadata()
+                                                                                              .getGuid(),
+                                         cloudPackage.getStatus()));
+        return cloudPackage.getStatus() != Status.EXPIRED && cloudPackage.getStatus() != Status.FAILED
+            && cloudPackage.getStatus() != Status.AWAITING_UPLOAD;
     }
 
     private boolean isAppStagedCorrectly(ProcessContext context, CloudApplication cloudApp) {
@@ -158,10 +187,9 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     }
 
     private void attemptToUpdateApplicationDigest(CloudControllerClient client, CloudApplication app, String newApplicationDigest) {
-        new ApplicationEnvironmentUpdater(app,
-                                          client).updateApplicationEnvironment(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES,
-                                                                               org.cloudfoundry.multiapps.controller.core.Constants.ATTR_APP_CONTENT_DIGEST,
-                                                                               newApplicationDigest);
+        new ApplicationEnvironmentUpdater(app, client).updateApplicationEnvironment(Constants.ENV_DEPLOY_ATTRIBUTES,
+                                                                                    Constants.ATTR_APP_CONTENT_DIGEST,
+                                                                                    newApplicationDigest);
     }
 
     private void setAppContentChanged(ProcessContext context, boolean appContentChanged) {
