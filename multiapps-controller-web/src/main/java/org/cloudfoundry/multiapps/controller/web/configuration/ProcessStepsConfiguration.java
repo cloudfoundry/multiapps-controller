@@ -19,8 +19,8 @@ import org.springframework.jmx.export.MBeanExporter;
 @Configuration
 public class ProcessStepsConfiguration {
 
-    private static final String METRICS_BEAN = "com.sap.cloud.lm.sl.cf.web.monitoring:type=Metrics,name=MetricsMBean";
-    private static final String DATASOURCE_BEAN = "com.sap.cloud.lm.sl.cf.web.monitoring:type=DataSource,name=DataSourceMBean";
+    private static final String METRICS_BEAN = "org.cloudfoundry.multiapps.controller.web.monitoring:type=Metrics,name=MetricsMBean";
+    private static final String DATASOURCE_BEAN = "org.cloudfoundry.multiapps.controller.web.monitoring:type=DataSource,name=DataSourceMBean";
 
     @Bean("processMtaArchiveStep")
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)

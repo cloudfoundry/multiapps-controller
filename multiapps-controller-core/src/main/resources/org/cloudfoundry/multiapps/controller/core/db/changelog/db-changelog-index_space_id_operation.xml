@@ -7,7 +7,7 @@
 
     <changeSet author="sap.com" id="index_space_id_of_operation">
         <preConditions onFail="MARK_RAN">
-            <!-- See: com.sap.cloud.lm.sl.cf.core.changes.IndexSpaceIdOfOperationPostgreSQLChange -->
+            <!-- See: org.cloudfoundry.multiapps.controller.core.changes.IndexSpaceIdOfOperationPostgreSQLChange -->
             <not>
                 <dbms type="postgresql" />
             </not>

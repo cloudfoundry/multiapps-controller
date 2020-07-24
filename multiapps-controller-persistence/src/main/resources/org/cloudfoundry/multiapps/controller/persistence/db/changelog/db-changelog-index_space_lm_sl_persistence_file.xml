@@ -7,7 +7,7 @@
 
     <changeSet author="sap.com" id="index_space_of_lm_sl_persistence_file">
         <preConditions onFail="MARK_RAN">
-            <!-- See: com.sap.cloud.lm.sl.cf.persistence.changes.IndexSpaceOfLmSlPersistenceFilePostgreSQLChange -->
+            <!-- See: org.cloudfoundry.multiapps.controller.persistence.changes.IndexSpaceOfLmSlPersistenceFilePostgreSQLChange -->
             <not>
                 <dbms type="postgresql" />
             </not>
