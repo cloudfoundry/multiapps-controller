@@ -168,7 +168,6 @@ public class Messages {
     public static final String COULD_NOT_ABORT_OPERATION_0 = "Could not abort operation \"{0}\"";
     public static final String SKIP_SERVICES_DELETION = "Skipping deletion of services, because the command line option \"--delete-services\" is not specified.";
     public static final String UNSUPPORTED_MINOR_VERSION = "Used version \"{0}\" is higher than the supported ones. Some features might not be implemented.";
-    public static final String APPLICATION_NOT_STAGED_CORRECTLY = "Application \"{0}\" was not staged correctly during the previous deployment";
     public static final String MISSING_SERVICE_OPERATION_STATE = "Stopping service operation polling of \"{0}\" due to missing operation state...";
     public static final String CANNOT_GET_CONTEXT_FOR_EVENT_0_AND_PROCESS_1 = "Could not get context for Flowable engine event (type: {0}, process ID: {1}).";
     public static final String SERVICE_0_IS_IN_STATE_1_AND_MAY_NOT_BE_OPERATIONAL = "Service \"{0}\" is in state \"{1}\" and may not be operational. Actions like update of credentials and binding may fail! Consider recreating it by specifying the --delete-services option.";
@@ -205,6 +204,7 @@ public class Messages {
     public static final String DELETING_OPERATION_WITH_ID = "Deleting operation with ID \"{0}\"";
     public static final String DELETING_FLOWABLE_PROCESS_WITH_ID = "Deleting Flowable process with ID \"{0}\"";
     public static final String FLOWABLE_PROCESSES_TO_DELETE = "Flowable processes to delete: {0}";
+    public static final String APPLICATION_NOT_STAGED_CORRECTLY = "Application \"{0}\" was not staged correctly during the previous deployment";
 
     // Progress messages
 
@@ -416,7 +416,6 @@ public class Messages {
     public static final String MISSING_SERVICE_TO_DELETE = "Missing service to delete.";
     public static final String NO_CONTENT_TO_UPLOAD = "No content to upload";
     public static final String NO_BUILD_FOUND_FOR_APPLICATION = "No build found for application \"{0}\"";
-    public static final String LAST_BUILD = "Last build: {0}";
     public static final String RESOLVED_DEPLOYMENT_DESCRIPTOR = "Resolved deployment descriptor: {0}";
     public static final String SUBSCRIPTIONS = "Subscriptions: {0}";
     public static final String SERVICES_IN_PROGRESS = "Services in progress: {0}";
@@ -523,6 +522,14 @@ public class Messages {
     public static final String UPDATING_METADATA_OF_APPLICATION_0_TO_1 = "Updating metadata of application \"{0}\" to: {1}";
     public static final String GETTING_SERVICE_INSTANCES_BY_METADATA_LABEL_SELECTOR_0 = "Getting service instances by metadata label selector \"{0}\"...";
     public static final String UPDATING_METADATA_OF_SERVICE_INSTANCE_0_TO_1 = "Updating metadata of service instance \"{0}\" to: {1}";
+    public static final String CURRENTLY_USED_PACKAGE_0 = "Currently used package: \"{0}\"";
+    public static final String PACKAGES_FOR_APPLICATION_0_ARE_1 = "Packages for application: \"{0}\" are: \"{1}\"";
+    public static final String THE_NEWEST_PACKAGE_WILL_BE_USED_0 = "The newest package will be used: \"{0}\"!";
+    public static final String GETTING_THE_CURRENT_DROPLET_FOR_APPLICATION_0 = "Getting the current droplet for application: \"{0}\"";
+    public static final String GETTING_PACKAGE_BY_ID_0 = "Getting package by id: \"{0}\"";
+    public static final String GETTING_PACKAGES_FOR_APPLICATION_0 = "Getting packages for application: \"{0}\"";
+    public static final String LAST_BUILD = "Last build: {0}";
+    public static final String PACKAGE_STATUS_0_IS_IN_STATE_1 = "Package status: \"{0}\" is in state: \"{1}\"";
 
     protected Messages() {
     }
