@@ -1,0 +1,46 @@
+{
+  "entriesToPublish": [
+    {
+      "providerNid": "mta",
+      "providerId": "mta-2:provided-dependency-1",
+      "providerVersion": "1.0.0",
+      "targetSpace": {
+    		"space":"test",
+    		"org": "test"
+  	  },
+      "content": "foo"
+    },
+    {
+      "providerNid": "mta",
+      "providerId": "mta-2:provided-dependency-2",
+      "providerVersion": "1.0.0",
+      "targetSpace": {
+    		"space": "test",
+    		"org": "test"
+  	  },
+      "content": "bar"
+    }
+  ],
+  "expectedCreatedEntries": [
+    {
+      "providerNid": "mta",
+      "providerId": "mta-2:provided-dependency-1",
+      "providerVersion": "1.0.0",
+      "targetSpace": {
+    		"space": "test",
+    		"org": "test"
+  	  },
+      "content": "foo"
+    },
+    {
+      "providerNid": "mta",
+      "providerId": "mta-2:provided-dependency-2",
+      "providerVersion": "1.0.0",
+      "targetSpace": {
+    		"space": "test",
+    		"org": "test"
+  	  },
+      "content": "bar"
+    }
+  ]
+}

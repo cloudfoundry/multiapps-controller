@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>multiapps-controller-process</artifactId>
+    <packaging>jar</packaging>
+    <name>MultiApps Controller Processes</name>
+
+    <parent>
+        <groupId>org.cloudfoundry.multiapps</groupId>
+        <artifactId>multiapps-controller-parent</artifactId>
+        <version>1.107.0-SNAPSHOT</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-mta</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-controller-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-controller-core</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-controller-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-controller-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>JavaEWAH</artifactId>
+                    <groupId>com.googlecode.javaewah</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz-jobs</artifactId>
+        </dependency>
+    </dependencies>
+</project>
