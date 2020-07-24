@@ -95,7 +95,7 @@
                         <configuration>
                             <apiSources>
                                 <apiSource>
-                                    <locations>com.sap.cloud.lm.sl.cf.web.api</locations>
+                                    <locations>org.cloudfoundry.multiapps.controller.api</locations>
                                     <swaggerFileName>mtarest</swaggerFileName>
                                     <basePath>/api/v1/spaces/{space_guid}</basePath>
                                 </apiSource>
@@ -111,7 +111,7 @@
                         <configuration>
                             <apiSources>
                                 <apiSource>
-                                    <locations>com.sap.cloud.lm.sl.cf.web.api.v2</locations>
+                                    <locations>org.cloudfoundry.multiapps.controller.api.v2</locations>
                                     <swaggerFileName>mtarest_v2</swaggerFileName>
                                 </apiSource>
                             </apiSources>
