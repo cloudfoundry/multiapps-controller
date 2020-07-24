@@ -1,9 +1,0 @@
-{
-	"staging": {
-		"buildpackUrl": "test-buildpack",
-		"healthCheckType": "none"
-	},
-	"application": {
-		"appName": "testApp"
-	}
-}

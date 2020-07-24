@@ -1,0 +1,57 @@
+[
+  {
+    "name": "java-hello-world",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.xs2.samples.javahelloworld",
+        "mta_version": "0.1.0",
+        "mta_module": "{\"name\":\"java-hello-world\"}",
+        "mta_module_provided_dependencies": "[\"java-hello-world\"]",
+        "mta_bound_services": "[\"uaa\"]"
+      },
+      "labels": {
+        "mta_id": "c232c91455fc92b226129257682792b2"
+      }
+    },
+    "memory": 128,
+    "diskQuota": 0,
+    "instances": 0,
+    "runningInstances": 0,
+    "staging": {
+      "buildpacks": []
+    },
+    "uris": [
+      "i027947-java-hello-world.cfapps.neo.ondemand.com"
+    ],
+    "services": [
+      "uaa"
+    ],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.xs2.samples.javahelloworld\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"java-hello-world\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"java-hello-world\"]",
+      "MTA_SERVICES": "[\"uaa\"]",
+      "destinations": "[{\"name\":\"java\",\"url\":\"http://i027947-java-hello-world-backend.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
+    },
+    "moduleName": "java-hello-world",
+    "idleUris": [],
+    "bindingParameters": {},
+    "tasks": [],
+    "routes": [],
+    "serviceKeysToInject": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "attributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    }
+  }
+]

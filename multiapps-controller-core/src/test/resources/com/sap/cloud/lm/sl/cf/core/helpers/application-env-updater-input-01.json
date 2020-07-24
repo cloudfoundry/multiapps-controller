@@ -1,0 +1,10 @@
+{
+	"app": {
+		"name": "testApp",
+		"env": {
+			"test-key": "test-value"
+		}
+	},
+	"newKey": "test-new-key",
+	"newValue": "test-new-value"
+}

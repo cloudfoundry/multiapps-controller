@@ -1,0 +1,12 @@
+{
+	"staging": {
+		"buildpackUrl": "test-buildpack",
+		"command": "test-command",
+		"healthCheckTimeout": 10,
+		"healthCheckType": "http",
+		"healthCheckHttpEndpoint": "/health"
+	},
+	"application": {
+		"appName": "testApp"
+	}
+}

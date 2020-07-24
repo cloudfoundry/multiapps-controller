@@ -1,0 +1,22 @@
+[
+  {
+    "isOptional": false,
+    "isManaged": false,
+    "name": "uaa",
+    "v3Metadata": {
+      "annotations": {
+        "mta_id": "com.sap.devx.webide",
+        "mta_version": "1.0.0",
+        "mta_resource": "{\"name\":\"uaa\"}"
+      },
+      "labels": {
+        "mta_id": "33940e667a1d39f2c6fe8b2f658f9f40"
+      }
+    },
+    "alternativeLabels": [],
+    "resourceName": "uaa",
+    "credentials": {},
+    "tags": [],
+    "shouldIgnoreUpdateErrors": false
+  }
+]
