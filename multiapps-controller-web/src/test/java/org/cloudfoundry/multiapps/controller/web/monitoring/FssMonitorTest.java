@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.web.monitoring.FssMonitor;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;

@@ -15,7 +15,6 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.ModuleParametersCompatabilityValidator;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;

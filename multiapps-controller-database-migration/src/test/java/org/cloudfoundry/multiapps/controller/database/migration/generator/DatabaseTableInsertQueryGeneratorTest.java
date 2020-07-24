@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.database.migration.generator;
 import java.util.Arrays;
 import java.util.List;
 
-import org.cloudfoundry.multiapps.controller.database.migration.generator.DatabaseTableInsertQueryGenerator;
 import org.cloudfoundry.multiapps.controller.database.migration.metadata.DatabaseTableColumnMetadata;
 import org.cloudfoundry.multiapps.controller.database.migration.metadata.DatabaseTableData;
 import org.cloudfoundry.multiapps.controller.database.migration.metadata.ImmutableDatabaseTableColumnMetadata;

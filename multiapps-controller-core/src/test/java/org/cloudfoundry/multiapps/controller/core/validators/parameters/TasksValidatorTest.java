@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.TestUtil;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.TasksValidator;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.Test;
 import org.junit.runner.RunWith;

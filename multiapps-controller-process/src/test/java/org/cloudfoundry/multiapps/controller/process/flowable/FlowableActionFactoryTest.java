@@ -5,13 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.Collections;
 
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
-import org.cloudfoundry.multiapps.controller.process.flowable.AbortProcessAction;
-import org.cloudfoundry.multiapps.controller.process.flowable.AdditionalProcessAction;
-import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
-import org.cloudfoundry.multiapps.controller.process.flowable.ProcessAction;
-import org.cloudfoundry.multiapps.controller.process.flowable.ProcessActionRegistry;
-import org.cloudfoundry.multiapps.controller.process.flowable.ResumeProcessAction;
-import org.cloudfoundry.multiapps.controller.process.flowable.RetryProcessAction;
 import org.cloudfoundry.multiapps.controller.process.util.HistoricOperationEventPersister;
 import org.junit.Test;
 import org.junit.runner.RunWith;

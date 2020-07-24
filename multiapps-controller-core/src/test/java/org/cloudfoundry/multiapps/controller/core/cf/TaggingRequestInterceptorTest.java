@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.Optional;
 
-import org.cloudfoundry.multiapps.controller.core.cf.TaggingRequestInterceptor;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.junit.Before;
 import org.junit.Test;

@@ -8,8 +8,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
-import org.cloudfoundry.multiapps.controller.client.util.TokenFactory;
-import org.cloudfoundry.multiapps.controller.client.util.TokenProperties;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;

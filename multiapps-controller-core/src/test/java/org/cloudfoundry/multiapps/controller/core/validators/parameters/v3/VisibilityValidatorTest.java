@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.v3.VisibilityValidator;
 import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
 import org.junit.Test;
 import org.junit.runner.RunWith;

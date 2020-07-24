@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.flowable;
 
-import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;

@@ -12,8 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.web.resources.CFExceptionMapper;
-import org.cloudfoundry.multiapps.controller.web.security.CompositeUriAuthorizationFilter;
-import org.cloudfoundry.multiapps.controller.web.security.UriAuthorizationFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

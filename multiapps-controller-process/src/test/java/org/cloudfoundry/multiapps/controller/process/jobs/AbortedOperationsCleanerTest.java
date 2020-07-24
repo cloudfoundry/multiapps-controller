@@ -16,7 +16,6 @@ import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperati
 import org.cloudfoundry.multiapps.controller.core.persistence.query.HistoricOperationEventQuery;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
-import org.cloudfoundry.multiapps.controller.process.jobs.AbortedOperationsCleaner;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

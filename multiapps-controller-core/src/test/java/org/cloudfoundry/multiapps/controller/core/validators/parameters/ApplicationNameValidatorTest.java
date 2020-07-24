@@ -12,7 +12,6 @@ import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.ApplicationNameValidator;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.jupiter.api.Test;
 

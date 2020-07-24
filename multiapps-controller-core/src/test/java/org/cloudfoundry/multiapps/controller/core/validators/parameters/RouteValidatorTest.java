@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.RouteValidator;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;

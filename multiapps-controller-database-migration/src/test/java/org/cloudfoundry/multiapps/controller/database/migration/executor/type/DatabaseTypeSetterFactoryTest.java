@@ -4,9 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.cloudfoundry.multiapps.controller.database.migration.executor.type.BooleanDatabaseTypeSetter;
-import org.cloudfoundry.multiapps.controller.database.migration.executor.type.DatabaseTypeSetter;
-import org.cloudfoundry.multiapps.controller.database.migration.executor.type.DatabaseTypeSetterFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

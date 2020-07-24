@@ -12,7 +12,6 @@ import javax.sql.DataSource;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.LambdaArgumentMatcher;
-import org.cloudfoundry.multiapps.controller.web.configuration.bean.factory.CloudDataSourceFactoryBean;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;

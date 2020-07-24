@@ -5,8 +5,6 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cloudfoundry.multiapps.controller.web.security.AuthorizationChecker;
-import org.cloudfoundry.multiapps.controller.web.security.SpaceGuidBasedAuthorizationFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

@@ -25,7 +25,6 @@ import org.cloudfoundry.multiapps.controller.process.flowable.AbortProcessAction
 import org.cloudfoundry.multiapps.controller.process.flowable.AdditionalProcessAction;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessActionRegistry;
-import org.cloudfoundry.multiapps.controller.process.jobs.OperationsCleaner;
 import org.cloudfoundry.multiapps.controller.process.util.HistoricOperationEventPersister;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessConflictPreventer;
 import org.flowable.common.engine.api.FlowableOptimisticLockingException;

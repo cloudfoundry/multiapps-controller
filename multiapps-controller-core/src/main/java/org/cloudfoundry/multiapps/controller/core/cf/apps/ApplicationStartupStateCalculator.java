@@ -1,10 +1,10 @@
 package org.cloudfoundry.multiapps.controller.core.cf.apps;
 
+import javax.inject.Named;
+
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
-
-import javax.inject.Named;
 
 @Named
 public class ApplicationStartupStateCalculator {

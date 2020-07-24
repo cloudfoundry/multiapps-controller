@@ -8,12 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.ApplicationNameValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.DomainValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.HostValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.ParameterValidator;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.ParametersValidatorHelper;
-import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesValidator;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.Test;
 import org.junit.runner.RunWith;

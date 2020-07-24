@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.metadata;
 
 import org.cloudfoundry.multiapps.controller.api.model.OperationMetadata;
 import org.cloudfoundry.multiapps.controller.process.Constants;
-import org.cloudfoundry.multiapps.controller.process.metadata.CtsDeployMetadata;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
 public class CtsDeployMetadataTest extends MetadataBaseTest {

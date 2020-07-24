@@ -6,7 +6,6 @@ import java.util.Date;
 
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
-import org.cloudfoundry.multiapps.controller.process.jobs.ProcessLogsCleaner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

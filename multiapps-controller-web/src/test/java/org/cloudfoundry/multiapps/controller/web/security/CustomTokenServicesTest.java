@@ -22,7 +22,6 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvi
 import org.cloudfoundry.multiapps.controller.core.security.token.parsers.TokenParserChain;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SecurityUtil;
-import org.cloudfoundry.multiapps.controller.web.security.CustomTokenServices;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

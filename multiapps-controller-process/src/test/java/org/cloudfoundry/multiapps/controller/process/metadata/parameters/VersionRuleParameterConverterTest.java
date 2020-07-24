@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.controller.process.metadata.parameters.VersionRuleParameterConverter;
 import org.junit.jupiter.api.Test;
 
 public class VersionRuleParameterConverterTest {

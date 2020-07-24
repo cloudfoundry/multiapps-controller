@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.process.jobs.CleanUpJob;
-import org.cloudfoundry.multiapps.controller.process.jobs.Cleaner;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

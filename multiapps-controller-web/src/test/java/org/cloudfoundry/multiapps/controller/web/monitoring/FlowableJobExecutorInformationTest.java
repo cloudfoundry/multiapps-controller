@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.concurrent.BlockingQueue;
 
-import org.cloudfoundry.multiapps.controller.web.monitoring.FlowableJobExecutorInformation;
 import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
