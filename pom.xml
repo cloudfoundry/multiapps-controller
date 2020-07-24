@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.sap.cloud.lm.sl.cf</groupId>
-    <artifactId>com.sap.cloud.lm.sl.cf.parent</artifactId>
+    <groupId>org.cloudfoundry.multiapps</groupId>
+    <artifactId>multiapps-controller-parent</artifactId>
     <version>1.107.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>LM SL CF Parent</name>
+    <name>MultiApps Controller Parent</name>
     <description>Multi-Target Application (MTA) deployment service for Cloud Foundry</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -68,14 +68,14 @@
         <multiapps.version>2.0.0</multiapps.version>
     </properties>
     <modules>
-        <module>com.sap.cloud.lm.sl.cf.client</module>
-        <module>com.sap.cloud.lm.sl.cf.core</module>
-        <module>com.sap.cloud.lm.sl.cf.process</module>
-        <module>com.sap.cloud.lm.sl.cf.web</module>
-        <module>com.sap.cloud.lm.sl.cf.api</module>
-        <module>com.sap.cloud.lm.sl.cf.persistence</module>
-        <module>com.sap.cloud.lm.sl.cf.shutdown.client</module>
-        <module>com.sap.cloud.lm.sl.cf.database</module>
+        <module>multiapps-controller-client</module>
+        <module>multiapps-controller-core</module>
+        <module>multiapps-controller-process</module>
+        <module>multiapps-controller-web</module>
+        <module>multiapps-controller-api</module>
+        <module>multiapps-controller-persistence</module>
+        <module>multiapps-controller-shutdown-client</module>
+        <module>multiapps-controller-database-migration</module>
     </modules>
 
     <organization>
@@ -733,40 +733,40 @@
                 <version>${multiapps.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.persistence</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-persistence</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.client</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.core</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.core</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-core</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.process</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-process</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.api</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.web</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-web</artifactId>
                 <version>${project.version}</version>
                 <classifier>classes</classifier>
                 <exclusions>
@@ -781,8 +781,8 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.web</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-web</artifactId>
                 <version>${project.version}</version>
                 <type>war</type>
                 <exclusions>
@@ -797,13 +797,13 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.shutdown.client</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-shutdown-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl.cf</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cf.database</artifactId>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-database-migration</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

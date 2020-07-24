@@ -1,0 +1,4 @@
+[
+  {"name":"nodejs", "url":"http://localhost:3000"},
+  {"name":"ui5", "url":"https://example.com", "proxyHost":"example.com", "proxyPort":"8080"}
+]
