@@ -47,14 +47,16 @@ public class DatabaseMigration {
     }
 
     private static void configureLogger() {
-        try (InputStream inputStream = DatabaseMigration.class.getClassLoader()
-                                                              .getResourceAsStream("console-logger.properties")) {
-            if (inputStream != null) {
-                PropertyConfigurator.configure(inputStream);
+        ClassLoader classLoader = DatabaseMigration.class.getClassLoader();
+        if (classLoader != null) {
+            try (InputStream inputStream = classLoader.getResourceAsStream("console-logger.properties")) {
+                if (inputStream != null) {
+                    PropertyConfigurator.configure(inputStream);
+                }
+            } catch (IOException e) {
+                LOGGER.warn("There was an error trying to configure the logger.", e);
+                LOGGER.info("Proceeding with default logger configuration.");
             }
-        } catch (IOException e) {
-            LOGGER.warn("There was an error trying to configure the logger.", e);
-            LOGGER.info("Proceeding with default logger configuration.");
         }
     }
 
