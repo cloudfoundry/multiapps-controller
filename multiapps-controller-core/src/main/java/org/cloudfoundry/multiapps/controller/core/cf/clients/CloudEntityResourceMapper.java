@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.CloudEvent.Participant;
@@ -41,7 +42,7 @@ public class CloudEntityResourceMapper {
                                   .host(host)
                                   .domain(domain)
                                   .path(path)
-                                  .appsUsingRoute(apps.size())
+                                  .appsUsingRoute(CollectionUtils.size(apps))
                                   .hasServiceUsingRoute(hasBoundService)
                                   .build();
     }
