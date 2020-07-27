@@ -2,16 +2,20 @@ package org.cloudfoundry.multiapps.controller.web.resources;
 
 import java.sql.SQLException;
 
+import javax.servlet.ServletException;
+
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,14 +33,11 @@ public class CFExceptionMapper {
         if (e instanceof CloudOperationException) {
             status = ((CloudOperationException) e).getStatusCode();
         }
-        if (e instanceof ContentException || e instanceof IllegalArgumentException) {
-            status = HttpStatus.BAD_REQUEST;
+        if (e instanceof ServletException) {
+            status = handleServletExceptions((ServletException) e);
         }
-        if (e instanceof NotFoundException) {
-            status = HttpStatus.NOT_FOUND;
-        }
-        if (e instanceof ConflictException) {
-            status = HttpStatus.CONFLICT;
+        if (e instanceof SLException) {
+            status = handleSLExceptions((SLException) e);
         }
         if (e instanceof ResponseStatusException) {
             ResponseStatusException rse = (ResponseStatusException) e;
@@ -46,10 +47,33 @@ public class CFExceptionMapper {
         if (e instanceof SQLException || e instanceof PersistenceException) {
             message = Messages.TEMPORARY_PROBLEM_WITH_PERSISTENCE_LAYER;
         }
+        if (e instanceof IllegalArgumentException) {
+            status = HttpStatus.BAD_REQUEST;
+        }
 
         LOGGER.error(Messages.ERROR_EXECUTING_REST_API_CALL, e);
         return ResponseEntity.status(status)
                              .body(message);
+    }
+
+    private HttpStatus handleServletExceptions(ServletException e) {
+        if (e instanceof HttpMediaTypeNotSupportedException) {
+            return HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+        }
+        return HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
+    private HttpStatus handleSLExceptions(SLException e) {
+        if (e instanceof ContentException) {
+            return HttpStatus.BAD_REQUEST;
+        }
+        if (e instanceof NotFoundException) {
+            return HttpStatus.NOT_FOUND;
+        }
+        if (e instanceof ConflictException) {
+            return HttpStatus.CONFLICT;
+        }
+        return HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
 }
