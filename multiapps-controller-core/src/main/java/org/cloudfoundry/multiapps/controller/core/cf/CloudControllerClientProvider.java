@@ -1,19 +1,17 @@
 package org.cloudfoundry.multiapps.controller.core.cf;
 
-import java.util.Collections;
 import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.collections4.map.AbstractReferenceMap.ReferenceStrength;
-import org.apache.commons.collections4.map.ReferenceMap;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.util.ConcurrentReferenceHashMap;
 
 @Named
 public class CloudControllerClientProvider {
@@ -26,8 +24,7 @@ public class CloudControllerClientProvider {
 
     // Cached clients. These are stored in memory-sensitive cache, i.e. no OutOfMemory error would
     // occur before GC tries to release the not-used clients.
-    private final Map<String, CloudControllerClient> clients = Collections.synchronizedMap(new ReferenceMap<>(ReferenceStrength.HARD,
-                                                                                                              ReferenceStrength.SOFT));
+    private final Map<String, CloudControllerClient> clients = new ConcurrentReferenceHashMap<>();
 
     /**
      * Returns a client for the specified user name, organization, space and process id by either getting it from the clients cache or
