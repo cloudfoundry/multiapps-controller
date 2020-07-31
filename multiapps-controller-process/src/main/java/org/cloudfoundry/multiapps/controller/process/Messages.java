@@ -530,6 +530,8 @@ public class Messages {
     public static final String GETTING_PACKAGES_FOR_APPLICATION_0 = "Getting packages for application: \"{0}\"";
     public static final String LAST_BUILD = "Last build: {0}";
     public static final String PACKAGE_STATUS_0_IS_IN_STATE_1 = "Package status: \"{0}\" is in state: \"{1}\"";
+    public static final String UPLOADED_PACKAGE_0 = "Uploaded package: \"{0}\"";
+    public static final String VERIFYING_APPLICATION_0_EXISTS = "Verifying application: \"{0}\" exists";
 
     protected Messages() {
     }

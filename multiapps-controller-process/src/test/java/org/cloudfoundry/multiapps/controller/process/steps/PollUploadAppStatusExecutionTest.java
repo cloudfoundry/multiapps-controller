@@ -29,18 +29,22 @@ import org.springframework.http.HttpStatus;
 @RunWith(Parameterized.class)
 public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<UploadAppStep> {
 
-    private static final CloudOperationException CLOUD_OPERATION_EXCEPTION = new CloudOperationException(HttpStatus.BAD_REQUEST);
+    private static final CloudOperationException CLOUD_OPERATION_EXCEPTION_BAD_REQUEST = new CloudOperationException(HttpStatus.BAD_REQUEST);
+    private static final CloudOperationException CLOUD_OPERATION_EXCEPTION_NOT_FOUND = new CloudOperationException(HttpStatus.NOT_FOUND);
     private static final UUID PACKAGE_GUID = UUID.fromString("20886182-1802-11e9-ab14-d663bd873d93");
     private static final String APP_NAME = "test-app-1";
-
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
     private final Status uploadState;
     private final AsyncExecutionState expectedStatus;
     private final Exception expectedCfException;
-
     private final SimpleApplication application = new SimpleApplication(APP_NAME, 2);
 
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
+    public PollUploadAppStatusExecutionTest(Status uploadState, AsyncExecutionState expectedStatus, Exception expectedCfException) {
+        this.uploadState = uploadState;
+        this.expectedStatus = expectedStatus;
+        this.expectedCfException = expectedCfException;
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -48,7 +52,7 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
 // @formatter:off
             // (00) The previous step used asynchronous upload but getting the upload progress fails with an exception:
             {
-                null, null, CLOUD_OPERATION_EXCEPTION,
+                null, null, CLOUD_OPERATION_EXCEPTION_BAD_REQUEST,
             },
             // (01) The previous step used asynchronous upload and it finished successfully:
             {
@@ -68,16 +72,14 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
             },
             // (05) The previous step used asynchronous upload but it failed with status FAILED:
             {
-              Status.FAILED, AsyncExecutionState.ERROR, null,
+                Status.FAILED, AsyncExecutionState.ERROR, null,
+            },
+            // (06) The requested package is not found:
+            {
+                null, null, CLOUD_OPERATION_EXCEPTION_NOT_FOUND,
             },
 // @formatter:on
         });
-    }
-
-    public PollUploadAppStatusExecutionTest(Status uploadState, AsyncExecutionState expectedStatus, Exception expectedCfException) {
-        this.uploadState = uploadState;
-        this.expectedStatus = expectedStatus;
-        this.expectedCfException = expectedCfException;
     }
 
     @Before
@@ -102,7 +104,7 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
 
     private void prepareClient() {
         if (expectedCfException != null) {
-            when(client.getUploadStatus(PACKAGE_GUID)).thenThrow(CLOUD_OPERATION_EXCEPTION);
+            when(client.getUploadStatus(PACKAGE_GUID)).thenThrow(expectedCfException);
         } else {
             Upload upload = ImmutableUpload.builder()
                                            .status(uploadState)

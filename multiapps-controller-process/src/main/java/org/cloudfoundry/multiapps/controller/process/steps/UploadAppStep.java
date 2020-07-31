@@ -95,6 +95,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         UploadToken uploadToken = asyncUploadFiles(context, client, application, context.getRequiredVariable(Variables.APP_ARCHIVE_ID),
                                                    moduleFileName);
         getStepLogger().info(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, application.getName());
+        LOGGER.info(MessageFormat.format(Messages.UPLOADED_PACKAGE_0, uploadToken.getPackageGuid()));
         context.setVariable(Variables.UPLOAD_TOKEN, uploadToken);
         return StepPhase.POLL;
     }
