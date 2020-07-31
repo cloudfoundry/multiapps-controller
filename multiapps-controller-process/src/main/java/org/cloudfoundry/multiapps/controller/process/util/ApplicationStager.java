@@ -10,8 +10,8 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudBuild;
+import org.cloudfoundry.client.lib.domain.CloudPackage;
 import org.cloudfoundry.client.lib.domain.PackageState;
-import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -134,12 +134,12 @@ public class ApplicationStager {
     }
 
     public StepPhase stageApp(CloudApplication app) {
-        UploadToken uploadToken = context.getVariable(Variables.UPLOAD_TOKEN);
-        if (uploadToken == null) {
+        CloudPackage cloudPackage = context.getVariable(Variables.CLOUD_PACKAGE);
+        if (cloudPackage == null) {
             return StepPhase.DONE;
         }
         logger.info(Messages.STAGING_APP, app.getName());
-        return createBuild(uploadToken.getPackageGuid());
+        return createBuild(cloudPackage.getGuid());
     }
 
     private StepPhase createBuild(UUID packageGuid) {

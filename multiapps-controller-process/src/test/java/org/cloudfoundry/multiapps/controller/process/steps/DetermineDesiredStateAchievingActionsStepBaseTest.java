@@ -10,7 +10,7 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudPackage;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.RestartParameters;
@@ -29,31 +29,26 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
 
     protected static final UUID FAKE_UUID = UUID.fromString("3e31fdaa-4a4e-11e9-8646-d663bd873d93");
     protected static final String DUMMY = "dummy";
-
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
     protected final List<ApplicationStateAction> expectedAppStateActions;
-
     private final ApplicationStartupState currentAppState;
     private final ApplicationStartupState desiredAppState;
     private final boolean hasAppChanged;
-    private final boolean hasUploadToken;
-
+    private final boolean hasCloudPacakge;
     @Mock
     protected ApplicationStartupStateCalculator appStateCalculator;
-
     @Mock
     protected ApplicationConfiguration configuration;
 
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
     public DetermineDesiredStateAchievingActionsStepBaseTest(ApplicationStartupState currentAppState,
                                                              ApplicationStartupState desiredAppState, boolean hasAppChanged,
-                                                             List<ApplicationStateAction> expectedAppStateActions, boolean hasUploadToken) {
+                                                             List<ApplicationStateAction> expectedAppStateActions, boolean hasCloudPacakge) {
         this.currentAppState = currentAppState;
         this.desiredAppState = desiredAppState;
         this.hasAppChanged = hasAppChanged;
         this.expectedAppStateActions = expectedAppStateActions;
-        this.hasUploadToken = hasUploadToken;
+        this.hasCloudPacakge = hasCloudPacakge;
     }
 
     @Before
@@ -98,10 +93,12 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
                                                                         .build();
         context.setVariable(Variables.APP_TO_PROCESS, app);
         when(client.getApplication(anyString())).thenReturn(app);
-        if (hasUploadToken) {
-            context.setVariable(Variables.UPLOAD_TOKEN, ImmutableUploadToken.builder()
-                                                                            .packageGuid(FAKE_UUID)
-                                                                            .build());
+        if (hasCloudPacakge) {
+            context.setVariable(Variables.CLOUD_PACKAGE, ImmutableCloudPackage.builder()
+                                                                              .metadata(ImmutableCloudMetadata.builder()
+                                                                                                              .guid(UUID.randomUUID())
+                                                                                                              .build())
+                                                                              .build());
         }
     }
 }

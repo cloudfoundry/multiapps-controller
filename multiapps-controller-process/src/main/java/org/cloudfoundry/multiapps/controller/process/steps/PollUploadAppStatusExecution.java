@@ -7,9 +7,9 @@ import java.util.UUID;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudPackage;
 import org.cloudfoundry.client.lib.domain.ErrorDetails;
 import org.cloudfoundry.client.lib.domain.Upload;
-import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
@@ -29,8 +29,9 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
 
         CloudControllerClient client = context.getControllerClient();
 
-        UploadToken uploadToken = context.getVariable(Variables.UPLOAD_TOKEN);
-        Upload upload = getUploadStatus(client, uploadToken.getPackageGuid(), application.getName());
+        CloudPackage cloudPackage = context.getVariable(Variables.CLOUD_PACKAGE);
+        Upload upload = getUploadStatus(client, cloudPackage.getGuid(), application.getName());
+        LOGGER.info(format(Messages.UPLOAD_STATUS_0, upload));
         switch (upload.getStatus()) {
             case FAILED:
             case EXPIRED:

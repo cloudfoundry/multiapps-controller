@@ -9,7 +9,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.UploadToken;
+import org.cloudfoundry.client.lib.domain.CloudPackage;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.RestartParameters;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ActionCalculator;
@@ -40,8 +40,8 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
         getStepLogger().debug(Messages.CURRENT_STATE, appName, currentState);
         ApplicationStartupState desiredState = computeDesiredState(context, app);
         getStepLogger().debug(Messages.DESIRED_STATE, appName, desiredState);
-        UploadToken uploadToken = context.getVariable(Variables.UPLOAD_TOKEN);
-        boolean appHasUnstagedContent = uploadToken != null;
+        CloudPackage cloudPackage = context.getVariable(Variables.CLOUD_PACKAGE);
+        boolean appHasUnstagedContent = cloudPackage != null;
         Set<ApplicationStateAction> actionsToExecute = getActionsCalculator(context).determineActionsToExecute(currentState, desiredState,
                                                                                                                !appHasUnstagedContent);
         getStepLogger().debug(Messages.ACTIONS_TO_EXECUTE, appName, actionsToExecute);

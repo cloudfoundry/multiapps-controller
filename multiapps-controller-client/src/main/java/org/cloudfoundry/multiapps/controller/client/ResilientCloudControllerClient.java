@@ -37,7 +37,6 @@ import org.cloudfoundry.client.lib.domain.DropletInfo;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.cloudfoundry.client.lib.domain.Upload;
-import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.cloudfoundry.client.lib.rest.CloudControllerRestClient;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientCloudOperationExecutor;
@@ -379,7 +378,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public UploadToken asyncUploadApplication(String applicationName, File file, UploadStatusCallback callback) {
+    public CloudPackage asyncUploadApplication(String applicationName, File file, UploadStatusCallback callback) {
         return executeWithRetry(() -> {
             try {
                 return delegate.asyncUploadApplication(applicationName, file, callback);
@@ -619,7 +618,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public UploadToken asyncUploadApplication(String applicationName, File file) {
+    public CloudPackage asyncUploadApplication(String applicationName, File file) {
         return executeWithRetry(() -> {
             try {
                 return delegate.asyncUploadApplication(applicationName, file);

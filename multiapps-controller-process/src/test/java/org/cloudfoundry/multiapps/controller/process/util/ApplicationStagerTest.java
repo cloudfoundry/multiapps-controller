@@ -18,8 +18,8 @@ import org.cloudfoundry.client.lib.domain.DropletInfo;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudBuild;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudPackage;
 import org.cloudfoundry.client.lib.domain.ImmutableDropletInfo;
-import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.PackageState;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
@@ -62,7 +62,7 @@ class ApplicationStagerTest {
         Mockito.when(clientProvider.getControllerClient(Mockito.any(), Mockito.any()))
                .thenReturn(client);
         this.applicationStager = new ApplicationStager(context);
-        setUploadTokenVariable();
+        setCloudPackage();
     }
 
     @Test
@@ -218,8 +218,8 @@ class ApplicationStagerTest {
     }
 
     @Test
-    void testStageAppIfThereIsNoUploadToken() {
-        context.setVariable(Variables.UPLOAD_TOKEN, null);
+    void testStageAppIfThereIsNoCloudPacakge() {
+        context.setVariable(Variables.CLOUD_PACKAGE, null);
         assertEquals(StepPhase.DONE, applicationStager.stageApp(null));
     }
 
@@ -228,7 +228,7 @@ class ApplicationStagerTest {
         CloudApplication app = ImmutableCloudApplication.builder()
                                                         .name(APP_NAME)
                                                         .build();
-        setUploadTokenVariable();
+        setCloudPackage();
         CloudBuild build = createBuild();
         Mockito.when(client.createBuild(PACKAGE_GUID))
                .thenReturn(build);
@@ -284,10 +284,12 @@ class ApplicationStagerTest {
                      context.getVariable(Variables.BUILD_GUID));
     }
 
-    private void setUploadTokenVariable() {
-        context.setVariable(Variables.UPLOAD_TOKEN, ImmutableUploadToken.builder()
-                                                                        .packageGuid(PACKAGE_GUID)
-                                                                        .build());
+    private void setCloudPackage() {
+        context.setVariable(Variables.CLOUD_PACKAGE, ImmutableCloudPackage.builder()
+                                                                          .metadata(ImmutableCloudMetadata.builder()
+                                                                                                          .guid(PACKAGE_GUID)
+                                                                                                          .build())
+                                                                          .build());
     }
 
     private CloudApplication createApplication() {

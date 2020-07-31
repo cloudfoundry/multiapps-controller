@@ -10,8 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
-import org.cloudfoundry.client.lib.domain.UploadToken;
+import org.cloudfoundry.client.lib.domain.CloudPackage;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudPackage;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
@@ -46,11 +47,11 @@ public class StepsUtilTest {
     @Test
     public void testGetServicesToCreateWithCredentials() {
         CloudServiceInstanceExtended service = ImmutableCloudServiceInstanceExtended.builder()
-                                                                    .name("my-service")
-                                                                    .putCredential("integer-value", 1)
-                                                                    .putCredential("double-value", 1.4)
-                                                                    .putCredential("string-value", "1")
-                                                                    .build();
+                                                                                    .name("my-service")
+                                                                                    .putCredential("integer-value", 1)
+                                                                                    .putCredential("double-value", 1.4)
+                                                                                    .putCredential("string-value", "1")
+                                                                                    .build();
 
         VariableHandling.set(execution, Variables.SERVICES_TO_CREATE, Collections.singletonList(service));
         List<CloudServiceInstanceExtended> actualServicesToCreate = VariableHandling.get(execution, Variables.SERVICES_TO_CREATE);
@@ -110,15 +111,15 @@ public class StepsUtilTest {
     }
 
     @Test
-    public void testSetAndGetUploadToken() {
-        UploadToken expectedUploadToken = ImmutableUploadToken.builder()
-                                                              .packageGuid(UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93"))
-                                                              .build();
-
-        VariableHandling.set(execution, Variables.UPLOAD_TOKEN, expectedUploadToken);
-        UploadToken actualUploadToken = VariableHandling.get(execution, Variables.UPLOAD_TOKEN);
-
-        assertEquals(expectedUploadToken.getPackageGuid(), actualUploadToken.getPackageGuid());
+    public void testSetAndGetCloudPackage() {
+        CloudPackage expectedCloudPackage = ImmutableCloudPackage.builder()
+                                                                 .metadata(ImmutableCloudMetadata.builder()
+                                                                                                 .guid(UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93"))
+                                                                                                 .build())
+                                                                 .build();
+        VariableHandling.set(execution, Variables.CLOUD_PACKAGE, expectedCloudPackage);
+        CloudPackage actualCloudPackage = VariableHandling.get(execution, Variables.CLOUD_PACKAGE);
+        assertEquals(expectedCloudPackage.getGuid(), actualCloudPackage.getGuid());
     }
 
     @Test

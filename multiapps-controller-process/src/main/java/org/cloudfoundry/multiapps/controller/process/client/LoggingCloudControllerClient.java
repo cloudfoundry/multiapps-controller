@@ -35,7 +35,6 @@ import org.cloudfoundry.client.lib.domain.DropletInfo;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.cloudfoundry.client.lib.domain.Upload;
-import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
@@ -645,13 +644,13 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public UploadToken asyncUploadApplication(String applicationName, File file) throws IOException {
+    public CloudPackage asyncUploadApplication(String applicationName, File file) throws IOException {
         logger.debug(Messages.ASYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
         return delegate.asyncUploadApplication(applicationName, file);
     }
 
     @Override
-    public UploadToken asyncUploadApplication(String applicationName, File file, UploadStatusCallback callback) throws IOException {
+    public CloudPackage asyncUploadApplication(String applicationName, File file, UploadStatusCallback callback) throws IOException {
         logger.debug(Messages.ASYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
         return delegate.asyncUploadApplication(applicationName, file, callback);
     }
