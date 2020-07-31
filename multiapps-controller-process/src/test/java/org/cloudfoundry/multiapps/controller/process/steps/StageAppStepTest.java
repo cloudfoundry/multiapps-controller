@@ -8,8 +8,9 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.domain.CloudBuild;
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
-import org.cloudfoundry.client.lib.domain.UploadToken;
+import org.cloudfoundry.client.lib.domain.CloudPackage;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudPackage;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -25,7 +26,7 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
     @Test
     public void testExecuteStep() {
         mockApplication("demo-app");
-        mockUploadToken(PACKAGE_GUID);
+        mockCloudPackage(PACKAGE_GUID);
         mockClient();
         step.execute(execution);
         Assertions.assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
@@ -38,11 +39,13 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
         context.setVariable(Variables.APP_TO_PROCESS, cloudApplicationExtended);
     }
 
-    private void mockUploadToken(UUID packageGuid) {
-        UploadToken uploadToken = ImmutableUploadToken.builder()
-                                                      .packageGuid(packageGuid)
-                                                      .build();
-        context.setVariable(Variables.UPLOAD_TOKEN, uploadToken);
+    private void mockCloudPackage(UUID packageGuid) {
+        CloudPackage cloudPackage = ImmutableCloudPackage.builder()
+                                                         .metadata(ImmutableCloudMetadata.builder()
+                                                                                         .guid(packageGuid)
+                                                                                         .build())
+                                                         .build();
+        context.setVariable(Variables.CLOUD_PACKAGE, cloudPackage);
     }
 
     private void mockClient() {

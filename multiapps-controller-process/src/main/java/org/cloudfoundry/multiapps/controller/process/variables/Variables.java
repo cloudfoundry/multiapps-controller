@@ -9,10 +9,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudPackage;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.lib.domain.CloudTask;
-import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.DeploymentMode;
@@ -290,9 +290,9 @@ public interface Variables {
                                                                                            .name("serviceToProcess")
                                                                                            .type(Variable.typeReference(CloudServiceInstanceExtended.class))
                                                                                            .build();
-    Variable<UploadToken> UPLOAD_TOKEN = ImmutableJsonStringVariable.<UploadToken> builder()
-                                                                    .name("uploadToken")
-                                                                    .type(Variable.typeReference(UploadToken.class))
+    Variable<CloudPackage> CLOUD_PACKAGE = ImmutableJsonStringVariable.<CloudPackage> builder()
+                                                                    .name("uploadedCloudPackage")
+                                                                    .type(Variable.typeReference(CloudPackage.class))
                                                                     .build();
     Variable<Hook> HOOK_FOR_EXECUTION = ImmutableJsonStringVariable.<Hook> builder()
                                                                    .name("hookForExecution")

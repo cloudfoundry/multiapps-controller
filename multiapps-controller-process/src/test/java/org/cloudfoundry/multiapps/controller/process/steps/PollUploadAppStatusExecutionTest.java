@@ -9,12 +9,13 @@ import java.util.List;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.domain.CloudPackage;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudPackage;
 import org.cloudfoundry.client.lib.domain.ImmutableErrorDetails;
 import org.cloudfoundry.client.lib.domain.ImmutableUpload;
-import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.Status;
 import org.cloudfoundry.client.lib.domain.Upload;
-import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.cloudfoundry.multiapps.controller.process.steps.ScaleAppStepTest.SimpleApplication;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.Before;
@@ -119,10 +120,12 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
     private void prepareContext() {
         StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(application.toCloudApplication()), execution);
         context.setVariable(Variables.MODULES_INDEX, 0);
-        UploadToken uploadToken = ImmutableUploadToken.builder()
-                                                      .packageGuid(PACKAGE_GUID)
-                                                      .build();
-        context.setVariable(Variables.UPLOAD_TOKEN, uploadToken);
+        CloudPackage cloudPackage = ImmutableCloudPackage.builder()
+                                                         .metadata(ImmutableCloudMetadata.builder()
+                                                                                         .guid(PACKAGE_GUID)
+                                                                                         .build())
+                                                         .build();
+        context.setVariable(Variables.CLOUD_PACKAGE, cloudPackage);
     }
 
     @Override

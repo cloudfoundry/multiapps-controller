@@ -33,9 +33,7 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudBuild;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudPackage;
 import org.cloudfoundry.client.lib.domain.ImmutableDropletInfo;
-import org.cloudfoundry.client.lib.domain.ImmutableUploadToken;
 import org.cloudfoundry.client.lib.domain.Status;
-import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -70,9 +68,11 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     private static final UUID APP_GUID = UUID.randomUUID();
     private static final IOException IO_EXCEPTION = new IOException();
     private static final CloudOperationException CO_EXCEPTION = new CloudOperationException(HttpStatus.BAD_REQUEST);
-    private static final UploadToken UPLOAD_TOKEN = ImmutableUploadToken.builder()
-                                                                        .packageGuid(UUID.randomUUID())
-                                                                        .build();
+    private static final CloudPackage CLOUD_PACKAGE = ImmutableCloudPackage.builder()
+                                                                           .metadata(ImmutableCloudMetadata.builder()
+                                                                                                           .guid(UUID.randomUUID())
+                                                                                                           .build())
+                                                                           .build();
     private final UUID PACKAGE_GUID = UUID.randomUUID();
     private final MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
     private final CloudPackagesGetter cloudPackagesGetter = mock(CloudPackagesGetter.class);
@@ -109,14 +109,14 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
                                                                                                                     .guid(UUID.randomUUID())
                                                                                                                     .build())
                                                                                    .build()),
-                                      StepPhase.POLL, UPLOAD_TOKEN),
+                                      StepPhase.POLL, CLOUD_PACKAGE),
                          Arguments.of(Collections.singletonList(ImmutableCloudBuild.builder()
                                                                                    .state(CloudBuild.State.STAGING)
                                                                                    .dropletInfo(ImmutableDropletInfo.builder()
                                                                                                                     .guid(UUID.randomUUID())
                                                                                                                     .build())
                                                                                    .build()),
-                                      StepPhase.POLL, UPLOAD_TOKEN));
+                                      StepPhase.POLL, CLOUD_PACKAGE));
     }
 
     @BeforeEach
@@ -165,7 +165,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     void testSuccessfulUpload() throws Exception {
         prepareClients(null, null, NEW_MODULE_DIGEST);
         step.execute(execution);
-        assertEquals(UPLOAD_TOKEN, context.getVariable(Variables.UPLOAD_TOKEN));
+        assertEquals(CLOUD_PACKAGE, context.getVariable(Variables.CLOUD_PACKAGE));
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
     }
 
@@ -175,7 +175,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         prepareClients(expectedIOExceptionMessage, expectedCFExceptionMessage, NEW_MODULE_DIGEST);
         assertThrows(SLException.class, () -> step.execute(execution));
         assertFalse(appFile.exists());
-        assertNull(context.getVariable(Variables.UPLOAD_TOKEN));
+        assertNull(context.getVariable(Variables.CLOUD_PACKAGE));
         assertEquals(StepPhase.RETRY.toString(), getExecutionStatus());
     }
 
@@ -184,8 +184,8 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         prepareClients(null, null, CURRENT_MODULE_DIGEST);
         mockCloudPackagesGetter(createCloudPackage(Status.PROCESSING_UPLOAD));
         step.execute(execution);
-        UploadToken uploadToken = context.getVariable(Variables.UPLOAD_TOKEN);
-        assertEquals(PACKAGE_GUID, uploadToken.getPackageGuid());
+        CloudPackage cloudPackage = context.getVariable(Variables.CLOUD_PACKAGE);
+        assertEquals(PACKAGE_GUID, cloudPackage.getGuid());
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
     }
 
@@ -194,7 +194,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         prepareClients(null, null, CURRENT_MODULE_DIGEST);
         mockCloudPackagesGetter(createCloudPackage(Status.FAILED));
         step.execute(execution);
-        assertEquals(UPLOAD_TOKEN, context.getVariable(Variables.UPLOAD_TOKEN));
+        assertEquals(CLOUD_PACKAGE, context.getVariable(Variables.CLOUD_PACKAGE));
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
     }
 
@@ -204,17 +204,17 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         prepareClients(null, null, moduleDigest);
         mockCloudPackagesGetter(createCloudPackage(Status.EXPIRED));
         step.execute(execution);
-        assertEquals(UPLOAD_TOKEN, context.getVariable(Variables.UPLOAD_TOKEN));
+        assertEquals(CLOUD_PACKAGE, context.getVariable(Variables.CLOUD_PACKAGE));
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
     }
 
     @MethodSource
     @ParameterizedTest
-    void testWithBuildStates(List<CloudBuild> builds, StepPhase stepPhase, UploadToken uploadToken) throws Exception {
+    void testWithBuildStates(List<CloudBuild> builds, StepPhase stepPhase, CloudPackage cloudPackage) throws Exception {
         when(client.getBuildsForApplication(any())).thenReturn(builds);
         prepareClients(null, null, CURRENT_MODULE_DIGEST);
         step.execute(execution);
-        assertEquals(uploadToken, context.getVariable(Variables.UPLOAD_TOKEN));
+        assertEquals(cloudPackage, context.getVariable(Variables.CLOUD_PACKAGE));
         assertEquals(stepPhase.toString(), getExecutionStatus());
     }
 
@@ -235,7 +235,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     private void prepareClients(String expectedIOExceptionMessage, String expectedCFExceptionMessage, String applicationDigest)
         throws Exception {
         if (expectedIOExceptionMessage == null && expectedCFExceptionMessage == null) {
-            when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenReturn(UPLOAD_TOKEN);
+            when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenReturn(CLOUD_PACKAGE);
         } else if (expectedIOExceptionMessage != null) {
             when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(IO_EXCEPTION);
         } else {

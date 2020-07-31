@@ -23,6 +23,15 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesiredStateAchievingActionsStepBaseTest {
 
+    private final Class<? extends Exception> exception;
+
+    public DetermineDesiredStateAchievingActionsStepTest(ApplicationStartupState currentAppState, ApplicationStartupState desiredAppState,
+        boolean hasAppChanged, List<ApplicationStateAction> expectedAppStateActions,  boolean hasCloudPackage,
+        Class<? extends Exception> exception) {
+        super(currentAppState, desiredAppState, hasAppChanged, expectedAppStateActions,  hasCloudPackage);
+        this.exception = exception;
+    }
+
     @Parameters
     public static List<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -108,15 +117,6 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
                 ApplicationStartupState.INCONSISTENT, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()), false, null
             },
         });
-    } 
-
-    private final Class<? extends Exception> exception;
-
-    public DetermineDesiredStateAchievingActionsStepTest(ApplicationStartupState currentAppState, ApplicationStartupState desiredAppState,
-        boolean hasAppChanged, List<ApplicationStateAction> expectedAppStateActions,  boolean hasUploadToken,
-        Class<? extends Exception> exception) {
-        super(currentAppState, desiredAppState, hasAppChanged, expectedAppStateActions,  hasUploadToken);
-        this.exception = exception;
     }
 
     @Test
@@ -146,6 +146,21 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
 
         private static final ApplicationStartupState STARTED_APPLICATION_STARTUP_STATE = ApplicationStartupState.STARTED;
         private static final boolean HAS_APP_CHANGED = false;
+        private final boolean vcapPropertiesChanged;
+        private final boolean vcapServicesChanged;
+        private final boolean userPropertiesChanged;
+        private final boolean shouldRestartOnVcapAppChange;
+        private final boolean shouldRestartOnVcapServicesChange;
+        private final boolean shouldRestartOnUserProvidedChange;
+        public DetermineAppRestartTest(ApplicationStartupState currentAppState, ApplicationStartupState desiredAppState, List<ApplicationStateAction> expectedAppStateActions, boolean hasCloudPackage, boolean vcapPropertiesChanged, boolean vcapServicesChanged, boolean userPropertiesChanged , boolean shouldRestartOnVcapAppChange, boolean shouldRestartOnVcapServicesChange,  boolean shouldRestartOnUserProvidedChange) {
+            super(currentAppState, desiredAppState, HAS_APP_CHANGED, expectedAppStateActions, hasCloudPackage);
+            this.vcapPropertiesChanged = vcapPropertiesChanged;
+            this.vcapServicesChanged = vcapServicesChanged;
+            this.userPropertiesChanged = userPropertiesChanged;
+            this.shouldRestartOnVcapAppChange = shouldRestartOnVcapAppChange;
+            this.shouldRestartOnVcapServicesChange = shouldRestartOnVcapServicesChange;
+            this.shouldRestartOnUserProvidedChange = shouldRestartOnUserProvidedChange;
+        }
 
         // Staging is always required, because there are no previous builds
         @Parameters
@@ -197,23 +212,6 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
                     STARTED_APPLICATION_STARTUP_STATE, STARTED_APPLICATION_STARTUP_STATE, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toList()), true, false, false, false, false, false, true
                 },
             });
-        }
-
-        private final boolean vcapPropertiesChanged;
-        private final boolean vcapServicesChanged;
-        private final boolean userPropertiesChanged;
-        private final boolean shouldRestartOnVcapAppChange;
-        private final boolean shouldRestartOnVcapServicesChange;
-        private final boolean shouldRestartOnUserProvidedChange;
-
-        public DetermineAppRestartTest(ApplicationStartupState currentAppState, ApplicationStartupState desiredAppState, List<ApplicationStateAction> expectedAppStateActions, boolean hasUploadToken, boolean vcapPropertiesChanged, boolean vcapServicesChanged, boolean userPropertiesChanged , boolean shouldRestartOnVcapAppChange, boolean shouldRestartOnVcapServicesChange,  boolean shouldRestartOnUserProvidedChange) {
-            super(currentAppState, desiredAppState, HAS_APP_CHANGED, expectedAppStateActions, hasUploadToken);
-            this.vcapPropertiesChanged = vcapPropertiesChanged;
-            this.vcapServicesChanged = vcapServicesChanged;
-            this.userPropertiesChanged = userPropertiesChanged;
-            this.shouldRestartOnVcapAppChange = shouldRestartOnVcapAppChange;
-            this.shouldRestartOnVcapServicesChange = shouldRestartOnVcapServicesChange;
-            this.shouldRestartOnUserProvidedChange = shouldRestartOnUserProvidedChange;
         }
 
         @Test
