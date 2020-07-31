@@ -65,7 +65,7 @@
         <aliyun-sdk-oss.version>3.9.1</aliyun-sdk-oss.version>
         <auto-service.version>1.0-rc2</auto-service.version>
         <java-cfenv.version>2.1.2.RELEASE</java-cfenv.version>
-        <multiapps.version>2.0.1</multiapps.version>
+        <multiapps.version>2.1.0</multiapps.version>
         <javax.xml.bind.version>2.3.0</javax.xml.bind.version> <!-- TODO: Compilation with Java 11 won't work without this. Remove it once we fully migrate to Java 11. -->
         <javax.activation.version>1.2.0</javax.activation.version> <!-- TODO: Compilation with Java 11 won't work without this. Remove it once we fully migrate to Java 11. -->
     </properties>

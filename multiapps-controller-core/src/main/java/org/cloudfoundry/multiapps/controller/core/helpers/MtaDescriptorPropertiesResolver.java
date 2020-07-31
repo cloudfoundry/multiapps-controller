@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.multiapps.controller.core.cf.HandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationReferencesResolver;
 import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.core.model.MtaDescriptorPropertiesResolverContext;
@@ -46,7 +46,7 @@ public class MtaDescriptorPropertiesResolver {
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) {
         descriptor = correctEntityNames(descriptor);
         // Resolve placeholders in parameters:
-        HandlerFactory handlerFactory = context.getHandlerFactory();
+        CloudHandlerFactory handlerFactory = context.getHandlerFactory();
         descriptor = handlerFactory.getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(), new ResolverBuilder(),
                                                                      SupportedParameters.SINGULAR_PLURAL_MAPPING)
                                    .resolve();

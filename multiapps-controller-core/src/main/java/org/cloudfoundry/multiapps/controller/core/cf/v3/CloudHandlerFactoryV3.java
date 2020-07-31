@@ -1,16 +1,12 @@
-package org.cloudfoundry.multiapps.controller.core.cf.factory.v2;
+package org.cloudfoundry.multiapps.controller.core.cf.v3;
 
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.multiapps.common.util.MiscUtil;
-import org.cloudfoundry.multiapps.controller.core.cf.factory.HelperFactoryConstructor;
-import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
-import org.cloudfoundry.multiapps.controller.core.cf.v2.ServiceKeysCloudModelBuilder;
-import org.cloudfoundry.multiapps.controller.core.cf.v2.ServicesCloudModelBuilder;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser;
-import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationReferencesResolver;
-import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationSubscriptionFactory;
+import org.cloudfoundry.multiapps.controller.core.helpers.v3.ConfigurationReferencesResolver;
+import org.cloudfoundry.multiapps.controller.core.helpers.v3.ConfigurationSubscriptionFactory;
 import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.ResolvedConfigurationReference;
@@ -21,22 +17,12 @@ import org.cloudfoundry.multiapps.controller.core.validators.parameters.Paramete
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.DescriptorParametersCompatabilityValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.v2.DescriptorParametersValidator;
 import org.cloudfoundry.multiapps.mta.builders.v2.ParametersChainBuilder;
-import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorHandler;
+import org.cloudfoundry.multiapps.mta.handlers.v3.HandlerFactoryV3;
 import org.cloudfoundry.multiapps.mta.mergers.PlatformMerger;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Platform;
 
-public class HelperFactory implements HelperFactoryConstructor {
-
-    protected final DescriptorHandler descriptorHandler;
-
-    public HelperFactory(DescriptorHandler descriptorHandler) {
-        this.descriptorHandler = descriptorHandler;
-    }
-
-    protected DescriptorHandler getHandler() {
-        return MiscUtil.cast(this.descriptorHandler);
-    }
+public class CloudHandlerFactoryV3 extends HandlerFactoryV3 implements CloudHandlerFactory {
 
     @Override
     public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting,
@@ -50,18 +36,16 @@ public class HelperFactory implements HelperFactoryConstructor {
                                                                               ConfigurationEntryService configurationEntryService,
                                                                               CloudTarget cloudTarget,
                                                                               ApplicationConfiguration configuration, String namespace) {
-        ParametersChainBuilder chainBuilder = new ParametersChainBuilder(deploymentDescriptor, null);
-        org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser filterParser = new org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser(cloudTarget,
-                                                                                                                                                             chainBuilder,
-                                                                                                                                                             namespace);
-        return new ConfigurationReferencesResolver(configurationEntryService, filterParser, cloudTarget, configuration);
+        ParametersChainBuilder v2ParameterChainBuilder = new ParametersChainBuilder(deploymentDescriptor, null);
+        ConfigurationFilterParser v2FilterParser = new ConfigurationFilterParser(cloudTarget, v2ParameterChainBuilder, namespace);
+        return new ConfigurationReferencesResolver(configurationEntryService, v2FilterParser, cloudTarget, configuration);
     }
 
     @Override
     public ConfigurationReferencesResolver
            getConfigurationReferencesResolver(ConfigurationEntryService configurationEntryService, ConfigurationFilterParser filterParser,
                                               CloudTarget cloudTarget, ApplicationConfiguration configuration) {
-        return new ConfigurationReferencesResolver(configurationEntryService, MiscUtil.cast(filterParser), cloudTarget, configuration);
+        return new ConfigurationReferencesResolver(configurationEntryService, filterParser, cloudTarget, configuration);
     }
 
     @Override
@@ -85,7 +69,7 @@ public class HelperFactory implements HelperFactoryConstructor {
 
     @Override
     public PlatformMerger getPlatformMerger(Platform platform) {
-        return new PlatformMerger(platform, getHandler());
+        return new PlatformMerger(platform, getDescriptorHandler());
     }
 
     @Override

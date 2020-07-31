@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.core.validators.parameters;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
+import org.cloudfoundry.multiapps.mta.util.NameUtil;
 
 public abstract class ParametersValidator<T> {
 
@@ -14,7 +14,7 @@ public abstract class ParametersValidator<T> {
     protected ParametersValidator(String prefix, String objectName, ParametersValidatorHelper helper, Class<?> containerClass) {
         this.containerClass = containerClass;
         this.helper = helper;
-        this.prefix = ValidatorUtil.getPrefixedName(prefix, objectName);
+        this.prefix = NameUtil.getPrefixedName(prefix, objectName);
     }
 
     protected ParametersValidator(String prefix, String objectName, List<ParameterValidator> parameterValidators, Class<?> containerClass,

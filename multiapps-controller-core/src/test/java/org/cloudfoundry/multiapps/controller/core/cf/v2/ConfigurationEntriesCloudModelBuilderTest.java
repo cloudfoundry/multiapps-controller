@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import org.cloudfoundry.multiapps.common.util.Tester;
 import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.YamlParser;
-import org.cloudfoundry.multiapps.mta.handlers.HandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorParser;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,7 +48,8 @@ public class ConfigurationEntriesCloudModelBuilderTest {
     }
 
     private DeploymentDescriptor parseDeploymentDescriptor(String deploymentDescriptorLocation, int majorSchemaVersion) {
-        DescriptorParser parser = new HandlerFactory(majorSchemaVersion).getDescriptorParser();
+        DescriptorParser parser = CloudHandlerFactory.forSchemaVersion(majorSchemaVersion)
+                                                     .getDescriptorParser();
         InputStream deploymentDescriptorStream = getClass().getResourceAsStream(deploymentDescriptorLocation);
         Map<String, Object> deploymentDescriptorMap = new YamlParser().convertYamlToMap(deploymentDescriptorStream);
         return parser.parseDeploymentDescriptor(deploymentDescriptorMap);

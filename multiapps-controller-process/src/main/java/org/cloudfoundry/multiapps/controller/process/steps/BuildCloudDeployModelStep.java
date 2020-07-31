@@ -17,7 +17,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.HandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.util.CloudModelBuilderContentCalculator;
 import org.cloudfoundry.multiapps.controller.core.cf.util.DeployedAfterModulesContentValidator;
 import org.cloudfoundry.multiapps.controller.core.cf.util.ModulesCloudModelBuilderContentCalculator;
@@ -37,6 +37,7 @@ import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.builders.v2.ParametersChainBuilder;
+import org.cloudfoundry.multiapps.mta.handlers.HandlerFactory;
 import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorHandler;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -225,7 +226,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     }
 
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(ProcessContext context) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
+        CloudHandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         String namespace = context.getVariable(Variables.MTA_NAMESPACE);
 
@@ -233,7 +234,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     }
 
     protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(ProcessContext context) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
+        CloudHandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         return handlerFactory.getServiceKeysCloudModelBuilder(deploymentDescriptor);
     }

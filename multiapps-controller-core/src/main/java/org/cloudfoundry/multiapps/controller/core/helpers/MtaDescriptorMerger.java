@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.core.helpers;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.core.Messages;
-import org.cloudfoundry.multiapps.controller.core.cf.HandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorMerger;
@@ -14,15 +14,15 @@ import org.cloudfoundry.multiapps.mta.model.Platform;
 
 public class MtaDescriptorMerger {
 
-    private final HandlerFactory handlerFactory;
+    private final CloudHandlerFactory handlerFactory;
     private final Platform platform;
     private final UserMessageLogger userMessageLogger;
 
-    public MtaDescriptorMerger(HandlerFactory handlerFactory, Platform platform) {
+    public MtaDescriptorMerger(CloudHandlerFactory handlerFactory, Platform platform) {
         this(handlerFactory, platform, null);
     }
 
-    public MtaDescriptorMerger(HandlerFactory handlerFactory, Platform platform, UserMessageLogger userMessageLogger) {
+    public MtaDescriptorMerger(CloudHandlerFactory handlerFactory, Platform platform, UserMessageLogger userMessageLogger) {
         this.handlerFactory = handlerFactory;
         this.platform = platform;
         this.userMessageLogger = userMessageLogger;

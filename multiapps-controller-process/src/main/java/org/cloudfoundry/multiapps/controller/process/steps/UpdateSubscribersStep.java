@@ -26,7 +26,7 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudSpace;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.HandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
 import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
@@ -54,7 +54,7 @@ import org.cloudfoundry.multiapps.mta.parsers.v2.ModuleParser;
 import org.cloudfoundry.multiapps.mta.resolvers.Reference;
 import org.cloudfoundry.multiapps.mta.resolvers.ReferencePattern;
 import org.cloudfoundry.multiapps.mta.resolvers.ResolverBuilder;
-import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
+import org.cloudfoundry.multiapps.mta.util.NameUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -194,10 +194,11 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
 
     private CloudApplication attemptToUpdateSubscriber(ProcessContext context, CloudControllerClient client,
                                                        ConfigurationSubscription subscription) {
-        HandlerFactory handlerFactory = new HandlerFactory(MAJOR_SCHEMA_VERSION);
+        CloudHandlerFactory handlerFactory = CloudHandlerFactory.forSchemaVersion(MAJOR_SCHEMA_VERSION);
 
         DeploymentDescriptor dummyDescriptor = buildDummyDescriptor(subscription, handlerFactory);
-        getStepLogger().debug(org.cloudfoundry.multiapps.controller.core.Messages.DEPLOYMENT_DESCRIPTOR, SecureSerialization.toJson(dummyDescriptor));
+        getStepLogger().debug(org.cloudfoundry.multiapps.controller.core.Messages.DEPLOYMENT_DESCRIPTOR,
+                              SecureSerialization.toJson(dummyDescriptor));
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(configurationEntryService,
                                                                                                      new DummyConfigurationFilterParser(subscription.getFilter()),
@@ -280,7 +281,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     }
 
     private String getFirstComponent(String propertyName) {
-        int index = propertyName.indexOf(ValidatorUtil.DEFAULT_SEPARATOR);
+        int index = propertyName.indexOf(NameUtil.DEFAULT_PREFIX_SEPARATOR);
         if (index != -1) {
             return propertyName.substring(0, index);
         }
@@ -297,7 +298,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         return context.getControllerClient(cloudTarget.getOrganizationName(), cloudTarget.getSpaceName());
     }
 
-    private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, HandlerFactory handlerFactory) {
+    private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, CloudHandlerFactory handlerFactory) {
         ModuleDto moduleDto = subscription.getModuleDto();
         String resourceJson = JsonUtil.toJson(subscription.getResourceDto());
         Map<String, Object> resourceMap = JsonUtil.convertJsonToMap(resourceJson);

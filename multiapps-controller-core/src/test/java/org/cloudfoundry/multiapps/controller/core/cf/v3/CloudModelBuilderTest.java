@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.core.cf.v3;
 import java.util.Arrays;
 
 import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
-import org.cloudfoundry.multiapps.controller.core.cf.HandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
@@ -57,8 +57,8 @@ public class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller
     }
 
     @Override
-    protected HandlerFactory getHandlerFactory() {
-        return new HandlerFactory(3);
+    protected CloudHandlerFactory getHandlerFactory() {
+        return CloudHandlerFactory.forSchemaVersion(3);
     }
 
     @Override
@@ -73,11 +73,11 @@ public class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller
                                                                new ResolverBuilder(),
                                                                new ResolverBuilder()).resolve();
         return new org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder(deploymentDescriptor,
-                                                                                  prettyPrinting,
-                                                                                  deployedMta,
-                                                                                  DEPLOY_ID,
-                                                                                  namespace,
-                                                                                  Mockito.mock(UserMessageLogger.class));
+                                                                                                 prettyPrinting,
+                                                                                                 deployedMta,
+                                                                                                 DEPLOY_ID,
+                                                                                                 namespace,
+                                                                                                 Mockito.mock(UserMessageLogger.class));
     }
 
     @Override

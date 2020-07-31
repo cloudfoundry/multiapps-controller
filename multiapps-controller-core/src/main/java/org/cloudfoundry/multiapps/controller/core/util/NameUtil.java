@@ -11,7 +11,6 @@ import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.Resource;
-import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
 
 public class NameUtil {
 
@@ -109,7 +108,7 @@ public class NameUtil {
 
     public static String getIndexedName(String resourceName, int index, int entriesCnt, String delimiter) {
         if (entriesCnt > 1) {
-            return ValidatorUtil.getPrefixedName(resourceName, Integer.toString(index), delimiter);
+            return org.cloudfoundry.multiapps.mta.util.NameUtil.getPrefixedName(resourceName, Integer.toString(index), delimiter);
         }
         return resourceName;
     }

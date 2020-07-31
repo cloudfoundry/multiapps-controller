@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import org.cloudfoundry.multiapps.common.util.ListUtil;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Constants;
-import org.cloudfoundry.multiapps.controller.core.cf.HandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MapToEnvironmentConverter;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -26,7 +26,8 @@ public class ApplicationEnvironmentCloudModelBuilder {
     protected final String namespace;
     protected final boolean prettyPrinting;
 
-    public ApplicationEnvironmentCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, String deployId, String namespace, boolean prettyPrinting) {
+    public ApplicationEnvironmentCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, String deployId, String namespace,
+                                                   boolean prettyPrinting) {
         this.deploymentDescriptor = deploymentDescriptor;
         this.deployId = deployId;
         this.namespace = namespace;
@@ -139,8 +140,8 @@ public class ApplicationEnvironmentCloudModelBuilder {
         }
     }
 
-    protected HandlerFactory getHandlerFactory() {
-        return new HandlerFactory(MTA_MAJOR_VERSION);
+    protected CloudHandlerFactory createCloudHandlerFactory() {
+        return CloudHandlerFactory.forSchemaVersion(MTA_MAJOR_VERSION);
     }
 
 }

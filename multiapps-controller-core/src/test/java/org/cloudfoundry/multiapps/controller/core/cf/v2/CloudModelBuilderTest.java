@@ -19,7 +19,7 @@ import org.cloudfoundry.multiapps.common.util.Tester;
 import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.YamlParser;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.HandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.util.ModulesCloudModelBuilderContentCalculator;
 import org.cloudfoundry.multiapps.controller.core.cf.util.ResourcesCloudModelBuilderContentCalculator;
 import org.cloudfoundry.multiapps.controller.core.cf.util.UnresolvedModulesContentValidator;
@@ -481,9 +481,8 @@ public class CloudModelBuilderTest {
     }
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
-                                 String deployedMtaLocation, String namespace, boolean applyNamespace,
-                                 String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, Expectation expectedServices,
-                                 Expectation expectedApps) {
+                                 String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
+                                 String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps) {
         this.deploymentDescriptorLocation = deploymentDescriptorLocation;
         this.extensionDescriptorLocation = extensionDescriptorLocation;
         this.platformLocation = platformsLocation;
@@ -491,7 +490,7 @@ public class CloudModelBuilderTest {
         // TODO: this test needs refactoring
         this.namespace = namespace;
         this.applyNamespace = applyNamespace;
-        
+
         this.mtaArchiveModules = new HashSet<>(Arrays.asList(mtaArchiveModules));
         this.mtaModules = new HashSet<>(Arrays.asList(mtaModules));
         this.deployedApps = new HashSet<>(Arrays.asList(deployedApps));
@@ -507,8 +506,8 @@ public class CloudModelBuilderTest {
         return getHandlerFactory().getDescriptorParser();
     }
 
-    protected HandlerFactory getHandlerFactory() {
-        return new HandlerFactory(2);
+    protected CloudHandlerFactory getHandlerFactory() {
+        return CloudHandlerFactory.forSchemaVersion(2);
     }
 
     protected Map<String, Object> getParameters(Module module) {

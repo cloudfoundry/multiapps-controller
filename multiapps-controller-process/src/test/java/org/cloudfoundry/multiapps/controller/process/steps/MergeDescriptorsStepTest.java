@@ -9,7 +9,7 @@ import java.util.Collections;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
-import org.cloudfoundry.multiapps.controller.core.cf.HandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaDescriptorMerger;
 import org.cloudfoundry.multiapps.controller.core.util.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -29,7 +29,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     private class MergeDescriptorsStepMock extends MergeDescriptorsStep {
 
         @Override
-        protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, Platform platform) {
+        protected MtaDescriptorMerger getMtaDescriptorMerger(CloudHandlerFactory factory, Platform platform) {
             return merger;
         }
 

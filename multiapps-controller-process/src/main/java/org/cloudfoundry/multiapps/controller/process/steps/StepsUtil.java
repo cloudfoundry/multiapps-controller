@@ -18,7 +18,7 @@ import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.controller.core.cf.HandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.model.ConfigurationEntry;
@@ -56,9 +56,9 @@ public class StepsUtil {
         return user;
     }
 
-    public static HandlerFactory getHandlerFactory(VariableScope scope) {
+    public static CloudHandlerFactory getHandlerFactory(VariableScope scope) {
         int majorSchemaVersion = VariableHandling.get(scope, Variables.MTA_MAJOR_SCHEMA_VERSION);
-        return new HandlerFactory(majorSchemaVersion);
+        return CloudHandlerFactory.forSchemaVersion(majorSchemaVersion);
     }
 
     public static String getQualifiedMtaId(String mtaId, String namespace) {
@@ -76,7 +76,7 @@ public class StepsUtil {
     static CloudApplication getUpdatedServiceBrokerSubscriber(ProcessContext context) {
         List<CloudApplication> apps = context.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS);
         int index = context.getVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
-        
+
         return apps.get(index);
     }
 
@@ -180,7 +180,7 @@ public class StepsUtil {
     }
 
     static ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ProcessContext context) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
+        CloudHandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
 
         String deployId = DEPLOY_ID_PREFIX + context.getVariable(Variables.CORRELATION_ID);
         String namespace = context.getVariable(Variables.MTA_NAMESPACE);
@@ -189,9 +189,9 @@ public class StepsUtil {
 
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
 
-        return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, namespace, context.getStepLogger());
+        return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, namespace,
+                                                              context.getStepLogger());
     }
-
 
     static String getGitRepoRef(ProcessContext context) {
         Map<String, String> gitRepoConfigMap = context.getVariable(Variables.GIT_REPOSITORY_CONFIG_MAP);

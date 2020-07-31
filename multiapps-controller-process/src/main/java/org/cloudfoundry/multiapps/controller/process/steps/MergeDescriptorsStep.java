@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.inject.Named;
 
-import org.cloudfoundry.multiapps.controller.core.cf.HandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaDescriptorMerger;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Scope;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class MergeDescriptorsStep extends SyncFlowableStep {
 
-    protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, Platform platform) {
+    protected MtaDescriptorMerger getMtaDescriptorMerger(CloudHandlerFactory factory, Platform platform) {
         return new MtaDescriptorMerger(factory, platform, getStepLogger());
     }
 
@@ -28,7 +28,7 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
         DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.DEPLOYMENT_DESCRIPTOR);
         List<ExtensionDescriptor> extensionDescriptors = context.getVariable(Variables.MTA_EXTENSION_DESCRIPTOR_CHAIN);
 
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
+        CloudHandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
         Platform platform = configuration.getPlatform();
         DeploymentDescriptor descriptor = getMtaDescriptorMerger(handlerFactory, platform).merge(deploymentDescriptor,
                                                                                                  extensionDescriptors);

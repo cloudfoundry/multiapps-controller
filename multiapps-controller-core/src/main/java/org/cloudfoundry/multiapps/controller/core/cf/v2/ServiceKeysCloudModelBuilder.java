@@ -15,7 +15,6 @@ import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
-import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
 
 public class ServiceKeysCloudModelBuilder {
 
@@ -72,7 +71,7 @@ public class ServiceKeysCloudModelBuilder {
 
     protected String getInvalidServiceKeysErrorMessage(String serviceName, Object serviceConfig) {
         return MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.INVALID_TYPE_FOR_KEY,
-                                    ValidatorUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_KEYS), Map.class.getSimpleName(),
+                                    org.cloudfoundry.multiapps.mta.util.NameUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_KEYS), Map.class.getSimpleName(),
                                     serviceConfig.getClass()
                                                  .getSimpleName());
     }

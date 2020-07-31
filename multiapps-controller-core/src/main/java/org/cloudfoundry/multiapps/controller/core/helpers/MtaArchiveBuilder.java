@@ -32,7 +32,7 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.cloudfoundry.multiapps.mta.model.Version;
-import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
+import org.cloudfoundry.multiapps.mta.util.NameUtil;
 
 public class MtaArchiveBuilder {
 
@@ -185,7 +185,7 @@ public class MtaArchiveBuilder {
 
                 Attributes dependencyAttributes = new Attributes();
                 dependencyAttributes.putValue(MtaArchiveHelper.ATTR_MTA_REQUIRES_DEPENDENCY,
-                                              ValidatorUtil.getPrefixedName(module.getName(), requiredDependency.getName(),
+                                              NameUtil.getPrefixedName(module.getName(), requiredDependency.getName(),
                                                                             Constants.MTA_ELEMENT_SEPARATOR));
                 manifestEntries.put(requiredDependencyConfigPath, dependencyAttributes);
             }

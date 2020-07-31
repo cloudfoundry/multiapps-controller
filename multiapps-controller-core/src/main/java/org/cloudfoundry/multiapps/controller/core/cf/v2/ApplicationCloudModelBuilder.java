@@ -19,8 +19,8 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.DeploymentMode;
-import org.cloudfoundry.multiapps.controller.core.cf.HandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
@@ -42,7 +42,6 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
-import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
 
 public class ApplicationCloudModelBuilder {
 
@@ -60,7 +59,7 @@ public class ApplicationCloudModelBuilder {
 
     public ApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
                                         String deployId, String namespace, UserMessageLogger stepLogger) {
-        HandlerFactory handlerFactory = createHandlerFactory();
+        CloudHandlerFactory handlerFactory = createCloudHandlerFactory();
         this.handler = handlerFactory.getDescriptorHandler();
         this.deploymentDescriptor = deploymentDescriptor;
         this.namespace = namespace;
@@ -74,8 +73,8 @@ public class ApplicationCloudModelBuilder {
         this.stepLogger = stepLogger;
     }
 
-    protected HandlerFactory createHandlerFactory() {
-        return new HandlerFactory(MTA_MAJOR_VERSION);
+    protected CloudHandlerFactory createCloudHandlerFactory() {
+        return CloudHandlerFactory.forSchemaVersion(MTA_MAJOR_VERSION);
     }
 
     public CloudApplicationExtended build(Module moduleToDeploy, ModuleToDeployHelper moduleToDeployHelper) {
@@ -98,7 +97,8 @@ public class ApplicationCloudModelBuilder {
                                                                            new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0")))
                                                 .memory(parseParameters(parametersList,
                                                                         new MemoryParametersParser(SupportedParameters.MEMORY, "0")))
-                                                .instances((Integer) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0))
+                                                .instances((Integer) PropertiesUtil.getPropertyValue(parametersList,
+                                                                                                     SupportedParameters.INSTANCES, 0))
                                                 .uris(uris)
                                                 .idleUris(idleUris)
                                                 .services(getAllApplicationServices(module))
@@ -207,9 +207,9 @@ public class ApplicationCloudModelBuilder {
     }
 
     protected String getInvalidServiceBindingConfigTypeErrorMessage(String moduleName, String dependencyName, Object bindingParameters) {
-        String prefix = ValidatorUtil.getPrefixedName(moduleName, dependencyName);
+        String prefix = org.cloudfoundry.multiapps.mta.util.NameUtil.getPrefixedName(moduleName, dependencyName);
         return MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.INVALID_TYPE_FOR_KEY,
-                                    ValidatorUtil.getPrefixedName(prefix, SupportedParameters.SERVICE_BINDING_CONFIG),
+                                    org.cloudfoundry.multiapps.mta.util.NameUtil.getPrefixedName(prefix, SupportedParameters.SERVICE_BINDING_CONFIG),
                                     Map.class.getSimpleName(), bindingParameters.getClass()
                                                                                 .getSimpleName());
     }

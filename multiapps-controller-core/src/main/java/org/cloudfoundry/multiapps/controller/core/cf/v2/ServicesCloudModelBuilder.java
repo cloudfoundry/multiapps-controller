@@ -20,7 +20,6 @@ import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.core.util.SpecialResourceTypesRequiredParametersUtil;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
-import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +137,7 @@ public class ServicesCloudModelBuilder {
 
     protected String getInvalidServiceConfigTypeErrorMessage(String serviceName, Object serviceParameters) {
         return MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.INVALID_TYPE_FOR_KEY,
-                                    ValidatorUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_CONFIG),
+                                    org.cloudfoundry.multiapps.mta.util.NameUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_CONFIG),
                                     Map.class.getSimpleName(), serviceParameters.getClass()
                                                                                 .getSimpleName());
     }

@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.util.Tester;
 import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
-import org.cloudfoundry.multiapps.controller.core.cf.HandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableMtaDescriptorPropertiesResolverContext;
 import org.cloudfoundry.multiapps.controller.core.model.MtaDescriptorPropertiesResolverContext;
@@ -62,7 +62,7 @@ public class MtaDescriptorPropertiesResolverTest {
 
     private MtaDescriptorPropertiesResolverContext buildMtaDescriptorPropertiesResolverContext() {
         return ImmutableMtaDescriptorPropertiesResolverContext.builder()
-                                                              .handlerFactory(new HandlerFactory(2))
+                                                              .handlerFactory(CloudHandlerFactory.forSchemaVersion(2))
                                                               .configurationEntryService(configurationEntryService)
                                                               .cloudTarget(new CloudTarget("", ""))
                                                               .currentSpaceId("")

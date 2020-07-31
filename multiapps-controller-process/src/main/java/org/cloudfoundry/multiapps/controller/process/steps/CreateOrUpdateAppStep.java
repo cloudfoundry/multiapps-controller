@@ -50,7 +50,7 @@ import org.cloudfoundry.multiapps.controller.process.util.StagingApplicationAttr
 import org.cloudfoundry.multiapps.controller.process.util.UrisApplicationAttributeUpdater;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
-import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
+import org.cloudfoundry.multiapps.mta.util.NameUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -417,7 +417,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         throws FileStorageException {
         Map<String, Map<String, Object>> result = new TreeMap<>();
         for (CloudServiceInstanceExtended service : services) {
-            String requiredDependencyName = ValidatorUtil.getPrefixedName(moduleName, service.getResourceName(),
+            String requiredDependencyName = NameUtil.getPrefixedName(moduleName, service.getResourceName(),
                                                                           org.cloudfoundry.multiapps.controller.core.Constants.MTA_ELEMENT_SEPARATOR);
             Map<String, Object> bindingParameters = getFileProvidedBindingParameters(context, requiredDependencyName);
             result.put(service.getName(), bindingParameters);

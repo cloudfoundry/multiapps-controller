@@ -13,7 +13,7 @@ import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
-import org.cloudfoundry.multiapps.mta.util.ValidatorUtil;
+import org.cloudfoundry.multiapps.mta.util.NameUtil;
 
 public class ParametersValidatorHelper {
 
@@ -44,7 +44,7 @@ public class ParametersValidatorHelper {
         String parameterName = validator.getParameterName();
 
         Object initialParameterValue = parameters.get(parameterName);
-        Object correctParameterValue = validateAndCorrect(ValidatorUtil.getPrefixedName(prefix, parameterName), initialParameterValue,
+        Object correctParameterValue = validateAndCorrect(NameUtil.getPrefixedName(prefix, parameterName), initialParameterValue,
                                                           validator, parameters);
         if (!Objects.equals(initialParameterValue, correctParameterValue)) {
             correctedParameters.put(parameterName, correctParameterValue);
@@ -66,7 +66,7 @@ public class ParametersValidatorHelper {
         }
 
         List<Object> correctedParameterValues = initialParameterValues.stream()
-                                                                      .map(parameter -> validateAndCorrect(ValidatorUtil.getPrefixedName(prefix,
+                                                                      .map(parameter -> validateAndCorrect(NameUtil.getPrefixedName(prefix,
                                                                                                                                          validator.getParameterName()),
                                                                                                            parameter, validator,
                                                                                                            parameters))

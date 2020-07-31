@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.cloudfoundry.multiapps.controller.core.cf.HandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaDescriptorPropertiesResolver;
 import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription;
@@ -74,7 +74,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
     }
 
     private MtaDescriptorPropertiesResolverContext buildMtaDescriptorPropertiesResolverContext(ProcessContext context) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
+        CloudHandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context.getExecution());
         CloudTarget cloudTarget = new CloudTarget(context.getVariable(Variables.ORGANIZATION_NAME),
                                                   context.getVariable(Variables.SPACE_NAME));
         String currentSpaceId = context.getVariable(Variables.SPACE_GUID);

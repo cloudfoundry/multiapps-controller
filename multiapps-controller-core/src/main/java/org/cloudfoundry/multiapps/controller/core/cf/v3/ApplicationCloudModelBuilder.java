@@ -3,8 +3,8 @@ package org.cloudfoundry.multiapps.controller.core.cf.v3;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.DeploymentMode;
-import org.cloudfoundry.multiapps.controller.core.cf.HandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceAndResourceType;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
@@ -32,8 +32,8 @@ public class ApplicationCloudModelBuilder extends org.cloudfoundry.multiapps.con
     }
 
     @Override
-    protected HandlerFactory createHandlerFactory() {
-        return new HandlerFactory(MTA_MAJOR_VERSION);
+    protected CloudHandlerFactory createCloudHandlerFactory() {
+        return CloudHandlerFactory.forSchemaVersion(MTA_MAJOR_VERSION);
     }
 
     @Override
