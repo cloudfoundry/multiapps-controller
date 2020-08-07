@@ -20,7 +20,7 @@
         <sonar.coverage.jacoco.xmlReportPaths>${jacoco.report.path},${jacoco.aggregate.path}</sonar.coverage.jacoco.xmlReportPaths>
         <mockito.version>3.4.6</mockito.version>
         <derby.version>10.14.2.0</derby.version>
-        <hsqldb.version>2.5.1</hsqldb.version>
+        <h2.version>1.4.190</h2.version>
         <servlet.api.version>4.0.1</servlet.api.version>
         <javax.inject.version>1</javax.inject.version>
         <log4j.version>1.2.17</log4j.version>
@@ -33,29 +33,22 @@
         <snakeyaml.version>1.26</snakeyaml.version>
         <httpclient.version>4.5.12</httpclient.version>
         <httpcore.version>4.4.13</httpcore.version>
-        <javassist.version>3.19.0-GA</javassist.version>
-        <javax.annotation-api.version>1.2</javax.annotation-api.version>
-        <validation-api.version>1.1.0.Final</validation-api.version>
         <eclipselink.version>2.7.7</eclipselink.version>
         <gson.version>2.6.2</gson.version>
         <flowable.version>6.5.0</flowable.version>
-        <joda-time.version>2.8</joda-time.version>
         <spring.version>5.2.8.RELEASE</spring.version>
         <spring.security.version>5.3.3.RELEASE</spring.security.version>
         <spring.security.oauth2.version>2.5.0.RELEASE</spring.security.oauth2.version>
         <spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
         <spring.cloud.version>2.0.7.RELEASE</spring.cloud.version>
-        <hana.cloud.version>1.0.4.RELEASE</hana.cloud.version>
         <quartz.version>2.3.2</quartz.version>
         <jackson.version>2.11.2</jackson.version>
         <jackson-asl.version>1.9.13</jackson-asl.version>
-        <netty-codec-http.version>4.1.49.Final</netty-codec-http.version>
         <!-- TODO: Applying our Liquibase changes to a new (empty) database doesn't work with versions >= 3.5.1, due to a 
             backwards incompatible change we should adapt to: https://liquibase.jira.com/projects/CORE/issues/CORE-1863 -->
         <liquibase.version>3.4.1</liquibase.version>
         <liquibase-slf4j.version>1.2.1</liquibase-slf4j.version>
         <cloudfoundry.client.version>1.27.1</cloudfoundry.client.version>
-        <semver4j.version>3.1.0</semver4j.version>
         <jgit.version>4.0.1.201506240215-r</jgit.version>
         <swagger.version>1.5.16</swagger.version>
         <jclouds.version>2.1.3</jclouds.version>
@@ -326,15 +319,9 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.hsqldb</groupId>
-                <artifactId>hsqldb</artifactId>
-                <version>${hsqldb.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>1.4.190</version>
+                <version>${h2.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -420,21 +407,6 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>${javassist.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.annotation</groupId>
-                <artifactId>javax.annotation-api</artifactId>
-                <version>${javax.annotation-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>${validation-api.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.eclipse.persistence</groupId>
                 <artifactId>org.eclipse.persistence.jpa</artifactId>
                 <version>${eclipselink.version}</version>
@@ -511,11 +483,6 @@
                 <groupId>org.flowable</groupId>
                 <artifactId>flowable-spring-common</artifactId>
                 <version>${flowable.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>${joda-time.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -610,11 +577,6 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-core</artifactId>
-                <version>${spring.cloud.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-spring-service-connector</artifactId>
                 <version>${spring.cloud.version}</version>
             </dependency>
@@ -645,11 +607,6 @@
                 <groupId>org.quartz-scheduler</groupId>
                 <artifactId>quartz-jobs</artifactId>
                 <version>${quartz.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.hana.cloud</groupId>
-                <artifactId>spring-cloud-sap-core</artifactId>
-                <version>${hana.cloud.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
@@ -700,16 +657,6 @@
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-jaxb-annotations</artifactId>
                 <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-codec-http</artifactId>
-                <version>${netty-codec-http.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.vdurmont</groupId>
-                <artifactId>semver4j</artifactId>
-                <version>${semver4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>

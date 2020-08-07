@@ -1,10 +1,11 @@
 package org.cloudfoundry.multiapps.controller.client.util;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.compress.utils.Sets;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,11 +15,11 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResilientCloudOperationExecutor.class);
 
-    private static final Set<HttpStatus> DEFAULT_STATUSES_TO_IGNORE = Sets.newHashSet(HttpStatus.GATEWAY_TIMEOUT,
-                                                                                      HttpStatus.REQUEST_TIMEOUT,
-                                                                                      HttpStatus.INTERNAL_SERVER_ERROR,
-                                                                                      HttpStatus.BAD_GATEWAY,
-                                                                                      HttpStatus.SERVICE_UNAVAILABLE);
+    private static final Set<HttpStatus> DEFAULT_STATUSES_TO_IGNORE = new HashSet<>(Arrays.asList(HttpStatus.GATEWAY_TIMEOUT,
+                                                                                                  HttpStatus.REQUEST_TIMEOUT,
+                                                                                                  HttpStatus.INTERNAL_SERVER_ERROR,
+                                                                                                  HttpStatus.BAD_GATEWAY,
+                                                                                                  HttpStatus.SERVICE_UNAVAILABLE));
 
     private Set<HttpStatus> additionalStatusesToIgnore = Collections.emptySet();
 
@@ -33,7 +34,7 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
     }
 
     public ResilientCloudOperationExecutor withStatusesToIgnore(HttpStatus... statusesToIgnore) {
-        this.additionalStatusesToIgnore = Sets.newHashSet(statusesToIgnore);
+        this.additionalStatusesToIgnore = new HashSet<>(Arrays.asList(statusesToIgnore));
         return this;
     }
 
