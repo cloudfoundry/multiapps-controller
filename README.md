@@ -37,6 +37,9 @@ Contains REST API implementations for:
 The result from the build of this component is a WAR file which is the deployable assembly of the MultiApps Controller.
 
 # Building
+
+*WARNING* : with [Issue 117](https://github.com/cloudfoundry-incubator/multiapps-cli-plugin/issues/117) the master branch of this repository as well as other artifacts will be renamed. Adaptation to any CI/CD infrastructure & scritps will be required.
+
 ## Build tools
 All components are built with Java 8 and [Apache Maven](http://maven.apache.org/), version `3.3.9` or newer. 
 
