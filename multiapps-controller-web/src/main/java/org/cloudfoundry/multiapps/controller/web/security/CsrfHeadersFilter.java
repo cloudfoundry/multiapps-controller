@@ -31,7 +31,8 @@ public class CsrfHeadersFilter extends OncePerRequestFilter {
         // The order is deliberately set to copy the csrf token on the way back, after the whole filter chain has passed.
         // This is because user authentication may force session & token recreation after this filter.
         CsrfToken token = (CsrfToken) request.getAttribute(SPRING_SECURITY_CSRF_SESSION_ATTRIBUTE);
-        if (token != null) {
+        if (token != null && !response.isCommitted()) { // Spring invokes HttpServletResponse#sendError in case of invalid
+                                                        // credentials, which commits the response and should not be modified
             response.setHeader(Constants.CSRF_HEADER_NAME, token.getHeaderName());
             response.setHeader(Constants.CSRF_PARAM_NAME, token.getParameterName());
             response.setHeader(Constants.CSRF_TOKEN, token.getToken());
