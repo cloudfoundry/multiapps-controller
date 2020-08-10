@@ -79,6 +79,7 @@ public class ServicesCloudModelBuilder {
                                                     .plan((String) parameters.get(SupportedParameters.SERVICE_PLAN))
                                                     .type(ServiceInstanceType.MANAGED)
                                                     .provider((String) parameters.get(SupportedParameters.SERVICE_PROVIDER))
+                                                    .brokerName((String) parameters.get(SupportedParameters.SERVICE_BROKER_NAME))
                                                     .version((String) parameters.get(SupportedParameters.SERVICE_VERSION))
                                                     .tags((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_TAGS,
                                                                                                  Collections.emptyList()))
@@ -137,7 +138,8 @@ public class ServicesCloudModelBuilder {
 
     protected String getInvalidServiceConfigTypeErrorMessage(String serviceName, Object serviceParameters) {
         return MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.INVALID_TYPE_FOR_KEY,
-                                    org.cloudfoundry.multiapps.mta.util.NameUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_CONFIG),
+                                    org.cloudfoundry.multiapps.mta.util.NameUtil.getPrefixedName(serviceName,
+                                                                                                 SupportedParameters.SERVICE_CONFIG),
                                     Map.class.getSimpleName(), serviceParameters.getClass()
                                                                                 .getSimpleName());
     }
