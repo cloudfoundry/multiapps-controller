@@ -35,6 +35,7 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
 
     private static final String POLLING = "polling";
     private static final String STEP_EXECUTION = "stepExecution";
+    private static final String METADATA_UPDATE = "metadataUpdate";
     private static final String DONE_EXECUTION_STATUS = "DONE";
 
     private StepInput stepInput;
@@ -67,6 +68,8 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
         prepareResponses(POLLING);
         step.execute(execution);
         assertStepPhase(POLLING);
+        step.execute(execution);
+        assertStepPhase(METADATA_UPDATE);
     }
 
     @Test

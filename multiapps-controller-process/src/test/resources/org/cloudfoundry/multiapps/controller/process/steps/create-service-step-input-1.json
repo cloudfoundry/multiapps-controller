@@ -39,6 +39,9 @@
 					}
 				}
 			},
+			"expectedStepPhase": "POLL"
+		},
+		"metadataUpdate": {
 			"expectedStepPhase": "DONE"
 		}
 	}
