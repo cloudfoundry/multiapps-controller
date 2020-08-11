@@ -25,9 +25,9 @@ public class UpdateServiceMetadataStep extends ServiceStep {
     }
 
     private MethodExecution<String> updateServiceMetadata(CloudControllerClient controllerClient, CloudServiceInstanceExtended service) {
-        getStepLogger().debug(Messages.UPDATING_SERVICE_METADATA, service.getName(), service.getResourceName());
+        getStepLogger().debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0, service.getName(), service.getResourceName());
         updateServiceMetadata(service, controllerClient);
-        getStepLogger().debug(Messages.SERVICE_METADATA_UPDATED, service.getName());
+        getStepLogger().debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_DONE, service.getName());
         return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
     }
 
