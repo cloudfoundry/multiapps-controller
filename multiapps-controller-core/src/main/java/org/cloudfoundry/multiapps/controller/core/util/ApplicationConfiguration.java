@@ -88,7 +88,6 @@ public class ApplicationConfiguration {
     static final String CFG_CF_INSTANCE_INDEX = "CF_INSTANCE_INDEX";
     static final String CFG_CERTIFICATE_CN = "CERTIFICATE_CN";
     static final String CFG_MICROMETER_STEP_IN_SECONDS = "MICROMETER_STEP_IN_SECONDS";
-    static final String CFG_MICROMETER_BATCH_SIZE = "MICROMETER_BATCH_SIZE";
     static final String CFG_DB_TRANSACTION_TIMEOUT_IN_SECONDS = "DB_TRANSACTION_TIMEOUT_IN_SECONDS";
     static final String CFG_SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS = "SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS";
 
@@ -180,7 +179,6 @@ public class ApplicationConfiguration {
     private Integer controllerClientThreadPoolSize;
     private String certificateCN;
     private Integer micrometerStepInSeconds;
-    private Integer micrometerBatchSize;
     private Integer dbTransactionTimeoutInSeconds;
     private Integer snakeyamlMaxAliasesForCollections;
 
@@ -550,13 +548,6 @@ public class ApplicationConfiguration {
         return micrometerStepInSeconds;
     }
 
-    public Integer getMicrometerBatchSize() {
-        if (micrometerBatchSize == null) {
-            micrometerBatchSize = getMicrometerBatchSizeFromEnvironment();
-        }
-        return micrometerBatchSize;
-    }
-
     public Integer getDbTransactionTimeoutInSeconds() {
         if (dbTransactionTimeoutInSeconds == null) {
             dbTransactionTimeoutInSeconds = getDbTransactionTimeoutInSecondsFromEnvironment();
@@ -912,12 +903,6 @@ public class ApplicationConfiguration {
         Integer micrometerStepInSeconds = environment.getInteger(CFG_MICROMETER_STEP_IN_SECONDS, null);
         LOGGER.info(format(Messages.MICROMETER_STEP_IN_SECONDS, micrometerStepInSeconds));
         return micrometerStepInSeconds;
-    }
-
-    private Integer getMicrometerBatchSizeFromEnvironment() {
-        Integer micrometerBatchSize = environment.getInteger(CFG_MICROMETER_BATCH_SIZE, null);
-        LOGGER.info(format(Messages.MICROMETER_BATCH_SIZE, micrometerBatchSize));
-        return micrometerBatchSize;
     }
 
     private Integer getDbTransactionTimeoutInSecondsFromEnvironment() {

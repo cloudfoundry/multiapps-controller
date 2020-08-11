@@ -1,3 +1,2 @@
 org.cloudfoundry.multiapps.controller.web.configuration.service.FileSystemServiceInfoCreator
 org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfoCreator
-org.cloudfoundry.multiapps.controller.web.configuration.service.DynatraceServiceInfoCreator
