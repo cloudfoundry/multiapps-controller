@@ -210,9 +210,9 @@
             <artifactId>multiapps-controller-database-migration</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
+		<dependency>
             <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-dynatrace</artifactId>
+            <artifactId>micrometer-registry-jmx</artifactId>
         </dependency>
     </dependencies>
 </project>

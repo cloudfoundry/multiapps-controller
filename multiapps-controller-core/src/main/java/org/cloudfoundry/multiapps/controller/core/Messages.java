@@ -169,7 +169,6 @@ public final class Messages {
     public static final String CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = "Controller client connection pool size: {0}";
     public static final String CONTROLLER_CLIENT_THREAD_POOL_SIZE = "Controller client thread pool size: {0}";
     public static final String MICROMETER_STEP_IN_SECONDS = "Micrometer step in seconds: {0}";
-    public static final String MICROMETER_BATCH_SIZE = "Micrometer batch size: {0}";
     public static final String DB_TRANSACTION_TIMEOUT = "Database transaction timeout: {0} seconds";
     public static final String SNAKEYAML_MAX_ALIASES_FOR_COLLECTIONS = "SnakeYaml max aliases for collections: {0}";
 
