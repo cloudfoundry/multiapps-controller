@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -11,8 +11,6 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
-import org.cloudfoundry.client.lib.domain.CloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceWithAlternativesCreator;
 import org.cloudfoundry.multiapps.controller.core.model.ServiceOperation;
@@ -77,7 +75,6 @@ public class CreateServiceStep extends ServiceStep {
     private MethodExecution<String> createManagedServiceInstance(CloudControllerClient client, CloudServiceInstanceExtended service) {
         MethodExecution<String> createService = serviceCreatorFactory.createInstance(getStepLogger())
                                                                      .createService(client, service);
-        updateServiceMetadata(service, client);
         return createService;
     }
 
@@ -95,20 +92,12 @@ public class CreateServiceStep extends ServiceStep {
                              ExceptionMessageTailMapper.map(configuration, CloudComponents.SERVICE_BROKERS, service.getLabel()));
     }
 
-    private void updateServiceMetadata(CloudServiceInstanceExtended serviceToProcess, CloudControllerClient client) {
-        ImmutableCloudServiceInstance serviceWithMetadata = ImmutableCloudServiceInstance.copyOf(serviceToProcess);
-        CloudMetadata serviceMeta = client.getServiceInstance(serviceWithMetadata.getName())
-                                          .getMetadata();
-        serviceWithMetadata = serviceWithMetadata.withMetadata(serviceMeta);
-        client.updateServiceInstanceMetadata(serviceWithMetadata.getMetadata()
-                                                                .getGuid(),
-                                             serviceWithMetadata.getV3Metadata());
-    }
-
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ProcessContext context) {
-        return Collections.singletonList(new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(),
-                                                                                          getServiceProgressReporter()));
+        // The order is important. The metadata update should be done after the async creation of the service instance is done.
+        // TODO: Add link to cloud_controller_ng issue.
+        return Arrays.asList(new PollServiceCreateOrUpdateOperationsExecution(getServiceOperationGetter(), getServiceProgressReporter()),
+                             new UpdateServiceMetadataExecution());
     }
 
     @Override
