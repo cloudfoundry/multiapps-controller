@@ -15,7 +15,11 @@ public class UpdateServiceMetadataExecution implements AsyncExecution {
     @Override
     public AsyncExecutionState execute(ProcessContext context) {
         CloudServiceInstanceExtended serviceInstance = context.getVariable(Variables.SERVICE_TO_PROCESS);
+        context.getStepLogger()
+               .debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0, serviceInstance.getName());
         updateMetadata(context.getControllerClient(), serviceInstance);
+        context.getStepLogger()
+               .debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_DONE, serviceInstance.getName());
         return AsyncExecutionState.FINISHED;
     }
 

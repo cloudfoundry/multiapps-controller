@@ -11,6 +11,7 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
+import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,13 +28,17 @@ public class UpdateServiceMetadataExecutionTest {
     @Mock
     private CloudControllerClient controllerClient;
     @Mock
-    private ProcessContext context;
+    private StepLogger stepLogger;
+    @Mock
+    private ProcessContext procesContext;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        Mockito.when(context.getControllerClient())
+        Mockito.when(procesContext.getControllerClient())
                .thenReturn(controllerClient);
+        Mockito.when(procesContext.getStepLogger())
+               .thenReturn(stepLogger);
     }
 
     @Test
@@ -48,7 +53,7 @@ public class UpdateServiceMetadataExecutionTest {
                                                                                                     .label(SERVICE_INSTANCE_LABEL)
                                                                                                     .v3Metadata(v3Metadata)
                                                                                                     .build();
-        Mockito.when(context.getVariable(Variables.SERVICE_TO_PROCESS))
+        Mockito.when(procesContext.getVariable(Variables.SERVICE_TO_PROCESS))
                .thenReturn(serviceInstanceToCreate);
 
         CloudMetadata metadata = ImmutableCloudMetadata.builder()
@@ -66,7 +71,7 @@ public class UpdateServiceMetadataExecutionTest {
                .thenReturn(serviceInstance);
 
         AsyncExecution asyncExecution = new UpdateServiceMetadataExecution();
-        asyncExecution.execute(context);
+        asyncExecution.execute(procesContext);
 
         Mockito.verify(controllerClient)
                .updateServiceInstanceMetadata(metadata.getGuid(), v3Metadata);
