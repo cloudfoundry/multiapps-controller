@@ -126,7 +126,8 @@ public class ConfigurationSubscriptionQueryImpl extends AbstractQueryImpl<Config
                                                                        .condition(getCriteriaBuilder()::equal)
                                                                        .value(spaceId)
                                                                        .build());
-        return executeInTransaction(manager -> createDeleteQuery(manager, queryCriteria, ConfigurationEntryDto.class).executeUpdate());
+        return executeInTransaction(manager -> createDeleteQuery(manager, queryCriteria,
+                                                                 ConfigurationSubscriptionDto.class).executeUpdate());
     }
 
 }
