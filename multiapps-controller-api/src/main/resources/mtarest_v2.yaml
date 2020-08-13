@@ -1,8 +1,8 @@
 ---
 swagger: "2.0"
 info:
-  description: "This is the API of the Cloud Foundry MultiApps Controller"
-  version: "1.0.0"
+  description: "This is the API v2 of the Cloud Foundry MultiApps Controller"
+  version: "2.0.0"
   title: "MTA REST API"
   contact: {}
   license:
@@ -14,7 +14,7 @@ paths:
   /api/v2/spaces/{spaceGuid}/mtas:
     get:
       summary: ""
-      description: "Retrieves all Multi-Target Applications in a space "
+      description: "Retrieves all Multi-Target Applications in a given space and namespace"
       operationId: "getMtas"
       produces:
       - "application/json"
