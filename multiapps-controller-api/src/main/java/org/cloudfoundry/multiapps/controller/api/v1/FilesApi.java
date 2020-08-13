@@ -1,10 +1,11 @@
-package org.cloudfoundry.multiapps.controller.api;
+package org.cloudfoundry.multiapps.controller.api.v1;
 
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
+import org.cloudfoundry.multiapps.controller.api.FilesApiService;
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.RequestVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.Resources;

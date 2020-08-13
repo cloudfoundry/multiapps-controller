@@ -107,9 +107,8 @@
                         <configuration>
                             <apiSources>
                                 <apiSource>
-                                    <locations>org.cloudfoundry.multiapps.controller.api</locations>
+                                    <locations>org.cloudfoundry.multiapps.controller.api.v1</locations>
                                     <swaggerFileName>mtarest</swaggerFileName>
-                                    <basePath>/api/v1/spaces/{space_guid}</basePath>
                                     <info>                                                
                                         <title>MTA REST API</title>
                                         <description>This is the API of the Cloud Foundry MultiApps Controller</description>
@@ -132,7 +131,7 @@
                                     <swaggerFileName>mtarest_v2</swaggerFileName>
                                     <info>                                                
                                         <title>MTA REST API</title>
-                                        <description>This is the API of the Cloud Foundry MultiApps Controller</description>
+                                        <description>This is the API v2 of the Cloud Foundry MultiApps Controller</description>
                                         <version>2.0.0</version>
                                     </info>
                                 </apiSource>

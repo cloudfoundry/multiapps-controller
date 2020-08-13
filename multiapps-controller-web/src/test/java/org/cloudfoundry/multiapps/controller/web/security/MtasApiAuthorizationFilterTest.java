@@ -31,7 +31,7 @@ class MtasApiAuthorizationFilterTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "/api/v1/spaces/foo/mtas", "/api/v1/spaces/foo/operations" })
+    @ValueSource(strings = { "/api/v1/spaces/foo/mtas", "/api/v1/spaces/foo/operations", "/api/v2/spaces/foo/mtas" })
     void testUriRegexMatches(String uri) {
         assertTrue(uri.matches(mtasApiAuthorizationFilter.getUriRegex()));
     }

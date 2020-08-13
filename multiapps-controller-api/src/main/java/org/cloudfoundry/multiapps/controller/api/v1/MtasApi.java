@@ -1,9 +1,10 @@
-package org.cloudfoundry.multiapps.controller.api;
+package org.cloudfoundry.multiapps.controller.api.v1;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.multiapps.controller.api.MtasApiService;
 import org.cloudfoundry.multiapps.controller.api.Constants.Endpoints;
 import org.cloudfoundry.multiapps.controller.api.Constants.PathVariables;
 import org.cloudfoundry.multiapps.controller.api.Constants.RequestVariables;
