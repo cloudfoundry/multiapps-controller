@@ -18,6 +18,8 @@ import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudOrganization;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudSpace;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
 import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
@@ -36,6 +38,7 @@ import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 public class AuthorizationCheckerTest {
 
@@ -59,8 +62,8 @@ public class AuthorizationCheckerTest {
     private AuthorizationChecker authorizationChecker;
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     public static Stream<Arguments> checkPermissionsTest() {
@@ -89,7 +92,7 @@ public class AuthorizationCheckerTest {
 
     @ParameterizedTest
     @MethodSource
-    public void checkPermissionsTest(boolean hasPermissions, boolean hasAccess) {
+    void checkPermissionsTest(boolean hasPermissions, boolean hasAccess) {
         setUpMocks(hasPermissions, hasAccess, null);
 
         boolean isAuthorized = authorizationChecker.checkPermissions(userInfo, ORG, SPACE, false);
@@ -98,14 +101,14 @@ public class AuthorizationCheckerTest {
     }
 
     @Test
-    public void checkPermissionsWithExceptionTest() {
+    void checkPermissionsWithExceptionTest() {
         setUpMocks(true, true, new HttpClientErrorException(HttpStatus.BAD_REQUEST));
         assertThrows(Exception.class, () -> authorizationChecker.checkPermissions(userInfo, ORG, SPACE, false));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void checkPermissionTest2(boolean hasPermissions, boolean hasAccess) {
+    void checkPermissionTest2(boolean hasPermissions, boolean hasAccess) {
         setUpMocks(hasPermissions, hasAccess, null);
         boolean isAuthorized = authorizationChecker.checkPermissions(userInfo, SPACE_ID, false);
         boolean shouldBeAuthorized = hasAccess && hasPermissions;
@@ -113,13 +116,13 @@ public class AuthorizationCheckerTest {
     }
 
     @Test
-    public void checkPermissionsWithExceptionTest2() {
+    void checkPermissionsWithExceptionTest2() {
         setUpMocks(true, true, new HttpClientErrorException(HttpStatus.BAD_REQUEST));
         assertThrows(Exception.class, () -> authorizationChecker.checkPermissions(userInfo, SPACE_ID, false));
     }
 
     @Test
-    public void testSpaceDevelopersCache() {
+    void testSpaceDevelopersCache() {
         setUpMocks(true, true, null);
         when(client.getSpaceDevelopers(UUID.fromString(SPACE_ID))).thenReturn(Collections.singletonList(USER_ID));
         when(client.getSpaceDevelopers(UUID.fromString(SECOND_SPACE_ID))).thenReturn(Collections.singletonList(USER_ID));
@@ -140,7 +143,7 @@ public class AuthorizationCheckerTest {
     }
 
     @Test
-    public void testSpaceDevelopersCacheNegativeResult() {
+    void testSpaceDevelopersCacheNegativeResult() {
         setUpMocks(true, true, null);
         when(client.getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)))).thenReturn(Collections.singletonList(USER_ID));
 
@@ -156,6 +159,18 @@ public class AuthorizationCheckerTest {
         assertTrue(authorizationChecker.checkPermissions(negativeUser, THIRD_SPACE_ID, false));
         Mockito.verify(client, Mockito.times(2))
                .getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)));
+    }
+
+    @Test
+    void testCheckPermissionsWithNonUUIDSpaceIDString() {
+        setUpMocks(true, true, null);
+        AuditLoggingFacade mockAuditLoggingFacade = Mockito.mock(AuditLoggingFacade.class);
+        AuditLoggingProvider.setFacade(mockAuditLoggingFacade);
+
+        ResponseStatusException resultException = assertThrows(ResponseStatusException.class,
+                                                               () -> authorizationChecker.checkPermissions(userInfo, "non-uuid-spaceId",
+                                                                                                           true));
+        assertTrue(resultException.getStatus() == HttpStatus.NOT_FOUND);
     }
 
     private void setUpMocks(boolean hasPermissions, boolean hasAccess, Exception e) {

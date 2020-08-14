@@ -32,7 +32,8 @@ public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizat
             return true;
         } catch (ResponseStatusException e) {
             logUnauthorizedRequest(request, e);
-            response.sendError(HttpStatus.UNAUTHORIZED.value(),
+            HttpStatus responseStatus = determineResponseStatus(e);
+            response.sendError(responseStatus.value(),
                                MessageFormat.format(Messages.NOT_AUTHORIZED_TO_OPERATE_IN_SPACE_WITH_GUID_0, spaceGuid));
             return false;
         }
@@ -50,6 +51,10 @@ public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizat
                                        ServletUtil.decodeUri(request)),
                          e);
         }
+    }
+
+    private HttpStatus determineResponseStatus(ResponseStatusException e) {
+        return e.getStatus() == null ? HttpStatus.UNAUTHORIZED : e.getStatus();
     }
 
     protected abstract String extractSpaceGuid(HttpServletRequest request);
