@@ -73,9 +73,8 @@ public class CreateServiceStep extends ServiceStep {
     }
 
     private MethodExecution<String> createManagedServiceInstance(CloudControllerClient client, CloudServiceInstanceExtended service) {
-        MethodExecution<String> createService = serviceCreatorFactory.createInstance(getStepLogger())
-                                                                     .createService(client, service);
-        return createService;
+        return serviceCreatorFactory.createInstance(getStepLogger())
+                                    .createService(client, service);
     }
 
     private void processServiceCreationFailure(ProcessContext context, CloudServiceInstanceExtended service, CloudOperationException e) {

@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class ApplicationInstanceShutdownExecutor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationShutdownExecutor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationInstanceShutdownExecutor.class);
 
     private static final long SHUTDOWN_POLLING_INTERVAL = 3000L;
 

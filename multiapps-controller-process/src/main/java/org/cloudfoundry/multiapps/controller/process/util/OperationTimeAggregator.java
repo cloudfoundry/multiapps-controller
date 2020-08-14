@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,6 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTimeCalculator.ProcessTime;
-import org.cloudfoundry.multiapps.controller.process.util.ProcessTimeCalculator.ProcessTimeLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,15 +35,10 @@ public class OperationTimeAggregator {
         Map<String, ProcessTime> processTimesForSubProcesses = historicSubProcesses.stream()
                                                                                    .collect(Collectors.toMap(processId -> processId,
                                                                                                              processTimeCalculator::calculate));
-        processTimesForSubProcesses.forEach((key, value) -> logProcessTimeIndividually(value, correlationId,
-                key));
+        processTimesForSubProcesses.forEach((key, value) -> logProcessTimeIndividually(value, correlationId, key));
 
         ProcessTime rootProcessTime = processTimesForSubProcesses.get(correlationId);
         logOverallProcesstime(correlationId, rootProcessTime, processTimesForSubProcesses.values());
-    }
-
-    private void logProcessTimeIndividually(ProcessTime processTime, String correlationId, String processInstanceId) {
-        ProcessTimeLogger.logProcessTimeIndividually(LOGGER, processTime, correlationId, processInstanceId);
     }
 
     private void logOverallProcesstime(String correlationId, ProcessTime rootProcessTime,
@@ -55,6 +50,18 @@ public class OperationTimeAggregator {
                                                              .withDelayBetweenSteps(rootProcessTime.getDelayBetweenSteps()
                                                                  + overallDelayBetweenSteps);
 
-        ProcessTimeLogger.logOverallProcessTime(LOGGER, overallProcessTime, correlationId);
+        logOverallProcessTime(overallProcessTime, correlationId);
     }
+
+    private void logProcessTimeIndividually(ProcessTime processTime, String correlationId, String processInstanceId) {
+        LOGGER.debug(MessageFormat.format("Process time for operation with id \"{0}\", process instance with id \"{1}\", process duration \"{2}\"ms, delay between steps \"{3}\"ms",
+                                          correlationId, processInstanceId, processTime.getProcessDuration(),
+                                          processTime.getDelayBetweenSteps()));
+    }
+
+    private void logOverallProcessTime(ProcessTime processTime, String correlationId) {
+        LOGGER.info(MessageFormat.format("Process time for operation with id \"{0}\", operation duration \"{1}\"ms, delay between steps \"{2}\"ms",
+                                         correlationId, processTime.getProcessDuration(), processTime.getDelayBetweenSteps()));
+    }
+
 }

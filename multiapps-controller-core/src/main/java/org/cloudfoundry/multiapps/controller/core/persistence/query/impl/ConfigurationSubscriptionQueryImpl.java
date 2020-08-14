@@ -9,7 +9,6 @@ import javax.persistence.NoResultException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription;
-import org.cloudfoundry.multiapps.controller.core.persistence.dto.ConfigurationEntryDto;
 import org.cloudfoundry.multiapps.controller.core.persistence.dto.ConfigurationSubscriptionDto;
 import org.cloudfoundry.multiapps.controller.core.persistence.dto.ConfigurationSubscriptionDto.AttributeNames;
 import org.cloudfoundry.multiapps.controller.core.persistence.query.ConfigurationSubscriptionQuery;
