@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class DescriptorParserFacadeFactoryTest {
+class DescriptorParserFacadeFactoryTest {
 
     @Test
-    public void testGetInstance() {
+    void testGetInstance() {
         final int maxAliases = 5;
         ApplicationConfiguration applicationConfiguration = Mockito.mock(ApplicationConfiguration.class);
         Mockito.when(applicationConfiguration.getSnakeyamlMaxAliasesForCollections())
@@ -22,4 +22,5 @@ public class DescriptorParserFacadeFactoryTest {
         InputStream mtadYaml = getClass().getResourceAsStream("billion-laughs.mtad.yaml");
         Assertions.assertThrows(ParsingException.class, () -> instance.parseDeploymentDescriptor(mtadYaml));
     }
+
 }

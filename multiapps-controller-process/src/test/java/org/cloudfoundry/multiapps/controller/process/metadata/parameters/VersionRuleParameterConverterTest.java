@@ -6,20 +6,20 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.junit.jupiter.api.Test;
 
-public class VersionRuleParameterConverterTest {
+class VersionRuleParameterConverterTest {
 
     @Test
-    public void testConvertWithInvalidValueType() {
+    void testConvertWithInvalidValueType() {
         assertThrows(SLException.class, () -> new VersionRuleParameterConverter().convert(false));
     }
 
     @Test
-    public void testConvertWithInvalidValue() {
+    void testConvertWithInvalidValue() {
         assertThrows(SLException.class, () -> new VersionRuleParameterConverter().convert("foo"));
     }
 
     @Test
-    public void testConvert() {
+    void testConvert() {
         String versionRule = (String) new VersionRuleParameterConverter().convert("ALL");
         assertEquals("ALL", versionRule);
     }

@@ -45,7 +45,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 
-public class ServiceRemoverTest {
+class ServiceRemoverTest {
 
     private static final String TEST_USER = "test-user";
     private static final String TEST_SPACE = "test-space";
@@ -70,7 +70,7 @@ public class ServiceRemoverTest {
     private ServiceRemover serviceRemover;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         prepareExecution();
         serviceRemover = new ServiceRemover(configuration);
@@ -84,20 +84,18 @@ public class ServiceRemoverTest {
     }
 
     static Stream<Arguments> testControllerErrorHandling() {
-        return Stream.of(
-        // @formatter:off
-                        Arguments.of(HttpStatus.NOT_FOUND, null, null),
-                        Arguments.of(HttpStatus.BAD_GATEWAY, CloudServiceBrokerException.class, "Service broker operation failed: 502 Bad Gateway"),
-                        Arguments.of(HttpStatus.UNPROCESSABLE_ENTITY, CloudControllerException.class, "Controller operation failed: 422 Unprocessable Entity"),
-                        Arguments.of(HttpStatus.FORBIDDEN, CloudControllerException.class, "Controller operation failed: 403 Forbidden")
-        // @formatter:on
-        );
+        return Stream.of(Arguments.of(HttpStatus.NOT_FOUND, null, null),
+                         Arguments.of(HttpStatus.BAD_GATEWAY, CloudServiceBrokerException.class,
+                                      "Service broker operation failed: 502 Bad Gateway"),
+                         Arguments.of(HttpStatus.UNPROCESSABLE_ENTITY, CloudControllerException.class,
+                                      "Controller operation failed: 422 Unprocessable Entity"),
+                         Arguments.of(HttpStatus.FORBIDDEN, CloudControllerException.class, "Controller operation failed: 403 Forbidden"));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testControllerErrorHandling(HttpStatus httpStatusToThrow, Class<? extends Exception> expectedExceptionType,
-                                            String expectedExceptionMessage) {
+    void testControllerErrorHandling(HttpStatus httpStatusToThrow, Class<? extends Exception> expectedExceptionType,
+                                     String expectedExceptionMessage) {
         UUID applicationBindingGuid = UUID.randomUUID();
         CloudServiceInstance serviceInstance = buildServiceInstance();
 
@@ -125,19 +123,12 @@ public class ServiceRemoverTest {
     }
 
     static Stream<Arguments> testDeleteServices() {
-        return Stream.of(
-        // @formatter:off
-                        Arguments.of(false, true),
-                        Arguments.of(true, false),
-                        Arguments.of(false, false),
-                        Arguments.of(true, true)
-        // @formatter:on
-        );
+        return Stream.of(Arguments.of(false, true), Arguments.of(true, false), Arguments.of(false, false), Arguments.of(true, true));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testDeleteServices(boolean hasServiceBinding, boolean hasServiceKey) {
+    void testDeleteServices(boolean hasServiceBinding, boolean hasServiceKey) {
         UUID applicationBindingGuid = UUID.randomUUID();
         CloudServiceInstance serviceInstance = buildServiceInstance();
         List<CloudServiceKey> serviceKeys = buildServiceKeys(serviceInstance, hasServiceKey);
@@ -212,4 +203,5 @@ public class ServiceRemoverTest {
                                                                         .build())
                                         .build();
     }
+
 }

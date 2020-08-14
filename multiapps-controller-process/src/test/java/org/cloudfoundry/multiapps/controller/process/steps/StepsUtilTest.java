@@ -26,26 +26,26 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class StepsUtilTest {
+class StepsUtilTest {
 
     private static final String EXAMPLE_USER = "exampleUser";
 
     protected final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
 
     @Test
-    public void testDetermineCurrentUserWithSetUser() {
+    void testDetermineCurrentUserWithSetUser() {
         VariableHandling.set(execution, Variables.USER, EXAMPLE_USER);
         String determinedUser = StepsUtil.determineCurrentUser(execution);
         assertEquals(EXAMPLE_USER, determinedUser);
     }
 
     @Test
-    public void testDetermineCurrentUserError() {
+    void testDetermineCurrentUserError() {
         Assertions.assertThrows(SLException.class, () -> StepsUtil.determineCurrentUser(execution));
     }
 
     @Test
-    public void testGetServicesToCreateWithCredentials() {
+    void testGetServicesToCreateWithCredentials() {
         CloudServiceInstanceExtended service = ImmutableCloudServiceInstanceExtended.builder()
                                                                                     .name("my-service")
                                                                                     .putCredential("integer-value", 1)
@@ -75,7 +75,7 @@ public class StepsUtilTest {
     }
 
     @Test
-    public void testGetAppsToDeployWithBindingParameters() {
+    void testGetAppsToDeployWithBindingParameters() {
         Map<String, Map<String, Object>> bindingParameters = new HashMap<>();
         Map<String, Object> serviceBindingParameters = new HashMap<>();
         serviceBindingParameters.put("integer-value", 1);
@@ -111,7 +111,7 @@ public class StepsUtilTest {
     }
 
     @Test
-    public void testSetAndGetCloudPackage() {
+    void testSetAndGetCloudPackage() {
         CloudPackage expectedCloudPackage = ImmutableCloudPackage.builder()
                                                                  .metadata(ImmutableCloudMetadata.builder()
                                                                                                  .guid(UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93"))
@@ -123,7 +123,7 @@ public class StepsUtilTest {
     }
 
     @Test
-    public void testSetAndGetPhase() {
+    void testSetAndGetPhase() {
         Phase expectedPhase = Phase.UNDEPLOY;
         VariableHandling.set(execution, Variables.PHASE, expectedPhase);
         Phase actualPhase = VariableHandling.get(execution, Variables.PHASE);
@@ -132,7 +132,7 @@ public class StepsUtilTest {
     }
 
     @Test
-    public void testShouldVerifyArchiveSignatureSet() {
+    void testShouldVerifyArchiveSignatureSet() {
         VariableHandling.set(execution, Variables.VERIFY_ARCHIVE_SIGNATURE, true);
         Boolean result = VariableHandling.get(execution, Variables.VERIFY_ARCHIVE_SIGNATURE);
 

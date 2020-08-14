@@ -24,7 +24,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class OperationsHelperTest {
+class OperationsHelperTest {
 
     private static final String PROCESS_ID = "84af8e1e-4d96-11ea-b77f-2e728ce88178";
 
@@ -37,13 +37,13 @@ public class OperationsHelperTest {
 
     private final OperationsHelper operationsHelper;
 
-    public OperationsHelperTest() {
+    OperationsHelperTest() {
         MockitoAnnotations.initMocks(this);
         operationsHelper = new OperationsHelper(operationService, metadataMapper, processHelper);
     }
 
     @Test
-    public void testGetProcessDefinitionKey() {
+    void testGetProcessDefinitionKey() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, Operation.State.RUNNING);
         Mockito.when(metadataMapper.getDiagramId(ProcessType.DEPLOY))
                .thenReturn(Constants.DEPLOY_SERVICE_ID);
@@ -52,7 +52,7 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testAddErrorTypeWhenOperationIsNotInErrorState() {
+    void testAddErrorTypeWhenOperationIsNotInErrorState() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, Operation.State.RUNNING);
         Operation operation = operationsHelper.addErrorType(mockedOperation);
         Assertions.assertNull(operation.getErrorType());
@@ -60,7 +60,7 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testAddErrorTypeWhenOperationIsInErrorStateNoHistoricOperationEventsAvailable() {
+    void testAddErrorTypeWhenOperationIsInErrorStateNoHistoricOperationEventsAvailable() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, Operation.State.ERROR);
         Mockito.when(processHelper.getHistoricOperationEventByProcessId(anyString()))
                .thenReturn(Collections.emptyList());
@@ -69,7 +69,7 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testAddErrorTypeWhenOperationIsInErrorStateContentError() {
+    void testAddErrorTypeWhenOperationIsInErrorStateContentError() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, Operation.State.ERROR);
         HistoricOperationEvent mockedHistoricOperationEvent = createMockedHistoricOperationEvent(HistoricOperationEvent.EventType.FAILED_BY_CONTENT_ERROR);
         List<HistoricOperationEvent> historicOperationEvents = Collections.singletonList(mockedHistoricOperationEvent);
@@ -80,7 +80,7 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testAddErrorTypeWhenOperationIsInErrorStateInfrastructureError() {
+    void testAddErrorTypeWhenOperationIsInErrorStateInfrastructureError() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, Operation.State.ERROR);
         HistoricOperationEvent mockedHistoricOperationEvent = createMockedHistoricOperationEvent(HistoricOperationEvent.EventType.FAILED_BY_INFRASTRUCTURE_ERROR);
         List<HistoricOperationEvent> historicOperationEvents = Collections.singletonList(mockedHistoricOperationEvent);
@@ -91,14 +91,14 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testAddStateWhenOperationHasState() {
+    void testAddStateWhenOperationHasState() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, Operation.State.RUNNING);
         Operation operation = operationsHelper.addState(mockedOperation);
         Assertions.assertEquals(Operation.State.RUNNING, operation.getState());
     }
 
     @Test
-    public void testAddStateWithAcquiredLockAndAbortedOperation() {
+    void testAddStateWithAcquiredLockAndAbortedOperation() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, null);
         Mockito.when(processHelper.computeProcessState(PROCESS_ID))
                .thenReturn(State.ABORTED);
@@ -115,7 +115,7 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testAddStateWithAcquiredLockAndFinishedOperation() {
+    void testAddStateWithAcquiredLockAndFinishedOperation() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, null);
         Mockito.when(mockedOperation.hasAcquiredLock())
                .thenReturn(true);
@@ -132,7 +132,7 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testAddStateWithoutAcquiredLockAndRunningOperation() {
+    void testAddStateWithoutAcquiredLockAndRunningOperation() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, null);
         Mockito.when(processHelper.computeProcessState(PROCESS_ID))
                .thenReturn(State.RUNNING);
@@ -144,7 +144,7 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testComputeOperationStateWhenProcessIsInNonFinalStateAndProcessIsAborted() {
+    void testComputeOperationStateWhenProcessIsInNonFinalStateAndProcessIsAborted() {
         Mockito.when(processHelper.computeProcessState(PROCESS_ID))
                .thenReturn(State.ABORTED);
         Operation.State state = operationsHelper.computeProcessState(PROCESS_ID);
@@ -152,7 +152,7 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testComputeOperationStateWhenProcessIsInNonFinalStateAndProcessIsAtReceiveTask() {
+    void testComputeOperationStateWhenProcessIsInNonFinalStateAndProcessIsAtReceiveTask() {
         Mockito.when(processHelper.computeProcessState(PROCESS_ID))
                .thenReturn(State.ACTION_REQUIRED);
         Operation.State state = operationsHelper.computeProcessState(PROCESS_ID);
@@ -160,7 +160,7 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testComputeOperationStateWhenProcessIsInNonFinalStateAndProcessIsInErrorState() {
+    void testComputeOperationStateWhenProcessIsInNonFinalStateAndProcessIsInErrorState() {
         Mockito.when(processHelper.computeProcessState(PROCESS_ID))
                .thenReturn(State.ERROR);
         Operation.State state = operationsHelper.computeProcessState(PROCESS_ID);
@@ -168,7 +168,7 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testComputeOperationStateWhenProcessIsInNonFinalStateAndProcessIsRunning() {
+    void testComputeOperationStateWhenProcessIsInNonFinalStateAndProcessIsRunning() {
         Mockito.when(processHelper.computeProcessState(PROCESS_ID))
                .thenReturn(State.RUNNING);
         Operation.State state = operationsHelper.computeProcessState(PROCESS_ID);
@@ -176,7 +176,7 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testComputeOperationStateWhenProcessIsInFinalStateAndProcessIsAborted() {
+    void testComputeOperationStateWhenProcessIsInFinalStateAndProcessIsAborted() {
         Mockito.when(processHelper.computeProcessState(PROCESS_ID))
                .thenReturn(State.ABORTED);
         Operation.State state = operationsHelper.computeProcessState(PROCESS_ID);
@@ -184,7 +184,7 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testComputeOperationStateWhenProcessIsInFinalStateAndProcessIsNotAborted() {
+    void testComputeOperationStateWhenProcessIsInFinalStateAndProcessIsNotAborted() {
         Mockito.when(processHelper.computeProcessState(PROCESS_ID))
                .thenReturn(State.FINISHED);
         Operation.State state = operationsHelper.computeProcessState(PROCESS_ID);
@@ -192,7 +192,7 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testFindOperationsWithStatusRunning() {
+    void testFindOperationsWithStatusRunning() {
         List<Operation> operations = Arrays.asList(createMockedOperation("12af8e1e-4d96-11ea-b77f-2e728ce88178", ProcessType.DEPLOY,
                                                                          Operation.State.RUNNING),
                                                    createMockedOperation("13af8e1e-4d96-11ea-b77f-2e728ce88178", ProcessType.DEPLOY,
@@ -205,7 +205,7 @@ public class OperationsHelperTest {
     }
 
     @Test
-    public void testFundOperationsWithoutStatus() {
+    void testFundOperationsWithoutStatus() {
         List<Operation> operations = Arrays.asList(createMockedOperation("12af8e1e-4d96-11ea-b77f-2e728ce88178", ProcessType.DEPLOY,
                                                                          Operation.State.RUNNING),
                                                    createMockedOperation("13af8e1e-4d96-11ea-b77f-2e728ce88178", ProcessType.DEPLOY,

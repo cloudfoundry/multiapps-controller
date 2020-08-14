@@ -15,7 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class ProgressMessagesCleanerTest {
+class ProgressMessagesCleanerTest {
 
     private static final Date EXPIRATION_TIME = new Date(5000);
 
@@ -27,7 +27,7 @@ public class ProgressMessagesCleanerTest {
     private ProgressMessagesCleaner cleaner;
 
     @BeforeEach
-    public void initMocks() {
+    void initMocks() {
         MockitoAnnotations.initMocks(this);
         when(progressMessageService.createQuery()).thenReturn(progressMessageQuery);
         new MockBuilder<>(progressMessageQuery).on(query -> query.olderThan(EXPIRATION_TIME))
@@ -35,7 +35,7 @@ public class ProgressMessagesCleanerTest {
     }
 
     @Test
-    public void testExecute() {
+    void testExecute() {
         cleaner.execute(EXPIRATION_TIME);
         verify(progressMessageService.createQuery()
                                      .olderThan(EXPIRATION_TIME)).delete();

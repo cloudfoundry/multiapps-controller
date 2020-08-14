@@ -22,7 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class FlowableDataCleanerTest {
+class FlowableDataCleanerTest {
 
     @Mock
     private FlowableFacade flowableFacade;
@@ -35,13 +35,8 @@ public class FlowableDataCleanerTest {
     }
 
     static Stream<Arguments> testDeleteInvocation() {
-        // @formatter:off
-             return Stream.of(
-                              Arguments.of(Arrays.asList("process-id-1")),
-                              Arguments.of(Arrays.asList("process-id-1", "process-id-2")),
-                              Arguments.of(Collections.emptyList())
-             );
-        // @formatter:on
+        return Stream.of(Arguments.of(Arrays.asList("process-id-1")), Arguments.of(Arrays.asList("process-id-1", "process-id-2")),
+                         Arguments.of(Collections.emptyList()));
     }
 
     @ParameterizedTest

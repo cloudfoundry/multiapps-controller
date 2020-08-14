@@ -9,13 +9,13 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class EndProcessListenerTest {
+class EndProcessListenerTest {
 
     private final OperationInFinalStateHandler eventHandler = Mockito.mock(OperationInFinalStateHandler.class);
     private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
 
     @Test
-    public void testNotifyInternal() {
+    void testNotifyInternal() {
         EndProcessListener endProcessListener = new EndProcessListener(eventHandler);
         // set the process as root process
         VariableHandling.set(execution, Variables.CORRELATION_ID, execution.getProcessInstanceId());

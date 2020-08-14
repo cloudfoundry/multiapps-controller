@@ -36,7 +36,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class OperationsCleanerTest {
+class OperationsCleanerTest {
 
     private static final Date EXPIRATION_TIME = new Date(5000);
     private static final long TIME_BEFORE_EXPIRATION_1 = 2000;
@@ -60,7 +60,7 @@ public class OperationsCleanerTest {
     private OperationsCleaner cleaner;
 
     @BeforeEach
-    public void initMocks() {
+    void initMocks() {
         MockitoAnnotations.initMocks(this);
         cleaner.withPageSize(PAGE_SIZE);
 
@@ -71,7 +71,7 @@ public class OperationsCleanerTest {
     }
 
     @Test
-    public void testExpiredOperationsAreAborted() {
+    void testExpiredOperationsAreAborted() {
         Operation operation1 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_1)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
@@ -90,7 +90,7 @@ public class OperationsCleanerTest {
     }
 
     @Test
-    public void testAbortResilience() {
+    void testAbortResilience() {
         Operation operation1 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_1)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
@@ -114,7 +114,7 @@ public class OperationsCleanerTest {
     }
 
     @Test
-    public void testPaging() {
+    void testPaging() {
         Operation operation1 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_1)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
@@ -144,7 +144,7 @@ public class OperationsCleanerTest {
     }
 
     @Test
-    public void testPagingAllOperationsAreIterated() {
+    void testPagingAllOperationsAreIterated() {
         Operation operation1 = ImmutableOperation.builder()
                                                  .processId(OPERATION_ID_1)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
@@ -187,7 +187,7 @@ public class OperationsCleanerTest {
     }
 
     @Test
-    public void testExpiredOperationsAreDeleted() {
+    void testExpiredOperationsAreDeleted() {
         when(operationService.createQuery()).thenReturn(operationQuery);
         OperationQuery mock = new MockBuilder<>(operationQuery).on(query -> query.startedBefore(EXPIRATION_TIME))
                                                                .build();

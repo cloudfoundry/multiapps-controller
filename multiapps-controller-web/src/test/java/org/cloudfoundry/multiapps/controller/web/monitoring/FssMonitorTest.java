@@ -42,21 +42,20 @@ class FssMonitorTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testGetUsedSpace(File path, LocalDateTime lastCheck, long cachedValue, long expectedResult) {
+    void testGetUsedSpace(File path, LocalDateTime lastCheck, long cachedValue, long expectedResult) {
         fssMonitor.updateTimesMap.put(path, lastCheck);
         fssMonitor.usedSpaceMap.put(path, cachedValue);
         long actualResult = fssMonitor.calculateUsedSpace(path.getAbsolutePath());
         assertEquals(expectedResult, actualResult);
     }
 
-    public static Stream<Arguments> testGetUsedSpace() throws IOException {
-        return Stream.of(
-        // @formatter:off
-            Arguments.of(tempDir.toFile(), LocalDateTime.now(), 10, 10),
-            Arguments.of(tempDir.toFile(), LocalDateTime.now().minusMinutes(10), 200, 200),
-            Arguments.of(tempDir.toFile(), LocalDateTime.now().minusMinutes(50), 0, getSizeOfDir(tempDir))
-        // @formatter:on
-        );
+    static Stream<Arguments> testGetUsedSpace() throws IOException {
+        return Stream.of(Arguments.of(tempDir.toFile(), LocalDateTime.now(), 10, 10), Arguments.of(tempDir.toFile(), LocalDateTime.now()
+                                                                                                                                  .minusMinutes(10),
+                                                                                                   200, 200),
+                         Arguments.of(tempDir.toFile(), LocalDateTime.now()
+                                                                     .minusMinutes(50),
+                                      0, getSizeOfDir(tempDir)));
     }
 
     private static long getSizeOfDir(Path filePath) {

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
-public class JarSignatureVerifierTest {
+class JarSignatureVerifierTest {
 
     private static final String CUSTOM_CERTIFICATE_MTAR = "custom-certificate.mtar";
     private static final String UNSIGNED_MTAR = "unsigned.mtar";
@@ -30,7 +30,7 @@ public class JarSignatureVerifierTest {
     private final JarSignatureVerifier verifier = new JarSignatureVerifier();
 
     @Test
-    public void verifyMtarWithNonSymantecCertificate() {
+    void verifyMtarWithNonSymantecCertificate() {
         URL resource = getClass().getResource(CUSTOM_CERTIFICATE_MTAR);
         SLException exception = Assertions.assertThrows(SLException.class,
                                                         verifierVerify(resource, Constants.SYMANTEC_CERTIFICATE_FILE, null));
@@ -41,7 +41,7 @@ public class JarSignatureVerifierTest {
     }
 
     @Test
-    public void verifyMtarWithUnsignedFiles() {
+    void verifyMtarWithUnsignedFiles() {
         URL resource = getClass().getResource(CONTAINS_UNSIGNED_FILES);
         SLException exception = Assertions.assertThrows(SLException.class,
                                                         verifierVerify(resource, Constants.SYMANTEC_CERTIFICATE_FILE, null));
@@ -51,7 +51,7 @@ public class JarSignatureVerifierTest {
     }
 
     @Test
-    public void verifyMtarWhichIsNotSigned() {
+    void verifyMtarWhichIsNotSigned() {
         URL resource = getClass().getResource(UNSIGNED_MTAR);
         SLException exception = Assertions.assertThrows(SLException.class,
                                                         verifierVerify(resource, Constants.SYMANTEC_CERTIFICATE_FILE, null));
@@ -60,30 +60,30 @@ public class JarSignatureVerifierTest {
     }
 
     @Test
-    public void testWhenFileIsNotFound() throws IOException {
+    void testWhenFileIsNotFound() throws IOException {
         URL resource = new URL("file:invalid");
         Assertions.assertThrows(SLException.class, verifierVerify(resource, Constants.SYMANTEC_CERTIFICATE_FILE, null));
     }
 
     @Test
-    public void testWithValidSignatureMtarWithoutCustomCertificateCN() {
+    void testWithValidSignatureMtarWithoutCustomCertificateCN() {
         URL resource = getClass().getResource(CUSTOM_CERTIFICATE_MTAR);
         Assertions.assertDoesNotThrow(verifierVerify(resource, CUSTOM_CERTIFICATE, null));
     }
 
     @Test
-    public void testWithValidSignatureMtarWithCustomCertificateCN() {
+    void testWithValidSignatureMtarWithCustomCertificateCN() {
         String notValidCertificateCn = "Not valid";
         URL resource = getClass().getResource(CUSTOM_CERTIFICATE_MTAR);
-        SLException exception = Assertions.assertThrows(SLException.class, verifierVerify(resource, CUSTOM_CERTIFICATE,
-                                                                                          notValidCertificateCn));
+        SLException exception = Assertions.assertThrows(SLException.class,
+                                                        verifierVerify(resource, CUSTOM_CERTIFICATE, notValidCertificateCn));
         Assertions.assertEquals(MessageFormat.format(Messages.COULD_NOT_VERIFY_ARCHIVE_SIGNATURE,
                                                      MessageFormat.format(Messages.WILL_LOOK_FOR_CERTIFICATE_CN, notValidCertificateCn)),
                                 exception.getMessage());
     }
 
     @Test
-    public void testWithExpiredCertificate() {
+    void testWithExpiredCertificate() {
         URL resource = getClass().getResource(EXPIRED_MTAR);
         SLException exception = Assertions.assertThrows(SLException.class,
                                                         verifierVerify(resource, Constants.SYMANTEC_CERTIFICATE_FILE, null));
@@ -92,7 +92,7 @@ public class JarSignatureVerifierTest {
     }
 
     @Test
-    public void testWithAlteredMtar() {
+    void testWithAlteredMtar() {
         URL resource = getClass().getResource(ALTERED_MTAR);
         SLException exception = Assertions.assertThrows(SLException.class,
                                                         verifierVerify(resource, Constants.SYMANTEC_CERTIFICATE_FILE, null));
@@ -112,4 +112,5 @@ public class JarSignatureVerifierTest {
         symantecInputStream.close();
         return (List<X509Certificate>) certificates;
     }
+
 }

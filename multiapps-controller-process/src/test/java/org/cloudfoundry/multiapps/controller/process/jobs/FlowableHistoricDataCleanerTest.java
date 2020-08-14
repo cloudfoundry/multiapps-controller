@@ -23,7 +23,7 @@ import org.mockito.AdditionalAnswers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class FlowableHistoricDataCleanerTest {
+class FlowableHistoricDataCleanerTest {
 
     private static final Date EXPIRATION_TIME = new Date(5000);
     private static final String OPERATION_ID_1 = "1";
@@ -36,13 +36,13 @@ public class FlowableHistoricDataCleanerTest {
     private FlowableHistoricDataCleaner cleaner;
 
     @BeforeEach
-    public void initMocks() {
+    void initMocks() {
         MockitoAnnotations.initMocks(this);
         this.cleaner = new FlowableHistoricDataCleaner(historyService, PAGE_SIZE);
     }
 
     @Test
-    public void testExecuteWithMultiplePages() {
+    void testExecuteWithMultiplePages() {
         HistoricProcessInstance process1 = mockHistoricProcessInstanceWithId(OPERATION_ID_1);
         HistoricProcessInstance process2 = mockHistoricProcessInstanceWithId(OPERATION_ID_2);
         HistoricProcessInstance process3 = mockHistoricProcessInstanceWithId(OPERATION_ID_3);
@@ -83,7 +83,7 @@ public class FlowableHistoricDataCleanerTest {
     }
 
     @Test
-    public void testExecuteResilience() {
+    void testExecuteResilience() {
         HistoricProcessInstance process1 = mockHistoricProcessInstanceWithId(OPERATION_ID_1);
         HistoricProcessInstance process2 = mockHistoricProcessInstanceWithId(OPERATION_ID_2);
         List<HistoricProcessInstance> page1 = Arrays.asList(process1, process2);

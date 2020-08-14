@@ -27,6 +27,7 @@ import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -38,7 +39,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-public class StartProcessListenerTest {
+class StartProcessListenerTest {
 
     private static final String SPACE_ID = "9ba1dfc7-9c2c-40d5-8bf9-fd04fa7a1722";
     private static final String TASK_ID = "test-task-id";
@@ -80,24 +81,22 @@ public class StartProcessListenerTest {
     @InjectMocks
     private StartProcessListener listener = new StartProcessListener();
 
-    public static Stream<Arguments> testVerify() {
+    static Stream<Arguments> testVerify() {
         return Stream.of(
-// @formatter:off
-            // (0) Create Operation for process undeploy
-            Arguments.of("process-instance-id", ProcessType.UNDEPLOY, null),
-            // (1) Create Operation for process deploy
-            Arguments.of("process-instance-id", ProcessType.DEPLOY, null)
-// @formatter:on
-        );
+                         // (0) Create Operation for process undeploy
+                         Arguments.of("process-instance-id", ProcessType.UNDEPLOY, null),
+                         // (1) Create Operation for process deploy
+                         Arguments.of("process-instance-id", ProcessType.DEPLOY, null));
     }
 
-    public StartProcessListenerTest() {
+    @BeforeEach
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testVerify(String processInstanceId, ProcessType processType, String exceptionMessage) {
+    void testVerify(String processInstanceId, ProcessType processType, String exceptionMessage) {
         this.processType = processType;
         this.processInstanceId = processInstanceId;
         this.exceptionMessage = exceptionMessage;

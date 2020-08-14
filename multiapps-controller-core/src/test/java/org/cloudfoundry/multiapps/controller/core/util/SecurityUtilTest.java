@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 
-public class SecurityUtilTest {
+class SecurityUtilTest {
 
     private static final String USER_ID = "cf";
     private static final String USER_NAME = "CF_USER";

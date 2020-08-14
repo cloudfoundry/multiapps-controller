@@ -6,13 +6,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class SafeExecutorTest {
+class SafeExecutorTest {
 
     @SuppressWarnings("unchecked")
     private final Consumer<Exception> exceptionHandler = Mockito.mock(Consumer.class);
 
     @Test
-    public void testWithoutExceptions() {
+    void testWithoutExceptions() {
         SafeExecutor safeExecutor = new SafeExecutor(exceptionHandler);
         safeExecutor.execute(() -> {
         });
@@ -20,7 +20,7 @@ public class SafeExecutorTest {
     }
 
     @Test
-    public void testWithException() {
+    void testWithException() {
         SafeExecutor safeExecutor = new SafeExecutor(exceptionHandler);
         Exception e = new Exception();
         safeExecutor.execute(() -> {
@@ -31,7 +31,7 @@ public class SafeExecutorTest {
     }
 
     @Test
-    public void testWithDefaultExceptionHandler() {
+    void testWithDefaultExceptionHandler() {
         SafeExecutor safeExecutor = new SafeExecutor();
         Exception e = new Exception();
         Assertions.assertDoesNotThrow(() -> safeExecutor.execute(() -> {

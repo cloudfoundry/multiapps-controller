@@ -14,7 +14,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-public class SpaceNameBasedAuthorizationFilterTest {
+class SpaceNameBasedAuthorizationFilterTest {
 
     private static final String ORGANIZATION_NAME = "foo";
     private static final String SPACE_NAME = "bar";
@@ -28,7 +28,7 @@ public class SpaceNameBasedAuthorizationFilterTest {
     private DummyUriAuthorizationFilter dummyUriAuthorizationFilter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         Mockito.when(request.getRequestURI())
                .thenReturn("");
@@ -36,7 +36,7 @@ public class SpaceNameBasedAuthorizationFilterTest {
     }
 
     @Test
-    public void testWithSuccessfulAuthorization() throws IOException {
+    void testWithSuccessfulAuthorization() throws IOException {
         dummyUriAuthorizationFilter.ensureUserIsAuthorized(request, response);
 
         Mockito.verify(authorizationChecker)
@@ -45,7 +45,7 @@ public class SpaceNameBasedAuthorizationFilterTest {
     }
 
     @Test
-    public void testWithException() throws IOException {
+    void testWithException() throws IOException {
         Mockito.doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN))
                .when(authorizationChecker)
                .ensureUserIsAuthorized(Mockito.eq(request), Mockito.any(), Mockito.eq(new CloudTarget(ORGANIZATION_NAME, SPACE_NAME)),

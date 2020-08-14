@@ -31,7 +31,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
+class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 
     private static final String POLLING = "polling";
     private static final String STEP_EXECUTION = "stepExecution";
@@ -45,18 +45,14 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
     @Mock
     private ServiceWithAlternativesCreator.Factory serviceCreatorFactory;
 
-    // @formatter:off
-    private static Stream<Arguments> testExecute() {
-        return Stream.of(
-                Arguments.of("create-service-step-input-1.json", null),
-                Arguments.of("create-service-step-input-2-user-provided.json", null)
-        );
+    static Stream<Arguments> testExecute() {
+        return Stream.of(Arguments.of("create-service-step-input-1.json", null),
+                         Arguments.of("create-service-step-input-2-user-provided.json", null));
     }
-    // @formatter:on
 
     @ParameterizedTest
     @MethodSource
-    public void testExecute(String stepInput, String expectedExceptionMessage) {
+    void testExecute(String stepInput, String expectedExceptionMessage) {
         initializeInput(stepInput, expectedExceptionMessage);
         prepareResponses(STEP_EXECUTION);
         step.execute(execution);
@@ -73,21 +69,21 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
     }
 
     @Test
-    public void testExceptionIsThrownOnManagedServiceCreationInternalServerError() {
+    void testExceptionIsThrownOnManagedServiceCreationInternalServerError() {
         initializeInput("create-service-step-input-1.json", null);
         throwExceptionOnServiceCreation(HttpStatus.INTERNAL_SERVER_ERROR);
         Assertions.assertThrows(SLException.class, () -> step.execute(execution));
     }
 
     @Test
-    public void testExceptionIsThrownOnManagedServiceCreationBadGateway() {
+    void testExceptionIsThrownOnManagedServiceCreationBadGateway() {
         initializeInput("create-service-step-input-1.json", null);
         throwExceptionOnServiceCreation(HttpStatus.BAD_GATEWAY);
         Assertions.assertThrows(SLException.class, () -> step.execute(execution));
     }
 
     @Test
-    public void testWhenServiceAlreadyExists() {
+    void testWhenServiceAlreadyExists() {
         initializeInput("create-service-step-input-1.json", null);
         CloudServiceInstance cloudService = Mockito.mock(CloudServiceInstance.class);
         Mockito.when(client.getServiceInstance(any(), eq(false)))

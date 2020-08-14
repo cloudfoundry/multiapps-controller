@@ -24,7 +24,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class AbortedOperationsCleanerTest {
+class AbortedOperationsCleanerTest {
 
     @Mock
     private HistoricOperationEventService historicOperationEventService;
@@ -34,12 +34,12 @@ public class AbortedOperationsCleanerTest {
     private AbortedOperationsCleaner abortedOperationsCleaner;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testExecuteWithNoAbortedOperations() {
+    void testExecuteWithNoAbortedOperations() {
         prepareMocksWithProcesses(Collections.emptyList());
 
         abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
@@ -50,7 +50,7 @@ public class AbortedOperationsCleanerTest {
     }
 
     @Test
-    public void testExecuteWithOperationsInFinalState() {
+    void testExecuteWithOperationsInFinalState() {
         prepareMocksWithProcesses(Arrays.asList(new CustomProcess("foo", false), new CustomProcess("bar", false)));
 
         abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
@@ -62,7 +62,7 @@ public class AbortedOperationsCleanerTest {
     }
 
     @Test
-    public void testExecute() {
+    void testExecute() {
         prepareMocksWithProcesses(Arrays.asList(new CustomProcess("foo", true), new CustomProcess("bar", true)));
 
         abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
@@ -76,7 +76,7 @@ public class AbortedOperationsCleanerTest {
     }
 
     @Test
-    public void testExecuteWithMixedOperations() {
+    void testExecuteWithMixedOperations() {
         prepareMocksWithProcesses(Arrays.asList(new CustomProcess("foo", true), new CustomProcess("bar", false)));
 
         abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.

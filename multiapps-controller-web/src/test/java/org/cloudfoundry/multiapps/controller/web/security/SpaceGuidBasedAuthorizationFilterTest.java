@@ -13,7 +13,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-public class SpaceGuidBasedAuthorizationFilterTest {
+class SpaceGuidBasedAuthorizationFilterTest {
 
     private static final String SPACE_GUID = "e99278b1-d8a9-4b30-af52-2dfa3ea8404e";
 
@@ -26,7 +26,7 @@ public class SpaceGuidBasedAuthorizationFilterTest {
     private DummyUriAuthorizationFilter dummyUriAuthorizationFilter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         Mockito.when(request.getRequestURI())
                .thenReturn("");
@@ -34,7 +34,7 @@ public class SpaceGuidBasedAuthorizationFilterTest {
     }
 
     @Test
-    public void testWithSuccessfulAuthorization() throws IOException {
+    void testWithSuccessfulAuthorization() throws IOException {
         dummyUriAuthorizationFilter.ensureUserIsAuthorized(request, response);
 
         Mockito.verify(authorizationChecker)
@@ -42,7 +42,7 @@ public class SpaceGuidBasedAuthorizationFilterTest {
     }
 
     @Test
-    public void testWithException() throws IOException {
+    void testWithException() throws IOException {
         Mockito.doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN))
                .when(authorizationChecker)
                .ensureUserIsAuthorized(Mockito.eq(request), Mockito.any(), Mockito.eq(SPACE_GUID), Mockito.any());

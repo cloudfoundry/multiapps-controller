@@ -15,7 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class ProcessHelperTest {
+class ProcessHelperTest {
 
     private static final String PROCESS_ID = "79af8e1e-4d96-11ea-b77f-2e728ce88125";
 
@@ -28,15 +28,12 @@ public class ProcessHelperTest {
     @Mock
     private HistoricOperationEventQuery historicOperationEventQuery;
 
-    private final ProcessHelper processHelper;
-
-    public ProcessHelperTest() {
-        MockitoAnnotations.initMocks(this);
-        processHelper = new ProcessHelper(flowableFacade, historicOperationEventService);
-    }
+    private ProcessHelper processHelper;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
+        MockitoAnnotations.initMocks(this);
+        processHelper = new ProcessHelper(flowableFacade, historicOperationEventService);
         Mockito.when(historicOperationEventService.createQuery())
                .thenReturn(historicOperationEventQuery);
         Mockito.when(historicOperationEventQuery.processId(PROCESS_ID))
@@ -44,21 +41,21 @@ public class ProcessHelperTest {
     }
 
     @Test
-    public void testIsProcessAtReceiveTask() {
+    void testIsProcessAtReceiveTask() {
         Mockito.when(flowableFacade.isProcessInstanceAtReceiveTask(PROCESS_ID))
                .thenReturn(true);
         Assertions.assertEquals(State.ACTION_REQUIRED, processHelper.computeProcessState(PROCESS_ID));
     }
 
     @Test
-    public void testIsProcessInErrorState() {
+    void testIsProcessInErrorState() {
         Mockito.when(flowableFacade.hasDeadLetterJobs(PROCESS_ID))
                .thenReturn(true);
         Assertions.assertEquals(State.ERROR, processHelper.computeProcessState(PROCESS_ID));
     }
 
     @Test
-    public void testIsProcessAbortedWhenThereIsAbortedProcess() {
+    void testIsProcessAbortedWhenThereIsAbortedProcess() {
         Mockito.when(historicOperationEventQuery.list())
                .thenReturn(Arrays.asList(ImmutableHistoricOperationEvent.builder()
                                                                         .type(EventType.ABORTED)
@@ -68,7 +65,7 @@ public class ProcessHelperTest {
     }
 
     @Test
-    public void testIsProcessAbortedWhenThereIsNotAbortedProcess() {
+    void testIsProcessAbortedWhenThereIsNotAbortedProcess() {
         mockHistoricEventsWithTypes(EventType.FINISHED);
         Assertions.assertEquals(State.FINISHED, processHelper.computeProcessState(PROCESS_ID));
     }

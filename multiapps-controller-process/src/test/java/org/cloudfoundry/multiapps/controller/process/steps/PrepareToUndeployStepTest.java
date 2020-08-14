@@ -21,12 +21,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUndeployStep> {
+class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUndeployStep> {
 
     private static final String MTA_ID = "com.sap.xs2.samples.helloworld";
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         context.setVariable(Variables.MTA_ID, MTA_ID);
 
         step.conflictPreventerSupplier = service -> mock(ProcessConflictPreventer.class);
@@ -35,7 +35,7 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
     }
 
     @Test
-    public void testExecute() {
+    void testExecute() {
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
@@ -45,12 +45,12 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
     }
 
     @Test
-    public void testErrorMessage() {
+    void testErrorMessage() {
         Assertions.assertEquals(Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY, step.getStepErrorMessage(context));
     }
 
     @Test
-    public void testExecuteDeployedModuleNotNull() {
+    void testExecuteDeployedModuleNotNull() {
         context.setVariable(Variables.DEPLOYED_MTA, createDeployedMta());
         step.execute(execution);
 

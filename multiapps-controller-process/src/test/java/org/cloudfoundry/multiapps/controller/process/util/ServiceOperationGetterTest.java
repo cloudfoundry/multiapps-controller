@@ -28,7 +28,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class ServiceOperationGetterTest {
+class ServiceOperationGetterTest {
 
     @Mock
     private ServiceGetter serviceGetter;
@@ -42,37 +42,38 @@ public class ServiceOperationGetterTest {
     private ServiceOperationGetter serviceOperationGetter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         serviceOperationGetter = new ServiceOperationGetter(serviceGetter, eventsGetter);
     }
 
-    public static Stream<Arguments> testGetLastServiceOperation() {
-        // @formatter:off
+    static Stream<Arguments> testGetLastServiceOperation() {
         return Stream.of(
                          // (1) Test with create succeeded operation
-                         Arguments.of(ServiceOperation.Type.CREATE, ServiceOperation.State.SUCCEEDED, "created", false, false, 
+                         Arguments.of(ServiceOperation.Type.CREATE, ServiceOperation.State.SUCCEEDED, "created", false, false,
                                       new ServiceOperation(ServiceOperation.Type.CREATE, "created", ServiceOperation.State.SUCCEEDED)),
                          // (2) Test with delete service in progress operation
-                         Arguments.of(ServiceOperation.Type.DELETE, ServiceOperation.State.IN_PROGRESS, null, false, false, 
+                         Arguments.of(ServiceOperation.Type.DELETE, ServiceOperation.State.IN_PROGRESS, null, false, false,
                                       new ServiceOperation(ServiceOperation.Type.DELETE, null, ServiceOperation.State.IN_PROGRESS)),
                          // (3) Test with missing service entity and missing service metadata
                          Arguments.of(null, null, null, true, true, null),
                          // (4) Test with missing service entity and delete event
-                         Arguments.of(null, null, null, true, false, 
-                                      new ServiceOperation(ServiceOperation.Type.DELETE, ServiceOperation.Type.DELETE.name(), ServiceOperation.State.SUCCEEDED)),
+                         Arguments.of(null, null, null, true, false,
+                                      new ServiceOperation(ServiceOperation.Type.DELETE,
+                                                           ServiceOperation.Type.DELETE.name(),
+                                                           ServiceOperation.State.SUCCEEDED)),
                          // (5) Test with missing service entity and missing event
-                         Arguments.of(null,null,null, false, false,
-                                      new ServiceOperation(ServiceOperation.Type.DELETE, ServiceOperation.Type.DELETE.name(), ServiceOperation.State.IN_PROGRESS)));
-            
-        // @formatter:on
+                         Arguments.of(null, null, null, false, false,
+                                      new ServiceOperation(ServiceOperation.Type.DELETE,
+                                                           ServiceOperation.Type.DELETE.name(),
+                                                           ServiceOperation.State.IN_PROGRESS)));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testGetLastServiceOperation(ServiceOperation.Type serviceOperationType, ServiceOperation.State serviceOperationState,
-                                            String description, boolean isDeletedService, boolean isMissingServiceMetadata,
-                                            ServiceOperation expectedServiceOperation) {
+    void testGetLastServiceOperation(ServiceOperation.Type serviceOperationType, ServiceOperation.State serviceOperationState,
+                                     String description, boolean isDeletedService, boolean isMissingServiceMetadata,
+                                     ServiceOperation expectedServiceOperation) {
         Map<String, Object> serviceInstanceEntity = generateServiceInstanceEntity(serviceOperationType, serviceOperationState, description);
         prepareServiceGetter(serviceInstanceEntity);
         prepareEventsGetter(isDeletedService);
@@ -126,4 +127,5 @@ public class ServiceOperationGetterTest {
             assertNull(serviceOperation);
         }
     }
+
 }

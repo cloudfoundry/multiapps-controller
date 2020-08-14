@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class HookProcessGetterTest {
+class HookProcessGetterTest {
 
     @Mock
     private ProgressMessageService progressMessageService;
@@ -31,12 +31,12 @@ public class HookProcessGetterTest {
     private final Date now = Date.valueOf(LocalDate.now());
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testWithHookWhichIsOfTypeTask() {
+    void testWithHookWhichIsOfTypeTask() {
         String result = getProcessDefinitionForHookWithType("task");
         Assertions.assertEquals("executeHookTasksSubProcess", result);
 
@@ -44,7 +44,7 @@ public class HookProcessGetterTest {
     }
 
     @Test
-    public void testWithHookWhichIsOfUnsupportedType() {
+    void testWithHookWhichIsOfUnsupportedType() {
         Mockito.when(flowableFacade.getProcessInstanceId(Mockito.any()))
                .thenReturn("foo-process-id");
         Mockito.when(execution.getCurrentActivityId())
@@ -85,4 +85,5 @@ public class HookProcessGetterTest {
             return now;
         }
     }
+
 }

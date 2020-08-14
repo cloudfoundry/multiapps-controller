@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class JdbcUtilTest {
+class JdbcUtilTest {
 
     @Test
-    public void closeQuietlyResultSet() throws SQLException {
+    void closeQuietlyResultSet() throws SQLException {
         ResultSet resultSet = Mockito.mock(ResultSet.class);
         JdbcUtil.closeQuietly(resultSet);
         Mockito.verify(resultSet)
@@ -20,7 +20,7 @@ public class JdbcUtilTest {
     }
 
     @Test
-    public void closeQuietlyResultSetWithException() throws SQLException {
+    void closeQuietlyResultSetWithException() throws SQLException {
         ResultSet resultSet = Mockito.mock(ResultSet.class);
         Mockito.doThrow(new SQLException())
                .when(resultSet)
@@ -31,13 +31,13 @@ public class JdbcUtilTest {
     }
 
     @Test
-    public void closeQuietlyResultSetWithNull() {
+    void closeQuietlyResultSetWithNull() {
         ResultSet resultSet = null;
         Assertions.assertDoesNotThrow(() -> JdbcUtil.closeQuietly(resultSet));
     }
 
     @Test
-    public void closeQuietlyStatement() throws SQLException {
+    void closeQuietlyStatement() throws SQLException {
         Statement statement = Mockito.mock(Statement.class);
         JdbcUtil.closeQuietly(statement);
         Mockito.verify(statement)
@@ -45,7 +45,7 @@ public class JdbcUtilTest {
     }
 
     @Test
-    public void closeQuietlyStatementWithException() throws SQLException {
+    void closeQuietlyStatementWithException() throws SQLException {
         Statement statement = Mockito.mock(Statement.class);
         Mockito.doThrow(new SQLException())
                .when(statement)
@@ -56,13 +56,13 @@ public class JdbcUtilTest {
     }
 
     @Test
-    public void closeQuietlyStatementWithNull() {
+    void closeQuietlyStatementWithNull() {
         Statement statement = null;
         Assertions.assertDoesNotThrow(() -> JdbcUtil.closeQuietly(statement));
     }
 
     @Test
-    public void closeQuietlyConnection() throws SQLException {
+    void closeQuietlyConnection() throws SQLException {
         Connection connection = Mockito.mock(Connection.class);
         JdbcUtil.closeQuietly(connection);
         Mockito.verify(connection)
@@ -70,7 +70,7 @@ public class JdbcUtilTest {
     }
 
     @Test
-    public void closeQuietlyConnectionWithException() throws SQLException {
+    void closeQuietlyConnectionWithException() throws SQLException {
         Connection connection = Mockito.mock(Connection.class);
         Mockito.doThrow(new SQLException())
                .when(connection)
@@ -81,13 +81,13 @@ public class JdbcUtilTest {
     }
 
     @Test
-    public void closeQuietlyConnectionWithNull() {
+    void closeQuietlyConnectionWithNull() {
         Connection connection = null;
         Assertions.assertDoesNotThrow(() -> JdbcUtil.closeQuietly(connection));
     }
 
     @Test
-    public void rollback() throws SQLException {
+    void rollback() throws SQLException {
         Connection connection = Mockito.mock(Connection.class);
         Mockito.when(connection.getAutoCommit())
                .thenReturn(false);
@@ -97,12 +97,12 @@ public class JdbcUtilTest {
     }
 
     @Test
-    public void rollbackWithNull() throws SQLException {
+    void rollbackWithNull() throws SQLException {
         JdbcUtil.rollback(null);
     }
 
     @Test
-    public void rollbackWithAutoCommit() throws SQLException {
+    void rollbackWithAutoCommit() throws SQLException {
         Connection connection = Mockito.mock(Connection.class);
         Mockito.when(connection.getAutoCommit())
                .thenReturn(true);
@@ -112,7 +112,7 @@ public class JdbcUtilTest {
     }
 
     @Test
-    public void commit() throws SQLException {
+    void commit() throws SQLException {
         Connection connection = Mockito.mock(Connection.class);
         Mockito.when(connection.getAutoCommit())
                .thenReturn(false);
@@ -122,7 +122,7 @@ public class JdbcUtilTest {
     }
 
     @Test
-    public void commitWithAutoCommit() throws SQLException {
+    void commitWithAutoCommit() throws SQLException {
         Connection connection = Mockito.mock(Connection.class);
         Mockito.when(connection.getAutoCommit())
                .thenReturn(true);

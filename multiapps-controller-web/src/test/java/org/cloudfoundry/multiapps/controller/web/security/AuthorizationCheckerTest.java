@@ -37,7 +37,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.web.client.HttpClientErrorException;
 
-public class AuthorizationCheckerTest {
+class AuthorizationCheckerTest {
 
     private UserInfo userInfo;
     private static final String ORG = "org";
@@ -59,11 +59,11 @@ public class AuthorizationCheckerTest {
     private AuthorizationChecker authorizationChecker;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
-    public static Stream<Arguments> checkPermissionsTest() {
+    static Stream<Arguments> checkPermissionsTest() {
         return Stream.of(
                          // (0) User has access
                          Arguments.of(true, true),
@@ -75,7 +75,7 @@ public class AuthorizationCheckerTest {
                          Arguments.of(false, false));
     }
 
-    public static Stream<Arguments> checkPermissionTest2() {
+    static Stream<Arguments> checkPermissionTest2() {
         return Stream.of(
                          // (0) User has access
                          Arguments.of(true, true),
@@ -89,7 +89,7 @@ public class AuthorizationCheckerTest {
 
     @ParameterizedTest
     @MethodSource
-    public void checkPermissionsTest(boolean hasPermissions, boolean hasAccess) {
+    void checkPermissionsTest(boolean hasPermissions, boolean hasAccess) {
         setUpMocks(hasPermissions, hasAccess, null);
 
         boolean isAuthorized = authorizationChecker.checkPermissions(userInfo, ORG, SPACE, false);
@@ -98,14 +98,14 @@ public class AuthorizationCheckerTest {
     }
 
     @Test
-    public void checkPermissionsWithExceptionTest() {
+    void checkPermissionsWithExceptionTest() {
         setUpMocks(true, true, new HttpClientErrorException(HttpStatus.BAD_REQUEST));
         assertThrows(Exception.class, () -> authorizationChecker.checkPermissions(userInfo, ORG, SPACE, false));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void checkPermissionTest2(boolean hasPermissions, boolean hasAccess) {
+    void checkPermissionTest2(boolean hasPermissions, boolean hasAccess) {
         setUpMocks(hasPermissions, hasAccess, null);
         boolean isAuthorized = authorizationChecker.checkPermissions(userInfo, SPACE_ID, false);
         boolean shouldBeAuthorized = hasAccess && hasPermissions;
@@ -113,13 +113,13 @@ public class AuthorizationCheckerTest {
     }
 
     @Test
-    public void checkPermissionsWithExceptionTest2() {
+    void checkPermissionsWithExceptionTest2() {
         setUpMocks(true, true, new HttpClientErrorException(HttpStatus.BAD_REQUEST));
         assertThrows(Exception.class, () -> authorizationChecker.checkPermissions(userInfo, SPACE_ID, false));
     }
 
     @Test
-    public void testSpaceDevelopersCache() {
+    void testSpaceDevelopersCache() {
         setUpMocks(true, true, null);
         when(client.getSpaceDevelopers(UUID.fromString(SPACE_ID))).thenReturn(Collections.singletonList(USER_ID));
         when(client.getSpaceDevelopers(UUID.fromString(SECOND_SPACE_ID))).thenReturn(Collections.singletonList(USER_ID));
@@ -140,7 +140,7 @@ public class AuthorizationCheckerTest {
     }
 
     @Test
-    public void testSpaceDevelopersCacheNegativeResult() {
+    void testSpaceDevelopersCacheNegativeResult() {
         setUpMocks(true, true, null);
         when(client.getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)))).thenReturn(Collections.singletonList(USER_ID));
 
@@ -194,4 +194,5 @@ public class AuthorizationCheckerTest {
         when(clientProvider.getControllerClient(userInfo.getName())).thenReturn(client);
         when(applicationConfiguration.getFssCacheUpdateTimeoutMinutes()).thenReturn(ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
     }
+
 }

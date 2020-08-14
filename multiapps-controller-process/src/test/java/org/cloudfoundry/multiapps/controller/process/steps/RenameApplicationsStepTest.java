@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameApplicationsStep> {
+class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameApplicationsStep> {
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
@@ -33,7 +33,7 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
     private ApplicationColorDetector applicationColorDetector;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         prepareContext();
         context.setVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, false);
     }
@@ -49,7 +49,7 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
     }
 
     @Test
-    public void testOldNewSuffixRenaming() {
+    void testOldNewSuffixRenaming() {
         context.setVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
         context.setVariable(Variables.APPS_TO_RENAME, Collections.singletonList("a"));
 
@@ -67,7 +67,7 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
     }
 
     @Test
-    public void testWithNoColorsDeployed() {
+    void testWithNoColorsDeployed() {
         when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenReturn(null);
 
         step.execute(execution);
@@ -79,7 +79,7 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
     }
 
     @Test
-    public void testWithOneColorDeployed() {
+    void testWithOneColorDeployed() {
         when(applicationColorDetector.detectSingularDeployedApplicationColor(any(DeployedMta.class))).thenReturn(ApplicationColor.GREEN);
 
         step.execute(execution);
@@ -91,7 +91,7 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
     }
 
     @Test
-    public void testWithTwoColorsDeployed() {
+    void testWithTwoColorsDeployed() {
         when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(new ConflictException(Messages.CONFLICTING_APP_COLORS));
         when(applicationColorDetector.detectLiveApplicationColor(any(), any())).thenReturn(ApplicationColor.GREEN);
         step.execute(execution);
@@ -103,7 +103,7 @@ public class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameAppli
     }
 
     @Test
-    public void testExceptionIsThrown() {
+    void testExceptionIsThrown() {
         when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(new SLException(org.cloudfoundry.multiapps.controller.process.Messages.ERROR_RENAMING_APPLICATIONS));
         when(applicationColorDetector.detectLiveApplicationColor(any(), any())).thenReturn(ApplicationColor.GREEN);
         Assertions.assertThrows(SLException.class, () -> step.execute(execution),

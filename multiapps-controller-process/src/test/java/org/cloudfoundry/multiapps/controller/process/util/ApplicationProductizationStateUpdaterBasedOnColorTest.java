@@ -19,38 +19,43 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class ApplicationProductizationStateUpdaterBasedOnColorTest {
+class ApplicationProductizationStateUpdaterBasedOnColorTest {
 
     @Mock
     private StepLogger stepLogger;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
-    private static Stream<Arguments> testUpdateApplicationsProductizationState() {
+    static Stream<Arguments> testUpdateApplicationsProductizationState() {
         return Stream.of(
-        // @formatter:off
-               // (1) Get module-1 from deployed modules [module-1, module-2]
-               Arguments.of(Arrays.asList(new DeployedApplication("module-1", "foo-blue"), new DeployedApplication("module-2", "bar-green")), ApplicationColor.BLUE, new DeployedApplication("module-1", "foo-blue")),
-               // (2) Get live application in case where both blue and green are deployed
-               Arguments.of(Arrays.asList(new DeployedApplication("module-1", "foo-blue"), new DeployedApplication("module-1", "foo-green")), ApplicationColor.GREEN, new DeployedApplication("module-1", "foo-green")),
-               // (3) Test without deployed mta
-               Arguments.of(Collections.emptyList(), ApplicationColor.BLUE, null),
-               // (4) Get application without color suffix when previous deployed color is BLUE
-               Arguments.of(Arrays.asList(new DeployedApplication("module-1", "foo"), new DeployedApplication("module-1", "foo-green")), ApplicationColor.BLUE, new DeployedApplication("module-1", "foo")),
-               // (5) Get live application (foo-green) when foo and foo-blue exists
-               Arguments.of(Arrays.asList(new DeployedApplication("module-1", "foo"), new DeployedApplication("module-1", "foo-blue"), new DeployedApplication("module-1", "foo-green")), ApplicationColor.GREEN, 
-                            new DeployedApplication("module-1", "foo-green"))
-        // @formatter:on
-        );
+                         // (1) Get module-1 from deployed modules [module-1, module-2]
+                         Arguments.of(Arrays.asList(new DeployedApplication("module-1", "foo-blue"),
+                                                    new DeployedApplication("module-2", "bar-green")),
+                                      ApplicationColor.BLUE, new DeployedApplication("module-1", "foo-blue")),
+                         // (2) Get live application in case where both blue and green are deployed
+                         Arguments.of(Arrays.asList(new DeployedApplication("module-1", "foo-blue"),
+                                                    new DeployedApplication("module-1", "foo-green")),
+                                      ApplicationColor.GREEN, new DeployedApplication("module-1", "foo-green")),
+                         // (3) Test without deployed mta
+                         Arguments.of(Collections.emptyList(), ApplicationColor.BLUE, null),
+                         // (4) Get application without color suffix when previous deployed color is BLUE
+                         Arguments.of(Arrays.asList(new DeployedApplication("module-1", "foo"),
+                                                    new DeployedApplication("module-1", "foo-green")),
+                                      ApplicationColor.BLUE, new DeployedApplication("module-1", "foo")),
+                         // (5) Get live application (foo-green) when foo and foo-blue exists
+                         Arguments.of(Arrays.asList(new DeployedApplication("module-1", "foo"),
+                                                    new DeployedApplication("module-1", "foo-blue"),
+                                                    new DeployedApplication("module-1", "foo-green")),
+                                      ApplicationColor.GREEN, new DeployedApplication("module-1", "foo-green")));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testUpdateApplicationsProductizationState(List<DeployedApplication> applications, ApplicationColor liveMtaColor,
-                                                          DeployedApplication expectedDeployedApplication) {
+    void testUpdateApplicationsProductizationState(List<DeployedApplication> applications, ApplicationColor liveMtaColor,
+                                                   DeployedApplication expectedDeployedApplication) {
         List<DeployedMtaApplication> deployedApplications = createDeployedMtaApplications(applications);
 
         List<DeployedMtaApplication> updatedDeployedApplications = new ApplicationProductizationStateUpdaterBasedOnColor(stepLogger,
@@ -111,4 +116,5 @@ public class ApplicationProductizationStateUpdaterBasedOnColorTest {
         }
 
     }
+
 }

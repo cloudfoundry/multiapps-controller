@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class AdminApiAuthorizationFilterTest {
+class AdminApiAuthorizationFilterTest {
 
     private static final String SPACE_GUID = "e99278b1-d8a9-4b30-af52-2dfa3ea8404e";
 
@@ -28,32 +28,32 @@ public class AdminApiAuthorizationFilterTest {
     private AdminApiAuthorizationFilter adminApiAuthorizationFilter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         adminApiAuthorizationFilter = new AdminApiAuthorizationFilter(applicationConfiguration, null);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "/rest/admin/statistics", "/rest/admin/shutdown" })
-    public void testUriRegexMatches(String uri) {
+    void testUriRegexMatches(String uri) {
         assertTrue(uri.matches(adminApiAuthorizationFilter.getUriRegex()));
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "/admin", "/public/ping", "/rest/configuration-subscriptions" })
-    public void testUriRegexDoesNotMatch(String uri) {
+    void testUriRegexDoesNotMatch(String uri) {
         assertFalse(uri.matches(adminApiAuthorizationFilter.getUriRegex()));
     }
 
     @Test
-    public void testExtractSpaceGuid() {
+    void testExtractSpaceGuid() {
         Mockito.when(applicationConfiguration.getSpaceGuid())
                .thenReturn(SPACE_GUID);
         assertEquals(SPACE_GUID, adminApiAuthorizationFilter.extractSpaceGuid(request));
     }
 
     @Test
-    public void testExtractSpaceGuidWithEmptyString() {
+    void testExtractSpaceGuidWithEmptyString() {
         Mockito.when(applicationConfiguration.getSpaceGuid())
                .thenReturn("");
         assertThrows(SLException.class, () -> adminApiAuthorizationFilter.extractSpaceGuid(request));

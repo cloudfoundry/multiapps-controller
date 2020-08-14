@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class ErrorProcessListenerTest {
+class ErrorProcessListenerTest {
 
     private static final String ERROR_MESSAGE = "Error!";
 
@@ -47,19 +47,19 @@ public class ErrorProcessListenerTest {
     private ErrorProcessListenerMock errorProcessListener;
 
     @BeforeEach
-    public void initMocks() {
+    void initMocks() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testJobExecutionFailureWithWrongEventClass() {
+    void testJobExecutionFailureWithWrongEventClass() {
         FlowableEngineEntityEvent engineEntityEvent = Mockito.mock(FlowableEngineEntityEvent.class);
         errorProcessListener.jobExecutionFailure(engineEntityEvent);
         Mockito.verifyNoInteractions(eventHandler);
     }
 
     @Test
-    public void testJobExecutionFailureWithNoException() {
+    void testJobExecutionFailureWithNoException() {
         FlowableEngineEntityEvent engineEntityEvent = Mockito.mock(FlowableEngineEntityEvent.class, Mockito.withSettings()
                                                                                                            .extraInterfaces(FlowableExceptionEvent.class));
         errorProcessListener.jobExecutionFailure(engineEntityEvent);
@@ -67,7 +67,7 @@ public class ErrorProcessListenerTest {
     }
 
     @Test
-    public void testJobExecutionFailure() {
+    void testJobExecutionFailure() {
         FlowableEngineEntityEvent engineEntityEvent = Mockito.mock(FlowableEngineEntityEvent.class, Mockito.withSettings()
                                                                                                            .extraInterfaces(FlowableExceptionEvent.class));
         FlowableExceptionEvent exceptionEvent = (FlowableExceptionEvent) engineEntityEvent;
@@ -80,7 +80,7 @@ public class ErrorProcessListenerTest {
     }
 
     @Test
-    public void testEntityCreatedWithWrongEntityClass() {
+    void testEntityCreatedWithWrongEntityClass() {
         FlowableEngineEntityEvent engineEntityEvent = Mockito.mock(FlowableEngineEntityEvent.class);
         JobEntity job = Mockito.mock(JobEntity.class);
         Mockito.when(engineEntityEvent.getEntity())
@@ -91,7 +91,7 @@ public class ErrorProcessListenerTest {
     }
 
     @Test
-    public void testEntityCreatedWithNoException() {
+    void testEntityCreatedWithNoException() {
         FlowableEngineEntityEvent engineEntityEvent = Mockito.mock(FlowableEngineEntityEvent.class);
         DeadLetterJobEntity job = Mockito.mock(DeadLetterJobEntity.class);
         Mockito.when(engineEntityEvent.getEntity())
@@ -102,7 +102,7 @@ public class ErrorProcessListenerTest {
     }
 
     @Test
-    public void testEntityCreated() {
+    void testEntityCreated() {
         FlowableEngineEntityEvent engineEntityEvent = Mockito.mock(FlowableEngineEntityEvent.class);
         DeadLetterJobEntity job = Mockito.mock(DeadLetterJobEntity.class);
         Mockito.when(engineEntityEvent.getEntity())
@@ -116,7 +116,7 @@ public class ErrorProcessListenerTest {
     }
 
     @Test
-    public void testHandlingWithCorrelationId() {
+    void testHandlingWithCorrelationId() {
         errorProcessListener.execution = mockExecutionWithCorrelationId();
         testEntityCreated();
         testJobExecutionFailure();

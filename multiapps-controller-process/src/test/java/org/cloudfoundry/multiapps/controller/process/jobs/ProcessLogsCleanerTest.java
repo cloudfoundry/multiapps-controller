@@ -12,7 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class ProcessLogsCleanerTest {
+class ProcessLogsCleanerTest {
 
     private static final Date EXPIRATION_TIME = new Date(5000);
 
@@ -22,12 +22,12 @@ public class ProcessLogsCleanerTest {
     private ProcessLogsCleaner cleaner;
 
     @BeforeEach
-    public void initMocks() {
+    void initMocks() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testExecute() throws FileStorageException {
+    void testExecute() throws FileStorageException {
         cleaner.execute(EXPIRATION_TIME);
         verify(processLogsPersistenceService).deleteModifiedBefore(EXPIRATION_TIME);
     }

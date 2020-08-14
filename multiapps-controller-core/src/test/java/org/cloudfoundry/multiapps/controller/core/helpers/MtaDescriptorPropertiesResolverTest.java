@@ -23,22 +23,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class MtaDescriptorPropertiesResolverTest {
+class MtaDescriptorPropertiesResolverTest {
 
-    public static Stream<Arguments> testResolve() {
-        return Stream.of(
-// @formatter:off
-            Arguments.of(
-                "mtad-properties-resolver-test/mtad-with-route.yaml", new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-route-result.json")
-            ),
-            Arguments.of(
-                "mtad-properties-resolver-test/mtad-with-domain.yaml", new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-domain-result.json")
-            ),
-            Arguments.of(
-                "mtad-properties-resolver-test/mtad-with-escaped-references.yaml", new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-escaped-references.json")
-            )
-        );
-// @formatter:on
+    static Stream<Arguments> testResolve() {
+        return Stream.of(Arguments.of("mtad-properties-resolver-test/mtad-with-route.yaml",
+                                      new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-route-result.json")),
+                         Arguments.of("mtad-properties-resolver-test/mtad-with-domain.yaml",
+                                      new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/mtad-with-domain-result.json")),
+                         Arguments.of("mtad-properties-resolver-test/mtad-with-escaped-references.yaml",
+                                      new Expectation(Expectation.Type.JSON,
+                                                      "mtad-properties-resolver-test/mtad-with-escaped-references.json")));
     }
 
     private final Tester tester = Tester.forClass(getClass());
@@ -53,7 +47,7 @@ public class MtaDescriptorPropertiesResolverTest {
     private ConfigurationEntryService configurationEntryService;
 
     @BeforeEach
-    public void init() {
+    void init() {
         MockitoAnnotations.initMocks(this);
         when(spaceIdSupplier.apply(anyString(), anyString())).thenReturn("");
 
@@ -75,7 +69,7 @@ public class MtaDescriptorPropertiesResolverTest {
 
     @ParameterizedTest(name = "{index}: \"{1}.\"")
     @MethodSource
-    public void testResolve(String descriptorFile, Expectation expectation) {
+    void testResolve(String descriptorFile, Expectation expectation) {
         DeploymentDescriptor descriptor = DescriptorTestUtil.loadDeploymentDescriptor(descriptorFile, getClass());
 
         tester.test(() -> resolver.resolve(descriptor), expectation);

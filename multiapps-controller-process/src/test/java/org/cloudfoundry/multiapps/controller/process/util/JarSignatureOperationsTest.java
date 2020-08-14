@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class JarSignatureOperationsTest {
+class JarSignatureOperationsTest {
 
     private static final String SYMANTEC_SUBJECT_DN = "CN=Symantec Class 3 SHA256 Code Signing CA, OU=Symantec Trust Network, O=Symantec Corporation, C=US";
     private static final String SYMANTEC_ISSUER_DN = "CN=VeriSign Class 3 Public Primary Certification Authority - G5, OU=\"(c) 2006 VeriSign, Inc. - For authorized use only\", OU=VeriSign Trust Network, O=\"VeriSign, Inc.\", C=US";
@@ -27,13 +27,13 @@ public class JarSignatureOperationsTest {
     private JarSignatureOperations mtaCertificateChecker;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         mtaCertificateChecker = new JarSignatureOperations();
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testGetCertificatesCheckWhetherSymantecExists() {
+    void testGetCertificatesCheckWhetherSymantecExists() {
         List<X509Certificate> providedCertificates = mtaCertificateChecker.readCertificates(Constants.SYMANTEC_CERTIFICATE_FILE);
         Assertions.assertEquals(1, providedCertificates.size());
         Assertions.assertEquals(SYMANTEC_SUBJECT_DN, providedCertificates.get(0)
@@ -45,18 +45,19 @@ public class JarSignatureOperationsTest {
     }
 
     @Test
-    public void testGetCertificatesWithNullInputStream() {
+    void testGetCertificatesWithNullInputStream() {
         SLException exception = Assertions.assertThrows(SLException.class,
                                                         () -> mtaCertificateChecker.readCertificates("non-existing-certificate.crt"));
         Assertions.assertEquals("Missing input stream", exception.getMessage());
     }
 
     @Test
-    public void testVerifyShouldThrowException() {
+    void testVerifyShouldThrowException() {
         URL resource = getClass().getResource(UNSIGNED_MTAR);
         List<X509Certificate> certificates = mtaCertificateChecker.readCertificates(Constants.SYMANTEC_CERTIFICATE_FILE);
         mtaCertificateChecker.checkCertificates(resource, certificates, null);
         Mockito.verify(verifier)
                .verify(resource, certificates, null);
     }
+
 }

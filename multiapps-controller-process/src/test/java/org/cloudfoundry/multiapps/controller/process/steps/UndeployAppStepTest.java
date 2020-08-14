@@ -23,7 +23,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
+abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
 
     @Mock
     protected ApplicationRoutesGetter applicationRoutesGetter;
@@ -31,33 +31,30 @@ public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployA
     protected StepInput stepInput;
     protected StepOutput stepOutput;
 
-    // @formatter:off
-    private static Stream<Arguments> testExecution() {
+    static Stream<Arguments> testExecution() {
         return Stream.of(
-                // (0) There are applications to undeploy:
-                Arguments.of("undeploy-apps-step-input-00.json", "undeploy-apps-step-output-00.json"),
+                         // (0) There are applications to undeploy:
+                         Arguments.of("undeploy-apps-step-input-00.json", "undeploy-apps-step-output-00.json"),
 
-                // (1) No applications to undeploy:
-                Arguments.of("undeploy-apps-step-input-02.json", "undeploy-apps-step-output-02.json"),
+                         // (1) No applications to undeploy:
+                         Arguments.of("undeploy-apps-step-input-02.json", "undeploy-apps-step-output-02.json"),
 
-                // (2) There are two routes that should be deleted, but one of them is bound to another application:
-                Arguments.of("undeploy-apps-step-input-03.json", "undeploy-apps-step-output-03.json"),
-                
-                // (3) There are running one-off tasks to cancel:
-                Arguments.of("undeploy-apps-step-input-04.json", "undeploy-apps-step-output-04.json"),
-                
-                // (4) There are not found routes matching app uri:
-                Arguments.of("undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json"),
+                         // (2) There are two routes that should be deleted, but one of them is bound to another application:
+                         Arguments.of("undeploy-apps-step-input-03.json", "undeploy-apps-step-output-03.json"),
 
-                // (5) There is a route that should be deleted, but it is bound to a service instance:
-                Arguments.of("undeploy-apps-step-input-06.json", "undeploy-apps-step-output-06.json")
-        );
+                         // (3) There are running one-off tasks to cancel:
+                         Arguments.of("undeploy-apps-step-input-04.json", "undeploy-apps-step-output-04.json"),
+
+                         // (4) There are not found routes matching app uri:
+                         Arguments.of("undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json"),
+
+                         // (5) There is a route that should be deleted, but it is bound to a service instance:
+                         Arguments.of("undeploy-apps-step-input-06.json", "undeploy-apps-step-output-06.json"));
     }
-    // @formatter:on
 
     @ParameterizedTest
     @MethodSource
-    public void testExecution(String stepInputLocation, String stepOutputLocation) throws Exception {
+    void testExecution(String stepInputLocation, String stepOutputLocation) throws Exception {
         initializeParameters(stepInputLocation, stepOutputLocation);
         for (CloudApplicationExtended cloudApplication : stepInput.appsToDelete) {
             undeployApp(cloudApplication);

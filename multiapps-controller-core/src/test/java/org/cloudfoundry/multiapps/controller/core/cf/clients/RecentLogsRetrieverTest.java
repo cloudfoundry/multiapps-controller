@@ -22,7 +22,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpServerErrorException;
 
-public class RecentLogsRetrieverTest {
+class RecentLogsRetrieverTest {
 
     private static final String APP_NAME = "my-app";
     private static final Calendar TIMESTAMP = new GregorianCalendar(2010, Calendar.JANUARY, 1);
@@ -35,12 +35,12 @@ public class RecentLogsRetrieverTest {
     private RecentLogsRetriever recentLogsRetriever = new RecentLogsRetriever();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testGetRecentLogsWithError() {
+    void testGetRecentLogsWithError() {
         Mockito.when(client.getRecentLogs(APP_NAME))
                .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Something fails"));
 
@@ -49,7 +49,7 @@ public class RecentLogsRetrieverTest {
     }
 
     @Test
-    public void testGetRecentLogsWithErrorFailSafe() {
+    void testGetRecentLogsWithErrorFailSafe() {
         Mockito.when(client.getRecentLogs(APP_NAME))
                .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Something fails"));
         assertTrue(recentLogsRetriever.getRecentLogsSafely(client, APP_NAME, null)
@@ -57,14 +57,14 @@ public class RecentLogsRetrieverTest {
     }
 
     @Test
-    public void testGetRecentLogsWithNoPriorOffset() {
+    void testGetRecentLogsWithNoPriorOffset() {
         Mockito.when(client.getRecentLogs(APP_NAME))
                .thenReturn(Arrays.asList(createAppLog(1, "")));
         assertEquals(Arrays.asList(createAppLog(1, "")), recentLogsRetriever.getRecentLogs(client, APP_NAME, null));
     }
 
     @Test
-    public void testGetRecentLogsWithOffsetReturnsNoLogs() {
+    void testGetRecentLogsWithOffsetReturnsNoLogs() {
         LogsOffset offset = createLogsOffset(1, "");
         Mockito.when(client.getRecentLogs(APP_NAME))
                .thenReturn(Arrays.asList(createAppLog(0, "")));
@@ -73,7 +73,7 @@ public class RecentLogsRetrieverTest {
     }
 
     @Test
-    public void testGetRecentLogsWithOffsetSameMessageReturnsNoLogs() {
+    void testGetRecentLogsWithOffsetSameMessageReturnsNoLogs() {
         LogsOffset offset = createLogsOffset(1, "msg");
         Mockito.when(client.getRecentLogs(APP_NAME))
                .thenReturn(Arrays.asList(createAppLog(1, "msg")));
@@ -82,7 +82,7 @@ public class RecentLogsRetrieverTest {
     }
 
     @Test
-    public void testGetRecentLogsWithOffsetReturnsFilteredLogs() {
+    void testGetRecentLogsWithOffsetReturnsFilteredLogs() {
         LogsOffset offset = createLogsOffset(1, "");
         Mockito.when(client.getRecentLogs(APP_NAME))
                .thenReturn(Arrays.asList(createAppLog(1, ""), createAppLog(2, "")));
@@ -90,7 +90,7 @@ public class RecentLogsRetrieverTest {
     }
 
     @Test
-    public void testGetRecentLogsWithOffsetSameTimestampReturnsFilteredLogs() {
+    void testGetRecentLogsWithOffsetSameTimestampReturnsFilteredLogs() {
         LogsOffset offset = createLogsOffset(1, "msg");
         Mockito.when(client.getRecentLogs(APP_NAME))
                .thenReturn(Arrays.asList(createAppLog(1, "msg"), createAppLog(1, "msg1")));
@@ -98,7 +98,7 @@ public class RecentLogsRetrieverTest {
     }
 
     @Test
-    public void testGetRecentLogsWithOffsetSameMessageReturnsFilteredLogs() {
+    void testGetRecentLogsWithOffsetSameMessageReturnsFilteredLogs() {
         LogsOffset offset = createLogsOffset(1, "msg1");
         Mockito.when(client.getRecentLogs(APP_NAME))
                .thenReturn(Arrays.asList(createAppLog(1, "msg"), createAppLog(1, "msg1")));
@@ -126,4 +126,5 @@ public class RecentLogsRetrieverTest {
                                   .message(message)
                                   .build();
     }
+
 }

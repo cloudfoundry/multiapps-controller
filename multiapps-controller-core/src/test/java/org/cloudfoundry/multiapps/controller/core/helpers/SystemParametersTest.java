@@ -23,7 +23,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class SystemParametersTest {
+class SystemParametersTest {
 
     @Mock
     private CredentialsGenerator credentialsGenerator;
@@ -48,7 +48,7 @@ public class SystemParametersTest {
     private static final String XS_TYPE = "CF";
 
     @BeforeEach
-    public void initialize() {
+    void initialize() {
         MockitoAnnotations.initMocks(this);
 
         Mockito.when(timestampSupplier.get())
@@ -56,12 +56,12 @@ public class SystemParametersTest {
     }
 
     @Test
-    public void testGeneralParametersWithoutReserveTemporaryRoutes() throws Exception {
+    void testGeneralParametersWithoutReserveTemporaryRoutes() throws Exception {
         testGeneralParameters(false);
     }
 
     @Test
-    public void testGeneralParametersWithReserveTemporaryRoutes() throws Exception {
+    void testGeneralParametersWithReserveTemporaryRoutes() throws Exception {
         testGeneralParameters(true);
     }
 
@@ -73,7 +73,7 @@ public class SystemParametersTest {
     }
 
     @Test
-    public void testDescriptorOverridesDefaults() throws Exception {
+    void testDescriptorOverridesDefaults() throws Exception {
         SystemParameters testedClass = createSystemParameters(false);
 
         List<String> descriptorParameterFields = Arrays.asList(SupportedParameters.ORGANIZATION_NAME, SupportedParameters.SPACE_NAME,
@@ -89,12 +89,12 @@ public class SystemParametersTest {
     }
 
     @Test
-    public void testModuleParametersWithoutReserveTemporaryRoutes() throws Exception {
+    void testModuleParametersWithoutReserveTemporaryRoutes() throws Exception {
         testModuleParameters(false);
     }
 
     @Test
-    public void testModuleParametersWithReserveTemporaryRoutes() throws Exception {
+    void testModuleParametersWithReserveTemporaryRoutes() throws Exception {
         testModuleParameters(true);
     }
 
@@ -115,7 +115,7 @@ public class SystemParametersTest {
     }
 
     @Test
-    public void testModuleParametersOverrideSystemParameters() throws Exception {
+    void testModuleParametersOverrideSystemParameters() throws Exception {
         SystemParameters testedClass = createSystemParameters(false);
         List<String> fields = Arrays.asList(SupportedParameters.PROTOCOL, SupportedParameters.TIMESTAMP, SupportedParameters.INSTANCES,
                                             SupportedParameters.APP_NAME, SupportedParameters.IDLE_DOMAIN, SupportedParameters.DOMAIN);
@@ -132,7 +132,7 @@ public class SystemParametersTest {
     }
 
     @Test
-    public void testResourceParameters() throws Exception {
+    void testResourceParameters() throws Exception {
         SystemParameters testedClass = createSystemParameters(false);
         Resource resourceOne = Resource.createV3()
                                        .setName("first");
@@ -157,7 +157,7 @@ public class SystemParametersTest {
     }
 
     @Test
-    public void testResourceParametersOverrideSystemParameters() throws Exception {
+    void testResourceParametersOverrideSystemParameters() throws Exception {
         SystemParameters testedClass = createSystemParameters(false);
         List<String> fields = Arrays.asList(SupportedParameters.SERVICE_NAME, SupportedParameters.DEFAULT_CONTAINER_NAME,
                                             SupportedParameters.DEFAULT_XS_APP_NAME);
@@ -224,7 +224,7 @@ public class SystemParametersTest {
         assertEquals(DEPLOY_SERVICE_URL, descriptorParameters.get(SupportedParameters.DEPLOY_SERVICE_URL));
     }
 
-    public SystemParameters createSystemParameters(boolean reserveTemporaryRoutes) throws MalformedURLException {
+    private SystemParameters createSystemParameters(boolean reserveTemporaryRoutes) throws MalformedURLException {
         return new SystemParameters.Builder().authorizationEndpoint(AUTHORIZATION_ENDPOINT)
                                              .controllerUrl(new URL(CONTROLLER_URL))
                                              .credentialsGenerator(credentialsGenerator)

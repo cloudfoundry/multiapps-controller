@@ -17,7 +17,7 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
-public class ServiceUpdaterTest extends CloudServiceOperatorTest {
+class ServiceUpdaterTest extends CloudServiceOperatorTest {
 
     private static final String SERVICE_INSTANCES_ENDPOINT = "/v2/service_instances";
     private static final String EXISTING_SERVICE_GUID = "6061e8a8-3c0a-4826-9c01-cc676447af59";
@@ -36,12 +36,12 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
     private ServiceUpdater serviceUpdater;
 
     @BeforeEach
-    public void createServiceUpdater() {
+    void createServiceUpdater() {
         serviceUpdater = new ServiceUpdater(getMockedRestTemplateFactory());
     }
 
     @Test
-    public void testUpdateServicePlan1() throws MalformedURLException {
+    void testUpdateServicePlan1() throws MalformedURLException {
         CloudControllerClient client = getMockedClient();
         Mockito.when(client.getServiceInstance(EXISTING_SERVICE_INSTANCE_NAME))
                .thenReturn(EXISTING_SERVICE_INSTANCE);
@@ -64,7 +64,7 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
     }
 
     @Test
-    public void testUpdateServicePlan2() {
+    void testUpdateServicePlan2() {
         // Given:
         CloudControllerClient client = getMockedClient();
         Mockito.when(client.getServiceInstance(EXISTING_SERVICE_INSTANCE_NAME))
@@ -81,7 +81,7 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
     }
 
     @Test
-    public void testUpdateServicePlan3() {
+    void testUpdateServicePlan3() {
         // Given:
         CloudControllerClient client = getMockedClient();
         Mockito.when(client.getServiceInstance(EXISTING_SERVICE_INSTANCE_NAME))

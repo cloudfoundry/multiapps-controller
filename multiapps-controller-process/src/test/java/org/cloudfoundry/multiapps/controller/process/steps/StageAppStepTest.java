@@ -18,13 +18,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
+class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
 
     private static final UUID PACKAGE_GUID = UUID.fromString("e4c6c550-1e95-40a1-9f23-d92e0cbc7ab5");
     private static final UUID BUILD_GUID = UUID.fromString("86b98328-6ce4-4369-8bb9-46554a20e5f5");
 
     @Test
-    public void testExecuteStep() {
+    void testExecuteStep() {
         mockApplication("demo-app");
         mockCloudPackage(PACKAGE_GUID);
         mockClient();
@@ -60,26 +60,26 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
     }
 
     @Test
-    public void testGetErrorMessage() {
+    void testGetErrorMessage() {
         String applicationName = "another-app";
         mockApplication(applicationName);
         Assertions.assertEquals(MessageFormat.format(Messages.ERROR_STAGING_APP_0, applicationName), step.getStepErrorMessage(context));
     }
 
     @Test
-    public void testAsyncExecutionStatus() {
+    void testAsyncExecutionStatus() {
         List<AsyncExecution> asyncStepExecutions = step.getAsyncStepExecutions(context);
         Assertions.assertEquals(1, asyncStepExecutions.size());
         Assertions.assertTrue(asyncStepExecutions.get(0) instanceof PollStageAppStatusExecution);
     }
 
     @Test
-    public void testGetTimeoutDefaultValue() {
+    void testGetTimeoutDefaultValue() {
         Assertions.assertEquals(Variables.START_TIMEOUT.getDefaultValue(), step.getTimeout(context));
     }
 
     @Test
-    public void testGetTimeoutCustomValue() {
+    void testGetTimeoutCustomValue() {
         int timeout = 10;
         context.setVariable(Variables.START_TIMEOUT, timeout);
         Assertions.assertEquals(timeout, step.getTimeout(context));
@@ -89,4 +89,5 @@ public class StageAppStepTest extends SyncFlowableStepTest<StageAppStep> {
     protected StageAppStep createStep() {
         return new StageAppStep();
     }
+
 }

@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class FlowableConfigurationTest {
+class FlowableConfigurationTest {
 
     private static final String APP_ID = "foo";
     private static final int APP_INSTANCE_INDEX = 1;
@@ -24,14 +24,14 @@ public class FlowableConfigurationTest {
     private final FlowableConfiguration flowableConfiguration = new FlowableConfiguration();
 
     @BeforeEach
-    public void initMocks() {
+    void initMocks() {
         MockitoAnnotations.initMocks(this);
         flowableConfiguration.randomIdGenerator = () -> RANDOM_ID;
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testJobExecutorId(String applicationId, Integer applicationInstanceIndex, String expectedJobExecutorId) {
+    void testJobExecutorId(String applicationId, Integer applicationInstanceIndex, String expectedJobExecutorId) {
         Mockito.when(applicationConfiguration.getApplicationInstanceIndex())
                .thenReturn(applicationInstanceIndex);
         Mockito.when(applicationConfiguration.getApplicationGuid())
@@ -42,15 +42,9 @@ public class FlowableConfigurationTest {
         assertEquals(expectedJobExecutorId, jobExecutorId);
     }
 
-    public static Stream<Arguments> testJobExecutorId() {
-        return Stream.of(
-        // @formatter:off
-            Arguments.of(null, null, RANDOM_ID),
-            Arguments.of(APP_ID, null, RANDOM_ID),
-            Arguments.of(null, APP_INSTANCE_INDEX, RANDOM_ID),
-            Arguments.of(APP_ID, APP_INSTANCE_INDEX, "ds-foo/1/bar")
-        // @formatter:on
-        );
+    static Stream<Arguments> testJobExecutorId() {
+        return Stream.of(Arguments.of(null, null, RANDOM_ID), Arguments.of(APP_ID, null, RANDOM_ID),
+                         Arguments.of(null, APP_INSTANCE_INDEX, RANDOM_ID), Arguments.of(APP_ID, APP_INSTANCE_INDEX, "ds-foo/1/bar"));
     }
 
 }

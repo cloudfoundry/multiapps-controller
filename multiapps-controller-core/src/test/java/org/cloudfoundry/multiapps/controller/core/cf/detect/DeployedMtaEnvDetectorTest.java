@@ -28,7 +28,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-public class DeployedMtaEnvDetectorTest {
+class DeployedMtaEnvDetectorTest {
 
     private final Tester tester = Tester.forClass(getClass());
 
@@ -37,7 +37,7 @@ public class DeployedMtaEnvDetectorTest {
 
     private DeployedMtaEnvDetector deployedMtaEnvDetector = new DeployedMtaEnvDetector(new EnvMtaMetadataParser(new EnvMtaMetadataValidator()));
 
-    public static Stream<Arguments> testGetAllDeployedMtas() {
+    static Stream<Arguments> testGetAllDeployedMtas() {
         return Stream.of(
 // @formatter:off
             // (1) No MTA applications:
@@ -69,13 +69,13 @@ public class DeployedMtaEnvDetectorTest {
     }
 
     @BeforeEach
-    private void initMocks() {
+    void initMocks() {
         MockitoAnnotations.initMocks(this);
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testGetAllDeployedMtas(String appsResourceLocation, Expectation expectation) throws IOException {
+    void testGetAllDeployedMtas(String appsResourceLocation, Expectation expectation) throws IOException {
         List<CloudApplication> apps = parseApps(appsResourceLocation);
         prepareClient(apps);
         tester.test(() -> deployedMtaEnvDetector.detectDeployedMtas(client), expectation);

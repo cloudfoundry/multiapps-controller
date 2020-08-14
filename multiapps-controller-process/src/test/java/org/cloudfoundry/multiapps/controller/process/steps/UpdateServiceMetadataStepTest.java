@@ -12,14 +12,14 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudSer
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 
-public class UpdateServiceMetadataStepTest extends SyncFlowableStepTest<UpdateServiceMetadataStep> {
+class UpdateServiceMetadataStepTest extends SyncFlowableStepTest<UpdateServiceMetadataStep> {
 
     private static final String SERVICE_NAME = "test-service";
     private static final String METADATA_LABEL = "test-label";
     private static final String METADATA_LABEL_VALUE = "test-label-value";
 
     @Test
-    public void testUpdateServiceMetadata() {
+    void testUpdateServiceMetadata() {
         CloudServiceInstanceExtended serviceToProcess = buildServiceToProcess();
         prepareServiceToProcess(serviceToProcess);
         prepareClient(serviceToProcess);

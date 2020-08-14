@@ -30,7 +30,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class OperationInErrorStateHandlerTest {
+class OperationInErrorStateHandlerTest {
 
     @Mock
     private ProgressMessageService progressMessageServiceMock;
@@ -49,14 +49,14 @@ public class OperationInErrorStateHandlerTest {
                                      .toDate();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         Mockito.when(progressMessageServiceMock.createQuery())
                .thenReturn(progressMessageQuery);
     }
 
     @Test
-    public void testToEventType() {
+    void testToEventType() {
         OperationInErrorStateHandler handler = mockHandler();
         Throwable throwable = new RuntimeException(new SLException(new IOException()));
         EventType eventType = handler.toEventType(throwable);
@@ -64,7 +64,7 @@ public class OperationInErrorStateHandlerTest {
     }
 
     @Test
-    public void testToEventTypeWithContentException() {
+    void testToEventTypeWithContentException() {
         OperationInErrorStateHandler handler = mockHandler();
         Throwable throwable = new RuntimeException(new SLException(new IOException(new ParsingException(""))));
         EventType eventType = handler.toEventType(throwable);
@@ -72,7 +72,7 @@ public class OperationInErrorStateHandlerTest {
     }
 
     @Test
-    public void testWithErrorMessageAlreadyPersisted() {
+    void testWithErrorMessageAlreadyPersisted() {
         Mockito.when(flowableFacadeMock.getProcessInstanceId(Mockito.any()))
                .thenReturn("foo");
         ProgressMessageQuery queryMock = new MockBuilder<>(progressMessageQuery).on(query -> query.processId("foo"))
@@ -95,12 +95,12 @@ public class OperationInErrorStateHandlerTest {
     }
 
     @Test
-    public void testWithNoErrorMessagePersistedAndTaskIdFromFlowableEngine() {
+    void testWithNoErrorMessagePersistedAndTaskIdFromFlowableEngine() {
         testWithNoErrorMessageWithExecutionEntity(true);
     }
 
     @Test
-    public void testWithNoErrorMessageAndTaskIdFromContext() {
+    void testWithNoErrorMessageAndTaskIdFromContext() {
         Mockito.when(flowableFacadeMock.getCurrentTaskId("bar"))
                .thenReturn("barbar");
 

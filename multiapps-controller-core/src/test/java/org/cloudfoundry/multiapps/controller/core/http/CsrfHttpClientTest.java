@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class CsrfHttpClientTest {
+class CsrfHttpClientTest {
 
     private static final String BODY = "body";
     private static final String FOO_TOKEN = "foo";
@@ -37,7 +37,7 @@ public class CsrfHttpClientTest {
                                                                                                    "Required"));
 
     @Test
-    public void testExecuteRequestWithNoProtectionNeeded() throws IOException {
+    void testExecuteRequestWithNoProtectionNeeded() throws IOException {
         HttpClient httpClient = HttpMocks.mockClient(builder -> builder.addResponse(OK_RESPONSE));
         HttpRequest request = Mockito.spy(new HttpGet());
 
@@ -50,7 +50,7 @@ public class CsrfHttpClientTest {
     }
 
     @Test
-    public void testExecuteSimpleRequestWithNoRetryShouldReturnTheResponse() throws IOException {
+    void testExecuteSimpleRequestWithNoRetryShouldReturnTheResponse() throws IOException {
         HttpClient httpClient = HttpMocks.mockClient(builder -> builder.addResponse(OK_RESPONSE_WITH_FOO_TOKEN));
         HttpRequest request = Mockito.spy(new HttpPost());
 
@@ -64,7 +64,7 @@ public class CsrfHttpClientTest {
     }
 
     @Test
-    public void testExecuteSimpleRequestWithRetryNeeded() throws IOException {
+    void testExecuteSimpleRequestWithRetryNeeded() throws IOException {
         HttpClient httpClient = HttpMocks.mockClient(builder -> builder.addResponse(OK_RESPONSE_WITH_FOO_TOKEN)
                                                                        .addResponse(FORBIDDEN_RESPONSE)
                                                                        .addResponse(OK_RESPONSE_WITH_BAR_TOKEN));
@@ -83,7 +83,7 @@ public class CsrfHttpClientTest {
     }
 
     @Test
-    public void testExecuteWithContext() throws IOException {
+    void testExecuteWithContext() throws IOException {
         HttpClient httpClient = HttpMocks.mockClient(builder -> builder.addResponse(OK_RESPONSE));
         HttpRequest request = Mockito.spy(new HttpGet());
 
@@ -97,7 +97,7 @@ public class CsrfHttpClientTest {
     }
 
     @Test
-    public void testExecuteWithTarget() throws IOException {
+    void testExecuteWithTarget() throws IOException {
         HttpClient httpClient = HttpMocks.mockClient(builder -> builder.addResponse(OK_RESPONSE));
         HttpRequest request = Mockito.spy(new HttpGet());
 
@@ -111,7 +111,7 @@ public class CsrfHttpClientTest {
     }
 
     @Test
-    public void testExecuteWithResponseHandler() throws IOException {
+    void testExecuteWithResponseHandler() throws IOException {
         HttpClient httpClient = HttpMocks.mockClient(builder -> builder.addResponse(OK_RESPONSE)
                                                                        .responseHandlerReturnValue(RESPONSE_HANDLER_RETURN_VALUE));
         HttpRequest request = Mockito.spy(new HttpGet());
@@ -122,7 +122,7 @@ public class CsrfHttpClientTest {
     }
 
     @Test
-    public void testWithNoUrlSet() throws IOException {
+    void testWithNoUrlSet() throws IOException {
         HttpClient httpClient = HttpMocks.mockClient(builder -> builder.addResponse(OK_RESPONSE));
         HttpRequest request = Mockito.spy(new HttpPost());
 

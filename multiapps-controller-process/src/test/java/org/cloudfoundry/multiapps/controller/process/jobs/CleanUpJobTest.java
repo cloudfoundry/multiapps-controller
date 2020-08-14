@@ -8,10 +8,10 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class CleanUpJobTest {
+class CleanUpJobTest {
 
     @Test
-    public void testExecutionResilience() {
+    void testExecutionResilience() {
         Cleaner cleaner1 = Mockito.mock(Cleaner.class);
         Cleaner cleaner2 = Mockito.mock(Cleaner.class);
         Mockito.doThrow(new SLException("Will it work?"))

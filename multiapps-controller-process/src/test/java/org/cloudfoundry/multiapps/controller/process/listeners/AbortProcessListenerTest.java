@@ -15,7 +15,7 @@ import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class AbortProcessListenerTest {
+class AbortProcessListenerTest {
 
     private final OperationInFinalStateHandler eventHandler = Mockito.mock(OperationInFinalStateHandler.class);
     private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
@@ -24,13 +24,13 @@ public class AbortProcessListenerTest {
     private final AbortProcessListener abortProcessListener = new AbortProcessListenerMock(eventHandler, null);
 
     @Test
-    public void testWithWrongEventClass() {
+    void testWithWrongEventClass() {
         abortProcessListenerWithContext.onEvent(Mockito.mock(FlowableEvent.class));
         Mockito.verifyNoInteractions(eventHandler);
     }
 
     @Test
-    public void testWithEntityCreatedEvent() {
+    void testWithEntityCreatedEvent() {
         FlowableEngineEntityEvent entityCreatedEvent = mockFlowableEngineEvent(FlowableEngineEntityEvent.class,
                                                                                FlowableEngineEventType.ENTITY_CREATED);
         abortProcessListenerWithContext.onEvent(entityCreatedEvent);
@@ -38,7 +38,7 @@ public class AbortProcessListenerTest {
     }
 
     @Test
-    public void testWithEntityDeletedEvent() {
+    void testWithEntityDeletedEvent() {
         FlowableEngineEntityEvent entityDeletedEvent = mockFlowableEngineEvent(FlowableEngineEntityEvent.class,
                                                                                FlowableEngineEventType.ENTITY_DELETED);
         mockEntity(entityDeletedEvent);
@@ -48,7 +48,7 @@ public class AbortProcessListenerTest {
     }
 
     @Test
-    public void testWithProcessCancelledEvent() {
+    void testWithProcessCancelledEvent() {
         abortProcessListenerWithContext.onEvent(mockFlowableEngineEvent(FlowableCancelledEvent.class,
                                                                         FlowableEngineEventType.PROCESS_CANCELLED));
         Mockito.verify(eventHandler)
@@ -56,7 +56,7 @@ public class AbortProcessListenerTest {
     }
 
     @Test
-    public void testWithoutContext() {
+    void testWithoutContext() {
         abortProcessListener.onEvent(mockFlowableEngineEvent(FlowableCancelledEvent.class, FlowableEngineEventType.PROCESS_CANCELLED));
         Mockito.verifyNoInteractions(eventHandler);
     }

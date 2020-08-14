@@ -21,7 +21,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 
-public class ClientHelperTest {
+class ClientHelperTest {
 
     private static final String ORG_NAME = "some-organization";
     private static final String SPACE_NAME = "custom-space";
@@ -34,13 +34,13 @@ public class ClientHelperTest {
     private ClientHelper clientHelper;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         clientHelper = new ClientHelper(client);
     }
 
     @Test
-    public void testDeleteRoute() {
+    void testDeleteRoute() {
         String uri = "https://some-route.next.domain";
         clientHelper.deleteRoute(uri);
         ApplicationURI route = new ApplicationURI(uri);
@@ -49,7 +49,7 @@ public class ClientHelperTest {
     }
 
     @Test
-    public void testComputeSpaceId() {
+    void testComputeSpaceId() {
         Mockito.when(client.getSpace(ORG_NAME, SPACE_NAME, false))
                .thenReturn(createCloudSpace(GUID, SPACE_NAME, ORG_NAME));
         String spaceId = clientHelper.computeSpaceId(ORG_NAME, SPACE_NAME);
@@ -57,12 +57,12 @@ public class ClientHelperTest {
     }
 
     @Test
-    public void testComputeSpaceIdIfSpaceIsNull() {
+    void testComputeSpaceIdIfSpaceIsNull() {
         Assertions.assertNull(clientHelper.computeSpaceId(ORG_NAME, SPACE_NAME));
     }
 
     @Test
-    public void testComputeTarget() {
+    void testComputeTarget() {
         Mockito.when(client.getSpace(Matchers.any(UUID.class)))
                .thenReturn(createCloudSpace(GUID, SPACE_NAME, ORG_NAME));
         CloudTarget target = clientHelper.computeTarget(SPACE_ID);
@@ -71,21 +71,21 @@ public class ClientHelperTest {
     }
 
     @Test
-    public void testComputeTargetCloudOperationExceptionForbiddenThrown() {
+    void testComputeTargetCloudOperationExceptionForbiddenThrown() {
         Mockito.when(client.getSpace(Matchers.any(UUID.class)))
                .thenThrow(new CloudOperationException(HttpStatus.FORBIDDEN));
         Assertions.assertNull(clientHelper.computeTarget(SPACE_ID));
     }
 
     @Test
-    public void testComputeTargetCloudOperationExceptionNotFoundThrown() {
+    void testComputeTargetCloudOperationExceptionNotFoundThrown() {
         Mockito.when(client.getSpace(Matchers.any(UUID.class)))
                .thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND));
         Assertions.assertNull(clientHelper.computeTarget(SPACE_ID));
     }
 
     @Test
-    public void testComputeTargetCloudOperationExceptionBadRequestThrown() {
+    void testComputeTargetCloudOperationExceptionBadRequestThrown() {
         Mockito.when(client.getSpace(Matchers.any(UUID.class)))
                .thenThrow(new CloudOperationException(HttpStatus.BAD_REQUEST));
         CloudOperationException cloudOperationException = Assertions.assertThrows(CloudOperationException.class,

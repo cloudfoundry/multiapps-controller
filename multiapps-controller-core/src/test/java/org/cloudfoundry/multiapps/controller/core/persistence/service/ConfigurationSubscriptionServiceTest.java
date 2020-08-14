@@ -24,7 +24,7 @@ import org.cloudfoundry.multiapps.mta.model.Version;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class ConfigurationSubscriptionServiceTest {
+class ConfigurationSubscriptionServiceTest {
 
     private static final ConfigurationSubscription CONFIGURATION_SUBSCRIPTION_1 = createConfigurationSubscription(1L, "mta", "space", "app",
                                                                                                                   createConfigurationFilter("3.1"),
@@ -40,13 +40,13 @@ public class ConfigurationSubscriptionServiceTest {
     private final ConfigurationSubscriptionService configurationSubscriptionService = createConfigurationSubscriptionService();
 
     @AfterEach
-    public void cleanUp() {
+    void cleanUp() {
         configurationSubscriptionService.createQuery()
                                         .delete();
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         configurationSubscriptionService.add(CONFIGURATION_SUBSCRIPTION_1);
         assertEquals(1, configurationSubscriptionService.createQuery()
                                                         .list()
@@ -58,7 +58,7 @@ public class ConfigurationSubscriptionServiceTest {
     }
 
     @Test
-    public void testAddWithNonEmptyDatabase() {
+    void testAddWithNonEmptyDatabase() {
         addConfigurationSubscriptions(Arrays.asList(CONFIGURATION_SUBSCRIPTION_1, CONFIGURATION_SUBSCRIPTION_2));
 
         assertConfigurationSubscriptionExists(CONFIGURATION_SUBSCRIPTION_1.getId());
@@ -70,7 +70,7 @@ public class ConfigurationSubscriptionServiceTest {
     }
 
     @Test
-    public void testAddWithAlreadyExistingSubscription() {
+    void testAddWithAlreadyExistingSubscription() {
         configurationSubscriptionService.add(CONFIGURATION_SUBSCRIPTION_1);
         Exception exception = assertThrows(ConflictException.class,
                                            () -> configurationSubscriptionService.add(CONFIGURATION_SUBSCRIPTION_1));
@@ -84,33 +84,33 @@ public class ConfigurationSubscriptionServiceTest {
     }
 
     @Test
-    public void testQueryById() {
+    void testQueryById() {
         testQueryByCriteria((query, subscription) -> query.id(subscription.getId()));
     }
 
     @Test
-    public void testQueryByMtaId() {
+    void testQueryByMtaId() {
         testQueryByCriteria((query, subscription) -> query.mtaId(subscription.getMtaId()));
     }
 
     @Test
-    public void testQueryBySpaceId() {
+    void testQueryBySpaceId() {
         testQueryByCriteria((query, subscription) -> query.spaceId(subscription.getSpaceId()));
     }
 
     @Test
-    public void testQueryByAppName() {
+    void testQueryByAppName() {
         testQueryByCriteria((query, subscription) -> query.appName(subscription.getAppName()));
     }
 
     @Test
-    public void testQueryByResourceName() {
+    void testQueryByResourceName() {
         testQueryByCriteria((query, subscription) -> query.resourceName(subscription.getResourceDto()
                                                                                     .getName()));
     }
 
     @Test
-    public void testQueryByFilterMatching() {
+    void testQueryByFilterMatching() {
         addConfigurationSubscriptions(Arrays.asList(CONFIGURATION_SUBSCRIPTION_1, CONFIGURATION_SUBSCRIPTION_2));
 
         int foundSubscriptions = configurationSubscriptionService.createQuery()

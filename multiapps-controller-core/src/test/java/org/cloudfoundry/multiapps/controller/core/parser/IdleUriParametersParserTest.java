@@ -17,14 +17,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class IdleUriParametersParserTest {
+class IdleUriParametersParserTest {
 
     private static final String DEFAULT_HOST = "default-host";
     private static final String DEFAULT_DOMAIN = "default-domain";
 
     private final Tester tester = Tester.forClass(getClass());
 
-    public static Stream<Arguments> testParseIdleRoutes() {
+    static Stream<Arguments> testParseIdleRoutes() {
         // @formatter:off
         return Stream.of(
             Arguments.of(Arrays.asList("foo.bar.com"), Arrays.asList("foo-idle.bar.com"), new Expectation(Arrays.asList("foo-idle.bar.com").toString())),
@@ -39,7 +39,7 @@ public class IdleUriParametersParserTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testParseIdleRoutes(List<String> routes, List<String> idleRoutes, Expectation expectation) {
+    void testParseIdleRoutes(List<String> routes, List<String> idleRoutes, Expectation expectation) {
         Map<String, Object> parametersMap = new HashMap<>();
         parametersMap.put(SupportedParameters.ROUTES, constructRoutesParameter(routes, SupportedParameters.ROUTE));
         parametersMap.put(SupportedParameters.IDLE_ROUTES, constructRoutesParameter(idleRoutes, SupportedParameters.IDLE_ROUTE));
@@ -55,7 +55,7 @@ public class IdleUriParametersParserTest {
     }
 
     @Test
-    public void testIgnoreIdleHostsDomains() {
+    void testIgnoreIdleHostsDomains() {
         Map<String, Object> parametersMap = new HashMap<>();
         parametersMap.put(SupportedParameters.ROUTES,
                           constructRoutesParameter(Arrays.asList("foo-quux.test.com/abc", "bar-quux.test.com/def"),
@@ -68,7 +68,7 @@ public class IdleUriParametersParserTest {
                                           .toString()));
     }
 
-    public static Stream<Arguments> testParseIdleHostsDomainsWithoutRoutes() {
+    static Stream<Arguments> testParseIdleHostsDomainsWithoutRoutes() {
         // @formatter:off
         return Stream.of(
             Arguments.of(Arrays.asList("test-host-1", "test-host-2"), Arrays.asList("test-domain.com"),  Arrays.asList("idle-host"), Arrays.asList("idle-domain.com"), 
@@ -81,8 +81,8 @@ public class IdleUriParametersParserTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testParseIdleHostsDomainsWithoutRoutes(List<String> hosts, List<String> domains, List<String> idleHosts,
-                                                       List<String> idleDomains, Expectation expectation) {
+    void testParseIdleHostsDomainsWithoutRoutes(List<String> hosts, List<String> domains, List<String> idleHosts, List<String> idleDomains,
+                                                Expectation expectation) {
         Map<String, Object> parametersMap = new HashMap<>();
         parametersMap.put(SupportedParameters.HOSTS, hosts);
         parametersMap.put(SupportedParameters.DOMAINS, domains);

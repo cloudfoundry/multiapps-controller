@@ -23,34 +23,38 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class ModuleParametersCompatabilityValidatorTest {
+class ModuleParametersCompatabilityValidatorTest {
 
     @Mock
     private UserMessageLogger userMessageLogger;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
-    public static Stream<Arguments> testModuleParametersCompatability() {
-        return Stream.of(
-        // @formatter:off
-            Arguments.of(Arrays.asList(SupportedParameters.HOST, SupportedParameters.ROUTES), true),
-            Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES), false),
-            Arguments.of(Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.DOMAINS, SupportedParameters.ROUTES), true),
-            Arguments.of(Arrays.asList(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOST), true),
-            Arguments.of(Arrays.asList(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_DOMAINS), true),
-            Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES, SupportedParameters.BUILDPACKS), false),
-            Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES, "not-supported-parameter"), false),
-            Arguments.of(Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.ROUTES, SupportedParameters.ROUTE_PATH, SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_ROUTES), true)
-        // @formatter:on
-        );
+    static Stream<Arguments> testModuleParametersCompatability() {
+        return Stream.of(Arguments.of(Arrays.asList(SupportedParameters.HOST, SupportedParameters.ROUTES), true),
+                         Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES), false),
+                         Arguments.of(Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.DOMAINS, SupportedParameters.ROUTES),
+                                      true),
+                         Arguments.of(Arrays.asList(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOST), true),
+                         Arguments.of(Arrays.asList(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOSTS,
+                                                    SupportedParameters.IDLE_DOMAINS),
+                                      true),
+                         Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES,
+                                                    SupportedParameters.BUILDPACKS),
+                                      false),
+                         Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES, "not-supported-parameter"),
+                                      false),
+                         Arguments.of(Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.ROUTES, SupportedParameters.ROUTE_PATH,
+                                                    SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_ROUTES),
+                                      true));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testModuleParametersCompatability(List<String> moduleParameters, boolean shouldWarnMessage) {
+    void testModuleParametersCompatability(List<String> moduleParameters, boolean shouldWarnMessage) {
         Module module = buildModule(moduleParameters);
 
         Module validatedModule = new ModuleParametersCompatabilityValidator(module, userMessageLogger).validate();

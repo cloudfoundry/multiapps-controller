@@ -32,7 +32,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class PollStageAppStatusExecutionTest {
+class PollStageAppStatusExecutionTest {
 
     private static final String USER_NAME = "testUsername";
     private static final String APPLICATION_NAME = "testApplication";
@@ -55,26 +55,22 @@ public class PollStageAppStatusExecutionTest {
     private PollStageAppStatusExecution step;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         execution = MockDelegateExecution.createSpyInstance();
         context = new ProcessContext(execution, stepLogger, clientProvider);
         step = new PollStageAppStatusExecution(recentLogsRetriever, applicationStager);
     }
 
-    public static Stream<Arguments> testStep() {
-        return Stream.of(
-        //@formatter:off
-                        Arguments.of(PackageState.FAILED, AsyncExecutionState.ERROR),
-                        Arguments.of(PackageState.PENDING, AsyncExecutionState.RUNNING),
-                        Arguments.of(PackageState.STAGED, AsyncExecutionState.FINISHED)
-        //@formatter:on
-        );
+    static Stream<Arguments> testStep() {
+        return Stream.of(Arguments.of(PackageState.FAILED, AsyncExecutionState.ERROR),
+                         Arguments.of(PackageState.PENDING, AsyncExecutionState.RUNNING),
+                         Arguments.of(PackageState.STAGED, AsyncExecutionState.FINISHED));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testStep(PackageState applicationStageState, AsyncExecutionState expectedExecutionState) {
+    void testStep(PackageState applicationStageState, AsyncExecutionState expectedExecutionState) {
         CloudApplicationExtended application = buildApplication();
         prepareContext(application);
         prepareClientProvider();
@@ -88,7 +84,7 @@ public class PollStageAppStatusExecutionTest {
     }
 
     @Test
-    public void testPollingErrorMessage() {
+    void testPollingErrorMessage() {
         context.setVariable(Variables.APP_TO_PROCESS, createCloudApplication("anatz"));
         String pollingErrorMessage = step.getPollingErrorMessage(context);
         Assertions.assertEquals("Error staging application \"anatz\"", pollingErrorMessage);
@@ -133,4 +129,5 @@ public class PollStageAppStatusExecutionTest {
     private void prepareApplicationStager(StagingState stagingState) {
         when(applicationStager.getStagingState()).thenReturn(stagingState);
     }
+
 }

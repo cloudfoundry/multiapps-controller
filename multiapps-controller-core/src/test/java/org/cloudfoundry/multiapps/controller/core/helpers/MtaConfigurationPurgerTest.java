@@ -37,7 +37,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class MtaConfigurationPurgerTest {
+class MtaConfigurationPurgerTest {
 
     private static final int ENTRY_ID_TO_REMOVE = 0;
     private static final int ENTRY_ID_TO_KEEP_1 = 1;
@@ -76,7 +76,7 @@ public class MtaConfigurationPurgerTest {
     private final List<Query<?, ?>> queriesToVerifyNoDeleteCallOn = new ArrayList<>();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         AuditLoggingProvider.setFacade(auditLoggingFacade);
         initApplicationsMock();
@@ -85,7 +85,7 @@ public class MtaConfigurationPurgerTest {
     }
 
     @Test
-    public void testPurge() {
+    void testPurge() {
         MtaConfigurationPurger purger = new MtaConfigurationPurger(client,
                                                                    configurationEntryService,
                                                                    configurationSubscriptionService,

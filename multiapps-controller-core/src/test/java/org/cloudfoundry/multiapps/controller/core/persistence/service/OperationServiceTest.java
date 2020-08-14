@@ -23,7 +23,7 @@ import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationS
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class OperationServiceTest {
+class OperationServiceTest {
 
     private static final Operation OPERATION_1 = createOperation("1", ProcessType.DEPLOY, "spaceId", "mtaId", "user", false,
                                                                  ZonedDateTime.parse("2010-10-08T10:00:00.000Z[UTC]"),
@@ -34,13 +34,13 @@ public class OperationServiceTest {
     private final OperationService operationService = createOperationService();
 
     @AfterEach
-    public void cleanUp() {
+    void cleanUp() {
         operationService.createQuery()
                         .delete();
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         operationService.add(OPERATION_1);
         assertEquals(Collections.singletonList(OPERATION_1), operationService.createQuery()
                                                                              .list());
@@ -50,7 +50,7 @@ public class OperationServiceTest {
     }
 
     @Test
-    public void testAddWithNonEmptyDatabase() {
+    void testAddWithNonEmptyDatabase() {
         addOperations(Arrays.asList(OPERATION_1, OPERATION_2));
 
         assertOperationExists(OPERATION_1.getProcessId());
@@ -61,7 +61,7 @@ public class OperationServiceTest {
     }
 
     @Test
-    public void testAddWithAlreadyExistingOperation() {
+    void testAddWithAlreadyExistingOperation() {
         operationService.add(OPERATION_1);
         Exception exception = assertThrows(ConflictException.class, () -> operationService.add(OPERATION_1));
         String expectedExceptionMessage = MessageFormat.format(Messages.OPERATION_ALREADY_EXISTS, OPERATION_1.getProcessId());
@@ -69,37 +69,37 @@ public class OperationServiceTest {
     }
 
     @Test
-    public void testQueryByProcessId() {
+    void testQueryByProcessId() {
         testQueryByCriteria((query, operation) -> query.processId(operation.getProcessId()), OPERATION_1, OPERATION_2);
     }
 
     @Test
-    public void testQueryByProcessType() {
+    void testQueryByProcessType() {
         testQueryByCriteria((query, operation) -> query.processType(operation.getProcessType()), OPERATION_1, OPERATION_2);
     }
 
     @Test
-    public void testQueryBySpaceId() {
+    void testQueryBySpaceId() {
         testQueryByCriteria((query, operation) -> query.spaceId(operation.getSpaceId()), OPERATION_1, OPERATION_2);
     }
 
     @Test
-    public void testQueryByMtaId() {
+    void testQueryByMtaId() {
         testQueryByCriteria((query, operation) -> query.mtaId(operation.getMtaId()), OPERATION_1, OPERATION_2);
     }
 
     @Test
-    public void testQueryByUser() {
+    void testQueryByUser() {
         testQueryByCriteria((query, operation) -> query.user(operation.getUser()), OPERATION_1, OPERATION_2);
     }
 
     @Test
-    public void testQueryByAcquiredLock() {
+    void testQueryByAcquiredLock() {
         testQueryByCriteria((query, operation) -> query.acquiredLock(operation.hasAcquiredLock()), OPERATION_1, OPERATION_2);
     }
 
     @Test
-    public void testQueryByState() {
+    void testQueryByState() {
         Operation operation1 = ImmutableOperation.copyOf(OPERATION_1)
                                                  .withState(Operation.State.ERROR);
         Operation operation2 = ImmutableOperation.copyOf(OPERATION_2)
@@ -108,19 +108,19 @@ public class OperationServiceTest {
     }
 
     @Test
-    public void testQueryByStartedBefore() {
+    void testQueryByStartedBefore() {
         testQueryByCriteria((query, operation) -> query.startedBefore(toDate(ZonedDateTime.parse("2010-10-09T00:00:00.000Z[UTC]"))),
                             OPERATION_1, OPERATION_2);
     }
 
     @Test
-    public void testQueryByEndedAfter() {
+    void testQueryByEndedAfter() {
         testQueryByCriteria((query, operation) -> query.endedAfter(toDate(ZonedDateTime.parse("2010-10-13T10:00:00.000Z[UTC]"))),
                             OPERATION_1, OPERATION_2);
     }
 
     @Test
-    public void testQueryWithStateAnyOf() {
+    void testQueryWithStateAnyOf() {
         Operation operation1 = ImmutableOperation.copyOf(OPERATION_1)
                                                  .withState(Operation.State.ERROR);
         Operation operation2 = ImmutableOperation.copyOf(OPERATION_2)
@@ -130,14 +130,14 @@ public class OperationServiceTest {
     }
 
     @Test
-    public void testQueryInNonFinalState() {
+    void testQueryInNonFinalState() {
         Operation operation2 = ImmutableOperation.copyOf(OPERATION_2)
                                                  .withState(Operation.State.ABORTED);
         testQueryByCriteria((query, operation) -> query.inNonFinalState(), OPERATION_1, operation2);
     }
 
     @Test
-    public void testQueryInFinalState() {
+    void testQueryInFinalState() {
         Operation operation1 = ImmutableOperation.copyOf(OPERATION_1)
                                                  .withState(Operation.State.FINISHED);
         testQueryByCriteria((query, operation) -> query.inFinalState(), operation1, OPERATION_2);

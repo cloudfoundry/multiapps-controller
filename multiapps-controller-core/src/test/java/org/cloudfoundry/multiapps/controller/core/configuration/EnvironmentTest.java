@@ -16,7 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class EnvironmentTest {
+class EnvironmentTest {
 
     @Mock
     private EnvironmentVariablesAccessor environmentVariablesAccessor;
@@ -24,12 +24,12 @@ public class EnvironmentTest {
     private Environment environment;
 
     @BeforeEach
-    public void initMocks() {
+    void initMocks() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testGetAllVariables() {
+    void testGetAllVariables() {
         Map<String, String> variables = new HashMap<>();
         variables.put("foo", "bar");
         variables.put("baz", "qux");
@@ -40,7 +40,7 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetString() {
+    void testGetString() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("cd");
 
@@ -48,17 +48,17 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetStringWhenVariableIsMissing() {
+    void testGetStringWhenVariableIsMissing() {
         assertNull(environment.getString("ab"));
     }
 
     @Test
-    public void testGetStringWithDefault() {
+    void testGetStringWithDefault() {
         assertEquals("cd", environment.getString("ab", "cd"));
     }
 
     @Test
-    public void testGetLong() {
+    void testGetLong() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("12");
 
@@ -66,12 +66,12 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetLongWhenVariableIsMissing() {
+    void testGetLongWhenVariableIsMissing() {
         assertNull(environment.getLong("ab"));
     }
 
     @Test
-    public void testGetLongWhenVariableIsInvalid() {
+    void testGetLongWhenVariableIsInvalid() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("cd");
 
@@ -79,7 +79,7 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetLongWhenVariableIsInvalidWithDefault() {
+    void testGetLongWhenVariableIsInvalidWithDefault() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("cd");
 
@@ -87,12 +87,12 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetLongWithDefault() {
+    void testGetLongWithDefault() {
         assertEquals(12, (long) environment.getLong("ab", 12L));
     }
 
     @Test
-    public void testGetInteger() {
+    void testGetInteger() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("12");
 
@@ -100,12 +100,12 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetIntegerWhenVariableIsMissing() {
+    void testGetIntegerWhenVariableIsMissing() {
         assertNull(environment.getInteger("ab"));
     }
 
     @Test
-    public void testGetIntegerWhenVariableIsInvalid() {
+    void testGetIntegerWhenVariableIsInvalid() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("cd");
 
@@ -113,7 +113,7 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetIntegerWhenVariableIsInvalidWithDefault() {
+    void testGetIntegerWhenVariableIsInvalidWithDefault() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("cd");
 
@@ -121,12 +121,12 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetIntegerWithDefault() {
+    void testGetIntegerWithDefault() {
         assertEquals(12, (int) environment.getInteger("ab", 12));
     }
 
     @Test
-    public void testGetBoolean() {
+    void testGetBoolean() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("false");
 
@@ -134,12 +134,12 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetBooleanWhenVariableIsMissing() {
+    void testGetBooleanWhenVariableIsMissing() {
         assertNull(environment.getBoolean("ab"));
     }
 
     @Test
-    public void testGetBooleanWhenVariableIsInvalid() {
+    void testGetBooleanWhenVariableIsInvalid() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("cd");
 
@@ -147,12 +147,12 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetBooleanWithDefault() {
+    void testGetBooleanWithDefault() {
         assertEquals(false, environment.getBoolean("ab", false));
     }
 
     @Test
-    public void testGetPositiveIntegerWithNegativeVariable() {
+    void testGetPositiveIntegerWithNegativeVariable() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("-1");
 
@@ -160,7 +160,7 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetPositiveIntegerWithPositiveVariable() {
+    void testGetPositiveIntegerWithPositiveVariable() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("+1");
 
@@ -168,7 +168,7 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetPositiveIntegerWithZero() {
+    void testGetPositiveIntegerWithZero() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("0");
 
@@ -176,12 +176,12 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetPositiveIntegerWithNull() {
+    void testGetPositiveIntegerWithNull() {
         assertEquals(Integer.MAX_VALUE, (int) environment.getPositiveInteger("ab", null));
     }
 
     @Test
-    public void testGetNegativeIntegerWithNegativeVariable() {
+    void testGetNegativeIntegerWithNegativeVariable() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("-1");
 
@@ -189,7 +189,7 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetNegativeIntegerWithPositiveVariable() {
+    void testGetNegativeIntegerWithPositiveVariable() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("+1");
 
@@ -197,7 +197,7 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetNegativeIntegerWithZero() {
+    void testGetNegativeIntegerWithZero() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("0");
 
@@ -205,12 +205,12 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testGetNegativeIntegerWithNull() {
+    void testGetNegativeIntegerWithNull() {
         assertEquals(Integer.MIN_VALUE, (int) environment.getNegativeInteger("ab", null));
     }
 
     @Test
-    public void tetGetVariable() {
+    void tetGetVariable() {
         UUID expectedUuid = UUID.fromString("c9fbfbfd-8d54-4cba-958f-25a3f7a14ca7");
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn(expectedUuid.toString());
@@ -219,7 +219,7 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testHasVariable() {
+    void testHasVariable() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("0");
 
@@ -227,7 +227,7 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testHasVariableWhenVariableIsAnEmptyString() {
+    void testHasVariableWhenVariableIsAnEmptyString() {
         Mockito.when(environmentVariablesAccessor.getVariable("ab"))
                .thenReturn("");
 
@@ -235,7 +235,7 @@ public class EnvironmentTest {
     }
 
     @Test
-    public void testHasVariableWhenVariableIsMissing() {
+    void testHasVariableWhenVariableIsMissing() {
         assertFalse(environment.hasVariable("ab"));
     }
 

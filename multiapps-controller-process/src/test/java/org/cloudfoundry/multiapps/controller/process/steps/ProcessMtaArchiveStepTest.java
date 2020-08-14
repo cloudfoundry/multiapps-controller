@@ -28,7 +28,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveStep> {
+class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveStep> {
 
     private static final String SPACE_ID = "0";
 
@@ -36,13 +36,13 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
 
     private final StepInput input;
 
-    public ProcessMtaArchiveStepTest() throws ParsingException {
+    ProcessMtaArchiveStepTest() throws ParsingException {
         String json = TestUtil.getResourceAsString("process-mta-archive-step-1.json", getClass());
         this.input = JsonUtil.fromJson(json, StepInput.class);
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         prepareContext();
         prepareFileService();
         when(configuration.getMaxMtaDescriptorSize()).thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
@@ -72,7 +72,7 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
     }
 
     @Test
-    public void testExecute() {
+    void testExecute() {
         DescriptorParserFacadeFactory descriptorParserFactory = Mockito.mock(DescriptorParserFacadeFactory.class);
         Mockito.when(descriptorParserFactory.getInstance())
                .thenReturn(new DescriptorParserFacade());

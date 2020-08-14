@@ -38,7 +38,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
-public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateOrUpdateAppStep> {
+class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateOrUpdateAppStep> {
 
     private static final ApplicationServicesUpdateCallback CALLBACK = ApplicationServicesUpdateCallback.DEFAULT_APPLICATION_SERVICES_UPDATE_CALLBACK;
 
@@ -47,52 +47,44 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
     private List<String> notRequiredServices;
     private List<String> expectedServicesToBind;
 
-// @formatter:off
-    private static Stream<Arguments> testExecute() {
-        return Stream.of(
-            Arguments.of("update-app-step-input-1.json", null),
-            Arguments.of("update-app-step-input-2.json", null),
-            Arguments.of("update-app-step-input-3.json", null),
-            Arguments.of("update-app-step-input-4.json", null),
-            Arguments.of("update-app-step-input-5.json", null),
-            Arguments.of("update-app-step-input-6.json", null),
-            Arguments.of("update-app-step-input-7.json", null),
-            Arguments.of("update-app-step-input-8.json", null),
-            Arguments.of("update-app-step-input-9.json", null),
-            Arguments.of("update-app-step-input-10.json", null),
-            Arguments.of("update-app-step-input-11.json", null),
-            // Existing app has binding with null parameters and defined service binding is without parameters
-            Arguments.of("update-app-step-input-12.json", null),
-            // Existing app has binding with empty parameters and defined service binding is without parameters
-            Arguments.of("update-app-step-input-13.json", null),
-             // Existing app has binding with parameters and defined service binding is without parameters
-            Arguments.of("update-app-step-input-14.json", null),
-            // Existing app has binding with null parameters and defined service binding is with defined parameters
-            Arguments.of("update-app-step-input-15.json", null),
-            // Service keys to inject are specified
-            Arguments.of("update-app-step-input-16.json", null),
-            // Service keys to inject are specified but does not exist
-            Arguments.of("update-app-step-input-17.json", "Unable to retrieve required service key element \"expected-service-key\" for service \"existing-service-1\""),
-            // Test enable-ssh parameter
-            Arguments.of("update-app-step-input-18.json", null),
-            // Test if healthCheckType parameter is updated
-            Arguments.of("update-app-step-input-19.json", null),
-            // Test if healthCheckHttpEndpoint parameter is updated
-            Arguments.of("update-app-step-input-20.json", null),
-            // Test if healthCheckHttpEndpoint parameter is updated
-            Arguments.of("update-app-step-input-21.json", null)
-        );
+    static Stream<Arguments> testExecute() {
+        return Stream.of(Arguments.of("update-app-step-input-1.json", null), Arguments.of("update-app-step-input-2.json", null),
+                         Arguments.of("update-app-step-input-3.json", null), Arguments.of("update-app-step-input-4.json", null),
+                         Arguments.of("update-app-step-input-5.json", null), Arguments.of("update-app-step-input-6.json", null),
+                         Arguments.of("update-app-step-input-7.json", null), Arguments.of("update-app-step-input-8.json", null),
+                         Arguments.of("update-app-step-input-9.json", null), Arguments.of("update-app-step-input-10.json", null),
+                         Arguments.of("update-app-step-input-11.json", null),
+                         // Existing app has binding with null parameters and defined service binding is without parameters
+                         Arguments.of("update-app-step-input-12.json", null),
+                         // Existing app has binding with empty parameters and defined service binding is without parameters
+                         Arguments.of("update-app-step-input-13.json", null),
+                         // Existing app has binding with parameters and defined service binding is without parameters
+                         Arguments.of("update-app-step-input-14.json", null),
+                         // Existing app has binding with null parameters and defined service binding is with defined parameters
+                         Arguments.of("update-app-step-input-15.json", null),
+                         // Service keys to inject are specified
+                         Arguments.of("update-app-step-input-16.json", null),
+                         // Service keys to inject are specified but does not exist
+                         Arguments.of("update-app-step-input-17.json",
+                                      "Unable to retrieve required service key element \"expected-service-key\" for service \"existing-service-1\""),
+                         // Test enable-ssh parameter
+                         Arguments.of("update-app-step-input-18.json", null),
+                         // Test if healthCheckType parameter is updated
+                         Arguments.of("update-app-step-input-19.json", null),
+                         // Test if healthCheckHttpEndpoint parameter is updated
+                         Arguments.of("update-app-step-input-20.json", null),
+                         // Test if healthCheckHttpEndpoint parameter is updated
+                         Arguments.of("update-app-step-input-21.json", null));
     }
-// @formatter:on
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         notRequiredServices = new ArrayList<>();
         expectedServicesToBind = new ArrayList<>();
     }
 
     @Test
-    public void testSkipRebindOfServices() {
+    void testSkipRebindOfServices() {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString("update-app-step-input-1.json", getClass()), StepInput.class);
         prepareContext();
         context.setVariable(Variables.SHOULD_SKIP_SERVICE_REBINDING, true);
@@ -111,7 +103,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
 
     @ParameterizedTest
     @MethodSource
-    public void testExecute(String input, String expectedExceptionMessage) {
+    void testExecute(String input, String expectedExceptionMessage) {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, getClass()), StepInput.class);
         prepareContext();
         prepareClient();
