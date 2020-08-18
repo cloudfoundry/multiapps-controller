@@ -18,6 +18,8 @@ import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudOrganization;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudSpace;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
+import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
 import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
@@ -36,6 +38,7 @@ import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 class AuthorizationCheckerTest {
 
@@ -60,7 +63,7 @@ class AuthorizationCheckerTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 
     static Stream<Arguments> checkPermissionsTest() {
@@ -156,6 +159,18 @@ class AuthorizationCheckerTest {
         assertTrue(authorizationChecker.checkPermissions(negativeUser, THIRD_SPACE_ID, false));
         Mockito.verify(client, Mockito.times(2))
                .getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)));
+    }
+
+    @Test
+    void testCheckPermissionsWithNonUUIDSpaceIDString() {
+        setUpMocks(true, true, null);
+        AuditLoggingFacade mockAuditLoggingFacade = Mockito.mock(AuditLoggingFacade.class);
+        AuditLoggingProvider.setFacade(mockAuditLoggingFacade);
+
+        ResponseStatusException resultException = assertThrows(ResponseStatusException.class,
+                                                               () -> authorizationChecker.checkPermissions(userInfo, "non-uuid-spaceId",
+                                                                                                           true));
+        assertTrue(resultException.getStatus() == HttpStatus.NOT_FOUND);
     }
 
     private void setUpMocks(boolean hasPermissions, boolean hasAccess, Exception e) {

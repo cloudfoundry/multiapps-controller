@@ -94,11 +94,20 @@ public class AuthorizationChecker {
         if (hasAdminScope(userInfo)) {
             return true;
         }
-
-        UUID spaceGuid = UUID.fromString(spaceId);
+        UUID spaceGuid = convertSpaceIdToUUID(spaceId);
         CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName());
         UUID userGuid = UUID.fromString(userInfo.getId());
         return hasPermissions(client, userGuid, spaceGuid, readOnly);
+    }
+
+    private UUID convertSpaceIdToUUID(String spaceId) {
+        UUID spaceGuid = null;
+        try {
+            spaceGuid = UUID.fromString(spaceId);
+        } catch (IllegalArgumentException e) {
+            failWithNotFoundStatus(e.getMessage());
+        }
+        return spaceGuid;
     }
 
     private boolean hasPermissions(CloudControllerClient client, UUID userGuid, UUID spaceGuid, boolean readOnly) {
@@ -159,6 +168,10 @@ public class AuthorizationChecker {
         return userInfo.getToken()
                        .getScope()
                        .contains(TokenFactory.SCOPE_CC_ADMIN);
+    }
+
+    private void failWithNotFoundStatus(String message) {
+        failWithStatus(HttpStatus.NOT_FOUND, message);
     }
 
     private void failWithUnauthorizedStatus(String message) {
