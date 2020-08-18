@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class ProcessLoggerProviderTest {
+class ProcessLoggerProviderTest {
 
     private static final String CORRELATION_ID = "1234";
     private static final String TASK_ID = "1";
@@ -33,7 +33,7 @@ public class ProcessLoggerProviderTest {
     private ProcessLogger processLogger;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         MockitoAnnotations.initMocks(this);
         temporaryLogFile = Files.createTempFile(TEST_FILE_NAME, null);
         processLoggerProvider = new ProcessLoggerProvider() {
@@ -47,7 +47,7 @@ public class ProcessLoggerProviderTest {
     }
 
     @AfterEach
-    public void tearDown() throws IOException {
+    void tearDown() throws IOException {
         if (processLogger != null) {
             processLoggerProvider.remove(processLogger);
 
@@ -59,7 +59,7 @@ public class ProcessLoggerProviderTest {
     }
 
     @Test
-    public void testGetLogger() {
+    void testGetLogger() {
         prepareContext();
 
         processLogger = processLoggerProvider.getLogger(execution);
@@ -77,7 +77,7 @@ public class ProcessLoggerProviderTest {
     }
 
     @Test
-    public void testGetExistingLogger() {
+    void testGetExistingLogger() {
         prepareContext();
 
         processLogger = processLoggerProvider.getLogger(execution);
@@ -89,11 +89,12 @@ public class ProcessLoggerProviderTest {
     }
 
     @Test
-    public void testGetNullProcessLogger() {
+    void testGetNullProcessLogger() {
         processLogger = processLoggerProvider.getLogger(execution);
 
         assertTrue(processLogger instanceof NullProcessLogger,
                    MessageFormat.format("Expected NullProcessLogger but was {0}", processLogger.getClass()
                                                                                                .getSimpleName()));
     }
+
 }

@@ -84,13 +84,13 @@ public class RenameApplicationsStep extends SyncFlowableStep {
 
     class RenameApplicationsWithBlueGreenSuffix implements RenameFlow {
 
-        private final ApplicationColor DEFAULT_MTA_COLOR = ApplicationColor.BLUE;
+        private final ApplicationColor defaultMtaColor = ApplicationColor.BLUE;
 
         @Override
         public void execute(ProcessContext context) {
             getStepLogger().debug(Messages.DETECTING_COLOR_OF_DEPLOYED_MTA);
             DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
-            ApplicationColor idleMtaColor = DEFAULT_MTA_COLOR;
+            ApplicationColor idleMtaColor = defaultMtaColor;
 
             if (deployedMta == null) {
                 getStepLogger().info(Messages.NEW_MTA_COLOR, idleMtaColor);

@@ -16,12 +16,12 @@ import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.junit.jupiter.api.Test;
 
-public class ApplicationAttributesTest {
+class ApplicationAttributesTest {
 
     private static final String APP_NAME = "foo";
 
     @Test
-    public void testGet() {
+    void testGet() {
         ApplicationAttributes appAttributes = createApplicationAttributesFromJsonFile("application-with-valid-deploy-attributes.json");
         assertEquals("username", appAttributes.get("service-broker-username", String.class));
         assertEquals("password", appAttributes.get("service-broker-password", String.class));
@@ -32,7 +32,7 @@ public class ApplicationAttributesTest {
     }
 
     @Test
-    public void testGetWithInvalidType() {
+    void testGetWithInvalidType() {
         ApplicationAttributes appAttributes = createApplicationAttributesFromJsonFile("application-with-invalid-deploy-attributes.json");
 
         String attributeName = "create-service-broker";
@@ -44,7 +44,7 @@ public class ApplicationAttributesTest {
     }
 
     @Test
-    public void testGetWithInvalidAttributes() {
+    void testGetWithInvalidAttributes() {
         CloudApplication app = ImmutableCloudApplication.builder()
                                                         .name(APP_NAME)
                                                         .env(MapUtil.asMap("DEPLOY_ATTRIBUTES", "INVALID_JSON_OBJECT"))
@@ -57,7 +57,7 @@ public class ApplicationAttributesTest {
     }
 
     @Test
-    public void testGetWithMissingAttributes() {
+    void testGetWithMissingAttributes() {
         CloudApplication app = ImmutableCloudApplication.builder()
                                                         .name(APP_NAME)
                                                         .build();
@@ -68,7 +68,7 @@ public class ApplicationAttributesTest {
     }
 
     @Test
-    public void testGetWithNullAttributes() {
+    void testGetWithNullAttributes() {
         CloudApplication app = ImmutableCloudApplication.builder()
                                                         .name(APP_NAME)
                                                         .env(MapUtil.asMap("DEPLOY_ATTRIBUTES", "null"))

@@ -21,7 +21,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class ArchiveMergerTest {
+class ArchiveMergerTest {
 
     private static final String FILE_ENTRIES = "file-entries-1.json";
     private static final String RANDOM_SORTED_ENTRIES = "random-sorted-file-entries.json";
@@ -39,17 +39,14 @@ public class ArchiveMergerTest {
     @Mock
     private DelegateExecution execution;
 
-    public ArchiveMergerTest() {
-        MockitoAnnotations.initMocks(this);
-    }
-
     @BeforeEach
-    public void setUp() {
+    void setUp() {
+        MockitoAnnotations.initMocks(this);
         archiveMerger = new ArchiveMerger(fileService, stepLogger, execution);
     }
 
     @Test
-    public void testCreateArchiveFromPartsFileStorageExceptionThrown() throws FileStorageException {
+    void testCreateArchiveFromPartsFileStorageExceptionThrown() throws FileStorageException {
         Mockito.doThrow(FileStorageException.class)
                .when(fileService)
                .consumeFileContent(any(), any(), any());
@@ -57,7 +54,7 @@ public class ArchiveMergerTest {
     }
 
     @Test
-    public void testCreateArchiveFromParts() {
+    void testCreateArchiveFromParts() {
         List<FileEntry> fileEntries = createFileEntriesFromFile(FILE_ENTRIES);
         Path archiveFromParts = archiveMerger.createArchiveFromParts(fileEntries);
         Assertions.assertTrue(archiveFromParts.toString()
@@ -65,7 +62,7 @@ public class ArchiveMergerTest {
     }
 
     @Test
-    public void testSortFileEntries() {
+    void testSortFileEntries() {
         List<FileEntry> randomSortedFileEntries = createFileEntriesFromFile(RANDOM_SORTED_ENTRIES);
         List<FileEntry> expectedFileEntries = createFileEntriesFromFile(EXPECTED_FILE_ENTRIES);
         List<FileEntry> sortedFileEntries = archiveMerger.sort(randomSortedFileEntries);
@@ -73,19 +70,19 @@ public class ArchiveMergerTest {
     }
 
     @Test
-    public void testSortFileEntriesWithInvalidNames() {
+    void testSortFileEntriesWithInvalidNames() {
         List<FileEntry> invalidFileEntries = createFileEntriesFromFile(FILE_ENTRIES_WITH_INVALID_NAMES);
         Assertions.assertThrows(SLException.class, () -> archiveMerger.sort(invalidFileEntries));
     }
 
     @Test
-    public void testSortFileEntriesWithNamesWhichContainPartButDoNotContainIndexes() {
+    void testSortFileEntriesWithNamesWhichContainPartButDoNotContainIndexes() {
         List<FileEntry> invalidFileEntries = createFileEntriesFromFile(FILE_ENTRIES_WITHOUT_INDEXES);
         Assertions.assertThrows(SLException.class, () -> archiveMerger.sort(invalidFileEntries));
     }
 
     @Test
-    public void testWithArchiveNameWithoutParts() throws FileStorageException {
+    void testWithArchiveNameWithoutParts() throws FileStorageException {
         List<FileEntry> fileEntryWithoutParts = createFileEntriesFromFile(FILE_ENTRY_WITHOUT_PARTS);
         archiveMerger.createArchiveFromParts(fileEntryWithoutParts);
         Mockito.verify(fileService)
@@ -107,4 +104,5 @@ public class ArchiveMergerTest {
         return fileEntry.getName()
                         .split("\\.")[0];
     }
+
 }

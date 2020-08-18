@@ -47,7 +47,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.verification.VerificationMode;
 
-public class DataTerminationServiceTest {
+class DataTerminationServiceTest {
 
     private static final String GLOBAL_AUDITOR_USERNAME = "test";
     private static final String GLOBAL_AUDITOR_PASSWORD = "test";
@@ -77,7 +77,7 @@ public class DataTerminationServiceTest {
     private DataTerminationService dataTerminationService = createDataTerminationService();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         AuditLoggingProvider.setFacade(auditLoggingFacade);
     }
@@ -93,19 +93,14 @@ public class DataTerminationServiceTest {
         };
     }
 
-    public static Stream<Arguments> testDeleteData() {
-        return Stream.of(
-// @formatter:off                   
-				Arguments.of(2, true, true), Arguments.of(3, false, true), Arguments.of(5, true, false),
-				Arguments.of(0, false, false)
-
-// @formatter:on
-        );
+    static Stream<Arguments> testDeleteData() {
+        return Stream.of(Arguments.of(2, true, true), Arguments.of(3, false, true), Arguments.of(5, true, false),
+                         Arguments.of(0, false, false));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testDeleteData(int countOfDeletedSpaces, boolean isExistSubscriptionData, boolean isExistConfigurationEntryData)
+    void testDeleteData(int countOfDeletedSpaces, boolean isExistSubscriptionData, boolean isExistConfigurationEntryData)
         throws FileStorageException {
         prepareGlobalAuditorCredentials();
         List<String> deletedSpaces = generateDeletedSpaces(countOfDeletedSpaces);
@@ -212,13 +207,13 @@ public class DataTerminationServiceTest {
     }
 
     @Test
-    public void testMissingAuditorCredentials() {
+    void testMissingAuditorCredentials() {
         Exception exception = assertThrows(IllegalStateException.class, () -> dataTerminationService.deleteOrphanUserData());
         assertEquals(Messages.MISSING_GLOBAL_AUDITOR_CREDENTIALS, exception.getMessage());
     }
 
     @Test
-    public void testFailToDeleteSpace() throws FileStorageException {
+    void testFailToDeleteSpace() throws FileStorageException {
         prepareGlobalAuditorCredentials();
         prepareCfOptimizedEventsGetter(generateDeletedSpaces(1));
         when(configurationEntryService.createQuery()).thenReturn(configurationEntryQuery);
@@ -229,4 +224,5 @@ public class DataTerminationServiceTest {
         Exception exception = assertThrows(SLException.class, () -> dataTerminationService.deleteOrphanUserData());
         assertEquals(Messages.COULD_NOT_DELETE_SPACE_LEFTOVERS, exception.getMessage());
     }
+
 }

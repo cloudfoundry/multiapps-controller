@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class DescriptorParametersCompatabilityValidatorTest {
+class DescriptorParametersCompatabilityValidatorTest {
 
     private static final String MODULE_NAME = "test-module";
     private static final Map<String, Object> MODULE_PARAMETERS = MapUtil.asMap("test-param", "test-value");
@@ -28,12 +28,12 @@ public class DescriptorParametersCompatabilityValidatorTest {
     private ModuleParametersCompatabilityValidator moduleParametersCompatabilityValidator;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testDescriptorValidator() {
+    void testDescriptorValidator() {
         Module module = buildModule();
         DeploymentDescriptor descriptor = buildDeploymentDescriptor(module);
 

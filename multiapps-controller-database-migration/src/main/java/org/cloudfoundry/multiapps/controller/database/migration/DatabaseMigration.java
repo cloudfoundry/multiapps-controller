@@ -17,7 +17,7 @@ import org.cloudfoundry.multiapps.controller.database.migration.extractor.DataSo
 
 public class DatabaseMigration {
 
-    private final static Logger LOGGER = Logger.getLogger(DatabaseMigration.class);
+    private static final Logger LOGGER = Logger.getLogger(DatabaseMigration.class);
 
     public static void main(String[] args) throws SQLException {
         configureLogger();

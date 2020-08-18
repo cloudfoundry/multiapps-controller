@@ -15,16 +15,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class ChangedApplicationActionCalculatorTest {
+class ChangedApplicationActionCalculatorTest {
 
     private ActionCalculator applicationCalculator;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         applicationCalculator = new ChangedApplicationActionCalculator();
     }
 
-    public static Stream<Arguments> testChangedApplicationCalculator() {
+    static Stream<Arguments> testChangedApplicationCalculator() {
         return Stream.of(
         //@formatter:off
                         Arguments.of(ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, Arrays.asList(ApplicationStateAction.STAGE, ApplicationStateAction.START)),
@@ -46,8 +46,8 @@ public class ChangedApplicationActionCalculatorTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testChangedApplicationCalculator(ApplicationStartupState currentState, ApplicationStartupState desiredState,
-                                                 List<ApplicationStateAction> expectedApplicationActions) {
+    void testChangedApplicationCalculator(ApplicationStartupState currentState, ApplicationStartupState desiredState,
+                                          List<ApplicationStateAction> expectedApplicationActions) {
         Set<ApplicationStateAction> actionsToExecute = applicationCalculator.determineActionsToExecute(currentState, desiredState, true);
 
         assertEquals(expectedApplicationActions.size(), actionsToExecute.size(),

@@ -57,47 +57,50 @@ public class ConfigurationReferencesResolverTest {
 
     protected DeploymentDescriptor descriptor;
 
-    protected static Stream<Arguments> testResolve() {
+    static Stream<Arguments> testResolve() {
         return Stream.of(
-// @formatter:off
-            // (1) Reference to existing provided dependency:
-            Arguments.of("mtad-03.yaml", "configuration-entries-01.json", new Expectation(Expectation.Type.JSON, "result-01.json")),        
-            // (2) Use new syntax:
-            Arguments.of("mtad-05.yaml", "configuration-entries-01.json", new Expectation(Expectation.Type.JSON, "result-01.json")),            
-            // (3) Use new syntax when more than one configuration entries are available:
-            Arguments.of("mtad-05.yaml", 
-                         "configuration-entries-05.json", 
-                         new Expectation(Expectation.Type.EXCEPTION, "Multiple configuration entries were found matching the filter specified in resource \"resource-2\"")),            
-            // (4) Use new syntax when more than one configuration entries are available:
-            Arguments.of("mtad-07.yaml", "configuration-entries-06.json", new Expectation(Expectation.Type.JSON, "result-02.json")),          
-            // (5) Use new syntax when there is no configuration entry available:
-            Arguments.of("mtad-05.yaml", 
-                         "configuration-entries-04.json", 
-                         new Expectation(Expectation.Type.EXCEPTION, "No configuration entries were found matching the filter specified in resource \"resource-2\"")),
-            // (6) Use new syntax when there is no configuration entry available:
-            Arguments.of("mtad-07.yaml", "configuration-entries-07.json", new Expectation(Expectation.Type.JSON, "result-03.json")),
-            // (7) Use new syntax (missing org parameter):
-            Arguments.of("mtad-06.yaml", "configuration-entries-01.json", new Expectation(Expectation.Type.EXCEPTION, "Could not find required property \"org\"")),
-            // (8) Subscriptions should be created:
-            Arguments.of("mtad-08.yaml", "configuration-entries-06.json", new Expectation(Expectation.Type.JSON, "result-04.json"))
-// @formatter:on
-        );
+                         // (1) Reference to existing provided dependency:
+                         Arguments.of("mtad-03.yaml", "configuration-entries-01.json",
+                                      new Expectation(Expectation.Type.JSON, "result-01.json")),
+                         // (2) Use new syntax:
+                         Arguments.of("mtad-05.yaml", "configuration-entries-01.json",
+                                      new Expectation(Expectation.Type.JSON, "result-01.json")),
+                         // (3) Use new syntax when more than one configuration entries are available:
+                         Arguments.of("mtad-05.yaml", "configuration-entries-05.json",
+                                      new Expectation(Expectation.Type.EXCEPTION,
+                                                      "Multiple configuration entries were found matching the filter specified in resource \"resource-2\"")),
+                         // (4) Use new syntax when more than one configuration entries are available:
+                         Arguments.of("mtad-07.yaml", "configuration-entries-06.json",
+                                      new Expectation(Expectation.Type.JSON, "result-02.json")),
+                         // (5) Use new syntax when there is no configuration entry available:
+                         Arguments.of("mtad-05.yaml", "configuration-entries-04.json",
+                                      new Expectation(Expectation.Type.EXCEPTION,
+                                                      "No configuration entries were found matching the filter specified in resource \"resource-2\"")),
+                         // (6) Use new syntax when there is no configuration entry available:
+                         Arguments.of("mtad-07.yaml", "configuration-entries-07.json",
+                                      new Expectation(Expectation.Type.JSON, "result-03.json")),
+                         // (7) Use new syntax (missing org parameter):
+                         Arguments.of("mtad-06.yaml", "configuration-entries-01.json",
+                                      new Expectation(Expectation.Type.EXCEPTION, "Could not find required property \"org\"")),
+                         // (8) Subscriptions should be created:
+                         Arguments.of("mtad-08.yaml", "configuration-entries-06.json",
+                                      new Expectation(Expectation.Type.JSON, "result-04.json")));
     }
 
     @BeforeAll
-    public static void initializePlatform() {
+    static void initializePlatform() {
         ConfigurationParser parser = new ConfigurationParser();
         platform = parser.parsePlatformJson(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/xs-platform.json"));
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testResolve(String descriptorLocation, String configurationEntriesLocation, Expectation expectation) {
+    void testResolve(String descriptorLocation, String configurationEntriesLocation, Expectation expectation) {
         prepareService();
         prepareConfigurationEntries(configurationEntriesLocation);
         prepareDeploymentDescriptor(descriptorLocation);

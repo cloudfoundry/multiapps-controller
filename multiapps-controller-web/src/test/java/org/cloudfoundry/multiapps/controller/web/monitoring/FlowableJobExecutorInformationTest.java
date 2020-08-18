@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class FlowableJobExecutorInformationTest {
+class FlowableJobExecutorInformationTest {
 
     private static final int JOBS_IN_QUEUE = 5;
     private static final int UPDATED_JOBS_IN_QUEUE = 1;

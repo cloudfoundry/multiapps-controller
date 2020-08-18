@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-public class DeleteApplicationStepTest extends UndeployAppStepTest {
+class DeleteApplicationStepTest extends UndeployAppStepTest {
 
     @Mock
     private MtaMetadataParser mtaMetadataParser;
@@ -42,7 +42,7 @@ public class DeleteApplicationStepTest extends UndeployAppStepTest {
     }
 
     @Test
-    public void testApplicationNotFoundExceptionThrown() {
+    void testApplicationNotFoundExceptionThrown() {
         Mockito.doThrow(new CloudOperationException(HttpStatus.NOT_FOUND))
                .when(client)
                .deleteApplication(anyString());
@@ -52,7 +52,7 @@ public class DeleteApplicationStepTest extends UndeployAppStepTest {
     }
 
     @Test
-    public void testBadGatewayExceptionThrown() {
+    void testBadGatewayExceptionThrown() {
         Mockito.doThrow(new CloudOperationException(HttpStatus.BAD_GATEWAY))
                .when(client)
                .deleteApplication(anyString());

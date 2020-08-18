@@ -28,40 +28,36 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.MockitoAnnotations;
 
-public class ApplicationZipBuilderTest {
+class ApplicationZipBuilderTest {
+
     private static final String SAMPLE_MTAR = "com.sap.mta.sample-1.2.1-beta.mtar";
     private static final String SAMPLE_FLAT_MTAR = "com.sap.mta.sample-1.2.1-beta-flat.mtar";
     private static final long MAX_UPLOAD_FILE_SIZE = 1024 * 1024 * 1024L; // 1gb
 
     private Path appPath = null;
 
-    public static Stream<Arguments> testCreateNewZip() {
-        // @formatter:off
-        return Stream.of(
-            Arguments.of(SAMPLE_MTAR, "db"),
-            Arguments.of(SAMPLE_MTAR, "web"),
-            Arguments.of(SAMPLE_MTAR, "web/web-server.zip"),
-            Arguments.of(SAMPLE_FLAT_MTAR, "db"),
-            Arguments.of(SAMPLE_FLAT_MTAR, "web"));
-        // @formatter:on
+    static Stream<Arguments> testCreateNewZip() {
+        return Stream.of(Arguments.of(SAMPLE_MTAR, "db"), Arguments.of(SAMPLE_MTAR, "web"), Arguments.of(SAMPLE_MTAR, "web/web-server.zip"),
+                         Arguments.of(SAMPLE_FLAT_MTAR, "db"), Arguments.of(SAMPLE_FLAT_MTAR, "web"));
     }
 
-    public static Stream<Arguments> testCreateZipOnlyWithMissingResources() {
-        // @formatter:off
-        return Stream.of(
-            Arguments.of(SAMPLE_MTAR, "db/", Stream.of("readme.txt").collect(Collectors.toSet())),
-            Arguments.of(SAMPLE_FLAT_MTAR, "web", Stream.of("xs-app.json", "readme.txt", "local-destinations.json", "resources/index.html").collect(Collectors.toSet())),
-            Arguments.of(SAMPLE_MTAR, "db/pricing-db.zip", Stream.of("pricing-db.zip").collect(Collectors.toSet())));
-        // @formatter:on
+    static Stream<Arguments> testCreateZipOnlyWithMissingResources() {
+        return Stream.of(Arguments.of(SAMPLE_MTAR, "db/", Stream.of("readme.txt")
+                                                                .collect(Collectors.toSet())),
+                         Arguments.of(SAMPLE_FLAT_MTAR, "web",
+                                      Stream.of("xs-app.json", "readme.txt", "local-destinations.json", "resources/index.html")
+                                            .collect(Collectors.toSet())),
+                         Arguments.of(SAMPLE_MTAR, "db/pricing-db.zip", Stream.of("pricing-db.zip")
+                                                                              .collect(Collectors.toSet())));
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @AfterEach
-    public void tearDown() throws IOException {
+    void tearDown() throws IOException {
         if (appPath != null) {
             Files.deleteIfExists(appPath);
         }
@@ -69,7 +65,7 @@ public class ApplicationZipBuilderTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testCreateNewZip(String mtar, String fileName) throws Exception {
+    void testCreateNewZip(String mtar, String fileName) throws Exception {
         ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(mtar, fileName);
         ApplicationArchiveReader reader = new ApplicationArchiveReader();
         ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader);
@@ -87,7 +83,7 @@ public class ApplicationZipBuilderTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testCreateZipOnlyWithMissingResources(String mtar, String fileName, Set<String> alreadyUploadedFiles) throws IOException {
+    void testCreateZipOnlyWithMissingResources(String mtar, String fileName, Set<String> alreadyUploadedFiles) throws IOException {
         ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(mtar, fileName);
         ApplicationArchiveReader reader = new ApplicationArchiveReader();
         ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader);
@@ -120,7 +116,7 @@ public class ApplicationZipBuilderTest {
     }
 
     @Test
-    public void testFailToCreateZip() {
+    void testFailToCreateZip() {
         String fileName = "db/";
         ApplicationArchiveReader reader = new ApplicationArchiveReader();
         ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader) {

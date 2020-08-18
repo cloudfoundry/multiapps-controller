@@ -22,7 +22,7 @@ import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-public class ProcessConflictPreventerTest {
+class ProcessConflictPreventerTest {
 
     private final String testMtaId = "test-mta-id";
     private final String testSpaceId = "test-space-id";
@@ -31,13 +31,13 @@ public class ProcessConflictPreventerTest {
     private ProcessConflictPreventer processConflictPreventerMock;
 
     @BeforeEach
-    public void setUp() throws SLException {
+    void setUp() throws SLException {
         operationServiceMock = getOperationServiceMock();
         processConflictPreventerMock = new ProcessConflictPreventer(operationServiceMock);
     }
 
     @Test
-    public void testAcquireLock() {
+    void testAcquireLock() {
         SLException exception = assertThrows(SLException.class, this::tryToAcquireLock);
         assertEquals("Conflicting process \"test-process-id\" found for MTA \"test-mta-id\"", exception.getMessage());
     }
@@ -60,7 +60,7 @@ public class ProcessConflictPreventerTest {
     }
 
     @Test
-    public void testAcquireLockWithNoConflictingOperations() {
+    void testAcquireLockWithNoConflictingOperations() {
         assertDoesNotThrow(() -> processConflictPreventerMock.acquireLock(testMtaId, null, testSpaceId, testProcessId));
     }
 

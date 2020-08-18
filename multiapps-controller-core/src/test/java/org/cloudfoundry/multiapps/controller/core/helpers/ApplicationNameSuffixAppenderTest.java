@@ -10,10 +10,10 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ApplicationNameSuffixAppenderTest {
+class ApplicationNameSuffixAppenderTest {
 
     @Test
-    public void testGreenNameAppending() {
+    void testGreenNameAppending() {
         DeploymentDescriptor descriptor = createDeploymentDescriptor("a", "b");
         descriptor.accept(getApplicationNameAppender(ApplicationColor.GREEN));
 
@@ -24,7 +24,7 @@ public class ApplicationNameSuffixAppenderTest {
     }
 
     @Test
-    public void testBlueNameAppending() {
+    void testBlueNameAppending() {
         DeploymentDescriptor descriptor = createDeploymentDescriptor("a", "b");
         descriptor.accept(getApplicationNameAppender(ApplicationColor.BLUE));
 

@@ -7,10 +7,10 @@ import org.cloudfoundry.multiapps.controller.api.model.ParameterMetadata;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public abstract class MetadataBaseTest {
+abstract class MetadataBaseTest {
 
     @Test
-    public void testGetMetadata() {
+    void testGetMetadata() {
         OperationMetadata operationMetadata = getMetadata();
         assertVersions(operationMetadata, getVersions());
         assertDiagramId(operationMetadata, getDiagramId());
@@ -49,4 +49,5 @@ public abstract class MetadataBaseTest {
                                 .map(ParameterMetadata::getId)
                                 .anyMatch(currentParameterId -> Objects.equals(currentParameterId, parameterId));
     }
+
 }

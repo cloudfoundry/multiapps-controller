@@ -34,7 +34,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDeployParametersStep> {
+class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDeployParametersStep> {
 
     private static final String MERGED_ARCHIVE_TEST_MTAR = "merged-archive-test.mtar";
     private static final String EXISTING_FILE_ID = "existingFileId";
@@ -49,42 +49,42 @@ public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<Valid
     @Mock
     private JarSignatureOperations jarSignatureOperations;
 
-    // @formatter:off
     private static Stream<Arguments> testExecution() {
         return Stream.of(
-                // [1] No file associated with the specified file id
-                Arguments.of(new StepInput(EXISTING_FILE_ID, NOT_EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, null, false),
-                        MessageFormat.format(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1, "notExistingFileId",
-                                     "space-id"), false, ""),
+                         // [1] No file associated with the specified file id
+                         Arguments.of(new StepInput(EXISTING_FILE_ID, NOT_EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, null, false),
+                                      MessageFormat.format(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1,
+                                                           "notExistingFileId", "space-id"),
+                                      false, ""),
 
+                         // [2] Valid parameters
+                         Arguments.of(new StepInput(EXISTING_FILE_ID,
+                                                    EXISTING_FILE_ID + "," + EXISTING_FILE_ID,
+                                                    1,
+                                                    VersionRule.HIGHER.toString(),
+                                                    false),
+                                      null, false, ""),
 
-                // [2] Valid parameters
-                Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_FILE_ID + "," + EXISTING_FILE_ID, 1, VersionRule.HIGHER.toString(), false),
-                        null, false, ""),
+                         // [3] Max descriptor size exceeded
+                         Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_BIGGER_FILE_ID, 1, VersionRule.HIGHER.toString(), false),
+                                      MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
+                                                           "1048577", "extDescriptorFile", "1048576"),
+                                      false, ""),
 
-                // [3] Max descriptor size exceeded
-                Arguments.of(new StepInput(EXISTING_FILE_ID, EXISTING_BIGGER_FILE_ID, 1, VersionRule.HIGHER.toString(), false),
-                        MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
-                                     "1048577", "extDescriptorFile", "1048576"), false, ""),
+                         // [4] Process chunked file
+                         Arguments.of(new StepInput(MERGED_ARCHIVE_NAME + ".part.0," + MERGED_ARCHIVE_NAME + ".part.1,"
+                             + MERGED_ARCHIVE_NAME + ".part.2", null, 1, VersionRule.HIGHER.toString(), false), null, true, ""),
 
-                // [4] Process chunked file
-                Arguments.of(new StepInput(MERGED_ARCHIVE_NAME + ".part.0," + MERGED_ARCHIVE_NAME + ".part.1," + MERGED_ARCHIVE_NAME
-                          + ".part.2", null, 1, VersionRule.HIGHER.toString(), false), null, true, ""),
+                         // [5] Verify archive signature with default certificate CN
+                         Arguments.of(new StepInput(EXISTING_FILE_ID, null, 1, VersionRule.HIGHER.toString(), true), null, false, ""),
 
-                // [5] Verify archive signature with default certificate CN
-                Arguments.of(new StepInput(EXISTING_FILE_ID, null, 1, VersionRule.HIGHER.toString(), true),
-                        null, false, ""),
-
-                // [6] Verify archive signature with custom certificate CN
-                Arguments.of(new StepInput(EXISTING_FILE_ID, null, 1, VersionRule.HIGHER.toString(), true),
-                        null, false, "")
-                );
+                         // [6] Verify archive signature with custom certificate CN
+                         Arguments.of(new StepInput(EXISTING_FILE_ID, null, 1, VersionRule.HIGHER.toString(), true), null, false, ""));
     }
-    // @formatter:on
 
     @MethodSource
     @ParameterizedTest
-    public void testExecution(StepInput stepInput, String expectedExceptionMessage, boolean isArchiveChunked, String versionOutput)
+    void testExecution(StepInput stepInput, String expectedExceptionMessage, boolean isArchiveChunked, String versionOutput)
         throws Exception {
         initializeComponents(stepInput, isArchiveChunked);
         if (expectedExceptionMessage != null) {

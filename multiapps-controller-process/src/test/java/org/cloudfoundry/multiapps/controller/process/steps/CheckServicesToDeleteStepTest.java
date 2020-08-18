@@ -30,37 +30,39 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 
-public class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesToDeleteStep> {
+class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesToDeleteStep> {
 
     private static final String TEST_SPACE_ID = "test";
 
     @Mock
     private ServiceOperationGetter serviceOperationGetter;
 
-    public static Stream<Arguments> testExecute() {
+    static Stream<Arguments> testExecute() {
         return Stream.of(
-        //@formatter:off
-            // (1) Multiple services in progress
-            Arguments.of(Arrays.asList("service-1","service-2","service-3"), Arrays.asList("service-1","service-2","service-3"), 
-                MapUtil.of(Pair.of("service-1", ServiceOperation.State.IN_PROGRESS),Pair.of("service-2", ServiceOperation.State.IN_PROGRESS),Pair.of("service-3", ServiceOperation.State.IN_PROGRESS)),
-                Arrays.asList("service-1","service-2","service-3"), "POLL"),
-            // (2) One service in progress
-            Arguments.of(Arrays.asList("service-1","service-2","service-3"), Arrays.asList("service-2","service-3"), 
-                MapUtil.of(Pair.of("service-2", ServiceOperation.State.SUCCEEDED),Pair.of("service-3", ServiceOperation.State.IN_PROGRESS)),
-                    Collections.singletonList("service-3"), "POLL"),
-            // (3) All services are not in progress state
-            Arguments.of(Arrays.asList("service-1","service-2","service-3"), Arrays.asList("service-1","service-2"), 
-                MapUtil.of(Pair.of("service-1", ServiceOperation.State.SUCCEEDED),Pair.of("service-2", ServiceOperation.State.SUCCEEDED)),
-                Collections.emptyList(), "DONE")
-        //@formatter:on
-        );
+                         // (1) Multiple services in progress
+                         Arguments.of(Arrays.asList("service-1", "service-2", "service-3"),
+                                      Arrays.asList("service-1", "service-2", "service-3"),
+                                      MapUtil.of(Pair.of("service-1", ServiceOperation.State.IN_PROGRESS),
+                                                 Pair.of("service-2", ServiceOperation.State.IN_PROGRESS),
+                                                 Pair.of("service-3", ServiceOperation.State.IN_PROGRESS)),
+                                      Arrays.asList("service-1", "service-2", "service-3"), "POLL"),
+                         // (2) One service in progress
+                         Arguments.of(Arrays.asList("service-1", "service-2", "service-3"), Arrays.asList("service-2", "service-3"),
+                                      MapUtil.of(Pair.of("service-2", ServiceOperation.State.SUCCEEDED),
+                                                 Pair.of("service-3", ServiceOperation.State.IN_PROGRESS)),
+                                      Collections.singletonList("service-3"), "POLL"),
+                         // (3) All services are not in progress state
+                         Arguments.of(Arrays.asList("service-1", "service-2", "service-3"), Arrays.asList("service-1", "service-2"),
+                                      MapUtil.of(Pair.of("service-1", ServiceOperation.State.SUCCEEDED),
+                                                 Pair.of("service-2", ServiceOperation.State.SUCCEEDED)),
+                                      Collections.emptyList(), "DONE"));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testExecute(List<String> serviceNames, List<String> existingServiceNames,
-                            Map<String, ServiceOperation.State> servicesOperationState, List<String> expectedServicesOperations,
-                            String expectedStatus) {
+    void testExecute(List<String> serviceNames, List<String> existingServiceNames,
+                     Map<String, ServiceOperation.State> servicesOperationState, List<String> expectedServicesOperations,
+                     String expectedStatus) {
         prepareContext(serviceNames);
         List<CloudServiceInstance> services = getServices(existingServiceNames);
         prepareClient(services);

@@ -20,7 +20,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 
-public class CompositeUriAuthorizationFilterTest {
+class CompositeUriAuthorizationFilterTest {
 
     private static final String FOO_REQUEST_URI = "/foo/qux";
     private static final String BAR_REQUEST_URI = "/bar/qux";
@@ -38,7 +38,7 @@ public class CompositeUriAuthorizationFilterTest {
     private CompositeUriAuthorizationFilter compositeUriAuthorizationFilter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         compositeUriAuthorizationFilter = new CompositeUriAuthorizationFilter(Arrays.asList(fooUriAuthorizationFilter,
                                                                                             barUriAuthorizationFilter),
@@ -46,7 +46,7 @@ public class CompositeUriAuthorizationFilterTest {
     }
 
     @Test
-    public void testUriMatching() throws IOException {
+    void testUriMatching() throws IOException {
         Mockito.when(request.getRequestURI())
                .thenReturn(FOO_REQUEST_URI);
 
@@ -59,7 +59,7 @@ public class CompositeUriAuthorizationFilterTest {
     }
 
     @Test
-    public void testUriMatchingWithoutAnyMatchingFilters() throws IOException {
+    void testUriMatchingWithoutAnyMatchingFilters() throws IOException {
         Mockito.when(request.getRequestURI())
                .thenReturn(BAZ_REQUEST_URI);
 
@@ -72,7 +72,7 @@ public class CompositeUriAuthorizationFilterTest {
     }
 
     @Test
-    public void testUriWhichContainsLotsOfForwardSlashes() throws IOException {
+    void testUriWhichContainsLotsOfForwardSlashes() throws IOException {
         Mockito.when(request.getRequestURI())
                .thenReturn(BAR_REQUEST_WITH_SLASHES_URI);
 
@@ -85,7 +85,7 @@ public class CompositeUriAuthorizationFilterTest {
     }
 
     @Test
-    public void testWithAuthorizationException() throws IOException {
+    void testWithAuthorizationException() throws IOException {
         Mockito.when(request.getRequestURI())
                .thenReturn(FOO_REQUEST_URI);
         Mockito.when(fooUriAuthorizationFilter.ensureUserIsAuthorized(request, response))
@@ -105,7 +105,7 @@ public class CompositeUriAuthorizationFilterTest {
     }
 
     @Test
-    public void testWithUnauthorizedUser() throws IOException {
+    void testWithUnauthorizedUser() throws IOException {
         Mockito.when(request.getRequestURI())
                .thenReturn(BAR_REQUEST_URI);
 

@@ -17,26 +17,26 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class DeleteRemainingFilePartsTest extends SyncFlowableStepTest<DeleteRemainingFileParts> {
+class DeleteRemainingFilePartsTest extends SyncFlowableStepTest<DeleteRemainingFileParts> {
 
     private static final String DIGEST_ALGORITHM = "MD5";
     private static final String NAMESPACE = "namespace";
     private static final String DIGEST = "2252290BC44BEAD16AA1BF89948472E8";
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         context.setVariable(Variables.FILE_ENTRIES, createFakeFileEntries());
     }
 
     @Test
-    public void testFileEntriesAreRemoved() throws FileStorageException {
+    void testFileEntriesAreRemoved() throws FileStorageException {
         step.execute(execution);
         verify(fileService, times(3)).deleteFile(any(String.class), any(String.class));
         assertStepFinishedSuccessfully();
     }
 
     @Test
-    public void testThrowingException() throws FileStorageException {
+    void testThrowingException() throws FileStorageException {
         when(fileService.deleteFile(any(String.class), any(String.class))).thenThrow(FileStorageException.class);
         step.execute(execution);
         assertStepFinishedSuccessfully();

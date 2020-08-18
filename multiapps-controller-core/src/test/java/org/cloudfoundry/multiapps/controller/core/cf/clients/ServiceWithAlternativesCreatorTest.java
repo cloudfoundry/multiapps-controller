@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest {
+class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest {
 
     @Mock
     private UserMessageLogger userMessageLogger;
@@ -32,7 +32,7 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     private Class<? extends RuntimeException> expectedExceptionType;
 
     // @formatter:off
-    private static Stream<Arguments> testExecuteServiceOperation() {
+     static Stream<Arguments> testExecuteServiceOperation() {
         return Stream.of(
                 Arguments.of("service-01.json", null, null),
                 Arguments.of("service-02.json", null, null),
@@ -55,8 +55,7 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
 
     @ParameterizedTest
     @MethodSource
-    public void testExecuteServiceOperation(String inputLocation, String expected,
-                                            Class<? extends RuntimeException> expectedExceptionClass) {
+    void testExecuteServiceOperation(String inputLocation, String expected, Class<? extends RuntimeException> expectedExceptionClass) {
         initializeComponents(inputLocation, expected, expectedExceptionClass);
         if (expectedExceptionClass != null) {
             Assertions.assertThrows(expectedExceptionType,

@@ -22,7 +22,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class ServiceProgressReporterTest {
+class ServiceProgressReporterTest {
 
     @Mock
     private ProcessContext context;
@@ -32,23 +32,28 @@ public class ServiceProgressReporterTest {
     private ServiceProgressReporter serviceProgressReporter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         serviceProgressReporter = new ServiceProgressReporter();
     }
 
-    public static Stream<Arguments> testServiceProgressReporter() {
-        return Stream.of(
-        // @formatter:off
-                      Arguments.of(Arrays.asList(new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.IN_PROGRESS), 
-                                                 new ServiceOperation(ServiceOperation.Type.UPDATE, "", ServiceOperation.State.IN_PROGRESS)), 2),
-                      Arguments.of(Collections.singletonList(new ServiceOperation(ServiceOperation.Type.UPDATE, "", ServiceOperation.State.SUCCEEDED)), 0));
-        // @formatter:on
+    static Stream<Arguments> testServiceProgressReporter() {
+        return Stream.of(Arguments.of(Arrays.asList(new ServiceOperation(ServiceOperation.Type.CREATE,
+                                                                         "",
+                                                                         ServiceOperation.State.IN_PROGRESS),
+                                                    new ServiceOperation(ServiceOperation.Type.UPDATE,
+                                                                         "",
+                                                                         ServiceOperation.State.IN_PROGRESS)),
+                                      2),
+                         Arguments.of(Collections.singletonList(new ServiceOperation(ServiceOperation.Type.UPDATE,
+                                                                                     "",
+                                                                                     ServiceOperation.State.SUCCEEDED)),
+                                      0));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testServiceProgressReporter(List<ServiceOperation> servicesOperations, int countTriggeredServiceOperations) {
+    void testServiceProgressReporter(List<ServiceOperation> servicesOperations, int countTriggeredServiceOperations) {
         prepareExecution();
         Map<String, ServiceOperation.Type> triggeredServiceOperations = getServicesOperationsInProgress(servicesOperations);
 
@@ -75,4 +80,5 @@ public class ServiceProgressReporterTest {
         }
         return servicesOperationsInProgress;
     }
+
 }

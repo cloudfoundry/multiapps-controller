@@ -14,11 +14,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class ConfigurationEntriesCloudModelBuilderTest {
+class ConfigurationEntriesCloudModelBuilderTest {
 
     private final Tester tester = Tester.forClass(getClass());
 
-    public static Stream<Arguments> testBuild() {
+    static Stream<Arguments> testBuild() {
         return Stream.of(
         // @formatter:off
             // (0) Test that provided dependencies from version 2 are public by default:
@@ -39,8 +39,8 @@ public class ConfigurationEntriesCloudModelBuilderTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testBuild(String deploymentDescriptorLocation, int majorSchemaVersion, String orgName, String spaceName, String namespace,
-                          Expectation expectation) {
+    void testBuild(String deploymentDescriptorLocation, int majorSchemaVersion, String orgName, String spaceName, String namespace,
+                   Expectation expectation) {
         DeploymentDescriptor deploymentDescriptor = parseDeploymentDescriptor(deploymentDescriptorLocation, majorSchemaVersion);
 
         ConfigurationEntriesCloudModelBuilder builder = new ConfigurationEntriesCloudModelBuilder(orgName, spaceName, "", namespace);

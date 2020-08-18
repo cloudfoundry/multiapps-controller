@@ -16,7 +16,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
-public class TokensCleanerTest {
+class TokensCleanerTest {
 
     @Mock
     private TokenStore tokenStore;
@@ -24,12 +24,12 @@ public class TokensCleanerTest {
     private TokensCleaner cleaner;
 
     @BeforeEach
-    public void initMocks() {
+    void initMocks() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testExecute() {
+    void testExecute() {
         OAuth2AccessToken expiredToken = mock(OAuth2AccessToken.class);
         when(expiredToken.isExpired()).thenReturn(true);
         OAuth2AccessToken token = mock(OAuth2AccessToken.class);

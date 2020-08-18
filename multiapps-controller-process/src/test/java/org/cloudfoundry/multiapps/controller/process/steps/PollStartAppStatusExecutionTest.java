@@ -34,7 +34,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class PollStartAppStatusExecutionTest {
+class PollStartAppStatusExecutionTest {
 
     private static final String USER_NAME = "testUsername";
     private static final String APP_NAME = "testApplication";
@@ -54,28 +54,25 @@ public class PollStartAppStatusExecutionTest {
     private PollStartAppStatusExecution step;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         DelegateExecution execution = MockDelegateExecution.createSpyInstance();
         context = new ProcessContext(execution, stepLogger, clientProvider);
         step = new PollStartAppStatusExecution(recentLogsRetriever);
     }
 
-    public static Stream<Arguments> testStep() {
-        return Stream.of(
-        //@formatter:off
-                        Arguments.of(Arrays.asList(InstanceState.RUNNING, InstanceState.STARTING), true, AsyncExecutionState.RUNNING),
-                        Arguments.of(Arrays.asList(InstanceState.CRASHED, InstanceState.CRASHED, InstanceState.CRASHED), true, AsyncExecutionState.ERROR),
-                        Arguments.of(Collections.singletonList(InstanceState.CRASHED), false, AsyncExecutionState.RUNNING),
-                        Arguments.of(Arrays.asList(InstanceState.FLAPPING, InstanceState.RUNNING), true, AsyncExecutionState.ERROR),
-                        Arguments.of(Arrays.asList(InstanceState.RUNNING, InstanceState.RUNNING), true, AsyncExecutionState.FINISHED)
-        );
-        //@formatter:on
+    static Stream<Arguments> testStep() {
+        return Stream.of(Arguments.of(Arrays.asList(InstanceState.RUNNING, InstanceState.STARTING), true, AsyncExecutionState.RUNNING),
+                         Arguments.of(Arrays.asList(InstanceState.CRASHED, InstanceState.CRASHED, InstanceState.CRASHED), true,
+                                      AsyncExecutionState.ERROR),
+                         Arguments.of(Collections.singletonList(InstanceState.CRASHED), false, AsyncExecutionState.RUNNING),
+                         Arguments.of(Arrays.asList(InstanceState.FLAPPING, InstanceState.RUNNING), true, AsyncExecutionState.ERROR),
+                         Arguments.of(Arrays.asList(InstanceState.RUNNING, InstanceState.RUNNING), true, AsyncExecutionState.FINISHED));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testStep(List<InstanceState> instancesStates, boolean failOnCrash, AsyncExecutionState expectedAsyncExecutionState) {
+    void testStep(List<InstanceState> instancesStates, boolean failOnCrash, AsyncExecutionState expectedAsyncExecutionState) {
         CloudApplicationExtended application = buildApplication(instancesStates.size());
         prepareContext(application, failOnCrash);
         prepareClientProvider();

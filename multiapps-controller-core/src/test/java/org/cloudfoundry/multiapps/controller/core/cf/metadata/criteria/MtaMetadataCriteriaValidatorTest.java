@@ -12,7 +12,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class MtaMetadataCriteriaValidatorTest {
+class MtaMetadataCriteriaValidatorTest {
 
     static Stream<Arguments> testValidateLabelKey() {
         return Stream.of(
@@ -36,7 +36,7 @@ public class MtaMetadataCriteriaValidatorTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testValidateLabelKey(String labelKey, boolean shouldThrowException, String expectedExceptionMessage) {
+    void testValidateLabelKey(String labelKey, boolean shouldThrowException, String expectedExceptionMessage) {
         assertValidation(() -> MtaMetadataCriteriaValidator.validateLabelKey(labelKey), shouldThrowException, expectedExceptionMessage);
     }
 
@@ -51,27 +51,27 @@ public class MtaMetadataCriteriaValidatorTest {
 
     static Stream<Arguments> testValidateLabelValue() {
         return Stream.of(
-        // @formatter:off
-                      // (1) Blank prefix
-                      Arguments.of("", false, null),
-                      // (2) Exceeded max length
-                      Arguments.of(StringUtils.repeat('a', 65), true, 
-                                   "Metadata's label value, should not be longer than \"63\" characters. Currently it is \"65\" characters with value \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""),
-                      // (3) Start with non alphanumeric
-                      Arguments.of("-foo", true, "Metadata's label value, should start with (alphanumeric character). Currently it does not and the value is \"-foo\""),
-                      // (4) End with non alphanumeric
-                      Arguments.of("foo-", true, "Metadata's label value, should end with (alphanumeric character). Currently it does not and the value is \"foo-\""),
-                      // (5) Not match to custom pattern
-                      Arguments.of("foo$bar", true, "Metadata's label value, should (contain only alphanumeric characters, \"-\", \"_\" or \".\"). Currently it does not and the value is \"foo$bar\""),
-                      // (6) Valid Label value
-                      Arguments.of("quux", false, null)
-        // @formatter:on
-        );
+                         // (1) Blank prefix
+                         Arguments.of("", false, null),
+                         // (2) Exceeded max length
+                         Arguments.of(StringUtils.repeat('a', 65), true,
+                                      "Metadata's label value, should not be longer than \"63\" characters. Currently it is \"65\" characters with value \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""),
+                         // (3) Start with non alphanumeric
+                         Arguments.of("-foo", true,
+                                      "Metadata's label value, should start with (alphanumeric character). Currently it does not and the value is \"-foo\""),
+                         // (4) End with non alphanumeric
+                         Arguments.of("foo-", true,
+                                      "Metadata's label value, should end with (alphanumeric character). Currently it does not and the value is \"foo-\""),
+                         // (5) Not match to custom pattern
+                         Arguments.of("foo$bar", true,
+                                      "Metadata's label value, should (contain only alphanumeric characters, \"-\", \"_\" or \".\"). Currently it does not and the value is \"foo$bar\""),
+                         // (6) Valid Label value
+                         Arguments.of("quux", false, null));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testValidateLabelValue(String labelValue, boolean shouldThrowException, String expectedExceptionMessage) {
+    void testValidateLabelValue(String labelValue, boolean shouldThrowException, String expectedExceptionMessage) {
         assertValidation(() -> MtaMetadataCriteriaValidator.validateLabelValue(labelValue), shouldThrowException, expectedExceptionMessage);
     }
 

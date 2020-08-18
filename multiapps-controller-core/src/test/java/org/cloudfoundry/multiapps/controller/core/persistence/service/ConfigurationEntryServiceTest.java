@@ -21,7 +21,7 @@ import org.cloudfoundry.multiapps.mta.model.Version;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class ConfigurationEntryServiceTest {
+class ConfigurationEntryServiceTest {
 
     private static final ConfigurationEntry CONFIGURATION_ENTRY_1 = createConfigurationEntry(1L, "providerNid1", "providerId1", "2.0", null,
                                                                                              "org1", "space1", "content1");
@@ -34,13 +34,13 @@ public class ConfigurationEntryServiceTest {
     private final ConfigurationEntryService configurationEntryService = createConfigurationEntryService();
 
     @AfterEach
-    public void cleanUp() {
+    void cleanUp() {
         configurationEntryService.createQuery()
                                  .delete();
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         configurationEntryService.add(CONFIGURATION_ENTRY_1);
         assertEquals(1, configurationEntryService.createQuery()
                                                  .list()
@@ -52,7 +52,7 @@ public class ConfigurationEntryServiceTest {
     }
 
     @Test
-    public void testAddWithNonEmptyDatabase() {
+    void testAddWithNonEmptyDatabase() {
         addConfigurationEntries(Arrays.asList(CONFIGURATION_ENTRY_1, CONFIGURATION_ENTRY_2));
 
         assertConfigurationEntryExists(CONFIGURATION_ENTRY_1.getId());
@@ -64,7 +64,7 @@ public class ConfigurationEntryServiceTest {
     }
 
     @Test
-    public void testAddWithAlreadyExistingEntry() {
+    void testAddWithAlreadyExistingEntry() {
         configurationEntryService.add(CONFIGURATION_ENTRY_1);
         Exception exception = assertThrows(ConflictException.class, () -> configurationEntryService.add(CONFIGURATION_ENTRY_1));
         String expectedExceptionMessage = MessageFormat.format(Messages.CONFIGURATION_ENTRY_ALREADY_EXISTS,
@@ -81,32 +81,32 @@ public class ConfigurationEntryServiceTest {
     }
 
     @Test
-    public void testQueryById() {
+    void testQueryById() {
         testQueryByCriteria((query, entry) -> query.id(entry.getId()));
     }
 
     @Test
-    public void testQueryByProviderNid() {
+    void testQueryByProviderNid() {
         testQueryByCriteria((query, entry) -> query.providerNid(entry.getProviderNid()));
     }
 
     @Test
-    public void testQueryByProviderId() {
+    void testQueryByProviderId() {
         testQueryByCriteria((query, entry) -> query.providerId(entry.getProviderId()));
     }
 
     @Test
-    public void testQueryByTarget() {
+    void testQueryByTarget() {
         testQueryByCriteria((query, entry) -> query.target(entry.getTargetSpace()));
     }
 
     @Test
-    public void testQueryBySpaceId() {
+    void testQueryBySpaceId() {
         testQueryByCriteria((query, entry) -> query.spaceId(entry.getSpaceId()));
     }
 
     @Test
-    public void testQueryByVersion() {
+    void testQueryByVersion() {
         addConfigurationEntries(Arrays.asList(CONFIGURATION_ENTRY_1, CONFIGURATION_ENTRY_2));
 
         String version = ">3.0.0";
@@ -117,7 +117,7 @@ public class ConfigurationEntryServiceTest {
     }
 
     @Test
-    public void testQueryByProviderNamespace() {
+    void testQueryByProviderNamespace() {
         addConfigurationEntries(ALL_ENTRIES);
 
         ConfigurationEntryQuery allEntries = configurationEntryService.createQuery()

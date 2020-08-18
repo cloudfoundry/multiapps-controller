@@ -44,7 +44,7 @@ class MtaMetadataEntityAggregatorTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testAggregate(String inputAppsLocation, String inputServicesLocation, Expectation expectation) {
+    void testAggregate(String inputAppsLocation, String inputServicesLocation, Expectation expectation) {
         parseInput(inputAppsLocation, inputServicesLocation);
         initMocks();
 

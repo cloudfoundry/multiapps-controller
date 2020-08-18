@@ -12,7 +12,7 @@ import io.pivotal.cfenv.core.CfService;
 
 public class DataSourceEnvironmentExtractor {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(DataSourceEnvironmentExtractor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceEnvironmentExtractor.class);
 
     public DataSource extractDataSource(String serviceName) {
         LOGGER.info("Extracting datasource for service {}...", serviceName);

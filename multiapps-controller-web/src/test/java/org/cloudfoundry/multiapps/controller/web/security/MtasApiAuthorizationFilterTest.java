@@ -16,7 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class MtasApiAuthorizationFilterTest {
+class MtasApiAuthorizationFilterTest {
 
     private static final String SPACE_GUID = "e99278b1-d8a9-4b30-af52-2dfa3ea8404e";
 
@@ -25,39 +25,39 @@ public class MtasApiAuthorizationFilterTest {
     private MtasApiAuthorizationFilter mtasApiAuthorizationFilter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         mtasApiAuthorizationFilter = new MtasApiAuthorizationFilter(null);
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "/api/v1/spaces/foo/mtas", "/api/v1/spaces/foo/operations" })
-    public void testUriRegexMatches(String uri) {
+    @ValueSource(strings = { "/api/v1/spaces/foo/mtas", "/api/v1/spaces/foo/operations", "/api/v2/spaces/foo/mtas" })
+    void testUriRegexMatches(String uri) {
         assertTrue(uri.matches(mtasApiAuthorizationFilter.getUriRegex()));
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "/public/ping", "/v1/api/spaces" })
-    public void testUriRegexDoesNotMatch(String uri) {
+    void testUriRegexDoesNotMatch(String uri) {
         assertFalse(uri.matches(mtasApiAuthorizationFilter.getUriRegex()));
     }
 
     @Test
-    public void testExtractSpaceGuid() {
+    void testExtractSpaceGuid() {
         Mockito.when(request.getRequestURI())
                .thenReturn(String.format("/api/v1/spaces/%s/mtas", SPACE_GUID));
         assertEquals(SPACE_GUID, mtasApiAuthorizationFilter.extractSpaceGuid(request));
     }
 
     @Test
-    public void testExtractSpaceGuidWithDoubleForwardSlashes() {
+    void testExtractSpaceGuidWithDoubleForwardSlashes() {
         Mockito.when(request.getRequestURI())
                .thenReturn(String.format("/api/////v1/spaces/%s/mtas", SPACE_GUID));
         assertEquals(SPACE_GUID, mtasApiAuthorizationFilter.extractSpaceGuid(request));
     }
 
     @Test
-    public void testExtractSpaceGuidWithNonMatchingUri() {
+    void testExtractSpaceGuidWithNonMatchingUri() {
         Mockito.when(request.getRequestURI())
                .thenReturn("/public/ping");
         assertThrows(SLException.class, () -> mtasApiAuthorizationFilter.extractSpaceGuid(request));

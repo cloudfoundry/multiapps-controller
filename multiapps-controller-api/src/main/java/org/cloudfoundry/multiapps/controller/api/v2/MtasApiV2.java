@@ -33,7 +33,7 @@ public class MtasApiV2 {
     private MtasApiService delegate;
 
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
-    @ApiOperation(value = "", notes = "Retrieves all Multi-Target Applications in a space ", response = Mta.class, responseContainer = "List", authorizations = {
+    @ApiOperation(value = "", notes = "Retrieves all Multi-Target Applications in a given space and namespace", response = Mta.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
         }) }, tags = {})

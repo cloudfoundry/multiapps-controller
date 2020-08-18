@@ -25,39 +25,33 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
-public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<DetectApplicationsToRenameStep> {
+class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<DetectApplicationsToRenameStep> {
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         context.setVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
     }
 
     @Test
-    public void testNoExecuteWithoutParam() {
+    void testNoExecuteWithoutParam() {
         context.setVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, false);
         step.execute(execution);
         assertStepFinishedSuccessfully();
     }
 
     @Test
-    public void testExecuteWithoutDeployedMta() {
+    void testExecuteWithoutDeployedMta() {
         step.execute(execution);
         assertStepFinishedSuccessfully();
     }
 
-    public static Stream<Arguments> testExecuteWithoutRenamingApps() {
-        return Stream.of(
-// @formatter:off
-            Arguments.of("a-live", "b-live"),
-            Arguments.of("a-idle", "b-idle"),
-            Arguments.of("a-live", "b-idle")
-// @formatter:on
-        );
+    static Stream<Arguments> testExecuteWithoutRenamingApps() {
+        return Stream.of(Arguments.of("a-live", "b-live"), Arguments.of("a-idle", "b-idle"), Arguments.of("a-live", "b-idle"));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testExecuteWithoutRenamingApps(String appName1, String appName2) {
+    void testExecuteWithoutRenamingApps(String appName1, String appName2) {
         DeployedMta deployedMta = createDeployedMta(appName1, appName2);
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
 
@@ -71,14 +65,14 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
     }
 
     @Test
-    public void testExecuteFailsOnException() {
+    void testExecuteFailsOnException() {
         Mockito.when(execution.getVariable(Mockito.anyString()))
                .thenThrow(new SLException("exception"));
         Assertions.assertThrows(SLException.class, () -> step.execute(execution), "exception");
     }
 
     @Test
-    public void testExecuteRenamesApps() {
+    void testExecuteRenamesApps() {
         List<String> appsToUpdate = Arrays.asList("a", "b");
 
         DeployedMta deployedMta = createDeployedMta(appsToUpdate.toArray(new String[0]));
@@ -96,7 +90,7 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
     }
 
     @Test
-    public void testExecuteWithTwoVersionsOfAppDeletesOldAndRenamesNew() {
+    void testExecuteWithTwoVersionsOfAppDeletesOldAndRenamesNew() {
         DeployedMta deployedMta = createDeployedMta("a-live", "a");
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
 
@@ -119,7 +113,7 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
     }
 
     @Test
-    public void testExecuteWithTwoVersionsOfAppRenamesOld() {
+    void testExecuteWithTwoVersionsOfAppRenamesOld() {
         DeployedMta deployedMta = createDeployedMta("a-idle", "a");
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
 
@@ -136,7 +130,7 @@ public class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<Det
     }
 
     @Test
-    public void testExecuteWithTwoVersionsOfAppDoesNothing() {
+    void testExecuteWithTwoVersionsOfAppDoesNothing() {
         DeployedMta deployedMta = createDeployedMta("a-live", "a-idle");
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
 

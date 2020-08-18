@@ -48,7 +48,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-public class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
+class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
 
     private static final String SEVICE_KEY_NAME = "test-service-key";
     private static final String SERVICE_NAME = "test-service";
@@ -67,25 +67,17 @@ public class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceSte
     private ServiceOperationGetter serviceOperationGetter;
 
     static Stream<Arguments> testServiceDelete() {
-        return Stream.of(
-        // @formatter:off
-                        Arguments.of(true, false, true, true, StepPhase.DONE),
-                        Arguments.of(false, false, true, true, StepPhase.DONE),
-                        Arguments.of(false, false, false, true, StepPhase.DONE),
-                        Arguments.of(false, false, false, false, StepPhase.POLL),
-                        Arguments.of(true, false, false, true, StepPhase.DONE),
-                        Arguments.of(true, false, true, false, StepPhase.POLL),
-                        Arguments.of(false, true, true, true, StepPhase.DONE),
-                        Arguments.of(false, true, false, true, StepPhase.POLL),
-                        Arguments.of(false, true, false, false, StepPhase.POLL)
-        // @formatter:on
-        );
+        return Stream.of(Arguments.of(true, false, true, true, StepPhase.DONE), Arguments.of(false, false, true, true, StepPhase.DONE),
+                         Arguments.of(false, false, false, true, StepPhase.DONE), Arguments.of(false, false, false, false, StepPhase.POLL),
+                         Arguments.of(true, false, false, true, StepPhase.DONE), Arguments.of(true, false, true, false, StepPhase.POLL),
+                         Arguments.of(false, true, true, true, StepPhase.DONE), Arguments.of(false, true, false, true, StepPhase.POLL),
+                         Arguments.of(false, true, false, false, StepPhase.POLL));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testServiceDelete(boolean shouldRecreateService, boolean shouldDeleteServiceKeys, boolean hasServiceBindings,
-                                  boolean hasServiceKeys, StepPhase expectedStepPhase) {
+    void testServiceDelete(boolean shouldRecreateService, boolean shouldDeleteServiceKeys, boolean hasServiceBindings,
+                           boolean hasServiceKeys, StepPhase expectedStepPhase) {
         prepareActionsToExecute(shouldRecreateService, shouldDeleteServiceKeys);
         UUID serviceGuid = UUID.fromString(SERVICE_GUID);
         prepareContext();
@@ -109,7 +101,7 @@ public class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceSte
     }
 
     @Test
-    public void testWithNullVariable() {
+    void testWithNullVariable() {
         step.execute(context.getExecution());
 
         verify(stepLogger).debug(Messages.MISSING_SERVICE_TO_DELETE);
@@ -117,7 +109,7 @@ public class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceSte
     }
 
     @Test
-    public void testServicePolling() {
+    void testServicePolling() {
         UUID serviceGuid = UUID.fromString(SERVICE_GUID);
         prepareContext();
         CloudServiceInstance serviceInstance = createCloudService(serviceGuid);

@@ -24,7 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
-public class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachServicesFromMtaStep> {
+class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachServicesFromMtaStep> {
 
     static Stream<List<SimpleServiceInstance>> testExecute() {
         List<SimpleServiceInstance> servicesToDetach = Arrays.asList(createSimpleServiceInstance("service-1"),

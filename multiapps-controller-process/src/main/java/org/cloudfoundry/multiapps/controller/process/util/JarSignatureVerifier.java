@@ -171,20 +171,16 @@ public class JarSignatureVerifier {
     }
 
     private static class CertificateSubject {
+
         private String commonName;
-        private String organizationalUnit;
-        private String organization;
-        private String country;
 
         CertificateSubject(String subjectName) {
             Matcher matcher = X509_CERT_SUBJECT_NAME.matcher(subjectName);
             if (matcher.matches()) {
                 commonName = matcher.group(1);
-                organizationalUnit = matcher.group(2);
-                organization = matcher.group(3);
-                country = matcher.group(4);
             }
         }
+
     }
 
 }

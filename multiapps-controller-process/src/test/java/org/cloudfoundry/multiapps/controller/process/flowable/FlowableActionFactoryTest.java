@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -29,10 +28,6 @@ public class FlowableActionFactoryTest {
     ProcessActionRegistry processActionRegistry;
     @Mock
     HistoricOperationEventPersister historicOperationEventPersister;
-
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Test
     public void testAbortAction() {

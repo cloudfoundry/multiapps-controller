@@ -14,7 +14,7 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<RemoveNewApplicationsSuffixStep> {
+class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<RemoveNewApplicationsSuffixStep> {
 
     @Mock
     private ConfigurationSubscriptionService subscriptionService;
@@ -23,7 +23,7 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
     private ConfigurationSubscriptionQuery query;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         context.setVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
         Mockito.when(query.list())
                .thenReturn(Collections.emptyList());
@@ -32,7 +32,7 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
     }
 
     @Test
-    public void testExecuteWithNoAppsToDeploy() {
+    void testExecuteWithNoAppsToDeploy() {
         context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
 
         step.execute(execution);
@@ -43,7 +43,7 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
     }
 
     @Test
-    public void testExecuteRenamesApps() {
+    void testExecuteRenamesApps() {
         List<String> apps = Arrays.asList("a-idle", "b-idle");
         context.setVariable(Variables.APPS_TO_DEPLOY, apps);
 
@@ -57,7 +57,7 @@ public class RemoveNewApplicationsSuffixStepTest extends SyncFlowableStepTest<Re
     }
 
     @Test
-    public void testUpdatingOfConfigurationSubscriptions() {
+    void testUpdatingOfConfigurationSubscriptions() {
         Mockito.when(query.list())
                .thenReturn(Collections.singletonList(new ConfigurationSubscription(0, "", "", "a-idle", null, null, null, null, null)));
         Mockito.when(subscriptionService.createQuery())

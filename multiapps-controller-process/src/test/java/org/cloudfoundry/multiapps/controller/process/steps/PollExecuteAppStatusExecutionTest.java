@@ -44,7 +44,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class PollExecuteAppStatusExecutionTest {
+class PollExecuteAppStatusExecutionTest {
 
     private static final String USER_NAME = "testUsername";
     private static final String APP_SOURCE = "APP";
@@ -70,42 +70,38 @@ public class PollExecuteAppStatusExecutionTest {
     private PollExecuteAppStatusExecution step;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         execution = MockDelegateExecution.createSpyInstance();
         context = new ProcessContext(execution, stepLogger, clientProvider);
         step = new PollExecuteAppStatusExecution(recentLogsRetriever);
     }
 
-    public static Stream<Arguments> testStep() {
+    static Stream<Arguments> testStep() {
         return Stream.of(
-        //@formatter:off
-                        // (1) Application is in running state
-                        Arguments.of(createAppLog( "testMessage",  MessageType.STDOUT, APP_SOURCE ),
-                                     null, null, false, AsyncExecutionState.RUNNING),
-                        // (2) Application finished execution and should be stopped
-                        Arguments.of(createAppLog( "SUCCESS",  MessageType.STDOUT, APP_SOURCE ),
-                                     null, null, true, AsyncExecutionState.FINISHED),
-                        // (3) Application finished execution and should be left to run
-                        Arguments.of(createAppLog( "SUCCESS",  MessageType.STDOUT, APP_SOURCE ),
-                                     null, null, false, AsyncExecutionState.FINISHED),
-                        // (4) Application with Custom success marker
-                        Arguments.of(createAppLog( "SUCCESS",  MessageType.STDOUT, APP_SOURCE ),
-                                     "executed", null, false, AsyncExecutionState.RUNNING),
-                        // (5) Application in failed state
-                        Arguments.of(createAppLog( "FAILURE",  MessageType.STDERR, APP_SOURCE ),
-                                     null, null, false, AsyncExecutionState.ERROR),
-                        // (6) Application in failed state and should be stopped
-                        Arguments.of(createAppLog( "FAILURE",  MessageType.STDERR, APP_SOURCE ),
-                                     null, null, true, AsyncExecutionState.ERROR),
-                        // (7) Application with Custom failure marker
-                        Arguments.of(createAppLog( "FAILURE",  MessageType.STDERR, APP_SOURCE ),
-                                     null, "execution failure", false, AsyncExecutionState.RUNNING),
-                        // (8) Log message with non APP Source
-                        Arguments.of(createAppLog( "info service",  MessageType.STDOUT, "service" ),
-                                     null, null, false, AsyncExecutionState.RUNNING)
-            );
-        //@formatter:on
+                         // (1) Application is in running state
+                         Arguments.of(createAppLog("testMessage", MessageType.STDOUT, APP_SOURCE), null, null, false,
+                                      AsyncExecutionState.RUNNING),
+                         // (2) Application finished execution and should be stopped
+                         Arguments.of(createAppLog("SUCCESS", MessageType.STDOUT, APP_SOURCE), null, null, true,
+                                      AsyncExecutionState.FINISHED),
+                         // (3) Application finished execution and should be left to run
+                         Arguments.of(createAppLog("SUCCESS", MessageType.STDOUT, APP_SOURCE), null, null, false,
+                                      AsyncExecutionState.FINISHED),
+                         // (4) Application with Custom success marker
+                         Arguments.of(createAppLog("SUCCESS", MessageType.STDOUT, APP_SOURCE), "executed", null, false,
+                                      AsyncExecutionState.RUNNING),
+                         // (5) Application in failed state
+                         Arguments.of(createAppLog("FAILURE", MessageType.STDERR, APP_SOURCE), null, null, false,
+                                      AsyncExecutionState.ERROR),
+                         // (6) Application in failed state and should be stopped
+                         Arguments.of(createAppLog("FAILURE", MessageType.STDERR, APP_SOURCE), null, null, true, AsyncExecutionState.ERROR),
+                         // (7) Application with Custom failure marker
+                         Arguments.of(createAppLog("FAILURE", MessageType.STDERR, APP_SOURCE), null, "execution failure", false,
+                                      AsyncExecutionState.RUNNING),
+                         // (8) Log message with non APP Source
+                         Arguments.of(createAppLog("info service", MessageType.STDOUT, "service"), null, null, false,
+                                      AsyncExecutionState.RUNNING));
     }
 
     private static ApplicationLog createAppLog(String message, MessageType messageType, String sourceName) {
@@ -121,8 +117,8 @@ public class PollExecuteAppStatusExecutionTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testStep(ApplicationLog applicationLog, String successMarker, String failureMarker, boolean shouldStopApp,
-                         AsyncExecutionState expectedExecutionState) {
+    void testStep(ApplicationLog applicationLog, String successMarker, String failureMarker, boolean shouldStopApp,
+                  AsyncExecutionState expectedExecutionState) {
         CloudApplicationExtended application = buildApplication(successMarker, failureMarker, shouldStopApp);
         prepareContext(application);
         prepareRecentLogsRetriever(applicationLog);
@@ -178,11 +174,12 @@ public class PollExecuteAppStatusExecutionTest {
     }
 
     @Test
-    public void testStepWithoutExecuteAction() {
+    void testStepWithoutExecuteAction() {
         context.setVariable(Variables.APP_STATE_ACTIONS_TO_EXECUTE, Collections.emptyList());
 
         AsyncExecutionState resultState = step.execute(context);
 
         assertEquals(AsyncExecutionState.FINISHED, resultState);
     }
+
 }

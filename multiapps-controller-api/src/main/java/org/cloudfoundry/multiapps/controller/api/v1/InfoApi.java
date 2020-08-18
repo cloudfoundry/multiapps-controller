@@ -1,7 +1,8 @@
-package org.cloudfoundry.multiapps.controller.api;
+package org.cloudfoundry.multiapps.controller.api.v1;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.multiapps.controller.api.InfoApiService;
 import org.cloudfoundry.multiapps.controller.api.Constants.Resources;
 import org.cloudfoundry.multiapps.controller.api.model.Info;
 import org.springframework.http.MediaType;

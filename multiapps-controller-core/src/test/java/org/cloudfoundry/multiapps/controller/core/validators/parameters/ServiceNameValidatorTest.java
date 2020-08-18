@@ -15,7 +15,7 @@ import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.junit.jupiter.api.Test;
 
-public class ServiceNameValidatorTest {
+class ServiceNameValidatorTest {
 
     private static final String NAMESPACE = "foo";
     private static final String SERVICE_NAME = "bar";
@@ -25,46 +25,46 @@ public class ServiceNameValidatorTest {
                                                                                             new Boolean(false));
 
     @Test
-    public void testCorrectionWithNoNamespaces() {
+    void testCorrectionWithNoNamespaces() {
         ServiceNameValidator serviceNameValidator = new ServiceNameValidator(null, false);
         String result = (String) serviceNameValidator.attemptToCorrect(SERVICE_NAME, CONTEXT_DO_NOT_APPLY_NAMESPACE);
         assertEquals(SERVICE_NAME, result);
     }
 
     @Test
-    public void testCorrectionWithNamespaces() {
+    void testCorrectionWithNamespaces() {
         ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, true);
         String result = (String) serviceNameValidator.attemptToCorrect(SERVICE_NAME, CONTEXT_APPLY_NAMESPACE);
         assertEquals(String.format("%s" + Constants.NAMESPACE_SEPARATOR + "%s", NAMESPACE, SERVICE_NAME), result);
     }
 
     @Test
-    public void testCorrectionWithInvalidServiceName() {
+    void testCorrectionWithInvalidServiceName() {
         ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, false);
         assertThrows(ContentException.class,
                      () -> serviceNameValidator.attemptToCorrect(Collections.emptyList(), CONTEXT_DO_NOT_APPLY_NAMESPACE));
     }
 
     @Test
-    public void testValidation() {
+    void testValidation() {
         ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, false);
         assertFalse(serviceNameValidator.isValid(SERVICE_NAME, null));
     }
 
     @Test
-    public void testGetContainerType() {
+    void testGetContainerType() {
         ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, false);
         assertEquals(Resource.class, serviceNameValidator.getContainerType());
     }
 
     @Test
-    public void testGetParameterName() {
+    void testGetParameterName() {
         ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, false);
         assertEquals(SupportedParameters.SERVICE_NAME, serviceNameValidator.getParameterName());
     }
 
     @Test
-    public void testCanCorrect() {
+    void testCanCorrect() {
         ServiceNameValidator serviceNameValidator = new ServiceNameValidator(NAMESPACE, false);
         assertTrue(serviceNameValidator.canCorrect());
     }

@@ -22,7 +22,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
-public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<CheckForOperationsInProgressStep> {
+class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<CheckForOperationsInProgressStep> {
 
     private static final String TEST_SPACE_ID = "test";
 
@@ -31,27 +31,28 @@ public class CheckForOperationsInProgressStepTest extends SyncFlowableStepTest<C
     @Mock
     private ServiceProgressReporter serviceProgressReporter;
 
-    public static Stream<Arguments> testExecute() {
+    static Stream<Arguments> testExecute() {
         return Stream.of(
-        //@formatter:off
-            // (1) Service exist and it is in progress state
-            Arguments.of("service-1", true, new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.IN_PROGRESS), ServiceOperation.Type.CREATE, "POLL"),
-            // (2) Service does not exist
-            Arguments.of("service-1", false, null, null, "DONE"),
-            // (3) Service exist but it is not in progress state
-            Arguments.of("service-1", true, new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.SUCCEEDED), null, "DONE"),
-            // (4) Missing service operation for existing service
-            Arguments.of("service-1", true, null, null, "DONE"),
-            // (5) Missing type and state for last operation
-            Arguments.of("service-1", true, new ServiceOperation(null, null, null), null, "DONE")
-        //@formatter:on
-        );
+                         // (1) Service exist and it is in progress state
+                         Arguments.of("service-1", true,
+                                      new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.IN_PROGRESS),
+                                      ServiceOperation.Type.CREATE, "POLL"),
+                         // (2) Service does not exist
+                         Arguments.of("service-1", false, null, null, "DONE"),
+                         // (3) Service exist but it is not in progress state
+                         Arguments.of("service-1", true,
+                                      new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.SUCCEEDED), null,
+                                      "DONE"),
+                         // (4) Missing service operation for existing service
+                         Arguments.of("service-1", true, null, null, "DONE"),
+                         // (5) Missing type and state for last operation
+                         Arguments.of("service-1", true, new ServiceOperation(null, null, null), null, "DONE"));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void testExecute(String serviceName, boolean serviceExist, ServiceOperation serviceOperation,
-                            ServiceOperation.Type expectedTriggeredServiceOperation, String expectedStatus) {
+    void testExecute(String serviceName, boolean serviceExist, ServiceOperation serviceOperation,
+                     ServiceOperation.Type expectedTriggeredServiceOperation, String expectedStatus) {
         CloudServiceInstanceExtended service = ImmutableCloudServiceInstanceExtended.builder()
                                                                                     .name(serviceName)
                                                                                     .metadata(ImmutableCloudMetadata.builder()

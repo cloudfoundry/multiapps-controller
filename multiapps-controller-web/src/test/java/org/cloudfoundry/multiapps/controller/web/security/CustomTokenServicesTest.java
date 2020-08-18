@@ -32,7 +32,7 @@ import org.springframework.security.oauth2.common.exceptions.InvalidTokenExcepti
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
-public class CustomTokenServicesTest {
+class CustomTokenServicesTest {
 
     private static final String DUMMY_TOKEN_STRING = "dummyTokenString";
     private static final String DEFAULT_SCOPE = "default";
@@ -52,14 +52,14 @@ public class CustomTokenServicesTest {
     private CustomTokenServices customTokenServices;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         AuditLoggingProvider.setFacade(auditLoggingFacade);
         customTokenServices = new CustomTokenServices(tokenStore, configuration, tokenParserChain);
     }
 
     @Test
-    public void testGetTokenFromCache() {
+    void testGetTokenFromCache() {
         OAuth2AccessToken token = buildValidToken();
         OAuth2Authentication auth = buildAuthentication(token);
         prepareTokenParserChain(token);
@@ -112,12 +112,12 @@ public class CustomTokenServicesTest {
     }
 
     @Test
-    public void testHandleExceptionForInvalidToken() {
+    void testHandleExceptionForInvalidToken() {
         assertThrows(InvalidTokenException.class, () -> customTokenServices.loadAuthentication(DUMMY_TOKEN_STRING));
     }
 
     @Test
-    public void testWithExpiredToken() {
+    void testWithExpiredToken() {
         OAuth2AccessToken token = buildInvalidToken();
 
         prepareTokenParserChain(token);
@@ -135,7 +135,7 @@ public class CustomTokenServicesTest {
     }
 
     @Test
-    public void testPersistTokenInCache() {
+    void testPersistTokenInCache() {
         OAuth2AccessToken token = buildValidToken();
         prepareTokenParserChain(token);
 

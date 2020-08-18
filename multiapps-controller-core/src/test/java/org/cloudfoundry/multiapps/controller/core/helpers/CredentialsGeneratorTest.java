@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -8,10 +8,10 @@ import java.security.SecureRandom;
 
 import org.junit.jupiter.api.Test;
 
-public class CredentialsGeneratorTest {
+class CredentialsGeneratorTest {
 
     @Test
-    public void testGenerate() throws NoSuchAlgorithmException, NoSuchProviderException {
+    void testGenerate() throws NoSuchAlgorithmException, NoSuchProviderException {
         SecureRandom randomGenerator = SecureRandom.getInstance("SHA1PRNG", "SUN");
         randomGenerator.setSeed(69);
 

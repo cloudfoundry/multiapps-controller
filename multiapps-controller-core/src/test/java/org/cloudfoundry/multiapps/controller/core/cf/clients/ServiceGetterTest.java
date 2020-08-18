@@ -20,7 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class ServiceGetterTest {
+class ServiceGetterTest {
 
     private static final String SPACE_ID = "test-space-id";
     private static final String SERVICE_NAME = "test-service";
@@ -35,7 +35,7 @@ public class ServiceGetterTest {
     private ServiceGetter serviceGetter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         serviceGetter = new ServiceGetter(serviceInstanceGetter, userProvidedInstanceGetter);
     }
@@ -53,8 +53,8 @@ public class ServiceGetterTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testGetServiceInstanceEntity(Map<String, Object> serviceInstanceGetterResponse,
-                                             Map<String, Object> userProvidedInstanceGetterResponse) {
+    void testGetServiceInstanceEntity(Map<String, Object> serviceInstanceGetterResponse,
+                                      Map<String, Object> userProvidedInstanceGetterResponse) {
         prepareServiceGetters(serviceInstanceGetterResponse, userProvidedInstanceGetterResponse);
 
         Map<String, Object> serviceInstanceEntity = serviceGetter.getServiceInstanceEntity(client, SERVICE_NAME, SPACE_ID);

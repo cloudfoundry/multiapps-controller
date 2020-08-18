@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class PurgeApiAuthorizationFilterTest {
+class PurgeApiAuthorizationFilterTest {
 
     private static final String ORGANIZATION_NAME = "foo";
     private static final String SPACE_NAME = "bar";
@@ -28,24 +28,24 @@ public class PurgeApiAuthorizationFilterTest {
     private PurgeApiAuthorizationFilter purgeApiAuthorizationFilter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
         purgeApiAuthorizationFilter = new PurgeApiAuthorizationFilter(null);
     }
 
     @Test
-    public void testUriRegexMatches() {
+    void testUriRegexMatches() {
         assertTrue("/rest/configuration-entries/purge".matches(purgeApiAuthorizationFilter.getUriRegex()));
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "/rest/configuration-entries", "/v1/api/spaces" })
-    public void testUriRegexDoesNotMatch(String uri) {
+    void testUriRegexDoesNotMatch(String uri) {
         assertFalse(uri.matches(purgeApiAuthorizationFilter.getUriRegex()));
     }
 
     @Test
-    public void testExtractTarget() {
+    void testExtractTarget() {
         Mockito.when(request.getParameter(ConfigurationEntriesResource.REQUEST_PARAM_ORGANIZATION))
                .thenReturn(ORGANIZATION_NAME);
         Mockito.when(request.getParameter(ConfigurationEntriesResource.REQUEST_PARAM_SPACE))
@@ -54,21 +54,21 @@ public class PurgeApiAuthorizationFilterTest {
     }
 
     @Test
-    public void testExtractTargetWithMissingSpaceParameter() {
+    void testExtractTargetWithMissingSpaceParameter() {
         Mockito.when(request.getParameter(ConfigurationEntriesResource.REQUEST_PARAM_ORGANIZATION))
                .thenReturn(ORGANIZATION_NAME);
         testExtractTargetWithMissingParameters();
     }
 
     @Test
-    public void testExtractTargetWithMissingOrganizationParameter() {
+    void testExtractTargetWithMissingOrganizationParameter() {
         Mockito.when(request.getParameter(ConfigurationEntriesResource.REQUEST_PARAM_SPACE))
                .thenReturn(SPACE_NAME);
         testExtractTargetWithMissingParameters();
     }
 
     @Test
-    public void testExtractTargetWithMissingParameters() {
+    void testExtractTargetWithMissingParameters() {
         assertThrows(SLException.class, () -> purgeApiAuthorizationFilter.extractTarget(request));
     }
 

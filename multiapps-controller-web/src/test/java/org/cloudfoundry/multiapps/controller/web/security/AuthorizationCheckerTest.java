@@ -40,7 +40,7 @@ import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 
-public class AuthorizationCheckerTest {
+class AuthorizationCheckerTest {
 
     private UserInfo userInfo;
     private static final String ORG = "org";
@@ -66,7 +66,7 @@ public class AuthorizationCheckerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    public static Stream<Arguments> checkPermissionsTest() {
+    static Stream<Arguments> checkPermissionsTest() {
         return Stream.of(
                          // (0) User has access
                          Arguments.of(true, true),
@@ -78,7 +78,7 @@ public class AuthorizationCheckerTest {
                          Arguments.of(false, false));
     }
 
-    public static Stream<Arguments> checkPermissionTest2() {
+    static Stream<Arguments> checkPermissionTest2() {
         return Stream.of(
                          // (0) User has access
                          Arguments.of(true, true),
@@ -209,4 +209,5 @@ public class AuthorizationCheckerTest {
         when(clientProvider.getControllerClient(userInfo.getName())).thenReturn(client);
         when(applicationConfiguration.getFssCacheUpdateTimeoutMinutes()).thenReturn(ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
     }
+
 }

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class AuditLogManagerTest {
+class AuditLogManagerTest {
 
     private DataSource testDataSource;
 
@@ -23,19 +23,19 @@ public class AuditLogManagerTest {
     private static final String AUDIT_LOG_CHANGELOG_LOCATION = "org/cloudfoundry/multiapps/controller/core/db/changelog/db-changelog.xml";
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         testDataSource = TestDataSourceProvider.getDataSource(AUDIT_LOG_CHANGELOG_LOCATION);
         auditLogManager = new AuditLogManager(testDataSource, createTestUserInfoProvider());
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         testDataSource.getConnection()
                       .close();
     }
 
     @Test
-    public void testAuditLogManager() {
+    void testAuditLogManager() {
         List<Logger> loggers = loadAuditLoggers();
 
         logMessage(loggers);

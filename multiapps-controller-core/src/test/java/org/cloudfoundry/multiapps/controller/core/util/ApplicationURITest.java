@@ -15,11 +15,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class ApplicationURITest {
+class ApplicationURITest {
 
     private static final String CUSTOM = "custom-";
 
-    private static Stream<Arguments> testParameters() {
+    static Stream<Arguments> testParameters() {
         return Stream.of(Arguments.of("https://valid-host.valid-domain", "valid-host", "valid-domain", ""),
                          Arguments.of("https://valid-domain", "", "valid-domain", ""), Arguments.of("valid-domain", "", "valid-domain", ""),
                          Arguments.of("https://valid-domain/really/long/path", "", "valid-domain", "/really/long/path"),
@@ -31,7 +31,7 @@ public class ApplicationURITest {
 
     @ParameterizedTest
     @MethodSource("testParameters")
-    public void testGetHostDomainPath(String uri, String expectedHost, String expectedDomain, String expectedPath) {
+    void testGetHostDomainPath(String uri, String expectedHost, String expectedDomain, String expectedPath) {
         ApplicationURI applicationURI = new ApplicationURI(uri);
         Assertions.assertEquals(expectedHost, applicationURI.getHost());
         Assertions.assertEquals(expectedDomain, applicationURI.getDomain());
@@ -39,7 +39,7 @@ public class ApplicationURITest {
     }
 
     @Test
-    public void testGetHostDomainWithoutPathFromRoute() {
+    void testGetHostDomainWithoutPathFromRoute() {
         CloudRoute route = createCloudRoute(CUSTOM + "host", createCloudDomain(CUSTOM + "domain"), null);
         ApplicationURI applicationURI = new ApplicationURI(route);
         Assertions.assertEquals(CUSTOM + "host", applicationURI.getHost());
@@ -49,7 +49,7 @@ public class ApplicationURITest {
     }
 
     @Test
-    public void testGetHostDomainWithPathFromRoute() {
+    void testGetHostDomainWithPathFromRoute() {
         CloudRoute route = createCloudRoute(CUSTOM + "host", createCloudDomain(CUSTOM + "domain"), "/" + CUSTOM + "path");
         ApplicationURI applicationURI = new ApplicationURI(route);
         Assertions.assertEquals(CUSTOM + "host", applicationURI.getHost());
@@ -59,7 +59,7 @@ public class ApplicationURITest {
     }
 
     @Test
-    public void testGetURIParts() {
+    void testGetURIParts() {
         ApplicationURI applicationURI = new ApplicationURI(createCloudRoute(CUSTOM + "host", createCloudDomain(CUSTOM + "domain"), null));
         Map<String, Object> expectedParts = new HashMap<>();
         expectedParts.put(SupportedParameters.HOST, CUSTOM + "host");
@@ -69,7 +69,7 @@ public class ApplicationURITest {
     }
 
     @Test
-    public void testGetURIPart() {
+    void testGetURIPart() {
         ApplicationURI applicationURI = new ApplicationURI(createCloudRoute(CUSTOM + "host", createCloudDomain(CUSTOM + "domain"),
                                                                             "/" + CUSTOM + "path"));
         Assertions.assertEquals(CUSTOM + "host", applicationURI.getURIPart(SupportedParameters.HOST));
@@ -79,7 +79,7 @@ public class ApplicationURITest {
     }
 
     @Test
-    public void testURIPart() {
+    void testURIPart() {
         ApplicationURI applicationURI = new ApplicationURI(createCloudRoute(CUSTOM + "host", createCloudDomain(CUSTOM + "domain"),
                                                                             CUSTOM + "path"));
         applicationURI.setURIPart(SupportedParameters.HOST, CUSTOM + "host-1");
@@ -92,7 +92,7 @@ public class ApplicationURITest {
     }
 
     @Test
-    public void testToStringWithValidHostAndPath() {
+    void testToStringWithValidHostAndPath() {
         ApplicationURI applicationURI = new ApplicationURI(createCloudRoute(CUSTOM + "host", createCloudDomain(CUSTOM + "domain"),
                                                                             "/" + CUSTOM + "path"));
         String expectedApplicationURI = CUSTOM + "host." + CUSTOM + "domain/" + CUSTOM + "path";
@@ -100,19 +100,19 @@ public class ApplicationURITest {
     }
 
     @Test
-    public void testToStringWithValidHostAndWithoutPath() {
+    void testToStringWithValidHostAndWithoutPath() {
         ApplicationURI applicationURI = new ApplicationURI(createCloudRoute(CUSTOM + "host", createCloudDomain(CUSTOM + "domain"), null));
         Assertions.assertEquals(CUSTOM + "host." + CUSTOM + "domain", applicationURI.toString());
     }
 
     @Test
-    public void testToStringWithoutHostAndWithoutPath() {
+    void testToStringWithoutHostAndWithoutPath() {
         ApplicationURI applicationURI = new ApplicationURI(createCloudRoute("", createCloudDomain(CUSTOM + "domain"), null));
         Assertions.assertEquals(CUSTOM + "domain", applicationURI.toString());
     }
 
     @Test
-    public void testGetDomainFromURI() {
+    void testGetDomainFromURI() {
         Assertions.assertEquals(CUSTOM + "domain",
                                 ApplicationURI.getDomainFromURI("https://" + CUSTOM + "host." + CUSTOM + "domain/valid"));
     }

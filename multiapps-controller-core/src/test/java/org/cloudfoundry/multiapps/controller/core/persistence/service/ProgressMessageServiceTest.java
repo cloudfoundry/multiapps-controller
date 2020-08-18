@@ -21,7 +21,7 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.P
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class ProgressMessageServiceTest {
+class ProgressMessageServiceTest {
 
     private static final ProgressMessage PROGRESS_MESSAGE_1 = createProgressMessage(1L, "1", "taskId", ProgressMessageType.INFO, "text",
                                                                                     new Date());
@@ -31,13 +31,13 @@ public class ProgressMessageServiceTest {
     private final ProgressMessageService progressMessageService = createProgressMessageService();
 
     @AfterEach
-    public void cleanUp() {
+    void cleanUp() {
         progressMessageService.createQuery()
                               .delete();
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         progressMessageService.add(PROGRESS_MESSAGE_1);
         assertEquals(1, progressMessageService.createQuery()
                                               .list()
@@ -50,7 +50,7 @@ public class ProgressMessageServiceTest {
     }
 
     @Test
-    public void testAddWithNonEmptyDatabase() {
+    void testAddWithNonEmptyDatabase() {
         addProgressMessages(Arrays.asList(PROGRESS_MESSAGE_1, PROGRESS_MESSAGE_2));
 
         assertProgressMessageExists(PROGRESS_MESSAGE_1.getId());
@@ -62,7 +62,7 @@ public class ProgressMessageServiceTest {
     }
 
     @Test
-    public void testAddWithAlreadyExistingMessage() {
+    void testAddWithAlreadyExistingMessage() {
         progressMessageService.add(PROGRESS_MESSAGE_1);
         Exception exception = assertThrows(ConflictException.class, () -> progressMessageService.add(PROGRESS_MESSAGE_1));
         String expectedExceptionMessage = MessageFormat.format(Messages.PROGRESS_MESSAGE_ALREADY_EXISTS, PROGRESS_MESSAGE_1.getProcessId(),
@@ -71,32 +71,32 @@ public class ProgressMessageServiceTest {
     }
 
     @Test
-    public void testQueryById() {
+    void testQueryById() {
         testQueryByCriteria((query, message) -> query.id(message.getId()));
     }
 
     @Test
-    public void testQueryByProcessId() {
+    void testQueryByProcessId() {
         testQueryByCriteria((query, message) -> query.processId(message.getProcessId()));
     }
 
     @Test
-    public void testQueryByTaskId() {
+    void testQueryByTaskId() {
         testQueryByCriteria((query, message) -> query.taskId(message.getTaskId()));
     }
 
     @Test
-    public void testQueryByType() {
+    void testQueryByType() {
         testQueryByCriteria((query, message) -> query.type(message.getType()));
     }
 
     @Test
-    public void testQueryByTypeNot() {
+    void testQueryByTypeNot() {
         testQueryByCriteria((query, message) -> query.typeNot(message.getType()));
     }
 
     @Test
-    public void testQueryByText() {
+    void testQueryByText() {
         testQueryByCriteria((query, message) -> query.text(message.getText()));
     }
 
@@ -143,4 +143,5 @@ public class ProgressMessageServiceTest {
         progressMessageService.progressMessageMapper = new ProgressMessageMapper();
         return progressMessageService;
     }
+
 }

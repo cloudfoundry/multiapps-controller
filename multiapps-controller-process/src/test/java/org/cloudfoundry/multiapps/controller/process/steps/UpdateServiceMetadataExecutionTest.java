@@ -19,7 +19,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class UpdateServiceMetadataExecutionTest {
+class UpdateServiceMetadataExecutionTest {
 
     private static final String SERVICE_INSTANCE_NAME = "foo";
     private static final String SERVICE_INSTANCE_PLAN = "bar";
