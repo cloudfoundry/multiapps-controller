@@ -27,7 +27,7 @@ class SpaceGuidBasedAuthorizationFilterTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         Mockito.when(request.getRequestURI())
                .thenReturn("");
         dummyUriAuthorizationFilter = new DummyUriAuthorizationFilter(authorizationChecker);
