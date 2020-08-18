@@ -11,7 +11,6 @@ import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.cloudfoundry.multiapps.controller.web.util.ServletUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizationFilter {
@@ -32,8 +31,8 @@ public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizat
             return true;
         } catch (ResponseStatusException e) {
             logUnauthorizedRequest(request, e);
-            HttpStatus responseStatus = determineResponseStatus(e);
-            response.sendError(responseStatus.value(),
+            response.sendError(e.getStatus()
+                                .value(),
                                MessageFormat.format(Messages.NOT_AUTHORIZED_TO_OPERATE_IN_SPACE_WITH_GUID_0, spaceGuid));
             return false;
         }
@@ -51,10 +50,6 @@ public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizat
                                        ServletUtil.decodeUri(request)),
                          e);
         }
-    }
-
-    private HttpStatus determineResponseStatus(ResponseStatusException e) {
-        return e.getStatus() == null ? HttpStatus.UNAUTHORIZED : e.getStatus();
     }
 
     protected abstract String extractSpaceGuid(HttpServletRequest request);
