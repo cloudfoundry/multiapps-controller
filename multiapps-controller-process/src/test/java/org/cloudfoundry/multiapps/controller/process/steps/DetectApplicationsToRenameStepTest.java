@@ -30,6 +30,7 @@ class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<DetectAppl
     @BeforeEach
     void setUp() {
         context.setVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
+        context.setVariable(Variables.MODULES_FOR_DEPLOYMENT, Variables.MODULES_FOR_DEPLOYMENT.getDefaultValue());
     }
 
     @Test
@@ -146,6 +147,25 @@ class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<DetectAppl
         validateUpdatedDeployedMta(appsToCheck);
     }
 
+    @Test
+    void testExecuteWithPartialDeployDoesntRenameExcluded() {
+        DeployedMta deployedMta = createDeployedMta("a", "b", "c");
+        context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
+        context.setVariable(Variables.MODULES_FOR_DEPLOYMENT, Arrays.asList("a_module", "c_module"));
+
+        step.execute(execution);
+        assertStepFinishedSuccessfully();
+
+        Assertions.assertTrue(context.getVariable(Variables.APPS_TO_UNDEPLOY)
+                                     .isEmpty());
+        Assertions.assertTrue(context.getVariable(Variables.APPS_TO_RENAME)
+                                     .contains("a"));
+        Assertions.assertTrue(context.getVariable(Variables.APPS_TO_RENAME)
+                                     .contains("c"));
+        Assertions.assertFalse(context.getVariable(Variables.APPS_TO_RENAME)
+                                      .contains("b"));
+    }
+
     private CloudApplication createApplication(String name) {
         return ImmutableCloudApplication.builder()
                                         .name(name)
@@ -166,7 +186,7 @@ class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<DetectAppl
 
     private DeployedMtaApplication createDeployedApp(String appName) {
         return ImmutableDeployedMtaApplication.builder()
-                                              .moduleName("")
+                                              .moduleName(appName + "_module")
                                               .name(appName)
                                               .build();
     }

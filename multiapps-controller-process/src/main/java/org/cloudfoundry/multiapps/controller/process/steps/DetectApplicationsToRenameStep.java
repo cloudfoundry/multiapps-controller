@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
@@ -37,10 +38,10 @@ public class DetectApplicationsToRenameStep extends SyncFlowableStep {
         if (deployedMta == null) {
             return StepPhase.DONE;
         }
+        List<String> selectedModules = context.getVariable(Variables.MODULES_FOR_DEPLOYMENT);
 
-        Set<String> deployedAppNames = CloudModelBuilderUtil.getDeployedApplicationNames(deployedMta.getApplications());
-        List<String> appsToRename = computeOldAppsToRename(deployedAppNames);
-        List<String> appsToUndeploy = computeLeftoverAppsToUndeploy(deployedAppNames);
+        List<String> appsToRename = computeOldAppsToRename(deployedMta, selectedModules);
+        List<String> appsToUndeploy = computeLeftoverAppsToUndeploy(deployedMta);
 
         context.setVariable(Variables.APPS_TO_RENAME, appsToRename);
         setAppsToUndeploy(context, appsToUndeploy);
@@ -49,13 +50,25 @@ public class DetectApplicationsToRenameStep extends SyncFlowableStep {
         return StepPhase.DONE;
     }
 
-    private List<String> computeOldAppsToRename(Set<String> appsToProcess) {
-        return appsToProcess.stream()
-                            .filter(appName -> !BlueGreenApplicationNameSuffix.isSuffixContainedIn(appName))
-                            .collect(Collectors.toList());
+    private List<String> computeOldAppsToRename(DeployedMta deployedMta, List<String> selectedModules) {
+        return deployedMta.getApplications()
+                          .stream()
+                          .filter(app -> !BlueGreenApplicationNameSuffix.isSuffixContainedIn(app.getName()))
+                          .filter(app -> isModuleSelectedForDeployment(app.getModuleName(), selectedModules))
+                          .map(DeployedMtaApplication::getName)
+                          .collect(Collectors.toList());
     }
 
-    private List<String> computeLeftoverAppsToUndeploy(Set<String> appsToProcess) {
+    private boolean isModuleSelectedForDeployment(String moduleName, List<String> selectedModules) {
+        if (CollectionUtils.isEmpty(selectedModules)) {
+            return true;
+        }
+
+        return selectedModules.contains(moduleName);
+    }
+
+    private List<String> computeLeftoverAppsToUndeploy(DeployedMta deployedMta) {
+        Set<String> appsToProcess = CloudModelBuilderUtil.getDeployedApplicationNames(deployedMta.getApplications());
         return appsToProcess.stream()
                             .filter(appName -> appName.endsWith(BlueGreenApplicationNameSuffix.LIVE.asSuffix()))
                             .filter(appName -> appsToProcess.contains(BlueGreenApplicationNameSuffix.removeSuffix(appName)))
