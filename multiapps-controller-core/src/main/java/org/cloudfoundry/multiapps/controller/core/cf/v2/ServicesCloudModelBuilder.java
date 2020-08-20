@@ -79,7 +79,7 @@ public class ServicesCloudModelBuilder {
                                                     .plan((String) parameters.get(SupportedParameters.SERVICE_PLAN))
                                                     .type(ServiceInstanceType.MANAGED)
                                                     .provider((String) parameters.get(SupportedParameters.SERVICE_PROVIDER))
-                                                    .brokerName((String) parameters.get(SupportedParameters.SERVICE_BROKER_NAME))
+                                                    .broker((String) parameters.get(SupportedParameters.SERVICE_BROKER))
                                                     .version((String) parameters.get(SupportedParameters.SERVICE_VERSION))
                                                     .tags((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_TAGS,
                                                                                                  Collections.emptyList()))
