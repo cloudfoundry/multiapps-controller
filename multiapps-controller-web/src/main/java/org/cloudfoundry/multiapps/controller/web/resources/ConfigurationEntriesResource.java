@@ -52,7 +52,7 @@ public class ConfigurationEntriesResource {
 
     private CloudControllerClient createClient(String organization, String space) {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        return clientProvider.getControllerClient(userInfo.getName(), organization, space, null);
+        return clientProvider.getControllerClient(userInfo.getName(), organization, space);
     }
 
 }

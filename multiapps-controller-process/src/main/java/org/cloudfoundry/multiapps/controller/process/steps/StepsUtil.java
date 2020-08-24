@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +29,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
+import org.cloudfoundry.multiapps.controller.process.variables.Variable;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -242,7 +242,7 @@ public class StepsUtil {
     }
 
     public static <T> T getFromJsonBinary(VariableScope scope, String name, Class<T> classOfT) {
-        return getFromJsonBinary(scope, name, toTypeReference(classOfT));
+        return getFromJsonBinary(scope, name, Variable.typeReference(classOfT));
     }
 
     public static <T> T getFromJsonBinary(VariableScope scope, String name, TypeReference<T> type) {
@@ -265,15 +265,6 @@ public class StepsUtil {
         }
         byte[] jsonBinary = JsonUtil.toJsonBinary(value);
         scope.setVariable(name, jsonBinary);
-    }
-
-    private static <T> TypeReference<T> toTypeReference(Class<T> classOfT) {
-        return new TypeReference<T>() {
-            @Override
-            public Type getType() {
-                return classOfT;
-            }
-        };
     }
 
 }
