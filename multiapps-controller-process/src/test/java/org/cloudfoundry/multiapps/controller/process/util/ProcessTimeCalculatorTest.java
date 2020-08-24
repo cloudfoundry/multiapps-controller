@@ -1,49 +1,51 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
-import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
-import org.cloudfoundry.multiapps.controller.process.util.ProcessTimeCalculator.ProcessTime;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricActivityInstanceQuery;
 import org.flowable.engine.history.HistoricProcessInstance;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class ProcessTimeCalculatorTest {
+class ProcessTimeCalculatorTest {
 
-    private static final String DEFAULT_PROCESS_ID = "process-id";
-    private static final String DEFAULT_ACTIVITY_ID_PREFIX = "activityIdPrefix_";
+    private static final String PROCESS_ID = "process-id";
+
+    private final LongSupplier currentTimeSupplier = System::currentTimeMillis;
 
     private ProcessTimeCalculator processTimeCalculator;
 
-    private LongSupplier currentTimeSupplier = System::currentTimeMillis;
-
     @Mock
     private FlowableFacade flowableFacade;
-
     @Mock
     private HistoricProcessInstance mockedProcessInstance;
-
     @Mock
     private HistoricActivityInstanceQuery historicActivityInstanceQueryMock;
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
 
-        Mockito.when(flowableFacade.getHistoricProcessById(DEFAULT_PROCESS_ID))
+        Mockito.when(flowableFacade.getHistoricProcessById(PROCESS_ID))
                .thenReturn(mockedProcessInstance);
         ProcessEngine processEngine = Mockito.mock(ProcessEngine.class);
         Mockito.when(flowableFacade.getProcessEngine())
@@ -53,63 +55,122 @@ public class ProcessTimeCalculatorTest {
                .thenReturn(historyServiceMock);
         Mockito.when(historyServiceMock.createHistoricActivityInstanceQuery())
                .thenReturn(historicActivityInstanceQueryMock);
-        Mockito.when(historicActivityInstanceQueryMock.processInstanceId(DEFAULT_PROCESS_ID))
+        Mockito.when(historicActivityInstanceQueryMock.processInstanceId(PROCESS_ID))
                .thenReturn(historicActivityInstanceQueryMock);
 
         processTimeCalculator = new ProcessTimeCalculator(flowableFacade);
     }
 
     @Test
-    public void testWithValidProcessWithNoCallActivitiesShouldReturnNoDelayBetweenSteps() {
+    void testProcessDuration() {
         mockProcessStartAndEndTime(5 * 500);
-        List<HistoricActivityInstance> processActivities = mockProcessActivities("serviceTask", 5, 500);
-        Mockito.when(historicActivityInstanceQueryMock.list())
-               .thenReturn(processActivities);
-        ProcessTime processTime = processTimeCalculator.calculate(DEFAULT_PROCESS_ID);
-        Assertions.assertEquals(0, processTime.getDelayBetweenSteps());
+
+        ProcessTime processTime = processTimeCalculator.calculate(PROCESS_ID);
+
+        assertEquals(5 * 500, processTime.getProcessDuration());
     }
 
     @Test
-    public void testWithValidProcessWithOneCallActivity() {
-        mockProcessStartAndEndTime(5 * 500 + 1500);
-        List<HistoricActivityInstance> callActivities = mockProcessActivities("callActivity", 1, 1500);
-        List<HistoricActivityInstance> processActivities = mockProcessActivities("serviceTask", 5, 500);
-        Mockito.when(historicActivityInstanceQueryMock.list())
-               .thenReturn(ListUtils.union(callActivities, processActivities));
-        ProcessTime processTime = processTimeCalculator.calculate(DEFAULT_PROCESS_ID);
-        Assertions.assertEquals(1500, processTime.getDelayBetweenSteps());
-    }
-
-    @Test
-    public void testWithValidProcessWithTwoCallActivities() {
-        mockProcessStartAndEndTime(5 * 500 + 1500);
-        List<HistoricActivityInstance> callActivities = mockProcessActivities("callActivity", 2, 1500);
-        List<HistoricActivityInstance> processActivities = mockProcessActivities("serviceTask", 5, 500);
-        Mockito.when(historicActivityInstanceQueryMock.list())
-               .thenReturn(ListUtils.union(callActivities, processActivities));
-        ProcessTime processTime = processTimeCalculator.calculate(DEFAULT_PROCESS_ID);
-        Assertions.assertEquals(1500, processTime.getDelayBetweenSteps());
-    }
-
-    @Test
-    public void testWithNoEndTime() {
+    void testAbortedProcessDuration() {
         long currentTime = mockProcessStartTime();
         processTimeCalculator = new ProcessTimeCalculator(flowableFacade, () -> currentTime + 5 * 500);
-        List<HistoricActivityInstance> processActivities = mockProcessActivities("serviceTask", 5, 500);
+
+        ProcessTime processTime = processTimeCalculator.calculate(PROCESS_ID);
+
+        assertEquals(5 * 500, processTime.getProcessDuration());
+    }
+
+    static Stream<Arguments> testDelayBetweenSteps() {
+        return Stream.of(
+//@formatter: off
+                Arguments.of(0, Arrays.asList(Activity.of("serviceTask", 5, 500))),
+                Arguments.of(2000, Arrays.asList(Activity.of("exclusiveGateway", 1, 1000),
+                                                 Activity.of("inclusiveGateway", 1, 1000),
+                                                 Activity.of("serviceTask", 5, 500))),
+                Arguments.of(300, Arrays.asList(Activity.of("sequenceFlow", 3, 100),
+                                                Activity.of("serviceTask", 5, 500))),
+                Arguments.of(500, Arrays.asList(Activity.of("intermediateCatchEvent", 5, 100),
+                                                Activity.of("serviceTask", 5, 500))),
+                Arguments.of(2800, Arrays.asList(Activity.of("intermediateCatchEvent", 5, 100),
+                                                 Activity.of("sequenceFlow", 3, 100),
+                                                 Activity.of("exclusiveGateway", 1, 1000),
+                                                 Activity.of("inclusiveGateway", 1, 1000),
+                                                 Activity.of("serviceTask", 5, 500)))
+//@formatter: on
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testDelayBetweenSteps(long expectedDelayBetweenSteps, List<Activity> activities) {
+        mockProcessStartAndEndTime(100); //irrelevant
+        List<HistoricActivityInstance> processActivities = mockProcessActivities(activities);
         Mockito.when(historicActivityInstanceQueryMock.list())
                .thenReturn(processActivities);
-        ProcessTime processTime = processTimeCalculator.calculate(DEFAULT_PROCESS_ID);
-        Assertions.assertEquals(0, processTime.getDelayBetweenSteps());
+
+        ProcessTime processTime = processTimeCalculator.calculate(PROCESS_ID);
+
+        assertEquals(expectedDelayBetweenSteps, processTime.getDelayBetweenSteps());
     }
 
     @Test
-    public void testWithHugeDelayBetweenSteps() {
-        mockProcessStartAndEndTime(5 * 500 + 10000);
-        List<HistoricActivityInstance> processActivities = mockProcessActivities("serviceTask", 5, 500);
+    void testDelayBetweenActivities() {
+        mockProcessStartAndEndTime(100); //irrelevant
+        long offset = currentTimeSupplier.getAsLong();
+        List<HistoricActivityInstance> activities = mockActivitiesWithDelay(offset, Activity.of("serviceTask", 6, 100), 10);
+        Mockito.when(historicActivityInstanceQueryMock.list())
+               .thenReturn(activities);
+
+        ProcessTime processTime = processTimeCalculator.calculate(PROCESS_ID);
+
+        assertEquals(50, processTime.getDelayBetweenSteps());
+    }
+
+    @Test
+    void testAbortedProcessDelayBetweenSteps() {
+        long currentTime = mockProcessStartTime();
+        processTimeCalculator = new ProcessTimeCalculator(flowableFacade, () -> currentTime + 500);
+
+        List<Activity> activities = Arrays.asList(Activity.of("serviceTask", 5, 500));
+        List<HistoricActivityInstance> processActivities = mockProcessActivities(activities);
+
+        HistoricActivityInstance unfinishedActivity = Mockito.mock(HistoricActivityInstance.class);
+        Mockito.when(unfinishedActivity.getActivityType())
+               .thenReturn("sequenceFlow");
+        Mockito.when(unfinishedActivity.getStartTime())
+               .thenReturn(new Date(currentTime));
+
+        processActivities.add(unfinishedActivity);
+
         Mockito.when(historicActivityInstanceQueryMock.list())
                .thenReturn(processActivities);
-        ProcessTime processTime = processTimeCalculator.calculate(DEFAULT_PROCESS_ID);
-        Assertions.assertEquals(10000, processTime.getDelayBetweenSteps());
+
+        ProcessTime processTime = processTimeCalculator.calculate(PROCESS_ID);
+
+        assertEquals(500, processTime.getDelayBetweenSteps());
+    }
+
+    @Test
+    void testOverallDelayBetweenSteps() {
+        List<Activity> activities = Arrays.asList(Activity.of("intermediateCatchEvent", 5, 100), Activity.of("sequenceFlow", 3, 100),
+                                                  Activity.of("exclusiveGateway", 1, 1000), Activity.of("inclusiveGateway", 1, 1000),
+                                                  Activity.of("serviceTask", 5, 500));
+        long offset = currentTimeSupplier.getAsLong();
+        List<HistoricActivityInstance> processActivities = new ArrayList<>();
+
+        for (Activity activity : activities) {
+            processActivities.addAll(mockActivitiesWithDelay(offset, activity, 10));
+
+            offset += (activity.numberOf * (activity.duration + 10)) + 10;
+        }
+
+        mockProcessStartAndEndTime(100); //irrelevant
+        Mockito.when(historicActivityInstanceQueryMock.list())
+               .thenReturn(processActivities);
+
+        ProcessTime processTime = processTimeCalculator.calculate(PROCESS_ID);
+
+        assertEquals(2980, processTime.getDelayBetweenSteps());
     }
 
     private void mockProcessStartAndEndTime(int endTimeDelay) {
@@ -125,22 +186,51 @@ public class ProcessTimeCalculatorTest {
         return date;
     }
 
-    private List<HistoricActivityInstance> mockProcessActivities(String activityType, int numberOfActivities, long durationIntervalMilis) {
-        return IntStream.range(0, numberOfActivities)
-                        .mapToObj(currentActivityId -> createActivityMock(activityType, durationIntervalMilis, currentActivityId))
-                        .collect(Collectors.toList());
-
+    private List<HistoricActivityInstance> mockActivitiesWithoutDelay(long initialOffset, Activity activity) {
+        return mockActivitiesWithDelay(initialOffset, activity, 0);
     }
 
-    private HistoricActivityInstance createActivityMock(String activityType, long durationIntervalMilis, int currentActivityId) {
+    private List<HistoricActivityInstance> mockActivitiesWithDelay(long initialOffset, Activity activity, long delay) {
+        return LongStream.iterate(initialOffset, offset -> offset + activity.duration + delay)
+                         .limit(activity.numberOf)
+                         .mapToObj(offset -> createActivityMock(offset, activity.type, activity.duration))
+                         .collect(Collectors.toList());
+    }
+
+    private List<HistoricActivityInstance> mockProcessActivities(List<Activity> activities) {
+        long offset = currentTimeSupplier.getAsLong();
+        List<HistoricActivityInstance> result = new ArrayList<>();
+
+        for (Activity activity : activities) {
+            result.addAll(mockActivitiesWithoutDelay(offset, activity));
+
+            offset += activity.numberOf * activity.duration;
+        }
+        return result;
+    }
+
+    private HistoricActivityInstance createActivityMock(long offset, String activityType, long duration) {
         HistoricActivityInstance activity = Mockito.mock(HistoricActivityInstance.class);
-        Mockito.when(activity.getActivityId())
-               .thenReturn(DEFAULT_ACTIVITY_ID_PREFIX + currentActivityId);
         Mockito.when(activity.getActivityType())
                .thenReturn(activityType);
-        Mockito.when(activity.getDurationInMillis())
-               .thenReturn(durationIntervalMilis);
+        Mockito.when(activity.getStartTime())
+               .thenReturn(new Date(offset));
+        Mockito.when(activity.getEndTime())
+               .thenReturn(new Date(offset + duration));
         return activity;
     }
 
+    private static class Activity {
+        private String type;
+        private long duration;
+        private int numberOf;
+
+        static Activity of(String type, int numberOf, long duration) {
+            Activity activity = new Activity();
+            activity.type = type;
+            activity.numberOf = numberOf;
+            activity.duration = duration;
+            return activity;
+        }
+    }
 }
