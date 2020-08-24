@@ -1,7 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import java.text.MessageFormat;
+import static java.text.MessageFormat.format;
+
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -50,7 +52,7 @@ public class OperationInFinalStateHandler {
         safeExecutor.execute(() -> deleteDeploymentFiles(execution));
         safeExecutor.execute(() -> deleteCloudControllerClientForProcess(execution));
         safeExecutor.execute(() -> setOperationState(correlationId, state));
-        safeExecutor.execute(() -> operationTimeAggregator.aggregateOperationTime(correlationId));
+        safeExecutor.execute(() -> logOperationTime(correlationId));
     }
 
     protected void deleteDeploymentFiles(DelegateExecution execution) throws FileStorageException {
@@ -80,8 +82,8 @@ public class OperationInFinalStateHandler {
         Operation operation = operationService.createQuery()
                                               .processId(processInstanceId)
                                               .singleResult();
-        LOGGER.info(MessageFormat.format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(),
-                                         operation.getMtaId(), operation.getSpaceId()));
+        LOGGER.info(format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(), operation.getMtaId(),
+                           operation.getSpaceId()));
         operation = ImmutableOperation.builder()
                                       .from(operation)
                                       .state(state)
@@ -89,7 +91,7 @@ public class OperationInFinalStateHandler {
                                       .endedAt(ZonedDateTime.now())
                                       .build();
         operationService.update(operation, operation);
-        LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
+        LOGGER.debug(format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
         historicOperationEventPersister.add(processInstanceId, toEventType(state));
     }
 
@@ -97,4 +99,19 @@ public class OperationInFinalStateHandler {
         return state == Operation.State.FINISHED ? EventType.FINISHED : EventType.ABORTED;
     }
 
+    private void logOperationTime(String correlationId) {
+        Map<String, ProcessTime> processTimes = operationTimeAggregator.collectProcessTimes(correlationId);
+
+        processTimes.forEach((processId, processTime) -> logProcessTime(correlationId, processId, processTime));
+
+        ProcessTime overallProcessTime = operationTimeAggregator.computeOverallProcessTime(correlationId, processTimes);
+
+        LOGGER.info(format(Messages.TIME_STATISTICS_FOR_OPERATION_0_DURATION_1_DELAY_2, correlationId,
+                           overallProcessTime.getProcessDuration(), overallProcessTime.getDelayBetweenSteps()));
+    }
+
+    private void logProcessTime(String correlationId, String processId, ProcessTime processTime) {
+        LOGGER.debug(format(Messages.TIME_STATISTICS_FOR_PROCESS_0_OPERATION_1_DURATION_2_DELAY_3, processId, correlationId,
+                            processTime.getProcessDuration(), processTime.getDelayBetweenSteps()));
+    }
 }

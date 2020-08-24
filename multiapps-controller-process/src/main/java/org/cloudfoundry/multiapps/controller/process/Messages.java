@@ -533,6 +533,8 @@ public class Messages {
     public static final String PACKAGE_STATUS_0_IS_IN_STATE_1 = "Package status: \"{0}\" is in state: \"{1}\"";
     public static final String UPLOADED_PACKAGE_0 = "Uploaded package: \"{0}\"";
     public static final String VERIFYING_APPLICATION_0_EXISTS = "Verifying application: \"{0}\" exists";
+    public static final String TIME_STATISTICS_FOR_PROCESS_0_OPERATION_1_DURATION_2_DELAY_3 = "Time statistics for process \"{0}\" (part of operation \"{1}\"): duration \"{2}\" ms; delay between steps \"{3}\" ms";
+    public static final String TIME_STATISTICS_FOR_OPERATION_0_DURATION_1_DELAY_2 = "Time statistics for operation \"{0}\": duration \"{1}\" ms; delay between steps \"{2}\" ms";
 
     protected Messages() {
     }
