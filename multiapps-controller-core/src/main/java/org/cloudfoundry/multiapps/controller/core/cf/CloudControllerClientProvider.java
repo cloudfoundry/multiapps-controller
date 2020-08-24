@@ -49,15 +49,15 @@ public class CloudControllerClientProvider {
      * one.
      *
      * @param userName the user name associated with the client
-     * @param spaceGuid the space guid associated with the client
-     * @param processId the processId associated with the client
+     * @param orgName the organization name associated with the client
+     * @param spaceName the space name associated with the client
      * @return a CF client for the specified access token, organization, and space
      */
-    public CloudControllerClient getControllerClient(String userName, String spaceGuid, String processId) {
+    public CloudControllerClient getControllerClient(String userName, String orgName, String spaceName) {
         try {
-            return getClientFromCache(userName, spaceGuid, processId);
+            return getClientFromCache(userName, orgName, spaceName);
         } catch (CloudOperationException e) {
-            throw new SLException(e, Messages.CANT_CREATE_CLIENT_FOR_SPACE_ID, spaceGuid);
+            throw new SLException(e, Messages.CANT_CREATE_CLIENT_2, orgName, spaceName);
         }
     }
 
@@ -77,7 +77,7 @@ public class CloudControllerClientProvider {
     }
 
     /**
-     * Returns a client for the specified user name by either getting it from the clients cache or creating a new one.
+     * Returns a client for the specified user name by creating a new one.
      *
      * @param userName the user name associated with the client
      * @return a CF client for the specified access token, organization, and space
@@ -130,7 +130,6 @@ public class CloudControllerClientProvider {
     }
 
     private CloudControllerClient getClientFromCache(String userName, String org, String space, String processId) {
-        // Get a client from the cache or create a new one if needed
         String key = getKey(userName, org, space);
         CloudControllerClient client = clients.get(key);
         if (client == null) {
@@ -143,16 +142,11 @@ public class CloudControllerClientProvider {
     }
 
     private CloudControllerClient getClientFromCache(String userName, String spaceId) {
-        // Get a client from the cache or create a new one if needed
         String key = getKey(userName, spaceId);
         return clients.computeIfAbsent(key, k -> clientFactory.createClient(getValidToken(userName), spaceId));
     }
 
-    private String getKey(String userName, String org, String space) {
-        return userName + '|' + org + '|' + space;
-    }
-
-    private String getKey(String userName, String spaceId) {
-        return userName + '|' + spaceId;
+    private String getKey(String... args) {
+        return String.join("|", args);
     }
 }

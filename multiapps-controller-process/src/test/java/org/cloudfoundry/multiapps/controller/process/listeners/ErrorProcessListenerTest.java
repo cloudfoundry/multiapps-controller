@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import org.cloudfoundry.multiapps.controller.process.mock.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.util.OperationInErrorStateHandler;
-import org.cloudfoundry.multiapps.controller.process.util.ProcessTimeCalculator;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEntityEvent;
@@ -39,9 +38,6 @@ class ErrorProcessListenerTest {
 
     @Mock
     private OperationInErrorStateHandler eventHandler;
-
-    @Mock
-    private ProcessTimeCalculator processTimeCalculator;
 
     @InjectMocks
     private ErrorProcessListenerMock errorProcessListener;
