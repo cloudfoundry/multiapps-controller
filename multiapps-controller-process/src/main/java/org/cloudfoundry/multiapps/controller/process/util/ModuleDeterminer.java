@@ -17,18 +17,18 @@ import org.immutables.value.Value;
 @Value.Immutable
 public abstract class ModuleDeterminer {
 
-    public Module determineModuleToDeploy(ProcessContext context) {
-        Module moduleToDeploy = context.getVariable(Variables.MODULE_TO_DEPLOY);
-        return moduleToDeploy != null ? moduleToDeploy : determineModule(context);
+    public Module determineModuleToDeploy() {
+        Module moduleToDeploy = getContext().getVariable(Variables.MODULE_TO_DEPLOY);
+        return moduleToDeploy != null ? moduleToDeploy : determineModule();
     }
 
-    private Module determineModule(ProcessContext context) {
-        DeploymentDescriptor deploymentDescriptor = context.getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
+    private Module determineModule() {
+        DeploymentDescriptor deploymentDescriptor = getContext().getVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR);
         if (deploymentDescriptor == null) {
             // This will be the case only when the process is undeploy.
             return null;
         }
-        return determineModuleFromDeploymentDescriptor(context.getVariable(Variables.APP_TO_PROCESS), deploymentDescriptor);
+        return determineModuleFromDeploymentDescriptor(getContext().getVariable(Variables.APP_TO_PROCESS), deploymentDescriptor);
     }
 
     private Module determineModuleFromDeploymentDescriptor(CloudApplicationExtended cloudApplication,
