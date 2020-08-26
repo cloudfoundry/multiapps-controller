@@ -32,7 +32,7 @@ class SyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<SyncFlowabl
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.DEPLOY);
         Module moduleToDeploy = createModule("test-module");
-        Mockito.when(moduleDeterminer.determineModuleToDeploy(context))
+        Mockito.when(moduleDeterminer.determineModuleToDeploy())
                .thenReturn(moduleToDeploy);
         List<Hook> hooksForExecution = Collections.singletonList(createHook("test-hook"));
         Mockito.when(hooksExecutor.executeBeforeStepHooks(StepPhase.EXECUTE))
@@ -43,7 +43,7 @@ class SyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<SyncFlowabl
     @Test
     void testExecuteStepPhaseWithHooksAfter() {
         Module moduleToDeploy = createModule("test-module");
-        Mockito.when(moduleDeterminer.determineModuleToDeploy(context))
+        Mockito.when(moduleDeterminer.determineModuleToDeploy())
                .thenReturn(moduleToDeploy);
         List<Hook> hooksForExecution = Collections.singletonList(createHook("test-hook"));
         Mockito.when(hooksExecutor.executeAfterStepHooks(context.getVariable(Variables.STEP_PHASE)))

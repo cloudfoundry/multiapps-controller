@@ -40,14 +40,14 @@ class ModuleDeterminerTest {
     void testDetermineModuleToDeployModuleIsSet() {
         ModuleDeterminer moduleDeterminer = createModuleDeterminer();
         context.setVariable(Variables.MODULE_TO_DEPLOY, createModule("test-module"));
-        Module module = moduleDeterminer.determineModuleToDeploy(context);
+        Module module = moduleDeterminer.determineModuleToDeploy();
         Assertions.assertEquals("test-module", module.getName());
     }
 
     @Test
     void testDetermineModuleIfModuleIsNotSetAnywhere() {
         ModuleDeterminer moduleDeterminer = createModuleDeterminer();
-        Assertions.assertNull(moduleDeterminer.determineModuleToDeploy(context));
+        Assertions.assertNull(moduleDeterminer.determineModuleToDeploy());
     }
 
     @Test
@@ -59,7 +59,7 @@ class ModuleDeterminerTest {
         context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, completeDeploymentDescriptor);
         context.setVariable(Variables.APP_TO_PROCESS, createApplication("app-to-process", "some-module-name", null));
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
-        Module module = moduleDeterminer.determineModuleToDeploy(context);
+        Module module = moduleDeterminer.determineModuleToDeploy();
         Assertions.assertEquals("some-module-name", module.getName());
     }
 
@@ -75,7 +75,7 @@ class ModuleDeterminerTest {
         Mockito.when(envMtaMetadataParser.parseDeployedMtaApplication(cloudApplicationExtended))
                .thenReturn(createDeployedMtaApplication("app-to-process", "some-module-name"));
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
-        Module module = moduleDeterminer.determineModuleToDeploy(context);
+        Module module = moduleDeterminer.determineModuleToDeploy();
         Assertions.assertEquals("some-module-name", module.getName());
     }
 
@@ -94,7 +94,7 @@ class ModuleDeterminerTest {
                .thenReturn(createDeployedMtaApplication("app-to-process", "some-module-name"));
         context.setVariable(Variables.APP_TO_PROCESS, cloudApplicationExtended);
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
-        Module module = moduleDeterminer.determineModuleToDeploy(context);
+        Module module = moduleDeterminer.determineModuleToDeploy();
         Assertions.assertEquals("some-module-name", module.getName());
     }
 

@@ -32,7 +32,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
     protected StepPhase executeStep(ProcessContext context) {
         ModuleDeterminer moduleDeterminer = getModuleDeterminer(context);
         StepPhase currentStepPhase = context.getVariable(Variables.STEP_PHASE);
-        Module moduleToDeploy = moduleDeterminer.determineModuleToDeploy(context);
+        Module moduleToDeploy = moduleDeterminer.determineModuleToDeploy();
         HooksCalculator hooksCalculator = getHooksCalculator(context);
         HooksExecutor hooksExecutor = getHooksExecutor(hooksCalculator, moduleToDeploy);
         List<Hook> executedHooks = hooksExecutor.executeBeforeStepHooks(currentStepPhase);

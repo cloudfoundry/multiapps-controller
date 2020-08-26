@@ -29,7 +29,7 @@ class TimeoutASyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<Tim
     @Test
     void testExecuteStepPhaseWithHooksBefore() {
         Module moduleToDeploy = createModule("test-module");
-        Mockito.when(moduleDeterminer.determineModuleToDeploy(context))
+        Mockito.when(moduleDeterminer.determineModuleToDeploy())
                .thenReturn(moduleToDeploy);
         List<Hook> hooksForExecution = Collections.singletonList(createHook("test-hook"));
         Mockito.when(hooksExecutor.executeBeforeStepHooks(context.getVariable(Variables.STEP_PHASE)))
