@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.core.persistence.dto;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -52,6 +53,7 @@ public class ProgressMessageDto implements DtoWithPrimaryKey<Long> {
     @Column(name = TableColumnNames.PROGRESS_MESSAGE_TYPE, nullable = false)
     protected String type;
 
+    @Convert(converter = TextAttributeConverter.class)
     @Column(name = TableColumnNames.PROGRESS_MESSAGE_TEXT, nullable = false)
     protected String text;
 
