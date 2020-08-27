@@ -3,8 +3,8 @@ package org.cloudfoundry.multiapps.controller.core.resolvers.v2;
 import java.util.Collections;
 import java.util.Map;
 
-import org.cloudfoundry.multiapps.common.util.Tester;
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.common.test.Tester;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.YamlParser;
 import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorParser;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;

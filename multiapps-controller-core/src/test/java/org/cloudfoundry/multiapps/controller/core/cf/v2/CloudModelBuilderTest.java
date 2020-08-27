@@ -13,10 +13,10 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.io.IOUtils;
+import org.cloudfoundry.multiapps.common.test.Tester;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
-import org.cloudfoundry.multiapps.common.util.Tester;
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.YamlParser;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;

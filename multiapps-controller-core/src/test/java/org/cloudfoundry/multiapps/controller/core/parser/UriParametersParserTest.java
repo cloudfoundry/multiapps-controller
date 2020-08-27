@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.cloudfoundry.multiapps.common.test.Tester;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
-import org.cloudfoundry.multiapps.common.util.Tester;
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

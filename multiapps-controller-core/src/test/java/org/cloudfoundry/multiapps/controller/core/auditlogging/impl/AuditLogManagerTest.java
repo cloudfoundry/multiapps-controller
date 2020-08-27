@@ -8,8 +8,8 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
-import org.cloudfoundry.multiapps.common.util.TestDataSourceProvider;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.UserInfoProvider;
+import org.cloudfoundry.multiapps.controller.persistence.test.TestDataSourceProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

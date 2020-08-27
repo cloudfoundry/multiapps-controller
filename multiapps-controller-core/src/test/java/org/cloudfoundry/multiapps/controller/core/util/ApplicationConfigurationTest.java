@@ -11,9 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
 import org.cloudfoundry.multiapps.controller.core.configuration.Environment;

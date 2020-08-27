@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

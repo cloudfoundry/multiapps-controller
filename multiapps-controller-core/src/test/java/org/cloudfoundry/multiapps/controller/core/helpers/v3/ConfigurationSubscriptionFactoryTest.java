@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.core.model.ResolvedConfigurationReference;
 import org.cloudfoundry.multiapps.mta.handlers.v3.DescriptorParser;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;

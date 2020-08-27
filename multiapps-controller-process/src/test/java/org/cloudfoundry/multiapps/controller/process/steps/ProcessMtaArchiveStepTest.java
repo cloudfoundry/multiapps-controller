@@ -13,8 +13,8 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.common.ParsingException;
+import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.cloudfoundry.multiapps.controller.core.helpers.DescriptorParserFacadeFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveHelper;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;

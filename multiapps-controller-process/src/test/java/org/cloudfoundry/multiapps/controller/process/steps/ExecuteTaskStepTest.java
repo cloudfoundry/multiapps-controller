@@ -10,7 +10,7 @@ import java.util.Collections;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
-import org.cloudfoundry.multiapps.common.util.GenericArgumentMatcher;
+import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;

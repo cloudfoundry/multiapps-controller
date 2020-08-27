@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.core.util;
 import static java.text.MessageFormat.format;
 import static org.junit.Assert.fail;
 
-import org.cloudfoundry.multiapps.common.util.TestUtil;
+import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.mta.handlers.ConfigurationParser;
 import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;

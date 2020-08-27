@@ -3,8 +3,8 @@ package org.cloudfoundry.multiapps.controller.web.util;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import org.cloudfoundry.multiapps.common.util.Tester;
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.common.test.Tester;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.web.util.bar.Bar;
 import org.cloudfoundry.multiapps.controller.web.util.foo.Foo;
 import org.junit.Test;

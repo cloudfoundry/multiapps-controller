@@ -7,8 +7,8 @@ import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.cloudfoundry.multiapps.controller.core.liquibase.AlterOperationTableTimestampStoringColumnsPostgresqlChange.OriginalOperation;
 import org.cloudfoundry.multiapps.controller.core.liquibase.AlterOperationTableTimestampStoringColumnsPostgresqlChange.TransformedOperation;
 import org.junit.Before;

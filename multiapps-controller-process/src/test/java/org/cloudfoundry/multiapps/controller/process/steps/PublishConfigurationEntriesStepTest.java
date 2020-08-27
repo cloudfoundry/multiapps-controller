@@ -11,8 +11,8 @@ import java.util.Objects;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
+import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.ConfigurationEntry;

@@ -10,9 +10,9 @@ import java.util.Map;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.multiapps.common.ParsingException;
+import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.junit.jupiter.api.Test;
 

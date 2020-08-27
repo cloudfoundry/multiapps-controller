@@ -13,8 +13,8 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceGetter;
 import org.cloudfoundry.multiapps.controller.core.model.ServiceOperation;

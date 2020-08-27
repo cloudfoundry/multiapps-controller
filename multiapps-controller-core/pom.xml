@@ -179,6 +179,11 @@
         </dependency>
         <dependency>
             <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-controller-persistence-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.cloudfoundry.multiapps</groupId>
             <artifactId>multiapps-controller-client</artifactId>
         </dependency>
         <dependency>

@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.helpers.v3;
 
 import java.util.stream.Stream;
 
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser;
 import org.cloudfoundry.multiapps.mta.handlers.v3.DescriptorParser;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;

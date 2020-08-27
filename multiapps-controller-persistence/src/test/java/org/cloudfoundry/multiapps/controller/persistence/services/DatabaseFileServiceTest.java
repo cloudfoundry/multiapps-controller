@@ -23,9 +23,9 @@ import java.util.List;
 import javax.xml.bind.DatatypeConverter;
 
 import org.cloudfoundry.multiapps.common.util.DigestHelper;
-import org.cloudfoundry.multiapps.common.util.TestDataSourceProvider;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
+import org.cloudfoundry.multiapps.controller.persistence.test.TestDataSourceProvider;
 import org.cloudfoundry.multiapps.controller.persistence.util.JdbcUtil;
 import org.junit.After;
 import org.junit.Before;
