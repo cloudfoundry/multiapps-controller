@@ -60,7 +60,7 @@
         <aliyun-sdk-oss.version>3.9.1</aliyun-sdk-oss.version>
         <auto-service.version>1.0-rc2</auto-service.version>
         <java-cfenv.version>2.1.2.RELEASE</java-cfenv.version>
-        <multiapps.version>2.1.2</multiapps.version>
+        <multiapps.version>2.2.0</multiapps.version>
         <javax.xml.bind.version>2.3.0</javax.xml.bind.version> <!-- TODO: Compilation with Java 11 won't work without this. Remove it once we fully migrate to Java 11. -->
         <javax.activation.version>1.2.0</javax.activation.version> <!-- TODO: Compilation with Java 11 won't work without this. Remove it once we fully migrate to Java 11. -->
     </properties>
@@ -71,6 +71,7 @@
         <module>multiapps-controller-web</module>
         <module>multiapps-controller-api</module>
         <module>multiapps-controller-persistence</module>
+        <module>multiapps-controller-persistence-test</module>
         <module>multiapps-controller-shutdown-client</module>
         <module>multiapps-controller-database-migration</module>
     </modules>
@@ -261,9 +262,8 @@
         </dependency>
         <dependency>
             <groupId>org.cloudfoundry.multiapps</groupId>
-            <artifactId>multiapps-common</artifactId>
+            <artifactId>multiapps-common-test</artifactId>
             <version>${multiapps.version}</version>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -729,6 +729,12 @@
                 <groupId>org.cloudfoundry.multiapps</groupId>
                 <artifactId>multiapps-controller-persistence</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-persistence-test</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.cloudfoundry.multiapps</groupId>

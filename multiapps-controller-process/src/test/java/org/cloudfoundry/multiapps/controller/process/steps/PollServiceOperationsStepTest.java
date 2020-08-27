@@ -14,8 +14,8 @@ import java.util.Map.Entry;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.multiapps.common.ParsingException;
+import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.model.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.process.Messages;

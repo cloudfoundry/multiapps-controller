@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription.ResourceDto;
 import org.cloudfoundry.multiapps.controller.core.persistence.query.ConfigurationSubscriptionQuery;

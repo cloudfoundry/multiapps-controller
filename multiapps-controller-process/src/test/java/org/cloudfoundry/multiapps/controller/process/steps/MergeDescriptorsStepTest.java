@@ -8,7 +8,7 @@ import java.util.Collections;
 
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaDescriptorMerger;
 import org.cloudfoundry.multiapps.controller.core.util.DescriptorTestUtil;

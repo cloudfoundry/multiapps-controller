@@ -3,10 +3,10 @@ package org.cloudfoundry.multiapps.controller.core.health.model;
 import java.util.Arrays;
 import java.util.List;
 
+import org.cloudfoundry.multiapps.common.test.TestUtil;
+import org.cloudfoundry.multiapps.common.test.Tester;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
-import org.cloudfoundry.multiapps.common.util.Tester;
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.junit.Before;
 import org.junit.Test;

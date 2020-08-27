@@ -12,7 +12,7 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableDockerCredentials;
 import org.cloudfoundry.client.lib.domain.ImmutableDockerInfo;
-import org.cloudfoundry.multiapps.common.util.GenericArgumentMatcher;
+import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.multiapps.common.util.Tester;
+import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;

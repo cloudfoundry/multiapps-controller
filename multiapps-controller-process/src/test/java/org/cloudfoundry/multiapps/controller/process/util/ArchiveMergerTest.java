@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;

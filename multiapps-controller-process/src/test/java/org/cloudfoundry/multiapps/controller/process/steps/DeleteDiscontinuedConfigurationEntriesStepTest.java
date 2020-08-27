@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.common.ParsingException;
+import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.cloudfoundry.multiapps.controller.core.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.core.persistence.query.ConfigurationEntryQuery;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationEntryService;

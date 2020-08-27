@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.common.util.GenericArgumentMatcher;
+import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;

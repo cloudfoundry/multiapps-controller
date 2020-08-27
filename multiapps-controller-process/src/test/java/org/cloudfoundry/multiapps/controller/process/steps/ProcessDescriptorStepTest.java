@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 
 import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaDescriptorPropertiesResolver;
 import org.cloudfoundry.multiapps.controller.core.util.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.process.Constants;

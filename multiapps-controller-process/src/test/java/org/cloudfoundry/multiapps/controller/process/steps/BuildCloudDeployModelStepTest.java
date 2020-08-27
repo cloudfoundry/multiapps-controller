@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.cloudfoundry.multiapps.common.test.TestUtil;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.util.ModulesCloudModelBuilderContentCalculator;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;

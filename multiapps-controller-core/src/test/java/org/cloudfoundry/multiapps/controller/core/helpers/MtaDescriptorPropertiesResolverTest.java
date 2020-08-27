@@ -6,8 +6,8 @@ import static org.mockito.Mockito.when;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.multiapps.common.util.Tester;
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.common.test.Tester;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableMtaDescriptorPropertiesResolverContext;

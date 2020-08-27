@@ -6,8 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceInstanceGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceUpdater;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;

@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.cf.v3;
 
 import java.util.Arrays;
 
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;

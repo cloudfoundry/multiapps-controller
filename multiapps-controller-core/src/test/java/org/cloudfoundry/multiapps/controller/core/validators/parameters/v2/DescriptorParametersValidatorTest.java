@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.multiapps.common.util.TestUtil;
-import org.cloudfoundry.multiapps.common.util.Tester;
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.common.test.TestUtil;
+import org.cloudfoundry.multiapps.common.test.Tester;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.YamlParser;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.DomainValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.HostValidator;

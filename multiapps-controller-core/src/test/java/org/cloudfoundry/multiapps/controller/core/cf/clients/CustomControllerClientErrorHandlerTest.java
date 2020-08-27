@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
+import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientCloudOperationExecutor;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

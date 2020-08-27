@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity;
+import org.cloudfoundry.multiapps.common.test.TestUtil;
+import org.cloudfoundry.multiapps.common.test.Tester;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.TestUtil;
-import org.cloudfoundry.multiapps.common.util.Tester;
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
@@ -54,7 +54,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         @Override
         protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(ProcessContext context) {
             return applicationCloudModelBuilder;
-        }
+        }   
     }
 
     @Parameters

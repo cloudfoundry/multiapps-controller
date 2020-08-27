@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.multiapps.common.util.TestUtil;
-import org.cloudfoundry.multiapps.common.util.Tester;
-import org.cloudfoundry.multiapps.common.util.Tester.Expectation;
+import org.cloudfoundry.multiapps.common.test.TestUtil;
+import org.cloudfoundry.multiapps.common.test.Tester;
+import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.YamlParser;
 import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.core.model.ConfigurationFilter;
