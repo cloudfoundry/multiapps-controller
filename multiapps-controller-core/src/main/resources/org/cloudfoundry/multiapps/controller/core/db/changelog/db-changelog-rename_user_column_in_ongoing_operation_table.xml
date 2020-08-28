@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<databaseChangeLog logicalFilePath="com/sap/cloud/lm/sl/xs2/core/db/changelog/db-changelog-add_ongoing_operation_table.xml"
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
-                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
-    <changeSet author="sap.com" id="rename_user_column_in_ongoing_operation_table">
-        <renameColumn tableName="ongoing_operation" oldColumnName="user" newColumnName="userx" />
-    </changeSet>
-</databaseChangeLog>

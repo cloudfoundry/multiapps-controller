@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="sap.com" id="create_table_lm_sl_persistence_file">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="lm_sl_persistence_file" />
+            </not>
+        </preConditions>
+        <createTable tableName="lm_sl_persistence_file">
+            <column name="file_id" type="CHAR(36)">
+                <constraints primaryKey="true" primaryKeyName="file_id_pk" nullable="false" />
+            </column>
+            <column name="content" type="${large-blob.type}" />
+            <column name="digest" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="digest_algorithm" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="modified" type="TIMESTAMP" />
+            <column name="file_name" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="file_size" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="namespace" type="VARCHAR(255)" />
+            <column name="space" type="VARCHAR(255)" />
+        </createTable>
+        <createIndex tableName="lm_sl_persistence_file" indexName="idx_lm_sl_persistence_space">
+            <column name="space" />
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="sap.com" id="create_table_process_log">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="process_log" />
+            </not>
+        </preConditions>
+        <createTable tableName="process_log">
+            <column name="file_id" type="CHAR(36)">
+                <constraints primaryKey="true" primaryKeyName="log_file_id_pk" nullable="false" />
+            </column>
+            <column name="content" type="${large-blob.type}" />
+            <column name="content_bytea" type="${small-blob.type}" />
+            <column name="digest" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="digest_algorithm" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="modified" type="TIMESTAMP" />
+            <column name="file_name" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="file_size" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="namespace" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="space" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="sap.com" id="create_unlink_file_content_triggers">
+        <preConditions onFail="MARK_RAN">
+            <dbms type="postgresql" />
+        </preConditions>
+        <sqlFile path="sql/delete_unlink_file_content_triggers.sql" relativeToChangelogFile="true" />
+        <sqlFile path="sql/create_unlink_file_content_function.sql" relativeToChangelogFile="true"
+            splitStatements="false" />
+        <sqlFile path="sql/create_unlink_file_content_triggers.sql" relativeToChangelogFile="true" />
+        <rollback>
+            <sqlFile path="sql/delete_unlink_file_content_triggers.sql" relativeToChangelogFile="true" />
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

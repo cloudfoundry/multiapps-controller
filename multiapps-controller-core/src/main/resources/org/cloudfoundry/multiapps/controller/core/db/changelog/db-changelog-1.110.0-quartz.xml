@@ -1,10 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<databaseChangeLog
-    logicalFilePath="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_quartz_tables.xml"
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-                http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
-    <changeSet author="sap.com" id="db-changelog-add_quartz_tables">
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+
+    <changeSet author="quartz.generated" id="create_quartz_tables">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="QRTZ_CALENDARS" />
+                <tableExists tableName="QRTZ_CRON_TRIGGERS" />
+                <tableExists tableName="QRTZ_FIRED_TRIGGERS" />
+                <tableExists tableName="QRTZ_PAUSED_TRIGGER_GRPS" />
+                <tableExists tableName="QRTZ_SCHEDULER_STATE" />
+                <tableExists tableName="QRTZ_LOCKS" />
+                <tableExists tableName="QRTZ_JOB_DETAILS" />
+                <tableExists tableName="QRTZ_SIMPLE_TRIGGERS" />
+                <tableExists tableName="QRTZ_SIMPROP_TRIGGERS" />
+                <tableExists tableName="QRTZ_BLOB_TRIGGERS" />
+                <tableExists tableName="QRTZ_TRIGGERS" />
+            </not>
+        </preConditions>
+
         <createTable tableName="QRTZ_CALENDARS">
             <column name="SCHED_NAME" type="NVARCHAR(100)">
                 <constraints nullable="false" primaryKey="true" />
@@ -12,7 +30,7 @@
             <column name="CALENDAR_NAME" type="NVARCHAR(200)">
                 <constraints nullable="false" primaryKey="true" />
             </column>
-            <column name="CALENDAR" type="BLOB">
+            <column name="CALENDAR" type="${small-blob.type}">
                 <constraints nullable="false" />
             </column>
         </createTable>
@@ -76,7 +94,6 @@
             </column>
         </createTable>
 
-
         <createTable tableName="QRTZ_SCHEDULER_STATE">
             <column name="SCHED_NAME" type="NVARCHAR(100)">
                 <constraints nullable="false" primaryKey="true" />
@@ -100,7 +117,6 @@
                 <constraints nullable="false" primaryKey="true" />
             </column>
         </createTable>
-
 
         <createTable tableName="QRTZ_JOB_DETAILS">
             <column name="SCHED_NAME" type="NVARCHAR(100)">
@@ -128,9 +144,8 @@
             <column name="REQUESTS_RECOVERY" type="BOOLEAN">
                 <constraints nullable="false" />
             </column>
-            <column name="JOB_DATA" type="BLOB" />
+            <column name="JOB_DATA" type="${small-blob.type}" />
         </createTable>
-
 
         <createTable tableName="QRTZ_SIMPLE_TRIGGERS">
             <column name="SCHED_NAME" type="NVARCHAR(100)">
@@ -186,7 +201,7 @@
             <column name="TRIGGER_GROUP" type="NVARCHAR(150)">
                 <constraints nullable="false" primaryKey="true" />
             </column>
-            <column name="JOB_DATA" type="BLOB" />
+            <column name="JOB_DATA" type="${small-blob.type}" />
         </createTable>
 
         <createTable tableName="QRTZ_TRIGGERS">
@@ -221,12 +236,25 @@
             <column name="END_TIME" type="BIGINT" />
             <column name="CALENDAR_NAME" type="NVARCHAR(200)" />
             <column name="MISFIRE_INSTR" type="SMALLINT" />
-            <column name="JOB_DATA" type="BLOB" />
+            <column name="JOB_DATA" type="${small-blob.type}" />
         </createTable>
 
     </changeSet>
 
-    <changeSet author="quartz.generated" id="2">
+    <changeSet author="quartz.generated" id="create_quartz_foreign_keys">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists
+                    foreignKeyName="FK_QRTZ_CRON_TRIGGERS_QRTZ_TRIGGERS" />
+                <foreignKeyConstraintExists
+                    foreignKeyName="FK_QRTZ_SIMPLE_TRIGGERS_QRTZ_TRIGGERS" />
+                <foreignKeyConstraintExists
+                    foreignKeyName="FK_QRTZ_SIMPROP_TRIGGERS_QRTZ_TRIGGERS" />
+                <foreignKeyConstraintExists
+                    foreignKeyName="FK_QRTZ_TRIGGERS_QRTZ_JOB_DETAILS" />
+            </not>
+        </preConditions>
 
         <addForeignKeyConstraint baseColumnNames="SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP"
             baseTableName="QRTZ_CRON_TRIGGERS" constraintName="FK_QRTZ_CRON_TRIGGERS_QRTZ_TRIGGERS" deferrable="false"
@@ -252,7 +280,30 @@
 
     </changeSet>
 
-    <changeSet author="quartz.generated" id="3">
+    <changeSet author="quartz.generated" id="create_quartz_indexes">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists indexName="IDX_QRTZ_T_J" tableName="QRTZ_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_T_JG" tableName="QRTZ_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_T_C" tableName="QRTZ_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_T_G" tableName="QRTZ_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_T_STATE" tableName="QRTZ_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_T_N_STATE" tableName="QRTZ_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_T_N_G_STATE" tableName="QRTZ_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_T_NEXT_FIRE_TIME" tableName="QRTZ_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_T_NFT_ST" tableName="QRTZ_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_T_NFT_MISFIRE" tableName="QRTZ_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_T_NFT_ST_MISFIRE" tableName="QRTZ_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_T_NFT_ST_MISFIRE_GRP" tableName="QRTZ_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_FT_TRIG_INST_NAME" tableName="QRTZ_FIRED_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_FT_INST_JOB_REQ_RCVRY" tableName="QRTZ_FIRED_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_FT_J_G" tableName="QRTZ_FIRED_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_FT_JG" tableName="QRTZ_FIRED_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_FT_T_G" tableName="QRTZ_FIRED_TRIGGERS" />
+                <indexExists indexName="IDX_QRTZ_FT_TG" tableName="QRTZ_FIRED_TRIGGERS" />
+            </not>
+        </preConditions>
 
         <createIndex indexName="IDX_QRTZ_T_J" tableName="QRTZ_TRIGGERS">
             <column name="SCHED_NAME" />
@@ -358,4 +409,5 @@
             <column name="TRIGGER_GROUP" />
         </createIndex>
     </changeSet>
+
 </databaseChangeLog>
