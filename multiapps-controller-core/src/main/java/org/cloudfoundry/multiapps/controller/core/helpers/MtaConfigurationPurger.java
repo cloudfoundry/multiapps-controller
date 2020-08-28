@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import static org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil.hasEnvMtaMetadata;
 import static org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil.hasMtaMetadata;
 
 import java.text.MessageFormat;
@@ -16,7 +15,6 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadata;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.EnvMtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.core.model.ConfigurationEntry;
@@ -36,16 +34,13 @@ public class MtaConfigurationPurger {
     private final ConfigurationEntryService configurationEntryService;
     private final ConfigurationSubscriptionService configurationSubscriptionService;
     private MtaMetadataParser mtaMetadataParser;
-    private EnvMtaMetadataParser envMtaMetadataParser;
 
     public MtaConfigurationPurger(CloudControllerClient client, ConfigurationEntryService configurationEntryService,
-                                  ConfigurationSubscriptionService configurationSubscriptionService, MtaMetadataParser mtaMetadataParser,
-                                  EnvMtaMetadataParser envMtaMetadataParser) {
+                                  ConfigurationSubscriptionService configurationSubscriptionService, MtaMetadataParser mtaMetadataParser) {
         this.client = client;
         this.configurationEntryService = configurationEntryService;
         this.configurationSubscriptionService = configurationSubscriptionService;
         this.mtaMetadataParser = mtaMetadataParser;
-        this.envMtaMetadataParser = envMtaMetadataParser;
     }
 
     public void purge(String org, String space) {
@@ -126,17 +121,12 @@ public class MtaConfigurationPurger {
     private MtaMetadata getMtaMetadata(CloudApplication app) {
         if (hasMtaMetadata(app)) {
             return mtaMetadataParser.parseMtaMetadata(app);
-        } else if (hasEnvMtaMetadata(app)) {
-            return envMtaMetadataParser.parseMtaMetadata(app);
         }
         return null;
     }
 
     private DeployedMtaApplication getDeployedMtaApplication(CloudApplication app) {
-        if (hasMtaMetadata(app)) {
-            return mtaMetadataParser.parseDeployedMtaApplication(app);
-        }
-        return envMtaMetadataParser.parseDeployedMtaApplication(app);
+        return mtaMetadataParser.parseDeployedMtaApplication(app);
     }
 
     private ConfigurationEntry toConfigurationEntry(MtaMetadata metadata, String providedDependencyName) {

@@ -8,7 +8,6 @@ import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.EnvMtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.ImmutableDeployedMtaApplication;
@@ -29,11 +28,10 @@ class ModuleDeterminerTest {
     private final ProcessContext context = createContext();
     @Mock
     private MtaMetadataParser mtaMetadataParser;
-    @Mock
-    private EnvMtaMetadataParser envMtaMetadataParser;
 
-    public ModuleDeterminerTest() {
-        MockitoAnnotations.initMocks(this);
+    public ModuleDeterminerTest() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @Test
@@ -63,23 +61,6 @@ class ModuleDeterminerTest {
         Assertions.assertEquals("some-module-name", module.getName());
     }
 
-    @Test
-    void testDetermineModuleIfModuleIsNotInDeploymentCompleteDeploymentDescriptorEnvOnly() {
-        ModuleDeterminer moduleDeterminer = createModuleDeterminer();
-        DeploymentDescriptor completeDeploymentDescriptor = createDeploymentDescriptor();
-        Module moduleToDeploy = createModule("some-module-name");
-        completeDeploymentDescriptor.setModules(Collections.singletonList(moduleToDeploy));
-        context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, completeDeploymentDescriptor);
-        CloudApplicationExtended cloudApplicationExtended = createApplication("app-to-process", null, null);
-        context.setVariable(Variables.APP_TO_PROCESS, cloudApplicationExtended);
-        Mockito.when(envMtaMetadataParser.parseDeployedMtaApplication(cloudApplicationExtended))
-               .thenReturn(createDeployedMtaApplication("app-to-process", "some-module-name"));
-        context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
-        Module module = moduleDeterminer.determineModuleToDeploy();
-        Assertions.assertEquals("some-module-name", module.getName());
-    }
-
-    @Test
     void testDetermineModuleIfModuleIsNotInDeploymentCompleteDeploymentDescriptorMetadataOnly() {
         ModuleDeterminer moduleDeterminer = createModuleDeterminer();
         DeploymentDescriptor completeDeploymentDescriptor = createDeploymentDescriptor();
@@ -90,7 +71,7 @@ class ModuleDeterminerTest {
         Map<String, String> annotations = MapUtil.asMap("mta_id", "mta-id");
         CloudApplicationExtended cloudApplicationExtended = createApplication("app-to-process", null,
                                                                               createV3Metadata(labels, annotations));
-        Mockito.when(envMtaMetadataParser.parseDeployedMtaApplication(cloudApplicationExtended))
+        Mockito.when(mtaMetadataParser.parseDeployedMtaApplication(cloudApplicationExtended))
                .thenReturn(createDeployedMtaApplication("app-to-process", "some-module-name"));
         context.setVariable(Variables.APP_TO_PROCESS, cloudApplicationExtended);
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
@@ -102,7 +83,6 @@ class ModuleDeterminerTest {
         return ImmutableModuleDeterminer.builder()
                                         .context(context)
                                         .mtaMetadataParser(mtaMetadataParser)
-                                        .envMtaMetadataParser(envMtaMetadataParser)
                                         .build();
     }
 

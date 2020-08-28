@@ -11,7 +11,6 @@ import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.EnvMtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.util.HooksExecutor;
@@ -28,8 +27,6 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
     private static final String APP_NAME = "foo";
     @Mock
     private MtaMetadataParser mtaMetadataParser;
-    @Mock
-    private EnvMtaMetadataParser envMtaMetadataParser;
     @Mock
     private HooksExecutor hooksExecutor;
     @Mock

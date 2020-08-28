@@ -27,11 +27,6 @@
     ],
     "services": [],
     "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.xs2.test\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[]",
-      "MTA_SERVICES": "[]",
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "foo",

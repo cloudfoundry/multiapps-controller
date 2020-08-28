@@ -19,6 +19,18 @@ import org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUt
 @Named
 public class MtaMetadataValidator {
 
+    public void validate(CloudApplication application) {
+        validateHasCommonMetadata(application);
+        validateAnnotationsArePresent(application, MtaMetadataUtil.MTA_METADATA_APPLICATION_ANNOTATIONS);
+        validateAttributeContainsName(application, MtaMetadataAnnotations.MTA_MODULE);
+    }
+
+    public void validate(CloudServiceInstance serviceInstance) {
+        validateHasCommonMetadata(serviceInstance);
+        validateAnnotationsArePresent(serviceInstance, MtaMetadataUtil.MTA_METADATA_SERVICE_ANNOTATIONS);
+        validateAttributeContainsName(serviceInstance, MtaMetadataAnnotations.MTA_RESOURCE);
+    }
+
     public void validateHasCommonMetadata(CloudEntity entity) {
         validateLabelsArePresent(entity);
         validateAnnotationsArePresent(entity, MtaMetadataUtil.MTA_METADATA_MANDATORY_ANNOTATIONS);
@@ -42,12 +54,6 @@ public class MtaMetadataValidator {
         }
     }
 
-    public void validate(CloudApplication application) {
-        validateHasCommonMetadata(application);
-        validateAnnotationsArePresent(application, MtaMetadataUtil.MTA_METADATA_APPLICATION_ANNOTATIONS);
-        validateAttributeContainsName(application, MtaMetadataAnnotations.MTA_MODULE);
-    }
-
     private void validateAttributeContainsName(CloudEntity entity, String attributeKey) {
         String mtaModule = entity.getV3Metadata()
                                  .getAnnotations()
@@ -55,14 +61,8 @@ public class MtaMetadataValidator {
         Map<String, Object> mtaModuleMap = JsonUtil.convertJsonToMap(mtaModule);
         if (!mtaModuleMap.containsKey(Constants.ATTR_NAME)) {
             throw new ContentException(MessageFormat.format(Messages.METADATA_OF_0_CONTAINS_INVALID_VALUE_FOR_1, entity.getName(),
-                                                            Constants.ENV_MTA_MODULE_METADATA));
+                                                            Constants.ATTR_NAME));
         }
-    }
-
-    public void validate(CloudServiceInstance serviceInstance) {
-        validateHasCommonMetadata(serviceInstance);
-        validateAnnotationsArePresent(serviceInstance, MtaMetadataUtil.MTA_METADATA_SERVICE_ANNOTATIONS);
-        validateAttributeContainsName(serviceInstance, MtaMetadataAnnotations.MTA_RESOURCE);
     }
 
 }

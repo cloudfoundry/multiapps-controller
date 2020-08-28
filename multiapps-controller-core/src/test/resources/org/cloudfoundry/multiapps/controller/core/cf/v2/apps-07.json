@@ -25,11 +25,6 @@
     ],
     "services": [],
     "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"framework\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"framework\"]",
-      "MTA_SERVICES": "[]",
       "plugins": "[{\"name\":\"plugins.0\",\"plugin_name\":\"plugin-0\",\"url\":\"https://localhost:52001\"},{\"name\":\"plugins.1\",\"plugin_name\":\"plugin-1\"}]"
     },
     "moduleName": "framework",

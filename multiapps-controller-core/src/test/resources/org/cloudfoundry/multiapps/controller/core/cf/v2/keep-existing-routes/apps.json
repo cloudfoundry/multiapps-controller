@@ -24,13 +24,7 @@
       "foo.sofd60245639a"
     ],
     "services": [],
-    "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"foo.mtar\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
-      "MTA_SERVICES": "[]"
-    },
+    "env": { },
     "moduleName": "foo",
     "idleUris": [],
     "bindingParameters": {},

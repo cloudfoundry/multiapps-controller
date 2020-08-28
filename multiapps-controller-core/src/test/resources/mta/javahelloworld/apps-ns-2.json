@@ -27,11 +27,6 @@
     ],
     "services" : [ "namespace2-but-it-is-really-really-long-uaa" ],
     "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.xs2.samples.javahelloworld\",\"namespace\":\"namespace2-but-it-is-really-really-long\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"java-hello-world\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"java-hello-world\"]",
-      "MTA_SERVICES": "[\"namespace2-but-it-is-really-really-long-uaa\"]",
       "destinations": "[{\"name\":\"java\",\"url\":\"http://i027947-java-hello-world-backend.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     },
     "moduleName": "java-hello-world",
@@ -84,11 +79,6 @@
     ],
     "services": [ "namespace2-but-it-is-really-really-long-uaa", "namespace2-but-it-is-really-really-long-ja4fcad984" ],
     "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.xs2.samples.javahelloworld\",\"namespace\":\"namespace2-but-it-is-really-really-long\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"java-hello-world-backend\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"java\",\"java-hello-world-backend\"]",
-      "MTA_SERVICES": "[\"namespace2-but-it-is-really-really-long-uaa\",\"namespace2-but-it-is-really-really-long-ja4fcad984\"]",
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "java-hello-world-backend",
@@ -139,12 +129,7 @@
     "uris": [],
     "services": [ "namespace2-but-it-is-really-really-long-ja4fcad984" ],
     "env": {
-      "DEPLOY_ATTRIBUTES": "{\"check-deploy-id\":true,\"dependency-type\":\"soft\",\"execute-app\":true,\"failure-marker\":\"STDERR:Deployment failed\",\"stop-app\":true,\"success-marker\":\"STDOUT:Deployment done\"}",
-      "DEPLOY_ID": "123",
-      "MTA_METADATA": "{\"id\":\"com.sap.xs2.samples.javahelloworld\",\"namespace\":\"namespace2-but-it-is-really-really-long\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"java-hello-world-db\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"java-hello-world-db\"]",
-      "MTA_SERVICES": "[\"namespace2-but-it-is-really-really-long-ja4fcad984\"]"
+      "DEPLOY_ID": "123"
     },
     "moduleName": "java-hello-world-db",
     "idleUris": [],

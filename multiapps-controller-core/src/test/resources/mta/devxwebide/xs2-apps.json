@@ -27,11 +27,6 @@
       "uaa"
     ],
     "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.devx.webide\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"webide\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"webide\"]",
-      "MTA_SERVICES": "[]",
       "destinations": "[{\"name\":\"sapui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"},{\"name\":\"che\",\"url\":\"http://che.sofd60245639a\"}]"
     },
     "moduleName": "webide",

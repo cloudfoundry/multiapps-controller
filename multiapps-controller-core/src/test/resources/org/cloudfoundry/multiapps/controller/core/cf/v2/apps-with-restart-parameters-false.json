@@ -24,13 +24,7 @@
       "module-1.sofd60245639a"
     ],
     "services": [],
-    "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"module-1\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-1\"]",
-      "MTA_SERVICES": "[]"
-    },
+    "env": { },
     "moduleName": "module-1",
     "idleUris": [],
     "bindingParameters": {},
@@ -76,13 +70,7 @@
       "module-2.sofd60245639a"
     ],
     "services": [],
-    "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"module-2\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-2\"]",
-      "MTA_SERVICES": "[]"
-    },
+    "env": { },
     "moduleName": "module-2",
     "idleUris": [],
     "bindingParameters": {},
@@ -128,13 +116,7 @@
       "module-3.sofd60245639a"
     ],
     "services": [],
-    "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"module-3\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-3\"]",
-      "MTA_SERVICES": "[]"
-    },
+    "env": { },
     "moduleName": "module-3",
     "idleUris": [],
     "bindingParameters": {},

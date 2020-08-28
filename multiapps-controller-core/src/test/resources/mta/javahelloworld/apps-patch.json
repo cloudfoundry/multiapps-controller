@@ -27,11 +27,6 @@
       "uaa"
     ],
     "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.xs2.samples.javahelloworld\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"java-hello-world\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"java-hello-world\"]",
-      "MTA_SERVICES": "[\"uaa\"]",
       "destinations": "[{\"name\":\"java\",\"url\":\"http://i027947-java-hello-world-backend.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     },
     "moduleName": "java-hello-world",

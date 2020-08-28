@@ -16,8 +16,6 @@ import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.EnvMtaMetadataParser;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.EnvMtaMetadataValidator;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataValidator;
 import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
@@ -76,8 +74,9 @@ class MtaConfigurationPurgerTest {
     private final List<Query<?, ?>> queriesToVerifyNoDeleteCallOn = new ArrayList<>();
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         AuditLoggingProvider.setFacade(auditLoggingFacade);
         initApplicationsMock();
         initConfigurationEntriesMock();
@@ -89,8 +88,7 @@ class MtaConfigurationPurgerTest {
         MtaConfigurationPurger purger = new MtaConfigurationPurger(client,
                                                                    configurationEntryService,
                                                                    configurationSubscriptionService,
-                                                                   new MtaMetadataParser(new MtaMetadataValidator()),
-                                                                   new EnvMtaMetadataParser(new EnvMtaMetadataValidator()));
+                                                                   new MtaMetadataParser(new MtaMetadataValidator()));
         purger.purge("org", "space");
         verifyConfigurationEntriesDeleted();
         verifyConfigurationEntriesNotDeleted();
