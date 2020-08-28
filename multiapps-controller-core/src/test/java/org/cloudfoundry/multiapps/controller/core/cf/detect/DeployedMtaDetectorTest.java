@@ -31,8 +31,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -59,9 +59,6 @@ class DeployedMtaDetectorTest {
     @Spy
     private MtaMetadataEntityAggregator mtaMetadataEntityAggregator = new MtaMetadataEntityAggregator(mtaMetadataParser);
 
-    @Mock
-    private DeployedMtaEnvDetector mtaMetadataEnvDetector;
-
     @InjectMocks
     @Spy
     private DeployedMtaDetector deployedMtaDetector;
@@ -70,8 +67,9 @@ class DeployedMtaDetectorTest {
     private CloudControllerClient client;
 
     @BeforeEach
-    void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    void initMocks() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         collectors.clear();
         collectors.add(appCollector);
         collectors.add(serviceCollector);
@@ -259,10 +257,10 @@ class DeployedMtaDetectorTest {
     private void mockClientResults(List<CloudApplication> apps, List<CloudServiceInstance> services) {
         Mockito.doReturn(apps)
                .when(client)
-               .getApplicationsByMetadataLabelSelector(Matchers.anyString());
+               .getApplicationsByMetadataLabelSelector(ArgumentMatchers.anyString());
         Mockito.doReturn(services)
                .when(client)
-               .getServiceInstancesByMetadataLabelSelector(Matchers.anyString());
+               .getServiceInstancesByMetadataLabelSelector(ArgumentMatchers.anyString());
     }
 
     private static class TestCloudApplication {

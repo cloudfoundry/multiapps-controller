@@ -27,11 +27,6 @@
     ],
     "services": [ "uaa" ],
     "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.xs2.samples.javahelloworld\",\"namespace\":\"namespace3\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"java-hello-world\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"java-hello-world\"]",
-      "MTA_SERVICES": "[\"uaa\"]",
       "destinations": "[{\"name\":\"java\",\"url\":\"http://i027947-java-hello-world-backend.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     },
     "moduleName": "java-hello-world",
@@ -84,11 +79,6 @@
     ],
     "services": [ "uaa", "java-hdi-container" ],
     "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.xs2.samples.javahelloworld\",\"namespace\":\"namespace3\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"java-hello-world-backend\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"java\",\"java-hello-world-backend\"]",
-      "MTA_SERVICES": "[\"uaa\",\"java-hdi-container\"]",
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "java-hello-world-backend",
@@ -141,12 +131,7 @@
       "java-hdi-container"
     ],
     "env": {
-      "DEPLOY_ATTRIBUTES": "{\"check-deploy-id\":true,\"dependency-type\":\"soft\",\"execute-app\":true,\"failure-marker\":\"STDERR:Deployment failed\",\"stop-app\":true,\"success-marker\":\"STDOUT:Deployment done\"}",
-      "DEPLOY_ID": "123",
-      "MTA_METADATA": "{\"id\":\"com.sap.xs2.samples.javahelloworld\",\"namespace\":\"namespace3\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"java-hello-world-db\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"java-hello-world-db\"]",
-      "MTA_SERVICES": "[\"java-hdi-container\"]"
+      "DEPLOY_ID": "123"
     },
     "moduleName": "java-hello-world-db",
     "idleUris": [],

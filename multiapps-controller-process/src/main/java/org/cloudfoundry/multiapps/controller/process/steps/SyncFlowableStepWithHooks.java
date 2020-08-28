@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.EnvMtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.process.util.HooksCalculator;
 import org.cloudfoundry.multiapps.controller.process.util.HooksExecutor;
@@ -21,8 +20,6 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
     @Inject
     private MtaMetadataParser mtaMetadataParser;
-    @Inject
-    private EnvMtaMetadataParser envMtaMetadataParser;
     @Inject
     private HooksPhaseGetter hooksPhaseGetter;
     @Inject
@@ -48,7 +45,6 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         return ImmutableModuleDeterminer.builder()
                                         .context(context)
                                         .mtaMetadataParser(mtaMetadataParser)
-                                        .envMtaMetadataParser(envMtaMetadataParser)
                                         .build();
     }
 

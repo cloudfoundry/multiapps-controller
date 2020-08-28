@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.EnvMtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseBuilder;
@@ -20,8 +19,6 @@ class StopApplicationUndeploymentStepTest extends UndeployAppStepTest {
 
     @Mock
     private MtaMetadataParser mtaMetadataParser;
-    @Mock
-    private EnvMtaMetadataParser envMtaMetadataParser;
     @Mock
     private HooksPhaseGetter hooksPhaseGetter;
     @Mock

@@ -4,17 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.common.util.ListUtil;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.MapToEnvironmentConverter;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
-import org.cloudfoundry.multiapps.mta.model.ProvidedDependency;
 import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
 
 public class ApplicationEnvironmentCloudModelBuilder {
@@ -38,55 +35,16 @@ public class ApplicationEnvironmentCloudModelBuilder {
         Map<String, Object> properties = module.getProperties();
         Map<String, Object> parameters = module.getParameters();
         Map<String, Object> env = new TreeMap<>();
-        addMetadata(env, module);
-        addServices(env, services);
         addAttributes(env, parameters);
         addProperties(env, properties);
         addDependencies(env, module);
         return new MapToEnvironmentConverter(prettyPrinting).asEnv(env);
     }
 
-    protected void addMetadata(Map<String, Object> env, Module module) {
-        addMtaMetadata(env);
-        addMtaModuleMetadata(env, module);
-        addProvidedDependenciesMetadata(env, module);
-    }
-
-    protected void addMtaMetadata(Map<String, Object> env) {
-        Map<String, Object> mtaMetadata = new TreeMap<>();
-        MapUtil.addNonNull(mtaMetadata, Constants.ATTR_ID, deploymentDescriptor.getId());
-        MapUtil.addNonNull(mtaMetadata, Constants.ATTR_VERSION, deploymentDescriptor.getVersion());
-        MapUtil.addNonNull(mtaMetadata, Constants.ATTR_NAMESPACE, namespace);
-        env.put(Constants.ENV_MTA_METADATA, mtaMetadata);
-    }
-
-    protected void addMtaModuleMetadata(Map<String, Object> env, Module module) {
-        Map<String, Object> mtaModuleMetadata = new TreeMap<>();
-        MapUtil.addNonNull(mtaModuleMetadata, Constants.ATTR_NAME, module.getName());
-        MapUtil.addNonNull(mtaModuleMetadata, Constants.ATTR_DESCRIPTION, module.getDescription());
-        env.put(Constants.ENV_MTA_MODULE_METADATA, mtaModuleMetadata);
-    }
-
-    protected void addProvidedDependenciesMetadata(Map<String, Object> env, Module module) {
-        List<String> mtaModuleProvidedDependencies = module.getProvidedDependencies()
-                                                           .stream()
-                                                           .filter(ProvidedDependency::isPublic)
-                                                           .map(ProvidedDependency::getName)
-                                                           .collect(Collectors.toList());
-        env.put(Constants.ENV_MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES, mtaModuleProvidedDependencies);
-    }
-
-    protected void addServices(Map<String, Object> env, List<String> services) {
-        env.put(Constants.ENV_MTA_SERVICES, services);
-    }
-
     protected void addAttributes(Map<String, Object> env, Map<String, Object> properties) {
         Map<String, Object> attributes = new TreeMap<>(properties);
         attributes.keySet()
                   .retainAll(SupportedParameters.APP_ATTRIBUTES);
-        if (!attributes.isEmpty()) {
-            env.put(Constants.ENV_DEPLOY_ATTRIBUTES, attributes);
-        }
         Boolean checkDeployId = (Boolean) attributes.get(SupportedParameters.CHECK_DEPLOY_ID);
         if (checkDeployId != null && checkDeployId) {
             env.put(Constants.ENV_DEPLOY_ID, deployId);

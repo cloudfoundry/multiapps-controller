@@ -2,9 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.EnvMtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.util.MtaMetadataUtil;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
@@ -53,9 +51,6 @@ public abstract class ModuleDeterminer {
     }
 
     private DeployedMtaApplication getDeployedMtaApplication(CloudApplication app) {
-        if (!MtaMetadataUtil.hasMtaMetadata(app)) {
-            return getEnvMtaMetadataParser().parseDeployedMtaApplication(app);
-        }
         return getMtaMetadataParser().parseDeployedMtaApplication(app);
     }
 
@@ -66,8 +61,6 @@ public abstract class ModuleDeterminer {
     }
 
     public abstract MtaMetadataParser getMtaMetadataParser();
-
-    public abstract EnvMtaMetadataParser getEnvMtaMetadataParser();
 
     public abstract ProcessContext getContext();
 

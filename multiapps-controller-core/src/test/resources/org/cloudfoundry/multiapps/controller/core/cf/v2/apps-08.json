@@ -35,11 +35,6 @@
       "existing-resource-named-service"
     ],
     "env": {
-      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
-      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA": "{\"name\":\"module-1\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-1\"]",
-      "MTA_SERVICES": "[\"user-provided-renamed\",\"user-provided-service\",\"user-provider-resource-named-service\",\"random-service-renamed\",\"random-service\",\"random-resource-named-service\"]",
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "module-1",

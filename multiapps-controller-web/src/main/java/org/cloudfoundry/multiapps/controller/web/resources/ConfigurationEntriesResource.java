@@ -4,7 +4,6 @@ import javax.inject.Inject;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
-import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.EnvMtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaConfigurationPurger;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationEntryService;
@@ -33,8 +32,6 @@ public class ConfigurationEntriesResource {
     private CloudControllerClientProvider clientProvider;
     @Inject
     private MtaMetadataParser mtaMetadataParser;
-    @Inject
-    private EnvMtaMetadataParser envMtaMetadataParser;
 
     @PostMapping("/purge")
     public ResponseEntity<Void> purgeConfigurationRegistry(@RequestParam(REQUEST_PARAM_ORGANIZATION) String organization,
@@ -43,8 +40,7 @@ public class ConfigurationEntriesResource {
         MtaConfigurationPurger configurationPurger = new MtaConfigurationPurger(client,
                                                                                 configurationEntryService,
                                                                                 configurationSubscriptionService,
-                                                                                mtaMetadataParser,
-                                                                                envMtaMetadataParser);
+                                                                                mtaMetadataParser);
         configurationPurger.purge(organization, space);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                              .build();
