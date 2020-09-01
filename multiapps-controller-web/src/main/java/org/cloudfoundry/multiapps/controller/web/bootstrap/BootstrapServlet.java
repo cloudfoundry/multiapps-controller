@@ -2,9 +2,7 @@ package org.cloudfoundry.multiapps.controller.web.bootstrap;
 
 import static java.text.MessageFormat.format;
 
-import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -18,7 +16,6 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvi
 import org.cloudfoundry.multiapps.controller.core.auditlogging.UserInfoProvider;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.persistence.changes.AsyncChange;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.web.Messages;
@@ -26,7 +23,6 @@ import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.flowable.engine.ProcessEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
@@ -50,9 +46,6 @@ public class BootstrapServlet extends HttpServlet {
     @Named("fileService")
     protected FileService fileService;
 
-    @Autowired(required = false)
-    private List<AsyncChange> asyncChanges;
-
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -62,7 +55,6 @@ public class BootstrapServlet extends HttpServlet {
             initializeProviders();
             initializeFileService();
             initExtras();
-            executeAsyncDatabaseChanges();
             processEngine.getProcessEngineConfiguration()
                          .getAsyncExecutor()
                          .start();
@@ -108,33 +100,6 @@ public class BootstrapServlet extends HttpServlet {
     private void initializeProviders() {
         // Initialize audit logging provider
         AuditLoggingProvider.setFacade(new AuditLoggingFacadeSLImpl(dataSource, getUserInfoProvider()));
-    }
-
-    private void executeAsyncDatabaseChanges() {
-        if (asyncChanges == null || asyncChanges.isEmpty()) {
-            return;
-        }
-        Integer appInstanceIndex = configuration.getApplicationInstanceIndex();
-        // Problems may arise if the changes are executed in parallel on multiple instances. Since there will always be *at least* one
-        // instance, we always execute the changes on the first.
-        if (appInstanceIndex == null || appInstanceIndex != 0) {
-            LOGGER.info(MessageFormat.format(Messages.ASYNC_DATABASE_CHANGES_WILL_NOT_BE_EXECUTED_ON_THIS_INSTANCE, appInstanceIndex));
-            return;
-        }
-        for (AsyncChange asyncChange : asyncChanges) {
-            new Thread(toRunnable(asyncChange)).start();
-        }
-    }
-
-    private Runnable toRunnable(AsyncChange asyncChange) {
-        return () -> {
-            try {
-                asyncChange.execute(dataSource);
-            } catch (SQLException e) {
-                LOGGER.error(e.getMessage(), e);
-                throw new RuntimeException(e.getMessage(), e);
-            }
-        };
     }
 
 }

@@ -3,12 +3,8 @@ package org.cloudfoundry.multiapps.controller.web.configuration;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
-import org.cloudfoundry.multiapps.controller.core.changes.IndexProcessIdsOfHistoricOperationEventChange;
-import org.cloudfoundry.multiapps.controller.core.changes.IndexSpaceIdOfOperationChange;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
-import org.cloudfoundry.multiapps.controller.persistence.changes.IndexProcessIdsOfProgressMessagesChange;
-import org.cloudfoundry.multiapps.controller.persistence.changes.IndexSpaceOfLmSlPersistenceFileChange;
 import org.cloudfoundry.multiapps.controller.persistence.dialects.DataSourceDialect;
 import org.cloudfoundry.multiapps.controller.persistence.dialects.DefaultDataSourceDialect;
 import org.cloudfoundry.multiapps.controller.web.configuration.bean.factory.CloudDataSourceFactoryBean;
@@ -105,26 +101,6 @@ public class DatabaseConfiguration {
     @DependsOn("persistenceChangelog")
     public SpringLiquibase coreChangelog(DataSource dataSource) {
         return getLiquibaseTemplate(dataSource, CORE_CHANGE_LOG);
-    }
-
-    @Bean
-    public IndexProcessIdsOfProgressMessagesChange indexProcessIdsOfProgressMessagesChange() {
-        return new IndexProcessIdsOfProgressMessagesChange();
-    }
-
-    @Bean
-    public IndexSpaceOfLmSlPersistenceFileChange indexSpaceOfLmSlPersistenceChange() {
-        return new IndexSpaceOfLmSlPersistenceFileChange();
-    }
-
-    @Bean
-    public IndexSpaceIdOfOperationChange indexSpaceIdOfOperationChange() {
-        return new IndexSpaceIdOfOperationChange();
-    }
-
-    @Bean
-    public IndexProcessIdsOfHistoricOperationEventChange indexProcessIdsOfHistoricOperationEventChange() {
-        return new IndexProcessIdsOfHistoricOperationEventChange();
     }
 
 }
