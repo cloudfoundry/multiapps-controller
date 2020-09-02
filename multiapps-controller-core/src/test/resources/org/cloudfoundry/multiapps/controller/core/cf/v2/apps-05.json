@@ -25,6 +25,7 @@
     ],
     "services": [],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "module-1",
@@ -76,6 +77,7 @@
     ],
     "services": [],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "module-2",

@@ -45,6 +45,9 @@ public class ApplicationEnvironmentCloudModelBuilder {
         Map<String, Object> attributes = new TreeMap<>(properties);
         attributes.keySet()
                   .retainAll(SupportedParameters.APP_ATTRIBUTES);
+        if (!attributes.isEmpty()) {
+            env.put(Constants.ENV_DEPLOY_ATTRIBUTES, attributes);
+        }
         Boolean checkDeployId = (Boolean) attributes.get(SupportedParameters.CHECK_DEPLOY_ID);
         if (checkDeployId != null && checkDeployId) {
             env.put(Constants.ENV_DEPLOY_ID, deployId);

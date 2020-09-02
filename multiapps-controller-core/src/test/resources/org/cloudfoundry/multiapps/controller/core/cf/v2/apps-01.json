@@ -24,7 +24,9 @@
       "foo.cfapps.neo.ondemand.com/test"
     ],
     "services": [],
-    "env": { },
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
+    },
     "moduleName": "foo",
     "idleUris": [],
     "bindingParameters": {

@@ -27,6 +27,7 @@
       "uaa"
     ],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "destinations": "[{\"name\":\"sapui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"},{\"name\":\"che\",\"url\":\"http://che.sofd60245639a\"}]"
     },
     "moduleName": "webide",

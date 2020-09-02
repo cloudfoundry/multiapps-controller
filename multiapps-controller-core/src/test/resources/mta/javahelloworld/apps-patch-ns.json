@@ -8,11 +8,11 @@
         "mta_module": "{\"name\":\"java-hello-world\"}",
         "mta_module_provided_dependencies": "[\"java-hello-world\"]",
         "mta_bound_services": "[\"namespace-uaa\"]",
-        "mta_namespace" : "namespace"
+        "mta_namespace": "namespace"
       },
       "labels": {
         "mta_id": "c232c91455fc92b226129257682792b2",
-        "mta_namespace" : "89801e9e98979062e84647433a8ed3e9"
+        "mta_namespace": "89801e9e98979062e84647433a8ed3e9"
       }
     },
     "memory": 128,
@@ -25,8 +25,11 @@
     "uris": [
       "i027947-java-hello-world.cfapps.neo.ondemand.com"
     ],
-    "services": [ "namespace-uaa" ],
+    "services": [
+      "namespace-uaa"
+    ],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "destinations": "[{\"name\":\"java\",\"url\":\"http://i027947-java-hello-world-backend.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     },
     "moduleName": "java-hello-world",

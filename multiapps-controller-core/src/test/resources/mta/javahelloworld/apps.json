@@ -27,6 +27,7 @@
       "uaa"
     ],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "destinations": "[{\"name\":\"java\",\"url\":\"http://i027947-java-hello-world-backend.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     },
     "moduleName": "java-hello-world",
@@ -80,6 +81,7 @@
       "java-hdi-container"
     ],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "java-hello-world-backend",
@@ -130,6 +132,7 @@
       "java-hdi-container"
     ],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"check-deploy-id\":true,\"dependency-type\":\"soft\",\"execute-app\":true,\"failure-marker\":\"STDERR:Deployment failed\",\"stop-app\":true,\"success-marker\":\"STDOUT:Deployment done\"}",
       "DEPLOY_ID": "123"
     },
     "moduleName": "java-hello-world-db",
