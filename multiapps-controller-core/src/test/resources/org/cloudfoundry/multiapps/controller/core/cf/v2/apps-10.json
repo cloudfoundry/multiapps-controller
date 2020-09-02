@@ -24,7 +24,9 @@
       "module-1.sofd60245639a"
     ],
     "services": [],
-    "env": { },
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
+    },
     "moduleName": "module-1",
     "idleUris": [],
     "bindingParameters": {},

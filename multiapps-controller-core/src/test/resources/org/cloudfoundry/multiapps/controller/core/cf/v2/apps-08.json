@@ -35,6 +35,7 @@
       "existing-resource-named-service"
     ],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "module-1",

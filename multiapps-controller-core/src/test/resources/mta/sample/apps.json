@@ -27,6 +27,7 @@
       "internal-odata-service"
     ],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "default-locale": "zho",
       "docu-url": "http://help.sap.com/saphelp_nw74/en/5c",
       "odata.svc_root": "odata/"
@@ -81,6 +82,7 @@
       "pricing-db-service"
     ],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "application-key": "25892e17-80f6-415f-9c65-7395632f0223",
       "default-locale": "zho",
       "docu-url": "http://help.sap.com/saphelp_nw74/en/5c",
@@ -135,6 +137,7 @@
       "pricing-db-service"
     ],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "default-locale": "zho"
     },
     "moduleName": "pricing-db",

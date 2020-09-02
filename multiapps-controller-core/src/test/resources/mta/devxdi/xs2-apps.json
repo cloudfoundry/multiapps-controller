@@ -28,6 +28,7 @@
       "di-core-hdi"
     ],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "DI_FS_ROOT": "/usr/sap/xs2work",
       "JAVA_OPTS": "-Daccess.logging.enabled=false -Dhttp.port=$VCAP_APP_PORT -Djava.io.tmpdir=$TMPDIR",
       "JBP_CONFIG_SAPJVM_MEMORY_SIZES": "metaspace:128m..",
@@ -86,6 +87,7 @@
       "uaa"
     ],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "DI_URL": "http://di-core.sofd60245639a",
       "JBP_CONFIG_TOMCAT": "[tomcat: {version: 7.0.+}]",
       "TARGET_RUNTIME": "tomcat",
@@ -139,6 +141,7 @@
       "uaa"
     ],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "DI_URL": "http://di-core.sofd60245639a",
       "JBP_CONFIG_TOMCAT": "[tomcat: {version: 7.0.+}]",
       "TARGET_RUNTIME": "tomcat",

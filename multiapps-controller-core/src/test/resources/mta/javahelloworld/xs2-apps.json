@@ -27,6 +27,7 @@
       "uaa"
     ],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "destinations": "[{\"name\":\"java\",\"url\":\"http://java-hello-world-backend.sofd60245639a\"},{\"name\":\"ui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     },
     "moduleName": "java-hello-world",
@@ -78,6 +79,7 @@
       "java-hdi-container"
     ],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "TARGET_RUNTIME": "tomee"
     },
     "moduleName": "java-hello-world-backend",
@@ -125,7 +127,9 @@
     "services": [
       "java-hdi-container"
     ],
-    "env": { },
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\",\"execute-app\":false}"
+    },
     "moduleName": "java-hello-world-db",
     "idleUris": [],
     "bindingParameters": {},

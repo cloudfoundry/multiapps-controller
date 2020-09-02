@@ -25,6 +25,7 @@
     ],
     "services": [],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
       "plugins": "[{\"name\":\"plugins.0\",\"plugin_name\":\"plugin-0\",\"url\":\"https://localhost:52001\"},{\"name\":\"plugins.1\",\"plugin_name\":\"plugin-1\"}]"
     },
     "moduleName": "framework",

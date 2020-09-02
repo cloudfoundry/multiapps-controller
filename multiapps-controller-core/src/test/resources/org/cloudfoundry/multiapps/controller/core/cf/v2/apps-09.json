@@ -24,7 +24,9 @@
       "module-1.sofd60245639a"
     ],
     "services": [],
-    "env": { },
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\",\"no-start\":true}"
+    },
     "moduleName": "module-1",
     "idleUris": [],
     "bindingParameters": {},
@@ -84,7 +86,9 @@
       "module-2.sofd60245639a"
     ],
     "services": [],
-    "env": { },
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
+    },
     "moduleName": "module-2",
     "idleUris": [],
     "bindingParameters": {},
@@ -130,7 +134,9 @@
       "module-3.sofd60245639a"
     ],
     "services": [],
-    "env": { },
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
+    },
     "moduleName": "module-3",
     "idleUris": [],
     "bindingParameters": {},
@@ -177,6 +183,7 @@
     ],
     "services": [],
     "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\",\"no-start\":false}",
       "tasks": "[{\"command\":\"echo 3\",\"memory\":\"256M\",\"name\":\"task-3\"},{\"command\":\"echo 4\",\"memory\":\"512M\",\"name\":\"task-4\"}]"
     },
     "moduleName": "module-4",

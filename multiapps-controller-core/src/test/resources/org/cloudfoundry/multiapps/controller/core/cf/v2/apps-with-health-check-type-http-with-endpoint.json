@@ -26,7 +26,9 @@
       "foo.sofd60245639a"
     ],
     "services": [],
-    "env": { },
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}"
+    },
     "moduleName": "foo",
     "idleUris": [],
     "bindingParameters": {},
