@@ -17,6 +17,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPer
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.mock.MockDelegateExecution;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessHelper;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -70,6 +71,8 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     @Mock
     protected ProcessEngineConfiguration processEngineConfiguration;
     protected final ProcessLoggerProvider processLoggerProvider = Mockito.spy(ProcessLoggerProvider.class);
+    @Mock
+    protected ProcessHelper processHelper;
     @InjectMocks
     protected ProcessLogsPersister processLogsPersister = Mockito.spy(ProcessLogsPersister.class);
 

@@ -6,6 +6,7 @@ import java.util.ListIterator;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.HistoricOperationEventPersister;
@@ -23,8 +24,9 @@ public class RetryProcessAction extends ProcessAction {
 
     @Inject
     public RetryProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
-                              HistoricOperationEventPersister historicOperationEventPersister) {
-        super(flowableFacade, additionalProcessActions);
+                              HistoricOperationEventPersister historicOperationEventPersister,
+                              CloudControllerClientProvider cloudControllerClientProvider) {
+        super(flowableFacade, additionalProcessActions, cloudControllerClientProvider);
         this.historicOperationEventPersister = historicOperationEventPersister;
     }
 

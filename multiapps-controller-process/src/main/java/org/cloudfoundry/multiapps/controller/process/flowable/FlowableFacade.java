@@ -193,11 +193,6 @@ public class FlowableFacade {
         }
     }
 
-    public void setAbortVariable(String processInstanceId) {
-        processEngine.getRuntimeService()
-                     .setVariable(processInstanceId, Constants.PROCESS_ABORTED, Boolean.TRUE);
-    }
-
     protected boolean isPastDeadline(long deadline) {
         return System.currentTimeMillis() >= deadline;
     }

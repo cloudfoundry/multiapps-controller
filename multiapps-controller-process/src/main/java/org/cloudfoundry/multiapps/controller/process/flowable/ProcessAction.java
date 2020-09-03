@@ -15,13 +15,14 @@ public abstract class ProcessAction {
 
     protected final FlowableFacade flowableFacade;
     protected final List<AdditionalProcessAction> additionalProcessActions;
-    @Inject
-    private CloudControllerClientProvider clientProvider;
+    private final CloudControllerClientProvider clientProvider;
 
     @Inject
-    public ProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions) {
+    public ProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
+                         CloudControllerClientProvider clientProvider) {
         this.flowableFacade = flowableFacade;
         this.additionalProcessActions = additionalProcessActions;
+        this.clientProvider = clientProvider;
     }
 
     protected List<String> getActiveExecutionIds(String superProcessInstanceId) {

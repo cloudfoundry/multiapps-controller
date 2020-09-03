@@ -11,8 +11,12 @@ import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOp
 @Named
 public class HistoricOperationEventPersister {
 
+    private final HistoricOperationEventService configurationSubscriptionService;
+
     @Inject
-    private HistoricOperationEventService configurationSubscriptionService;
+    public HistoricOperationEventPersister(HistoricOperationEventService configurationSubscriptionService) {
+        this.configurationSubscriptionService = configurationSubscriptionService;
+    }
 
     public void add(String operationId, EventType type) {
         HistoricOperationEvent historicalOperationStateDetails = ImmutableHistoricOperationEvent.builder()

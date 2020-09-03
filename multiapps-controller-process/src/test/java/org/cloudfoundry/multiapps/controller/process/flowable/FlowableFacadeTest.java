@@ -15,10 +15,8 @@ class FlowableFacadeTest {
 
     @Mock
     DefaultAsyncJobExecutor mockedAsyncExecutor;
-
     @Mock
     ProcessEngine mockedProcessEngine;
-
     @Mock
     ProcessEngineConfiguration mockedProcessEngineConfiguration;
 
