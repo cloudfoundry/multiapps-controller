@@ -88,22 +88,18 @@
     </build>
 
     <dependencies>
-        <!-- TODO: Compilation with Java 11 won't work without this. Remove it once we fully migrate to Java 11. -->
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
-        <!-- TODO: Compilation with Java 11 won't work without this. Remove it once we fully migrate to Java 11. -->
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-core</artifactId>
         </dependency>
-        <!-- TODO: Compilation with Java 11 won't work without this. Remove it once we fully migrate to Java 11. -->
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
         </dependency>
-        <!-- TODO: Compilation with Java 11 won't work without this. Remove it once we fully migrate to Java 11. -->
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>javax.activation-api</artifactId>
@@ -113,8 +109,8 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -124,10 +120,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -210,7 +202,7 @@
             <artifactId>multiapps-controller-database-migration</artifactId>
             <scope>runtime</scope>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-jmx</artifactId>
         </dependency>

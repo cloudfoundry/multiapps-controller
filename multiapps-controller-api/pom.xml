@@ -14,17 +14,14 @@
     </parent>
 
     <dependencies>
-        <!-- TODO: Compilation with Java 11 won't work without this. Remove it once we fully migrate to Java 11. -->
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
-        <!-- TODO: Compilation with Java 11 won't work without this. Remove it once we fully migrate to Java 11. -->
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-core</artifactId>
         </dependency>
-        <!-- TODO: Compilation with Java 11 won't work without this. Remove it once we fully migrate to Java 11. -->
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
@@ -46,8 +43,8 @@
             <artifactId>swagger-annotations</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -109,7 +106,7 @@
                                 <apiSource>
                                     <locations>org.cloudfoundry.multiapps.controller.api.v1</locations>
                                     <swaggerFileName>mtarest</swaggerFileName>
-                                    <info>                                                
+                                    <info>
                                         <title>MTA REST API</title>
                                         <description>This is the API of the Cloud Foundry MultiApps Controller</description>
                                         <version>1.1.0</version>
@@ -129,7 +126,7 @@
                                 <apiSource>
                                     <locations>org.cloudfoundry.multiapps.controller.api.v2</locations>
                                     <swaggerFileName>mtarest_v2</swaggerFileName>
-                                    <info>                                                
+                                    <info>
                                         <title>MTA REST API</title>
                                         <description>This is the API v2 of the Cloud Foundry MultiApps Controller</description>
                                         <version>2.0.0</version>

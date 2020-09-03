@@ -13,17 +13,14 @@
     </parent>
 
     <dependencies>
-        <!-- TODO: Compilation with Java 11 won't work without this. Remove it once we fully migrate to Java 11. -->
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
-        <!-- TODO: Compilation with Java 11 won't work without this. Remove it once we fully migrate to Java 11. -->
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-core</artifactId>
         </dependency>
-        <!-- TODO: Compilation with Java 11 won't work without this. Remove it once we fully migrate to Java 11. -->
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
