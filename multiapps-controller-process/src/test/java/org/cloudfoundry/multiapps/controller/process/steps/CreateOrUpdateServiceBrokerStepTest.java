@@ -12,7 +12,6 @@ import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -256,8 +255,8 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
         CloudApplicationExtended toCloudApplication() {
             return ImmutableCloudApplicationExtended.builder()
                                                     .name(name)
-                                                    .env(MapUtil.asMap(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES,
-                                                                       JsonUtil.toJson(attributes)))
+                                                    .env(Map.of(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES,
+                                                                JsonUtil.toJson(attributes)))
                                                     .build();
         }
 

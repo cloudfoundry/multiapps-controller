@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections4.MapUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -43,10 +42,10 @@ class ServiceGetterTest {
     static Stream<Arguments> testGetServiceInstanceEntity() {
         return Stream.of(
         // @formatter:off
-                         Arguments.of(MapUtil.asMap("test-service-instance", "test-value"), null),
-                         Arguments.of(MapUtil.asMap("test-service-instance", "test-value"), Collections.emptyMap()),
-                         Arguments.of(Collections.emptyMap(), MapUtil.asMap("test-user-provided-instance", "test-value")),
-                         Arguments.of(null, MapUtil.asMap("test-user-provided-instance", "test-value"))
+                         Arguments.of(Map.of("test-service-instance", "test-value"), null),
+                         Arguments.of(Map.of("test-service-instance", "test-value"), Collections.emptyMap()),
+                         Arguments.of(Collections.emptyMap(), Map.of("test-user-provided-instance", "test-value")),
+                         Arguments.of(null, Map.of("test-user-provided-instance", "test-value"))
         // @formatter:on
         );
     }

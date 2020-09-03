@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.cloudfoundry.multiapps.common.ContentException;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.model.Resource;
@@ -19,10 +18,9 @@ class ServiceNameValidatorTest {
 
     private static final String NAMESPACE = "foo";
     private static final String SERVICE_NAME = "bar";
-    private static final Map<String, Object> CONTEXT_APPLY_NAMESPACE = MapUtil.asMap(SupportedParameters.APPLY_NAMESPACE,
-                                                                                     new Boolean(true));
-    private static final Map<String, Object> CONTEXT_DO_NOT_APPLY_NAMESPACE = MapUtil.asMap(SupportedParameters.APPLY_NAMESPACE,
-                                                                                            new Boolean(false));
+    private static final Map<String, Object> CONTEXT_APPLY_NAMESPACE = Map.of(SupportedParameters.APPLY_NAMESPACE, new Boolean(true));
+    private static final Map<String, Object> CONTEXT_DO_NOT_APPLY_NAMESPACE = Map.of(SupportedParameters.APPLY_NAMESPACE,
+                                                                                     new Boolean(false));
 
     @Test
     void testCorrectionWithNoNamespaces() {

@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
@@ -20,7 +19,7 @@ import org.mockito.MockitoAnnotations;
 class DescriptorParametersCompatabilityValidatorTest {
 
     private static final String MODULE_NAME = "test-module";
-    private static final Map<String, Object> MODULE_PARAMETERS = MapUtil.asMap("test-param", "test-value");
+    private static final Map<String, Object> MODULE_PARAMETERS = Map.of("test-param", "test-value");
 
     @Mock
     private UserMessageLogger userMessageLogger;

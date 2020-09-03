@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -50,7 +49,7 @@ class IdleUriParametersParserTest {
     private List<Map<String, String>> constructRoutesParameter(List<String> routes, String mapKey) {
         return routes == null ? null
             : routes.stream()
-                    .map(route -> MapUtil.asMap(mapKey, route))
+                    .map(route -> Map.of(mapKey, route))
                     .collect(Collectors.toList());
     }
 

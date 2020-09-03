@@ -12,7 +12,6 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution.ExecutionState;
 import org.slf4j.Logger;
@@ -111,7 +110,7 @@ public class ServiceUpdater extends CloudServiceOperator {
                                                                                                             .getGuid()
                                                                                                             .toString()));
 
-        Map<String, Object> serviceRequest = MapUtil.asMap(parameterName, parameter);
+        Map<String, Object> serviceRequest = Map.of(parameterName, parameter);
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(serviceRequest);
         ResponseEntity<String> response = restTemplate.exchange(updateServiceUrl, HttpMethod.PUT, requestEntity, String.class);
         return MethodExecution.fromResponseEntity(response);

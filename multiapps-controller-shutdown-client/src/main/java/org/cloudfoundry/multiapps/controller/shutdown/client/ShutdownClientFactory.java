@@ -48,7 +48,7 @@ public class ShutdownClientFactory {
 
     private Map<String, String> computeHeaders(ShutdownClientConfiguration configuration) {
         String credentials = computeBasicAuthorizationCredentials(configuration);
-        return MapUtil.asMap(HttpHeaders.AUTHORIZATION, String.format("Basic %s", encode(credentials)));
+        return Map.of(HttpHeaders.AUTHORIZATION, String.format("Basic %s", encode(credentials)));
     }
 
     private String encode(String string) {

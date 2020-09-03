@@ -1,8 +1,8 @@
 package org.cloudfoundry.multiapps.controller.core.security.token;
 
 import java.util.HashMap;
+import java.util.Map;
 
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
 import org.cloudfoundry.multiapps.controller.client.util.TokenFactory;
 import org.cloudfoundry.multiapps.controller.core.security.token.parsers.JwtTokenParser;
@@ -96,12 +96,12 @@ public class JwtTokenParserTest {
         } else {
             if (alghoritm != null) {
                 Mockito.when(client.readTokenKey())
-                       .thenReturn(MapUtil.asMap("alg", alghoritm));
+                       .thenReturn(Map.of("alg", alghoritm));
             }
 
             if (alghoritmValue != null) {
                 Mockito.when(client.readTokenKey())
-                       .thenReturn(MapUtil.asMap("value", alghoritmValue));
+                       .thenReturn(Map.of("value", alghoritmValue));
             }
         }
         return client;

@@ -2,7 +2,8 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.Assert.assertEquals;
 
-import org.cloudfoundry.multiapps.common.util.MapUtil;
+import java.util.Map;
+
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
@@ -38,8 +39,8 @@ public class UploadAppStepTest {
         void testGetTimeoutWithAppParameter() {
             CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
                                                                             .name(APP_NAME)
-                                                                            .env(MapUtil.asMap(Constants.ENV_DEPLOY_ATTRIBUTES,
-                                                                                               "{\"upload-timeout\":1800}"))
+                                                                            .env(Map.of(Constants.ENV_DEPLOY_ATTRIBUTES,
+                                                                                        "{\"upload-timeout\":1800}"))
                                                                             .build();
 
             testGetTimeout(app, 1800);

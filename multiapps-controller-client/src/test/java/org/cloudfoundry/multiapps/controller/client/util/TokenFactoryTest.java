@@ -6,8 +6,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -78,35 +76,30 @@ public class TokenFactoryTest {
 // @formatter:off
                 // (0) Include exchangeToken:
                 {
-                    "a25723f22ac754f792c50f07623dzd75",
                     "aRh98oYD80teGrkjDFzg3ln55EV3O96y",
-                    MapUtil.of(Pair.of("scope", Collections.singletonList("controller.read")), Pair.of("exp", 999))
+                    Map.ofEntries(Map.entry("exchangedToken", "a25723f22ac754f792c50f07623dzd75"), Map.entry("scope", Collections.singletonList("controller.read")), Map.entry("exp", 999))
                 },
                 // (1) Missing exchangedToken:
                 {
-                    null,
                     "aRh98oYD80teGrkjDFzg3ln55EV3O96y",
-                    MapUtil.of(Pair.of("scope", Collections.singletonList("controller.read")), Pair.of("exp", 999))
+                    Map.ofEntries(Map.entry("scope", Collections.singletonList("controller.read")), Map.entry("exp", 999))
                 }
 // @formatter:on
             });
         }
 
-        private final String additionalTokenString;
         private final String tokenString;
         private final Map<String, Object> tokenInfo;
 
         private final TokenFactory tokenFactory = new TokenFactory();
 
-        public AdditionalInfoTokenFactoryTest(String additionalTokenString, String tokenString, Map<String, Object> tokenInfo) {
-            this.additionalTokenString = additionalTokenString;
+        public AdditionalInfoTokenFactoryTest(String tokenString, Map<String, Object> tokenInfo) {
             this.tokenString = tokenString;
             this.tokenInfo = tokenInfo;
         }
 
         @Test
         public void testAdditionalInfoToken() {
-            tokenInfo.put("exchangedToken", additionalTokenString);
             OAuth2AccessToken token = tokenFactory.createToken(tokenString, tokenInfo);
             validateTokenAdditionalInfo(token, tokenInfo);
         }

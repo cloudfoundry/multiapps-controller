@@ -22,7 +22,6 @@ import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType;
 import org.cloudfoundry.client.lib.domain.ImmutableApplicationLog;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.Constants;
@@ -146,7 +145,7 @@ class PollExecuteAppStatusExecutionTest {
             deployAttributes.put(SupportedParameters.FAILURE_MARKER, failureMarker);
         }
 
-        Map<String, String> applicationEnv = MapUtil.asMap(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(deployAttributes));
+        Map<String, String> applicationEnv = Map.of(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(deployAttributes));
         return ImmutableCloudApplicationExtended.builder()
                                                 .name("test-app")
                                                 .env(applicationEnv)

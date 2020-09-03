@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.EventsGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceGetter;
@@ -92,7 +91,7 @@ class ServiceOperationGetterTest {
             serviceOperationAsMap.put(ServiceOperation.SERVICE_OPERATION_TYPE, serviceOperationType.toString());
             serviceOperationAsMap.put(ServiceOperation.SERVICE_OPERATION_STATE, serviceOperationState.toString());
             serviceOperationAsMap.put(ServiceOperation.SERVICE_OPERATION_DESCRIPTION, description);
-            return MapUtil.asMap(ServiceOperation.LAST_SERVICE_OPERATION, serviceOperationAsMap);
+            return Map.of(ServiceOperation.LAST_SERVICE_OPERATION, serviceOperationAsMap);
         }
         return null;
     }

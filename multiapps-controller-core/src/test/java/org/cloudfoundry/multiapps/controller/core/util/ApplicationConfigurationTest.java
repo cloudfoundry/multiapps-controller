@@ -13,7 +13,6 @@ import java.util.Map;
 
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
 import org.cloudfoundry.multiapps.controller.core.configuration.Environment;
@@ -58,14 +57,14 @@ class ApplicationConfigurationTest {
     @Test
     void testGetControllerUrl() throws Exception {
         URL expectedControllerUrl = new URL("https://api.example.com");
-        Map<String, String> vcapApplication = MapUtil.asMap("cf_api", expectedControllerUrl.toString());
+        Map<String, String> vcapApplication = Map.of("cf_api", expectedControllerUrl.toString());
         assertEquals(expectedControllerUrl, getControllerUrlWithVcapApplication(vcapApplication));
     }
 
     @Test
     void testGetControllerUrlWithInvalidValue() {
         String invalidUrl = "blabla";
-        Map<String, String> vcapApplication = MapUtil.asMap("cf_api", invalidUrl);
+        Map<String, String> vcapApplication = Map.of("cf_api", invalidUrl);
         Exception e = assertThrows(IllegalArgumentException.class, () -> getControllerUrlWithVcapApplication(vcapApplication));
         e.printStackTrace();
         assertEquals(MessageFormat.format(Messages.INVALID_CONTROLLER_URL, invalidUrl), e.getMessage());

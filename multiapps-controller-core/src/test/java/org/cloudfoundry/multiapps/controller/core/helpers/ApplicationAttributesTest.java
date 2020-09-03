@@ -12,7 +12,6 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +26,7 @@ class ApplicationAttributesTest {
         assertEquals("password", appAttributes.get("service-broker-password", String.class));
         assertEquals("default-url", appAttributes.get("service-broker-url", String.class, "default-url"));
         assertEquals(true, appAttributes.get("create-service-broker", Boolean.class));
-        assertEquals(MapUtil.asMap("foo", "bar"), appAttributes.get("env", Map.class));
+        assertEquals(Map.of("foo", "bar"), appAttributes.get("env", Map.class));
         assertNull(appAttributes.get("non-existing-attribute", String.class));
     }
 
@@ -47,7 +46,7 @@ class ApplicationAttributesTest {
     void testGetWithInvalidAttributes() {
         CloudApplication app = ImmutableCloudApplication.builder()
                                                         .name(APP_NAME)
-                                                        .env(MapUtil.asMap("DEPLOY_ATTRIBUTES", "INVALID_JSON_OBJECT"))
+                                                        .env(Map.of("DEPLOY_ATTRIBUTES", "INVALID_JSON_OBJECT"))
                                                         .build();
 
         ParsingException e = assertThrows(ParsingException.class, () -> ApplicationAttributes.fromApplication(app));
@@ -71,7 +70,7 @@ class ApplicationAttributesTest {
     void testGetWithNullAttributes() {
         CloudApplication app = ImmutableCloudApplication.builder()
                                                         .name(APP_NAME)
-                                                        .env(MapUtil.asMap("DEPLOY_ATTRIBUTES", "null"))
+                                                        .env(Map.of("DEPLOY_ATTRIBUTES", "null"))
                                                         .build();
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
 

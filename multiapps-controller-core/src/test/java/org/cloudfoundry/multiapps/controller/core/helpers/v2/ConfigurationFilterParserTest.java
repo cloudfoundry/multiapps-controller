@@ -12,7 +12,6 @@ import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.builders.v2.PropertiesChainBuilder;
@@ -76,7 +75,7 @@ class ConfigurationFilterParserTest {
 
         // only purpose of this is to mock the old vs new style of parsing (mta-provides-dependency vs configuration)
         String mockResourceType = input.isNewResourceType ? NEW_SYNTAX_FILTER : OLD_SYNTAX_FILTER;
-        List<Map<String, Object>> mockResourceChain = Arrays.asList(MapUtil.asMap(SupportedParameters.TYPE, mockResourceType));
+        List<Map<String, Object>> mockResourceChain = Arrays.asList(Map.of(SupportedParameters.TYPE, mockResourceType));
         when(testResource.getName()).thenReturn("mockedResourceName");
         when(testChainBuilder.buildResourceChain("mockedResourceName")).thenReturn(mockResourceChain);
     }

@@ -2,12 +2,12 @@ package org.cloudfoundry.multiapps.controller.process.flowable;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.runtime.Execution;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ public class ResumeProcessAction extends ProcessAction {
             return;
         }
         for (Execution execution : executionsAtReceiveTask) {
-            flowableFacade.trigger(execution.getId(), MapUtil.asMap(Variables.USER.getName(), user));
+            flowableFacade.trigger(execution.getId(), Map.of(Variables.USER.getName(), user));
         }
     }
 

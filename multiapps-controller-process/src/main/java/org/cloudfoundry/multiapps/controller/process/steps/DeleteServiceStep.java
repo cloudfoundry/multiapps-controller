@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -10,7 +11,6 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.model.ServiceOperation;
@@ -66,7 +66,7 @@ public class DeleteServiceStep extends AsyncFlowableStep {
                                                                                              .getGuid());
         if (isDeletePossible(context, serviceBindings, serviceKeys)) {
             serviceRemover.deleteService(context, serviceInstance, serviceBindings, serviceKeys);
-            context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, MapUtil.asMap(serviceToDelete, ServiceOperation.Type.DELETE));
+            context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, Map.of(serviceToDelete, ServiceOperation.Type.DELETE));
             return StepPhase.POLL;
         }
 

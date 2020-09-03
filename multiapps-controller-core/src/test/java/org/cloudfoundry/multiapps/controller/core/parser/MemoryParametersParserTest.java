@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.ContentException;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,7 +41,7 @@ class MemoryParametersParserTest {
     @ParameterizedTest
     @MethodSource("testParameters")
     void testMemoryParsing(String memoryStr, Integer expectedParsedMemory) {
-        List<Map<String, Object>> parametersList = Collections.singletonList(MapUtil.asMap(SupportedParameters.MEMORY, memoryStr));
+        List<Map<String, Object>> parametersList = Collections.singletonList(Map.of(SupportedParameters.MEMORY, memoryStr));
 
         Integer memory = parser.parse(parametersList);
 
@@ -51,7 +50,7 @@ class MemoryParametersParserTest {
 
     @Test
     void testInvalidMemoryParsing() {
-        List<Map<String, Object>> parametersList = Collections.singletonList(MapUtil.asMap(SupportedParameters.MEMORY, "test-mb"));
+        List<Map<String, Object>> parametersList = Collections.singletonList(Map.of(SupportedParameters.MEMORY, "test-mb"));
 
         assertThrows(ContentException.class, () -> parser.parse(parametersList));
     }

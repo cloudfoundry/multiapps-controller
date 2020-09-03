@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -38,41 +36,41 @@ class RestartOnEnvChangeValidatorTest {
     static Stream<Arguments> testValidate() {
         return Stream.of(
                          // (1) All conditions are true
-                         Arguments.of(MapUtil.of(Pair.of("vcap-application", true), Pair.of("vcap-services", true),
-                                                 Pair.of("user-provided", true)),
+                         Arguments.of(Map.ofEntries(Map.entry("vcap-application", true), Map.entry("vcap-services", true),
+                                                    Map.entry("user-provided", true)),
                                       true),
                          // (2) All conditions are false
-                         Arguments.of(MapUtil.of(Pair.of("vcap-application", false), Pair.of("vcap-services", false),
-                                                 Pair.of("user-provided", false)),
+                         Arguments.of(Map.ofEntries(Map.entry("vcap-application", false), Map.entry("vcap-services", false),
+                                                    Map.entry("user-provided", false)),
                                       true),
                          // (3) Test with error value for vcap-application
-                         Arguments.of(MapUtil.of(Pair.of("vcap-application", "foo.bar"), Pair.of("vcap-services", false),
-                                                 Pair.of("user-provided", false)),
+                         Arguments.of(Map.ofEntries(Map.entry("vcap-application", "foo.bar"), Map.entry("vcap-services", false),
+                                                    Map.entry("user-provided", false)),
                                       false),
                          // (4) Test with error value for vcap-services
-                         Arguments.of(MapUtil.of(Pair.of("vcap-application", false), Pair.of("vcap-services", "foo.bar"),
-                                                 Pair.of("user-provided", true)),
+                         Arguments.of(Map.ofEntries(Map.entry("vcap-application", false), Map.entry("vcap-services", "foo.bar"),
+                                                    Map.entry("user-provided", true)),
                                       false),
                          // (5) Test with error value for user-provided
-                         Arguments.of(MapUtil.of(Pair.of("vcap-application", false), Pair.of("vcap-services", true),
-                                                 Pair.of("user-provided", "bar.xyz")),
+                         Arguments.of(Map.ofEntries(Map.entry("vcap-application", false), Map.entry("vcap-services", true),
+                                                    Map.entry("user-provided", "bar.xyz")),
                                       false),
                          // (6) Test with not map object
                          Arguments.of(null, false),
                          // (7)
-                         Arguments.of(MapUtil.of(Pair.of("vcap-application", false), Pair.of("vcap-services", true),
-                                                 Pair.of("user-provided", false)),
+                         Arguments.of(Map.ofEntries(Map.entry("vcap-application", false), Map.entry("vcap-services", true),
+                                                    Map.entry("user-provided", false)),
                                       true),
                          // (8)
-                         Arguments.of(MapUtil.of(Pair.of("vcap-application", true), Pair.of("vcap-services", true),
-                                                 Pair.of("user-provided", false)),
+                         Arguments.of(Map.ofEntries(Map.entry("vcap-application", true), Map.entry("vcap-services", true),
+                                                    Map.entry("user-provided", false)),
                                       true),
                          // (9) Not all parameters set
-                         Arguments.of(MapUtil.of(Pair.of("vcap-services", false), Pair.of("user-provided", true)), true),
+                         Arguments.of(Map.ofEntries(Map.entry("vcap-services", false), Map.entry("user-provided", true)), true),
                          // (10)
-                         Arguments.of(MapUtil.of(Pair.of("user-provided", true)), true),
+                         Arguments.of(Map.ofEntries(Map.entry("user-provided", true)), true),
                          // (11)
-                         Arguments.of(MapUtil.of(Pair.of("vcap-application", false)), true));
+                         Arguments.of(Map.ofEntries(Map.entry("vcap-application", false)), true));
     }
 
 }

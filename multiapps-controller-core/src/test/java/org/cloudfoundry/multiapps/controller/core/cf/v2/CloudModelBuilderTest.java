@@ -636,10 +636,10 @@ public class CloudModelBuilderTest {
     }
 
     protected void injectSystemParameters(DeploymentDescriptor descriptor, String defaultDomain) {
-        Map<String, Object> generalSystemParameters = MapUtil.asMap(SupportedParameters.DEFAULT_DOMAIN, defaultDomain);
+        Map<String, Object> generalSystemParameters = Map.of(SupportedParameters.DEFAULT_DOMAIN, defaultDomain);
         descriptor.setParameters(MapUtil.merge(generalSystemParameters, descriptor.getParameters()));
         for (Module module : descriptor.getModules()) {
-            Map<String, Object> moduleSystemParameters = MapUtil.asMap(SupportedParameters.DEFAULT_HOST, module.getName());
+            Map<String, Object> moduleSystemParameters = Map.of(SupportedParameters.DEFAULT_HOST, module.getName());
             module.setParameters(MapUtil.merge(moduleSystemParameters, module.getParameters()));
         }
     }

@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.shutdown.client;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.http.HttpResponse;
@@ -11,7 +12,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.util.EntityUtils;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.http.CsrfHttpClient;
 import org.cloudfoundry.multiapps.controller.core.model.ApplicationShutdown;
 
@@ -59,7 +59,7 @@ class ShutdownClientImpl implements ShutdownClient {
 
     private CsrfHttpClient createCsrfHttpClient(UUID applicationGuid, int applicationInstanceIndex) {
         String applicationInstanceHeaderValue = computeApplicationInstanceHeaderValue(applicationGuid, applicationInstanceIndex);
-        return httpClientFactory.create(MapUtil.asMap(X_CF_APP_INSTANCE, applicationInstanceHeaderValue));
+        return httpClientFactory.create(Map.of(X_CF_APP_INSTANCE, applicationInstanceHeaderValue));
     }
 
     private static String computeApplicationInstanceHeaderValue(UUID applicationGuid, int applicationInstanceIndex) {

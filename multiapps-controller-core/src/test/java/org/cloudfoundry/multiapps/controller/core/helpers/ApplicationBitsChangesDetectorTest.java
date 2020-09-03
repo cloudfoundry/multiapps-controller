@@ -7,12 +7,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class ApplicationBitsChangesDetectorTest {
 
     @Before
     public void setUp() {
-        appEnv = MapUtil.asMap(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(new TreeMap<>()));
+        appEnv = new HashMap<>(Map.of(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(new TreeMap<>())));
         detector = new ApplicationFileDigestDetector(appEnv);
         applicationFile = Paths.get(FILE_NAME)
                                .toFile();
@@ -42,7 +42,7 @@ public class ApplicationBitsChangesDetectorTest {
     @Test
     public void testDetectWithFileDigestInTheEnv() throws NoSuchAlgorithmException, IOException {
         String testFileDigest = getTestFileDigest();
-        Map<String, Object> deployAttributes = MapUtil.asMap(Constants.ATTR_APP_CONTENT_DIGEST, testFileDigest);
+        Map<String, Object> deployAttributes = Map.of(Constants.ATTR_APP_CONTENT_DIGEST, testFileDigest);
         appEnv.put(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(deployAttributes));
         detector = new ApplicationFileDigestDetector(appEnv);
 

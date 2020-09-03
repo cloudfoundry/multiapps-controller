@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
@@ -63,7 +62,7 @@ class ModuleHooksAggregatorTest {
                                                   createHook("hook2", Collections.singletonList("blue-green.application.after-stop.live")));
         Module moduleToDeploy = createModule("test-module", hooksForModule);
         List<HookPhase> currentHookPhasesForExecutions = Collections.singletonList(HookPhase.BEFORE_STOP);
-        prepareExecutedHooks("test-module", MapUtil.asMap("hook1", Collections.singletonList("blue-green.application.before-stop.live")));
+        prepareExecutedHooks("test-module", Map.of("hook1", Collections.singletonList("blue-green.application.before-stop.live")));
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         ModuleHooksAggregator moduleHooksAggregator = createModuleHooksAggregator(moduleToDeploy);
@@ -79,7 +78,7 @@ class ModuleHooksAggregatorTest {
                                                              Collections.singletonList("blue-green.application.before-start.idle")));
         Module moduleToDeploy = createModule("test-module", hooksForModule);
         List<HookPhase> currentHookPhasesForExecutions = Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE);
-        prepareExecutedHooks("test-module", MapUtil.asMap("hook1", Collections.singletonList("blue-green.application.before-start.idle")));
+        prepareExecutedHooks("test-module", Map.of("hook1", Collections.singletonList("blue-green.application.before-start.idle")));
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         context.setVariable(Variables.SUBPROCESS_PHASE, SubprocessPhase.BEFORE_APPLICATION_START);

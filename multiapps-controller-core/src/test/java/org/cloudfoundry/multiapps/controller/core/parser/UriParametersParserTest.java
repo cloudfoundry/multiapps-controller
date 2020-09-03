@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -94,7 +93,7 @@ class UriParametersParserTest {
             return null;
         }
         return routes.stream()
-                     .map(route -> MapUtil.asMap(SupportedParameters.ROUTE, route))
+                     .map(route -> Map.of(SupportedParameters.ROUTE, route))
                      .collect(Collectors.toList());
     }
 }

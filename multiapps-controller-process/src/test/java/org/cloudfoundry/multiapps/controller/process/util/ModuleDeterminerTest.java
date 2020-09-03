@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.cloudfoundry.client.v3.Metadata;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
@@ -67,8 +66,8 @@ class ModuleDeterminerTest {
         Module moduleToDeploy = createModule("some-module-name");
         completeDeploymentDescriptor.setModules(Collections.singletonList(moduleToDeploy));
         context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, completeDeploymentDescriptor);
-        Map<String, String> labels = MapUtil.asMap("mta_id", "123");
-        Map<String, String> annotations = MapUtil.asMap("mta_id", "mta-id");
+        Map<String, String> labels = Map.of("mta_id", "123");
+        Map<String, String> annotations = Map.of("mta_id", "mta-id");
         CloudApplicationExtended cloudApplicationExtended = createApplication("app-to-process", null,
                                                                               createV3Metadata(labels, annotations));
         Mockito.when(mtaMetadataParser.parseDeployedMtaApplication(cloudApplicationExtended))

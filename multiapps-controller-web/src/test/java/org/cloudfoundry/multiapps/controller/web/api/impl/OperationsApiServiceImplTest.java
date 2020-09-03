@@ -23,7 +23,6 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudOrganization;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudSpace;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
@@ -193,7 +192,7 @@ public class OperationsApiServiceImplTest {
 
     @Test
     public void testStartOperation() {
-        Map<String, Object> parameters = MapUtil.asMap(Variables.MTA_ID.getName(), "test");
+        Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test");
         Operation operation = createOperation(null, null, parameters);
         Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
                .thenReturn("deploy");
@@ -290,7 +289,9 @@ public class OperationsApiServiceImplTest {
     }
 
     private void mockClientProvider(String user) {
-        org.cloudfoundry.multiapps.controller.core.util.UserInfo userInfo = new org.cloudfoundry.multiapps.controller.core.util.UserInfo(null, user, null);
+        org.cloudfoundry.multiapps.controller.core.util.UserInfo userInfo = new org.cloudfoundry.multiapps.controller.core.util.UserInfo(null,
+                                                                                                                                         user,
+                                                                                                                                         null);
         Authentication auth = Mockito.mock(Authentication.class);
         Mockito.when(auth.getPrincipal())
                .thenReturn(userInfo);

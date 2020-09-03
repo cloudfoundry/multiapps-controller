@@ -14,7 +14,6 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
@@ -144,8 +143,8 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
             Map<String, Object> brokerDetails = getBrokerDetails();
             return ImmutableCloudApplicationExtended.builder()
                                                     .name(name)
-                                                    .env(MapUtil.asMap(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES,
-                                                                       JsonUtil.toJson(brokerDetails)))
+                                                    .env(Map.of(org.cloudfoundry.multiapps.controller.core.Constants.ENV_DEPLOY_ATTRIBUTES,
+                                                                JsonUtil.toJson(brokerDetails)))
                                                     .build();
         }
 

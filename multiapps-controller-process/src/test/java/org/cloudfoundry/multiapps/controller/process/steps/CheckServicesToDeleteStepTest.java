@@ -42,19 +42,19 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
                          // (1) Multiple services in progress
                          Arguments.of(Arrays.asList("service-1", "service-2", "service-3"),
                                       Arrays.asList("service-1", "service-2", "service-3"),
-                                      MapUtil.of(Pair.of("service-1", ServiceOperation.State.IN_PROGRESS),
-                                                 Pair.of("service-2", ServiceOperation.State.IN_PROGRESS),
-                                                 Pair.of("service-3", ServiceOperation.State.IN_PROGRESS)),
+                                      Map.ofEntries(Map.entry("service-1", ServiceOperation.State.IN_PROGRESS),
+                                                    Map.entry("service-2", ServiceOperation.State.IN_PROGRESS),
+                                                    Map.entry("service-3", ServiceOperation.State.IN_PROGRESS)),
                                       Arrays.asList("service-1", "service-2", "service-3"), "POLL"),
                          // (2) One service in progress
                          Arguments.of(Arrays.asList("service-1", "service-2", "service-3"), Arrays.asList("service-2", "service-3"),
-                                      MapUtil.of(Pair.of("service-2", ServiceOperation.State.SUCCEEDED),
-                                                 Pair.of("service-3", ServiceOperation.State.IN_PROGRESS)),
+                                      Map.ofEntries(Pair.of("service-2", ServiceOperation.State.SUCCEEDED),
+                                             Pair.of("service-3", ServiceOperation.State.IN_PROGRESS)),
                                       Collections.singletonList("service-3"), "POLL"),
                          // (3) All services are not in progress state
                          Arguments.of(Arrays.asList("service-1", "service-2", "service-3"), Arrays.asList("service-1", "service-2"),
-                                      MapUtil.of(Pair.of("service-1", ServiceOperation.State.SUCCEEDED),
-                                                 Pair.of("service-2", ServiceOperation.State.SUCCEEDED)),
+                                      Map.ofEntries(Pair.of("service-1", ServiceOperation.State.SUCCEEDED),
+                                             Pair.of("service-2", ServiceOperation.State.SUCCEEDED)),
                                       Collections.emptyList(), "DONE"));
     }
 

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -15,7 +16,6 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceKey;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -79,7 +79,7 @@ class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServiceKeysSt
     }
 
     private void prepareContext(List<CloudServiceKey> serviceKeys, boolean canDeleteServiceKeys, CloudServiceInstanceExtended service) {
-        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, MapUtil.asMap(SERVICE_NAME, serviceKeys));
+        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, Map.of(SERVICE_NAME, serviceKeys));
         context.setVariable(Variables.DELETE_SERVICE_KEYS, canDeleteServiceKeys);
         context.setVariable(Variables.SERVICE_TO_PROCESS, service);
 
@@ -91,7 +91,7 @@ class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServiceKeysSt
             return ImmutableCloudServiceKey.builder()
                                            .name(serviceKeyName)
                                            .serviceInstance(service)
-                                           .credentials(MapUtil.asMap("name", "new-value"))
+                                           .credentials(Map.of("name", "new-value"))
                                            .build();
         }
         return ImmutableCloudServiceKey.builder()

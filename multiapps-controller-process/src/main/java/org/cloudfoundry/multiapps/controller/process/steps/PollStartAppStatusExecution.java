@@ -11,7 +11,6 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.InstanceInfo;
 import org.cloudfoundry.client.lib.domain.InstanceState;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -124,7 +123,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     private String composeStatesMessage(List<InstanceInfo> instances) {
         Map<String, Long> stateCounts;
         if (instances.isEmpty()) {
-            stateCounts = MapUtil.asMap(InstanceState.STARTING.toString(), 0L);
+            stateCounts = Map.of(InstanceState.STARTING.toString(), 0L);
         } else {
             stateCounts = instances.stream()
                                    .collect(Collectors.groupingBy(instance -> instance.getState()
