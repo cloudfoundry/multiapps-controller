@@ -7,45 +7,34 @@ import java.util.stream.Collectors;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.model.ErrorType;
+import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
-import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessHelper;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.runtime.Execution;
+import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProcessStepHelper {
+@Value.Immutable
+public abstract class ProcessStepHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessStepHelper.class);
-
-    private final ProgressMessageService progressMessageService;
-    private final ProcessLogsPersister processLogsPersister;
-    private final StepLogger stepLogger;
-
-    private final ProcessEngineConfiguration processEngineConfiguration;
-
-    public ProcessStepHelper(ProgressMessageService progressMessageService, StepLogger stepLogger,
-                             ProcessLogsPersister processLogsPersister, ProcessEngineConfiguration processEngineConfigurationSupplier) {
-        this.progressMessageService = progressMessageService;
-        this.stepLogger = stepLogger;
-        this.processLogsPersister = processLogsPersister;
-        this.processEngineConfiguration = processEngineConfigurationSupplier;
-    }
 
     protected void postExecuteStep(ProcessContext context, StepPhase state) {
         logDebug(MessageFormat.format(Messages.STEP_FINISHED, context.getExecution()
                                                                      .getCurrentFlowElement()
                                                                      .getName()));
 
-        processLogsPersister.persistLogs(context.getVariable(Variables.CORRELATION_ID), context.getVariable(Variables.TASK_ID));
+        getProcessLogsPersister().persistLogs(context.getVariable(Variables.CORRELATION_ID), context.getVariable(Variables.TASK_ID));
         context.setVariable(Variables.STEP_EXECUTION, state.toString());
     }
 
@@ -55,7 +44,7 @@ public class ProcessStepHelper {
         context.setVariable(Variables.TASK_ID, taskId);
 
         deletePreviousErrorType(context);
-        stepLogger.logFlowableTask();
+        getStepLogger().logFlowableTask();
         context.setVariable(Variables.STEP_PHASE, initialPhase);
     }
 
@@ -88,12 +77,12 @@ public class ProcessStepHelper {
 
     private void storeExceptionInProgressMessageService(ProcessContext context, Throwable throwable) {
         try {
-            progressMessageService.add(ImmutableProgressMessage.builder()
-                                                               .processId(context.getVariable(Variables.CORRELATION_ID))
-                                                               .taskId(getCurrentActivityId(context.getExecution()))
-                                                               .type(ProgressMessageType.ERROR)
-                                                               .text(throwable.getMessage())
-                                                               .build());
+            getProgressMessageService().add(ImmutableProgressMessage.builder()
+                                                                    .processId(context.getVariable(Variables.CORRELATION_ID))
+                                                                    .taskId(getCurrentActivityId(context.getExecution()))
+                                                                    .type(ProgressMessageType.ERROR)
+                                                                    .text(throwable.getMessage())
+                                                                    .build());
         } catch (SLException e) {
             getProcessLogger().error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
         }
@@ -102,10 +91,10 @@ public class ProcessStepHelper {
     // This method is needed because sometimes the DelegateExecution::getCurrentActivityId returns null
     // Check the issue: https://github.com/flowable/flowable-engine/issues/1280
     private String getCurrentActivityId(DelegateExecution execution) {
-        List<Execution> processExecutions = processEngineConfiguration.getRuntimeService()
-                                                                      .createExecutionQuery()
-                                                                      .processInstanceId(execution.getProcessInstanceId())
-                                                                      .list();
+        List<Execution> processExecutions = getProcessEngineConfiguration().getRuntimeService()
+                                                                           .createExecutionQuery()
+                                                                           .processInstanceId(execution.getProcessInstanceId())
+                                                                           .list();
         List<Execution> processExecutionsWithActivityIds = processExecutions.stream()
                                                                             .filter(e -> e.getActivityId() != null)
                                                                             .collect(Collectors.toList());
@@ -122,16 +111,31 @@ public class ProcessStepHelper {
     }
 
     private ProcessLogger getProcessLogger() {
-        return stepLogger.getProcessLogger();
+        return getStepLogger().getProcessLogger();
     }
 
     public void failStepIfProcessIsAborted(ProcessContext context) {
-        Boolean processAborted = (Boolean) processEngineConfiguration.getRuntimeService()
-                                                                     .getVariable(context.getVariable(Variables.CORRELATION_ID),
-                                                                                  Constants.PROCESS_ABORTED);
-        if (processAborted != null && processAborted) {
+        String correlationId = context.getVariable(Variables.CORRELATION_ID);
+        List<HistoricOperationEvent> historicOperationEvents = getProcessHelper().getHistoricOperationEventByProcessId(correlationId);
+        if (isProcessAborted(historicOperationEvents)) {
             throw new SLException(Messages.PROCESS_WAS_ABORTED);
         }
     }
+
+    public static boolean isProcessAborted(List<HistoricOperationEvent> historicOperationEvents) {
+        return historicOperationEvents.stream()
+                                      .map(HistoricOperationEvent::getType)
+                                      .anyMatch(HistoricOperationEvent.EventType.ABORT_EXECUTED::equals);
+    }
+
+    public abstract ProgressMessageService getProgressMessageService();
+
+    public abstract ProcessLogsPersister getProcessLogsPersister();
+
+    public abstract StepLogger getStepLogger();
+
+    public abstract ProcessEngineConfiguration getProcessEngineConfiguration();
+
+    public abstract ProcessHelper getProcessHelper();
 
 }

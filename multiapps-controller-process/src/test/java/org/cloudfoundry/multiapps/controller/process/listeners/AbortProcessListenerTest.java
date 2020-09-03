@@ -73,7 +73,7 @@ class AbortProcessListenerTest {
         Mockito.when(executionEntity.isProcessInstanceType())
                .thenReturn(true);
         Mockito.when(executionEntity.getDeleteReason())
-               .thenReturn(Constants.PROCESS_ABORTED);
+               .thenReturn(Operation.State.ABORTED.name());
         Mockito.when(event.getEntity())
                .thenReturn(executionEntity);
     }

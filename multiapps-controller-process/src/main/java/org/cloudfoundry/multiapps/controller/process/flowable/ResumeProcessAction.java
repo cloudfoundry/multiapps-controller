@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.runtime.Execution;
 import org.slf4j.Logger;
@@ -21,8 +22,9 @@ public class ResumeProcessAction extends ProcessAction {
     public static final String ACTION_ID_RESUME = "resume";
 
     @Inject
-    public ResumeProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions) {
-        super(flowableFacade, additionalProcessActions);
+    public ResumeProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
+                               CloudControllerClientProvider cloudControllerClientProvider) {
+        super(flowableFacade, additionalProcessActions, cloudControllerClientProvider);
     }
 
     @Override

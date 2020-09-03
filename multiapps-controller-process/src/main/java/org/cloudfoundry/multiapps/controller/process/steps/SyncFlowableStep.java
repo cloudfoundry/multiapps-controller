@@ -21,6 +21,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPer
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper;
 import org.cloudfoundry.multiapps.controller.process.util.ExceptionMessageTailMapper.CloudComponents;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessHelper;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -37,22 +38,24 @@ public abstract class SyncFlowableStep implements JavaDelegate {
     @Inject
     protected CloudControllerClientProvider clientProvider;
     @Inject
-    private StepLogger.Factory stepLoggerFactory;
-    @Inject
     protected ProgressMessageService progressMessageService;
     @Inject
     @Named("fileService")
     protected FileService fileService;
+    protected ProcessStepHelper stepHelper;
+    @Inject
+    protected ApplicationConfiguration configuration;
+    @Inject
+    private StepLogger.Factory stepLoggerFactory;
     @Inject
     private ProcessEngineConfiguration processEngineConfiguration;
     @Inject
     private ProcessLoggerProvider processLoggerProvider;
     @Inject
     private ProcessLogsPersister processLogsPersister;
-    protected ProcessStepHelper stepHelper;
     private StepLogger stepLogger;
     @Inject
-    protected ApplicationConfiguration configuration;
+    private ProcessHelper processHelper;
 
     @Override
     public void execute(DelegateExecution execution) {
@@ -110,7 +113,7 @@ public abstract class SyncFlowableStep implements JavaDelegate {
      * exception or not thrown at all.
      * </p>
      * <p>
-     * 
+     *
      * @param context flowable context of the step
      * @param e thrown exception from {@link #executeStep(ProcessContext) executeStep} and pre-processed by
      *        {@link #handleException(ProcessContext, Exception) handleException}
@@ -125,6 +128,20 @@ public abstract class SyncFlowableStep implements JavaDelegate {
         throw getExceptionConstructor(e).apply(e, detailedMessage + ": " + e.getMessage() + " " + description);
     }
 
+    private Exception handleControllerException(Exception e) {
+        if (e instanceof CloudOperationException && !(e instanceof CloudServiceBrokerException)) {
+            return new CloudControllerException((CloudOperationException) e);
+        }
+        return e;
+    }
+
+    private BiFunction<Throwable, String, Exception> getExceptionConstructor(Exception e) {
+        if (e instanceof ContentException) {
+            return ContentException::new;
+        }
+        return SLException::new;
+    }
+
     protected String getErrorMessageAdditionalDescription(Exception e, ProcessContext context) {
         if (e instanceof ContentException) {
             return StringUtils.EMPTY;
@@ -136,20 +153,6 @@ public abstract class SyncFlowableStep implements JavaDelegate {
             return ExceptionMessageTailMapper.map(configuration, CloudComponents.CLOUD_CONTROLLER, null);
         }
         return ExceptionMessageTailMapper.map(configuration, CloudComponents.DEPLOY_SERVICE, null);
-    }
-
-    private static Exception handleControllerException(Exception e) {
-        if (e instanceof CloudOperationException && !(e instanceof CloudServiceBrokerException)) {
-            return new CloudControllerException((CloudOperationException) e);
-        }
-        return e;
-    }
-
-    private static BiFunction<Throwable, String, Exception> getExceptionConstructor(Exception e) {
-        if (e instanceof ContentException) {
-            return ContentException::new;
-        }
-        return SLException::new;
     }
 
     protected void postExecuteStep(ProcessContext context, StepPhase stepState) {
@@ -185,10 +188,13 @@ public abstract class SyncFlowableStep implements JavaDelegate {
 
     protected ProcessStepHelper getStepHelper() {
         if (stepHelper == null) {
-            stepHelper = new ProcessStepHelper(getProgressMessageService(),
-                                               getStepLogger(),
-                                               getProcessLogsPersister(),
-                                               processEngineConfiguration);
+            stepHelper = ImmutableProcessStepHelper.builder()
+                                                   .progressMessageService(getProgressMessageService())
+                                                   .stepLogger(getStepLogger())
+                                                   .processLogsPersister(getProcessLogsPersister())
+                                                   .processEngineConfiguration(processEngineConfiguration)
+                                                   .processHelper(processHelper)
+                                                   .build();
         }
         return stepHelper;
     }

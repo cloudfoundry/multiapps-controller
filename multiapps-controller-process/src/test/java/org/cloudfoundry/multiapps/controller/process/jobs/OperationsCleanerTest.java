@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.core.persistence.query.OperationQuery;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
@@ -56,6 +57,8 @@ class OperationsCleanerTest {
     private ProcessActionRegistry registry;
     @Mock
     private HistoricOperationEventPersister historicOperationEventPersister;
+    @Mock
+    private CloudControllerClientProvider cloudControllerClientProvider;
     @InjectMocks
     private OperationsCleaner cleaner;
 
@@ -67,7 +70,8 @@ class OperationsCleanerTest {
         when(registry.getAction("abort")).thenReturn(new AbortProcessActionMock(flowableFacade,
                                                                                 Collections.emptyList(),
                                                                                 historicOperationEventPersister,
-                                                                                operationService));
+                                                                                operationService,
+                                                                                cloudControllerClientProvider));
     }
 
     @Test
@@ -202,8 +206,9 @@ class OperationsCleanerTest {
     private static class AbortProcessActionMock extends AbortProcessAction {
 
         public AbortProcessActionMock(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
-                                      HistoricOperationEventPersister historicEventPersister, OperationService operationService) {
-            super(flowableFacade, additionalProcessActions, historicEventPersister, operationService);
+                                      HistoricOperationEventPersister historicEventPersister, OperationService operationService,
+                                      CloudControllerClientProvider cloudControllerClientProvider) {
+            super(flowableFacade, additionalProcessActions, historicEventPersister, operationService, cloudControllerClientProvider);
         }
 
         @Override
