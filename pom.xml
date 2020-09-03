@@ -123,6 +123,11 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.2</version>
                     <configuration>
+                        <!-- Surefire excludes nested classes by default, so we need to explicitly specify that nothing should 
+                            be excluded. -->
+                        <excludes>
+                            <exclude />
+                        </excludes>
                         <runOrder>random</runOrder>
                     </configuration>
                 </plugin>
