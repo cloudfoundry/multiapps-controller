@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Collections;
 
+import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.util.HistoricOperationEventPersister;
 import org.junit.Test;
@@ -28,11 +29,17 @@ public class FlowableActionFactoryTest {
     ProcessActionRegistry processActionRegistry;
     @Mock
     HistoricOperationEventPersister historicOperationEventPersister;
+    @Mock
+    CloudControllerClientProvider cloudControllerClientProvider;
 
     @Test
     public void testAbortAction() {
         Mockito.when(processActionRegistry.getAction(ABORT_ACTION_ID))
-               .thenReturn(new AbortProcessAction(facade, Collections.singletonList(additionalProcessAction), null, null));
+               .thenReturn(new AbortProcessAction(facade,
+                                                  Collections.singletonList(additionalProcessAction),
+                                                  null,
+                                                  null,
+                                                  cloudControllerClientProvider));
         testAction(ABORT_ACTION_ID, AbortProcessAction.class);
     }
 
@@ -41,14 +48,17 @@ public class FlowableActionFactoryTest {
         Mockito.when(processActionRegistry.getAction(RETRY_ACTION_ID))
                .thenReturn(new RetryProcessAction(facade,
                                                   Collections.singletonList(additionalProcessAction),
-                                                  historicOperationEventPersister));
+                                                  historicOperationEventPersister,
+                                                  cloudControllerClientProvider));
         testAction(RETRY_ACTION_ID, RetryProcessAction.class);
     }
 
     @Test
     public void testResumeAction() {
         Mockito.when(processActionRegistry.getAction(RESUME_ACTION_ID))
-               .thenReturn(new ResumeProcessAction(facade, Collections.singletonList(additionalProcessAction)));
+               .thenReturn(new ResumeProcessAction(facade,
+                                                   Collections.singletonList(additionalProcessAction),
+                                                   cloudControllerClientProvider));
         testAction(RESUME_ACTION_ID, ResumeProcessAction.class);
     }
 

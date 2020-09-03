@@ -14,7 +14,6 @@ public class Constants {
 
     public static final String VAR_IS_SERVICE_UPDATED_VAR_PREFIX = "IS_SERVICE_UPDATED_";
     public static final String VAR_APP_SERVICE_BROKER_VAR_PREFIX = "APP_SERVICE_BROKER_";
-    public static final String PROCESS_ABORTED = "__PROCESS_ABORTED";
     public static final String VAR_STEP_START_TIME = "stepStartTime_";
     public static final String VAR_EXECUTED_HOOKS_FOR_PREFIX = "executedHooksFor_";
 

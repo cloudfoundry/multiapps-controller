@@ -31,8 +31,8 @@ public class SetRetryPhaseAdditionalProcessAction implements AdditionalProcessAc
                                                                                 StepPhase.RETRY.toString()));
     }
 
-    private ExecutionEntityImpl toExecutionEntityImpl(Execution e) {
-        return (ExecutionEntityImpl) e;
+    private ExecutionEntityImpl toExecutionEntityImpl(Execution execution) {
+        return (ExecutionEntityImpl) execution;
     }
 
     @Override
