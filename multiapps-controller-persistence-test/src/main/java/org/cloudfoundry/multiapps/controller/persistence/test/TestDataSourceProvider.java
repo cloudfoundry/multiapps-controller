@@ -12,38 +12,34 @@ import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.MigrationFailedException;
-import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 
-public class TestDataSourceProvider {
+public final class TestDataSourceProvider {
+
+    private TestDataSourceProvider() {
+
+    }
 
     public static DataSource getDataSource(String liquibaseChangelogLocation) throws Exception {
-        // create a hsql in memory connection
-        Connection connection = createH2InMemory();
+        // Liquibase closes the connection after it's done, so we need a separate one for it.
+        Connection connectionForLiquibase = createH2InMemoryConnection();
+        Connection connection = createH2InMemoryConnection();
 
-        // Create the schema for unit testing
-        Database liquibaseDb = DatabaseFactory.getInstance()
-                                              .findCorrectDatabaseImplementation(new JdbcConnection(connection));
-        Liquibase lq = new Liquibase(liquibaseChangelogLocation, new ClassLoaderResourceAccessor(), liquibaseDb);
-        try {
-            lq.update("");
-        } catch (MigrationFailedException e) {
-            // catch the exception because in PopulateConfigurationRegistrySpaceIdColumnChange liquibase change there is rest call
-            if (e.getCause()
-                 .getClass() != UnexpectedLiquibaseException.class) {
-                throw e;
-            }
-        }
+        initializeDataSource(liquibaseChangelogLocation, connectionForLiquibase);
 
-        // Initialize the fileService to use our in-memory connection through a pool emulation (so
-        // that close releases rather than close)
         return new SingleConnectionDataSource(connection, true);
     }
 
-    private static Connection createH2InMemory() throws SQLException {
-        Connection connection = null;
-        connection = DriverManager.getConnection("jdbc:h2:mem:testdb", "sa", "");
-        return connection;
+    private static void initializeDataSource(String liquibaseChangelogLocation, Connection connection) throws Exception {
+        Database liquibaseDatabase = DatabaseFactory.getInstance()
+                                                    .findCorrectDatabaseImplementation(new JdbcConnection(connection));
+        try (Liquibase liquibase = new Liquibase(liquibaseChangelogLocation, new ClassLoaderResourceAccessor(), liquibaseDatabase)) {
+            liquibase.update("");
+        }
     }
+
+    private static Connection createH2InMemoryConnection() throws SQLException {
+        return DriverManager.getConnection("jdbc:h2:mem:testdb", "sa", "");
+    }
+
 }
