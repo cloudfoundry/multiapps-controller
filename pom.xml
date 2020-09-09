@@ -871,6 +871,13 @@
             </dependency>
             <dependency>
                 <groupId>org.cloudfoundry.multiapps</groupId>
+                <artifactId>multiapps-controller-process</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.cloudfoundry.multiapps</groupId>
                 <artifactId>multiapps-controller-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
