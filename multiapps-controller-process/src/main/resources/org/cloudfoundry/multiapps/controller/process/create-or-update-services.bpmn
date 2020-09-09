@@ -3,6 +3,7 @@
   <process id="createOrUpdateServicesSubProcess" name="Create or update services" isExecutable="true">
     <extensionElements>
       <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="ENTITY_DELETED" delegateExpression="${expiredJobListener}"></flowable:eventListener>
     </extensionElements>
     <startEvent id="startevent3" name="Start"></startEvent>
     <serviceTask id="DetermineServiceCreateUpdateActionsTask" name="Determine update actions" flowable:async="true" flowable:delegateExpression="${determineServiceCreateUpdateActionsStep}">

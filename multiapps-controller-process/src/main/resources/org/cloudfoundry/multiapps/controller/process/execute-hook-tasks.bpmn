@@ -3,6 +3,7 @@
   <process id="executeHookTasksSubProcess" name="Execute Hook Tasks SubProcess" isExecutable="true">
     <extensionElements>
   	  <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="ENTITY_DELETED" delegateExpression="${expiredJobListener}"></flowable:eventListener>
     </extensionElements>
     <startEvent id="startEvent1"></startEvent>
     <callActivity id="executeTasksCallActivity" name="Execute Tasks Call Activity" flowable:async="true" calledElement="executeTasksSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>

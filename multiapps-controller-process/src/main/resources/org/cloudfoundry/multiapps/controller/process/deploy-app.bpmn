@@ -4,6 +4,7 @@
   <process id="deployAppSubProcess" name="Deploy App Sub Process" isExecutable="true">
     <extensionElements>
       <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="ENTITY_DELETED" delegateExpression="${expiredJobListener}"></flowable:eventListener>
     </extensionElements>
     <startEvent id="startEvent" name="Start" flowable:initiator="initiator" flowable:formFieldValidation="true"></startEvent>
     <serviceTask id="stopAppTask" name="Stop App" flowable:async="true" flowable:delegateExpression="${stopAppStep}"></serviceTask>

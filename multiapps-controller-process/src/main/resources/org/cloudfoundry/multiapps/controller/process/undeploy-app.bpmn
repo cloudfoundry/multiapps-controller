@@ -3,6 +3,7 @@
   <process id="undeployAppSubProcess" name="UndeployAppSubProcess" isExecutable="true">
     <extensionElements>
       <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="ENTITY_DELETED" delegateExpression="${expiredJobListener}"></flowable:eventListener>
     </extensionElements>
     <startEvent id="startEvent" flowable:formFieldValidation="true"></startEvent>
     <serviceTask id="stopApplicationUndeploymentTask" name="Stop Application Undeployment Step" flowable:async="true" flowable:delegateExpression="${stopApplicationUndeploymentStep}"></serviceTask>
