@@ -13,6 +13,7 @@ public interface FileContentConsumer {
      * Consume the content of a file.
      *
      * @param inputStream an input stream representing the file content
+     * @throws IOException in case of read/write error
      */
     void consume(InputStream inputStream) throws IOException;
 

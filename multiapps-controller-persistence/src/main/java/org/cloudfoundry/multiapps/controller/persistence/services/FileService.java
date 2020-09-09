@@ -54,13 +54,12 @@ public class FileService {
     /**
      * Uploads a new file.
      *
-     * @param space
+     * @param space the uploaded file will be associated with the specified space
      * @param namespace namespace where the file will be uploaded
      * @param name name of the uploaded file
-     * @param fileUploadProcessor file processor
      * @param inputStream input stream to read the content from
      * @return an object representing the file upload
-     * @throws FileStorageException
+     * @throws FileStorageException if the file cannot be uploaded
      */
     public FileEntry addFile(String space, String namespace, String name, InputStream inputStream) throws FileStorageException {
         // Stream the file to a temp location and get the size and MD5 digest

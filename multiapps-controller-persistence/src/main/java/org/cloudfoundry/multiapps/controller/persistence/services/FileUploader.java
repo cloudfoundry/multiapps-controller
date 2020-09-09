@@ -35,9 +35,8 @@ public class FileUploader {
      * Uploads file.
      * 
      * @param is input stream
-     * @param fileUploadProcessor file upload processor
      * @return uploaded file
-     * @throws FileStorageException
+     * @throws FileStorageException if the file cannot be uploaded
      */
     public static FileInfo uploadFile(InputStream is) throws FileStorageException {
         BigInteger size = BigInteger.valueOf(0);
