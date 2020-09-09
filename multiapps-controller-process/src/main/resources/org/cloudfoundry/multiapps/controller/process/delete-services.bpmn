@@ -3,6 +3,7 @@
   <process id="deleteServiceSubProcess" name="Delete Service Sub Process" isExecutable="true">
     <extensionElements>
       <flowable:eventListener events="JOB_EXECUTION_FAILURE,ENTITY_CREATED" delegateExpression="${errorProcessListener}"></flowable:eventListener>
+      <flowable:eventListener events="ENTITY_DELETED" delegateExpression="${expiredJobListener}"></flowable:eventListener>
     </extensionElements>
     <startEvent id="startEvent" name="Start" flowable:initiator="initiator"></startEvent>
     <endEvent id="endevent1" name="End"></endEvent>

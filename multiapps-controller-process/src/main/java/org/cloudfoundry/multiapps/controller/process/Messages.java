@@ -206,6 +206,7 @@ public class Messages {
     public static final String DELETING_FLOWABLE_PROCESS_WITH_ID = "Deleting Flowable process with ID \"{0}\"";
     public static final String FLOWABLE_PROCESSES_TO_DELETE = "Flowable processes to delete: {0}";
     public static final String APPLICATION_NOT_STAGED_CORRECTLY = "Application \"{0}\" was not staged correctly during the previous deployment";
+    public static final String JOB_WITH_ID_AND_TASK_NAME_EXPIRED = "Job with id \"{0}\" and Task name \"{1}\" expired";
 
     // Progress messages
 
