@@ -4,9 +4,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import org.cloudfoundry.multiapps.controller.core.persistence.query.ProgressMessageQuery;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
@@ -20,12 +20,11 @@ import org.mockito.MockitoAnnotations;
 
 class RetryProcessAdditionalActionTest {
 
-    private static final String PROCESS_GUID = UUID.randomUUID()
-                                                   .toString();
-    private static final String EXECUTION_1_ACTIVITY_ID = UUID.randomUUID()
-                                                              .toString();
-    private static final String EXECUTION_2_ACTIVITY_ID = UUID.randomUUID()
-                                                              .toString();
+    private static final Supplier<String> RANDOM_UUID_SUPPLIER = () -> UUID.randomUUID()
+                                                                           .toString();
+    private static final String PROCESS_GUID = RANDOM_UUID_SUPPLIER.get();
+    private static final String EXECUTION_1_ACTIVITY_ID = RANDOM_UUID_SUPPLIER.get();
+    private static final String EXECUTION_2_ACTIVITY_ID = RANDOM_UUID_SUPPLIER.get();
 
     @Mock
     private FlowableFacade flowableFacade;
@@ -65,7 +64,7 @@ class RetryProcessAdditionalActionTest {
         Execution secondExecution = Mockito.mock(Execution.class);
         Mockito.when(secondExecution.getActivityId())
                .thenReturn(EXECUTION_2_ACTIVITY_ID);
-        return Arrays.asList(firstExecution, secondExecution);
+        return List.of(firstExecution, secondExecution);
     }
 
     private void prepareProgressMessageService() {

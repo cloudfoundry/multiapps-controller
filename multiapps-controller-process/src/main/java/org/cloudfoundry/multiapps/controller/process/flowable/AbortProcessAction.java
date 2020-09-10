@@ -15,8 +15,6 @@ import org.cloudfoundry.multiapps.controller.process.util.ProcessConflictPrevent
 @Named
 public class AbortProcessAction extends ProcessAction {
 
-    public static final String ACTION_ID_ABORT = "abort";
-
     private final HistoricOperationEventPersister historicEventPersister;
     private final OperationService operationService;
 
@@ -45,8 +43,8 @@ public class AbortProcessAction extends ProcessAction {
     }
 
     @Override
-    public String getActionId() {
-        return ACTION_ID_ABORT;
+    public Action getAction() {
+        return Action.ABORT;
     }
 
 }

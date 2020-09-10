@@ -1,9 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.flowable;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.cloudfoundry.multiapps.controller.process.Messages;
 
 @Named
 public class ProcessActionRegistry {
@@ -15,11 +18,12 @@ public class ProcessActionRegistry {
         this.processActions = processActions;
     }
 
-    public ProcessAction getAction(String actionId) {
+    public ProcessAction getAction(Action action) {
         return processActions.stream()
-                             .filter(action -> actionId.equals(action.getActionId()))
+                             .filter(processAction -> processAction.getAction() == action)
                              .findFirst()
-                             .orElse(null);
+                             .orElseThrow(() -> new IllegalStateException(MessageFormat.format(Messages.NO_PROCESS_ACTION_FOUND,
+                                                                                               action.getActionId())));
     }
 
 }

@@ -16,9 +16,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class FlowableActionFactoryTest {
 
-    private static final String RESUME_ACTION_ID = "resume";
-    private static final String RETRY_ACTION_ID = "retry";
-    private static final String ABORT_ACTION_ID = "abort";
+    private static final Action RESUME_ACTION_ID = Action.RESUME;
+    private static final Action RETRY_ACTION_ID = Action.RETRY;
+    private static final Action ABORT_ACTION_ID = Action.ABORT;
     @Mock
     FlowableFacade facade;
     @Mock
@@ -62,8 +62,8 @@ public class FlowableActionFactoryTest {
         testAction(RESUME_ACTION_ID, ResumeProcessAction.class);
     }
 
-    private void testAction(String actionId, Class<? extends ProcessAction> actionClass) {
-        ProcessAction action = processActionRegistry.getAction(actionId);
-        assertEquals(action.getClass(), actionClass);
+    private void testAction(Action action, Class<? extends ProcessAction> actionClass) {
+        ProcessAction processAction = processActionRegistry.getAction(action);
+        assertEquals(processAction.getClass(), actionClass);
     }
 }

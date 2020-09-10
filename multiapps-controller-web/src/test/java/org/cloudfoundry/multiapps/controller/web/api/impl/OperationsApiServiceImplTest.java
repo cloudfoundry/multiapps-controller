@@ -35,12 +35,10 @@ import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMe
 import org.cloudfoundry.multiapps.controller.core.util.MockBuilder;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
-import org.cloudfoundry.multiapps.controller.process.flowable.AbortProcessAction;
+import org.cloudfoundry.multiapps.controller.process.flowable.Action;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessAction;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessActionRegistry;
-import org.cloudfoundry.multiapps.controller.process.flowable.RetryProcessAction;
-import org.cloudfoundry.multiapps.controller.process.flowable.StartProcessAction;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
 import org.cloudfoundry.multiapps.controller.process.util.OperationsHelper;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -164,7 +162,7 @@ public class OperationsApiServiceImplTest {
     @Test
     public void testExecuteOperationAction() {
         String processId = RUNNING_PROCESS;
-        testedClass.executeOperationAction(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, processId, AbortProcessAction.ACTION_ID_ABORT);
+        testedClass.executeOperationAction(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, processId, Action.ABORT.getActionId());
         Mockito.verify(processAction)
                .execute(Mockito.eq(EXAMPLE_USER), Mockito.eq(processId));
     }
@@ -173,21 +171,21 @@ public class OperationsApiServiceImplTest {
     public void testExecuteOperationActionMissingProcess() {
         Assertions.assertThrows(NotFoundException.class,
                                 () -> testedClass.executeOperationAction(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID,
-                                                                         "notavalidpprocess", AbortProcessAction.ACTION_ID_ABORT));
+                                                                         "notavalidpprocess", Action.ABORT.getActionId()));
     }
 
     @Test
     public void testExecuteOperationActionInvalidAction() {
         assertThrows(IllegalArgumentException.class,
                      () -> testedClass.executeOperationAction(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, RUNNING_PROCESS,
-                                                              StartProcessAction.ACTION_ID_START));
+                                                              Action.START.getActionId()));
     }
 
     @Test
     public void testExecuteOperationActionUnauthorized() {
         Assertions.assertThrows(ResponseStatusException.class,
                                 () -> testedClass.executeOperationAction(mockHttpServletRequest(null), SPACE_GUID, RUNNING_PROCESS,
-                                                                         AbortProcessAction.ACTION_ID_ABORT));
+                                                                         Action.ABORT.getActionId()));
     }
 
     @Test
@@ -247,7 +245,7 @@ public class OperationsApiServiceImplTest {
     public void testGetOperationActionsForRunning() {
         ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, RUNNING_PROCESS);
         List<String> actions = response.getBody();
-        assertEquals(Collections.singletonList(AbortProcessAction.ACTION_ID_ABORT), actions);
+        assertEquals(Collections.singletonList(Action.ABORT.getActionId()), actions);
     }
 
     @Test
@@ -268,7 +266,7 @@ public class OperationsApiServiceImplTest {
     public void testGetOperationActionsForError() {
         ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, ERROR_PROCESS);
         List<String> actions = response.getBody();
-        assertEquals(Arrays.asList(AbortProcessAction.ACTION_ID_ABORT, RetryProcessAction.ACTION_ID_RETRY), actions);
+        assertEquals(Arrays.asList(Action.ABORT.getActionId(), Action.RETRY.getActionId()), actions);
     }
 
     @Test
@@ -280,7 +278,7 @@ public class OperationsApiServiceImplTest {
     public void testGetOperationActionsNotFound() {
         ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, RUNNING_PROCESS);
         List<String> actions = response.getBody();
-        assertEquals(Collections.singletonList(AbortProcessAction.ACTION_ID_ABORT), actions);
+        assertEquals(Collections.singletonList(Action.ABORT.getActionId()), actions);
     }
 
     private void mockFlowableFacade() {

@@ -43,12 +43,10 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
-import org.cloudfoundry.multiapps.controller.process.flowable.AbortProcessAction;
+import org.cloudfoundry.multiapps.controller.process.flowable.Action;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessAction;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessActionRegistry;
-import org.cloudfoundry.multiapps.controller.process.flowable.ResumeProcessAction;
-import org.cloudfoundry.multiapps.controller.process.flowable.RetryProcessAction;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
 import org.cloudfoundry.multiapps.controller.process.util.OperationsHelper;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -99,7 +97,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             throw new IllegalArgumentException(MessageFormat.format(Messages.ACTION_0_CANNOT_BE_EXECUTED_OVER_OPERATION_1_IN_STATE_2,
                                                                     actionId, operationId, operation.getState()));
         }
-        ProcessAction action = processActionRegistry.getAction(actionId);
+        ProcessAction action = processActionRegistry.getAction(Action.fromString(actionId));
         action.execute(getAuthenticatedUser(request), operationId);
         AuditLoggingProvider.getFacade()
                             .logAboutToStart(MessageFormat.format("{0} over operation with id {1}", action, operation.getProcessId()));
@@ -180,8 +178,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                         .collect(Collectors.toList());
     }
 
-    private List<Operation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<Operation.State> states,
-                                                    String spaceGuid, String mtaId) {
+    private List<Operation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<Operation.State> states, String spaceGuid,
+                                                    String mtaId) {
         OperationQuery operationQuery = operationService.createQuery()
                                                         .orderByStartTime(OrderDirection.ASCENDING)
                                                         .spaceId(spaceGuid);
@@ -229,11 +227,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             case ABORTED:
                 return Collections.emptyList();
             case ERROR:
-                return Arrays.asList(AbortProcessAction.ACTION_ID_ABORT, RetryProcessAction.ACTION_ID_RETRY);
+                return Arrays.asList(Action.ABORT.getActionId(), Action.RETRY.getActionId());
             case RUNNING:
-                return Collections.singletonList(AbortProcessAction.ACTION_ID_ABORT);
+                return Collections.singletonList(Action.ABORT.getActionId());
             case ACTION_REQUIRED:
-                return Arrays.asList(AbortProcessAction.ACTION_ID_ABORT, ResumeProcessAction.ACTION_ID_RESUME);
+                return Arrays.asList(Action.ABORT.getActionId(), Action.RESUME.getActionId());
         }
         throw new IllegalStateException(MessageFormat.format("State \"{0}\" not recognized!", operation.getState()));
     }

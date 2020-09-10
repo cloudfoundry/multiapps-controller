@@ -42,8 +42,8 @@ public class RetryProcessAdditionalAction implements AdditionalProcessAction {
     }
 
     @Override
-    public String getApplicableActionId() {
-        return RetryProcessAction.ACTION_ID_RETRY;
+    public Action getApplicableAction() {
+        return Action.RETRY;
     }
 
 }

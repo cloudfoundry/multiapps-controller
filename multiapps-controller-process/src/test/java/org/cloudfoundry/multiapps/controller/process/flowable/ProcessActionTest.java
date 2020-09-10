@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RuntimeService;
@@ -21,14 +21,13 @@ import org.mockito.MockitoAnnotations;
 
 abstract class ProcessActionTest {
 
-    static final String EXECUTION_ID = UUID.randomUUID()
-                                           .toString();
-    static final String PROCESS_GUID = UUID.randomUUID()
-                                           .toString();
-    static final String SUBPROCESS_1_ID = UUID.randomUUID()
-                                              .toString();
-    static final String SUBPROCESS_2_ID = UUID.randomUUID()
-                                              .toString();
+    private static final Supplier<String> RANDOM_UUID_SUPPLIER = () -> UUID.randomUUID()
+                                                                           .toString();
+    static final String EXECUTION_ID = RANDOM_UUID_SUPPLIER.get();
+    static final String PROCESS_GUID = RANDOM_UUID_SUPPLIER.get();
+    static final String SUBPROCESS_1_ID = RANDOM_UUID_SUPPLIER.get();
+    static final String SUBPROCESS_2_ID = RANDOM_UUID_SUPPLIER.get();
+
     protected ProcessAction processAction;
     @Mock
     protected FlowableFacade flowableFacade;

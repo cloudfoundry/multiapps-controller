@@ -41,14 +41,13 @@ public abstract class ProcessAction {
 
     private List<AdditionalProcessAction> filterAdditionalActionsForThisAction() {
         return additionalProcessActions.stream()
-                                       .filter(additionalAction -> additionalAction.getApplicableActionId()
-                                                                                   .equals(getActionId()))
+                                       .filter(additionalAction -> additionalAction.getApplicableAction() == getAction())
                                        .collect(Collectors.toList());
     }
 
     protected abstract void executeActualProcessAction(String user, String superProcessInstanceId);
 
-    public abstract String getActionId();
+    public abstract Action getAction();
 
     protected void updateUserIfNecessary(String user, String executionId) {
         HistoryService historyService = flowableFacade.getProcessEngine()

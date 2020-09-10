@@ -2,9 +2,9 @@ package org.cloudfoundry.multiapps.controller.process.flowable;
 
 import static org.mockito.Mockito.never;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import org.cloudfoundry.multiapps.controller.process.steps.StepPhase;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -21,12 +21,11 @@ import org.mockito.MockitoAnnotations;
 
 class SetRetryPhaseAdditionalProcessActionTest {
 
-    private static final String PROCESS_GUID = UUID.randomUUID()
-                                                   .toString();
-    private static final String EXECUTION_WITHOUT_DEADLETTER_JOBS_PROCESS_ID = UUID.randomUUID()
-                                                                                   .toString();
-    private static final String EXECUTION_WITH_DEADLETTER_JOBS_PROCESS_ID = UUID.randomUUID()
-                                                                                .toString();
+    private static final Supplier<String> RANDOM_UUID_SUPPLIER = () -> UUID.randomUUID()
+                                                                           .toString();
+    private static final String PROCESS_GUID = RANDOM_UUID_SUPPLIER.get();
+    private static final String EXECUTION_WITHOUT_DEADLETTER_JOBS_PROCESS_ID = RANDOM_UUID_SUPPLIER.get();
+    private static final String EXECUTION_WITH_DEADLETTER_JOBS_PROCESS_ID = RANDOM_UUID_SUPPLIER.get();
 
     @Mock
     private FlowableFacade flowableFacade;
@@ -71,7 +70,7 @@ class SetRetryPhaseAdditionalProcessActionTest {
                .thenReturn(EXECUTION_WITH_DEADLETTER_JOBS_PROCESS_ID);
         Mockito.when(executionWithDeadLetterJobs.getDeadLetterJobCount())
                .thenReturn(1);
-        return Arrays.asList(executionWithoutDeadLetterJobs, executionWithDeadLetterJobs);
+        return List.of(executionWithoutDeadLetterJobs, executionWithDeadLetterJobs);
     }
 
     private void prepareProcessEngine() {
