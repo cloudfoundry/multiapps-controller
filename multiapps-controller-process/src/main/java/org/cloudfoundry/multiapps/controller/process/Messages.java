@@ -59,6 +59,8 @@ public class Messages {
     public static final String APPLICATION_UNBOUND_IN_PARALLEL = "Application {0} was bound to service {1} which was unbound in parallel";
     public static final String ABORT_OPERATION_TIMED_OUT = "Abort operation timed out";
     public static final String FLOWABLE_JOB_RETRY_FAILED = "Flowable job retry failed";
+    public static final String UNSUPPORTED_ACTION = "Unsupported action: \"{0}\"";
+    public static final String NO_PROCESS_ACTION_FOUND = "No process action found for: \"{0}\"";
 
     // Audit log messages
 

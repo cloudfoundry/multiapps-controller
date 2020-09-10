@@ -14,7 +14,7 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.flowable.AbortProcessAction;
+import org.cloudfoundry.multiapps.controller.process.flowable.Action;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessAction;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessActionRegistry;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
@@ -102,7 +102,7 @@ public class OperationsCleaner implements Cleaner {
     }
 
     private void abort(Operation operation) {
-        ProcessAction abortAction = processActionRegistry.getAction(AbortProcessAction.ACTION_ID_ABORT);
+        ProcessAction abortAction = processActionRegistry.getAction(Action.ABORT);
         String processId = operation.getProcessId();
         LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.ABORTING_OPERATION_0, processId));
         abortAction.execute(null, processId);

@@ -10,8 +10,6 @@ import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvid
 @Named
 public class StartProcessAction extends ResumeProcessAction {
 
-    public static final String ACTION_ID_START = "start";
-
     @Inject
     public StartProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
                               CloudControllerClientProvider cloudControllerClientProvider) {
@@ -19,7 +17,7 @@ public class StartProcessAction extends ResumeProcessAction {
     }
 
     @Override
-    public String getActionId() {
-        return ACTION_ID_START;
+    public Action getAction() {
+        return Action.START;
     }
 }

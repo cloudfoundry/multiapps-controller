@@ -27,7 +27,7 @@ class ResumeProcessActionTest extends ProcessActionTest {
                .thenReturn(mockedExecutions)
                .thenReturn(Collections.emptyList());
         processAction.execute("fake-user", PROCESS_GUID);
-        Mockito.verify(flowableFacade, times(1))
+        Mockito.verify(flowableFacade)
                .trigger(EXECUTION_ID, Map.of(Variables.USER.getName(), "fake-user"));
     }
 

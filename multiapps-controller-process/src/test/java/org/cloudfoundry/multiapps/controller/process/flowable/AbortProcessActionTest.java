@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.flowable;
 
-import static org.mockito.ArgumentMatchers.anyString;
-
 import java.util.Collections;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
@@ -37,7 +35,7 @@ class AbortProcessActionTest extends ProcessActionTest {
 
     private void prepareOperationService() {
         OperationQuery mockedOperationQuery = Mockito.mock(OperationQuery.class);
-        Mockito.when(mockedOperationQuery.processId(anyString()))
+        Mockito.when(mockedOperationQuery.processId(PROCESS_GUID))
                .thenReturn(mockedOperationQuery);
         Operation operation = Mockito.mock(Operation.class);
         Mockito.when(mockedOperationQuery.singleResult())

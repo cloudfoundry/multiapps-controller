@@ -6,7 +6,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
-import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.OperationInFinalStateHandler;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEntityEvent;
@@ -63,7 +62,8 @@ public class AbortProcessListener extends AbstractFlowableEngineEventListener {
             return false;
         }
         ExecutionEntity executionEntity = (ExecutionEntity) event.getEntity();
-        return executionEntity.isProcessInstanceType() && Operation.State.ABORTED.name().equals(executionEntity.getDeleteReason());
+        return executionEntity.isProcessInstanceType() && Operation.State.ABORTED.name()
+                                                                                 .equals(executionEntity.getDeleteReason());
     }
 
 }

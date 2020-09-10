@@ -19,8 +19,6 @@ public class ResumeProcessAction extends ProcessAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResumeProcessAction.class);
 
-    public static final String ACTION_ID_RESUME = "resume";
-
     @Inject
     public ResumeProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
                                CloudControllerClientProvider cloudControllerClientProvider) {
@@ -53,8 +51,8 @@ public class ResumeProcessAction extends ProcessAction {
     }
 
     @Override
-    public String getActionId() {
-        return ACTION_ID_RESUME;
+    public Action getAction() {
+        return Action.RESUME;
     }
 
 }
