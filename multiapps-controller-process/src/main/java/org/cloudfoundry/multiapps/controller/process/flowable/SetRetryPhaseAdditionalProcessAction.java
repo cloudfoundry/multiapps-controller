@@ -25,19 +25,22 @@ public class SetRetryPhaseAdditionalProcessAction implements AdditionalProcessAc
                       .map(this::toExecutionEntityImpl)
                       .filter(executionEntityImpl -> executionEntityImpl.getDeadLetterJobCount() > 0)
                       .map(ExecutionEntityImpl::getProcessInstanceId)
-                      .forEach(executionProcessId -> flowableFacade.getProcessEngine()
-                                                                   .getRuntimeService()
-                                                                   .setVariable(executionProcessId, Variables.STEP_PHASE.getName(),
-                                                                                StepPhase.RETRY.toString()));
+                      .forEach(this::setRetryPhaseForProcess);
     }
 
     private ExecutionEntityImpl toExecutionEntityImpl(Execution execution) {
         return (ExecutionEntityImpl) execution;
     }
 
+    private void setRetryPhaseForProcess(String executionProcessId) {
+        flowableFacade.getProcessEngine()
+                      .getRuntimeService()
+                      .setVariable(executionProcessId, Variables.STEP_PHASE.getName(), StepPhase.RETRY.toString());
+    }
+
     @Override
-    public String getApplicableActionId() {
-        return RetryProcessAction.ACTION_ID_RETRY;
+    public Action getApplicableAction() {
+        return Action.RETRY;
     }
 
 }

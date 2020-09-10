@@ -23,6 +23,7 @@ import org.cloudfoundry.multiapps.controller.core.persistence.query.OperationQue
 import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
 import org.cloudfoundry.multiapps.controller.core.util.MockBuilder;
 import org.cloudfoundry.multiapps.controller.process.flowable.AbortProcessAction;
+import org.cloudfoundry.multiapps.controller.process.flowable.Action;
 import org.cloudfoundry.multiapps.controller.process.flowable.AdditionalProcessAction;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessActionRegistry;
@@ -67,7 +68,7 @@ class OperationsCleanerTest {
         MockitoAnnotations.initMocks(this);
         cleaner.withPageSize(PAGE_SIZE);
 
-        when(registry.getAction("abort")).thenReturn(new AbortProcessActionMock(flowableFacade,
+        when(registry.getAction(Action.ABORT)).thenReturn(new AbortProcessActionMock(flowableFacade,
                                                                                 Collections.emptyList(),
                                                                                 historicOperationEventPersister,
                                                                                 operationService,

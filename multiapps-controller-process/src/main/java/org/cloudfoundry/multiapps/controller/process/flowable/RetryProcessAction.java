@@ -18,8 +18,6 @@ public class RetryProcessAction extends ProcessAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RetryProcessAction.class);
 
-    public static final String ACTION_ID_RETRY = "retry";
-
     private final HistoricOperationEventPersister historicOperationEventPersister;
 
     @Inject
@@ -54,8 +52,8 @@ public class RetryProcessAction extends ProcessAction {
     }
 
     @Override
-    public String getActionId() {
-        return ACTION_ID_RETRY;
+    public Action getAction() {
+        return Action.RETRY;
     }
 
 }
