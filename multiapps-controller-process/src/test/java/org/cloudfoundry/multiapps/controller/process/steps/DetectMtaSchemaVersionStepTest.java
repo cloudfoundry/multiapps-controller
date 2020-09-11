@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.controller.core.util.DescriptorTestUtil;
+import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.Messages;
 import org.cloudfoundry.multiapps.mta.handlers.SchemaVersionDetector;

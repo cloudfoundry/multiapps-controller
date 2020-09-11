@@ -18,7 +18,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApp
 import org.cloudfoundry.multiapps.controller.core.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.core.persistence.query.ConfigurationEntryQuery;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationEntryService;
-import org.cloudfoundry.multiapps.controller.core.util.MockBuilder;
+import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.Before;
 import org.junit.BeforeClass;

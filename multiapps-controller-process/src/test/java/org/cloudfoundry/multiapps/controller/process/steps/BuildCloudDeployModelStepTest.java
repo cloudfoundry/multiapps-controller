@@ -23,7 +23,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.v2.ServiceKeysCloudModelBui
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ServicesCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
-import org.cloudfoundry.multiapps.controller.core.util.DescriptorTestUtil;
+import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;

@@ -3,8 +3,7 @@ package org.cloudfoundry.multiapps.controller.core.health.model;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
-import javax.annotation.Nullable;
-
+import org.cloudfoundry.multiapps.common.Nullable;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessTypeDeserializer;

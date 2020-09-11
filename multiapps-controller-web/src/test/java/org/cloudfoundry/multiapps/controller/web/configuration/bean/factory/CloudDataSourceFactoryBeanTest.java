@@ -10,8 +10,8 @@ import static org.mockito.Mockito.when;
 
 import javax.sql.DataSource;
 
+import org.cloudfoundry.multiapps.controller.core.test.LambdaArgumentMatcher;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.core.util.LambdaArgumentMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;

@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.process.Constants;
-import org.cloudfoundry.multiapps.controller.process.mock.MockDelegateExecution;
+import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.util.OperationInFinalStateHandler;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEntityEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;

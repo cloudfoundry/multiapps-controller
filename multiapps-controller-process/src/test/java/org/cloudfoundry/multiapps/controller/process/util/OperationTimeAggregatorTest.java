@@ -3,14 +3,14 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.HashMap;
 
 class OperationTimeAggregatorTest {
 

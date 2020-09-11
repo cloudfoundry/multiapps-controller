@@ -135,6 +135,7 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-spring-service-connector</artifactId>
         </dependency>
+        <!-- TODO: This dependency prevents us from writing a module-info.java file for this module (see https://github.com/spring-cloud/spring-cloud-connectors/issues/313). -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-cloudfoundry-connector</artifactId>
@@ -170,12 +171,11 @@
         <dependency>
             <groupId>org.cloudfoundry.multiapps</groupId>
             <artifactId>multiapps-controller-core</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.cloudfoundry.multiapps</groupId>
-            <artifactId>multiapps-controller-core</artifactId>
+            <artifactId>multiapps-controller-core-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.cloudfoundry.multiapps</groupId>

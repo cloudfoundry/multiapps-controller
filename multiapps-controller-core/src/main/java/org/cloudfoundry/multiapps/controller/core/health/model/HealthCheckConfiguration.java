@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.health.model;
 
-import javax.annotation.Nullable;
-
+import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 
 @Value.Immutable

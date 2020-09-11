@@ -19,7 +19,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
-import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.model.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;

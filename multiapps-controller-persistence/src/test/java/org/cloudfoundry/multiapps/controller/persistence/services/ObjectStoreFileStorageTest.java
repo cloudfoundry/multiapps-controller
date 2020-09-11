@@ -70,7 +70,9 @@ public class ObjectStoreFileStorageTest {
 
     @After
     public void tearDown() {
-        blobStoreContext.close();
+        if (blobStoreContext != null) {
+            blobStoreContext.close();
+        }
     }
 
     @Test
@@ -103,7 +105,6 @@ public class ObjectStoreFileStorageTest {
         fileStorage.deleteFile(fileThatWillBeDeleted.getId(), fileThatWillBeDeleted.getSpace());
         assertFileExists(false, fileThatWillBeDeleted);
         assertFileExists(true, fileThatStays);
-
     }
 
     @Test
@@ -116,7 +117,6 @@ public class ObjectStoreFileStorageTest {
         assertFileExists(false, firstFile);
         assertFileExists(false, secondFile);
         assertFileExists(true, fileInOtherSpace);
-
     }
 
     @Test
@@ -131,7 +131,6 @@ public class ObjectStoreFileStorageTest {
         assertFileExists(true, fileInOtherSpace);
         assertFileExists(false, firstFile);
         assertFileExists(false, secondFile);
-
     }
 
     @Test

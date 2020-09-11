@@ -1,7 +1,6 @@
-package org.cloudfoundry.multiapps.controller.core.util;
+package org.cloudfoundry.multiapps.controller.core.test;
 
-import static java.text.MessageFormat.format;
-import static org.junit.Assert.fail;
+import java.text.MessageFormat;
 
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.mta.handlers.ConfigurationParser;
@@ -9,6 +8,7 @@ import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Platform;
+import org.junit.jupiter.api.Assertions;
 
 public class DescriptorTestUtil {
 
@@ -20,7 +20,7 @@ public class DescriptorTestUtil {
         try {
             return new ConfigurationParser().parsePlatformJson(TestUtil.getResourceAsString(filePath, testClass));
         } catch (Exception e) {
-            fail(format(COULD_NOT_LOAD_PLATFORM, e.getMessage()));
+            Assertions.fail(MessageFormat.format(COULD_NOT_LOAD_PLATFORM, e.getMessage()));
             return null;
         }
     }
@@ -29,7 +29,7 @@ public class DescriptorTestUtil {
         try {
             return DESCRIPTOR_PARSER_FACADE.parseDeploymentDescriptor(TestUtil.getResourceAsString(filePath, testClass));
         } catch (Exception e) {
-            fail(format(COULD_NOT_LOAD_DEPLOYMENT_DESCRIPTOR, e.getMessage()));
+            Assertions.fail(MessageFormat.format(COULD_NOT_LOAD_DEPLOYMENT_DESCRIPTOR, e.getMessage()));
             return null;
         }
     }
@@ -38,7 +38,7 @@ public class DescriptorTestUtil {
         try {
             return DESCRIPTOR_PARSER_FACADE.parseExtensionDescriptor(TestUtil.getResourceAsString(filePath, testClass));
         } catch (Exception e) {
-            fail(format(COULD_NOT_LOAD_DEPLOYMENT_DESCRIPTOR, e.getMessage()));
+            Assertions.fail(MessageFormat.format(COULD_NOT_LOAD_DEPLOYMENT_DESCRIPTOR, e.getMessage()));
             return null;
         }
     }

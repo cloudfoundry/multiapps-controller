@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.configuration;
 
 import java.util.Map;
 
-interface EnvironmentVariablesAccessor {
+public interface EnvironmentVariablesAccessor {
 
     Map<String, String> getAllVariables();
 

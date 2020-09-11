@@ -4,12 +4,11 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 import org.immutables.value.Value;
-import org.immutables.value.Value.Immutable;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-@Immutable
+@Value.Immutable
 @JsonSerialize(as = ImmutableProgressMessage.class)
 @JsonDeserialize(as = ImmutableProgressMessage.class)
 public interface ProgressMessage {

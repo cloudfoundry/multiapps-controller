@@ -28,7 +28,7 @@ import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscriptio
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.persistence.query.ConfigurationSubscriptionQuery;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationSubscriptionService;
-import org.cloudfoundry.multiapps.controller.core.util.MockBuilder;
+import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;

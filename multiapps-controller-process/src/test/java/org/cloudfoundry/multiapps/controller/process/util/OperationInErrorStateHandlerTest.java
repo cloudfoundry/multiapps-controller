@@ -12,7 +12,7 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
 import org.cloudfoundry.multiapps.controller.core.persistence.query.ProgressMessageQuery;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
-import org.cloudfoundry.multiapps.controller.core.util.MockBuilder;
+import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;

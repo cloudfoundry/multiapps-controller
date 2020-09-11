@@ -34,7 +34,7 @@ import org.cloudfoundry.multiapps.controller.core.persistence.query.Configuratio
 import org.cloudfoundry.multiapps.controller.core.persistence.query.ConfigurationSubscriptionQuery;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationSubscriptionService;
-import org.cloudfoundry.multiapps.controller.core.util.MockBuilder;
+import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.junit.Before;
