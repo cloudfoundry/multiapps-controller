@@ -1,15 +1,14 @@
-package org.cloudfoundry.multiapps.controller.core.util;
+package org.cloudfoundry.multiapps.controller.core.test;
 
 import java.io.IOException;
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.HttpContext;
+import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;

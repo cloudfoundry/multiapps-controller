@@ -15,11 +15,9 @@ public class ResilientCloudOperationExecutor extends ResilientOperationExecutor 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResilientCloudOperationExecutor.class);
 
-    private static final Set<HttpStatus> DEFAULT_STATUSES_TO_IGNORE = new HashSet<>(Arrays.asList(HttpStatus.GATEWAY_TIMEOUT,
-                                                                                                  HttpStatus.REQUEST_TIMEOUT,
-                                                                                                  HttpStatus.INTERNAL_SERVER_ERROR,
-                                                                                                  HttpStatus.BAD_GATEWAY,
-                                                                                                  HttpStatus.SERVICE_UNAVAILABLE));
+    private static final Set<HttpStatus> DEFAULT_STATUSES_TO_IGNORE = Set.of(HttpStatus.GATEWAY_TIMEOUT, HttpStatus.REQUEST_TIMEOUT,
+                                                                             HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.BAD_GATEWAY,
+                                                                             HttpStatus.SERVICE_UNAVAILABLE);
 
     private Set<HttpStatus> additionalStatusesToIgnore = Collections.emptySet();
 

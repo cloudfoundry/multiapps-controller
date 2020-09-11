@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.variables;
 
 import java.lang.reflect.Type;
 
-import javax.annotation.Nullable;
+import org.cloudfoundry.multiapps.common.Nullable;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 

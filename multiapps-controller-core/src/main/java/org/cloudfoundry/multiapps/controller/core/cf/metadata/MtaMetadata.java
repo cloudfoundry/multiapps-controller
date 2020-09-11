@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.cf.metadata;
 
-import javax.annotation.Nullable;
-
+import org.cloudfoundry.multiapps.common.Nullable;
 import org.cloudfoundry.multiapps.controller.core.model.adapter.VersionJsonDeserializer;
 import org.cloudfoundry.multiapps.controller.core.model.adapter.VersionJsonSerializer;
 import org.cloudfoundry.multiapps.mta.model.Version;

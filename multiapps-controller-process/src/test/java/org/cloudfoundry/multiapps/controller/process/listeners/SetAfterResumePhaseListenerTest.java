@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import org.cloudfoundry.multiapps.controller.core.model.Phase;
-import org.cloudfoundry.multiapps.controller.process.mock.MockDelegateExecution;
+import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.ExecutionListener;

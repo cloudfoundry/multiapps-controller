@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.util.Arrays;
 
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
-import org.cloudfoundry.multiapps.controller.process.mock.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;

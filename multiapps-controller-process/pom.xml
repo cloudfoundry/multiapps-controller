@@ -25,6 +25,14 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- jackson cannot deserialize Optional<T> values with Java 11 (see DeployedMtaDetectorTest.testGetAllDeployedMtaByNameAndNamespace). -->
+                    <argLine>--add-opens java.base/java.util=com.fasterxml.jackson.databind</argLine>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -40,6 +48,12 @@
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
+        </dependency>
+        <!-- Not having this dependency here leads to the compilation error "module not found: java.servlet". It's probably 
+            required by spring-web. -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -67,8 +81,8 @@
         </dependency>
         <dependency>
             <groupId>org.cloudfoundry.multiapps</groupId>
-            <artifactId>multiapps-controller-core</artifactId>
-            <type>test-jar</type>
+            <artifactId>multiapps-controller-core-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.cloudfoundry.multiapps</groupId>

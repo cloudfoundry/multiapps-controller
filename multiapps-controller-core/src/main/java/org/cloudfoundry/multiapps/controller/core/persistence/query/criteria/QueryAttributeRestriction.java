@@ -1,10 +1,10 @@
 package org.cloudfoundry.multiapps.controller.core.persistence.query.criteria;
 
-import javax.annotation.Nullable;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Immutable;
 

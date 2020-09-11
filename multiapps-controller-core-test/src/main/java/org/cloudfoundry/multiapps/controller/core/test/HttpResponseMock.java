@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.core.util;
+package org.cloudfoundry.multiapps.controller.core.test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;

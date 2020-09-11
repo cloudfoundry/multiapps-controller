@@ -1,8 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.model;
 
-import javax.annotation.Nullable;
-
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
+import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

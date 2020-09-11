@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.process.mock;
+package org.cloudfoundry.multiapps.controller.process.util;
 
 import static org.mockito.Mockito.spy;
 

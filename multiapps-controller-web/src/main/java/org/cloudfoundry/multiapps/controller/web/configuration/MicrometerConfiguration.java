@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.web.configuration;
 import java.text.MessageFormat;
 import java.time.Duration;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -48,7 +47,6 @@ public class MicrometerConfiguration {
             }
 
             @Override
-            @Nullable
             public String get(String k) {
                 return null;
             }

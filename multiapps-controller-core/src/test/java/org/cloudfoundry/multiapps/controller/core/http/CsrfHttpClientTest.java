@@ -9,7 +9,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.protocol.HttpContext;
-import org.cloudfoundry.multiapps.controller.core.util.HttpMocks;
+import org.cloudfoundry.multiapps.controller.core.test.HttpMocks;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

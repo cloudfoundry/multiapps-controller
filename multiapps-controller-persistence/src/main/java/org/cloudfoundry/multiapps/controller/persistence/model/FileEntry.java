@@ -3,8 +3,7 @@ package org.cloudfoundry.multiapps.controller.persistence.model;
 import java.math.BigInteger;
 import java.util.Date;
 
-import javax.annotation.Nullable;
-
+import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

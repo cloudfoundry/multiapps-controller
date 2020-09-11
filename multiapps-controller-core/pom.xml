@@ -16,14 +16,11 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- jackson cannot deserialize Optional<T> values with Java 11 (see DeployedMtaDetectorTest.testGetAllDeployedMtaByNameAndNamespace). -->
+                    <argLine>--add-opens java.base/java.util=com.fasterxml.jackson.databind</argLine>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>de.empulse.eclipselink</groupId>
@@ -86,6 +83,12 @@
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
         </dependency>
+        <!-- Not having this dependency here leads to the compilation error "module not found: java.servlet". It's probably 
+            required by spring-web. -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -108,10 +111,6 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -160,6 +159,11 @@
         <dependency>
             <groupId>org.cloudfoundry.multiapps</groupId>
             <artifactId>multiapps-controller-persistence-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-controller-core-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

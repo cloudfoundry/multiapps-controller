@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
-import org.cloudfoundry.multiapps.controller.process.mock.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.steps.StopAppStep;
 import org.cloudfoundry.multiapps.controller.process.steps.SyncFlowableStep;
