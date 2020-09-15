@@ -46,7 +46,6 @@
         <jgit.version>4.0.1.201506240215-r</jgit.version>
         <swagger.version>1.6.2</swagger.version>
         <jclouds.version>2.2.1</jclouds.version>
-        <guava.version>23.6.1-jre</guava.version>
         <resilience4j.version>1.5.0</resilience4j.version>
         <immutables.version>2.8.8</immutables.version>
         <micrometer.version>1.5.4</micrometer.version>
@@ -689,7 +688,7 @@
                     <!-- C3P0 is only used if Quartz needs to create its own DataSource. Since we use Spring for that purpose, 
                         it is not required. -->
                     <exclusion>
-                        <groupId>c3p0</groupId>
+                        <groupId>com.mchange</groupId>
                         <artifactId>c3p0</artifactId>
                     </exclusion>
                 </exclusions>
@@ -779,20 +778,6 @@
                 <groupId>com.google.auto.service</groupId>
                 <artifactId>auto-service</artifactId>
                 <version>${auto-service.version}</version>
-            </dependency>
-            <!-- Transitive dependency from jclouds. They're using an old version with security vulnerabilities, so we're 
-                pinning it to a newer here. -->
-            <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.google.code.findbugs</groupId>
-                        <artifactId>jsr305</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <!-- https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-ratelimiter -->
             <dependency>
