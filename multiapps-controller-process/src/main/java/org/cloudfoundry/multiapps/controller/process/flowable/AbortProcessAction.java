@@ -8,30 +8,31 @@ import javax.inject.Named;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
-import org.cloudfoundry.multiapps.controller.process.util.HistoricOperationEventPersister;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessConflictPreventer;
 
 @Named
 public class AbortProcessAction extends ProcessAction {
 
-    private final HistoricOperationEventPersister historicEventPersister;
+    private final HistoricOperationEventService historicEventService;
     private final OperationService operationService;
 
     @Inject
     public AbortProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
-                              HistoricOperationEventPersister historicEventPersister, OperationService operationService,
+                              HistoricOperationEventService historicEventService, OperationService operationService,
                               CloudControllerClientProvider cloudControllerClientProvider) {
         super(flowableFacade, additionalProcessActions, cloudControllerClientProvider);
-        this.historicEventPersister = historicEventPersister;
+        this.historicEventService = historicEventService;
         this.operationService = operationService;
     }
 
     @Override
     public void executeActualProcessAction(String user, String superProcessInstanceId) {
         releaseOperationLock(superProcessInstanceId, Operation.State.ABORTED);
-        historicEventPersister.add(superProcessInstanceId, EventType.ABORTED);
-        historicEventPersister.add(superProcessInstanceId, EventType.ABORT_EXECUTED);
+        historicEventService.add(ImmutableHistoricOperationEvent.of(superProcessInstanceId, EventType.ABORTED));
+        historicEventService.add(ImmutableHistoricOperationEvent.of(superProcessInstanceId, EventType.ABORT_EXECUTED));
     }
 
     private void releaseOperationLock(String superProcessInstanceId, Operation.State state) {

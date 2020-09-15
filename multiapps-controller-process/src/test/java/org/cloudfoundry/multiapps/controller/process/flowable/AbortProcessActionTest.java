@@ -4,9 +4,10 @@ import java.util.Collections;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.core.persistence.query.OperationQuery;
+import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
-import org.cloudfoundry.multiapps.controller.process.util.HistoricOperationEventPersister;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -15,7 +16,7 @@ import org.mockito.Mockito;
 class AbortProcessActionTest extends ProcessActionTest {
 
     @Mock
-    private HistoricOperationEventPersister historicOperationEventPersister;
+    private HistoricOperationEventService historicOperationEventService;
     @Mock
     private OperationService operationService;
 
@@ -27,10 +28,10 @@ class AbortProcessActionTest extends ProcessActionTest {
     @Test
     void testAbortExecution() {
         processAction.execute(null, PROCESS_GUID);
-        Mockito.verify(historicOperationEventPersister)
-               .add(PROCESS_GUID, HistoricOperationEvent.EventType.ABORTED);
-        Mockito.verify(historicOperationEventPersister)
-               .add(PROCESS_GUID, HistoricOperationEvent.EventType.ABORT_EXECUTED);
+        Mockito.verify(historicOperationEventService)
+               .add(ImmutableHistoricOperationEvent.of(PROCESS_GUID, HistoricOperationEvent.EventType.ABORTED));
+        Mockito.verify(historicOperationEventService)
+               .add(ImmutableHistoricOperationEvent.of(PROCESS_GUID, HistoricOperationEvent.EventType.ABORT_EXECUTED));
     }
 
     private void prepareOperationService() {
@@ -48,7 +49,7 @@ class AbortProcessActionTest extends ProcessActionTest {
     protected ProcessAction createProcessAction() {
         return new AbortProcessAction(flowableFacade,
                                       Collections.emptyList(),
-                                      historicOperationEventPersister,
+                                      historicOperationEventService,
                                       operationService,
                                       cloudControllerClientProvider);
     }

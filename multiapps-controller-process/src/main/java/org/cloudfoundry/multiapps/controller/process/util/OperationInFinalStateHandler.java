@@ -12,7 +12,9 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
+import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
 import org.cloudfoundry.multiapps.controller.core.util.LoggingUtil;
 import org.cloudfoundry.multiapps.controller.core.util.SafeExecutor;
@@ -38,7 +40,7 @@ public class OperationInFinalStateHandler {
     @Inject
     private FileService fileService;
     @Inject
-    private HistoricOperationEventPersister historicOperationEventPersister;
+    private HistoricOperationEventService historicOperationEventService;
     @Inject
     private OperationTimeAggregator operationTimeAggregator;
     private final SafeExecutor safeExecutor = new SafeExecutor();
@@ -92,7 +94,7 @@ public class OperationInFinalStateHandler {
                                       .build();
         operationService.update(operation, operation);
         LOGGER.debug(format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
-        historicOperationEventPersister.add(processInstanceId, toEventType(state));
+        historicOperationEventService.add(ImmutableHistoricOperationEvent.of(processInstanceId, toEventType(state)));
     }
 
     private EventType toEventType(State state) {

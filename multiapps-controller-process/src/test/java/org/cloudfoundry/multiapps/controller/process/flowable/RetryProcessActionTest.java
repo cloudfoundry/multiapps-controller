@@ -3,8 +3,9 @@ package org.cloudfoundry.multiapps.controller.process.flowable;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
-import org.cloudfoundry.multiapps.controller.process.util.HistoricOperationEventPersister;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -12,7 +13,7 @@ import org.mockito.Mockito;
 class RetryProcessActionTest extends ProcessActionTest {
 
     @Mock
-    private HistoricOperationEventPersister historicOperationEventPersister;
+    private HistoricOperationEventService historicOperationEventService;
     @Mock
     private ProgressMessageService progressMessageService;
 
@@ -22,8 +23,8 @@ class RetryProcessActionTest extends ProcessActionTest {
         Mockito.verify(flowableFacade)
                .executeJob(PROCESS_GUID);
         verifySubprocessesAreExecuted();
-        Mockito.verify(historicOperationEventPersister)
-               .add(PROCESS_GUID, HistoricOperationEvent.EventType.RETRIED);
+        Mockito.verify(historicOperationEventService)
+               .add(ImmutableHistoricOperationEvent.of(PROCESS_GUID, HistoricOperationEvent.EventType.RETRIED));
     }
 
     @Test
@@ -33,8 +34,8 @@ class RetryProcessActionTest extends ProcessActionTest {
                .executeJob(PROCESS_GUID);
         processAction.execute("fake-user", PROCESS_GUID);
         verifySubprocessesAreExecuted();
-        Mockito.verify(historicOperationEventPersister)
-               .add(PROCESS_GUID, HistoricOperationEvent.EventType.RETRIED);
+        Mockito.verify(historicOperationEventService)
+               .add(ImmutableHistoricOperationEvent.of(PROCESS_GUID, HistoricOperationEvent.EventType.RETRIED));
     }
 
     private void verifySubprocessesAreExecuted() {
@@ -49,7 +50,7 @@ class RetryProcessActionTest extends ProcessActionTest {
         return new RetryProcessAction(flowableFacade,
                                       List.of(new RetryProcessAdditionalAction(flowableFacade, progressMessageService),
                                               new SetRetryPhaseAdditionalProcessAction(flowableFacade)),
-                                      historicOperationEventPersister,
+                                      historicOperationEventService,
                                       cloudControllerClientProvider);
     }
 
