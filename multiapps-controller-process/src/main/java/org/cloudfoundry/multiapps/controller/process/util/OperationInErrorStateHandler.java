@@ -12,6 +12,8 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage;
@@ -29,15 +31,15 @@ public class OperationInErrorStateHandler {
 
     private ProgressMessageService progressMessageService;
     private FlowableFacade flowableFacade;
-    private HistoricOperationEventPersister historicOperationEventPersister;
+    private HistoricOperationEventService historicOperationEventService;
     private ClientReleaser clientReleaser;
 
     @Inject
     public OperationInErrorStateHandler(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
-                                        HistoricOperationEventPersister historicOperationEventPersister, ClientReleaser clientReleaser) {
+                                        HistoricOperationEventService historicOperationEventService, ClientReleaser clientReleaser) {
         this.progressMessageService = progressMessageService;
         this.flowableFacade = flowableFacade;
-        this.historicOperationEventPersister = historicOperationEventPersister;
+        this.historicOperationEventService = historicOperationEventService;
         this.clientReleaser = clientReleaser;
     }
 
@@ -67,7 +69,8 @@ public class OperationInErrorStateHandler {
     }
 
     private void persistEvent(FlowableEngineEvent event, EventType eventType) {
-        historicOperationEventPersister.add(flowableFacade.getProcessInstanceId(event.getExecutionId()), eventType);
+        historicOperationEventService.add(ImmutableHistoricOperationEvent.of(flowableFacade.getProcessInstanceId(event.getExecutionId()),
+                                                                             eventType));
     }
 
     private void persistError(FlowableEngineEvent event, String flowableExceptionMessage) {

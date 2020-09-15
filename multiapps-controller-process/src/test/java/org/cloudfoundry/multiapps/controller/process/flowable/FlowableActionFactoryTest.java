@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.Collections;
 
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
+import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
-import org.cloudfoundry.multiapps.controller.process.util.HistoricOperationEventPersister;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -28,7 +28,7 @@ public class FlowableActionFactoryTest {
     @Mock
     ProcessActionRegistry processActionRegistry;
     @Mock
-    HistoricOperationEventPersister historicOperationEventPersister;
+    HistoricOperationEventService historicOperationEventService;
     @Mock
     CloudControllerClientProvider cloudControllerClientProvider;
 
@@ -48,7 +48,7 @@ public class FlowableActionFactoryTest {
         Mockito.when(processActionRegistry.getAction(RETRY_ACTION_ID))
                .thenReturn(new RetryProcessAction(facade,
                                                   Collections.singletonList(additionalProcessAction),
-                                                  historicOperationEventPersister,
+                                                  historicOperationEventService,
                                                   cloudControllerClientProvider));
         testAction(RETRY_ACTION_ID, RetryProcessAction.class);
     }

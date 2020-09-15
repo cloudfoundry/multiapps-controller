@@ -19,7 +19,9 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.core.persistence.query.OperationQuery;
+import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.process.flowable.AbortProcessAction;
@@ -27,7 +29,6 @@ import org.cloudfoundry.multiapps.controller.process.flowable.Action;
 import org.cloudfoundry.multiapps.controller.process.flowable.AdditionalProcessAction;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessActionRegistry;
-import org.cloudfoundry.multiapps.controller.process.util.HistoricOperationEventPersister;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessConflictPreventer;
 import org.flowable.common.engine.api.FlowableOptimisticLockingException;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +58,7 @@ class OperationsCleanerTest {
     @Mock
     private ProcessActionRegistry registry;
     @Mock
-    private HistoricOperationEventPersister historicOperationEventPersister;
+    private HistoricOperationEventService historicOperationEventService;
     @Mock
     private CloudControllerClientProvider cloudControllerClientProvider;
     @InjectMocks
@@ -69,10 +70,10 @@ class OperationsCleanerTest {
         cleaner.withPageSize(PAGE_SIZE);
 
         when(registry.getAction(Action.ABORT)).thenReturn(new AbortProcessActionMock(flowableFacade,
-                                                                                Collections.emptyList(),
-                                                                                historicOperationEventPersister,
-                                                                                operationService,
-                                                                                cloudControllerClientProvider));
+                                                                                     Collections.emptyList(),
+                                                                                     historicOperationEventService,
+                                                                                     operationService,
+                                                                                     cloudControllerClientProvider));
     }
 
     @Test
@@ -90,8 +91,10 @@ class OperationsCleanerTest {
         initQueryMockForPage(0, operationsList);
 
         cleaner.execute(EXPIRATION_TIME);
-        verify(historicOperationEventPersister).add(OPERATION_ID_1, HistoricOperationEvent.EventType.ABORTED);
-        verify(historicOperationEventPersister).add(OPERATION_ID_2, HistoricOperationEvent.EventType.ABORTED);
+        verify(historicOperationEventService).add(ImmutableHistoricOperationEvent.of(OPERATION_ID_1,
+                                                                                     HistoricOperationEvent.EventType.ABORTED));
+        verify(historicOperationEventService).add(ImmutableHistoricOperationEvent.of(OPERATION_ID_2,
+                                                                                     HistoricOperationEvent.EventType.ABORTED));
     }
 
     @Test
@@ -114,8 +117,10 @@ class OperationsCleanerTest {
                                                                            .deleteProcessInstance(eq(OPERATION_ID_1), any());
 
         cleaner.execute(EXPIRATION_TIME);
-        verify(historicOperationEventPersister).add(OPERATION_ID_1, HistoricOperationEvent.EventType.ABORTED);
-        verify(historicOperationEventPersister).add(OPERATION_ID_2, HistoricOperationEvent.EventType.ABORTED);
+        verify(historicOperationEventService).add(ImmutableHistoricOperationEvent.of(OPERATION_ID_1,
+                                                                                     HistoricOperationEvent.EventType.ABORTED));
+        verify(historicOperationEventService).add(ImmutableHistoricOperationEvent.of(OPERATION_ID_2,
+                                                                                     HistoricOperationEvent.EventType.ABORTED));
     }
 
     @Test
@@ -143,9 +148,12 @@ class OperationsCleanerTest {
         initQueryMockForPage(1, operationsPage2);
 
         cleaner.execute(EXPIRATION_TIME);
-        verify(historicOperationEventPersister).add(OPERATION_ID_1, HistoricOperationEvent.EventType.ABORTED);
-        verify(historicOperationEventPersister).add(OPERATION_ID_2, HistoricOperationEvent.EventType.ABORTED);
-        verify(historicOperationEventPersister).add(OPERATION_ID_3, HistoricOperationEvent.EventType.ABORTED);
+        verify(historicOperationEventService).add(ImmutableHistoricOperationEvent.of(OPERATION_ID_1,
+                                                                                     HistoricOperationEvent.EventType.ABORTED));
+        verify(historicOperationEventService).add(ImmutableHistoricOperationEvent.of(OPERATION_ID_2,
+                                                                                     HistoricOperationEvent.EventType.ABORTED));
+        verify(historicOperationEventService).add(ImmutableHistoricOperationEvent.of(OPERATION_ID_3,
+                                                                                     HistoricOperationEvent.EventType.ABORTED));
     }
 
     @Test
@@ -173,9 +181,12 @@ class OperationsCleanerTest {
         initQueryMockForPage(1, operationsPage2);
 
         cleaner.execute(EXPIRATION_TIME);
-        verify(historicOperationEventPersister, never()).add(OPERATION_ID_1, HistoricOperationEvent.EventType.ABORTED);
-        verify(historicOperationEventPersister, never()).add(OPERATION_ID_2, HistoricOperationEvent.EventType.ABORTED);
-        verify(historicOperationEventPersister).add(OPERATION_ID_3, HistoricOperationEvent.EventType.ABORTED);
+        verify(historicOperationEventService, never()).add(ImmutableHistoricOperationEvent.of(OPERATION_ID_1,
+                                                                                              HistoricOperationEvent.EventType.ABORTED));
+        verify(historicOperationEventService, never()).add(ImmutableHistoricOperationEvent.of(OPERATION_ID_2,
+                                                                                              HistoricOperationEvent.EventType.ABORTED));
+        verify(historicOperationEventService).add(ImmutableHistoricOperationEvent.of(OPERATION_ID_3,
+                                                                                     HistoricOperationEvent.EventType.ABORTED));
     }
 
     private void initQueryMockForPage(int pageIndex, List<Operation> result) {
@@ -207,9 +218,9 @@ class OperationsCleanerTest {
     private static class AbortProcessActionMock extends AbortProcessAction {
 
         public AbortProcessActionMock(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
-                                      HistoricOperationEventPersister historicEventPersister, OperationService operationService,
+                                      HistoricOperationEventService historicOperationEventService, OperationService operationService,
                                       CloudControllerClientProvider cloudControllerClientProvider) {
-            super(flowableFacade, additionalProcessActions, historicEventPersister, operationService, cloudControllerClientProvider);
+            super(flowableFacade, additionalProcessActions, historicOperationEventService, operationService, cloudControllerClientProvider);
         }
 
         @Override

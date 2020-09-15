@@ -3,12 +3,12 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 import javax.inject.Inject;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.util.HistoricOperationEventPersister;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -32,7 +32,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     @Inject
     private ProcessLogsPersister processLogsPersister;
     @Inject
-    private HistoricOperationEventPersister historicOperationEventPersister;
+    private HistoricOperationEventService historicOperationEventService;
 
     private StepLogger stepLogger;
 
@@ -79,8 +79,8 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
         return stepLogger;
     }
 
-    protected HistoricOperationEventPersister getHistoricOperationEventPersister() {
-        return historicOperationEventPersister;
+    protected HistoricOperationEventService getHistoricOperationEventService() {
+        return historicOperationEventService;
     }
 
     private StepLogger createStepLogger(DelegateExecution execution) {

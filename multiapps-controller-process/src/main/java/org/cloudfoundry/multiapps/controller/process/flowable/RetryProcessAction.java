@@ -8,8 +8,9 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
-import org.cloudfoundry.multiapps.controller.process.util.HistoricOperationEventPersister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,14 +19,14 @@ public class RetryProcessAction extends ProcessAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RetryProcessAction.class);
 
-    private final HistoricOperationEventPersister historicOperationEventPersister;
+    private final HistoricOperationEventService historicOperationEventService;
 
     @Inject
     public RetryProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
-                              HistoricOperationEventPersister historicOperationEventPersister,
+                              HistoricOperationEventService historicOperationEventService,
                               CloudControllerClientProvider cloudControllerClientProvider) {
         super(flowableFacade, additionalProcessActions, cloudControllerClientProvider);
-        this.historicOperationEventPersister = historicOperationEventPersister;
+        this.historicOperationEventService = historicOperationEventService;
     }
 
     @Override
@@ -38,7 +39,7 @@ public class RetryProcessAction extends ProcessAction {
             String subProcessId = subProcessesIdsIterator.previous();
             retryProcess(subProcessId);
         }
-        historicOperationEventPersister.add(superProcessInstanceId, EventType.RETRIED);
+        historicOperationEventService.add(ImmutableHistoricOperationEvent.of(superProcessInstanceId, EventType.RETRIED));
     }
 
     private void retryProcess(String subProcessId) {

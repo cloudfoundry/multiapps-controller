@@ -11,6 +11,7 @@ import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
 import org.cloudfoundry.multiapps.controller.core.persistence.query.ProgressMessageQuery;
+import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
@@ -39,7 +40,7 @@ class OperationInErrorStateHandlerTest {
     @Mock
     private FlowableFacade flowableFacadeMock;
     @Mock
-    private HistoricOperationEventPersister historicOperationEventPersisterMock;
+    private HistoricOperationEventService historicOperationEventServiceMock;
     @Mock
     private ProcessEngineConfiguration processEngineConfigurationMock;
     @Mock
@@ -178,7 +179,7 @@ class OperationInErrorStateHandlerTest {
     private OperationInErrorStateHandlerMock mockHandler() {
         return new OperationInErrorStateHandlerMock(progressMessageServiceMock,
                                                     flowableFacadeMock,
-                                                    historicOperationEventPersisterMock,
+                                                    historicOperationEventServiceMock,
                                                     clientReleaserMock).withProcessEngineConfiguration(processEngineConfigurationMock);
     }
 
@@ -187,9 +188,9 @@ class OperationInErrorStateHandlerTest {
         private ProcessEngineConfiguration processEngineConfiguration;
 
         public OperationInErrorStateHandlerMock(ProgressMessageService progressMessageService, FlowableFacade flowableFacade,
-                                                HistoricOperationEventPersister historicOperationEventPersister,
+                                                HistoricOperationEventService historicOperationEventService,
                                                 ClientReleaser clientReleaser) {
-            super(progressMessageService, flowableFacade, historicOperationEventPersister, clientReleaser);
+            super(progressMessageService, flowableFacade, historicOperationEventService, clientReleaser);
         }
 
         public OperationInErrorStateHandlerMock withProcessEngineConfiguration(ProcessEngineConfiguration processEngineConfiguration) {

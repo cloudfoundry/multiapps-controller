@@ -1,12 +1,10 @@
 package org.cloudfoundry.multiapps.controller.core.model;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 import org.immutables.value.Value;
-import org.immutables.value.Value.Immutable;
 
-@Immutable
+@Value.Immutable
 public interface HistoricOperationEvent {
 
     @Value.Default
@@ -14,13 +12,16 @@ public interface HistoricOperationEvent {
         return 0;
     }
 
+    @Value.Parameter
     String getProcessId();
 
+    @Value.Parameter
     EventType getType();
 
     @Value.Default
+    @Value.Auxiliary // Makes sure timestamps won't be taken into account when comparing events in unit tests.
     default Date getTimestamp() {
-        return new Timestamp(System.currentTimeMillis());
+        return new Date();
     }
 
     enum EventType {

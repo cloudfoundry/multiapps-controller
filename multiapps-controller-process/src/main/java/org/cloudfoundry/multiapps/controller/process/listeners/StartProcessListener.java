@@ -16,6 +16,7 @@ import org.cloudfoundry.multiapps.controller.api.model.OperationMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ParameterMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
+import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
@@ -55,7 +56,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         if (getOperation(correlationId) == null) {
             addOperation(execution, correlationId, processType);
         }
-        getHistoricOperationEventPersister().add(correlationId, EventType.STARTED);
+        getHistoricOperationEventService().add(ImmutableHistoricOperationEvent.of(correlationId, EventType.STARTED));
         logProcessEnvironment();
         logProcessVariables(execution, processType);
     }
