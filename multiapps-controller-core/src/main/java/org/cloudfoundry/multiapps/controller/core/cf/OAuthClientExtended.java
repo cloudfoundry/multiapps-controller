@@ -10,15 +10,15 @@ import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 public class OAuthClientExtended extends OAuthClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuthClientExtended.class);
     private final TokenService tokenService;
 
-    public OAuthClientExtended(URL authorizationUrl, RestTemplate restTemplate, TokenService tokenService) {
-        super(authorizationUrl, restTemplate);
+    public OAuthClientExtended(URL authorizationUrl, WebClient webClient, TokenService tokenService) {
+        super(authorizationUrl, webClient);
         this.tokenService = tokenService;
     }
 

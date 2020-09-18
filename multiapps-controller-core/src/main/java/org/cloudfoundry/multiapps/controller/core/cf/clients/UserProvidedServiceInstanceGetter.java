@@ -10,8 +10,8 @@ import org.cloudfoundry.multiapps.controller.core.util.V2UrlBuilder;
 @Named("userProvidedServiceInstanceGetter")
 public class UserProvidedServiceInstanceGetter extends AbstractServiceGetter {
 
-    public UserProvidedServiceInstanceGetter(RestTemplateFactory restTemplateFactory) {
-        super(restTemplateFactory);
+    public UserProvidedServiceInstanceGetter(WebClientFactory webClientFactory) {
+        super(webClientFactory);
     }
 
     @Override

@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.RestLogCallback;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.UploadStatusCallback;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
@@ -40,7 +39,6 @@ import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureS
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.web.client.ResponseErrorHandler;
 
 public class LoggingCloudControllerClient implements CloudControllerClient {
 
@@ -757,21 +755,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     @Override
     public void logout() {
         delegate.logout();
-    }
-
-    @Override
-    public void registerRestLogListener(RestLogCallback callBack) {
-        delegate.registerRestLogListener(callBack);
-    }
-
-    @Override
-    public void setResponseErrorHandler(ResponseErrorHandler errorHandler) {
-        delegate.setResponseErrorHandler(errorHandler);
-    }
-
-    @Override
-    public void unRegisterRestLogListener(RestLogCallback callBack) {
-        delegate.unRegisterRestLogListener(callBack);
     }
 
     @Override

@@ -19,8 +19,8 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
     protected static final String SERVICE_PLAN_GUID = "service_plan_guid";
     protected static final String SERVICE_TAGS = "tags";
 
-    protected CloudServiceOperator(RestTemplateFactory restTemplateFactory) {
-        super(restTemplateFactory);
+    protected CloudServiceOperator(WebClientFactory webClientFactory) {
+        super(webClientFactory);
     }
 
     protected CloudServicePlan findPlanForService(CloudControllerClient client, CloudServiceInstance serviceInstance, String newPlan) {

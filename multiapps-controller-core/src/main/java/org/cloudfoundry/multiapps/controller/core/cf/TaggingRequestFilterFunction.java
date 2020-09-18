@@ -1,14 +1,14 @@
 package org.cloudfoundry.multiapps.controller.core.cf;
 
-import java.io.IOException;
-
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpRequest;
-import org.springframework.http.client.ClientHttpRequestExecution;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.web.reactive.function.client.ClientRequest;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.ExchangeFunction;
 
-class TaggingRequestInterceptor implements ClientHttpRequestInterceptor {
+import reactor.core.publisher.Mono;
+
+class TaggingRequestFilterFunction implements ExchangeFilterFunction {
 
     public static final String TAG_HEADER_SPACE_NAME = "source-space";
     public static final String TAG_HEADER_ORG_NAME = "source-org";
@@ -17,11 +17,11 @@ class TaggingRequestInterceptor implements ClientHttpRequestInterceptor {
     private final String orgHeaderValue;
     private final String spaceHeaderValue;
 
-    TaggingRequestInterceptor(String deployServiceVersion) {
+    TaggingRequestFilterFunction(String deployServiceVersion) {
         this(deployServiceVersion, null, null);
     }
 
-    TaggingRequestInterceptor(String deployServiceVersion, String org, String space) {
+    TaggingRequestFilterFunction(String deployServiceVersion, String org, String space) {
         this.headerValue = getHeaderValue(deployServiceVersion);
         this.orgHeaderValue = org;
         this.spaceHeaderValue = space;
@@ -32,14 +32,14 @@ class TaggingRequestInterceptor implements ClientHttpRequestInterceptor {
     }
 
     @Override
-    public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        HttpHeaders headers = request.getHeaders();
+    public Mono<ClientResponse> filter(ClientRequest clientRequest, ExchangeFunction nextFilter) {
+        HttpHeaders headers = clientRequest.headers();
         setHeader(headers, TAG_HEADER_NAME, headerValue);
         if (orgHeaderValue != null && spaceHeaderValue != null) {
             setHeader(headers, TAG_HEADER_ORG_NAME, orgHeaderValue);
             setHeader(headers, TAG_HEADER_SPACE_NAME, spaceHeaderValue);
         }
-        return execution.execute(request, body);
+        return nextFilter.exchange(clientRequest);
     }
 
     private void setHeader(HttpHeaders headers, String tagHeaderName, String headerValue) {

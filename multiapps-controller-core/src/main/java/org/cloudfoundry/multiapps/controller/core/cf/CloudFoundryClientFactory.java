@@ -1,6 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.cf;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -15,8 +16,7 @@ import org.cloudfoundry.client.lib.rest.CloudControllerRestClientFactory;
 import org.cloudfoundry.client.lib.rest.ImmutableCloudControllerRestClientFactory;
 import org.cloudfoundry.multiapps.controller.client.ResilientCloudControllerClient;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 
 @Named
 public class CloudFoundryClientFactory extends ClientFactory {
@@ -45,18 +45,18 @@ public class CloudFoundryClientFactory extends ClientFactory {
     @Override
     protected CloudControllerClient createClient(CloudCredentials credentials) {
         OAuthClient oAuthClient = oAuthClientFactory.createOAuthClient();
+        List<ExchangeFilterFunction> exchangeFilters = getExchangeFiltersList(null, null);
         CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials, null,
-                                                                                oAuthClient);
-        addTaggingInterceptor(controllerClient.getRestTemplate());
+                                                                                oAuthClient, exchangeFilters);
         return new ResilientCloudControllerClient(controllerClient);
     }
 
     @Override
     protected CloudControllerClient createClient(CloudCredentials credentials, String org, String space) {
         OAuthClient oAuthClient = oAuthClientFactory.createOAuthClient();
+        List<ExchangeFilterFunction> exchangeFilters = getExchangeFiltersList(org, space);
         CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials, org, space,
-                                                                                oAuthClient);
-        addTaggingInterceptor(controllerClient.getRestTemplate(), org, space);
+                                                                                oAuthClient, exchangeFilters);
         return new ResilientCloudControllerClient(controllerClient);
     }
 
@@ -64,26 +64,16 @@ public class CloudFoundryClientFactory extends ClientFactory {
     protected CloudControllerClient createClient(CloudCredentials credentials, String spaceId) {
         CloudSpace target = computeTarget(credentials, spaceId);
         OAuthClient oAuthClient = oAuthClientFactory.createOAuthClient();
+        List<ExchangeFilterFunction> exchangeFilters = getExchangeFiltersList(target.getOrganization()
+                                                                                    .getName(),
+                                                                              target.getName());
         CloudControllerRestClient controllerClient = clientFactory.createClient(configuration.getControllerUrl(), credentials, target,
-                                                                                oAuthClient);
-        addTaggingInterceptor(controllerClient.getRestTemplate(), target.getOrganization()
-                                                                        .getName(),
-                              target.getName());
+                                                                                oAuthClient, exchangeFilters);
         return new ResilientCloudControllerClient(controllerClient);
     }
 
-    private void addTaggingInterceptor(RestTemplate template) {
-        addTaggingInterceptor(template, null, null);
-    }
-
-    private void addTaggingInterceptor(RestTemplate template, String org, String space) {
-        if (template.getInterceptors()
-                    .isEmpty()) {
-            template.setInterceptors(new ArrayList<>());
-        }
-        ClientHttpRequestInterceptor requestInterceptor = new TaggingRequestInterceptor(configuration.getVersion(), org, space);
-        template.getInterceptors()
-                .add(requestInterceptor);
+    private List<ExchangeFilterFunction> getExchangeFiltersList(String org, String space) {
+        return List.of(new TaggingRequestFilterFunction(configuration.getVersion(), org, space));
     }
 
     protected CloudSpace computeTarget(CloudCredentials credentials, String spaceId) {

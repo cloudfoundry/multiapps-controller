@@ -11,38 +11,42 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 public abstract class CustomControllerClient {
 
-    private final RestTemplateFactory restTemplateFactory;
+    private final WebClientFactory webClientFactory;
 
-    protected CustomControllerClient(RestTemplateFactory restTemplateFactory) {
-        this.restTemplateFactory = restTemplateFactory;
+    protected CustomControllerClient(WebClientFactory webClientFactory) {
+        this.webClientFactory = webClientFactory;
     }
 
-    protected RestTemplate getRestTemplate(CloudControllerClient client) {
-        return restTemplateFactory.getRestTemplate(client);
+    protected WebClient getWebClient(CloudControllerClient client) {
+        return webClientFactory.getWebClient(client);
     }
 
-    protected List<Map<String, Object>> getAllResources(RestTemplate restTemplate, String controllerUrl, String urlPath) {
-        return getAllResources(restTemplate, controllerUrl, urlPath, Collections.emptyMap());
+    protected List<Map<String, Object>> getAllResources(WebClient webClient, String controllerUrl, String urlPath) {
+        return getAllResources(webClient, controllerUrl, urlPath, Collections.emptyMap());
     }
 
-    protected List<Map<String, Object>> getAllResources(RestTemplate restTemplate, String controllerUrl, String urlPath,
+    protected List<Map<String, Object>> getAllResources(WebClient webClient, String controllerUrl, String urlPath,
                                                         Map<String, Object> urlVariables) {
         List<Map<String, Object>> allResources = new ArrayList<>();
         String nextUrl = urlPath;
         while (!StringUtils.isEmpty(nextUrl)) {
-            nextUrl = addPageOfResources(restTemplate, controllerUrl, nextUrl, allResources, urlVariables);
+            nextUrl = addPageOfResources(webClient, controllerUrl, nextUrl, allResources, urlVariables);
         }
         return allResources;
     }
 
     @SuppressWarnings("unchecked")
-    protected String addPageOfResources(RestTemplate restTemplate, String controllerUrl, String path,
-                                        List<Map<String, Object>> allResources, Map<String, Object> urlVariables) {
-        String response = restTemplate.getForObject(getUrl(controllerUrl, path), String.class, urlVariables);
+    protected String addPageOfResources(WebClient webClient, String controllerUrl, String path, List<Map<String, Object>> allResources,
+                                        Map<String, Object> urlVariables) {
+        String response = webClient.get()
+                                   .uri(getUrl(controllerUrl, path), urlVariables)
+                                   .retrieve()
+                                   .bodyToMono(String.class)
+                                   .block();
         Map<String, Object> responseMap = JsonUtil.convertJsonToMap(response);
         validateResponse(responseMap);
         List<Map<String, Object>> newResources = (List<Map<String, Object>>) responseMap.get("resources");

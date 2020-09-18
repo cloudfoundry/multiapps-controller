@@ -13,8 +13,7 @@ import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.SSLUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class UAAClientConfiguration {
@@ -48,12 +47,16 @@ public class UAAClientConfiguration {
     }
 
     protected Map<String, Object> getControllerInfo(URL targetURL) {
-        String infoURL = targetURL.toString() + CONTROLLER_INFO_ENDPOINT;
-        ResponseEntity<String> infoResponse = new RestTemplate().getForEntity(infoURL, String.class);
-        if (infoResponse.getBody() == null) {
+        String infoResponse = WebClient.create(targetURL.toString())
+                                       .get()
+                                       .uri(CONTROLLER_INFO_ENDPOINT)
+                                       .retrieve()
+                                       .bodyToMono(String.class)
+                                       .block();
+        if (infoResponse == null) {
             throw new IllegalStateException(MessageFormat.format("Invalid response returned from {0}", CONTROLLER_INFO_ENDPOINT));
         }
-        return JsonUtil.convertJsonToMap(infoResponse.getBody());
+        return JsonUtil.convertJsonToMap(infoResponse);
     }
 
 }

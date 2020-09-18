@@ -12,7 +12,6 @@ import java.util.function.Supplier;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerClientImpl;
-import org.cloudfoundry.client.lib.RestLogCallback;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.UploadStatusCallback;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
@@ -42,7 +41,6 @@ import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientCloudOperationExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.web.client.ResponseErrorHandler;
 
 public class ResilientCloudControllerClient implements CloudControllerClient {
 
@@ -567,21 +565,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public void logout() {
         executeWithRetry(delegate::logout);
-    }
-
-    @Override
-    public void registerRestLogListener(RestLogCallback callBack) {
-        executeWithRetry(() -> delegate.registerRestLogListener(callBack));
-    }
-
-    @Override
-    public void setResponseErrorHandler(ResponseErrorHandler errorHandler) {
-        executeWithRetry(() -> delegate.setResponseErrorHandler(errorHandler));
-    }
-
-    @Override
-    public void unRegisterRestLogListener(RestLogCallback callBack) {
-        executeWithRetry(() -> delegate.unRegisterRestLogListener(callBack));
     }
 
     @Override
