@@ -6,10 +6,9 @@ import java.time.Duration;
 import javax.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.web.util.EnvironmentServicesFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cloud.Cloud;
-import org.springframework.cloud.CloudFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -28,13 +27,13 @@ public class MicrometerConfiguration {
 
     @Inject
     @Bean
-    public JmxMeterRegistry jmxMeterRegistry(ApplicationConfiguration appConfig) {
-        // Skip creation of registry when Dynatrace is not bound
-        if (!dynatraceExist()) {
-            LOGGER.info("Skipping registering JmxMeterRegistry");
+    public JmxMeterRegistry jmxMeterRegistry(ApplicationConfiguration configuration, EnvironmentServicesFinder vcapServiceFinder) {
+        if (vcapServiceFinder.findJdbcService(DYNATRACE_SERVICE_NAME) == null) {
+            LOGGER.warn(MessageFormat.format("Skipping registration of JmxMeterRegistry, since service \"{0}\" is not bound to the application.",
+                                             DYNATRACE_SERVICE_NAME));
             return null;
         }
-        Integer stepInSeconds = appConfig.getMicrometerStepInSeconds();
+        Integer stepInSeconds = configuration.getMicrometerStepInSeconds();
 
         JmxConfig jmxConfig = new JmxConfig() {
 
@@ -57,19 +56,6 @@ public class MicrometerConfiguration {
                 .meterFilter(MeterFilter.deny());
         Metrics.globalRegistry.add(registry);
         return registry;
-    }
-
-    private boolean dynatraceExist() {
-        try {
-            CloudFactory cloudFactory = new CloudFactory();
-            Cloud cloud = cloudFactory.getCloud();
-            cloud.getServiceInfo(DYNATRACE_SERVICE_NAME);
-            LOGGER.info("Dynatrace service instance found");
-            return true;
-        } catch (Exception e) {
-            LOGGER.warn(MessageFormat.format("Failed to detect service info for service \"{0}\"!", DYNATRACE_SERVICE_NAME), e);
-        }
-        return false;
     }
 
 }
