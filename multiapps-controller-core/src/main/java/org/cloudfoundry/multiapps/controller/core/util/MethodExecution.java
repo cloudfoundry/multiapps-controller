@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.reactive.function.client.ClientResponse;
 
 public class MethodExecution<T> {
 
@@ -21,14 +21,15 @@ public class MethodExecution<T> {
         return response;
     }
 
-    public static MethodExecution<String> fromResponseEntity(ResponseEntity<String> response) {
-        if (response == null) {
+    public static MethodExecution<String> fromClientResponse(ClientResponse clientResponse) {
+        if (clientResponse == null) {
             return null;
         }
-        ExecutionState state = response.getStatusCode()
-                                       .equals(HttpStatus.ACCEPTED) ? ExecutionState.EXECUTING : ExecutionState.FINISHED;
-        String responseEntity = response.getBody();
-        return new MethodExecution<>(responseEntity, state);
+        ExecutionState state = clientResponse.statusCode()
+                                             .equals(HttpStatus.ACCEPTED) ? ExecutionState.EXECUTING : ExecutionState.FINISHED;
+        String response = clientResponse.bodyToMono(String.class)
+                                        .block();
+        return new MethodExecution<>(response, state);
     }
 
     public enum ExecutionState {

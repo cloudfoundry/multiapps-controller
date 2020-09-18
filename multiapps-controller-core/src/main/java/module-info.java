@@ -72,12 +72,14 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires org.slf4j;
     requires org.yaml.snakeyaml;
     requires quartz;
+    requires reactor.core;
     requires spring.beans;
     requires spring.context;
     requires spring.core;
     requires spring.security.core;
     requires spring.security.jwt;
     requires spring.web;
+    requires spring.webflux;
 
     requires static java.compiler;
     requires static org.immutables.value;

@@ -13,7 +13,7 @@ public class CFOptimizedEventGetter extends CustomControllerClient {
     private final CloudControllerClient client;
 
     public CFOptimizedEventGetter(CloudControllerClient client) {
-        super(new RestTemplateFactory());
+        super(new WebClientFactory());
         this.client = client;
     }
 
@@ -36,8 +36,8 @@ public class CFOptimizedEventGetter extends CustomControllerClient {
     private List<String> executeFindEventsRequest(Map<String, Object> urlVariables) {
         String controllerUrl = client.getCloudControllerUrl()
                                      .toString();
-        List<Map<String, Object>> response = getAllResources(getRestTemplate(client), controllerUrl,
-                                                             FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT, urlVariables);
+        List<Map<String, Object>> response = getAllResources(getWebClient(client), controllerUrl, FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT,
+                                                             urlVariables);
         return extractSpaceIds(response);
     }
 

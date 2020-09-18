@@ -21,8 +21,8 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
     private static final String V2_SERVICE_INSTANCES_RESOURCE_PATH = "/v2/service_instances?";
 
     @Inject
-    public AbstractServiceGetter(RestTemplateFactory restTemplateFactory) {
-        super(restTemplateFactory);
+    public AbstractServiceGetter(WebClientFactory webClientFactory) {
+        super(webClientFactory);
     }
 
     @SuppressWarnings("unchecked")
@@ -51,7 +51,11 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
 
     private Map<String, Object> getCloudServiceInstance(CloudControllerClient client, String serviceInstancesEndpoint,
                                                         Map<String, Object> queryParameters) {
-        String response = getRestTemplate(client).getForObject(serviceInstancesEndpoint, String.class, queryParameters);
+        String response = getWebClient(client).get()
+                                              .uri(serviceInstancesEndpoint, queryParameters)
+                                              .retrieve()
+                                              .bodyToMono(String.class)
+                                              .block();
         Map<String, Object> serviceInstancesResponse = parseResponse(response);
         return getCloudServiceInstance(serviceInstancesResponse);
     }

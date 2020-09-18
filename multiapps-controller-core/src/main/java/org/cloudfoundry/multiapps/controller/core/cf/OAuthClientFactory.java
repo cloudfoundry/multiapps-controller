@@ -8,7 +8,7 @@ import org.cloudfoundry.client.lib.util.RestUtil;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Named
 public class OAuthClientFactory {
@@ -22,12 +22,12 @@ public class OAuthClientFactory {
     private ApplicationConfiguration configuration;
 
     public OAuthClient createOAuthClient() {
-        RestTemplate restTemplate = createRestTemplate();
-        return new OAuthClientExtended(uaaClient.getUaaUrl(), restTemplate, tokenService);
+        WebClient webClient = createWebClient();
+        return new OAuthClientExtended(uaaClient.getUaaUrl(), webClient, tokenService);
     }
 
-    private RestTemplate createRestTemplate() {
-        return restUtil.createRestTemplate(null, configuration.shouldSkipSslValidation());
+    private WebClient createWebClient() {
+        return restUtil.createWebClient(configuration.shouldSkipSslValidation());
     }
 
 }

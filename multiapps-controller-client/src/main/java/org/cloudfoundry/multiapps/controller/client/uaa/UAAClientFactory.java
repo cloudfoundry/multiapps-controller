@@ -7,7 +7,7 @@ import org.cloudfoundry.client.lib.util.RestUtil;
 public class UAAClientFactory {
 
     public UAAClient createClient(URL uaaUrl) {
-        return new UAAClient(uaaUrl, new RestUtil().createRestTemplate(null, false));
+        return new UAAClient(uaaUrl, new RestUtil().createWebClient(false));
     }
 
 }

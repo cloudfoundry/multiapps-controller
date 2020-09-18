@@ -12,7 +12,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Named
 public class EventsGetter extends CustomControllerClient {
@@ -26,8 +26,8 @@ public class EventsGetter extends CustomControllerClient {
     private final CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
 
     @Inject
-    public EventsGetter(RestTemplateFactory restTemplateFactory) {
-        super(restTemplateFactory);
+    public EventsGetter(WebClientFactory webClientFactory) {
+        super(webClientFactory);
     }
 
     private Map<String, Object> buildQueryParameters(UUID uuid) {
@@ -41,9 +41,9 @@ public class EventsGetter extends CustomControllerClient {
         String controllerUrl = client.getCloudControllerUrl()
                                      .toString();
 
-        RestTemplate restTemplate = getRestTemplate(client);
+        WebClient webClient = getWebClient(client);
 
-        List<Map<String, Object>> resources = getAllResources(restTemplate, controllerUrl, EVENTS_URL, queryParames);
+        List<Map<String, Object>> resources = getAllResources(webClient, controllerUrl, EVENTS_URL, queryParames);
 
         return resources.stream()
                         .filter(Objects::nonNull)

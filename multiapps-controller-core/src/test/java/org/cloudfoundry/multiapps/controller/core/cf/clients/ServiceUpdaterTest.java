@@ -14,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
 class ServiceUpdaterTest extends CloudServiceOperatorTest {
@@ -37,7 +36,7 @@ class ServiceUpdaterTest extends CloudServiceOperatorTest {
 
     @BeforeEach
     void createServiceUpdater() {
-        serviceUpdater = new ServiceUpdater(getMockedRestTemplateFactory());
+        serviceUpdater = new ServiceUpdater(getMockedWebClientFactory());
     }
 
     @Test
@@ -51,12 +50,18 @@ class ServiceUpdaterTest extends CloudServiceOperatorTest {
         validatePlanUpdate("8e886beb-85cb-4455-9474-b6dfda36ffeb");
     }
 
-    @SuppressWarnings("unchecked")
     private void validatePlanUpdate(String servicePlanGuid) {
         String updateServicePlanUrl = getUpdateServicePlanUrl();
-        Mockito.verify(getMockedRestTemplate())
-               .exchange(ArgumentMatchers.eq(updateServicePlanUrl), ArgumentMatchers.any(HttpMethod.class), ArgumentMatchers.any(),
-                         ArgumentMatchers.any(Class.class));
+        Mockito.verify(getMockedWebClient())
+               .put();
+        Mockito.verify(getMockedRequestBodyUriSpec())
+               .uri(ArgumentMatchers.eq(updateServicePlanUrl));
+        Mockito.verify(getMockedRequestBodySpec())
+               .bodyValue(ArgumentMatchers.any());
+        Mockito.verify(getMockedRequestHeadersSpec())
+               .exchange();
+        Mockito.verify(getMockedClientResponse())
+               .block();
     }
 
     private String getUpdateServicePlanUrl() {

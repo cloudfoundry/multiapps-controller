@@ -11,7 +11,7 @@ import javax.inject.Named;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Named
 public class ApplicationRoutesGetter extends CustomControllerClient {
@@ -19,8 +19,8 @@ public class ApplicationRoutesGetter extends CustomControllerClient {
     private final CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
 
     @Inject
-    public ApplicationRoutesGetter(RestTemplateFactory restTemplateFactory) {
-        super(restTemplateFactory);
+    public ApplicationRoutesGetter(WebClientFactory webClientFactory) {
+        super(webClientFactory);
     }
 
     public List<CloudRoute> getRoutes(CloudControllerClient client, String appName) {
@@ -39,10 +39,10 @@ public class ApplicationRoutesGetter extends CustomControllerClient {
     }
 
     private List<CloudRoute> doGetRoutes(CloudControllerClient client, String appRoutesUrl) {
-        RestTemplate restTemplate = getRestTemplate(client);
+        WebClient webClient = getWebClient(client);
         String cloudControllerUrl = client.getCloudControllerUrl()
                                           .toString();
-        List<Map<String, Object>> resources = getAllResources(restTemplate, cloudControllerUrl, appRoutesUrl);
+        List<Map<String, Object>> resources = getAllResources(webClient, cloudControllerUrl, appRoutesUrl);
         return toCloudRoutes(resources);
     }
 

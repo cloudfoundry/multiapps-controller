@@ -16,12 +16,10 @@ import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution.ExecutionState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Named
 public class ServiceUpdater extends CloudServiceOperator {
@@ -34,8 +32,8 @@ public class ServiceUpdater extends CloudServiceOperator {
     private static final String SERVICE_PARAMETERS = "parameters";
 
     @Inject
-    public ServiceUpdater(RestTemplateFactory restTemplateFactory) {
-        super(restTemplateFactory);
+    public ServiceUpdater(WebClientFactory webClientFactory) {
+        super(webClientFactory);
     }
 
     public MethodExecution<String> updateServicePlanQuietly(CloudControllerClient client, String serviceName, String servicePlan) {
@@ -104,16 +102,18 @@ public class ServiceUpdater extends CloudServiceOperator {
 
     private MethodExecution<String> attemptToUpdateServiceParameter(CloudControllerClient client, CloudServiceInstance serviceInstance,
                                                                     String serviceUrl, String parameterName, Object parameter) {
-        RestTemplate restTemplate = getRestTemplate(client);
+        WebClient webClient = getWebClient(client);
         String cloudControllerUrl = getCloudControllerUrl(client);
         String updateServiceUrl = getUrl(cloudControllerUrl, getUpdateServiceUrl(serviceUrl, serviceInstance.getMetadata()
                                                                                                             .getGuid()
                                                                                                             .toString()));
-
         Map<String, Object> serviceRequest = Map.of(parameterName, parameter);
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(serviceRequest);
-        ResponseEntity<String> response = restTemplate.exchange(updateServiceUrl, HttpMethod.PUT, requestEntity, String.class);
-        return MethodExecution.fromResponseEntity(response);
+        ClientResponse clientResponse = webClient.put()
+                                                 .uri(updateServiceUrl)
+                                                 .bodyValue(serviceRequest)
+                                                 .exchange()
+                                                 .block();
+        return MethodExecution.fromClientResponse(clientResponse);
     }
 
     private String getUpdateServiceUrl(String serviceUrl, String serviceGuid) {
