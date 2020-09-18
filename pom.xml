@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.cloudfoundry.multiapps</groupId>
@@ -42,7 +43,7 @@
         <jackson.version>2.11.2</jackson.version>
         <liquibase.version>4.0.0</liquibase.version>
         <liquibase-slf4j.version>3.0.0</liquibase-slf4j.version>
-        <cloudfoundry-client.version>1.29.0</cloudfoundry-client.version>
+        <cloudfoundry-client.version>1.30.0-SNAPSHOT</cloudfoundry-client.version>
         <jgit.version>4.0.1.201506240215-r</jgit.version>
         <swagger.version>1.6.2</swagger.version>
         <jclouds.version>2.2.1</jclouds.version>
@@ -147,8 +148,8 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.2</version>
                     <configuration>
-                        <!-- Surefire excludes nested classes by default, so we need to explicitly specify that nothing should 
-                            be excluded. -->
+                        <!-- Surefire excludes nested classes by default, 
+                            so we need to explicitly specify that nothing should be excluded. -->
                         <excludes>
                             <exclude />
                         </excludes>
@@ -376,8 +377,8 @@
                 <artifactId>jaxb-impl</artifactId>
                 <version>${jaxb-impl.version}</version>
             </dependency>
-            <!-- Transitive dependency from multiapps-common and liquibase. Pin the version to make sure we're always using 
-                the correct one. -->
+            <!-- Transitive dependency from multiapps-common and liquibase. 
+                Pin the version to make sure we're always using the correct one. -->
             <!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
             <dependency>
                 <groupId>org.yaml</groupId>
@@ -699,8 +700,8 @@
                 <version>${liquibase.version}</version>
                 <exclusions>
                     <exclusion>
-                        <!-- We're using https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api, which 
-                            brings the same packages. -->
+                        <!-- We're using https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api, 
+                            which brings the same packages. -->
                         <groupId>javax.xml.bind</groupId>
                         <artifactId>jaxb-api</artifactId>
                     </exclusion>
