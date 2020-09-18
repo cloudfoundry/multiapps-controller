@@ -8,6 +8,8 @@ import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.dialects.DataSourceDialect;
 import org.cloudfoundry.multiapps.controller.persistence.dialects.DefaultDataSourceDialect;
 import org.cloudfoundry.multiapps.controller.web.configuration.bean.factory.CloudDataSourceFactoryBean;
+import org.cloudfoundry.multiapps.controller.web.configuration.bean.factory.DataSourceFactory;
+import org.cloudfoundry.multiapps.controller.web.util.EnvironmentServicesFinder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -29,11 +31,8 @@ public class DatabaseConfiguration {
 
     @Inject
     @Bean
-    public CloudDataSourceFactoryBean dataSource(ApplicationConfiguration applicationConfiguration) {
-        CloudDataSourceFactoryBean cloudDataSourceFactoryBean = new CloudDataSourceFactoryBean();
-        cloudDataSourceFactoryBean.setServiceName(DATA_SOURCE_SERVICE_NAME);
-        cloudDataSourceFactoryBean.setConfiguration(applicationConfiguration);
-        return cloudDataSourceFactoryBean;
+    public CloudDataSourceFactoryBean dataSource(DataSourceFactory dataSourceFactory, EnvironmentServicesFinder vcapServiceFinder) {
+        return new CloudDataSourceFactoryBean(DATA_SOURCE_SERVICE_NAME, dataSourceFactory, vcapServiceFinder);
     }
 
     @Bean

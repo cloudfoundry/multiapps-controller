@@ -1,38 +1,38 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
-import java.text.MessageFormat;
+import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileSystemFileStorage;
-import org.cloudfoundry.multiapps.controller.web.Messages;
-import org.cloudfoundry.multiapps.controller.web.configuration.service.FileSystemServiceInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.cloudfoundry.multiapps.controller.web.util.EnvironmentServicesFinder;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.cloud.Cloud;
-import org.springframework.cloud.CloudException;
-import org.springframework.cloud.CloudFactory;
+
+import io.pivotal.cfenv.core.CfService;
 
 public class FileSystemFileStorageFactoryBean implements FactoryBean<FileSystemFileStorage>, InitializingBean {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemFileStorageFactoryBean.class);
-
     private final String serviceName;
+    private final EnvironmentServicesFinder environmentServicesFinder;
     private FileSystemFileStorage fileSystemFileStorage;
 
-    public FileSystemFileStorageFactoryBean(String serviceName) {
+    public FileSystemFileStorageFactoryBean(String serviceName, EnvironmentServicesFinder environmentServicesFinder) {
         this.serviceName = serviceName;
+        this.environmentServicesFinder = environmentServicesFinder;
     }
 
     @Override
     public void afterPropertiesSet() {
         String storagePath = getStoragePath(serviceName);
-        this.fileSystemFileStorage = createFileSystemFileStorage(storagePath);
+        if (storagePath == null) {
+            return;
+        }
+        this.fileSystemFileStorage = new FileSystemFileStorage(storagePath);
     }
 
-    private FileSystemFileStorage createFileSystemFileStorage(String storagePath) {
-        return storagePath == null ? null : new FileSystemFileStorage(storagePath);
+    @Override
+    public Class<FileSystemFileStorage> getObjectType() {
+        return FileSystemFileStorage.class;
     }
 
     @Override
@@ -40,30 +40,21 @@ public class FileSystemFileStorageFactoryBean implements FactoryBean<FileSystemF
         return fileSystemFileStorage;
     }
 
-    @Override
-    public Class<?> getObjectType() {
-        return FileSystemFileStorage.class;
-    }
-
-    @Override
-    public boolean isSingleton() {
-        return true;
-    }
-
     private String getStoragePath(String serviceName) {
-        if (StringUtils.isEmpty(serviceName)) {
-            LOGGER.warn(Messages.FILE_SYSTEM_SERVICE_NAME_IS_NOT_SPECIFIED);
+        CfService service = environmentServicesFinder.findService(serviceName);
+        if (service == null) {
             return null;
         }
-        try {
-            CloudFactory cloudFactory = new CloudFactory();
-            Cloud cloud = cloudFactory.getCloud();
-            FileSystemServiceInfo serviceInfo = (FileSystemServiceInfo) cloud.getServiceInfo(serviceName);
-            return serviceInfo.getStoragePath();
-        } catch (CloudException e) {
-            LOGGER.warn(MessageFormat.format(Messages.FAILED_TO_DETECT_FILE_SERVICE_STORAGE_PATH, serviceName), e);
-        }
-        return null;
+        return getStoragePath(service);
+    }
+
+    @SuppressWarnings("unchecked")
+    private String getStoragePath(CfService service) {
+        Map<String, Object> credentials = service.getCredentials()
+                                                 .getMap();
+        List<Object> volumeMounts = (List<Object>) credentials.get("volume_mounts");
+        Map<String, Object> volumeMount = (Map<String, Object>) volumeMounts.get(0);
+        return (String) volumeMount.get("container_dir");
     }
 
 }

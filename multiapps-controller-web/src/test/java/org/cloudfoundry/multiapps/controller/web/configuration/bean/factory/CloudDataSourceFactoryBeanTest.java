@@ -1,95 +1,55 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import javax.sql.DataSource;
-
-import org.cloudfoundry.multiapps.controller.core.test.LambdaArgumentMatcher;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.web.util.EnvironmentServicesFinder;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.cloud.Cloud;
-import org.springframework.cloud.CloudException;
-import org.springframework.cloud.service.relational.DataSourceConfig;
+
+import com.zaxxer.hikari.HikariDataSource;
+
+import io.pivotal.cfenv.jdbc.CfJdbcService;
 
 public class CloudDataSourceFactoryBeanTest {
 
-    private final class TestedCloudDataSourceFactoryBean extends CloudDataSourceFactoryBean {
-
-        @Override
-        protected Cloud getSpringCloud() {
-            return springCloudMock;
-        }
-    }
+    private static final String SERVICE_NAME = "my-service";
 
     @Mock
-    private DataSource defaultDataSource;
+    private HikariDataSource dataSource;
     @Mock
-    private DataSource createdDataSource;
+    private DataSourceFactory dataSourceFactory;
     @Mock
-    private ApplicationConfiguration configurationMock;
-    @Mock
-    private Cloud springCloudMock;
+    private EnvironmentServicesFinder vcapServiceFinder;
 
     private CloudDataSourceFactoryBean testedFactory;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        testedFactory = new TestedCloudDataSourceFactoryBean();
+        testedFactory = new CloudDataSourceFactoryBean(SERVICE_NAME, dataSourceFactory, vcapServiceFinder);
     }
 
     @Test
-    public void testDefaultProvisioning() {
-        testedFactory.setDefaultDataSource(defaultDataSource);
-        testedFactory.setServiceName("");
-        testedFactory.setConfiguration(configurationMock);
+    public void testWhenServiceExists() {
+        CfJdbcService service = Mockito.mock(CfJdbcService.class);
+        Mockito.when(vcapServiceFinder.findJdbcService(SERVICE_NAME))
+               .thenReturn(service);
+        Mockito.when(dataSourceFactory.createHikariDataSource(service))
+               .thenReturn(dataSource);
+
         testedFactory.afterPropertiesSet();
-        assertEquals(testedFactory.getObject(), defaultDataSource);
+
+        assertEquals(dataSource, testedFactory.getObject());
     }
 
     @Test
-    public void testReadConfiguration() {
-        final int DB_CONNECTIONS = 15;
-        final String SERVICE_NAME = "abc";
-
-        when(configurationMock.getDbConnectionThreads()).thenReturn(DB_CONNECTIONS);
-
-        ArgumentMatcher<DataSourceConfig> dataSourceConfigMatcher = new LambdaArgumentMatcher<>((Object input) -> DB_CONNECTIONS == ((DataSourceConfig) input).getPoolConfig()
-                                                                                                                                                              .getMaxTotal());
-        when(springCloudMock.getServiceConnector(eq(SERVICE_NAME), eq(DataSource.class),
-                                                 argThat(dataSourceConfigMatcher))).thenReturn(createdDataSource);
-
-        testedFactory.setDefaultDataSource(defaultDataSource);
-        testedFactory.setServiceName(SERVICE_NAME);
-        testedFactory.setConfiguration(configurationMock);
-
+    public void testWhenServiceDoesNotExist() {
         testedFactory.afterPropertiesSet();
 
-        verify(springCloudMock, atLeastOnce()).getServiceConnector(any(), any(), any());
-        assertEquals(testedFactory.getObject(), createdDataSource);
+        assertEquals(null, testedFactory.getObject());
     }
 
-    @Test
-    public void testFallBackToDefault() {
-        when(configurationMock.getDbConnectionThreads()).thenReturn(30);
-        when(springCloudMock.getServiceConnector(any(), any(), any())).thenThrow(new CloudException("unknown service"));
-
-        testedFactory.setDefaultDataSource(defaultDataSource);
-        testedFactory.setServiceName("any");
-        testedFactory.setConfiguration(configurationMock);
-        testedFactory.afterPropertiesSet();
-
-        verify(springCloudMock, atLeastOnce()).getServiceConnector(any(), any(), any());
-        assertEquals(testedFactory.getObject(), defaultDataSource);
-    }
 }

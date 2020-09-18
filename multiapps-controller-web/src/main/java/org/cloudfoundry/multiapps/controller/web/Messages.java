@@ -41,10 +41,6 @@ public final class Messages {
     // DEBUG log messages
     public static final String ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION = "Cannot store access token due to data integrity violation. The exception is ignored as the token and authentication are persisted by another client";
 
-    // WARN log messages
-    public static final String FILE_SYSTEM_SERVICE_NAME_IS_NOT_SPECIFIED = "Failed to detect file service storage path, because the service name is not specified in the configuration files!";
-    public static final String FAILED_TO_DETECT_FILE_SERVICE_STORAGE_PATH = "Failed to detect file service storage path for service \"{0}\"!";
-
     private Messages() {
     }
 }
