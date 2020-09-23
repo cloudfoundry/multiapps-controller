@@ -15,14 +15,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <!-- jackson cannot deserialize Optional<T> values with Java 11 (see DeployedMtaDetectorTest.testGetAllDeployedMtaByNameAndNamespace). -->
-                    <argLine>--add-opens java.base/java.util=com.fasterxml.jackson.databind</argLine>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>de.empulse.eclipselink</groupId>
                 <artifactId>staticweave-maven-plugin</artifactId>
                 <executions>
