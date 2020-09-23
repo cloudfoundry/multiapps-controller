@@ -16,16 +16,22 @@ import org.cloudfoundry.multiapps.controller.api.model.OperationMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ParameterMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessEvent;
+import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
+import org.cloudfoundry.multiapps.controller.process.dynatrace.ImmutableDynatraceProcessEvent;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Named
@@ -33,12 +39,18 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private static final long serialVersionUID = 1L;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessListener.class);
+
     @Inject
     private OperationService operationService;
     @Inject
     protected ProcessTypeParser processTypeParser;
     @Autowired(required = false)
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
+    @Inject
+    protected ApplicationConfiguration configuration;
+    @Inject
+    private DynatracePublisher dynatracePublisher;
 
     Supplier<ZonedDateTime> currentTimeSupplier = ZonedDateTime::now;
 
@@ -56,6 +68,18 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         getHistoricOperationEventService().add(ImmutableHistoricOperationEvent.of(correlationId, HistoricOperationEvent.EventType.STARTED));
         logProcessEnvironment();
         logProcessVariables(execution, processType);
+        publishDynatraceEvent(execution, processType);
+    }
+
+    private void publishDynatraceEvent(DelegateExecution execution, ProcessType processType) {
+        DynatraceProcessEvent startEvent = ImmutableDynatraceProcessEvent.builder()
+                                                                         .processId(VariableHandling.get(execution, Variables.CORRELATION_ID))
+                                                                         .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
+                                                                         .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
+                                                                         .eventType(DynatraceProcessEvent.EventType.STARTED)
+                                                                         .processType(processType)
+                                                                         .build();
+        dynatracePublisher.publishProcessEvent(startEvent, getLogger());
     }
 
     private Operation getOperation(String correlationId) {
@@ -104,6 +128,11 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
                                                 .namespace(VariableHandling.get(execution, Variables.MTA_NAMESPACE))
                                                 .build();
         operationService.add(operation);
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return LOGGER;
     }
 
 }

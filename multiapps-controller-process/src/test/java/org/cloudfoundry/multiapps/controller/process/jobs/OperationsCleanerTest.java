@@ -23,6 +23,8 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoric
 import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
+import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
 import org.cloudfoundry.multiapps.controller.process.flowable.AbortProcessAction;
 import org.cloudfoundry.multiapps.controller.process.flowable.Action;
 import org.cloudfoundry.multiapps.controller.process.flowable.AdditionalProcessAction;
@@ -50,6 +52,10 @@ class OperationsCleanerTest {
 
     @Mock
     private OperationService operationService;
+    @Mock
+    private ProgressMessageService progressMessageService;
+    @Mock
+    private DynatracePublisher dynatracePublisher;
     @Mock(answer = Answers.RETURNS_SELF)
     private OperationQuery operationQuery;
     @Mock
@@ -73,7 +79,9 @@ class OperationsCleanerTest {
                                                                                      Collections.emptyList(),
                                                                                      historicOperationEventService,
                                                                                      operationService,
-                                                                                     cloudControllerClientProvider));
+                                                                                     cloudControllerClientProvider,
+                                                                                     progressMessageService,
+                                                                                     dynatracePublisher));
     }
 
     @Test
@@ -219,8 +227,15 @@ class OperationsCleanerTest {
 
         public AbortProcessActionMock(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
                                       HistoricOperationEventService historicOperationEventService, OperationService operationService,
-                                      CloudControllerClientProvider cloudControllerClientProvider) {
-            super(flowableFacade, additionalProcessActions, historicOperationEventService, operationService, cloudControllerClientProvider);
+                                      CloudControllerClientProvider cloudControllerClientProvider,
+                                      ProgressMessageService progressMessageService, DynatracePublisher dynatracePublisher) {
+            super(flowableFacade,
+                  additionalProcessActions,
+                  historicOperationEventService,
+                  operationService,
+                  cloudControllerClientProvider,
+                  progressMessageService,
+                  dynatracePublisher);
         }
 
         @Override

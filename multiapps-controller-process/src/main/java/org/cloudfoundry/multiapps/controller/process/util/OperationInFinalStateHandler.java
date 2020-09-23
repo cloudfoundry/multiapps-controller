@@ -11,6 +11,7 @@ import javax.inject.Named;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
+import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.util.LoggingUtil;
 import org.cloudfoundry.multiapps.controller.core.util.SafeExecutor;
@@ -21,6 +22,9 @@ import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageExc
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessDuration;
+import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
+import org.cloudfoundry.multiapps.controller.process.dynatrace.ImmutableDynatraceProcessDuration;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -43,18 +47,20 @@ public class OperationInFinalStateHandler {
     private HistoricOperationEventService historicOperationEventService;
     @Inject
     private OperationTimeAggregator operationTimeAggregator;
+    @Inject
+    private DynatracePublisher dynatracePublisher;
     private final SafeExecutor safeExecutor = new SafeExecutor();
 
-    public void handle(DelegateExecution execution, Operation.State state) {
-        LoggingUtil.logWithCorrelationId(VariableHandling.get(execution, Variables.CORRELATION_ID), () -> handleInternal(execution, state));
+    public void handle(DelegateExecution execution, ProcessType processType, Operation.State state) {
+        LoggingUtil.logWithCorrelationId(VariableHandling.get(execution, Variables.CORRELATION_ID), () -> handleInternal(execution, processType, state));
     }
 
-    private void handleInternal(DelegateExecution execution, Operation.State state) {
+    private void handleInternal(DelegateExecution execution, ProcessType processType, Operation.State state) {
         String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
         safeExecutor.execute(() -> deleteDeploymentFiles(execution));
         safeExecutor.execute(() -> deleteCloudControllerClientForProcess(execution));
         safeExecutor.execute(() -> setOperationState(correlationId, state));
-        safeExecutor.execute(() -> logOperationTime(correlationId));
+        safeExecutor.execute(() -> trackOperationDuration(correlationId, execution, processType, state));
     }
 
     protected void deleteDeploymentFiles(DelegateExecution execution) throws FileStorageException {
@@ -101,13 +107,23 @@ public class OperationInFinalStateHandler {
         return state == Operation.State.FINISHED ? HistoricOperationEvent.EventType.FINISHED : HistoricOperationEvent.EventType.ABORTED;
     }
 
-    private void logOperationTime(String correlationId) {
+    private void trackOperationDuration(String correlationId, DelegateExecution execution, ProcessType processType, Operation.State state) {
         Map<String, ProcessTime> processTimes = operationTimeAggregator.collectProcessTimes(correlationId);
 
         processTimes.forEach((processId, processTime) -> logProcessTime(correlationId, processId, processTime));
 
         ProcessTime overallProcessTime = operationTimeAggregator.computeOverallProcessTime(correlationId, processTimes);
-
+        
+        DynatraceProcessDuration dynatraceProcessDuration = ImmutableDynatraceProcessDuration.builder()
+            .processId(correlationId)
+            .mtaId(VariableHandling.get(execution, Variables.MTA_ID))
+            .spaceId(VariableHandling.get(execution, Variables.SPACE_GUID))
+            .operationState(state)
+            .processType(processType)
+            .processDuration(overallProcessTime.getProcessDuration())
+            .build();
+       dynatracePublisher.publishProcessDuration(dynatraceProcessDuration, LOGGER);
+        
         LOGGER.info(format(Messages.TIME_STATISTICS_FOR_OPERATION_0_DURATION_1_DELAY_2, correlationId,
                            overallProcessTime.getProcessDuration(), overallProcessTime.getDelayBetweenSteps()));
     }
@@ -116,4 +132,5 @@ public class OperationInFinalStateHandler {
         LOGGER.debug(format(Messages.TIME_STATISTICS_FOR_PROCESS_0_OPERATION_1_DURATION_2_DELAY_3, processId, correlationId,
                             processTime.getProcessDuration(), processTime.getDelayBetweenSteps()));
     }
+    
 }

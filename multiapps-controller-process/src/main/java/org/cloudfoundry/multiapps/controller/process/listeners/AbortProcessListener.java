@@ -8,6 +8,7 @@ import javax.inject.Named;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.OperationInFinalStateHandler;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEntityEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -23,10 +24,12 @@ public class AbortProcessListener extends AbstractFlowableEngineEventListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbortProcessListener.class);
 
     private final OperationInFinalStateHandler eventHandler;
+    protected final ProcessTypeParser processTypeParser;
 
     @Inject
-    public AbortProcessListener(OperationInFinalStateHandler eventHandler) {
+    public AbortProcessListener(OperationInFinalStateHandler eventHandler, ProcessTypeParser processTypeParser) {
         this.eventHandler = eventHandler;
+        this.processTypeParser = processTypeParser;
     }
 
     @Override
@@ -54,7 +57,7 @@ public class AbortProcessListener extends AbstractFlowableEngineEventListener {
                                              event.getProcessInstanceId()));
             return;
         }
-        eventHandler.handle(execution, Operation.State.ABORTED);
+        eventHandler.handle(execution, processTypeParser.getProcessType(execution), Operation.State.ABORTED);
     }
 
     private static boolean hasCorrectEntityType(FlowableEngineEntityEvent event) {

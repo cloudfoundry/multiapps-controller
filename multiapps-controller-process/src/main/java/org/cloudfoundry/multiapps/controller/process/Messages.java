@@ -548,6 +548,8 @@ public class Messages {
     public static final String UPDATING_SERVICE_0_WITH_PLAN_1 = "Updating service plan for service \"{0}\" with new plan: \"{1}\"";
     public static final String SERVICE_PLAN_FOR_SERVICE_0_UPDATED = "Service plan for service \"{0}\" updated";
     public static final String GETTING_ROLES_FOR_USER_0_FOR_SPACE_1 = "Getting roles for user: \"0\" for space: \"1\"";
+    public static final String REGISTERING_PROCESS_EVENT_IN_DYNATRACE = "Registering process event in dynatrace: \"0\"";
+    public static final String REGISTERING_PROCESS_DURATION_IN_DYNATRACE = "Registering process duration in dynatrace: \"0\"";
 
     protected Messages() {
     }

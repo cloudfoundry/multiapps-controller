@@ -2,6 +2,7 @@ open module org.cloudfoundry.multiapps.controller.process {
 
     exports org.cloudfoundry.multiapps.controller.process;
     exports org.cloudfoundry.multiapps.controller.process.client;
+    exports org.cloudfoundry.multiapps.controller.process.dynatrace;
     exports org.cloudfoundry.multiapps.controller.process.flowable;
     exports org.cloudfoundry.multiapps.controller.process.flowable.commands;
     exports org.cloudfoundry.multiapps.controller.process.flowable.commands.abort;

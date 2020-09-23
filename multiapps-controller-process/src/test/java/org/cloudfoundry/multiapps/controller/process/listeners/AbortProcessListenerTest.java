@@ -1,8 +1,10 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
+import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.util.OperationInFinalStateHandler;
+import org.cloudfoundry.multiapps.controller.process.util.ProcessTypeParser;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEntityEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEventType;
@@ -17,10 +19,13 @@ import org.mockito.Mockito;
 class AbortProcessListenerTest {
 
     private final OperationInFinalStateHandler eventHandler = Mockito.mock(OperationInFinalStateHandler.class);
+    private final ProcessTypeParser processTypeParser = Mockito.mock(ProcessTypeParser.class);
     private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
 
-    private final AbortProcessListener abortProcessListenerWithContext = new AbortProcessListenerMock(eventHandler, execution);
-    private final AbortProcessListener abortProcessListener = new AbortProcessListenerMock(eventHandler, null);
+    private final AbortProcessListener abortProcessListenerWithContext = new AbortProcessListenerMock(eventHandler,
+                                                                                                      processTypeParser,
+                                                                                                      execution);
+    private final AbortProcessListener abortProcessListener = new AbortProcessListenerMock(eventHandler, processTypeParser, null);
 
     @Test
     void testWithWrongEventClass() {
@@ -41,17 +46,21 @@ class AbortProcessListenerTest {
         FlowableEngineEntityEvent entityDeletedEvent = mockFlowableEngineEvent(FlowableEngineEntityEvent.class,
                                                                                FlowableEngineEventType.ENTITY_DELETED);
         mockEntity(entityDeletedEvent);
+        Mockito.when(processTypeParser.getProcessType(execution))
+               .thenReturn(ProcessType.DEPLOY);
         abortProcessListenerWithContext.onEvent(entityDeletedEvent);
         Mockito.verify(eventHandler)
-               .handle(execution, Operation.State.ABORTED);
+               .handle(execution, ProcessType.DEPLOY, Operation.State.ABORTED);
     }
 
     @Test
     void testWithProcessCancelledEvent() {
+        Mockito.when(processTypeParser.getProcessType(execution))
+               .thenReturn(ProcessType.DEPLOY);
         abortProcessListenerWithContext.onEvent(mockFlowableEngineEvent(FlowableCancelledEvent.class,
                                                                         FlowableEngineEventType.PROCESS_CANCELLED));
         Mockito.verify(eventHandler)
-               .handle(execution, Operation.State.ABORTED);
+               .handle(execution, ProcessType.DEPLOY, Operation.State.ABORTED);
     }
 
     @Test
@@ -81,8 +90,9 @@ class AbortProcessListenerTest {
 
         private final DelegateExecution execution;
 
-        private AbortProcessListenerMock(OperationInFinalStateHandler eventHandler, DelegateExecution execution) {
-            super(eventHandler);
+        private AbortProcessListenerMock(OperationInFinalStateHandler eventHandler, ProcessTypeParser processTypeParser,
+                                         DelegateExecution execution) {
+            super(eventHandler, processTypeParser);
             this.execution = execution;
         }
 
