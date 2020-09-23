@@ -32,7 +32,7 @@ public class FlowableActionFactoryTest {
     @Test
     public void testAbortAction() {
         Mockito.when(processActionRegistry.getAction(ABORT_ACTION_ID))
-               .thenReturn(new AbortProcessAction(facade, Collections.singletonList(additionalProcessAction), null, null));
+               .thenReturn(new AbortProcessAction(facade, Collections.singletonList(additionalProcessAction), null, null, null, null));
         testAction(ABORT_ACTION_ID, AbortProcessAction.class);
     }
 

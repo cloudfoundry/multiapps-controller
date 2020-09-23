@@ -20,7 +20,9 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.core.persistence.query.OperationQuery;
 import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
+import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.core.util.MockBuilder;
+import org.cloudfoundry.multiapps.controller.process.event.DynatraceEventPublisher;
 import org.cloudfoundry.multiapps.controller.process.flowable.AbortProcessAction;
 import org.cloudfoundry.multiapps.controller.process.flowable.AdditionalProcessAction;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
@@ -48,6 +50,10 @@ class OperationsCleanerTest {
 
     @Mock
     private OperationService operationService;
+    @Mock
+    private ProgressMessageService progressMessageService;
+    @Mock
+    private DynatraceEventPublisher dynatraceEventPublisher;
     @Mock(answer = Answers.RETURNS_SELF)
     private OperationQuery operationQuery;
     @Mock
@@ -67,7 +73,9 @@ class OperationsCleanerTest {
         when(registry.getAction("abort")).thenReturn(new AbortProcessActionMock(flowableFacade,
                                                                                 Collections.emptyList(),
                                                                                 historicOperationEventPersister,
-                                                                                operationService));
+                                                                                operationService,
+                                                                                progressMessageService,
+                                                                                dynatraceEventPublisher));
     }
 
     @Test
@@ -202,8 +210,14 @@ class OperationsCleanerTest {
     private static class AbortProcessActionMock extends AbortProcessAction {
 
         public AbortProcessActionMock(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
-                                      HistoricOperationEventPersister historicEventPersister, OperationService operationService) {
-            super(flowableFacade, additionalProcessActions, historicEventPersister, operationService);
+                                      HistoricOperationEventPersister historicEventPersister, OperationService operationService,
+                                      ProgressMessageService progressMessageService, DynatraceEventPublisher dynatraceEventPublisher) {
+            super(flowableFacade,
+                  additionalProcessActions,
+                  historicEventPersister,
+                  operationService,
+                  progressMessageService,
+                  dynatraceEventPublisher);
         }
 
         @Override
