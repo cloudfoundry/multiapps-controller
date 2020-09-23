@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.time.Instant;
@@ -20,6 +21,8 @@ import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperat
 import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
+import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatraceProcessEvent;
+import org.cloudfoundry.multiapps.controller.process.dynatrace.DynatracePublisher;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
@@ -33,6 +36,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -44,6 +48,7 @@ class StartProcessListenerTest {
     private static final String SPACE_ID = "9ba1dfc7-9c2c-40d5-8bf9-fd04fa7a1722";
     private static final String TASK_ID = "test-task-id";
     private static final String USER = "current-user";
+    private final static String MTA_ID = "my-mta";
     private static final ZonedDateTime START_TIME = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.of("UTC"));
 
     private String processInstanceId;
@@ -67,6 +72,8 @@ class StartProcessListenerTest {
     private final ProcessLogsPersister processLogsPersister = new ProcessLogsPersister();
     @Mock
     private ApplicationConfiguration configuration;
+    @Mock
+    private DynatracePublisher dynatracePublisher;
     @Mock
     private HistoricOperationEventService historicOperationEventService;
     @Spy
@@ -100,6 +107,17 @@ class StartProcessListenerTest {
         listener.notify(execution);
 
         verifyOperationInsertion();
+        verifyDynatracePublishEvent();
+    }
+
+    private void verifyDynatracePublishEvent() {
+        ArgumentCaptor<DynatraceProcessEvent> argumentCaptor = ArgumentCaptor.forClass(DynatraceProcessEvent.class);
+        Mockito.verify(dynatracePublisher).publishProcessEvent(argumentCaptor.capture(), Mockito.any());
+        DynatraceProcessEvent actualDynatraceEvent = argumentCaptor.getValue();
+        assertEquals(MTA_ID, actualDynatraceEvent.getMtaId());
+        assertEquals(SPACE_ID, actualDynatraceEvent.getSpaceId());
+        assertEquals(processType, actualDynatraceEvent.getProcessType());
+        assertEquals(DynatraceProcessEvent.EventType.STARTED, actualDynatraceEvent.getEventType());
     }
 
     private void prepare() throws Exception {
@@ -127,6 +145,7 @@ class StartProcessListenerTest {
         Mockito.when(processTypeParser.getProcessType(execution))
                .thenReturn(processType);
         VariableHandling.set(execution, Variables.SPACE_GUID, SPACE_ID);
+        VariableHandling.set(execution, Variables.MTA_ID, MTA_ID);
         VariableHandling.set(execution, Variables.USER, USER);
         VariableHandling.set(execution, Variables.CORRELATION_ID, processInstanceId);
         VariableHandling.set(execution, Variables.TASK_ID, TASK_ID);

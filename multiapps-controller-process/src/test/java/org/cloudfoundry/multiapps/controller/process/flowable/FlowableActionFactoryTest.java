@@ -40,7 +40,7 @@ class FlowableActionFactoryTest {
     @Test
     void testAbortAction() {
         Mockito.when(processActionRegistry.getAction(ABORT_ACTION_ID))
-               .thenReturn(new AbortProcessAction(facade, List.of(additionalProcessAction), null, null, cloudControllerClientProvider));
+               .thenReturn(new AbortProcessAction(facade, List.of(additionalProcessAction), null, null, cloudControllerClientProvider, null, null));
         testAction(ABORT_ACTION_ID, AbortProcessAction.class);
     }
 
