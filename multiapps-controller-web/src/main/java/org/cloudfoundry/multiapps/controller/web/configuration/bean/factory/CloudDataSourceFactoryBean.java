@@ -13,6 +13,8 @@ import org.springframework.cloud.service.relational.DataSourceConfig;
 
 public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, InitializingBean {
 
+    private static final int MAX_WAIT_TIME = 60 * 1000;
+
     private String serviceName;
     private DataSource defaultDataSource;
     private DataSource dataSource;
@@ -56,7 +58,7 @@ public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, Init
         try {
             if (serviceName != null && !serviceName.isEmpty()) {
                 int maxPoolSize = configuration.getDbConnectionThreads();
-                DataSourceConfig config = new DataSourceConfig(new PoolConfig(maxPoolSize, 30000), null);
+                DataSourceConfig config = new DataSourceConfig(new PoolConfig(maxPoolSize, MAX_WAIT_TIME), null);
                 cloudDataSource = getSpringCloud().getServiceConnector(serviceName, DataSource.class, config);
             }
         } catch (CloudException e) {
