@@ -6,9 +6,11 @@ import java.util.Date;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface LogsOffset extends Serializable {
+public abstract class LogsOffset implements Serializable {
 
-    Date getTimestamp();
+    private static final long serialVersionUID = 1L;
 
-    String getMessage();
+    public abstract Date getTimestamp();
+
+    public abstract String getMessage();
 }
