@@ -2,6 +2,7 @@ open module org.cloudfoundry.multiapps.controller.core {
 
     exports org.cloudfoundry.multiapps.controller.core;
     exports org.cloudfoundry.multiapps.controller.core.auditlogging;
+    exports org.cloudfoundry.multiapps.controller.core.auditlogging.impl;
     exports org.cloudfoundry.multiapps.controller.core.cf;
     exports org.cloudfoundry.multiapps.controller.core.cf.apps;
     exports org.cloudfoundry.multiapps.controller.core.cf.clients;
@@ -37,6 +38,7 @@ open module org.cloudfoundry.multiapps.controller.core {
     exports org.cloudfoundry.multiapps.controller.core.security.data.termination;
     exports org.cloudfoundry.multiapps.controller.core.security.serialization;
     exports org.cloudfoundry.multiapps.controller.core.security.token;
+    exports org.cloudfoundry.multiapps.controller.core.security.token.parsers;
     exports org.cloudfoundry.multiapps.controller.core.util;
     exports org.cloudfoundry.multiapps.controller.core.validators.parameters;
     exports org.cloudfoundry.multiapps.controller.core.validators.parameters.v2;
