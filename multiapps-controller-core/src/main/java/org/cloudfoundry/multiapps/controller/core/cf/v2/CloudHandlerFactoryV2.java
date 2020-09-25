@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationReferencesResolver;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationSubscriptionFactory;
@@ -28,8 +29,16 @@ public class CloudHandlerFactoryV2 extends HandlerFactoryV2 implements CloudHand
     @Override
     public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting,
                                                                         DeployedMta deployedMta, String deployId, String namespace,
-                                                                        UserMessageLogger stepLogger) {
-        return new ApplicationCloudModelBuilder(deploymentDescriptor, prettyPrinting, deployedMta, deployId, namespace, stepLogger);
+                                                                        UserMessageLogger stepLogger,
+                                                                        AppSuffixDeterminer appSuffixDeterminer) {
+        return new ApplicationCloudModelBuilder.Builder().deploymentDescriptor(deploymentDescriptor)
+                                                         .prettyPrinting(prettyPrinting)
+                                                         .deployedMta(deployedMta)
+                                                         .deployId(deployId)
+                                                         .namespace(namespace)
+                                                         .userMessageLogger(stepLogger)
+                                                         .appSuffixDeterminer(appSuffixDeterminer)
+                                                         .build();
     }
 
     @Override

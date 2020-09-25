@@ -21,7 +21,9 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApp
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.DeploymentMode;
+import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
+import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
@@ -54,23 +56,24 @@ public class ApplicationCloudModelBuilder {
     protected final ApplicationEnvironmentCloudModelBuilder applicationEnvCloudModelBuilder;
     protected final DeployedMta deployedMta;
     protected final UserMessageLogger stepLogger;
+    protected final AppSuffixDeterminer appSuffixDeterminer;
 
     protected final ParametersChainBuilder parametersChainBuilder;
 
-    public ApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
-                                        String deployId, String namespace, UserMessageLogger stepLogger) {
+    protected ApplicationCloudModelBuilder(AbstractBuilder<?> builder) {
         CloudHandlerFactory handlerFactory = createCloudHandlerFactory();
         this.handler = handlerFactory.getDescriptorHandler();
-        this.deploymentDescriptor = deploymentDescriptor;
-        this.namespace = namespace;
-        this.prettyPrinting = prettyPrinting;
+        this.deploymentDescriptor = builder.deploymentDescriptor;
+        this.namespace = builder.namespace;
+        this.prettyPrinting = builder.prettyPrinting;
         this.applicationEnvCloudModelBuilder = new ApplicationEnvironmentCloudModelBuilder(deploymentDescriptor,
-                                                                                           deployId,
+                                                                                           builder.deployId,
                                                                                            namespace,
                                                                                            prettyPrinting);
-        this.deployedMta = deployedMta;
+        this.deployedMta = builder.deployedMta;
         this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
-        this.stepLogger = stepLogger;
+        this.stepLogger = builder.userMessageLogger;
+        this.appSuffixDeterminer = builder.appSuffixDeterminer;
     }
 
     protected CloudHandlerFactory createCloudHandlerFactory() {
@@ -90,7 +93,7 @@ public class ApplicationCloudModelBuilder {
         List<String> uris = getApplicationUris(module);
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, parametersList);
         return ImmutableCloudApplicationExtended.builder()
-                                                .name(NameUtil.getApplicationName(module))
+                                                .name(getApplicationName(module))
                                                 .moduleName(module.getName())
                                                 .staging(parseParameters(parametersList, new StagingParametersParser()))
                                                 .diskQuota(parseParameters(parametersList,
@@ -144,6 +147,14 @@ public class ApplicationCloudModelBuilder {
                                                             .equals(productizationState))
                           .findFirst()
                           .orElse(null);
+    }
+
+    private String getApplicationName(Module module) {
+        String applicationName = NameUtil.getApplicationName(module);
+        if (appSuffixDeterminer.shouldAppendApplicationSuffix()) {
+            applicationName += BlueGreenApplicationNameSuffix.IDLE.asSuffix();
+        }
+        return applicationName;
     }
 
     protected <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {
@@ -209,7 +220,8 @@ public class ApplicationCloudModelBuilder {
     protected String getInvalidServiceBindingConfigTypeErrorMessage(String moduleName, String dependencyName, Object bindingParameters) {
         String prefix = org.cloudfoundry.multiapps.mta.util.NameUtil.getPrefixedName(moduleName, dependencyName);
         return MessageFormat.format(org.cloudfoundry.multiapps.mta.Messages.INVALID_TYPE_FOR_KEY,
-                                    org.cloudfoundry.multiapps.mta.util.NameUtil.getPrefixedName(prefix, SupportedParameters.SERVICE_BINDING_CONFIG),
+                                    org.cloudfoundry.multiapps.mta.util.NameUtil.getPrefixedName(prefix,
+                                                                                                 SupportedParameters.SERVICE_BINDING_CONFIG),
                                     Map.class.getSimpleName(), bindingParameters.getClass()
                                                                                 .getSimpleName());
     }
@@ -271,4 +283,67 @@ public class ApplicationCloudModelBuilder {
     public DeploymentMode getDeploymentMode() {
         return DeploymentMode.SEQUENTIAL;
     }
+
+    protected abstract static class AbstractBuilder<T extends AbstractBuilder<T>> {
+        private DeploymentDescriptor deploymentDescriptor;
+        private boolean prettyPrinting;
+        private DeployedMta deployedMta;
+        private String deployId;
+        private String namespace;
+        private UserMessageLogger userMessageLogger;
+        private AppSuffixDeterminer appSuffixDeterminer;
+
+        public T deploymentDescriptor(DeploymentDescriptor deploymentDescriptor) {
+            this.deploymentDescriptor = deploymentDescriptor;
+            return self();
+        }
+
+        public T prettyPrinting(boolean prettyPrinting) {
+            this.prettyPrinting = prettyPrinting;
+            return self();
+        }
+
+        public T deployedMta(DeployedMta deployedMta) {
+            this.deployedMta = deployedMta;
+            return self();
+        }
+
+        public T deployId(String deployId) {
+            this.deployId = deployId;
+            return self();
+        }
+
+        public T namespace(String namespace) {
+            this.namespace = namespace;
+            return self();
+        }
+
+        public T userMessageLogger(UserMessageLogger userMessageLogger) {
+            this.userMessageLogger = userMessageLogger;
+            return self();
+        }
+
+        public T appSuffixDeterminer(AppSuffixDeterminer appSuffixDeterminer) {
+            this.appSuffixDeterminer = appSuffixDeterminer;
+            return self();
+        }
+
+        protected abstract T self();
+
+        public abstract ApplicationCloudModelBuilder build();
+    }
+
+    public static class Builder extends AbstractBuilder<Builder> {
+
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        @Override
+        public ApplicationCloudModelBuilder build() {
+            return new ApplicationCloudModelBuilder(self());
+        }
+    }
+
 }

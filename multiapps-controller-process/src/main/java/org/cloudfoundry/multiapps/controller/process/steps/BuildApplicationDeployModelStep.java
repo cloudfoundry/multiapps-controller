@@ -3,18 +3,15 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -69,18 +66,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         if (context.getVariable(Variables.USE_IDLE_URIS)) {
             return modifiedApp.getIdleUris();
         }
-        if (context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY)) {
-            return removeSuffixFromUris(modifiedApp.getUris());
-        }
         return modifiedApp.getUris();
-    }
-
-    private List<String> removeSuffixFromUris(List<String> uris) {
-        return uris.stream()
-                   .map(ApplicationURI::new)
-                   .peek(uri -> uri.setHost(StringUtils.removeEnd(uri.getHost(), "-idle")))
-                   .map(ApplicationURI::toString)
-                   .collect(Collectors.toList());
     }
 
     private void buildConfigurationEntries(ProcessContext context, CloudApplicationExtended app) {

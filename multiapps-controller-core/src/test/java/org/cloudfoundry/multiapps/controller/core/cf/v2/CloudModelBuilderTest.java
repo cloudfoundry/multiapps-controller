@@ -20,6 +20,7 @@ import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.common.util.YamlParser;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.cf.util.ModulesCloudModelBuilderContentCalculator;
 import org.cloudfoundry.multiapps.controller.core.cf.util.ResourcesCloudModelBuilderContentCalculator;
 import org.cloudfoundry.multiapps.controller.core.cf.util.UnresolvedModulesContentValidator;
@@ -51,6 +52,7 @@ public class CloudModelBuilderTest {
 
     protected static final String DEFAULT_DOMAIN_CF = "cfapps.neo.ondemand.com";
     protected static final String DEFAULT_DOMAIN_XS = "sofd60245639a";
+    protected static final AppSuffixDeterminer DEFAULT_APP_SUFFIX_DETERMINER = new AppSuffixDeterminer(false, false);
 
     protected static final String DEPLOY_ID = "123";
 
@@ -70,6 +72,7 @@ public class CloudModelBuilderTest {
     protected final Set<String> deployedApps;
     protected final Expectation expectedServices;
     protected final Expectation expectedApps;
+    protected final AppSuffixDeterminer appSuffixDeterminer;
     private ModulesCloudModelBuilderContentCalculator modulesCalculator;
     protected ModuleToDeployHelper moduleToDeployHelper;
     protected ResourcesCloudModelBuilderContentCalculator resourcesCalculator;
@@ -88,7 +91,7 @@ public class CloudModelBuilderTest {
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (01)
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/xs2-config.mtaext", "/mta/xs-platform.json", null,
@@ -97,7 +100,7 @@ public class CloudModelBuilderTest {
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/xs2-services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/xs2-apps.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (02) Full MTA with namespace:
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
@@ -106,7 +109,7 @@ public class CloudModelBuilderTest {
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-ns-1.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-1.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-1.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (03) Full MTA with long namespace:
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
@@ -115,7 +118,7 @@ public class CloudModelBuilderTest {
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-ns-2.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-2.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-2.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (04) Patch MTA (resolved inter-module dependencies):
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
@@ -124,7 +127,7 @@ public class CloudModelBuilderTest {
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-patch.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-patch.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-patch.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (05) Patch MTA with namespaces (resolved inter-module dependencies):
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
@@ -133,7 +136,7 @@ public class CloudModelBuilderTest {
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-patch-ns.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-patch-ns.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-patch-ns.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (06) Patch MTA (unresolved inter-module dependencies):
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
@@ -142,7 +145,8 @@ public class CloudModelBuilderTest {
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", }, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-patch.json"),
-                new Expectation(Expectation.Type.EXCEPTION, "Unresolved MTA modules [java-hello-world-backend, java-hello-world-db]")
+                new Expectation(Expectation.Type.EXCEPTION, "Unresolved MTA modules [java-hello-world-backend, java-hello-world-db]"),
+                DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (07)
             { "/mta/shine/mtad.yaml", "/mta/shine/config.mtaext", "/mta/cf-platform.json", null,
@@ -151,7 +155,7 @@ public class CloudModelBuilderTest {
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/shine/services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/shine/apps.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/shine/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (08)
             { "/mta/sample/mtad.yaml", "/mta/sample/config.mtaext", "/mta/sample/platform.json", null,
@@ -160,7 +164,7 @@ public class CloudModelBuilderTest {
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/sample/services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/sample/apps.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/sample/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (09)
             { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/config.mtaext", "/mta/cf-platform.json", null,
@@ -169,7 +173,7 @@ public class CloudModelBuilderTest {
                 new String[] { "webide" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/devxwebide/services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/devxwebide/apps.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/devxwebide/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (10)
             { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config-1.mtaext", "/mta/xs-platform.json", null,
@@ -178,7 +182,7 @@ public class CloudModelBuilderTest {
                 new String[] { "webide" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/devxwebide/services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/devxwebide/xs2-apps.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/devxwebide/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (11)
             { "/mta/devxdi/mtad.yaml", "/mta/devxdi/config.mtaext", "/mta/cf-platform.json", null,
@@ -187,7 +191,7 @@ public class CloudModelBuilderTest {
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/devxdi/services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/devxdi/apps.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/devxdi/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (12)
             { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config-1.mtaext", "/mta/xs-platform.json", null,
@@ -196,7 +200,7 @@ public class CloudModelBuilderTest {
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/devxdi/xs2-services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/devxdi/xs2-apps.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/devxdi/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (13)
             { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config-2.mtaext", "/mta/xs-platform.json", null,
@@ -205,7 +209,7 @@ public class CloudModelBuilderTest {
                 new String[] { "webide" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/devxwebide/services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/devxwebide/xs2-apps.json"), 
+                new Expectation(Expectation.Type.JSON, "/mta/devxwebide/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (14) Unknown typed resource parameters:
             { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config-2.mtaext", "/mta/xs-platform.json", null,
@@ -214,7 +218,7 @@ public class CloudModelBuilderTest {
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/devxdi/xs2-services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/devxdi/xs2-apps.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/devxdi/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (15) Service binding parameters in requires dependency:
             { "mtad-01.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
@@ -223,7 +227,7 @@ public class CloudModelBuilderTest {
                 new String[] { "foo", }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-01.json"),
+                new Expectation(Expectation.Type.JSON, "apps-01.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (16) Service binding parameters in requires dependency:
             { "mtad-02.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
@@ -233,6 +237,7 @@ public class CloudModelBuilderTest {
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.EXCEPTION, "Invalid type for key \"foo#bar#config\", expected \"Map\" but got \"String\""),
+                DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (17) Custom application names are used:
             {
@@ -242,7 +247,7 @@ public class CloudModelBuilderTest {
                 new String[] { "module-1", "module-2" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-02.json"),
+                new Expectation(Expectation.Type.JSON, "apps-02.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (18) Custom application names are used:
             {
@@ -252,7 +257,7 @@ public class CloudModelBuilderTest {
                 new String[] { "module-1", "module-2" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-03.json"),
+                new Expectation(Expectation.Type.JSON, "apps-03.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (19) Temporary URIs are used:
             {
@@ -262,7 +267,7 @@ public class CloudModelBuilderTest {
                 new String[] { "module-1", "module-2" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-05.json"),
+                new Expectation(Expectation.Type.JSON, "apps-05.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (20) Use list parameter:
             {
@@ -272,7 +277,7 @@ public class CloudModelBuilderTest {
                 new String[] { "framework" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-06.json"),
+                new Expectation(Expectation.Type.JSON, "apps-06.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (21) Use partial plugin:
             {
@@ -282,7 +287,7 @@ public class CloudModelBuilderTest {
                 new String[] { "framework" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-07.json"),
+                new Expectation(Expectation.Type.JSON, "apps-07.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (22) Overwrite service-name resource property in ext. descriptor:
             {
@@ -292,7 +297,7 @@ public class CloudModelBuilderTest {
                 new String[] { "module-1" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "services-03.json"),
-                new Expectation(Expectation.Type.JSON, "apps-08.json"),
+                new Expectation(Expectation.Type.JSON, "apps-08.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (23) Test support for one-off tasks:
             {
@@ -302,7 +307,7 @@ public class CloudModelBuilderTest {
                 new String[] { "module-1", "module-2", "module-3", "module-4" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-09.json"),
+                new Expectation(Expectation.Type.JSON, "apps-09.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (24) With 'health-check-type' set to 'port':
             { 
@@ -312,7 +317,7 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-with-health-check-type-port.json"),
+                new Expectation(Expectation.Type.JSON, "apps-with-health-check-type-port.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (25) With 'health-check-type' set to 'http' and a non-default 'health-check-http-endpoint':
             { 
@@ -322,7 +327,7 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-with-health-check-type-http-with-endpoint.json"),
+                new Expectation(Expectation.Type.JSON, "apps-with-health-check-type-http-with-endpoint.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (26) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
             { 
@@ -332,7 +337,7 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-with-health-check-type-http-without-endpoint.json"),
+                new Expectation(Expectation.Type.JSON, "apps-with-health-check-type-http-without-endpoint.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (27) Test inject service keys:
             {
@@ -342,7 +347,7 @@ public class CloudModelBuilderTest {
                 new String[] { "module-1" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-10.json"),
+                new Expectation(Expectation.Type.JSON, "apps-10.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (28) With 'enable-ssh' set to true: 
             {
@@ -352,7 +357,7 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-with-ssh-enabled-true.json"),
+                new Expectation(Expectation.Type.JSON, "apps-with-ssh-enabled-true.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (29) With 'enable-ssh' set to false: 
             {
@@ -362,7 +367,7 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-with-ssh-enabled-false.json"),
+                new Expectation(Expectation.Type.JSON, "apps-with-ssh-enabled-false.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (30) Do not restart on env change - bg-deploy
             { "mtad-restart-on-env-change.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
@@ -372,6 +377,7 @@ public class CloudModelBuilderTest {
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.JSON, "apps-with-restart-parameters-false.json") // services
+                , DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (31) With 'keep-existing-routes' set to true and no deployed MTA:
             {
@@ -381,7 +387,7 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"),
+                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (32) With 'keep-existing-routes' set to true and no deployed module:
             {
@@ -392,7 +398,7 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"),
+                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (33) With 'keep-existing-routes' set to true and an already deployed module with no URIs:
             {
@@ -403,7 +409,7 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"),
+                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (34) With 'keep-existing-routes' set to true and an already deployed module:
             {
@@ -414,7 +420,7 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps-with-existing-routes.json"),
+                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps-with-existing-routes.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (35) With global 'keep-existing-routes' set to true and an already deployed module:
             {
@@ -425,7 +431,7 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps-with-existing-routes.json"),
+                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps-with-existing-routes.json"), DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (36) With new parameter - 'route'
             {
@@ -435,7 +441,8 @@ public class CloudModelBuilderTest {
                 new String[] { "foo", }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"), //services
-                new Expectation(Expectation.Type.JSON, "apps-12.json"),  //applications
+                new Expectation(Expectation.Type.JSON, "apps-12.json")  //applications
+                , DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (37) With new parameter - 'routes'
             {
@@ -445,7 +452,8 @@ public class CloudModelBuilderTest {
                 new String[] { "foo", }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"), //services
-                new Expectation(Expectation.Type.JSON, "apps-13.json"),  //applications
+                new Expectation(Expectation.Type.JSON, "apps-13.json")  //applications
+                , DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (38) Test plural priority over singular for hosts and domains
             {
@@ -455,7 +463,8 @@ public class CloudModelBuilderTest {
                 new String[] { "foo", }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"), //services
-                new Expectation(Expectation.Type.JSON, "apps-14.json"),  //applications
+                new Expectation(Expectation.Type.JSON, "apps-14.json")  //applications
+                , DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (39) Test multiple buildpacks functionality
             {
@@ -465,7 +474,8 @@ public class CloudModelBuilderTest {
                 new String[] { "foo", }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"), //services
-                new Expectation(Expectation.Type.JSON, "apps-15.json"),  //applications
+                new Expectation(Expectation.Type.JSON, "apps-15.json")  //applications
+                , DEFAULT_APP_SUFFIX_DETERMINER
             },
             // (40) Full MTA with namespace, global apply flag set to false:
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
@@ -474,7 +484,17 @@ public class CloudModelBuilderTest {
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-ns-3.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-3.json"),
+                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-3.json"), DEFAULT_APP_SUFFIX_DETERMINER
+            },
+            // (41) Test app-name parameter resolution:
+            { "mtad-16.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
+                null, false,
+                new String[] { "foo", }, // mtaArchiveModules
+                new String[] { "foo", }, // mtaModules
+                new String[] {}, // deployedApps
+                new Expectation("[]"), //services
+                new Expectation(Expectation.Type.JSON, "apps-16.json")  //applications
+                , new AppSuffixDeterminer(true, true)
             },
 // @formatter:on
         });
@@ -482,7 +502,8 @@ public class CloudModelBuilderTest {
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
                                  String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
-                                 String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps) {
+                                 String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps,
+                                 AppSuffixDeterminer appSuffixDeterminer) {
         this.deploymentDescriptorLocation = deploymentDescriptorLocation;
         this.extensionDescriptorLocation = extensionDescriptorLocation;
         this.platformLocation = platformsLocation;
@@ -496,6 +517,7 @@ public class CloudModelBuilderTest {
         this.deployedApps = new HashSet<>(Arrays.asList(deployedApps));
         this.expectedServices = expectedServices;
         this.expectedApps = expectedApps;
+        this.appSuffixDeterminer = appSuffixDeterminer;
     }
 
     protected UserMessageLogger getUserMessageLogger() {
@@ -519,16 +541,19 @@ public class CloudModelBuilderTest {
     }
 
     protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-                                                                           boolean prettyPrinting, DeployedMta deployedMta) {
+                                                                           boolean prettyPrinting, DeployedMta deployedMta,
+                                                                           AppSuffixDeterminer appSuffixDeterminer) {
         deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor,
                                                                new ResolverBuilder(),
                                                                new ResolverBuilder()).resolve();
-        return new ApplicationCloudModelBuilder(deploymentDescriptor,
-                                                prettyPrinting,
-                                                deployedMta,
-                                                DEPLOY_ID,
-                                                namespace,
-                                                Mockito.mock(UserMessageLogger.class));
+        return new ApplicationCloudModelBuilder.Builder().deploymentDescriptor(deploymentDescriptor)
+                                                         .prettyPrinting(prettyPrinting)
+                                                         .deployedMta(deployedMta)
+                                                         .deployId(DEPLOY_ID)
+                                                         .namespace(namespace)
+                                                         .userMessageLogger(Mockito.mock(UserMessageLogger.class))
+                                                         .appSuffixDeterminer(appSuffixDeterminer)
+                                                         .build();
     }
 
     protected PlatformMerger getPlatformMerger(Platform platform) {
@@ -554,7 +579,7 @@ public class CloudModelBuilderTest {
 
         insertProperNames(deploymentDescriptor);
         injectSystemParameters(deploymentDescriptor, defaultDomain);
-        appBuilder = getApplicationCloudModelBuilder(deploymentDescriptor, false, deployedMta);
+        appBuilder = getApplicationCloudModelBuilder(deploymentDescriptor, false, deployedMta, appSuffixDeterminer);
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor);
 
         modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules,

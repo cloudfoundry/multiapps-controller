@@ -39,7 +39,7 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         stepLogger.debug(Messages.APP_STAGING_STATUS, application.getName(), state.getState());
 
         ProcessLoggerProvider processLoggerProvider = stepLogger.getProcessLoggerProvider();
-        StepsUtil.saveAppLogs(context.getExecution(), client, recentLogsRetriever, application, LOGGER, processLoggerProvider);
+        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, application, LOGGER, processLoggerProvider);
 
         if (state.getState() != PackageState.STAGED) {
             return checkStagingState(context.getStepLogger(), application, state);

@@ -6,10 +6,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInjec
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.DeploymentMode;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceAndResourceType;
-import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
-import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
-import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
 import org.cloudfoundry.multiapps.mta.model.Resource;
@@ -18,9 +15,8 @@ public class ApplicationCloudModelBuilder extends org.cloudfoundry.multiapps.con
 
     private static final int MTA_MAJOR_VERSION = 3;
 
-    public ApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting, DeployedMta deployedMta,
-                                        String deployId, String namespace, UserMessageLogger stepLogger) {
-        super(deploymentDescriptor, prettyPrinting, deployedMta, deployId, namespace, stepLogger);
+    protected ApplicationCloudModelBuilder(Builder builder) {
+        super(builder);
     }
 
     @Override
@@ -59,5 +55,18 @@ public class ApplicationCloudModelBuilder extends org.cloudfoundry.multiapps.con
     private boolean onlyActiveServicesRule(ResourceAndResourceType resourceAndResourceType) {
         return resourceAndResourceType.getResource()
                                       .isActive();
+    }
+
+    public static class Builder extends AbstractBuilder<Builder> {
+
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        @Override
+        public ApplicationCloudModelBuilder build() {
+            return new ApplicationCloudModelBuilder(self());
+        }
     }
 }

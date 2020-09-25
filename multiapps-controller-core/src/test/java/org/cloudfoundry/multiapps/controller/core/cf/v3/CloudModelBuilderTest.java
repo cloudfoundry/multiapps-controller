@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
+import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
@@ -23,7 +24,8 @@ public class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
                                  String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
-                                 String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps)
+                                 String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps,
+                                 AppSuffixDeterminer appSuffixDeterminer)
         throws Exception {
         super(deploymentDescriptorLocation,
               extensionDescriptorLocation,
@@ -35,7 +37,8 @@ public class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller
               mtaModules,
               deployedApps,
               expectedServices,
-              expectedApps);
+              expectedApps,
+              appSuffixDeterminer);
         MockitoAnnotations.openMocks(this)
                           .close();
     }
@@ -53,6 +56,7 @@ public class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.JSON, "apps-01.json"),
+                DEFAULT_APP_SUFFIX_DETERMINER,
             },
 // @formatter:on
         });
@@ -70,16 +74,19 @@ public class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller
 
     @Override
     protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-                                                                           boolean prettyPrinting, DeployedMta deployedMta) {
+                                                                           boolean prettyPrinting, DeployedMta deployedMta,
+                                                                           AppSuffixDeterminer appSuffixDeterminer) {
         deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor,
                                                                new ResolverBuilder(),
                                                                new ResolverBuilder()).resolve();
-        return new org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder(deploymentDescriptor,
-                                                                                                 prettyPrinting,
-                                                                                                 deployedMta,
-                                                                                                 DEPLOY_ID,
-                                                                                                 namespace,
-                                                                                                 Mockito.mock(UserMessageLogger.class));
+        return new org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder.Builder().deploymentDescriptor(deploymentDescriptor)
+                                                                                                          .prettyPrinting(prettyPrinting)
+                                                                                                          .deployedMta(deployedMta)
+                                                                                                          .deployId(DEPLOY_ID)
+                                                                                                          .namespace(namespace)
+                                                                                                          .userMessageLogger(Mockito.mock(UserMessageLogger.class))
+                                                                                                          .appSuffixDeterminer(appSuffixDeterminer)
+                                                                                                          .build();
     }
 
     @Override

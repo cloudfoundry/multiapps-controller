@@ -126,8 +126,6 @@
     <callActivity id="restartAppsParallel" name="Restart Apps In Parallel" flowable:async="true" calledElement="deployAppSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="modulesToIterateInParallel" flowable:elementVariable="moduleToDeploy"></multiInstanceLoopCharacteristics>
     </callActivity>
-    <sequenceFlow id="flow154" sourceRef="prepareAppsRestartTask" targetRef="restartAppsModeGateway"></sequenceFlow>
-    <exclusiveGateway id="restartAppsModeGateway" name="Restart Apps Mode Gateway" default="shouldRestartAppsSequentialFlow"></exclusiveGateway>
     <serviceTask id="computeNextAppsToRestartInParallel" name="Compute Next Apps To Restart" flowable:async="true" flowable:delegateExpression="${computeNextModulesStep}"></serviceTask>
     <exclusiveGateway id="hasParallelRestartCompletedGateway" name="Has Parallel Restart Completed" default="restartAppsParallelNextIterationFlow"></exclusiveGateway>
     <sequenceFlow id="flow155" sourceRef="computeNextAppsToRestartInParallel" targetRef="restartAppsParallel"></sequenceFlow>
@@ -158,10 +156,6 @@
     <sequenceFlow id="parallelDeploymentCompletedFlow" sourceRef="hasParallelDeploymentCompletedGateway" targetRef="createSubscriptionsTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(iteratedModulesInParallel.size() == modulesToDeploy.size())}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="shouldRestartAppsSequentialFlow" sourceRef="restartAppsModeGateway" targetRef="restartAppsSequential"></sequenceFlow>
-    <sequenceFlow id="shouldRestartAppsParallelFlow" sourceRef="restartAppsModeGateway" targetRef="computeNextAppsToRestartInParallel">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deploymentMode == "PARALLEL")}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="restartAppsParallelNextIterationFlow" sourceRef="hasParallelRestartCompletedGateway" targetRef="computeNextAppsToRestartInParallel"></sequenceFlow>
     <sequenceFlow id="flow153" sourceRef="deleteServicesCallActivity" targetRef="shouldDeleteDiscontinuedServiceBrokersGateway"></sequenceFlow>
     <sequenceFlow id="sid-59F0AF3A-1E41-4A9D-8C78-9B94151006DE" sourceRef="detectSchemaVersionTask" targetRef="mergeDescriptorsTask"></sequenceFlow>
@@ -176,9 +170,8 @@
     <sequenceFlow id="sid-94D842B0-2949-4439-AB30-88A82EAB18EB" sourceRef="deleteRemainingFileParts" targetRef="processArchiveTask"></sequenceFlow>
     <serviceTask id="detectApplicationsToRenameTask" name="Detect apps to rename" flowable:async="true" flowable:delegateExpression="${detectApplicationsToRenameStep}"></serviceTask>
     <sequenceFlow id="flow8" sourceRef="detectDeployedMtaTask" targetRef="detectApplicationsToRenameTask"></sequenceFlow>
-    <serviceTask id="removeNewApplicationsSuffixTask" name="Remove New Apps suffix" flowable:async="true" flowable:delegateExpression="${removeNewApplicationsSuffixStep}"></serviceTask>
-    <sequenceFlow id="flow40" sourceRef="deleteDiscontinuedConfigurationEntriesTask" targetRef="removeNewApplicationsSuffixTask"></sequenceFlow>
-    <sequenceFlow id="sid-3991FC72-1DE3-4F87-8A4A-8753051B09F8" sourceRef="removeNewApplicationsSuffixTask" targetRef="undeployAppCallActivity"></sequenceFlow>
+    <serviceTask id="updateModulesAppNames" name="Update Modules App Names
+" flowable:async="true" flowable:delegateExpression="${updateModulesAppNames}"></serviceTask>
     <callActivity id="sid-C6BBB2C9-B681-4FAE-A33C-57CEF185997B" name="Undeploy Old Apps Call Activity" flowable:async="true" calledElement="undeployAppSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="appsToUndeploy" flowable:elementVariable="appToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -202,19 +195,34 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(empty deployedMta or noConfirm)}]]></conditionExpression>
     </sequenceFlow>
     <inclusiveGateway id="setValidationPhaseStartedInclusiveGateway"></inclusiveGateway>
-    <sequenceFlow id="sid-F03AE0E8-50BB-406A-86A2-F03817C71F5E" sourceRef="hasParallelRestartCompletedGateway" targetRef="setUndeployPhaseInclusiveGateway">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(iteratedModulesInParallel.size() == modulesToDeploy.size())}]]></conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="sid-89DB9056-1BFC-4D13-B6DF-B962CE9D9F39" sourceRef="restartAppsSequential" targetRef="setUndeployPhaseInclusiveGateway"></sequenceFlow>
     <sequenceFlow id="sid-9C29A3A5-DDC1-4A6D-B7DA-04C3367DC343" sourceRef="setUndeployPhaseInclusiveGateway" targetRef="deleteSubscriptionsTask">
       <extensionElements>
         <flowable:executionListener event="take" delegateExpression="${setUndeployPhase}"></flowable:executionListener>
       </extensionElements>
     </sequenceFlow>
+    <serviceTask id="sid-19B8BC9E-6AEC-4F83-9AC6-C53216797F33" name="Remove New Apps suffix" flowable:async="true" flowable:delegateExpression="${removeNewApplicationsSuffixStep}"></serviceTask>
+    <sequenceFlow id="sid-1C93DC4B-1489-41A7-AEA0-B6CAB2C6D7A4" sourceRef="deleteDiscontinuedConfigurationEntriesTask" targetRef="sid-19B8BC9E-6AEC-4F83-9AC6-C53216797F33"></sequenceFlow>
+    <sequenceFlow id="sid-469E7CE9-2C66-403C-9C51-48822FE5DC55" sourceRef="sid-19B8BC9E-6AEC-4F83-9AC6-C53216797F33" targetRef="undeployAppCallActivity"></sequenceFlow>
     <sequenceFlow id="resumePhaseStarted" sourceRef="setValidationPhaseStartedInclusiveGateway" targetRef="collectSystemParametersTask">
       <extensionElements>
         <flowable:executionListener event="take" delegateExpression="${setResumePhase}"></flowable:executionListener>
       </extensionElements>
+    </sequenceFlow>
+    <exclusiveGateway id="sid-5B2AE114-1CBF-47C2-82D5-4CB9379C6136" name="Restart Apps Mode Gateway" default="sid-065FFC8D-12B3-4D53-B7F6-A0D2B3EA9420"></exclusiveGateway>
+    <sequenceFlow id="sid-91F14D78-6B14-407B-8D03-DE7B6EC32F34" sourceRef="prepareAppsRestartTask" targetRef="sid-5B2AE114-1CBF-47C2-82D5-4CB9379C6136"></sequenceFlow>
+    <sequenceFlow id="sid-F03AE0E8-50BB-406A-86A2-F03817C71F5E" sourceRef="hasParallelRestartCompletedGateway" targetRef="setUndeployPhaseInclusiveGateway">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(iteratedModulesInParallel.size() == modulesToDeploy.size())}]]></conditionExpression>
+    </sequenceFlow>
+    <inclusiveGateway id="restartAppsModeGateway" name="restartAppsModeGateway" default="shouldRestartAppsSequentialFlow"></inclusiveGateway>
+    <sequenceFlow id="sid-DCD85749-68D2-45D5-9E3C-14666E26E61D" sourceRef="updateModulesAppNames" targetRef="restartAppsModeGateway"></sequenceFlow>
+    <sequenceFlow id="shouldRestartAppsSequentialFlow" sourceRef="restartAppsModeGateway" targetRef="restartAppsSequential"></sequenceFlow>
+    <sequenceFlow id="shouldRestartAppsParallelFlow" sourceRef="restartAppsModeGateway" targetRef="computeNextAppsToRestartInParallel">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deploymentMode == "PARALLEL")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-065FFC8D-12B3-4D53-B7F6-A0D2B3EA9420" sourceRef="sid-5B2AE114-1CBF-47C2-82D5-4CB9379C6136" targetRef="restartAppsModeGateway"></sequenceFlow>
+    <sequenceFlow id="sid-C1F6D631-7CFC-4226-BE3E-1921D03172B5" sourceRef="sid-5B2AE114-1CBF-47C2-82D5-4CB9379C6136" targetRef="updateModulesAppNames">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${keepOriginalAppNamesAfterDeploy == true}]]></conditionExpression>
     </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_xs2-bg-deploy">
@@ -259,7 +267,7 @@
         <omgdc:Bounds height="68.0" width="105.0" x="1222.0" y="120.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="processDescriptorTask" id="BPMNShape_processDescriptorTask">
-        <omgdc:Bounds height="68.0" width="105.0" x="1070.0" y="120.0"></omgdc:Bounds>
+        <omgdc:Bounds height="68.0" width="105.0" x="1065.0" y="120.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="buildUndeployModelTask" id="BPMNShape_buildUndeployModelTask">
         <omgdc:Bounds height="68.0" width="117.0" x="742.0" y="121.0"></omgdc:Bounds>
@@ -304,7 +312,7 @@
         <omgdc:Bounds height="28.0" width="28.0" x="281.0" y="899.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="prepareAppsRestartTask" id="BPMNShape_prepareAppsRestartTask">
-        <omgdc:Bounds height="66.0" width="119.0" x="1200.0000000000005" y="401.88833236625635"></omgdc:Bounds>
+        <omgdc:Bounds height="66.0" width="119.0" x="1063.0" y="285.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="areAllServiceBrokerSubscribersRestartedGateway" id="BPMNShape_areAllServiceBrokerSubscribersRestartedGateway">
         <omgdc:Bounds height="40.0" width="40.0" x="503.0" y="772.0"></omgdc:Bounds>
@@ -351,9 +359,6 @@
       <bpmndi:BPMNShape bpmnElement="restartAppsParallel" id="BPMNShape_restartAppsParallel">
         <omgdc:Bounds height="61.0" width="105.0" x="1530.0000000000002" y="343.00000000000006"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="restartAppsModeGateway" id="BPMNShape_restartAppsModeGateway">
-        <omgdc:Bounds height="40.0" width="40.0" x="1335.0000000000002" y="414.8883323662563"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="computeNextAppsToRestartInParallel" id="BPMNShape_computeNextAppsToRestartInParallel">
         <omgdc:Bounds height="55.0" width="105.0" x="1395.5364779635947" y="345.0000000000001"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -378,8 +383,8 @@
       <bpmndi:BPMNShape bpmnElement="detectApplicationsToRenameTask" id="BPMNShape_detectApplicationsToRenameTask">
         <omgdc:Bounds height="67.0" width="105.0" x="1557.5" y="120.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="removeNewApplicationsSuffixTask" id="BPMNShape_removeNewApplicationsSuffixTask">
-        <omgdc:Bounds height="70.0" width="106.0" x="1045.0" y="578.5"></omgdc:Bounds>
+      <bpmndi:BPMNShape bpmnElement="updateModulesAppNames" id="BPMNShape_updateModulesAppNames">
+        <omgdc:Bounds height="70.0" width="106.0" x="1230.0" y="225.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-C6BBB2C9-B681-4FAE-A33C-57CEF185997B" id="BPMNShape_sid-C6BBB2C9-B681-4FAE-A33C-57CEF185997B">
         <omgdc:Bounds height="80.0" width="100.0" x="1472.5" y="210.0"></omgdc:Bounds>
@@ -390,17 +395,32 @@
       <bpmndi:BPMNShape bpmnElement="setValidationPhaseStartedInclusiveGateway" id="BPMNShape_setValidationPhaseStartedInclusiveGateway">
         <omgdc:Bounds height="40.0" width="39.999999999999886" x="990.0000000000001" y="420.00000000000006"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-19B8BC9E-6AEC-4F83-9AC6-C53216797F33" id="BPMNShape_sid-19B8BC9E-6AEC-4F83-9AC6-C53216797F33">
+        <omgdc:Bounds height="70.0" width="106.0" x="1020.0" y="578.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-5B2AE114-1CBF-47C2-82D5-4CB9379C6136" id="BPMNShape_sid-5B2AE114-1CBF-47C2-82D5-4CB9379C6136">
+        <omgdc:Bounds height="40.0" width="40.0" x="1233.0" y="414.8883323662563"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="restartAppsModeGateway" id="BPMNShape_restartAppsModeGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="1335.0" y="414.8883323662563"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="continueDeployProcessFlow" id="BPMNEdge_continueDeployProcessFlow">
         <omgdi:waypoint x="434.95000000000005" y="496.0"></omgdi:waypoint>
         <omgdi:waypoint x="559.0" y="496.0"></omgdi:waypoint>
         <omgdi:waypoint x="559.0" y="441.0"></omgdi:waypoint>
         <omgdi:waypoint x="629.9999999997672" y="441.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-91F14D78-6B14-407B-8D03-DE7B6EC32F34" id="BPMNEdge_sid-91F14D78-6B14-407B-8D03-DE7B6EC32F34">
+        <omgdi:waypoint x="1181.9499999999487" y="318.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1207.5" y="318.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1207.5" y="435.3883323662563"></omgdi:waypoint>
+        <omgdi:waypoint x="1233.5" y="435.3883323662563"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="autoContinueDeploymentFlow" id="BPMNEdge_autoContinueDeploymentFlow">
-        <omgdi:waypoint x="800.5000000000001" y="460.9325306479861"></omgdi:waypoint>
-        <omgdi:waypoint x="800.5000000000001" y="498.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1010.5" y="498.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1010.5" y="459.41641986062734"></omgdi:waypoint>
+        <omgdi:waypoint x="800.3260869565219" y="460.7765217391306"></omgdi:waypoint>
+        <omgdi:waypoint x="800.0" y="498.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1010.0" y="498.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1010.0" y="459.9171416234888"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow49" id="BPMNEdge_flow49">
         <omgdi:waypoint x="741.9999999997458" y="155.0"></omgdi:waypoint>
@@ -411,6 +431,12 @@
         <omgdi:waypoint x="143.0" y="438.0"></omgdi:waypoint>
         <omgdi:waypoint x="143.0" y="381.0"></omgdi:waypoint>
         <omgdi:waypoint x="184.99999999999224" y="380.7775132275132"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-C1F6D631-7CFC-4226-BE3E-1921D03172B5" id="BPMNEdge_sid-C1F6D631-7CFC-4226-BE3E-1921D03172B5">
+        <omgdi:waypoint x="1253.5" y="415.3883323662563"></omgdi:waypoint>
+        <omgdi:waypoint x="1253.5" y="357.4441661831281"></omgdi:waypoint>
+        <omgdi:waypoint x="1283.0" y="357.4441661831281"></omgdi:waypoint>
+        <omgdi:waypoint x="1283.0" y="294.95000000000005"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow129" id="BPMNEdge_flow129">
         <omgdi:waypoint x="441.9499999999932" y="791.6964419475655"></omgdi:waypoint>
@@ -460,8 +486,8 @@
         <omgdi:waypoint x="743.0854700854685" y="791.0852564102565"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-89DB9056-1BFC-4D13-B6DF-B962CE9D9F39" id="BPMNEdge_sid-89DB9056-1BFC-4D13-B6DF-B962CE9D9F39">
-        <omgdi:waypoint x="1664.949999999785" y="496.1909853090633"></omgdi:waypoint>
-        <omgdi:waypoint x="1685.0000000000002" y="496.1909853090633"></omgdi:waypoint>
+        <omgdi:waypoint x="1664.9499999999298" y="496.0526856025001"></omgdi:waypoint>
+        <omgdi:waypoint x="1685.0" y="496.0"></omgdi:waypoint>
         <omgdi:waypoint x="1685.0000000000002" y="593.0000000000001"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
@@ -486,10 +512,6 @@
         <omgdi:waypoint x="876.0" y="906.0"></omgdi:waypoint>
         <omgdi:waypoint x="804.9499999999949" y="906.2874493927126"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow40" id="BPMNEdge_flow40">
-        <omgdi:waypoint x="1242.463522036394" y="614.2224493775925"></omgdi:waypoint>
-        <omgdi:waypoint x="1150.95" y="613.7647982965133"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow124" id="BPMNEdge_flow124">
         <omgdi:waypoint x="746.0012767881283" y="854.7006332531995"></omgdi:waypoint>
         <omgdi:waypoint x="646.0" y="856.0"></omgdi:waypoint>
@@ -505,35 +527,39 @@
         <omgdi:waypoint x="1353.4135220363862" y="614.3150899352348"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
-        <omgdi:waypoint x="946.9499999999949" y="440.77136752136767"></omgdi:waypoint>
-        <omgdi:waypoint x="990.5851063829703" y="440.5848936170214"></omgdi:waypoint>
+        <omgdi:waypoint x="946.9499999999975" y="440.54077253218895"></omgdi:waypoint>
+        <omgdi:waypoint x="990.1702127659574" y="440.16978723404264"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-9C29A3A5-DDC1-4A6D-B7DA-04C3367DC343" id="BPMNEdge_sid-9C29A3A5-DDC1-4A6D-B7DA-04C3367DC343">
         <omgdi:waypoint x="1665.084046495147" y="613.0838363789092"></omgdi:waypoint>
         <omgdi:waypoint x="1500.486477963593" y="613.7784469122132"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="resumePhaseStarted" id="BPMNEdge_resumePhaseStarted">
-        <omgdi:waypoint x="1029.3574378330356" y="440.58422222222237"></omgdi:waypoint>
-        <omgdi:waypoint x="1070.0000000000002" y="440.76562500000006"></omgdi:waypoint>
+        <omgdi:waypoint x="1029.7656029929576" y="440.1757709251102"></omgdi:waypoint>
+        <omgdi:waypoint x="1070.0000000000002" y="440.5333333333334"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow139" id="BPMNEdge_flow139">
-        <omgdi:waypoint x="1174.9499999999994" y="438.65793758560915"></omgdi:waypoint>
-        <omgdi:waypoint x="1200.0000000000005" y="437.54043923359995"></omgdi:waypoint>
+        <omgdi:waypoint x="1122.5000000000002" y="407.00000000000006"></omgdi:waypoint>
+        <omgdi:waypoint x="1122.5" y="350.95000000000005"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="restartAppsParallelNextIterationFlow" id="BPMNEdge_restartAppsParallelNextIterationFlow">
-        <omgdi:waypoint x="1715.0000000000002" y="393.4343160377359"></omgdi:waypoint>
-        <omgdi:waypoint x="1715.0000000000002" y="437.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1448.0364779635947" y="437.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1448.0364779635947" y="399.9500000000001"></omgdi:waypoint>
+        <omgdi:waypoint x="1715.0000000000002" y="393.43431603773604"></omgdi:waypoint>
+        <omgdi:waypoint x="1715.0" y="437.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1448.0" y="437.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1448.0209253434575" y="399.9500000000001"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="hasGitRepoUriFlow" id="BPMNEdge_hasGitRepoUriFlow">
         <omgdi:waypoint x="159.88661178509466" y="59.05765895953757"></omgdi:waypoint>
         <omgdi:waypoint x="260.0" y="59.34782608695652"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-1C93DC4B-1489-41A7-AEA0-B6CAB2C6D7A4" id="BPMNEdge_sid-1C93DC4B-1489-41A7-AEA0-B6CAB2C6D7A4">
+        <omgdi:waypoint x="1242.463522036168" y="614.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1125.9499999993052" y="614.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="shouldRestartAppsSequentialFlow" id="BPMNEdge_shouldRestartAppsSequentialFlow">
-        <omgdi:waypoint x="1355.0000000000002" y="454.82208713983374"></omgdi:waypoint>
-        <omgdi:waypoint x="1355.0000000000002" y="496.1909853090633"></omgdi:waypoint>
-        <omgdi:waypoint x="1559.9999999999816" y="496.1909853090633"></omgdi:waypoint>
+        <omgdi:waypoint x="1355.0000000000002" y="454.82942009504325"></omgdi:waypoint>
+        <omgdi:waypoint x="1355.0000000000002" y="496.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1559.9999999999359" y="496.15204655673"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow68" id="BPMNEdge_flow68">
         <omgdi:waypoint x="177.99999999984323" y="265.0"></omgdi:waypoint>
@@ -560,6 +586,10 @@
         <omgdi:waypoint x="104.88167808219163" y="791.931506849315"></omgdi:waypoint>
         <omgdi:waypoint x="177.9999999999889" y="791.6802405498281"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-065FFC8D-12B3-4D53-B7F6-A0D2B3EA9420" id="BPMNEdge_sid-065FFC8D-12B3-4D53-B7F6-A0D2B3EA9420">
+        <omgdi:waypoint x="1272.5343471810013" y="435.2942729603157"></omgdi:waypoint>
+        <omgdi:waypoint x="1335.0980392156862" y="434.9861264839033"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="parallelDeploymentCompletedFlow" id="BPMNEdge_parallelDeploymentCompletedFlow">
         <omgdi:waypoint x="520.9334026622296" y="380.0"></omgdi:waypoint>
         <omgdi:waypoint x="561.0" y="380.0"></omgdi:waypoint>
@@ -571,9 +601,9 @@
         <omgdi:waypoint x="85.05572625698323" y="772.0558659217877"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="shouldRestartAppsParallelFlow" id="BPMNEdge_shouldRestartAppsParallelFlow">
-        <omgdi:waypoint x="1355.0000000000002" y="414.8883323662563"></omgdi:waypoint>
-        <omgdi:waypoint x="1355.0000000000002" y="372.5000000000001"></omgdi:waypoint>
-        <omgdi:waypoint x="1395.536477963451" y="372.5000000000001"></omgdi:waypoint>
+        <omgdi:waypoint x="1355.5" y="415.38833236625635"></omgdi:waypoint>
+        <omgdi:waypoint x="1355.5" y="372.5000000000001"></omgdi:waypoint>
+        <omgdi:waypoint x="1395.5364779635947" y="372.5000000000001"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-4B6B0565-AD88-4ADB-95C5-2A77476A7C32" id="BPMNEdge_sid-4B6B0565-AD88-4ADB-95C5-2A77476A7C32">
         <omgdi:waypoint x="734.9499999999999" y="441.00000000000006"></omgdi:waypoint>
@@ -602,13 +632,13 @@
         <omgdi:waypoint x="85.0" y="552.0"></omgdi:waypoint>
         <omgdi:waypoint x="85.23577235772358" y="581.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-3991FC72-1DE3-4F87-8A4A-8753051B09F8" id="BPMNEdge_sid-3991FC72-1DE3-4F87-8A4A-8753051B09F8">
-        <omgdi:waypoint x="1044.9999999999961" y="613.6272836538461"></omgdi:waypoint>
-        <omgdi:waypoint x="939.9499999999825" y="613.8798076923076"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flowAfterGitProcessing" id="BPMNEdge_flowAfterGitProcessing">
         <omgdi:waypoint x="364.9499999999752" y="59.5"></omgdi:waypoint>
         <omgdi:waypoint x="427.99999999999955" y="59.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-469E7CE9-2C66-403C-9C51-48822FE5DC55" id="BPMNEdge_sid-469E7CE9-2C66-403C-9C51-48822FE5DC55">
+        <omgdi:waypoint x="1019.9999999999977" y="613.2893442622951"></omgdi:waypoint>
+        <omgdi:waypoint x="939.9499999999795" y="613.7267759562842"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="shouldDeployModulesSequentialFlow" id="BPMNEdge_shouldDeployModulesSequentialFlow">
         <omgdi:waypoint x="108.93221925133685" y="439.0"></omgdi:waypoint>
@@ -620,18 +650,14 @@
         <omgdi:waypoint x="453.53859827323515" y="683.0"></omgdi:waypoint>
         <omgdi:waypoint x="349.45246760670733" y="620.4860000000001"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow154" id="BPMNEdge_flow154">
-        <omgdi:waypoint x="1318.9499999999807" y="434.8883323662563"></omgdi:waypoint>
-        <omgdi:waypoint x="1335.0000000000002" y="434.8883323662563"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="doNotDeleteDiscontinuedServicesFlow" id="BPMNEdge_doNotDeleteDiscontinuedServicesFlow">
         <omgdi:waypoint x="667.0" y="633.9396201873047"></omgdi:waypoint>
         <omgdi:waypoint x="667.0" y="710.0"></omgdi:waypoint>
         <omgdi:waypoint x="552.4499999999875" y="711.0346385542169"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
-        <omgdi:waypoint x="1221.9999999999895" y="154.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1174.94999999996" y="154.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1222.0" y="154.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1169.95" y="154.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow155" id="BPMNEdge_flow155">
         <omgdi:waypoint x="1500.4864779635882" y="372.8900686164223"></omgdi:waypoint>
@@ -652,8 +678,8 @@
         <omgdi:waypoint x="481.0" y="380.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
-        <omgdi:waypoint x="1069.9999999999623" y="154.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1022.949999999936" y="154.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1064.9999999999725" y="154.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1022.9499999999621" y="154.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="deployAppsParallelNextIterationFlow" id="BPMNEdge_deployAppsParallelNextIterationFlow">
         <omgdi:waypoint x="500.62264150943395" y="399.57358490566037"></omgdi:waypoint>
@@ -671,10 +697,15 @@
         <omgdi:waypoint x="858.9499999999952" y="154.6422018348624"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-F03AE0E8-50BB-406A-86A2-F03817C71F5E" id="BPMNEdge_sid-F03AE0E8-50BB-406A-86A2-F03817C71F5E">
-        <omgdi:waypoint x="1734.9313136635058" y="373.50000000000006"></omgdi:waypoint>
-        <omgdi:waypoint x="1768.28125" y="373.50000000000006"></omgdi:waypoint>
-        <omgdi:waypoint x="1768.28125" y="613.0000000000001"></omgdi:waypoint>
-        <omgdi:waypoint x="1704.9119317754905" y="613.0000000000001"></omgdi:waypoint>
+        <omgdi:waypoint x="1734.7635514018693" y="373.3130841121496"></omgdi:waypoint>
+        <omgdi:waypoint x="1768.0" y="373.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1768.0" y="613.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1704.9119722557143" y="613.0000000000001"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-DCD85749-68D2-45D5-9E3C-14666E26E61D" id="BPMNEdge_sid-DCD85749-68D2-45D5-9E3C-14666E26E61D">
+        <omgdi:waypoint x="1326.3789405684754" y="294.95000000000005"></omgdi:waypoint>
+        <omgdi:waypoint x="1355.0" y="318.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1355.0" y="414.8883323662563"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="serviceBrokerSubscriberWasStartedFlow" id="BPMNEdge_serviceBrokerSubscriberWasStartedFlow">
         <omgdi:waypoint x="782.853834355828" y="791.0875000000001"></omgdi:waypoint>
