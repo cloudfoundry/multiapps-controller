@@ -19,8 +19,11 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
+import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
+import org.cloudfoundry.multiapps.controller.core.model.BlueGreenApplicationNameSuffix;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
+import org.cloudfoundry.multiapps.controller.core.model.Phase;
 import org.cloudfoundry.multiapps.controller.core.util.ImmutableLogsOffset;
 import org.cloudfoundry.multiapps.controller.core.util.LogsOffset;
 import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
@@ -139,18 +142,22 @@ public class StepsUtil {
         return tasks.get(index);
     }
 
-    static void saveAppLogs(DelegateExecution execution, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
+    static void saveAppLogs(ProcessContext context, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
                             CloudApplication app, Logger logger, ProcessLoggerProvider processLoggerProvider) {
-        LogsOffset offset = getLogOffset(execution);
-        List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogsSafely(client, app.getName(), offset);
+        LogsOffset offset = getLogOffset(context.getExecution());
+        String appName = app.getName();
+        List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogsSafely(client, appName, offset);
         if (recentLogs.isEmpty()) {
             return;
         }
-        ProcessLogger processLogger = processLoggerProvider.getLogger(execution, app.getName());
-        for (ApplicationLog log : recentLogs) {
-            saveAppLog(processLogger, app.getName(), log.toString(), logger);
+        if (context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY)) {
+            appName = BlueGreenApplicationNameSuffix.removeSuffix(appName);
         }
-        setLogOffset(recentLogs.get(recentLogs.size() - 1), execution);
+        ProcessLogger processLogger = processLoggerProvider.getLogger(context.getExecution(), appName);
+        for (ApplicationLog log : recentLogs) {
+            saveAppLog(processLogger, appName, log.toString(), logger);
+        }
+        setLogOffset(recentLogs.get(recentLogs.size() - 1), context.getExecution());
     }
 
     static void saveAppLog(ProcessLogger processLogger, String appName, String message, Logger logger) {
@@ -190,7 +197,13 @@ public class StepsUtil {
         DeployedMta deployedMta = context.getVariable(Variables.DEPLOYED_MTA);
 
         return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, true, deployedMta, deployId, namespace,
-                                                              context.getStepLogger());
+                                                              context.getStepLogger(), getAppSuffixDeterminer(context));
+    }
+
+    static AppSuffixDeterminer getAppSuffixDeterminer(ProcessContext context) {
+        boolean keepOriginalNamesAfterDeploy = context.getVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY);
+        boolean isAfterResumePhase = context.getVariable(Variables.PHASE) == Phase.AFTER_RESUME;
+        return new AppSuffixDeterminer(keepOriginalNamesAfterDeploy, isAfterResumePhase);
     }
 
     static String getGitRepoRef(ProcessContext context) {

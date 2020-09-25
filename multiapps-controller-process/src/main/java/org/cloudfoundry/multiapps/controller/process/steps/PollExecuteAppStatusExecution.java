@@ -72,7 +72,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         AppExecutionDetailedStatus status = getAppExecutionStatus(context, client, appAttributes, app);
         ProcessLoggerProvider processLoggerProvider = context.getStepLogger()
                                                              .getProcessLoggerProvider();
-        StepsUtil.saveAppLogs(context.getExecution(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
+        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
         return checkAppExecutionStatus(context, client, app, appAttributes, status);
 
     }

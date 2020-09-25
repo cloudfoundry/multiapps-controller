@@ -5,6 +5,7 @@ import static java.text.MessageFormat.format;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.CloudHandlerFactoryV2;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ServiceKeysCloudModelBuilder;
@@ -67,7 +68,7 @@ public interface CloudHandlerFactory extends HandlerFactory {
 
     ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, boolean prettyPrinting,
                                                                  DeployedMta deployedMta, String deployId, String namespace,
-                                                                 UserMessageLogger stepLogger);
+                                                                 UserMessageLogger stepLogger, AppSuffixDeterminer appSuffixDeterminer);
 
     ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, String namespace);
 

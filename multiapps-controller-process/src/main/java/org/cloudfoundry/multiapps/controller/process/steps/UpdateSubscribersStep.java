@@ -216,7 +216,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
                                                                                                                    shouldUsePrettyPrinting(),
                                                                                                                    null, "",
                                                                                                                    context.getVariable(Variables.MTA_NAMESPACE),
-                                                                                                                   getStepLogger());
+                                                                                                                   getStepLogger(),
+                                                                                                                   StepsUtil.getAppSuffixDeterminer(context));
 
         Module module = dummyDescriptor.getModules()
                                        .get(0);
@@ -240,6 +241,20 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         return existingApplication;
     }
 
+    private boolean updateCurrentEnvironment(Map<String, String> currentEnvironment, Map<String, String> updatedEnvironment,
+                                             List<String> propertiesToTransfer) {
+        boolean neededToBeUpdated = false;
+        for (String propertyToTransfer : propertiesToTransfer) {
+            String currentProperty = currentEnvironment.get(propertyToTransfer);
+            String updatedProperty = updatedEnvironment.get(propertyToTransfer);
+            if (!Objects.equals(currentProperty, updatedProperty)) {
+                neededToBeUpdated = true;
+                currentEnvironment.put(propertyToTransfer, updatedEnvironment.get(propertyToTransfer));
+            }
+        }
+        return neededToBeUpdated;
+    }
+
     private List<String> getPropertiesToTransfer(ConfigurationSubscription subscription, ConfigurationReferencesResolver resolver) {
         List<String> result = new ArrayList<>(getFirstComponents(resolver.getExpandedProperties()));
         String listName = getRequiredDependency(subscription).getList();
@@ -260,18 +275,10 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         return getFirstComponents(detector.getRelevantProperties());
     }
 
-    private boolean updateCurrentEnvironment(Map<String, String> currentEnvironment, Map<String, String> updatedEnvironment,
-                                             List<String> propertiesToTransfer) {
-        boolean neededToBeUpdated = false;
-        for (String propertyToTransfer : propertiesToTransfer) {
-            String currentProperty = currentEnvironment.get(propertyToTransfer);
-            String updatedProperty = updatedEnvironment.get(propertyToTransfer);
-            if (!Objects.equals(currentProperty, updatedProperty)) {
-                neededToBeUpdated = true;
-                currentEnvironment.put(propertyToTransfer, updatedEnvironment.get(propertyToTransfer));
-            }
-        }
-        return neededToBeUpdated;
+    private RequiredDependencyDto getRequiredDependency(ConfigurationSubscription subscription) {
+        return subscription.getModuleDto()
+                           .getRequiredDependencies()
+                           .get(0);
     }
 
     private List<String> getFirstComponents(List<String> properties) {
@@ -286,12 +293,6 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
             return propertyName.substring(0, index);
         }
         return propertyName;
-    }
-
-    private RequiredDependencyDto getRequiredDependency(ConfigurationSubscription subscription) {
-        return subscription.getModuleDto()
-                           .getRequiredDependencies()
-                           .get(0);
     }
 
     private CloudControllerClient getClient(ProcessContext context, CloudTarget cloudTarget) {

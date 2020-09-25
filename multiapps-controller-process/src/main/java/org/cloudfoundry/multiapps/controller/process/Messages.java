@@ -142,6 +142,7 @@ public class Messages {
     public static final String ERROR_DELETING_OPERATION_WITH_ID = "Error deleting operation with ID \"{0}\"";
     public static final String ERROR_DELETING_FLOWABLE_PROCESS_WITH_ID = "Error deleting Flowable process with ID \"{0}\"";
     public static final String ERROR_MISSING_DEFAULT_DOMAIN = "Missing default domain in current org";
+    public static final String ERROR_UPDATING_MODULE_PARAMETERS = "Error updating modules parameters";
 
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_PARAMETERS = "Cannot retrieve service instance parameters of service \"{0}\"";
