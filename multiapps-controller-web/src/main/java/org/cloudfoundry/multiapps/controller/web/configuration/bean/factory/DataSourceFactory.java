@@ -30,6 +30,7 @@ public class DataSourceFactory {
         hikariConfig.setPassword(service.getPassword());
         hikariConfig.setJdbcUrl(service.getJdbcUrl());
         hikariConfig.setConnectionTimeout(60000);
+        hikariConfig.setRegisterMbeans(true);
         hikariConfig.setMaximumPoolSize(configuration.getDbConnectionThreads());
         return hikariConfig;
     }
