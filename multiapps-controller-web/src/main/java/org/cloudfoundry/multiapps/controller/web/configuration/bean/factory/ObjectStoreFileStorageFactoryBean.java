@@ -1,9 +1,9 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
 import org.cloudfoundry.multiapps.controller.persistence.services.ObjectStoreFileStorage;
+import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfo;
 import org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfoCreator;
-import org.cloudfoundry.multiapps.controller.web.util.EnvironmentServicesFinder;
 import org.jclouds.ContextBuilder;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.springframework.beans.factory.FactoryBean;

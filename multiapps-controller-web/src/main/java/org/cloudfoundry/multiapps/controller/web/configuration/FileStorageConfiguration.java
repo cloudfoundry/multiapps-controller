@@ -2,9 +2,9 @@ package org.cloudfoundry.multiapps.controller.web.configuration;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.cloudfoundry.multiapps.controller.web.configuration.bean.factory.FileSystemFileStorageFactoryBean;
 import org.cloudfoundry.multiapps.controller.web.configuration.bean.factory.ObjectStoreFileStorageFactoryBean;
-import org.cloudfoundry.multiapps.controller.web.util.EnvironmentServicesFinder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

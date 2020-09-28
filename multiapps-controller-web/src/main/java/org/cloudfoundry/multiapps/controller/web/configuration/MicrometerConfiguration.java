@@ -6,7 +6,7 @@ import java.time.Duration;
 import javax.inject.Inject;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
-import org.cloudfoundry.multiapps.controller.web.util.EnvironmentServicesFinder;
+import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;

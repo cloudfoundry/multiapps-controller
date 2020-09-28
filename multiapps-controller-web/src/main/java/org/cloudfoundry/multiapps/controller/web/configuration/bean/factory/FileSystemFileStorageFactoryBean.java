@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.persistence.services.FileSystemFileStorage;
-import org.cloudfoundry.multiapps.controller.web.util.EnvironmentServicesFinder;
+import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 

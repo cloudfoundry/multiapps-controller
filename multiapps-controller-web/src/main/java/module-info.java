@@ -14,12 +14,9 @@ open module org.cloudfoundry.multiapps.controller.web {
     exports org.cloudfoundry.multiapps.controller.web.security;
     exports org.cloudfoundry.multiapps.controller.web.util;
 
-    requires transitive HikariCP.java7;
     requires transitive flowable.job.service;
     requires transitive flowable.spring;
     requires transitive io.github.resilience4j.ratelimiter;
-    requires transitive java.cfenv;
-    requires transitive java.cfenv.jdbc;
     requires transitive java.sql;
     requires transitive liquibase.core;
     requires transitive micrometer.registry.jmx;

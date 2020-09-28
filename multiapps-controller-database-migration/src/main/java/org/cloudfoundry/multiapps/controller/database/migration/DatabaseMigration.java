@@ -54,8 +54,9 @@ public class DatabaseMigration {
                     PropertyConfigurator.configure(inputStream);
                 }
             } catch (IOException e) {
-                LOGGER.warn("There was an error trying to configure the logger.", e);
-                LOGGER.info("Proceeding with default logger configuration.");
+                // Using System.out.println() instead of LOGGER.warn(), because logging is likely not configured due to the exception.
+                System.out.println("An error occurred while trying to configure logging: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }

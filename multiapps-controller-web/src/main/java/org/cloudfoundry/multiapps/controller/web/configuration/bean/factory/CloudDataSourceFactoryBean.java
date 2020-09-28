@@ -2,7 +2,8 @@ package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
 import javax.sql.DataSource;
 
-import org.cloudfoundry.multiapps.controller.web.util.EnvironmentServicesFinder;
+import org.cloudfoundry.multiapps.controller.persistence.util.DataSourceFactory;
+import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -42,7 +43,7 @@ public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, Init
         if (service == null) {
             return null;
         }
-        return dataSourceFactory.createHikariDataSource(service);
+        return dataSourceFactory.createDataSource(service);
     }
 
 }

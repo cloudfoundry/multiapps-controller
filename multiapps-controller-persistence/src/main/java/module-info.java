@@ -11,10 +11,13 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     exports org.cloudfoundry.multiapps.controller.persistence.services;
     exports org.cloudfoundry.multiapps.controller.persistence.util;
 
+    requires transitive java.cfenv;
+    requires transitive java.cfenv.jdbc;
     requires transitive java.sql;
     requires transitive jclouds.blobstore;
     requires transitive jclouds.core;
 
+    requires HikariCP.java7;
     requires aliyun.sdk.oss;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
