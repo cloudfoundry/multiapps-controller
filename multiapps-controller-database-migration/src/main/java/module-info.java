@@ -10,12 +10,10 @@ open module org.cloudfoundry.multiapps.controller.database.migration {
 
     requires transitive org.cloudfoundry.multiapps.controller.persistence;
 
-    requires java.cfenv;
     requires java.naming;
     requires java.sql;
     requires log4j;
     requires org.cloudfoundry.multiapps.common;
-    requires org.postgresql.jdbc;
     requires org.slf4j;
 
     requires static java.compiler;

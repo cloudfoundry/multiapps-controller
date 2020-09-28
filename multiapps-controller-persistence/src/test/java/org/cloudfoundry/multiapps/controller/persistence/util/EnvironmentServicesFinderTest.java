@@ -1,4 +1,4 @@
-package org.cloudfoundry.multiapps.controller.web.util;
+package org.cloudfoundry.multiapps.controller.persistence.util;
 
 import java.util.Collections;
 import java.util.List;
