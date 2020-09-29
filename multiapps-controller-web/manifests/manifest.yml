@@ -16,6 +16,7 @@ applications:
     XS_TYPE: CF
     DB_TYPE: POSTGRESQL
     CATALINA_OPTS: "-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
+    JBP_CONFIG_OPEN_JDK_JRE: "{ jre: { version: 11.+ } }"
     PLATFORM: >
       {
         "name": "CLOUD-FOUNDRY",
