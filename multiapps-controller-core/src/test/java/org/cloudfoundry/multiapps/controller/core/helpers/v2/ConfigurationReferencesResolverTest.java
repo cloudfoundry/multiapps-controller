@@ -94,8 +94,9 @@ public class ConfigurationReferencesResolverTest {
     }
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @ParameterizedTest

@@ -24,8 +24,9 @@ class EnvironmentTest {
     private Environment environment;
 
     @BeforeEach
-    void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    void initMocks() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @Test

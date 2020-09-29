@@ -24,8 +24,9 @@ class FlowableConfigurationTest {
     private final FlowableConfiguration flowableConfiguration = new FlowableConfiguration();
 
     @BeforeEach
-    void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    void initMocks() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         flowableConfiguration.randomIdGenerator = () -> RANDOM_ID;
     }
 

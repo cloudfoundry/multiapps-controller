@@ -28,8 +28,9 @@ class ModuleHooksAggregatorTest {
     @Mock
     private ProcessTypeParser processTypeParser;
 
-    ModuleHooksAggregatorTest() {
-        MockitoAnnotations.initMocks(this);
+    ModuleHooksAggregatorTest() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @Test

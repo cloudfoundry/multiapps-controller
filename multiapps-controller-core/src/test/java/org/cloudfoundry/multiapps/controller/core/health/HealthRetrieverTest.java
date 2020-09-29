@@ -57,8 +57,9 @@ class HealthRetrieverTest {
     private ApplicationConfiguration configuration;
     private HealthRetriever healthRetriever;
 
-    public HealthRetrieverTest() {
-        MockitoAnnotations.initMocks(this);
+    public HealthRetrieverTest() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     private static ZonedDateTime toZonedDateTime(long time) {

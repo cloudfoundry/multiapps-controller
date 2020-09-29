@@ -31,8 +31,9 @@ class ProcessHelperTest {
     private ProcessHelper processHelper;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         processHelper = new ProcessHelper(flowableFacade, historicOperationEventService);
         Mockito.when(historicOperationEventService.createQuery())
                .thenReturn(historicOperationEventQuery);

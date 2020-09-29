@@ -50,8 +50,9 @@ class OperationInErrorStateHandlerTest {
                                      .toDate();
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         Mockito.when(progressMessageServiceMock.createQuery())
                .thenReturn(progressMessageQuery);
     }

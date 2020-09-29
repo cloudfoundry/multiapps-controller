@@ -34,8 +34,9 @@ class ServiceGetterTest {
     private ServiceGetter serviceGetter;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         serviceGetter = new ServiceGetter(serviceInstanceGetter, userProvidedInstanceGetter);
     }
 

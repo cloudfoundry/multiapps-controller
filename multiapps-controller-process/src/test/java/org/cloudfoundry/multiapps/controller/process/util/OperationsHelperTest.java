@@ -37,8 +37,9 @@ class OperationsHelperTest {
 
     private final OperationsHelper operationsHelper;
 
-    OperationsHelperTest() {
-        MockitoAnnotations.initMocks(this);
+    OperationsHelperTest() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         operationsHelper = new OperationsHelper(operationService, metadataMapper, processHelper);
     }
 

@@ -36,8 +36,9 @@ class FlowableHistoricDataCleanerTest {
     private FlowableHistoricDataCleaner cleaner;
 
     @BeforeEach
-    void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    void initMocks() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         this.cleaner = new FlowableHistoricDataCleaner(historyService, PAGE_SIZE);
     }
 

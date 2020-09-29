@@ -27,9 +27,10 @@ class JarSignatureOperationsTest {
     private JarSignatureOperations mtaCertificateChecker;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         mtaCertificateChecker = new JarSignatureOperations();
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @Test

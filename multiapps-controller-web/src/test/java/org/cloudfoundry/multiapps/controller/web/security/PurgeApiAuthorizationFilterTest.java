@@ -28,8 +28,9 @@ class PurgeApiAuthorizationFilterTest {
     private PurgeApiAuthorizationFilter purgeApiAuthorizationFilter;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         purgeApiAuthorizationFilter = new PurgeApiAuthorizationFilter(null);
     }
 

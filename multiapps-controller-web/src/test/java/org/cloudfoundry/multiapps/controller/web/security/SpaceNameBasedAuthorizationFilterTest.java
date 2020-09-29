@@ -28,8 +28,9 @@ class SpaceNameBasedAuthorizationFilterTest {
     private DummyUriAuthorizationFilter dummyUriAuthorizationFilter;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         Mockito.when(request.getRequestURI())
                .thenReturn("");
         dummyUriAuthorizationFilter = new DummyUriAuthorizationFilter(authorizationChecker);

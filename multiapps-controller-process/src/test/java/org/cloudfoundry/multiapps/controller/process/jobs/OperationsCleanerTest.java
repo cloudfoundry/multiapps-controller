@@ -65,8 +65,9 @@ class OperationsCleanerTest {
     private OperationsCleaner cleaner;
 
     @BeforeEach
-    void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    void initMocks() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         cleaner.withPageSize(PAGE_SIZE);
 
         when(registry.getAction(Action.ABORT)).thenReturn(new AbortProcessActionMock(flowableFacade,

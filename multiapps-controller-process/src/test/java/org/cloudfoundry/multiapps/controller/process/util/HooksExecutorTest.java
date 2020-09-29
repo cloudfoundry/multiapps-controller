@@ -22,8 +22,9 @@ class HooksExecutorTest {
     @Mock
     private ProcessTypeParser processTypeParser;
 
-    HooksExecutorTest() {
-        MockitoAnnotations.initMocks(this);
+    HooksExecutorTest() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @Test

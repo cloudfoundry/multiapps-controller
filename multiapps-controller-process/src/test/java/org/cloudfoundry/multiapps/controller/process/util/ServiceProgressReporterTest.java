@@ -32,8 +32,9 @@ class ServiceProgressReporterTest {
     private ServiceProgressReporter serviceProgressReporter;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         serviceProgressReporter = new ServiceProgressReporter();
     }
 

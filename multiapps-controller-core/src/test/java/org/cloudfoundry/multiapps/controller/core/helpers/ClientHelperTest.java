@@ -34,8 +34,9 @@ class ClientHelperTest {
     private ClientHelper clientHelper;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         clientHelper = new ClientHelper(client);
     }
 

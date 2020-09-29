@@ -69,8 +69,9 @@ public class FilesApiServiceImplTest {
     private static final String DIGEST_CHARACTER_TABLE = "123456789ABCDEF";
 
     @Before
-    public void initialize() {
-        MockitoAnnotations.initMocks(this);
+    public void initialize() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         Mockito.when(request.getRequestURI())
                .thenReturn("");
         AuditLoggingProvider.setFacade(Mockito.mock(AuditLoggingFacade.class));
@@ -115,7 +116,8 @@ public class FilesApiServiceImplTest {
                .thenReturn(Mockito.mock(InputStream.class));
         Mockito.when(fileItemStream.getName())
                .thenReturn(fileName);
-        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName), Mockito.any(InputStream.class)))
+        Mockito.when(fileService.addFile(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID), Mockito.eq(fileName),
+                                         Mockito.any(InputStream.class)))
                .thenReturn(fileEntry);
 
         ResponseEntity<FileMetadata> response = testedClass.uploadFile(request, SPACE_GUID, NAMESPACE_GUID);

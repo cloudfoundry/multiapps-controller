@@ -33,8 +33,9 @@ class UpdateServiceMetadataExecutionTest {
     private ProcessContext procesContext;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         Mockito.when(procesContext.getControllerClient())
                .thenReturn(controllerClient);
         Mockito.when(procesContext.getStepLogger())

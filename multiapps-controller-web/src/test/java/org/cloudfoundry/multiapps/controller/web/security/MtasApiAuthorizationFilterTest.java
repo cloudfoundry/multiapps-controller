@@ -25,8 +25,9 @@ class MtasApiAuthorizationFilterTest {
     private MtasApiAuthorizationFilter mtasApiAuthorizationFilter;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         mtasApiAuthorizationFilter = new MtasApiAuthorizationFilter(null);
     }
 

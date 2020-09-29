@@ -69,8 +69,9 @@ class ServiceRemoverTest {
     private ServiceRemover serviceRemover;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         prepareExecution();
         serviceRemover = new ServiceRemover(configuration);
     }

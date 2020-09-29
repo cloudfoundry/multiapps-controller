@@ -58,7 +58,7 @@ class ConfigurationFilterParserTest {
 
     @ParameterizedTest
     @MethodSource
-    void testParse(String inputFileLocation, Expectation expectation) {
+    void testParse(String inputFileLocation, Expectation expectation) throws Exception {
         parseInput(inputFileLocation);
         initMocks();
 
@@ -68,8 +68,9 @@ class ConfigurationFilterParserTest {
         tester.test(() -> testParser.parse(testResource), expectation);
     }
 
-    private void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    private void initMocks() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
 
         when(testResource.getParameters()).thenReturn(input.resourceParameters);
 

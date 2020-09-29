@@ -44,15 +44,16 @@ class MtaMetadataEntityAggregatorTest {
 
     @ParameterizedTest
     @MethodSource
-    void testAggregate(String inputAppsLocation, String inputServicesLocation, Expectation expectation) {
+    void testAggregate(String inputAppsLocation, String inputServicesLocation, Expectation expectation) throws Exception {
         parseInput(inputAppsLocation, inputServicesLocation);
         initMocks();
 
         tester.test(() -> testMtaMetadataAggregator.aggregate(inputEntities), expectation);
     }
 
-    private void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    private void initMocks() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
 
         testMtaMetadataParser = new MtaMetadataParser(mockMtaMetadataValidator);
         testMtaMetadataAggregator = new MtaMetadataEntityAggregator(testMtaMetadataParser);

@@ -22,8 +22,9 @@ class ProcessLogsCleanerTest {
     private ProcessLogsCleaner cleaner;
 
     @BeforeEach
-    void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    void initMocks() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @Test

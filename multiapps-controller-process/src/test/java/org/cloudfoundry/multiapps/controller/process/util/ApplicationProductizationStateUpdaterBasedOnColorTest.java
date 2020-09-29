@@ -25,8 +25,9 @@ class ApplicationProductizationStateUpdaterBasedOnColorTest {
     private StepLogger stepLogger;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     static Stream<Arguments> testUpdateApplicationsProductizationState() {

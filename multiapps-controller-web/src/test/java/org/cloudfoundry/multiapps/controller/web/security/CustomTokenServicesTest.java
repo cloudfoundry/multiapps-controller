@@ -52,8 +52,9 @@ class CustomTokenServicesTest {
     private CustomTokenServices customTokenServices;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         AuditLoggingProvider.setFacade(auditLoggingFacade);
         customTokenServices = new CustomTokenServices(tokenStore, configuration, tokenParserChain);
     }

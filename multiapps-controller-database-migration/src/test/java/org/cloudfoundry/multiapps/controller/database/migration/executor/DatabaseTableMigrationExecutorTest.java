@@ -30,8 +30,9 @@ class DatabaseTableMigrationExecutorTest {
     private ImmutableDatabaseTableMigrationExecutor databaseTableMigrationExecutor;
 
     @BeforeEach
-    void initialiseDatabaseTableMigrationExecutorAndConfigureMocks() throws SQLException {
-        MockitoAnnotations.initMocks(this);
+    void initialiseDatabaseTableMigrationExecutorAndConfigureMocks() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         databaseTableMigrationExecutor = ImmutableDatabaseTableMigrationExecutor.builder()
                                                                                 .sourceDataSource(mockSourceDataSource)
                                                                                 .targetDataSource(mockTargetDataSource)

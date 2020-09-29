@@ -57,7 +57,8 @@ public class DatabaseFileServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this)
+                          .close();
         this.testDataSource = createDataSource();
         this.fileService = createFileService(testDataSource);
     }

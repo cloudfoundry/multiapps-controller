@@ -54,8 +54,9 @@ class PollStartAppStatusExecutionTest {
     private PollStartAppStatusExecution step;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         DelegateExecution execution = MockDelegateExecution.createSpyInstance();
         context = new ProcessContext(execution, stepLogger, clientProvider);
         step = new PollStartAppStatusExecution(recentLogsRetriever);

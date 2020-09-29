@@ -77,8 +77,9 @@ class DataTerminationServiceTest {
     private DataTerminationService dataTerminationService = createDataTerminationService();
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         AuditLoggingProvider.setFacade(auditLoggingFacade);
     }
 

@@ -29,8 +29,9 @@ class ModuleParametersCompatabilityValidatorTest {
     private UserMessageLogger userMessageLogger;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     static Stream<Arguments> testModuleParametersCompatability() {

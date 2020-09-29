@@ -54,8 +54,9 @@ class ApplicationStagerTest {
     private ApplicationStager applicationStager;
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
+    public void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         this.context = new ProcessContext(MockDelegateExecution.createSpyInstance(), stepLogger, clientProvider);
         context.setVariable(Variables.USER, "whatever");
         Mockito.when(clientProvider.getControllerClient(Mockito.any(), Mockito.any()))

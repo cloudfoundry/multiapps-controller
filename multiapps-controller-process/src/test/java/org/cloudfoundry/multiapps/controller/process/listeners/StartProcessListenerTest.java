@@ -90,13 +90,14 @@ class StartProcessListenerTest {
     }
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @ParameterizedTest
     @MethodSource
-    void testVerify(String processInstanceId, ProcessType processType, String exceptionMessage) {
+    void testVerify(String processInstanceId, ProcessType processType, String exceptionMessage) throws Exception {
         this.processType = processType;
         this.processInstanceId = processInstanceId;
         this.exceptionMessage = exceptionMessage;
@@ -106,8 +107,9 @@ class StartProcessListenerTest {
         verifyOperationInsertion();
     }
 
-    private void prepare() {
-        MockitoAnnotations.initMocks(this);
+    private void prepare() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         loadParameters();
         prepareContext();
         Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))

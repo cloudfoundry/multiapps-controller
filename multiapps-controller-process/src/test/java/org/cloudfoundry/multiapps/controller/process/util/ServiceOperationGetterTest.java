@@ -41,8 +41,9 @@ class ServiceOperationGetterTest {
     private ServiceOperationGetter serviceOperationGetter;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         serviceOperationGetter = new ServiceOperationGetter(serviceGetter, eventsGetter);
     }
 

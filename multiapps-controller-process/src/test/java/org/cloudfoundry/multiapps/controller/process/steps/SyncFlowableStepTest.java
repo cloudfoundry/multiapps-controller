@@ -84,8 +84,9 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
 
     @Before
     @BeforeEach
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    public void initMocks() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         this.stepLogger = Mockito.spy(new StepLogger(execution, progressMessageService, processLoggerProvider, LOGGER));
         this.context = step.createProcessContext(execution);
         when(stepLoggerFactory.create(any(), any(), any(), any())).thenReturn(stepLogger);

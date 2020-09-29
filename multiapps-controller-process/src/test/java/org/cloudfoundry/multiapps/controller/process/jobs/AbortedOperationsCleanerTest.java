@@ -34,8 +34,9 @@ class AbortedOperationsCleanerTest {
     private AbortedOperationsCleaner abortedOperationsCleaner;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @Test

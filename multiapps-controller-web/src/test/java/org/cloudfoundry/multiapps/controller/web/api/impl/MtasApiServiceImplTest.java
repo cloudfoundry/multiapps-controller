@@ -65,8 +65,9 @@ class MtasApiServiceImplTest {
                                                  .toString();
 
     @BeforeEach
-    void initialize() {
-        MockitoAnnotations.initMocks(this);
+    void initialize() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         apps = parseApps();
         mtas = parseMtas();
         mockClient();

@@ -48,8 +48,9 @@ class SystemParametersTest {
     private static final String XS_TYPE = "CF";
 
     @BeforeEach
-    void initialize() {
-        MockitoAnnotations.initMocks(this);
+    void initialize() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
 
         Mockito.when(timestampSupplier.get())
                .thenReturn(TIMESTAMP);

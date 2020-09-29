@@ -23,7 +23,8 @@ public class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
                                  String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
-                                 String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps) {
+                                 String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps)
+        throws Exception {
         super(deploymentDescriptorLocation,
               extensionDescriptorLocation,
               platformsLocation,
@@ -35,7 +36,8 @@ public class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller
               deployedApps,
               expectedServices,
               expectedApps);
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @Parameters

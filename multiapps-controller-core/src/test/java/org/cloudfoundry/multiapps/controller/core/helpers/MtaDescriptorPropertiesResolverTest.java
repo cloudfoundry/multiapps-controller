@@ -47,8 +47,9 @@ class MtaDescriptorPropertiesResolverTest {
     private ConfigurationEntryService configurationEntryService;
 
     @BeforeEach
-    void init() {
-        MockitoAnnotations.initMocks(this);
+    void init() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         when(spaceIdSupplier.apply(anyString(), anyString())).thenReturn("");
 
         resolver = new MtaDescriptorPropertiesResolver(buildMtaDescriptorPropertiesResolverContext());

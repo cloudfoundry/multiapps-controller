@@ -31,8 +31,9 @@ class HookProcessGetterTest {
     private final Date now = Date.valueOf(LocalDate.now());
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @Test

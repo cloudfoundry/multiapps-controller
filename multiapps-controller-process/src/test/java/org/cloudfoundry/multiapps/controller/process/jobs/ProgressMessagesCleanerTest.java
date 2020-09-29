@@ -27,8 +27,9 @@ class ProgressMessagesCleanerTest {
     private ProgressMessagesCleaner cleaner;
 
     @BeforeEach
-    void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    void initMocks() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         when(progressMessageService.createQuery()).thenReturn(progressMessageQuery);
         new MockBuilder<>(progressMessageQuery).on(query -> query.olderThan(EXPIRATION_TIME))
                                                .build();

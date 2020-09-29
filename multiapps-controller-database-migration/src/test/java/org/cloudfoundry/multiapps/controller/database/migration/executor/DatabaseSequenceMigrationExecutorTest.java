@@ -28,8 +28,9 @@ class DatabaseSequenceMigrationExecutorTest {
     private ImmutableDatabaseSequenceMigrationExecutor databaseSequenceMigrationExecutor;
 
     @BeforeEach
-    void initialiseDatabaseTableMigrationExecutorWithMocks() {
-        MockitoAnnotations.initMocks(this);
+    void initialiseDatabaseTableMigrationExecutorWithMocks() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         databaseSequenceMigrationExecutor = ImmutableDatabaseSequenceMigrationExecutor.builder()
                                                                                       .sourceDataSource(mockSourceDataSource)
                                                                                       .targetDataSource(mockTargetDataSource)

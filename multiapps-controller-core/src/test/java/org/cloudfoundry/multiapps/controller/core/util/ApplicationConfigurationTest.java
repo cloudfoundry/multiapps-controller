@@ -44,8 +44,9 @@ class ApplicationConfigurationTest {
     private ApplicationConfiguration configuration;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @Test

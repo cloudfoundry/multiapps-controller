@@ -23,8 +23,9 @@ class HooksPhaseBuilderTest {
     @Mock
     private ProcessTypeParser processTypeParser;
 
-    HooksPhaseBuilderTest() {
-        MockitoAnnotations.initMocks(this);
+    HooksPhaseBuilderTest() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @Test

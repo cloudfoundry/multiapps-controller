@@ -22,8 +22,9 @@ class FilesCleanerTest {
     private FilesCleaner cleaner;
 
     @BeforeEach
-    void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    void initMocks() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @Test

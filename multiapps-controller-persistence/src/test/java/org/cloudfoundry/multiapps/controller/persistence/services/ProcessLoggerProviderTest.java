@@ -33,8 +33,9 @@ class ProcessLoggerProviderTest {
     private ProcessLogger processLogger;
 
     @BeforeEach
-    void setUp() throws IOException {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         temporaryLogFile = Files.createTempFile(TEST_FILE_NAME, null);
         processLoggerProvider = new ProcessLoggerProvider() {
 

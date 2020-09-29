@@ -85,8 +85,9 @@ public class OperationInFinalStateHandlerTest {
     }
 
     @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
+    public void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         prepareContext();
         Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                .thenReturn(stepLogger);

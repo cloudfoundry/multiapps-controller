@@ -28,8 +28,9 @@ class AdminApiAuthorizationFilterTest {
     private AdminApiAuthorizationFilter adminApiAuthorizationFilter;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         adminApiAuthorizationFilter = new AdminApiAuthorizationFilter(applicationConfiguration, null);
     }
 

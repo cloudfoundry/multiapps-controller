@@ -38,8 +38,9 @@ class CompositeUriAuthorizationFilterTest {
     private CompositeUriAuthorizationFilter compositeUriAuthorizationFilter;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         compositeUriAuthorizationFilter = new CompositeUriAuthorizationFilter(Arrays.asList(fooUriAuthorizationFilter,
                                                                                             barUriAuthorizationFilter),
                                                                               new CFExceptionMapper());

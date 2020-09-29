@@ -102,8 +102,9 @@ public class OperationsApiServiceImplTest {
     private String processId;
 
     @Before
-    public void initialize() {
-        MockitoAnnotations.initMocks(this);
+    public void initialize() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         operations = new LinkedList<>();
         operations.add(createOperation(FINISHED_PROCESS, Operation.State.FINISHED, Collections.emptyMap()));
         operations.add(createOperation(RUNNING_PROCESS, Operation.State.RUNNING, Collections.emptyMap()));

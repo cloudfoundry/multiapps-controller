@@ -40,8 +40,9 @@ class ArchiveMergerTest {
     private DelegateExecution execution;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
         archiveMerger = new ArchiveMerger(fileService, stepLogger, execution);
     }
 
