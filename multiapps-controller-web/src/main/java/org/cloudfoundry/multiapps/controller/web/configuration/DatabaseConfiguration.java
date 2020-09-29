@@ -31,8 +31,9 @@ public class DatabaseConfiguration {
 
     @Inject
     @Bean
-    public CloudDataSourceFactoryBean dataSource(DataSourceFactory dataSourceFactory, EnvironmentServicesFinder vcapServiceFinder) {
-        return new CloudDataSourceFactoryBean(DATA_SOURCE_SERVICE_NAME, dataSourceFactory, vcapServiceFinder);
+    public CloudDataSourceFactoryBean dataSource(DataSourceFactory dataSourceFactory, EnvironmentServicesFinder vcapServiceFinder,
+                                                 ApplicationConfiguration configuration) {
+        return new CloudDataSourceFactoryBean(DATA_SOURCE_SERVICE_NAME, dataSourceFactory, vcapServiceFinder, configuration);
     }
 
     @Bean

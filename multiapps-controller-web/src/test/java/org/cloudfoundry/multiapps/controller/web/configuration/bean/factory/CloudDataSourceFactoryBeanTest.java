@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import javax.sql.DataSource;
 
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.util.DataSourceFactory;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
 import org.junit.Before;
@@ -17,6 +18,7 @@ import io.pivotal.cfenv.jdbc.CfJdbcService;
 public class CloudDataSourceFactoryBeanTest {
 
     private static final String SERVICE_NAME = "my-service";
+    private static final int DB_CONNECTION_THREADS = 100;
 
     @Mock
     private DataSource dataSource;
@@ -24,13 +26,15 @@ public class CloudDataSourceFactoryBeanTest {
     private DataSourceFactory dataSourceFactory;
     @Mock
     private EnvironmentServicesFinder vcapServiceFinder;
+    @Mock
+    private ApplicationConfiguration configuration;
 
     private CloudDataSourceFactoryBean testedFactory;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        testedFactory = new CloudDataSourceFactoryBean(SERVICE_NAME, dataSourceFactory, vcapServiceFinder);
+        testedFactory = new CloudDataSourceFactoryBean(SERVICE_NAME, dataSourceFactory, vcapServiceFinder, configuration);
     }
 
     @Test
@@ -38,7 +42,9 @@ public class CloudDataSourceFactoryBeanTest {
         CfJdbcService service = Mockito.mock(CfJdbcService.class);
         Mockito.when(vcapServiceFinder.findJdbcService(SERVICE_NAME))
                .thenReturn(service);
-        Mockito.when(dataSourceFactory.createDataSource(service))
+        Mockito.when(configuration.getDbConnectionThreads())
+               .thenReturn(DB_CONNECTION_THREADS);
+        Mockito.when(dataSourceFactory.createDataSource(service, DB_CONNECTION_THREADS))
                .thenReturn(dataSource);
 
         testedFactory.afterPropertiesSet();
