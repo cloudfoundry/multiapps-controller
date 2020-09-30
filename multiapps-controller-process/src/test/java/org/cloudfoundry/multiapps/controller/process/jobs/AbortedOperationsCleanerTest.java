@@ -10,11 +10,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
-import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent;
-import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
-import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperationEvent;
-import org.cloudfoundry.multiapps.controller.core.persistence.query.HistoricOperationEventQuery;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.query.HistoricOperationEventQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.BeforeEach;
@@ -112,7 +111,7 @@ class AbortedOperationsCleanerTest {
     private HistoricOperationEvent createAbortedEvent(CustomProcess customProcess) {
         return ImmutableHistoricOperationEvent.builder()
                                               .processId(customProcess.processId)
-                                              .type(EventType.ABORTED)
+                                              .type(HistoricOperationEvent.EventType.ABORTED)
                                               .build();
     }
 

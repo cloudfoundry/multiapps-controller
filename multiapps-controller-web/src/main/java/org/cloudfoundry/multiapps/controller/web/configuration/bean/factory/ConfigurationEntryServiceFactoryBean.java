@@ -4,8 +4,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationEntryService;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationEntryService.ConfigurationEntryMapper;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService.ConfigurationEntryMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;

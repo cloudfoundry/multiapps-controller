@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationReferencesResolver;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.core.model.MtaDescriptorPropertiesResolverContext;
 import org.cloudfoundry.multiapps.controller.core.model.ResolvedConfigurationReference;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
@@ -20,6 +19,7 @@ import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesVa
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.ServiceNameValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.TasksValidator;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.v3.VisibilityValidator;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.resolvers.NullPropertiesResolverBuilder;

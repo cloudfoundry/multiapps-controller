@@ -33,16 +33,16 @@ import org.cloudfoundry.multiapps.controller.api.model.ParameterMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.parameters.ParameterConversion;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
-import org.cloudfoundry.multiapps.controller.core.persistence.OrderDirection;
-import org.cloudfoundry.multiapps.controller.core.persistence.query.OperationQuery;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
+import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
+import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersistenceService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.flowable.Action;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessAction;
@@ -158,7 +158,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                       .equals(spaceGuid)) {
             LOGGER.info(MessageFormat.format(org.cloudfoundry.multiapps.controller.core.Messages.OPERATION_SPACE_MISMATCH, operationId,
                                              operation.getSpaceId(), spaceGuid));
-            throw new NotFoundException(org.cloudfoundry.multiapps.controller.core.Messages.OPERATION_NOT_FOUND, operationId);
+            throw new NotFoundException(org.cloudfoundry.multiapps.controller.persistence.Messages.OPERATION_NOT_FOUND, operationId);
         }
         if ("messages".equals(embed)) {
             operation = ImmutableOperation.copyOf(operation)

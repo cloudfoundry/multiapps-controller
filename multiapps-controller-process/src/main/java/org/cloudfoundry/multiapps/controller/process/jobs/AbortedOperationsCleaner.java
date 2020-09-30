@@ -10,9 +10,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
-import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent;
-import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.slf4j.Logger;
@@ -39,7 +38,7 @@ public class AbortedOperationsCleaner implements Cleaner {
         Instant instant = Instant.now()
                                  .minus(30, ChronoUnit.MINUTES);
         List<HistoricOperationEvent> abortedOperations = historicOperationEventService.createQuery()
-                                                                                      .type(EventType.ABORTED)
+                                                                                      .type(HistoricOperationEvent.EventType.ABORTED)
                                                                                       .olderThan(new Date(instant.toEpochMilli()))
                                                                                       .list();
         abortedOperations.stream()

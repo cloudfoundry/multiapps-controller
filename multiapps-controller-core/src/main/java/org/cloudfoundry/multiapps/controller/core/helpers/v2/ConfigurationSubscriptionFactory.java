@@ -7,12 +7,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationFilter;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.core.model.ResolvedConfigurationReference;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.resolvers.v2.PartialDescriptorReferenceResolver;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
+import org.cloudfoundry.multiapps.controller.persistence.model.filters.ConfigurationFilter;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.RequiredDependency;

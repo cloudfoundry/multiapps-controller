@@ -21,6 +21,21 @@ public final class Messages {
     public static final String ERROR_STORING_LOG_FILE = "Error storing log file \"{0}\"";
     public static final String ERROR_LOG_FILE_NOT_FOUND = "Log file with name \"{0}\" for operation \"{1}\" in space \"{2}\" was not found";
     public static final String ERROR_CORRELATION_ID_OR_ACTIVITY_ID_NULL = "Unable to retrieve correlation id or activity id for process \"{0}\" at activity \"{1}\" and space \"{2}\"";
+    public static final String COLUMN_VALUE_SHOULD_NOT_BE_NULL = "Configuration subscription''s \"{0}\" column value should not be null";
+    public static final String ERROR_WHILE_EXECUTING_TRANSACTION = "Error while executing database transaction \"{0}\"";
+    public static final String PROGRESS_MESSAGE_NOT_FOUND = "Progress message with ID \"{0}\" does not exist";
+    public static final String PROGRESS_MESSAGE_ALREADY_EXISTS = "Progress message for process \"{0}\" with ID \"{1}\" already exist";
+    public static final String HISTORIC_OPERATION_EVENT_NOT_FOUND = "Historic operation event with ID \"{0}\" does not exist";
+    public static final String HISTORIC_OPERATION_EVENT_ALREADY_EXISTS = "Historic operation event for process \"{0}\" with ID \"{1}\" already exist";
+    public static final String CONFIGURATION_ENTRY_ALREADY_EXISTS = "Configuration entry with nid \"{0}\", ID \"{1}\", version \"{2}\", namespace \"{3}\", target org \"{4}\" and target space \"{5}\", already exists";
+    public static final String CONFIGURATION_ENTRY_NOT_FOUND = "Configuration entry with ID \"{0}\" does not exist";
+    public static final String CONFIGURATION_ENTRY_SATISFYING_VERSION_AND_VIS_NOT_FOUND = "Configuration entry that satisfies version requirement \"{0}\" and/or visibility targets in format ('org', 'space'): (\"{1}\") has not been found";
+    public static final String CONFIGURATION_SUBSCRIPTION_ALREADY_EXISTS = "Configuration subscription for MTA \"{0}\", app \"{1}\" and resource \"{2}\" already exists in space \"{3}\"";
+    public static final String CONFIGURATION_SUBSCRIPTION_NOT_FOUND = "Configuration subscription with ID \"{0}\" does not exist";
+    public static final String CONFIGURATION_SUBSCRIPTION_MATCHING_ENTRIES_NOT_FOUND_BY_QUERY = "Configuration subscription that matches the specified entries could not be found";
+    public static final String UNABLE_TO_PARSE_SUBSCRIPTION = "Unable to parse configuration subscription: {0}";
+    public static final String OPERATION_NOT_FOUND = "MTA operation with ID \"{0}\" does not exist";
+    public static final String OPERATION_ALREADY_EXISTS = "MTA operation with ID \"{0}\" already exists";
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";

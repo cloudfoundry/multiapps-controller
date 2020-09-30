@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.Collections;
 
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
+import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

@@ -16,7 +16,6 @@ open module org.cloudfoundry.multiapps.controller.core {
     exports org.cloudfoundry.multiapps.controller.core.cf.v2;
     exports org.cloudfoundry.multiapps.controller.core.cf.v3;
     exports org.cloudfoundry.multiapps.controller.core.configuration;
-    exports org.cloudfoundry.multiapps.controller.core.filters;
     exports org.cloudfoundry.multiapps.controller.core.health;
     exports org.cloudfoundry.multiapps.controller.core.health.model;
     exports org.cloudfoundry.multiapps.controller.core.helpers;
@@ -28,11 +27,6 @@ open module org.cloudfoundry.multiapps.controller.core {
     exports org.cloudfoundry.multiapps.controller.core.liquibase;
     exports org.cloudfoundry.multiapps.controller.core.model;
     exports org.cloudfoundry.multiapps.controller.core.parser;
-    exports org.cloudfoundry.multiapps.controller.core.persistence;
-    exports org.cloudfoundry.multiapps.controller.core.persistence.dto;
-    exports org.cloudfoundry.multiapps.controller.core.persistence.query;
-    exports org.cloudfoundry.multiapps.controller.core.persistence.query.impl;
-    exports org.cloudfoundry.multiapps.controller.core.persistence.service;
     exports org.cloudfoundry.multiapps.controller.core.resolvers.v2;
     exports org.cloudfoundry.multiapps.controller.core.resolvers.v3;
     exports org.cloudfoundry.multiapps.controller.core.security.data.termination;

@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
+import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.web.resources.ConfigurationEntriesResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

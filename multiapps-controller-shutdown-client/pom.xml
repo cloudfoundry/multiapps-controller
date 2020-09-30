@@ -12,6 +12,12 @@
     </parent>
 
     <dependencies>
+        <!-- Not having this dependency here leads to the compilation error "module not found: java.servlet". It's probably 
+            required by spring-web. -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.cloudfoundry.multiapps</groupId>
             <artifactId>multiapps-common</artifactId>

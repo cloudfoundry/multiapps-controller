@@ -11,9 +11,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.multiapps.controller.api.model.ErrorType;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
-import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent;
-import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
+import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
 import org.slf4j.Logger;
@@ -54,16 +53,16 @@ public class OperationsHelper {
         if (historicEvents.isEmpty()) {
             return null;
         }
-        EventType lastEventType = historicEvents.get(historicEvents.size() - 1)
+        HistoricOperationEvent.EventType lastEventType = historicEvents.get(historicEvents.size() - 1)
                                                 .getType();
         return toErrorType(lastEventType);
     }
 
-    private ErrorType toErrorType(EventType historicType) {
-        if (historicType == EventType.FAILED_BY_CONTENT_ERROR) {
+    private ErrorType toErrorType(HistoricOperationEvent.EventType historicType) {
+        if (historicType == HistoricOperationEvent.EventType.FAILED_BY_CONTENT_ERROR) {
             return ErrorType.CONTENT;
         }
-        if (historicType == EventType.FAILED_BY_INFRASTRUCTURE_ERROR) {
+        if (historicType == HistoricOperationEvent.EventType.FAILED_BY_INFRASTRUCTURE_ERROR) {
             return ErrorType.INFRASTRUCTURE;
         }
         return null;

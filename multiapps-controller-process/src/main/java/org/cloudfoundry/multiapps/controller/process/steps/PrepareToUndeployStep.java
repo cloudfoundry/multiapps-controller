@@ -10,7 +10,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ProcessConflictPreventer;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;

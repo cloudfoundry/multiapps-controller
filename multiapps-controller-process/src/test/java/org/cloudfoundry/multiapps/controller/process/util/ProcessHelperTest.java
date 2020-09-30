@@ -3,10 +3,10 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.util.Arrays;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
-import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
-import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperationEvent;
-import org.cloudfoundry.multiapps.controller.core.persistence.query.HistoricOperationEventQuery;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.query.HistoricOperationEventQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,7 +59,7 @@ class ProcessHelperTest {
     void testIsProcessAbortedWhenThereIsAbortedProcess() {
         Mockito.when(historicOperationEventQuery.list())
                .thenReturn(Arrays.asList(ImmutableHistoricOperationEvent.builder()
-                                                                        .type(EventType.ABORTED)
+                                                                        .type(HistoricOperationEvent.EventType.ABORTED)
                                                                         .processId(PROCESS_ID)
                                                                         .build()));
         Assertions.assertEquals(State.ABORTED, processHelper.computeProcessState(PROCESS_ID));
@@ -67,11 +67,11 @@ class ProcessHelperTest {
 
     @Test
     void testIsProcessAbortedWhenThereIsNotAbortedProcess() {
-        mockHistoricEventsWithTypes(EventType.FINISHED);
+        mockHistoricEventsWithTypes(HistoricOperationEvent.EventType.FINISHED);
         Assertions.assertEquals(State.FINISHED, processHelper.computeProcessState(PROCESS_ID));
     }
 
-    private void mockHistoricEventsWithTypes(EventType type) {
+    private void mockHistoricEventsWithTypes(HistoricOperationEvent.EventType type) {
         Mockito.when(historicOperationEventQuery.list())
                .thenReturn(Arrays.asList(ImmutableHistoricOperationEvent.builder()
                                                                         .type(type)

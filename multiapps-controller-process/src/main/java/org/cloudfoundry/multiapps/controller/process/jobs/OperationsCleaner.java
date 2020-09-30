@@ -11,8 +11,8 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
-import org.cloudfoundry.multiapps.controller.core.persistence.OrderDirection;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
+import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.Action;
 import org.cloudfoundry.multiapps.controller.process.flowable.ProcessAction;

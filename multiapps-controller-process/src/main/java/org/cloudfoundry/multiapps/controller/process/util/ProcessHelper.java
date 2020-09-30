@@ -8,9 +8,8 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
-import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent;
-import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.flowable.engine.runtime.ProcessInstance;
 
@@ -52,7 +51,7 @@ public class ProcessHelper {
     private boolean isInAbortedState(String processId) {
         List<HistoricOperationEvent> historicOperationEvents = getHistoricOperationEventByProcessId(processId);
         return historicOperationEvents.stream()
-                                      .anyMatch(event -> event.getType() == EventType.ABORTED);
+                                      .anyMatch(event -> event.getType() == HistoricOperationEvent.EventType.ABORTED);
     }
 
     public List<HistoricOperationEvent> getHistoricOperationEventByProcessId(String processId) {

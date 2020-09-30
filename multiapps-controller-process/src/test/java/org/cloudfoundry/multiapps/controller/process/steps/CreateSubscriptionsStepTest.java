@@ -11,11 +11,11 @@ import java.util.List;
 
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription.ResourceDto;
-import org.cloudfoundry.multiapps.controller.core.persistence.query.ConfigurationSubscriptionQuery;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription.ResourceDto;
+import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationSubscriptionQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.Before;
 import org.junit.Rule;

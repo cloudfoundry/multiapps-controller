@@ -16,9 +16,9 @@ import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvi
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
 import org.cloudfoundry.multiapps.controller.core.model.CachedMap;
-import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
+import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;

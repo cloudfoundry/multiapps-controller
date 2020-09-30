@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationFilter;
+import org.cloudfoundry.multiapps.controller.persistence.model.filters.ConfigurationFilter;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 
 public class DummyConfigurationFilterParser extends org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser {

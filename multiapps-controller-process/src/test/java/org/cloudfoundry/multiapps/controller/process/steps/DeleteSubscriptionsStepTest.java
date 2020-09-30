@@ -11,10 +11,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription;
-import org.cloudfoundry.multiapps.controller.core.persistence.query.ConfigurationSubscriptionQuery;
-import org.cloudfoundry.multiapps.controller.core.persistence.query.impl.ConfigurationSubscriptionQueryImpl;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationSubscriptionService;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
+import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationSubscriptionQuery;
+import org.cloudfoundry.multiapps.controller.persistence.query.impl.ConfigurationSubscriptionQueryImpl;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.Before;
 import org.junit.Rule;

@@ -16,9 +16,7 @@ public final class Messages {
     public static final String PERMISSION_CHECK_FAILED_ORG_SPACE = "Could not check for permission to perform operation \"{0}\" in organization \"{1}\" and space \"{2}\"";
     public static final String PERMISSION_CHECK_FAILED_SPACE_ID = "Could not check for permission to perform operation \"{0}\" in space with ID \"{1}\"";
     public static final String ROUTE_NOT_FOUND = "Could not find route \"{0}\"";
-    public static final String OPERATION_NOT_FOUND = "MTA operation with ID \"{0}\" does not exist";
     public static final String OPERATION_SPACE_MISMATCH = "MTA operation with ID \"{0}\" exists in space \"{1}\" but was queried from space \"{2}\"";
-    public static final String OPERATION_ALREADY_EXISTS = "MTA operation with ID \"{0}\" already exists";
     public static final String PATH_SHOULD_NOT_BE_ABSOLUTE = "Path \"{0}\" should not be absolute";
     public static final String PATH_SHOULD_BE_NORMALIZED = "Path \"{0}\" should be normalized (should not contain any \".\", \"..\" or \"//\" path segments)!";
     public static final String PATH_MUST_NOT_CONTAIN_WINDOWS_SEPARATORS = "Path \"{0}\" must use only Unix separators \"/\", but contains Windows separators \"\\\"";
@@ -32,17 +30,9 @@ public final class Messages {
     public static final String COULD_NOT_PARSE_ROUTE = "Cannot parse 'routes' property - check documentation for correct format.";
     public static final String COULD_NOT_CREATE_VALID_ROUTE_NESTED_EXCEPTION = "Invalid route \"{0}\" : {1}";
     public static final String CANNOT_CORRECT_PARAMETER = "Value for parameter \"{0}\" is not valid and cannot be corrected";
-    public static final String CONFIGURATION_ENTRY_ALREADY_EXISTS = "Configuration entry with nid \"{0}\", ID \"{1}\", version \"{2}\", namespace \"{3}\", target org \"{4}\" and target space \"{5}\", already exists";
-    public static final String CONFIGURATION_SUBSCRIPTION_ALREADY_EXISTS = "Configuration subscription for MTA \"{0}\", app \"{1}\" and resource \"{2}\" already exists in space \"{3}\"";
-    public static final String CONFIGURATION_ENTRY_NOT_FOUND = "Configuration entry with ID \"{0}\" does not exist";
-    public static final String CONFIGURATION_ENTRY_SATISFYING_VERSION_AND_VIS_NOT_FOUND = "Configuration entry that satisfies version requirement \"{0}\" and/or visibility targets in format ('org', 'space'): (\"{1}\") has not been found";
-    public static final String CONFIGURATION_SUBSCRIPTION_NOT_FOUND = "Configuration subscription with ID \"{0}\" does not exist";
-    public static final String CONFIGURATION_SUBSCRIPTION_MATCHING_ENTRIES_NOT_FOUND_BY_QUERY = "Configuration subscription that matches the specified entries could not be found";
     public static final String NO_CONFIGURATION_ENTRIES_WERE_FOUND = "No configuration entries were found matching the filter specified in resource \"{0}\"";
     public static final String MULTIPLE_CONFIGURATION_ENTRIES_WERE_FOUND = "Multiple configuration entries were found matching the filter specified in resource \"{0}\"";
     public static final String CONFLICTING_APP_COLORS = "There are both blue and green applications already deployed for MTA \"{0}\"";
-    public static final String UNABLE_TO_PARSE_SUBSCRIPTION = "Unable to parse configuration subscription: {0}";
-    public static final String COLUMN_VALUE_SHOULD_NOT_BE_NULL = "Configuration subscription''s \"{0}\" column value should not be null";
     public static final String COULD_NOT_COMPUTE_SPACE_ID = "Could not compute space ID for org \"{0}\" and space \"{1}\"";
     public static final String THE_DEPLOYMENT_DESCRIPTOR_0_SPECIFIES_NOT_SUPPORTED_MTA_VERSION_1 = "The deployment descriptor \"{0}\" specifies a non-supported MTA version \"{1}\"";
     public static final String CANNOT_CLEAN_MULTI_TARGET_APP_ASSEMBLY_TARGET_DIR_0 = "Cannot clean multi-target app assembly target dir \"{0}\"";
@@ -78,13 +68,8 @@ public final class Messages {
     public static final String ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MISSING_FIELD = "The response of finding a service instance should contain a \"{0}\" element";
     public static final String ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MORE_THEN_ONE_RESULT = "The response of finding a service instance should not have more than one resource element";
     public static final String MISSING_GLOBAL_AUDITOR_CREDENTIALS = "Global Auditor credentials are missing from the application ENV.";
-    public static final String PROGRESS_MESSAGE_NOT_FOUND = "Progress message with ID \"{0}\" does not exist";
-    public static final String PROGRESS_MESSAGE_ALREADY_EXISTS = "Progress message for process \"{0}\" with ID \"{1}\" already exist";
-    public static final String HISTORIC_OPERATION_EVENT_NOT_FOUND = "Historic operation event with ID \"{0}\" does not exist";
-    public static final String HISTORIC_OPERATION_EVENT_ALREADY_EXISTS = "Historic operation event for process \"{0}\" with ID \"{1}\" already exist";
     public static final String DELETING_TEMP_FILE = "Deleting temp file: {0}";
     public static final String ERROR_DELETING_APP_TEMP_FILE = "Error deleting temp application file \"{0}\"";
-    public static final String ERROR_WHILE_EXECUTING_TRANSACTION = "Error while executing database transaction \"{0}\"";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";

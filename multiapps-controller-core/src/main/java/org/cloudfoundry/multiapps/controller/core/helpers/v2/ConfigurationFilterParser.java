@@ -2,10 +2,10 @@ package org.cloudfoundry.multiapps.controller.core.helpers.v2;
 
 import java.util.Map;
 
-import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationFilter;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.ConfigurationEntriesUtil;
+import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
+import org.cloudfoundry.multiapps.controller.persistence.model.filters.ConfigurationFilter;
 import org.cloudfoundry.multiapps.mta.builders.v2.PropertiesChainBuilder;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
