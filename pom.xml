@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.cloudfoundry.multiapps</groupId>
@@ -12,11 +11,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
-        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <jacoco.aggregate.path>target/site/jacoco-aggregate/jacoco.xml</jacoco.aggregate.path>
-        <jacoco.report.path>target/site/jacoco/jacoco.xml</jacoco.report.path>
-        <sonar.coverage.jacoco.xmlReportPaths>${jacoco.report.path},${jacoco.aggregate.path}</sonar.coverage.jacoco.xmlReportPaths>
         <junit.version>5.7.0</junit.version>
         <junit-platform.version>1.7.0</junit-platform.version>
         <mockito.version>3.5.13</mockito.version>
@@ -148,8 +142,8 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.2</version>
                     <configuration>
-                        <!-- Surefire excludes nested classes by default, 
-                            so we need to explicitly specify that nothing should be excluded. -->
+                        <!-- Surefire excludes nested classes by default, so we need to explicitly specify that nothing should 
+                            be excluded. -->
                         <excludes>
                             <exclude />
                         </excludes>
@@ -235,6 +229,12 @@
                     <artifactId>nexus-staging-maven-plugin</artifactId>
                     <version>1.6.8</version>
                 </plugin>
+                <!-- https://mvnrepository.com/artifact/org.sonarsource.scanner.maven/sonar-maven-plugin -->
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.7.0.1746</version>
+                </plugin>
                 <!-- https://mvnrepository.com/artifact/org.jacoco/jacoco-maven-plugin -->
                 <plugin>
                     <groupId>org.jacoco</groupId>
@@ -248,18 +248,17 @@
                             </goals>
                         </execution>
                         <execution>
+                            <id>prepare-agent-integration</id>
+                            <goals>
+                                <goal>prepare-agent-integration</goal>
+                            </goals>
+                        </execution>
+                        <execution>
                             <id>report</id>
+                            <phase>verify</phase>
                             <goals>
                                 <goal>report</goal>
                             </goals>
-                            <phase>verify</phase>
-                        </execution>
-                        <execution>
-                            <id>report-aggregate</id>
-                            <goals>
-                                <goal>report-aggregate</goal>
-                            </goals>
-                            <phase>verify</phase>
                         </execution>
                     </executions>
                 </plugin>
@@ -377,8 +376,8 @@
                 <artifactId>jaxb-impl</artifactId>
                 <version>${jaxb-impl.version}</version>
             </dependency>
-            <!-- Transitive dependency from multiapps-common and liquibase. 
-                Pin the version to make sure we're always using the correct one. -->
+            <!-- Transitive dependency from multiapps-common and liquibase. Pin the version to make sure we're always using 
+                the correct one. -->
             <!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
             <dependency>
                 <groupId>org.yaml</groupId>
@@ -706,8 +705,8 @@
                 <version>${liquibase.version}</version>
                 <exclusions>
                     <exclusion>
-                        <!-- We're using https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api, 
-                            which brings the same packages. -->
+                        <!-- We're using https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api, which 
+                            brings the same packages. -->
                         <groupId>javax.xml.bind</groupId>
                         <artifactId>jaxb-api</artifactId>
                     </exclusion>
