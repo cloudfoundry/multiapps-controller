@@ -12,14 +12,14 @@ import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
-import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperationEvent;
-import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
 import org.cloudfoundry.multiapps.controller.core.util.LoggingUtil;
 import org.cloudfoundry.multiapps.controller.core.util.SafeExecutor;
+import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
+import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
@@ -97,8 +97,8 @@ public class OperationInFinalStateHandler {
         historicOperationEventService.add(ImmutableHistoricOperationEvent.of(processInstanceId, toEventType(state)));
     }
 
-    private EventType toEventType(State state) {
-        return state == Operation.State.FINISHED ? EventType.FINISHED : EventType.ABORTED;
+    private HistoricOperationEvent.EventType toEventType(State state) {
+        return state == Operation.State.FINISHED ? HistoricOperationEvent.EventType.FINISHED : HistoricOperationEvent.EventType.ABORTED;
     }
 
     private void logOperationTime(String correlationId) {

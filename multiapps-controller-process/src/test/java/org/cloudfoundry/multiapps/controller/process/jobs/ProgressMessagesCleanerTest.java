@@ -5,9 +5,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.Date;
 
-import org.cloudfoundry.multiapps.controller.core.persistence.query.ProgressMessageQuery;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
+import org.cloudfoundry.multiapps.controller.persistence.query.ProgressMessageQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;

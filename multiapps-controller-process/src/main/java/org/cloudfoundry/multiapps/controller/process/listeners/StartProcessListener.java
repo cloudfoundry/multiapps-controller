@@ -15,11 +15,11 @@ import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.api.model.OperationMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ParameterMetadata;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
-import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
-import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperationEvent;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOperationMetadataMapper;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
@@ -56,7 +56,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         if (getOperation(correlationId) == null) {
             addOperation(execution, correlationId, processType);
         }
-        getHistoricOperationEventService().add(ImmutableHistoricOperationEvent.of(correlationId, EventType.STARTED));
+        getHistoricOperationEventService().add(ImmutableHistoricOperationEvent.of(correlationId, HistoricOperationEvent.EventType.STARTED));
         logProcessEnvironment();
         logProcessVariables(execution, processType);
     }

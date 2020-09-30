@@ -5,12 +5,12 @@ import java.text.MessageFormat;
 import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;

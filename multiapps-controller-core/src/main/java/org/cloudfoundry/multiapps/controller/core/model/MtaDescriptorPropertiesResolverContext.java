@@ -2,8 +2,9 @@ package org.cloudfoundry.multiapps.controller.core.model;
 
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

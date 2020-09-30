@@ -11,13 +11,13 @@ import javax.inject.Named;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.cloudfoundry.multiapps.common.ContentException;
-import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
-import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperationEvent;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
+import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
+import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
@@ -44,22 +44,23 @@ public class OperationInErrorStateHandler {
     }
 
     public void handle(FlowableEngineEvent event, String errorMessage) {
-        handle(event, EventType.FAILED_BY_INFRASTRUCTURE_ERROR, errorMessage);
+        handle(event, HistoricOperationEvent.EventType.FAILED_BY_INFRASTRUCTURE_ERROR, errorMessage);
     }
 
     public void handle(FlowableEngineEvent event, Throwable throwable) {
-        EventType eventType = toEventType(throwable);
+        HistoricOperationEvent.EventType eventType = toEventType(throwable);
         handle(event, eventType, throwable.getMessage());
     }
 
-    private void handle(FlowableEngineEvent event, EventType eventType, String errorMessage) {
+    private void handle(FlowableEngineEvent event, HistoricOperationEvent.EventType eventType, String errorMessage) {
         persistEvent(event, eventType);
         persistError(event, errorMessage);
         releaseCloudControllerClient(event);
     }
 
-    EventType toEventType(Throwable throwable) {
-        return hasCause(throwable, ContentException.class) ? EventType.FAILED_BY_CONTENT_ERROR : EventType.FAILED_BY_INFRASTRUCTURE_ERROR;
+    HistoricOperationEvent.EventType toEventType(Throwable throwable) {
+        return hasCause(throwable, ContentException.class) ? HistoricOperationEvent.EventType.FAILED_BY_CONTENT_ERROR
+            : HistoricOperationEvent.EventType.FAILED_BY_INFRASTRUCTURE_ERROR;
     }
 
     private <T extends Throwable> boolean hasCause(Throwable throwable, Class<T> clazz) {
@@ -68,7 +69,7 @@ public class OperationInErrorStateHandler {
                              .anyMatch(clazz::isInstance);
     }
 
-    private void persistEvent(FlowableEngineEvent event, EventType eventType) {
+    private void persistEvent(FlowableEngineEvent event, HistoricOperationEvent.EventType eventType) {
         historicOperationEventService.add(ImmutableHistoricOperationEvent.of(flowableFacade.getProcessInstanceId(event.getExecutionId()),
                                                                              eventType));
     }

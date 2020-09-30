@@ -24,11 +24,11 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ApplicationCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMta;
-import org.cloudfoundry.multiapps.controller.core.persistence.query.ConfigurationSubscriptionQuery;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
+import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationSubscriptionQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;

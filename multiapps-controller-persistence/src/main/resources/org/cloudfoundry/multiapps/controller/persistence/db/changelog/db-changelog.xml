@@ -12,5 +12,8 @@
 
     <include
         file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.110.0-persistence.xml" />
+    <include file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.110.0-core.xml" />
+    <include
+        file="org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog-1.110.0-quartz.xml" />
 
 </databaseChangeLog>

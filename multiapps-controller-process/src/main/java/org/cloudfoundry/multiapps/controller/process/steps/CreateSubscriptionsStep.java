@@ -7,9 +7,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.NoResultException;
 
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription.ResourceDto;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationSubscriptionService;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription.ResourceDto;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;

@@ -13,9 +13,9 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import org.cloudfoundry.multiapps.controller.core.helpers.ModuleToDeployHelper;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.HandlerFactory;

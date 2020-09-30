@@ -6,7 +6,7 @@ import java.text.MessageFormat;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
+import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.cloudfoundry.multiapps.controller.web.util.ServletUtil;

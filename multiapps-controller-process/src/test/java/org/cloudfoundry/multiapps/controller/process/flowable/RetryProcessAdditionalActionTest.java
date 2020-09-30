@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import org.cloudfoundry.multiapps.controller.core.persistence.query.ProgressMessageQuery;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
+import org.cloudfoundry.multiapps.controller.persistence.query.ProgressMessageQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.flowable.engine.runtime.Execution;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

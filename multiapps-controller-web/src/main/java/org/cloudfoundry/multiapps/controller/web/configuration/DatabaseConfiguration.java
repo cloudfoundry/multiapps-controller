@@ -12,7 +12,6 @@ import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentService
 import org.cloudfoundry.multiapps.controller.web.configuration.bean.factory.CloudDataSourceFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -25,8 +24,7 @@ import liquibase.integration.spring.SpringLiquibase;
 public class DatabaseConfiguration {
 
     private static final String DATA_SOURCE_SERVICE_NAME = "deploy-service-database";
-    private static final String PERSISTENCE_CHANGE_LOG = "classpath:/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog.xml";
-    private static final String CORE_CHANGE_LOG = "classpath:/org/cloudfoundry/multiapps/controller/core/db/changelog/db-changelog.xml";
+    private static final String LIQUIBASE_CHANGELOG = "classpath:/org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog.xml";
     private static final String ENTITY_MANAGER_DEFAULT_PERSISTENCE_UNIT_NAME = "Default";
 
     @Inject
@@ -71,7 +69,7 @@ public class DatabaseConfiguration {
         localContainerEntityManagerFactoryBean.setPersistenceUnitName(persistenceUnitName);
         localContainerEntityManagerFactoryBean.setDataSource(dataSource);
         localContainerEntityManagerFactoryBean.setJpaVendorAdapter(eclipseLinkJpaVendorAdapter);
-        localContainerEntityManagerFactoryBean.setPackagesToScan("com.sap.cloud.lm.sl");
+        localContainerEntityManagerFactoryBean.setPackagesToScan("org.cloudfoundry.multiapps");
         return localContainerEntityManagerFactoryBean;
     }
 
@@ -86,7 +84,7 @@ public class DatabaseConfiguration {
     @Inject
     @Bean
     public SpringLiquibase persistenceChangelog(DataSource dataSource) {
-        return getLiquibaseTemplate(dataSource, PERSISTENCE_CHANGE_LOG);
+        return getLiquibaseTemplate(dataSource, LIQUIBASE_CHANGELOG);
     }
 
     private SpringLiquibase getLiquibaseTemplate(DataSource dataSource, String changeLog) {
@@ -94,13 +92,6 @@ public class DatabaseConfiguration {
         springLiquibase.setDataSource(dataSource);
         springLiquibase.setChangeLog(changeLog);
         return springLiquibase;
-    }
-
-    @Inject
-    @Bean
-    @DependsOn("persistenceChangelog")
-    public SpringLiquibase coreChangelog(DataSource dataSource) {
-        return getLiquibaseTemplate(dataSource, CORE_CHANGE_LOG);
     }
 
 }

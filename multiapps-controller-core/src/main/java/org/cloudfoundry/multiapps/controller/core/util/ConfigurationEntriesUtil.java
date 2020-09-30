@@ -8,10 +8,10 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.ParsingException;
-import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationEntry;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationFilter;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationEntryService;
+import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.filters.ConfigurationFilter;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -9,11 +9,11 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.core.helpers.expander.PropertiesExpander;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationFilterParser;
-import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationFilter;
 import org.cloudfoundry.multiapps.controller.core.model.ResolvedConfigurationReference;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
+import org.cloudfoundry.multiapps.controller.persistence.model.filters.ConfigurationFilter;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.ElementContext;
 import org.cloudfoundry.multiapps.mta.model.PropertiesContainer;

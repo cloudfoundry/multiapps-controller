@@ -7,7 +7,7 @@ import java.util.Date;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

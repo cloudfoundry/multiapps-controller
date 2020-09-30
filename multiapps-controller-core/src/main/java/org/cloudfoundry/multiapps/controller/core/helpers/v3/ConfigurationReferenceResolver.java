@@ -4,9 +4,9 @@ import static org.cloudfoundry.multiapps.controller.core.util.NameUtil.getIndexe
 
 import java.util.Map;
 
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationEntry;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 
 public class ConfigurationReferenceResolver extends org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationReferenceResolver {

@@ -3,11 +3,11 @@ package org.cloudfoundry.multiapps.controller.process.flowable;
 import java.util.Collections;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
-import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent;
-import org.cloudfoundry.multiapps.controller.core.model.ImmutableHistoricOperationEvent;
-import org.cloudfoundry.multiapps.controller.core.persistence.query.OperationQuery;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
+import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableHistoricOperationEvent;
+import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

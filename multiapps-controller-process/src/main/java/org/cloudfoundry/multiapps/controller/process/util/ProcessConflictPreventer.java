@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.steps.StepsUtil;
 import org.slf4j.Logger;

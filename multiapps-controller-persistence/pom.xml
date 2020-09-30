@@ -22,10 +22,69 @@
                     <argLine>--add-opens java.base/java.lang=guice</argLine>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>de.empulse.eclipselink</groupId>
+                <artifactId>staticweave-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>weave</goal>
+                        </goals>
+                        <configuration>
+                            <persistenceXMLLocation>META-INF/persistence.xml</persistenceXMLLocation>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven 
+                    build itself. -->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>de.empulse.eclipselink</groupId>
+                                        <artifactId>staticweave-maven-plugin</artifactId>
+                                        <versionRange>[1.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>weave</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+        </dependency>
+        <!-- Not having this dependency here leads to the compilation error "module not found: java.servlet". It's probably 
+            required by spring-web. -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
@@ -37,6 +96,11 @@
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -94,6 +158,14 @@
         </dependency>
         <dependency>
             <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-controller-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.cloudfoundry.multiapps</groupId>
+            <artifactId>multiapps-mta</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.cloudfoundry.multiapps</groupId>
             <artifactId>multiapps-controller-persistence-test</artifactId>
             <scope>test</scope>
         </dependency>
@@ -112,6 +184,14 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP-java7</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.extension</artifactId>
         </dependency>
     </dependencies>
 </project>

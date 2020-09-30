@@ -20,7 +20,7 @@ class AuditLogManagerTest {
 
     private AuditLogManager auditLogManager;
 
-    private static final String AUDIT_LOG_CHANGELOG_LOCATION = "org/cloudfoundry/multiapps/controller/core/db/changelog/db-changelog.xml";
+    private static final String AUDIT_LOG_CHANGELOG_LOCATION = "org/cloudfoundry/multiapps/controller/persistence/db/changelog/db-changelog.xml";
 
     @BeforeEach
     void setUp() throws Exception {

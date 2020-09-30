@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription;
-import org.cloudfoundry.multiapps.controller.core.persistence.query.ConfigurationSubscriptionQuery;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationSubscriptionService;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
+import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationSubscriptionQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

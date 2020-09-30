@@ -16,13 +16,13 @@ import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
-import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationEntry;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationSubscription;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationEntryService;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.core.util.ConfigurationEntriesUtil;
+import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubscription;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

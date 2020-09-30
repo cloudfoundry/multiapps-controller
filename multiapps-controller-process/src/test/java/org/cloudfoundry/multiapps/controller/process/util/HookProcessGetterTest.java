@@ -4,9 +4,9 @@ import java.sql.Date;
 import java.time.LocalDate;
 
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.mta.model.Hook;
 import org.flowable.engine.delegate.DelegateExecution;

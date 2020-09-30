@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
 import javax.inject.Named;
 
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationEntryService.ConfigurationEntryMapper;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService.ConfigurationEntryMapper;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 

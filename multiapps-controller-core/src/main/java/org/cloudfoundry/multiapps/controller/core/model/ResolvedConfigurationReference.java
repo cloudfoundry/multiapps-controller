@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.model;
 
 import java.util.List;
 
+import org.cloudfoundry.multiapps.controller.persistence.model.filters.ConfigurationFilter;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 
 public class ResolvedConfigurationReference {

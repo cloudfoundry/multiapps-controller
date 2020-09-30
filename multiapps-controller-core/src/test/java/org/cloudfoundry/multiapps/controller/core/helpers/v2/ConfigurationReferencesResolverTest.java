@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.helpers.v2;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -12,13 +11,13 @@ import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.YamlParser;
-import org.cloudfoundry.multiapps.controller.core.model.CloudTarget;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationEntry;
-import org.cloudfoundry.multiapps.controller.core.model.ConfigurationFilter;
-import org.cloudfoundry.multiapps.controller.core.persistence.query.ConfigurationEntryQuery;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
+import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntry;
+import org.cloudfoundry.multiapps.controller.persistence.model.filters.ConfigurationFilter;
+import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationEntryQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.mta.builders.v2.ParametersChainBuilder;
 import org.cloudfoundry.multiapps.mta.handlers.ConfigurationParser;
 import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorParser;
@@ -31,6 +30,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -137,7 +137,7 @@ public class ConfigurationReferencesResolverTest {
                                                          .on(query -> query.version(filter.getProviderVersion()))
                                                          .on(query -> query.target(filter.getTargetSpace()))
                                                          .on(query -> query.requiredProperties(filter.getRequiredContent()))
-                                                         .on(query -> query.visibilityTargets(any()))
+                                                         .on(query -> query.visibilityTargets(Mockito.any()))
                                                          .build();
     }
 

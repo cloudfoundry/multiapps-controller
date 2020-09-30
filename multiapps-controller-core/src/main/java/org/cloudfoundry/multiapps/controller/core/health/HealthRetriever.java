@@ -11,10 +11,10 @@ import javax.inject.Named;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.health.model.Health;
 import org.cloudfoundry.multiapps.controller.core.health.model.HealthCheckConfiguration;
-import org.cloudfoundry.multiapps.controller.core.persistence.OrderDirection;
-import org.cloudfoundry.multiapps.controller.core.persistence.query.OperationQuery;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.OperationService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
+import org.cloudfoundry.multiapps.controller.persistence.OrderDirection;
+import org.cloudfoundry.multiapps.controller.persistence.query.OperationQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.OperationService;
 
 @Named
 public class HealthRetriever {

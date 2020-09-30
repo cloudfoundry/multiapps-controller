@@ -9,13 +9,13 @@ import java.util.List;
 
 import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.SLException;
-import org.cloudfoundry.multiapps.controller.core.model.HistoricOperationEvent.EventType;
-import org.cloudfoundry.multiapps.controller.core.persistence.query.ProgressMessageQuery;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.HistoricOperationEventService;
-import org.cloudfoundry.multiapps.controller.core.persistence.service.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.core.test.MockBuilder;
+import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableProgressMessage;
 import org.cloudfoundry.multiapps.controller.persistence.model.ProgressMessage.ProgressMessageType;
+import org.cloudfoundry.multiapps.controller.persistence.query.ProgressMessageQuery;
+import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
+import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.engine.ProcessEngineConfiguration;
@@ -61,16 +61,16 @@ class OperationInErrorStateHandlerTest {
     void testToEventType() {
         OperationInErrorStateHandler handler = mockHandler();
         Throwable throwable = new RuntimeException(new SLException(new IOException()));
-        EventType eventType = handler.toEventType(throwable);
-        assertEquals(EventType.FAILED_BY_INFRASTRUCTURE_ERROR, eventType);
+        HistoricOperationEvent.EventType eventType = handler.toEventType(throwable);
+        assertEquals(HistoricOperationEvent.EventType.FAILED_BY_INFRASTRUCTURE_ERROR, eventType);
     }
 
     @Test
     void testToEventTypeWithContentException() {
         OperationInErrorStateHandler handler = mockHandler();
         Throwable throwable = new RuntimeException(new SLException(new IOException(new ParsingException(""))));
-        EventType eventType = handler.toEventType(throwable);
-        assertEquals(EventType.FAILED_BY_CONTENT_ERROR, eventType);
+        HistoricOperationEvent.EventType eventType = handler.toEventType(throwable);
+        assertEquals(HistoricOperationEvent.EventType.FAILED_BY_CONTENT_ERROR, eventType);
     }
 
     @Test
