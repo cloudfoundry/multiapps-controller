@@ -83,7 +83,7 @@ public class DatabaseConfiguration {
 
     @Inject
     @Bean
-    public SpringLiquibase persistenceChangelog(DataSource dataSource) {
+    public SpringLiquibase liquibaseChangelog(DataSource dataSource) {
         return getLiquibaseTemplate(dataSource, LIQUIBASE_CHANGELOG);
     }
 

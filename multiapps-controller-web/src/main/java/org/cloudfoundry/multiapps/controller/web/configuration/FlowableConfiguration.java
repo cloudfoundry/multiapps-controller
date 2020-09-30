@@ -44,7 +44,7 @@ public class FlowableConfiguration {
 
     @Inject
     @Bean
-    @DependsOn("coreChangelog")
+    @DependsOn("liquibaseChangelog")
     public ProcessEngine processEngine(ApplicationContext applicationContext, SpringProcessEngineConfiguration processEngineConfiguration)
         throws Exception {
         ProcessEngineFactoryBean processEngineFactoryBean = new ProcessEngineFactoryBean();
@@ -55,7 +55,7 @@ public class FlowableConfiguration {
 
     @Inject
     @Bean
-    @DependsOn("coreChangelog")
+    @DependsOn("liquibaseChangelog")
     public SpringProcessEngineConfiguration processEngineConfiguration(DataSource dataSource, PlatformTransactionManager transactionManager,
                                                                        AsyncExecutor jobExecutor, @Lazy FailedJobCommandFactory abortFailedProcessCommandFactory) {
         SpringProcessEngineConfiguration processEngineConfiguration = new SpringProcessEngineConfiguration();
