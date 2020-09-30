@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
@@ -33,8 +32,8 @@ class HooksPhaseBuilderTest {
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.DEPLOY);
         HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(processTypeParser);
-        List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_STOP), context);
-        Assertions.assertEquals(Collections.singletonList(HookPhase.DEPLOY_APPLICATION_BEFORE_STOP), hookPhases);
+        List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_STOP), context);
+        Assertions.assertEquals(List.of(HookPhase.DEPLOY_APPLICATION_BEFORE_STOP), hookPhases);
     }
 
     @Test
@@ -43,8 +42,8 @@ class HooksPhaseBuilderTest {
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         context.setVariable(Variables.SUBPROCESS_PHASE, SubprocessPhase.BEFORE_APPLICATION_STOP);
         HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(processTypeParser);
-        List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_STOP), context);
-        Assertions.assertEquals(Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_IDLE), hookPhases);
+        List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_STOP), context);
+        Assertions.assertEquals(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_IDLE), hookPhases);
     }
 
     @Test
@@ -53,8 +52,8 @@ class HooksPhaseBuilderTest {
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         context.setVariable(Variables.SUBPROCESS_PHASE, SubprocessPhase.BEFORE_APPLICATION_START);
         HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(processTypeParser);
-        List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_START), context);
-        Assertions.assertEquals(Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_IDLE), hookPhases);
+        List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_START), context);
+        Assertions.assertEquals(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_IDLE), hookPhases);
     }
 
     @Test
@@ -63,8 +62,8 @@ class HooksPhaseBuilderTest {
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         context.setVariable(Variables.PHASE, Phase.UNDEPLOY);
         HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(processTypeParser);
-        List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.AFTER_STOP), context);
-        Assertions.assertEquals(Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE), hookPhases);
+        List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.AFTER_STOP), context);
+        Assertions.assertEquals(List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE), hookPhases);
     }
 
     @Test
@@ -73,8 +72,8 @@ class HooksPhaseBuilderTest {
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         context.setVariable(Variables.PHASE, Phase.AFTER_RESUME);
         HooksPhaseBuilder hooksPhaseBuilder = new HooksPhaseBuilder(processTypeParser);
-        List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_START), context);
-        Assertions.assertEquals(Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE), hookPhases);
+        List<HookPhase> hookPhases = hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_START), context);
+        Assertions.assertEquals(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE), hookPhases);
     }
 
     private ProcessContext createContext() {

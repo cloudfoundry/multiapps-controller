@@ -1,7 +1,8 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,13 +27,13 @@ import org.jclouds.ContextBuilder;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.blobstore.domain.Blob;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.net.MediaType;
 
-public class ObjectStoreFileStorageTest {
+class ObjectStoreFileStorageTest {
 
     private static final String TEST_FILE_LOCATION = "src/test/resources/pexels-photo-401794.jpeg";
     private static final String SECOND_FILE_TEST_LOCATION = "src/test/resources/pexels-photo-463467.jpeg";
@@ -46,7 +47,7 @@ public class ObjectStoreFileStorageTest {
 
     private BlobStoreContext blobStoreContext;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         createBlobStoreContext();
         fileStorage = new ObjectStoreFileStorage(blobStoreContext.getBlobStore(), CONTAINER) {
@@ -68,7 +69,7 @@ public class ObjectStoreFileStorageTest {
                         .createContainerInLocation(null, CONTAINER);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (blobStoreContext != null) {
             blobStoreContext.close();
@@ -76,13 +77,13 @@ public class ObjectStoreFileStorageTest {
     }
 
     @Test
-    public void addFileTest() throws Exception {
+    void addFileTest() throws Exception {
         FileEntry fileEntry = addFile(TEST_FILE_LOCATION);
         assertFileExists(true, fileEntry);
     }
 
     @Test
-    public void getFileEntriesWithoutContent() throws Exception {
+    void getFileEntriesWithoutContent() throws Exception {
         List<FileEntry> fileEntries = new ArrayList<>();
         FileEntry existingFile = addFile(TEST_FILE_LOCATION);
         fileEntries.add(existingFile);
@@ -98,7 +99,7 @@ public class ObjectStoreFileStorageTest {
     }
 
     @Test
-    public void deleteFile() throws Exception {
+    void deleteFile() throws Exception {
         FileEntry fileThatWillBeDeleted = addFile(TEST_FILE_LOCATION);
         FileEntry fileThatStays = addFile(SECOND_FILE_TEST_LOCATION);
 
@@ -108,7 +109,7 @@ public class ObjectStoreFileStorageTest {
     }
 
     @Test
-    public void deleteFilesBySpace() throws Exception {
+    void deleteFilesBySpace() throws Exception {
         FileEntry firstFile = addFile(TEST_FILE_LOCATION);
         FileEntry secondFile = addFile(SECOND_FILE_TEST_LOCATION);
         FileEntry fileInOtherSpace = addFile(TEST_FILE_LOCATION, "otherspace", namespace);
@@ -120,7 +121,7 @@ public class ObjectStoreFileStorageTest {
     }
 
     @Test
-    public void deleteFilesBySpaceAndNamespace() throws Exception {
+    void deleteFilesBySpaceAndNamespace() throws Exception {
         FileEntry firstFile = addFile(TEST_FILE_LOCATION);
         FileEntry secondFile = addFile(SECOND_FILE_TEST_LOCATION);
         FileEntry fileInOtherSpace = addFile(TEST_FILE_LOCATION, "otherspace", namespace);
@@ -134,7 +135,7 @@ public class ObjectStoreFileStorageTest {
     }
 
     @Test
-    public void deleteFilesModifiedBefore() throws Exception {
+    void deleteFilesModifiedBefore() throws Exception {
         long currentMillis = System.currentTimeMillis();
         final long oldFilesTtl = 1000 * 60 * 10; // 10min
         final long pastMoment = currentMillis - 1000 * 60 * 15; // before 15min
@@ -175,15 +176,15 @@ public class ObjectStoreFileStorageTest {
     }
 
     @Test
-    public void processFileContent() throws Exception {
+    void processFileContent() throws Exception {
         FileEntry fileEntry = addFile(TEST_FILE_LOCATION);
         String testFileDigest = DigestHelper.computeFileChecksum(Paths.get(TEST_FILE_LOCATION), DIGEST_METHOD)
                                             .toLowerCase();
         validateFileContent(fileEntry, testFileDigest);
     }
 
-    @Test(expected = FileStorageException.class)
-    public void testFileContentNotExisting() throws Exception {
+    @Test
+    void testFileContentNotExisting() throws Exception {
         String fileId = "not-existing-file-id";
         String fileSpace = "not-existing-space-id";
         String fileDigest = DigestHelper.computeFileChecksum(Paths.get(TEST_FILE_LOCATION), DIGEST_METHOD)
@@ -192,7 +193,7 @@ public class ObjectStoreFileStorageTest {
                                                      .id(fileId)
                                                      .space(fileSpace)
                                                      .build();
-        validateFileContent(dummyFileEntry, fileDigest);
+        assertThrows(FileStorageException.class, () -> validateFileContent(dummyFileEntry, fileDigest));
     }
 
     private void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {

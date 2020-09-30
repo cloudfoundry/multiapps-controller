@@ -1,5 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
+import static org.mockito.ArgumentMatchers.any;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -26,12 +28,10 @@ import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.rules.ExpectedException;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -48,12 +48,8 @@ class StartProcessListenerTest {
 
     private String processInstanceId;
     private ProcessType processType;
-    private String exceptionMessage;
 
     private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
-
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
 
     @Mock
     private OperationService operationService;
@@ -68,25 +64,25 @@ class StartProcessListenerTest {
     @Mock
     private ProcessLogsPersistenceService processLogsPersistenceService;
     @Spy
-    private ProcessTypeToOperationMetadataMapper processTypeToServiceMetadataMapper = new ProcessTypeToOperationMetadataMapper();
-    @Spy
-    private ProcessLogsPersister processLogsPersister = new ProcessLogsPersister();
+    private final ProcessLogsPersister processLogsPersister = new ProcessLogsPersister();
     @Mock
     private ApplicationConfiguration configuration;
     @Mock
     private HistoricOperationEventService historicOperationEventService;
+    @Spy
+    private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
 
     private final Supplier<ZonedDateTime> currentTimeSupplier = () -> START_TIME;
 
     @InjectMocks
-    private StartProcessListener listener = new StartProcessListener();
+    private final StartProcessListener listener = new StartProcessListener();
 
     static Stream<Arguments> testVerify() {
         return Stream.of(
                          // (0) Create Operation for process undeploy
-                         Arguments.of("process-instance-id", ProcessType.UNDEPLOY, null),
+                         Arguments.of("process-instance-id", ProcessType.UNDEPLOY),
                          // (1) Create Operation for process deploy
-                         Arguments.of("process-instance-id", ProcessType.DEPLOY, null));
+                         Arguments.of("process-instance-id", ProcessType.DEPLOY));
     }
 
     @BeforeEach
@@ -97,10 +93,9 @@ class StartProcessListenerTest {
 
     @ParameterizedTest
     @MethodSource
-    void testVerify(String processInstanceId, ProcessType processType, String exceptionMessage) throws Exception {
+    void testVerify(String processInstanceId, ProcessType processType) throws Exception {
         this.processType = processType;
         this.processInstanceId = processInstanceId;
-        this.exceptionMessage = exceptionMessage;
         prepare();
         listener.notify(execution);
 
@@ -110,9 +105,8 @@ class StartProcessListenerTest {
     private void prepare() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        loadParameters();
         prepareContext();
-        Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(stepLoggerFactory.create(any(), any(), any(), any()))
                .thenReturn(stepLogger);
         Mockito.doNothing()
                .when(processLogsPersister)
@@ -136,13 +130,6 @@ class StartProcessListenerTest {
         VariableHandling.set(execution, Variables.USER, USER);
         VariableHandling.set(execution, Variables.CORRELATION_ID, processInstanceId);
         VariableHandling.set(execution, Variables.TASK_ID, TASK_ID);
-    }
-
-    private void loadParameters() {
-        if (exceptionMessage != null) {
-            exception.expectMessage(exceptionMessage);
-            exception.expect(SLException.class);
-        }
     }
 
     private void verifyOperationInsertion() throws SLException {

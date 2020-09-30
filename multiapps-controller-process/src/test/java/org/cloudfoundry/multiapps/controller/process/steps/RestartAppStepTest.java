@@ -1,8 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.StartingInfo;
@@ -81,9 +80,9 @@ class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     @Test
     void testGetHookPhasesBeforeStep() {
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(Collections.singletonList(HookPhase.BEFORE_START), context))
-               .thenReturn(Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE));
-        List<HookPhase> expectedHooks = Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_START), context))
+               .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE));
+        List<HookPhase> expectedHooks = List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE);
         List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesBeforeStep(context);
         assertEquals(expectedHooks, hookPhasesBeforeStep);
     }

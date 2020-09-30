@@ -1,10 +1,10 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
-import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -12,45 +12,66 @@ import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceInstanceGett
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceUpdater;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution.ExecutionState;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-@RunWith(Parameterized.class)
-public class UpdateServicePlanStepTest extends SyncFlowableStepTest<UpdateServicePlanStep> {
+class UpdateServicePlanStepTest extends SyncFlowableStepTest<UpdateServicePlanStep> {
 
     private static final String POLLING = "polling";
     private static final String STEP_EXECUTION = "stepExecution";
-
-    private final StepInput stepInput;
 
     @Mock
     private ServiceInstanceGetter serviceInstanceGetter;
     @Mock
     protected ServiceUpdater serviceUpdater;
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> testExecute() {
+        return Stream.of(
         // @formatter:off
-            {
-                "update-service-plan-step-input-1.json", null,
-            },
+            Arguments.of("update-service-plan-step-input-1.json")
         // @formatter:on
-        });
+        );
     }
 
-    public UpdateServicePlanStepTest(String stepInput, String expectedExceptionMessage) {
-        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, UpdateServicePlanStepTest.class), StepInput.class);
+    @ParameterizedTest
+    @MethodSource
+    void testExecute(String inputFilename) {
+        StepInput input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputFilename, UpdateServicePlanStepTest.class), StepInput.class);
+        initializeParameters(input);
+        prepareResponses(STEP_EXECUTION);
+        step.execute(execution);
+        assertStepPhase(STEP_EXECUTION, input);
+
+        if (getExecutionStatus().equals("DONE")) {
+            return;
+        }
+        prepareResponses(POLLING);
+        step.execute(execution);
+        assertStepPhase(POLLING, input);
+        assertMethodCalls();
     }
 
-    @Before
-    public void setUp() {
-        prepareContext();
+    private void assertMethodCalls() {
+        Mockito.verify(serviceUpdater, Mockito.times(1))
+               .updateServicePlan(any(), any(), any());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void assertStepPhase(String stepPhase, StepInput input) {
+        Map<String, Object> stepPhaseResults = (Map<String, Object>) input.stepPhaseResults.get(stepPhase);
+        String expectedStepPhase = (String) stepPhaseResults.get("expectedStepPhase");
+        assertEquals(expectedStepPhase, getExecutionStatus());
+    }
+
+    private void initializeParameters(StepInput input) {
+        execution.setVariable("serviceToProcess", JsonUtil.toJson(input.service));
+    }
+
+    private void prepareResponses(String stepPhase) {
+        prepareServiceUpdater(stepPhase);
     }
 
     private void prepareServiceUpdater(String stepPhase) {
@@ -67,42 +88,6 @@ public class UpdateServicePlanStepTest extends SyncFlowableStepTest<UpdateServic
         }
         Mockito.when(serviceUpdater.updateServicePlan(any(), any(), any()))
                .thenReturn(methodExec);
-    }
-
-    @Test
-    public void testExecute() {
-        prepareResponses(STEP_EXECUTION);
-        step.execute(execution);
-        assertStepPhase(STEP_EXECUTION);
-
-        if (getExecutionStatus().equals("DONE")) {
-            return;
-        }
-        prepareResponses(POLLING);
-        step.execute(execution);
-        assertStepPhase(POLLING);
-        assertMethodCalls();
-    }
-
-    private void assertMethodCalls() {
-        Mockito.verify(serviceUpdater, Mockito.times(1))
-               .updateServicePlan(any(), any(), any());
-    }
-
-    @SuppressWarnings("unchecked")
-    private void assertStepPhase(String stepPhase) {
-        Map<String, Object> stepPhaseResults = (Map<String, Object>) stepInput.stepPhaseResults.get(stepPhase);
-        String expectedStepPhase = (String) stepPhaseResults.get("expectedStepPhase");
-        assertEquals(expectedStepPhase, getExecutionStatus());
-    }
-
-    private void prepareContext() {
-        execution.setVariable("serviceToProcess", JsonUtil.toJson(stepInput.service));
-    }
-
-    private void prepareResponses(String stepPhase) {
-
-        prepareServiceUpdater(stepPhase);
     }
 
     private static class StepInput {

@@ -1,6 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -13,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
@@ -23,90 +26,17 @@ import org.cloudfoundry.multiapps.controller.core.cf.clients.EventsGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporter;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
-@RunWith(Parameterized.class)
-public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOperationTest<CheckForOperationsInProgressStep> {
+class PollServiceInProgressOperationsExecutionTest extends AsyncStepOperationTest<CheckForOperationsInProgressStep> {
 
     private static final String TEST_SPACE_ID = "test";
     private static final String TEST_PROVIDER = "testProvider";
     private static final String TEST_PLAN = "testPlan";
     private static final String TEST_VERSION = "0.0.1-beta";
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-// @formatter:off
-            // (0) With 2 services in progress:
-            {
-                Arrays.asList("service1","service2", "service3"), 
-                Arrays.asList(ServiceOperation.Type.DELETE, ServiceOperation.Type.CREATE, ServiceOperation.Type.DELETE),
-                Arrays.asList(ServiceOperation.State.IN_PROGRESS, ServiceOperation.State.SUCCEEDED, ServiceOperation.State.IN_PROGRESS), 
-                false, AsyncExecutionState.RUNNING, null
-            },
-            // (1) With 1 service in progress state and 1 successfully deleted
-            {
-                Arrays.asList("service1","service2", "service3"), 
-                Arrays.asList(ServiceOperation.Type.DELETE, ServiceOperation.Type.CREATE, ServiceOperation.Type.DELETE),
-                Arrays.asList(null, ServiceOperation.State.SUCCEEDED, ServiceOperation.State.IN_PROGRESS), 
-                true, AsyncExecutionState.RUNNING, null
-            },
-            // (2) With 3 services finished operations successfully 
-            {
-                Arrays.asList("service1","service2", "service3"), 
-                Arrays.asList(ServiceOperation.Type.UPDATE, ServiceOperation.Type.CREATE, ServiceOperation.Type.DELETE),
-                Arrays.asList(ServiceOperation.State.SUCCEEDED, ServiceOperation.State.SUCCEEDED, ServiceOperation.State.SUCCEEDED), 
-                false, AsyncExecutionState.FINISHED, null
-            },
-            // (3) Handle missing response for last service operation
-            {
-                Arrays.asList("service1","service2", "service3"), 
-                Arrays.asList(null, ServiceOperation.Type.CREATE, null),
-                Arrays.asList(null, null, null), 
-                false, AsyncExecutionState.FINISHED, null
-            },
-            // (4) Throw exception on create failed service state
-            {
-                Arrays.asList("service1","service2", "service3"), 
-                Arrays.asList(null, ServiceOperation.Type.CREATE, null),
-                Arrays.asList(null, ServiceOperation.State.FAILED, null), 
-                true, null, "Error creating service \"service2\" from offering \"null\" and plan \"testPlan\""
-            },
-            // (5) Throw exception on update failed service state
-            {
-                Arrays.asList("service1","service2", "service3"), 
-                Arrays.asList(null, ServiceOperation.Type.UPDATE, null),
-                Arrays.asList(null, ServiceOperation.State.FAILED, null), 
-                true, null, "Error updating service \"service2\" from offering \"null\" and plan \"testPlan\""
-            },
-            // (5) Throw exception on delete failed service state
-            {
-                Arrays.asList("service1","service2", "service3"), 
-                Arrays.asList(null, ServiceOperation.Type.DELETE, null),
-                Arrays.asList(null, ServiceOperation.State.FAILED, null), 
-                true, null, "Error deleting service \"service2\" from offering \"null\" and plan \"testPlan\""
-            },            
-// @formatter:on
-        });
-    }
-
-    public PollServiceInProgressOperationsExecutionTest(List<String> serviceNames, List<ServiceOperation.Type> servicesOperationTypes,
-                                                        List<ServiceOperation.State> servicesOperationStates,
-                                                        boolean shouldVerifyStepLogger, AsyncExecutionState expectedExecutionState,
-                                                        String expectedExceptionMessage) {
-        this.serviceNames = serviceNames;
-        this.servicesOperationTypes = servicesOperationTypes;
-        this.servicesOperationStates = servicesOperationStates;
-        this.shouldVerifyStepLogger = shouldVerifyStepLogger;
-        this.expectedExecutionState = expectedExecutionState;
-        this.expectedExceptionMessage = expectedExceptionMessage;
-    }
 
     @Mock
     private ServiceOperationGetter serviceOperationGetter;
@@ -116,29 +46,83 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
     private EventsGetter eventsGetter;
     @Mock
     private CloudControllerClient client;
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
-    private final List<String> serviceNames;
-    private final List<ServiceOperation.Type> servicesOperationTypes;
-    private final List<ServiceOperation.State> servicesOperationStates;
-    private final boolean shouldVerifyStepLogger;
-    private final AsyncExecutionState expectedExecutionState;
-    private final String expectedExceptionMessage;
 
-    @Before
-    public void setUp() {
-        context.setVariable(Variables.SPACE_GUID, TEST_SPACE_ID);
-        List<CloudServiceInstanceExtended> services = generateCloudServicesExtended();
-        prepareServiceOperationGetter(services);
-        prepareServicesData(services);
-        prepareTriggeredServiceOperations();
-        when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
-        if (expectedExceptionMessage != null) {
-            exception.expectMessage(expectedExceptionMessage);
-        }
+    private boolean shouldVerifyStepLogger;
+    private AsyncExecutionState expectedExecutionState;
+
+    public static Stream<Arguments> testPollStateExecution() {
+        return Stream.of(
+// @formatter:off
+            // (0) With 2 services in progress:
+            Arguments.of(List.of("service1","service2", "service3"),
+                    List.of(ServiceOperation.Type.DELETE, ServiceOperation.Type.CREATE, ServiceOperation.Type.DELETE),
+                    List.of(ServiceOperation.State.IN_PROGRESS, ServiceOperation.State.SUCCEEDED, ServiceOperation.State.IN_PROGRESS),
+                    false, AsyncExecutionState.RUNNING, null),
+            // (1) With 1 service in progress state and 1 successfully deleted
+            Arguments.of(List.of("service1","service2", "service3"),
+                    List.of(ServiceOperation.Type.DELETE, ServiceOperation.Type.CREATE, ServiceOperation.Type.DELETE),
+                    Arrays.asList(null, ServiceOperation.State.SUCCEEDED, ServiceOperation.State.IN_PROGRESS),
+                    true, AsyncExecutionState.RUNNING, null),
+            // (2) With 3 services finished operations successfully 
+            Arguments.of(List.of("service1","service2", "service3"),
+                    List.of(ServiceOperation.Type.UPDATE, ServiceOperation.Type.CREATE, ServiceOperation.Type.DELETE),
+                    List.of(ServiceOperation.State.SUCCEEDED, ServiceOperation.State.SUCCEEDED, ServiceOperation.State.SUCCEEDED),
+                    false, AsyncExecutionState.FINISHED, null),
+            // (3) Handle missing response for last service operation
+            Arguments.of(List.of("service1","service2", "service3"),
+                    Arrays.asList(null, ServiceOperation.Type.CREATE, null),
+                    Arrays.asList(null, null, null),
+                    false, AsyncExecutionState.FINISHED, null),
+            // (4) Throw exception on create failed service state
+            Arguments.of(List.of("service1","service2", "service3"),
+                    Arrays.asList(null, ServiceOperation.Type.CREATE, null),
+                    Arrays.asList(null, ServiceOperation.State.FAILED, null),
+                    true, null, "Error creating service \"service2\" from offering \"null\" and plan \"testPlan\""),
+            // (5) Throw exception on update failed service state
+            Arguments.of(List.of("service1","service2", "service3"),
+                    Arrays.asList(null, ServiceOperation.Type.UPDATE, null),
+                    Arrays.asList(null, ServiceOperation.State.FAILED, null),
+                    true, null, "Error updating service \"service2\" from offering \"null\" and plan \"testPlan\""),
+            // (5) Throw exception on delete failed service state
+            Arguments.of(List.of("service1","service2", "service3"),
+                    Arrays.asList(null, ServiceOperation.Type.DELETE, null),
+                    Arrays.asList(null, ServiceOperation.State.FAILED, null),
+                    true, null, "Error deleting service \"service2\" from offering \"null\" and plan \"testPlan\"")     
+// @formatter:on
+        );
     }
 
-    private void prepareServiceOperationGetter(List<CloudServiceInstanceExtended> services) {
+    @ParameterizedTest
+    @MethodSource
+    void testPollStateExecution(List<String> serviceNames, List<ServiceOperation.Type> servicesOperationTypes,
+                                List<ServiceOperation.State> servicesOperationStates, boolean shouldVerifyStepLogger,
+                                AsyncExecutionState expectedExecutionState, String expectedExceptionMessage) {
+        this.shouldVerifyStepLogger = shouldVerifyStepLogger;
+        this.expectedExecutionState = expectedExecutionState;
+        initializeParameters(serviceNames, servicesOperationTypes, servicesOperationStates);
+        if (expectedExceptionMessage != null) {
+            Exception exception = assertThrows(Exception.class, this::testExecuteOperations);
+            assertTrue(exception.getMessage()
+                                .contains(expectedExceptionMessage));
+            return;
+        }
+        testExecuteOperations();
+    }
+
+    private void initializeParameters(List<String> serviceNames, List<ServiceOperation.Type> servicesOperationTypes,
+                                      List<ServiceOperation.State> servicesOperationStates) {
+        context.setVariable(Variables.SPACE_GUID, TEST_SPACE_ID);
+        List<CloudServiceInstanceExtended> services = generateCloudServicesExtended(serviceNames);
+        prepareServiceOperationGetter(services, servicesOperationTypes, servicesOperationStates);
+        prepareServicesData(services);
+        prepareTriggeredServiceOperations(serviceNames, servicesOperationTypes);
+        when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
+
+    }
+
+    private void prepareServiceOperationGetter(List<CloudServiceInstanceExtended> services,
+                                               List<ServiceOperation.Type> servicesOperationTypes,
+                                               List<ServiceOperation.State> servicesOperationStates) {
         for (int i = 0; i < services.size(); i++) {
             CloudServiceInstanceExtended service = services.get(i);
             ServiceOperation.Type serviceOperationType = servicesOperationTypes.get(i);
@@ -152,7 +136,7 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
         }
     }
 
-    private void prepareTriggeredServiceOperations() {
+    private void prepareTriggeredServiceOperations(List<String> serviceNames, List<ServiceOperation.Type> servicesOperationTypes) {
         Map<String, ServiceOperation.Type> triggeredServiceOperations = new HashMap<>();
         for (int index = 0; index < serviceNames.size(); index++) {
             String serviceName = serviceNames.get(index);
@@ -164,7 +148,7 @@ public class PollServiceInProgressOperationsExecutionTest extends AsyncStepOpera
         context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, triggeredServiceOperations);
     }
 
-    private List<CloudServiceInstanceExtended> generateCloudServicesExtended() {
+    private List<CloudServiceInstanceExtended> generateCloudServicesExtended(List<String> serviceNames) {
         return serviceNames.stream()
                            .map(this::buildCloudServiceExtended)
                            .collect(Collectors.toList());

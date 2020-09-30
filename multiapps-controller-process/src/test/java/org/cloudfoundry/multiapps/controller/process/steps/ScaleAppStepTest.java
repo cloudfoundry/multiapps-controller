@@ -1,73 +1,48 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
-@RunWith(Parameterized.class)
-public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
+class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
 
-    private final SimpleApplication application;
-    private final SimpleApplication existingApplication;
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-            // @formatter:off
-            {
-                new SimpleApplication("test-app-1", 2), new SimpleApplication("test-app-1", 3),
-            },
-            {
-                new SimpleApplication("test-app-1", 2), new SimpleApplication("test-app-1", 2),
-            },
-            {
-                new SimpleApplication("test-app-1", 2), null,
-            },
-            // @formatter:on
-        });
+    public static Stream<Arguments> testExecute() {
+        return Stream.of(
+        // @formatter:off
+            Arguments.of(new SimpleApplication("test-app-1", 2), new SimpleApplication("test-app-1", 3)),
+            Arguments.of(new SimpleApplication("test-app-1", 2), new SimpleApplication("test-app-1", 2)),
+            Arguments.of(new SimpleApplication("test-app-1", 2), null)
+        // @formatter:on
+        );
     }
 
-    public ScaleAppStepTest(SimpleApplication application, SimpleApplication existingApplication) {
-        this.application = application;
-        this.existingApplication = existingApplication;
-    }
+    @ParameterizedTest
+    @MethodSource
+    void testExecute(SimpleApplication application, SimpleApplication existingApplication) {
+        initializeParameters(application, existingApplication);
 
-    @Before
-    public void setUp() {
-        prepareContext();
-    }
-
-    @Test
-    public void testExecute() {
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
-        validateUpdatedApplications();
+        validateUpdatedApplications(application, existingApplication);
     }
 
-    private void prepareContext() {
+    private void initializeParameters(SimpleApplication application, SimpleApplication existingApplication) {
         context.setVariable(Variables.MODULES_INDEX, 0);
         context.setVariable(Variables.APP_TO_PROCESS, application.toCloudApplication());
         context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
         context.setVariable(Variables.EXISTING_APP, (existingApplication != null) ? existingApplication.toCloudApplication() : null);
     }
 
-    List<CloudApplicationExtended> toCloudApplication() {
-        return Collections.singletonList(application.toCloudApplication());
-    }
-
-    private void validateUpdatedApplications() {
+    private void validateUpdatedApplications(SimpleApplication application, SimpleApplication existingApplication) {
         if (application.instances != 0) {
             if (existingApplication == null || application.instances != existingApplication.instances) {
                 Mockito.verify(client)

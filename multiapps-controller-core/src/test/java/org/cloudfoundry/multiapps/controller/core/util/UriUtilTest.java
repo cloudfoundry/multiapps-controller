@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.domain.CloudRoute;
@@ -26,20 +25,20 @@ class UriUtilTest {
 
     @Test
     void testFindRouteWithHostBasedUriWithPort() {
-        List<CloudRoute> routes = Collections.singletonList(route);
+        List<CloudRoute> routes = List.of(route);
         Assertions.assertThrows(NotFoundException.class, () -> UriUtil.findRoute(routes, HOST_BASED_URI_WITH_PORT));
     }
 
     @Test
     void testFindRouteWithHostBasedUriWithoutPort() {
-        List<CloudRoute> routes = Collections.singletonList(route);
+        List<CloudRoute> routes = List.of(route);
         CloudRoute actualResult = UriUtil.findRoute(routes, HOST_BASED_URI_WITHOUT_PORT);
         Assertions.assertEquals(route, actualResult);
     }
 
     @Test
     void testFindRouteWithPortBasedUri() {
-        List<CloudRoute> routes = Collections.singletonList(route);
+        List<CloudRoute> routes = List.of(route);
         Assertions.assertThrows(NotFoundException.class, () -> UriUtil.findRoute(routes, PORT_BASED_URI));
     }
 

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +52,7 @@ class StepsUtilTest {
                                                                                     .putCredential("string-value", "1")
                                                                                     .build();
 
-        VariableHandling.set(execution, Variables.SERVICES_TO_CREATE, Collections.singletonList(service));
+        VariableHandling.set(execution, Variables.SERVICES_TO_CREATE, List.of(service));
         List<CloudServiceInstanceExtended> actualServicesToCreate = VariableHandling.get(execution, Variables.SERVICES_TO_CREATE);
 
         assertEquals(1, actualServicesToCreate.size());

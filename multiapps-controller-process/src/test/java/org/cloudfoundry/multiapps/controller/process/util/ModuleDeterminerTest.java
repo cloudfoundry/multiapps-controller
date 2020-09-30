@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.client.v3.Metadata;
@@ -51,7 +51,7 @@ class ModuleDeterminerTest {
         ModuleDeterminer moduleDeterminer = createModuleDeterminer();
         DeploymentDescriptor completeDeploymentDescriptor = createDeploymentDescriptor();
         Module moduleToDeploy = createModule("some-module-name");
-        completeDeploymentDescriptor.setModules(Collections.singletonList(moduleToDeploy));
+        completeDeploymentDescriptor.setModules(List.of(moduleToDeploy));
         context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, completeDeploymentDescriptor);
         context.setVariable(Variables.APP_TO_PROCESS, createApplication("app-to-process", "some-module-name", null));
         context.setVariable(Variables.MTA_MAJOR_SCHEMA_VERSION, 3);
@@ -63,7 +63,7 @@ class ModuleDeterminerTest {
         ModuleDeterminer moduleDeterminer = createModuleDeterminer();
         DeploymentDescriptor completeDeploymentDescriptor = createDeploymentDescriptor();
         Module moduleToDeploy = createModule("some-module-name");
-        completeDeploymentDescriptor.setModules(Collections.singletonList(moduleToDeploy));
+        completeDeploymentDescriptor.setModules(List.of(moduleToDeploy));
         context.setVariable(Variables.COMPLETE_DEPLOYMENT_DESCRIPTOR, completeDeploymentDescriptor);
         Map<String, String> labels = Map.of("mta_id", "123");
         Map<String, String> annotations = Map.of("mta_id", "mta-id");

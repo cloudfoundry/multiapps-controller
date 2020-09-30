@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.database.migration.generator;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.database.migration.metadata.DatabaseTableColumnMetadata;
@@ -17,12 +16,12 @@ class DatabaseTableInsertQueryGeneratorTest {
     private static final String TEST_COLUMN_NAME_2 = "testColumnName2";
     private static final String TEST_COLUMN_TYPE = "testColumnType";
 
-    private DatabaseTableInsertQueryGenerator databaseTableInsertQueryGenerator = new DatabaseTableInsertQueryGenerator();
+    private final DatabaseTableInsertQueryGenerator databaseTableInsertQueryGenerator = new DatabaseTableInsertQueryGenerator();
 
     @Test
     void testGenerateWithTestDatabaseMetadataWhenSingleColumn() {
         DatabaseTableColumnMetadata databaseTableColumnMetadata = buildDatabaseTableColumnMetadata(TEST_COLUMN_NAME, TEST_COLUMN_TYPE);
-        DatabaseTableData databaseTableMetadata = buildDatabaseTableData(Arrays.asList(databaseTableColumnMetadata), TEST_TABLE_NAME);
+        DatabaseTableData databaseTableMetadata = buildDatabaseTableData(List.of(databaseTableColumnMetadata), TEST_TABLE_NAME);
 
         String expectedQuery = "INSERT INTO testTableName(testColumnName) VALUES (?)";
         String resultQuery = databaseTableInsertQueryGenerator.generate(databaseTableMetadata);
@@ -32,10 +31,10 @@ class DatabaseTableInsertQueryGeneratorTest {
 
     @Test
     void testGenerateWithTestDatabaseMetadataWhenMultipleColumns() {
-        List<DatabaseTableColumnMetadata> multipleDatabaseTableColumnMetadata = Arrays.asList(buildDatabaseTableColumnMetadata(TEST_COLUMN_NAME,
-                                                                                                                               TEST_COLUMN_TYPE),
-                                                                                              buildDatabaseTableColumnMetadata(TEST_COLUMN_NAME_2,
-                                                                                                                               TEST_COLUMN_TYPE));
+        List<DatabaseTableColumnMetadata> multipleDatabaseTableColumnMetadata = List.of(buildDatabaseTableColumnMetadata(TEST_COLUMN_NAME,
+                                                                                                                         TEST_COLUMN_TYPE),
+                                                                                        buildDatabaseTableColumnMetadata(TEST_COLUMN_NAME_2,
+                                                                                                                         TEST_COLUMN_TYPE));
         DatabaseTableData databaseTableMetadata = buildDatabaseTableData(multipleDatabaseTableColumnMetadata, TEST_TABLE_NAME);
 
         String resultQuery = databaseTableInsertQueryGenerator.generate(databaseTableMetadata);

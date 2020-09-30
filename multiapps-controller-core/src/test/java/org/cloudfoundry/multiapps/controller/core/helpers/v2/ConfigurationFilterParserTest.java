@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.core.helpers.v2;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -76,7 +75,7 @@ class ConfigurationFilterParserTest {
 
         // only purpose of this is to mock the old vs new style of parsing (mta-provides-dependency vs configuration)
         String mockResourceType = input.isNewResourceType ? NEW_SYNTAX_FILTER : OLD_SYNTAX_FILTER;
-        List<Map<String, Object>> mockResourceChain = Arrays.asList(Map.of(SupportedParameters.TYPE, mockResourceType));
+        List<Map<String, Object>> mockResourceChain = List.of(Map.of(SupportedParameters.TYPE, mockResourceType));
         when(testResource.getName()).thenReturn("mockedResourceName");
         when(testChainBuilder.buildResourceChain("mockedResourceName")).thenReturn(mockResourceChain);
     }

@@ -1,12 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudPackage;
@@ -18,92 +19,63 @@ import org.cloudfoundry.client.lib.domain.Status;
 import org.cloudfoundry.client.lib.domain.Upload;
 import org.cloudfoundry.multiapps.controller.process.steps.ScaleAppStepTest.SimpleApplication;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 
-@RunWith(Parameterized.class)
-public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<UploadAppStep> {
+class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<UploadAppStep> {
 
     private static final CloudOperationException CLOUD_OPERATION_EXCEPTION_BAD_REQUEST = new CloudOperationException(HttpStatus.BAD_REQUEST);
     private static final CloudOperationException CLOUD_OPERATION_EXCEPTION_NOT_FOUND = new CloudOperationException(HttpStatus.NOT_FOUND);
     private static final UUID PACKAGE_GUID = UUID.fromString("20886182-1802-11e9-ab14-d663bd873d93");
     private static final String APP_NAME = "test-app-1";
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-    private final Status uploadState;
-    private final AsyncExecutionState expectedStatus;
-    private final Exception expectedCfException;
     private final SimpleApplication application = new SimpleApplication(APP_NAME, 2);
 
-    public PollUploadAppStatusExecutionTest(Status uploadState, AsyncExecutionState expectedStatus, Exception expectedCfException) {
-        this.uploadState = uploadState;
-        this.expectedStatus = expectedStatus;
-        this.expectedCfException = expectedCfException;
-    }
+    private AsyncExecutionState expectedStatus;
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> testPollStatus() {
+        return Stream.of(
 // @formatter:off
             // (00) The previous step used asynchronous upload but getting the upload progress fails with an exception:
-            {
-                null, null, CLOUD_OPERATION_EXCEPTION_BAD_REQUEST,
-            },
+            Arguments.of(null, null, CLOUD_OPERATION_EXCEPTION_BAD_REQUEST),
             // (01) The previous step used asynchronous upload and it finished successfully:
-            {
-                Status.READY, AsyncExecutionState.FINISHED, null,
-            },
+            Arguments.of(Status.READY, AsyncExecutionState.FINISHED, null),
             // (02) The previous step used asynchronous upload but it is still not finished:
-            {
-                Status.AWAITING_UPLOAD, AsyncExecutionState.RUNNING, null,
-            },
+            Arguments.of(Status.AWAITING_UPLOAD, AsyncExecutionState.RUNNING, null),
             // (03) The previous step used asynchronous upload but it is still not finished:
-            {
-                Status.PROCESSING_UPLOAD, AsyncExecutionState.RUNNING, null,
-            },
+            Arguments.of(Status.PROCESSING_UPLOAD, AsyncExecutionState.RUNNING, null),
             // (04) The previous step used asynchronous upload but it failed with status EXPIRED:
-            {
-                Status.EXPIRED, AsyncExecutionState.ERROR, null,
-            },
+            Arguments.of(Status.EXPIRED, AsyncExecutionState.ERROR, null),
             // (05) The previous step used asynchronous upload but it failed with status FAILED:
-            {
-                Status.FAILED, AsyncExecutionState.ERROR, null,
-            },
+            Arguments.of(Status.FAILED, AsyncExecutionState.ERROR, null),
             // (06) The requested package is not found:
-            {
-                null, null, CLOUD_OPERATION_EXCEPTION_NOT_FOUND,
-            },
+            Arguments.of(null, null, CLOUD_OPERATION_EXCEPTION_NOT_FOUND)
 // @formatter:on
-        });
+        );
     }
 
-    @Before
-    public void setUp() {
-        prepareContext();
-        prepareClient();
-        prepareExpectedException();
-    }
-
-    @Test
-    public void testPollStatus() throws Exception {
+    @ParameterizedTest
+    @MethodSource
+    void testPollStatus(Status uploadState, AsyncExecutionState expectedStatus, Exception expectedCfException) {
+        this.expectedStatus = expectedStatus;
+        initializeParameters(uploadState, expectedCfException);
+        if (expectedCfException != null) {
+            Exception exception = assertThrows(expectedCfException.getClass(), this::testExecuteOperations);
+            assertTrue(exception.getMessage()
+                                .contains(expectedCfException.getMessage()));
+            return;
+        }
         step.initializeStepLogger(execution);
         testExecuteOperations();
     }
 
-    private void prepareExpectedException() {
-        if (expectedCfException != null) {
-            expectedException.expectMessage(expectedCfException.getMessage());
-            expectedException.expect(expectedCfException.getClass());
-        }
+    public void initializeParameters(Status uploadState, Exception expectedCfException) {
+        prepareContext();
+        prepareClient(uploadState, expectedCfException);
     }
 
-    private void prepareClient() {
+    private void prepareClient(Status uploadState, Exception expectedCfException) {
         if (expectedCfException != null) {
             when(client.getUploadStatus(PACKAGE_GUID)).thenThrow(expectedCfException);
         } else {
@@ -118,7 +90,7 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
     }
 
     private void prepareContext() {
-        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(application.toCloudApplication()), execution);
+        StepsTestUtil.mockApplicationsToDeploy(List.of(application.toCloudApplication()), execution);
         context.setVariable(Variables.MODULES_INDEX, 0);
         CloudPackage cloudPackage = ImmutableCloudPackage.builder()
                                                          .metadata(ImmutableCloudMetadata.builder()

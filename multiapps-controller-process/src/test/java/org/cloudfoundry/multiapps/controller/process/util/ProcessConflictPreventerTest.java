@@ -1,14 +1,14 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
+import java.util.List;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
@@ -51,7 +51,7 @@ class ProcessConflictPreventerTest {
                                                 .hasAcquiredLock(false)
                                                 .build();
         when(operationServiceMock.createQuery()
-                                 .list()).thenReturn(Collections.singletonList(operation));
+                                 .list()).thenReturn(List.of(operation));
         processConflictPreventerMock.acquireLock(testMtaId, null, testSpaceId, testProcessId);
         Operation op = operationServiceMock.createQuery()
                                            .processId(testProcessId)

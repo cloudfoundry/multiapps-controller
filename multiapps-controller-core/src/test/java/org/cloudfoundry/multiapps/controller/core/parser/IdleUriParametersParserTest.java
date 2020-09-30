@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.parser;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,12 +25,12 @@ class IdleUriParametersParserTest {
     static Stream<Arguments> testParseIdleRoutes() {
         // @formatter:off
         return Stream.of(
-            Arguments.of(Arrays.asList("foo.bar.com"), Arrays.asList("foo-idle.bar.com"), new Expectation(Arrays.asList("foo-idle.bar.com").toString())),
-            Arguments.of(Arrays.asList("foo-quux.test.com/abc", "bar-quux.test.com/def"), Arrays.asList("idle-route.test.com/test"), new Expectation(Arrays.asList("idle-route.test.com/test").toString())),
-            Arguments.of(Arrays.asList("foo-quux.test.com/abc", "bar-quux.test.com/def"), Collections.emptyList(), new Expectation(Arrays.asList("default-host.default-domain/abc", 
+            Arguments.of(List.of("foo.bar.com"), List.of("foo-idle.bar.com"), new Expectation(List.of("foo-idle.bar.com").toString())),
+            Arguments.of(List.of("foo-quux.test.com/abc", "bar-quux.test.com/def"), List.of("idle-route.test.com/test"), new Expectation(List.of("idle-route.test.com/test").toString())),
+            Arguments.of(List.of("foo-quux.test.com/abc", "bar-quux.test.com/def"), Collections.emptyList(), new Expectation(List.of("default-host.default-domain/abc",
                                                                                                                                                  "default-host.default-domain/def").toString())),
-            Arguments.of(Arrays.asList("foo.bar.com"), null, new Expectation(Arrays.asList("default-host.default-domain").toString())),
-            Arguments.of(null, Arrays.asList("https://bar-quux.test.com/def"), new Expectation(Arrays.asList("bar-quux.test.com/def").toString()))
+            Arguments.of(List.of("foo.bar.com"), null, new Expectation(List.of("default-host.default-domain").toString())),
+            Arguments.of(null, List.of("https://bar-quux.test.com/def"), new Expectation(List.of("bar-quux.test.com/def").toString()))
         // @formatter:on
         );
     }
@@ -43,7 +42,7 @@ class IdleUriParametersParserTest {
         parametersMap.put(SupportedParameters.ROUTES, constructRoutesParameter(routes, SupportedParameters.ROUTE));
         parametersMap.put(SupportedParameters.IDLE_ROUTES, constructRoutesParameter(idleRoutes, SupportedParameters.IDLE_ROUTE));
 
-        tester.test(() -> new IdleUriParametersParser(DEFAULT_HOST, DEFAULT_DOMAIN, null).parse(Arrays.asList(parametersMap)), expectation);
+        tester.test(() -> new IdleUriParametersParser(DEFAULT_HOST, DEFAULT_DOMAIN, null).parse(List.of(parametersMap)), expectation);
     }
 
     private List<Map<String, String>> constructRoutesParameter(List<String> routes, String mapKey) {
@@ -57,23 +56,22 @@ class IdleUriParametersParserTest {
     void testIgnoreIdleHostsDomains() {
         Map<String, Object> parametersMap = new HashMap<>();
         parametersMap.put(SupportedParameters.ROUTES,
-                          constructRoutesParameter(Arrays.asList("foo-quux.test.com/abc", "bar-quux.test.com/def"),
-                                                   SupportedParameters.ROUTE));
-        parametersMap.put(SupportedParameters.IDLE_HOSTS, Arrays.asList("idle-1", "idle-2"));
-        parametersMap.put(SupportedParameters.IDLE_DOMAINS, Arrays.asList("domain-1", "domain-2"));
+                          constructRoutesParameter(List.of("foo-quux.test.com/abc", "bar-quux.test.com/def"), SupportedParameters.ROUTE));
+        parametersMap.put(SupportedParameters.IDLE_HOSTS, List.of("idle-1", "idle-2"));
+        parametersMap.put(SupportedParameters.IDLE_DOMAINS, List.of("domain-1", "domain-2"));
 
-        tester.test(() -> new IdleUriParametersParser(DEFAULT_HOST, DEFAULT_DOMAIN, null).parse(Arrays.asList(parametersMap)),
-                    new Expectation(Arrays.asList("default-host.default-domain/abc", "default-host.default-domain/def")
-                                          .toString()));
+        tester.test(() -> new IdleUriParametersParser(DEFAULT_HOST, DEFAULT_DOMAIN, null).parse(List.of(parametersMap)),
+                    new Expectation(List.of("default-host.default-domain/abc", "default-host.default-domain/def")
+                                        .toString()));
     }
 
     static Stream<Arguments> testParseIdleHostsDomainsWithoutRoutes() {
         // @formatter:off
         return Stream.of(
-            Arguments.of(Arrays.asList("test-host-1", "test-host-2"), Arrays.asList("test-domain.com"),  Arrays.asList("idle-host"), Arrays.asList("idle-domain.com"), 
-                         new Expectation(Arrays.asList("idle-host.idle-domain.com").toString())),
-            Arguments.of(Arrays.asList("test-host-1"), Arrays.asList("test-domain.com"), Arrays.asList("idle-host", "idle-host-2"), Arrays.asList("idle-domain.com", "idle-domain.net"),
-                         new Expectation(Arrays.asList("idle-host.idle-domain.com", "idle-host-2.idle-domain.com", "idle-host.idle-domain.net", "idle-host-2.idle-domain.net").toString()))
+            Arguments.of(List.of("test-host-1", "test-host-2"), List.of("test-domain.com"),  List.of("idle-host"), List.of("idle-domain.com"),
+                         new Expectation(List.of("idle-host.idle-domain.com").toString())),
+            Arguments.of(List.of("test-host-1"), List.of("test-domain.com"), List.of("idle-host", "idle-host-2"), List.of("idle-domain.com", "idle-domain.net"),
+                         new Expectation(List.of("idle-host.idle-domain.com", "idle-host-2.idle-domain.com", "idle-host.idle-domain.net", "idle-host-2.idle-domain.net").toString()))
         // @formatter:on
         );
     }
@@ -88,7 +86,7 @@ class IdleUriParametersParserTest {
         parametersMap.put(SupportedParameters.IDLE_HOSTS, idleHosts);
         parametersMap.put(SupportedParameters.IDLE_DOMAINS, idleDomains);
 
-        tester.test(() -> new IdleUriParametersParser(DEFAULT_HOST, DEFAULT_DOMAIN, null).parse(Arrays.asList(parametersMap)), expectation);
+        tester.test(() -> new IdleUriParametersParser(DEFAULT_HOST, DEFAULT_DOMAIN, null).parse(List.of(parametersMap)), expectation);
     }
 
 }

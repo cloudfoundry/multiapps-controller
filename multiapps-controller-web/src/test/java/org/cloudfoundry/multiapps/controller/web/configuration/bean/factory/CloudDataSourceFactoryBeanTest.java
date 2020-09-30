@@ -1,21 +1,22 @@
 package org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import javax.sql.DataSource;
 
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.util.DataSourceFactory;
 import org.cloudfoundry.multiapps.controller.persistence.util.EnvironmentServicesFinder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import io.pivotal.cfenv.jdbc.CfJdbcService;
 
-public class CloudDataSourceFactoryBeanTest {
+class CloudDataSourceFactoryBeanTest {
 
     private static final String SERVICE_NAME = "my-service";
     private static final int DB_CONNECTION_THREADS = 100;
@@ -31,7 +32,7 @@ public class CloudDataSourceFactoryBeanTest {
 
     private CloudDataSourceFactoryBean testedFactory;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
@@ -39,7 +40,7 @@ public class CloudDataSourceFactoryBeanTest {
     }
 
     @Test
-    public void testWhenServiceExists() {
+    void testWhenServiceExists() {
         CfJdbcService service = Mockito.mock(CfJdbcService.class);
         Mockito.when(vcapServiceFinder.findJdbcService(SERVICE_NAME))
                .thenReturn(service);
@@ -54,10 +55,9 @@ public class CloudDataSourceFactoryBeanTest {
     }
 
     @Test
-    public void testWhenServiceDoesNotExist() {
+    void testWhenServiceDoesNotExist() {
         testedFactory.afterPropertiesSet();
-
-        assertEquals(null, testedFactory.getObject());
+        assertNull(testedFactory.getObject());
     }
 
 }

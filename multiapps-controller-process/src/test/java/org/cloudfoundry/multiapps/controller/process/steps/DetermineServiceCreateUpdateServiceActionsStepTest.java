@@ -1,15 +1,17 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
@@ -21,144 +23,97 @@ import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceGetter;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.hamcrest.core.Is;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ErrorCollector;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-@RunWith(Parameterized.class)
-public class DetermineServiceCreateUpdateServiceActionsStepTest
-    extends SyncFlowableStepTest<DetermineServiceCreateUpdateServiceActionsStep> {
+class DetermineServiceCreateUpdateServiceActionsStepTest extends SyncFlowableStepTest<DetermineServiceCreateUpdateServiceActionsStep> {
 
     @Mock
     private ServiceGetter serviceInstanceGetter;
 
-    private final StepInput stepInput;
-
-    @Rule
-    public final ErrorCollector collector = new ErrorCollector();
-
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    @Parameters(name = "{0}")
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> testExecute() {
+        return Stream.of(
 // @formatter:off
-            {
-                "determine-actions-create-or-update-services-step-input-1-create-key.json", null,
-            },
-            {
-                "determine-actions-create-or-update-services-step-input-2-no-action.json", null,
-            },
-            {
-                "determine-actions-create-or-update-services-step-input-3-recreate-service.json", null,
-            },
-            {
-                "determine-actions-create-or-update-services-step-input-4-update-plan.json", null,
-            },
-            {
-                "determine-actions-create-or-update-services-step-input-5-update-key.json", null,
-            },
-            {
-                "determine-actions-create-or-update-services-step-input-6-update-tags.json", null,
-            },
-            {
-                "determine-actions-create-or-update-services-step-input-7-update-credentials.json", null,
-            },
-//          {
-//          "determine-actions-create-or-update-services-step-input-8-recreate-service-failure.json", null,
-//          },
-            {
-                "determine-actions-create-or-update-services-step-input-9-recreate-service-error.json", MessageFormat.format(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET, "service-1", "label-1/plan-3", "service-1", "label-1-old/plan-3"),
-            },
-            {
-                "determine-actions-create-or-update-services-step-input-10-update-credentials.json", null
-            },
-            {
-                "determine-actions-create-or-update-services-step-input-11-no-update-credentials.json", null
-            },
-            {
-                "determine-actions-create-or-update-services-step-input-12-last-operation-failed.json", null
-            },
-            {
-                "determine-actions-create-or-update-services-step-input-13-last-operation-failed-allow-deletion-of-services.json", null
-            },
+            Arguments.of("determine-actions-create-or-update-services-step-input-1-create-key.json", null),
+            Arguments.of("determine-actions-create-or-update-services-step-input-2-no-action.json", null),
+            Arguments.of("determine-actions-create-or-update-services-step-input-3-recreate-service.json", null),
+            Arguments.of("determine-actions-create-or-update-services-step-input-4-update-plan.json", null),
+            Arguments.of("determine-actions-create-or-update-services-step-input-5-update-key.json", null),
+            Arguments.of("determine-actions-create-or-update-services-step-input-6-update-tags.json", null),
+            Arguments.of("determine-actions-create-or-update-services-step-input-7-update-credentials.json", null),
+            Arguments.of("determine-actions-create-or-update-services-step-input-9-recreate-service-error.json", MessageFormat.format(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET, "service-1", "label-1/plan-3", "service-1", "label-1-old/plan-3")),
+            Arguments.of("determine-actions-create-or-update-services-step-input-10-update-credentials.json", null),
+            Arguments.of("determine-actions-create-or-update-services-step-input-11-no-update-credentials.json", null),
+            Arguments.of("determine-actions-create-or-update-services-step-input-12-last-operation-failed.json", null),
+            Arguments.of("determine-actions-create-or-update-services-step-input-13-last-operation-failed-allow-deletion-of-services.json", null)
          // @formatter:on
-        });
+        );
     }
 
-    public DetermineServiceCreateUpdateServiceActionsStepTest(String stepInput, String expectedExceptionMessage) {
-        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput,
-                                                                        DetermineServiceCreateUpdateServiceActionsStepTest.class),
-                                           StepInput.class);
+    @ParameterizedTest
+    @MethodSource
+    void testExecute(String inputFilename, String expectedExceptionMessage) {
+        StepInput input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputFilename,
+                                                                         DetermineServiceCreateUpdateServiceActionsStepTest.class),
+                                            StepInput.class);
+        initializeParameters(input);
         if (expectedExceptionMessage != null) {
-            expectedException.expectMessage(expectedExceptionMessage);
+            Exception exception = assertThrows(Exception.class, () -> step.execute(execution));
+            assertTrue(exception.getMessage()
+                                .contains(expectedExceptionMessage));
+            return;
         }
-    }
 
-    @Before
-    public void setUp() {
-        prepareContext();
-        prepareClient();
-        prepareServiceInstanceGetter();
-    }
-
-    private void prepareServiceInstanceGetter() {
-        Mockito.reset(serviceInstanceGetter);
-        Mockito.when(serviceInstanceGetter.getServiceInstanceEntity(any(), any(), any()))
-               .thenReturn(stepInput.getExistingServiceInstanceEntity());
-    }
-
-    private void prepareContext() {
-        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, stepInput.getServiceKeysToCreate());
-        context.setVariable(Variables.SERVICE_TO_PROCESS, stepInput.service);
-        context.setVariable(Variables.DELETE_SERVICE_KEYS, true);
-        context.setVariable(Variables.DELETE_SERVICES, stepInput.shouldDeleteServices);
-    }
-
-    @Test
-    public void testExecute() {
         step.execute(execution);
 
         assertStepIsRunning();
 
-        validateActions();
+        validateActions(input);
     }
 
-    private void validateActions() {
+    private void initializeParameters(StepInput input) {
+        prepareContext(input);
+        prepareClient(input);
+        prepareServiceInstanceGetter(input);
+    }
+
+    private void prepareServiceInstanceGetter(StepInput input) {
+        Mockito.reset(serviceInstanceGetter);
+        Mockito.when(serviceInstanceGetter.getServiceInstanceEntity(any(), any(), any()))
+               .thenReturn(input.getExistingServiceInstanceEntity());
+    }
+
+    private void prepareContext(StepInput input) {
+        context.setVariable(Variables.SERVICE_KEYS_TO_CREATE, input.getServiceKeysToCreate());
+        context.setVariable(Variables.SERVICE_TO_PROCESS, input.service);
+        context.setVariable(Variables.DELETE_SERVICE_KEYS, true);
+        context.setVariable(Variables.DELETE_SERVICES, input.shouldDeleteServices);
+    }
+
+    private void validateActions(StepInput input) {
         List<ServiceAction> serviceActionsToExecute = context.getVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE);
-        if (stepInput.shouldCreateService) {
-            collector.checkThat("Actions should contain " + ServiceAction.CREATE, serviceActionsToExecute.contains(ServiceAction.CREATE),
-                                Is.is(true));
+        if (input.shouldCreateService) {
+            assertTrue(serviceActionsToExecute.contains(ServiceAction.CREATE), "Actions should contain " + ServiceAction.CREATE);
         }
-        if (stepInput.shouldRecreateService) {
-            collector.checkThat("Actions should contain " + ServiceAction.RECREATE,
-                                serviceActionsToExecute.contains(ServiceAction.RECREATE), Is.is(true));
+        if (input.shouldRecreateService) {
+            assertTrue(serviceActionsToExecute.contains(ServiceAction.RECREATE), "Actions should contain " + ServiceAction.RECREATE);
         }
-        if (stepInput.shouldUpdateServicePlan) {
-            collector.checkThat("Actions should contain " + ServiceAction.UPDATE_PLAN,
-                                serviceActionsToExecute.contains(ServiceAction.UPDATE_PLAN), Is.is(true));
+        if (input.shouldUpdateServicePlan) {
+            assertTrue(serviceActionsToExecute.contains(ServiceAction.UPDATE_PLAN), "Actions should contain " + ServiceAction.UPDATE_PLAN);
         }
-        if (stepInput.shouldUpdateServiceTags) {
-            collector.checkThat("Actions should contain " + ServiceAction.UPDATE_TAGS,
-                                serviceActionsToExecute.contains(ServiceAction.UPDATE_TAGS), Is.is(true));
+        if (input.shouldUpdateServiceTags) {
+            assertTrue(serviceActionsToExecute.contains(ServiceAction.UPDATE_TAGS), "Actions should contain " + ServiceAction.UPDATE_TAGS);
         }
-        if (stepInput.shouldUpdateServiceCredentials) {
-            collector.checkThat("Actions should contain " + ServiceAction.UPDATE_CREDENTIALS,
-                                serviceActionsToExecute.contains(ServiceAction.UPDATE_CREDENTIALS), Is.is(true));
+        if (input.shouldUpdateServiceCredentials) {
+            assertTrue(serviceActionsToExecute.contains(ServiceAction.UPDATE_CREDENTIALS),
+                       "Actions should contain " + ServiceAction.UPDATE_CREDENTIALS);
         }
-        if (stepInput.shouldUpdateServiceKeys) {
-            collector.checkThat("Actions should contain " + ServiceAction.UPDATE_KEYS,
-                                serviceActionsToExecute.contains(ServiceAction.UPDATE_KEYS), Is.is(true));
+        if (input.shouldUpdateServiceKeys) {
+            assertTrue(serviceActionsToExecute.contains(ServiceAction.UPDATE_KEYS), "Actions should contain " + ServiceAction.UPDATE_KEYS);
         }
     }
 
@@ -166,14 +121,14 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
         assertEquals(StepPhase.DONE.toString(), getExecutionStatus());
     }
 
-    private void prepareClient() {
-        if (stepInput.existingService != null) {
-            Mockito.when(client.getServiceInstance(stepInput.existingService.getName(), false))
-                   .thenReturn(stepInput.existingService);
+    private void prepareClient(StepInput input) {
+        if (input.existingService != null) {
+            Mockito.when(client.getServiceInstance(input.existingService.getName(), false))
+                   .thenReturn(input.existingService);
             Mockito.when(client.getServiceInstanceParameters(UUID.fromString("beeb5e8d-4ab9-46ee-9205-455a278743f0")))
                    .thenThrow(new CloudOperationException(HttpStatus.BAD_REQUEST));
             Mockito.when(client.getServiceInstanceParameters(UUID.fromString("400bfc4d-5fce-4a41-bae7-765345e1ce27")))
-                   .thenReturn(stepInput.existingService.getCredentials());
+                   .thenReturn(input.existingService.getCredentials());
         }
     }
 

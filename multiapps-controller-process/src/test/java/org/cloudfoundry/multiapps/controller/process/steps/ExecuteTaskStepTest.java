@@ -1,12 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
+import java.util.List;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
@@ -14,10 +14,10 @@ import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
+class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
 
     private static final Long DUMMY_TIME = 100L;
 
@@ -29,16 +29,16 @@ public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
                                                                                   .name("dummy")
                                                                                   .build();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         step.currentTimeSupplier = () -> DUMMY_TIME;
     }
 
     @Test
-    public void testExecute() {
+    void testExecute() {
         // Given:
-        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(app), execution);
-        context.setVariable(Variables.TASKS_TO_EXECUTE, Collections.singletonList(task));
+        StepsTestUtil.mockApplicationsToDeploy(List.of(app), execution);
+        context.setVariable(Variables.TASKS_TO_EXECUTE, List.of(task));
         context.setVariable(Variables.TASKS_INDEX, 0);
 
         when(client.runTask(eq(app.getName()),

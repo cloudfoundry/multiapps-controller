@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -73,7 +72,7 @@ class OperationsHelperTest {
     void testAddErrorTypeWhenOperationIsInErrorStateContentError() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, Operation.State.ERROR);
         HistoricOperationEvent mockedHistoricOperationEvent = createMockedHistoricOperationEvent(HistoricOperationEvent.EventType.FAILED_BY_CONTENT_ERROR);
-        List<HistoricOperationEvent> historicOperationEvents = Collections.singletonList(mockedHistoricOperationEvent);
+        List<HistoricOperationEvent> historicOperationEvents = List.of(mockedHistoricOperationEvent);
         Mockito.when(processHelper.getHistoricOperationEventByProcessId(mockedOperation.getProcessId()))
                .thenReturn(historicOperationEvents);
         Operation operation = operationsHelper.addErrorType(mockedOperation);
@@ -84,7 +83,7 @@ class OperationsHelperTest {
     void testAddErrorTypeWhenOperationIsInErrorStateInfrastructureError() {
         Operation mockedOperation = createMockedOperation(PROCESS_ID, ProcessType.DEPLOY, Operation.State.ERROR);
         HistoricOperationEvent mockedHistoricOperationEvent = createMockedHistoricOperationEvent(HistoricOperationEvent.EventType.FAILED_BY_INFRASTRUCTURE_ERROR);
-        List<HistoricOperationEvent> historicOperationEvents = Collections.singletonList(mockedHistoricOperationEvent);
+        List<HistoricOperationEvent> historicOperationEvents = List.of(mockedHistoricOperationEvent);
         Mockito.when(processHelper.getHistoricOperationEventByProcessId(mockedOperation.getProcessId()))
                .thenReturn(historicOperationEvents);
         Operation operation = operationsHelper.addErrorType(mockedOperation);
@@ -194,11 +193,11 @@ class OperationsHelperTest {
 
     @Test
     void testFindOperationsWithStatusRunning() {
-        List<Operation> operations = Arrays.asList(createMockedOperation("12af8e1e-4d96-11ea-b77f-2e728ce88178", ProcessType.DEPLOY,
-                                                                         Operation.State.RUNNING),
-                                                   createMockedOperation("13af8e1e-4d96-11ea-b77f-2e728ce88178", ProcessType.DEPLOY,
-                                                                         Operation.State.ABORTED));
-        List<Operation.State> statusList = Collections.singletonList(Operation.State.RUNNING);
+        List<Operation> operations = List.of(createMockedOperation("12af8e1e-4d96-11ea-b77f-2e728ce88178", ProcessType.DEPLOY,
+                                                                   Operation.State.RUNNING),
+                                             createMockedOperation("13af8e1e-4d96-11ea-b77f-2e728ce88178", ProcessType.DEPLOY,
+                                                                   Operation.State.ABORTED));
+        List<Operation.State> statusList = List.of(Operation.State.RUNNING);
         List<Operation> foundOperations = operationsHelper.findOperations(operations, statusList);
         Assertions.assertEquals(1, foundOperations.size());
         Assertions.assertEquals("12af8e1e-4d96-11ea-b77f-2e728ce88178", operations.get(0)
@@ -207,10 +206,10 @@ class OperationsHelperTest {
 
     @Test
     void testFundOperationsWithoutStatus() {
-        List<Operation> operations = Arrays.asList(createMockedOperation("12af8e1e-4d96-11ea-b77f-2e728ce88178", ProcessType.DEPLOY,
-                                                                         Operation.State.RUNNING),
-                                                   createMockedOperation("13af8e1e-4d96-11ea-b77f-2e728ce88178", ProcessType.DEPLOY,
-                                                                         Operation.State.ABORTED));
+        List<Operation> operations = List.of(createMockedOperation("12af8e1e-4d96-11ea-b77f-2e728ce88178", ProcessType.DEPLOY,
+                                                                   Operation.State.RUNNING),
+                                             createMockedOperation("13af8e1e-4d96-11ea-b77f-2e728ce88178", ProcessType.DEPLOY,
+                                                                   Operation.State.ABORTED));
         List<Operation> foundOperations = operationsHelper.findOperations(operations, Collections.emptyList());
         Assertions.assertEquals(2, foundOperations.size());
 

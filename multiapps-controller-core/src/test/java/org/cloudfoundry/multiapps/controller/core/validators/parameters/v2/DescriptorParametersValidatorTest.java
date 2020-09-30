@@ -1,8 +1,8 @@
 package org.cloudfoundry.multiapps.controller.core.validators.parameters.v2;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester;
@@ -15,36 +15,16 @@ import org.cloudfoundry.multiapps.controller.core.validators.parameters.RouteVal
 import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorParser;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
-public class DescriptorParametersValidatorTest {
+class DescriptorParametersValidatorTest {
 
-    protected static final List<ParameterValidator> PARAMETER_VALIDATORS = Arrays.asList(new HostValidator(), new DomainValidator(),
-                                                                                         new TestValidator(), new RouteValidator());
+    protected static final List<ParameterValidator> PARAMETER_VALIDATORS = List.of(new HostValidator(), new DomainValidator(),
+                                                                                   new TestValidator(), new RouteValidator());
 
     private final Tester tester = Tester.forClass(getClass());
-
-    private final String descriptorLocation;
-    private final Expectation expectation;
-
-    private DescriptorParametersValidator validator;
-
-    public DescriptorParametersValidatorTest(String descriptorLocation, Expectation expectation) {
-        this.descriptorLocation = descriptorLocation;
-        this.expectation = expectation;
-    }
-
-    @Before
-    public void setUp() {
-        String descriptorYaml = TestUtil.getResourceAsString(descriptorLocation, getClass());
-        Map<String, Object> deploymentDescriptor = new YamlParser().convertYamlToMap(descriptorYaml);
-        validator = createDescriptorParametersValidator(getDescriptorParser().parseDeploymentDescriptor(deploymentDescriptor));
-    }
 
     protected DescriptorParser getDescriptorParser() {
         return new DescriptorParser();
@@ -54,53 +34,29 @@ public class DescriptorParametersValidatorTest {
         return new DescriptorParametersValidator(descriptor, PARAMETER_VALIDATORS);
     }
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-            // TODO
-            // @formatter:off
+    public static Stream<Arguments> testValidate() {
+        return Stream.of(
+        // @formatter:off
             // (0) All parameters are valid:
-            {
-                "mtad-01.yaml", new Expectation(Expectation.Type.JSON, "mtad-01.yaml.json"),
-            },
+            Arguments.of("mtad-01.yaml", new Expectation(Expectation.Type.JSON, "mtad-01.yaml.json")),
             // (1) Invalid host in a descriptor module:
-            {
-                "mtad-03.yaml", new Expectation(Expectation.Type.JSON, "mtad-03.yaml.json"),
-            },
+            Arguments.of("mtad-03.yaml", new Expectation(Expectation.Type.JSON, "mtad-03.yaml.json")),
             // (2) Invalid parameter in a descriptor resource:
-            {
-                "mtad-04.yaml", new Expectation(Expectation.Type.JSON, "mtad-04.yaml.json"),
-            },
+            Arguments.of("mtad-04.yaml", new Expectation(Expectation.Type.JSON, "mtad-04.yaml.json")),
             // (3) Invalid parameter value in property:
-            {
-                "mtad-06.yaml", new Expectation(Expectation.Type.JSON, "mtad-06.yaml.json"),
-            },
+            Arguments.of("mtad-06.yaml", new Expectation(Expectation.Type.JSON, "mtad-06.yaml.json")),
             // (4) Invalid parameter value in provided dependency property:
-            {
-                "mtad-07.yaml", new Expectation(Expectation.Type.JSON, "mtad-07.yaml.json"),
-            },
-            // (3) Invalid host in a descriptor module that cannot be corrected:
-//            {
-//                "mtad-05.yaml", new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid host from \"(__)\"")
-//            },
-            // (6) Invalid host in a requires dependency:
-//            {
-//                "mtad-08.yaml", new Expectation(Expectation.Type.JSON, "mtad-08.yaml.json"),
-//            },
-            // (7) Invalid parameter value in provided dependency property:
-//            {
-//                "mtad-09.yaml", new Expectation(Expectation.Type.JSON, "mtad-09.yaml.json"),
-//            },
-            // (8) Invalid parameter value in provided dependency property:
-//            {
-//                "mtad-10.yaml", new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid route from"),
-//            },
+            Arguments.of("mtad-07.yaml", new Expectation(Expectation.Type.JSON, "mtad-07.yaml.json"))
 // @formatter:on
-        });
+        );
     }
 
-    @Test
-    public void testValidate() {
+    @ParameterizedTest
+    @MethodSource
+    void testValidate(String descriptorLocation, Expectation expectation) {
+        String descriptorYaml = TestUtil.getResourceAsString(descriptorLocation, getClass());
+        Map<String, Object> deploymentDescriptor = new YamlParser().convertYamlToMap(descriptorYaml);
+        DescriptorParametersValidator validator = createDescriptorParametersValidator(getDescriptorParser().parseDeploymentDescriptor(deploymentDescriptor));
         tester.test(() -> validator.validate(), expectation);
     }
 

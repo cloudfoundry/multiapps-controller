@@ -1,8 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -83,32 +82,32 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     }
 
     private static Stream<Arguments> testWithBuildStates() {
-        return Stream.of(Arguments.of(Collections.singletonList(ImmutableCloudBuild.builder()
-                                                                                   .metadata(ImmutableCloudMetadata.builder()
-                                                                                                                   .createdAt(new Date())
-                                                                                                                   .build())
-                                                                                   .state(CloudBuild.State.STAGED)
-                                                                                   .dropletInfo(ImmutableDropletInfo.builder()
-                                                                                                                    .guid(UUID.randomUUID())
-                                                                                                                    .build())
-                                                                                   .build()),
+        return Stream.of(Arguments.of(List.of(ImmutableCloudBuild.builder()
+                                                                 .metadata(ImmutableCloudMetadata.builder()
+                                                                                                 .createdAt(new Date())
+                                                                                                 .build())
+                                                                 .state(CloudBuild.State.STAGED)
+                                                                 .dropletInfo(ImmutableDropletInfo.builder()
+                                                                                                  .guid(UUID.randomUUID())
+                                                                                                  .build())
+                                                                 .build()),
                                       StepPhase.DONE, null),
-                         Arguments.of(Collections.singletonList(ImmutableCloudBuild.builder()
-                                                                                   .metadata(ImmutableCloudMetadata.builder()
-                                                                                                                   .createdAt(new Date())
-                                                                                                                   .build())
-                                                                                   .state(CloudBuild.State.FAILED)
-                                                                                   .dropletInfo(ImmutableDropletInfo.builder()
-                                                                                                                    .guid(UUID.randomUUID())
-                                                                                                                    .build())
-                                                                                   .build()),
+                         Arguments.of(List.of(ImmutableCloudBuild.builder()
+                                                                 .metadata(ImmutableCloudMetadata.builder()
+                                                                                                 .createdAt(new Date())
+                                                                                                 .build())
+                                                                 .state(CloudBuild.State.FAILED)
+                                                                 .dropletInfo(ImmutableDropletInfo.builder()
+                                                                                                  .guid(UUID.randomUUID())
+                                                                                                  .build())
+                                                                 .build()),
                                       StepPhase.POLL, CLOUD_PACKAGE),
-                         Arguments.of(Collections.singletonList(ImmutableCloudBuild.builder()
-                                                                                   .state(CloudBuild.State.STAGING)
-                                                                                   .dropletInfo(ImmutableDropletInfo.builder()
-                                                                                                                    .guid(UUID.randomUUID())
-                                                                                                                    .build())
-                                                                                   .build()),
+                         Arguments.of(List.of(ImmutableCloudBuild.builder()
+                                                                 .state(CloudBuild.State.STAGING)
+                                                                 .dropletInfo(ImmutableDropletInfo.builder()
+                                                                                                  .guid(UUID.randomUUID())
+                                                                                                  .build())
+                                                                 .build()),
                                       StepPhase.POLL, CLOUD_PACKAGE));
     }
 
@@ -176,7 +175,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     }
 
     @Test
-    void testWithAvailableValidCloudPackage(){
+    void testWithAvailableValidCloudPackage() {
         prepareClients(CURRENT_MODULE_DIGEST);
         mockCloudPackagesGetter(createCloudPackage(Status.PROCESSING_UPLOAD));
         step.execute(execution);

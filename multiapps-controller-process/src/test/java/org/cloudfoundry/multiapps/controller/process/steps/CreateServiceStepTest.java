@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -89,7 +89,7 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
         Mockito.when(client.getServiceInstance(any(), eq(false)))
                .thenReturn(cloudService);
         step.execute(execution);
-        Assertions.assertEquals(DONE_EXECUTION_STATUS, getExecutionStatus());
+        assertEquals(DONE_EXECUTION_STATUS, getExecutionStatus());
     }
 
     private void throwExceptionOnServiceCreation(HttpStatus httpStatus) {

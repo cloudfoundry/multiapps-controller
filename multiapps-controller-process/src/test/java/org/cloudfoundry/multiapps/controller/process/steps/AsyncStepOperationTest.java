@@ -2,13 +2,8 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.List;
 
-import org.junit.Test;
-
 public abstract class AsyncStepOperationTest<AsyncStep extends SyncFlowableStep> extends SyncFlowableStepTest<AsyncStep> {
 
-    protected abstract List<AsyncExecution> getAsyncOperations(ProcessContext wrapper);
-
-    @Test
     public void testExecuteOperations() {
         step.initializeStepLogger(execution);
         ProcessContext wrapper = step.createProcessContext(execution);
@@ -19,6 +14,8 @@ public abstract class AsyncStepOperationTest<AsyncStep extends SyncFlowableStep>
         }
 
     }
+
+    protected abstract List<AsyncExecution> getAsyncOperations(ProcessContext wrapper);
 
     protected abstract void validateOperationExecutionResult(AsyncExecutionState result);
 }

@@ -1,13 +1,14 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -17,42 +18,27 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationSubs
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationSubscriptionQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-@RunWith(Parameterized.class)
-public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubscriptionsStep> {
+class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubscriptionsStep> {
 
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> testExecute() {
+        return Stream.of(
 // @formatter:off
             // (0)
-            {
-                "create-subscriptions-step-input-00.json", null,
-            },
+            Arguments.of("create-subscriptions-step-input-00.json", null),
             // (1)
-            {
-                "create-subscriptions-step-input-01.json", null,
-            },
+            Arguments.of("create-subscriptions-step-input-01.json", null),
             // (2) A NPE should not be thrown when any of the subscription's components is null:
-            {
-                "create-subscriptions-step-input-02.json", null,
-            },
+            Arguments.of("create-subscriptions-step-input-02.json", null)
 // @formatter:on
-        });
+        );
     }
 
     @Mock
@@ -60,37 +46,38 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
     @Mock(answer = Answers.RETURNS_SELF)
     private ConfigurationSubscriptionQuery configurationSubscriptionQuery;
 
-    private final String inputLocation;
-    private final String expectedExceptionMessage;
-    private StepInput input;
-
-    public CreateSubscriptionsStepTest(String inputLocation, String expectedExceptionMessage) {
-        this.inputLocation = inputLocation;
-        this.expectedExceptionMessage = expectedExceptionMessage;
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        loadParameters();
-        prepareContext();
-        prepareSubscriptionService();
-    }
-
-    private void loadParameters() {
+    @ParameterizedTest
+    @MethodSource
+    void testExecute(String inputLocation, String expectedExceptionMessage) {
+        StepInput input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
+        initializeParameters(input);
         if (expectedExceptionMessage != null) {
-            expectedException.expectMessage(expectedExceptionMessage);
+            Exception exception = assertThrows(Exception.class, () -> step.execute(execution));
+            assertEquals(expectedExceptionMessage, exception.getMessage());
+            return;
         }
-        input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
+        step.execute(execution);
+        assertStepFinishedSuccessfully();
+        StepOutput output = captureStepOutput(input);
+
+        assertEquals(JsonUtil.toJson(input.subscriptionsToCreate, true), JsonUtil.toJson(output.createdSubscriptions, true));
+        assertEquals(JsonUtil.toJson(input.oldSubscriptionsToBeUpdated, true), JsonUtil.toJson(output.oldSubscriptionsToBeUpdated, true));
+        assertEquals(JsonUtil.toJson(input.subscriptionsToUpdate, true), JsonUtil.toJson(output.updatedSubscriptions, true));
     }
 
-    private void prepareContext() {
+    private void initializeParameters(StepInput input) {
+        prepareContext(input);
+        prepareSubscriptionService(input);
+    }
+
+    private void prepareContext(StepInput input) {
         List<ConfigurationSubscription> subscriptions = new ArrayList<>();
         subscriptions.addAll(input.subscriptionsToCreate);
         subscriptions.addAll(input.subscriptionsToUpdate);
         context.setVariable(Variables.SUBSCRIPTIONS_TO_CREATE, subscriptions);
     }
 
-    private void prepareSubscriptionService() {
+    private void prepareSubscriptionService(StepInput input) {
         when(configurationSubscriptionService.createQuery()).thenReturn(configurationSubscriptionQuery);
         doReturn(null).when(configurationSubscriptionQuery)
                       .singleResult();
@@ -122,20 +109,7 @@ public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubs
                                              subscription.getResourceId());
     }
 
-    @Test
-    public void testExecute() throws Exception {
-        step.execute(execution);
-
-        assertStepFinishedSuccessfully();
-
-        StepOutput output = captureStepOutput();
-
-        assertEquals(JsonUtil.toJson(input.subscriptionsToCreate, true), JsonUtil.toJson(output.createdSubscriptions, true));
-        assertEquals(JsonUtil.toJson(input.oldSubscriptionsToBeUpdated, true), JsonUtil.toJson(output.oldSubscriptionsToBeUpdated, true));
-        assertEquals(JsonUtil.toJson(input.subscriptionsToUpdate, true), JsonUtil.toJson(output.updatedSubscriptions, true));
-    }
-
-    private StepOutput captureStepOutput() {
+    private StepOutput captureStepOutput(StepInput input) {
         ArgumentCaptor<ConfigurationSubscription> argumentCaptor;
         ArgumentCaptor<ConfigurationSubscription> oldSubscriptionsCaptor;
 

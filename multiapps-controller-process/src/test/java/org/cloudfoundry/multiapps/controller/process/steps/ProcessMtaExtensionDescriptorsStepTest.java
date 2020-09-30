@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -23,23 +23,22 @@ import org.cloudfoundry.multiapps.mta.builders.ExtensionDescriptorChainBuilder;
 import org.cloudfoundry.multiapps.mta.handlers.DescriptorParserFacade;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.ExtensionDescriptor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest<ProcessMtaExtensionDescriptorsStep> {
+class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest<ProcessMtaExtensionDescriptorsStep> {
 
     private static final String SPACE_ID = "foo";
 
     @Test
-    public void testExecute() throws FileStorageException {
+    void testExecute() throws FileStorageException {
         final String extensionDescriptorString1 = "abc";
         final String extensionDescriptorString2 = "def";
-        // final ExtensionDescriptor extensionDescriptor1 = DescriptorTestUtil.loadExtensionDescriptor("config-01.mtaext", getClass());
         final ExtensionDescriptor extensionDescriptor2 = DescriptorTestUtil.loadExtensionDescriptor("config-02.mtaext", getClass());
         final ExtensionDescriptor extensionDescriptor3 = DescriptorTestUtil.loadExtensionDescriptor("config-01.mtaext", getClass());
-        final List<ExtensionDescriptor> extensionDescriptorChain = Arrays.asList(extensionDescriptor2, extensionDescriptor3);
+        final List<ExtensionDescriptor> extensionDescriptorChain = List.of(extensionDescriptor2, extensionDescriptor3);
 
-        prepare(Arrays.asList(extensionDescriptorString1, extensionDescriptorString2));
+        prepare(List.of(extensionDescriptorString1, extensionDescriptorString2));
         DescriptorParserFacade descriptorParserFacade = Mockito.mock(DescriptorParserFacade.class);
         Mockito.when(descriptorParserFacade.parseExtensionDescriptor(Mockito.<InputStream> any()))
                .thenReturn(extensionDescriptor2, extensionDescriptor3);
@@ -64,7 +63,7 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
     }
 
     @Test
-    public void testExecuteWithNoExtensionDescriptors() throws FileStorageException {
+    void testExecuteWithNoExtensionDescriptors() throws FileStorageException {
         prepare(Collections.emptyList());
 
         DescriptorParserFacadeFactory descriptorParserFacadeFactory = Mockito.mock(DescriptorParserFacadeFactory.class);

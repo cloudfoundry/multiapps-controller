@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -11,51 +11,34 @@ import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-@RunWith(Parameterized.class)
-public class ApplicationEnvironmentUpdaterTest {
+class ApplicationEnvironmentUpdaterTest {
 
     private final Tester tester = Tester.forClass(getClass());
 
-    private final Input input;
-    private final Expectation expectation;
-    private ApplicationEnvironmentUpdater applicationEnvironmentUpdater;
     private final CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> testUpdateEnv() {
+        return Stream.of(
 // @formatter:off
-            {
-                "application-env-updater-input-00.json", new Expectation(Expectation.Type.JSON, "application-env-updater-result-00.json"),
-            },
-            {
-                "application-env-updater-input-01.json", new Expectation(Expectation.Type.JSON, "application-env-updater-result-01.json"),
-            },
+            Arguments.of("application-env-updater-input-00.json", new Expectation(Expectation.Type.JSON, "application-env-updater-result-00.json")),
+            Arguments.of("application-env-updater-input-01.json", new Expectation(Expectation.Type.JSON, "application-env-updater-result-01.json"))
 // @formatter:on
-        });
-    }
-
-    public ApplicationEnvironmentUpdaterTest(String input, Expectation expectation) {
-        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, getClass()), Input.class);
-        this.expectation = expectation;
-    }
-
-    @Before
-    public void prepare() {
-        applicationEnvironmentUpdater = new ApplicationEnvironmentUpdater(input.app.toCloudApplication(), client).withPrettyPrinting(false);
+        );
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Test
-    public void testUpdateEnv() {
+    @ParameterizedTest
+    @MethodSource
+    void testUpdateEnv(String filename, Expectation expectation) {
+        Input input = JsonUtil.fromJson(TestUtil.getResourceAsString(filename, getClass()), Input.class);
+        ApplicationEnvironmentUpdater applicationEnvironmentUpdater = new ApplicationEnvironmentUpdater(input.app.toCloudApplication(),
+                                                                                                        client).withPrettyPrinting(false);
         applicationEnvironmentUpdater.updateApplicationEnvironment(input.envPropertyKey, input.newKey, input.newValue);
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
         Mockito.verify(client)

@@ -1,63 +1,45 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudDomain;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
-@RunWith(Parameterized.class)
-public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
+class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
 
-    private final List<String> existingDomains;
-    private final List<String> customDomains;
-
-    private List<String> nonExistingCustomDomains;
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> testExecute() {
+        return Stream.of(
 // @formatter:off
             // (0) Attempt to add non-existing custom domains:
-            {
-                Arrays.asList("foo", "bar"), Arrays.asList("baz", "qux"),
-            },
+            Arguments.of(List.of("foo", "bar"), List.of("baz", "qux")),
             // (1) Attempt to add existing custom domains:
-            {
-                Arrays.asList("foo", "bar"), Arrays.asList("foo", "bar"),
-            },
+            Arguments.of(List.of("foo", "bar"), List.of("foo", "bar")),
             // (2) Attempt to add a mix of existing and non-existing custom domains:
-            {
-                Arrays.asList("foo", "bar"), Arrays.asList("foo", "baz"),
-            },
+            Arguments.of(List.of("foo", "bar"), List.of("foo", "baz"))
 // @formatter:on
-        });
+        );
     }
 
-    public AddDomainsStepTest(List<String> existingDomains, List<String> customDomains) {
-        this.existingDomains = existingDomains;
-        this.customDomains = customDomains;
+    public AddDomainsStepTest() {
+
     }
 
-    @Before
-    public void setUp() {
-        prepareContext();
+    @ParameterizedTest
+    @MethodSource
+    void testExecute(List<String> existingDomains, List<String> customDomains) {
+        prepareContext(customDomains);
         Mockito.when(client.getDomains())
-               .thenReturn(getExistingDomainsList());
-        nonExistingCustomDomains = getNonExistingDomainsList();
-    }
+               .thenReturn(getExistingDomainsList(existingDomains));
+        List<String> nonExistingCustomDomains = getNonExistingDomainsList(existingDomains, customDomains);
 
-    @Test
-    public void testExecute() {
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
@@ -68,11 +50,11 @@ public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
         }
     }
 
-    private void prepareContext() {
+    private void prepareContext(List<String> customDomains) {
         context.setVariable(Variables.CUSTOM_DOMAINS, customDomains);
     }
 
-    private List<CloudDomain> getExistingDomainsList() {
+    private List<CloudDomain> getExistingDomainsList(List<String> existingDomains) {
         List<CloudDomain> result = new ArrayList<>();
         for (String existingDomain : existingDomains) {
             result.add(ImmutableCloudDomain.builder()
@@ -82,7 +64,7 @@ public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
         return result;
     }
 
-    private List<String> getNonExistingDomainsList() {
+    private List<String> getNonExistingDomainsList(List<String> existingDomains, List<String> customDomains) {
         return ListUtils.removeAll(customDomains, existingDomains);
     }
 

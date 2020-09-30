@@ -1,78 +1,53 @@
 package org.cloudfoundry.multiapps.controller.core.validators.parameters;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.mta.model.Module;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
-public class TasksValidatorTest {
+class TasksValidatorTest {
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> testValidate() {
+        return Stream.of(
 // @formatter:off
             // (0) Valid tasks:
-            {
-                "tasks-00.json", true,
-            },
+            Arguments.of("tasks-00.json", true),
             // (1) The tasks are an empty list:
-            {
-                "tasks-01.json", true,
-            },
+            Arguments.of("tasks-01.json", true),
             // (2) The tasks are not a list of maps, but a list of strings:
-            {
-                "tasks-02.json", false,
-            },
+            Arguments.of("tasks-02.json", false),
             // (3) The tasks are not a list but a map:
-            {
-                "tasks-03.json", false,
-            },
+            Arguments.of("tasks-03.json", false),
             // (4) The name of a task is not a string:
-            {
-                "tasks-04.json", false,
-            },
+            Arguments.of("tasks-04.json", false),
             // (5) The command of a task is not a string:
-            {
-                "tasks-05.json", false,
-            },
+            Arguments.of("tasks-05.json", false),
             // (6) The name of a task is not specified:
-            {
-                "tasks-06.json", false,
-            },
+            Arguments.of("tasks-06.json", false),
             // (7) The command of a task is not specified:
-            {
-                "tasks-07.json", false,
-            },
+            Arguments.of("tasks-07.json", false)
 // @formatter:on
-        });
+        );
     }
 
-    private final String locationOfFileContainingTasks;
-    private final boolean expectedResult;
-
-    public TasksValidatorTest(String locationOfFileContainingTasks, boolean expectedResult) {
-        this.locationOfFileContainingTasks = locationOfFileContainingTasks;
-        this.expectedResult = expectedResult;
-    }
-
-    @Test
-    public void testValidate() {
+    @ParameterizedTest
+    @MethodSource
+    void testValidate(String locationOfFileContainingTasks, boolean expectedResult) {
         String tasksJson = TestUtil.getResourceAsString(locationOfFileContainingTasks, getClass());
         Object tasks = JsonUtil.fromJson(tasksJson, Object.class);
         assertEquals(expectedResult, new TasksValidator().isValid(tasks, null));
     }
 
     @Test
-    public void testGetContainerType() {
+    void testGetContainerType() {
         assertTrue(new TasksValidator().getContainerType()
                                        .isAssignableFrom(Module.class));
     }

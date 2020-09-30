@@ -5,7 +5,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -35,32 +34,28 @@ class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRoutesStep
         return Stream.of(
                          // (1) One old URI is replaced with a new one in redeploy:
                          Arguments.of("existing-app-1.json", "app-to-deploy-1.json",
-                                      Arrays.asList("module-1.domain.com", "module-1.domain.com/with/path"), null, null, StepPhase.DONE),
+                                      List.of("module-1.domain.com", "module-1.domain.com/with/path"), null, StepPhase.DONE),
                          // (2) There are no differences between old and new URIs:
-                         Arguments.of("existing-app-2.json", "app-to-deploy-2.json", Collections.emptyList(), null, null, StepPhase.DONE),
+                         Arguments.of("existing-app-2.json", "app-to-deploy-2.json", Collections.emptyList(), null, StepPhase.DONE),
                          // (3) The new URIs are a subset of the old:
                          Arguments.of("existing-app-3.json", "app-to-deploy-3.json",
-                                      Arrays.asList("tcp://test.domain.com:51052", "tcp://test.domain.com:51054"), null, null,
-                                      StepPhase.DONE),
+                                      List.of("tcp://test.domain.com:51052", "tcp://test.domain.com:51054"), null, StepPhase.DONE),
                          // (4) There is no previous version of app:
-                         Arguments.of(null, "app-to-deploy-3.json", Collections.emptyList(), null, null, StepPhase.DONE),
+                         Arguments.of(null, "app-to-deploy-3.json", Collections.emptyList(), null, StepPhase.DONE),
                          // (5) Not Found Exception is thrown
                          Arguments.of("existing-app-1.json", "app-to-deploy-1.json",
-                                      Arrays.asList("module-1.domain.com", "module-1.domain.com/with/path"),
-                                      new CloudOperationException(HttpStatus.NOT_FOUND), new CloudOperationException(HttpStatus.NOT_FOUND),
-                                      StepPhase.DONE),
+                                      List.of("module-1.domain.com", "module-1.domain.com/with/path"),
+                                      new CloudOperationException(HttpStatus.NOT_FOUND), StepPhase.DONE),
                          // (6) Conflict Exception is thrown
                          Arguments.of("existing-app-1.json", "app-to-deploy-1.json",
-                                      Arrays.asList("module-1.domain.com", "module-1.domain.com/with/path"),
-                                      new CloudOperationException(HttpStatus.CONFLICT), new CloudOperationException(HttpStatus.CONFLICT),
-                                      StepPhase.DONE));
+                                      List.of("module-1.domain.com", "module-1.domain.com/with/path"),
+                                      new CloudOperationException(HttpStatus.CONFLICT), StepPhase.DONE));
     }
 
     @ParameterizedTest
     @MethodSource
     void testExecute(String existingAppFile, String appToDeployFile, List<String> urisToDelete,
-                     CloudOperationException exceptionThrownByClient, CloudOperationException expectedException,
-                     StepPhase expectedStepPhase) {
+                     CloudOperationException exceptionThrownByClient, StepPhase expectedStepPhase) {
         prepareContext(existingAppFile, appToDeployFile, exceptionThrownByClient);
         step.execute(execution);
         assertStepPhaseMatch(expectedStepPhase);
@@ -72,7 +67,7 @@ class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRoutesStep
         context.setVariable(Variables.DELETE_IDLE_URIS, true);
         setExistingAppInContext(existingAppFile);
         CloudApplicationExtended appToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(appToDeployFile, getClass()),
-                                                                 new TypeReference<CloudApplicationExtended>() {
+                                                                 new TypeReference<>() {
                                                                  });
         context.setVariable(Variables.APP_TO_PROCESS, appToDeploy);
     }
@@ -90,7 +85,7 @@ class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRoutesStep
             return;
         }
         CloudApplicationExtended existingApp = JsonUtil.fromJson(TestUtil.getResourceAsString(existingAppFile, getClass()),
-                                                                 new TypeReference<CloudApplicationExtended>() {
+                                                                 new TypeReference<>() {
                                                                  });
         context.setVariable(Variables.EXISTING_APP, existingApp);
     }

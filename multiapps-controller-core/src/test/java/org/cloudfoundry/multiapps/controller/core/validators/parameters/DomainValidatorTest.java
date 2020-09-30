@@ -1,77 +1,67 @@
 package org.cloudfoundry.multiapps.controller.core.validators.parameters;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.mta.model.Module;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
-public class DomainValidatorTest {
+class DomainValidatorTest {
 
     private final Tester tester = Tester.forClass(getClass());
 
     private final DomainValidator validator = new DomainValidator();
 
-    private final boolean isValid;
-    private final String domain;
-    private final Expectation expectation;
-
-    public DomainValidatorTest(String domain, boolean isValid, Expectation expectation) {
-        this.isValid = isValid;
-        this.domain = domain;
-        this.expectation = expectation;
-    }
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> getParameters() {
+        return Stream.of(
 // @formatter:off
             // (0)
-            { "TEST_TEST_TEST", false, new Expectation("test-test-test"), },
+            Arguments.of("TEST_TEST_TEST", false, new Expectation("test-test-test")),
             // (1)
-            { "test-test-test", true , new Expectation("test-test-test"), },
+            Arguments.of("test-test-test", true , new Expectation("test-test-test")),
             // (2)
-            { "test.test.test", true , new Expectation("test.test.test"), },
+            Arguments.of("test.test.test", true , new Expectation("test.test.test")),
             // (3)
-            { "---", false, new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid domain from \"---\"") },
+            Arguments.of("---", false, new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid domain from \"---\"")),
             // (4)
-            { "@12", false, new Expectation("12"), },
+            Arguments.of("@12", false, new Expectation("12")),
             // (5)
-            { "@@@", false, new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid domain from \"@@@\"") },
+            Arguments.of("@@@", false, new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid domain from \"@@@\""))
 // @formatter:on
-        });
+        );
     }
 
-    @Test
-    public void testValidate() {
+    @ParameterizedTest
+    @MethodSource("getParameters")
+    void testValidate(String domain, boolean isValid, Expectation expectation) {
         assertEquals(isValid, validator.isValid(domain, null));
     }
 
     @Test
-    public void testCanCorrect() {
+    void testCanCorrect() {
         assertTrue(validator.canCorrect());
     }
 
-    @Test
-    public void testAttemptToCorrect() {
+    @ParameterizedTest
+    @MethodSource("getParameters")
+    void testAttemptToCorrect(String domain, boolean isValid, Expectation expectation) {
         tester.test(() -> validator.attemptToCorrect(domain, null), expectation);
     }
 
     @Test
-    public void testGetParameterName() {
+    void testGetParameterName() {
         assertEquals("domain", validator.getParameterName());
     }
 
     @Test
-    public void testGetContainerType() {
+    void testGetContainerType() {
         assertTrue(validator.getContainerType()
                             .isAssignableFrom(Module.class));
     }

@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
@@ -36,7 +35,7 @@ class HooksPhaseGetterTest {
 
     @Test
     void testGetHookPhasesBeforeStop() {
-        List<HookPhase> hookPhases = Collections.singletonList(HookPhase.BEFORE_STOP);
+        List<HookPhase> hookPhases = List.of(HookPhase.BEFORE_STOP);
         StopAppStep beforeStepHookPhaseProvider = Mockito.mock(StopAppStep.class);
         Mockito.when(beforeStepHookPhaseProvider.getHookPhasesBeforeStep(context))
                .thenReturn(hookPhases);
@@ -47,7 +46,7 @@ class HooksPhaseGetterTest {
 
     @Test
     void testGetHookPhasesAfterStop() {
-        List<HookPhase> hookPhases = Collections.singletonList(HookPhase.AFTER_STOP);
+        List<HookPhase> hookPhases = List.of(HookPhase.AFTER_STOP);
         StopAppStep afterStepHookPhaseProvider = Mockito.mock(StopAppStep.class);
         Mockito.when(afterStepHookPhaseProvider.getHookPhasesAfterStep(context))
                .thenReturn(hookPhases);

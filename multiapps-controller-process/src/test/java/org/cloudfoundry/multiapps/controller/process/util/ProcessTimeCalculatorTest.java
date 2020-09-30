@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.function.LongSupplier;
@@ -82,28 +81,26 @@ class ProcessTimeCalculatorTest {
 
     static Stream<Arguments> testDelayBetweenSteps() {
         return Stream.of(
-//@formatter: off
-                Arguments.of(0, Arrays.asList(Activity.of("serviceTask", 5, 500))),
-                Arguments.of(2000, Arrays.asList(Activity.of("exclusiveGateway", 1, 1000),
-                                                 Activity.of("inclusiveGateway", 1, 1000),
-                                                 Activity.of("serviceTask", 5, 500))),
-                Arguments.of(300, Arrays.asList(Activity.of("sequenceFlow", 3, 100),
-                                                Activity.of("serviceTask", 5, 500))),
-                Arguments.of(500, Arrays.asList(Activity.of("intermediateCatchEvent", 5, 100),
-                                                Activity.of("serviceTask", 5, 500))),
-                Arguments.of(2800, Arrays.asList(Activity.of("intermediateCatchEvent", 5, 100),
-                                                 Activity.of("sequenceFlow", 3, 100),
-                                                 Activity.of("exclusiveGateway", 1, 1000),
-                                                 Activity.of("inclusiveGateway", 1, 1000),
-                                                 Activity.of("serviceTask", 5, 500)))
-//@formatter: on
+       // @formatter:off
+                 Arguments.of(0, List.of(Activity.of("serviceTask", 5, 500))),
+                 Arguments.of(2000,
+                              List.of(Activity.of("exclusiveGateway", 1, 1000), Activity.of("inclusiveGateway", 1, 1000),
+                                            Activity.of("serviceTask", 5, 500))),
+                 Arguments.of(300, List.of(Activity.of("sequenceFlow", 3, 100), Activity.of("serviceTask", 5, 500))),
+                 Arguments.of(500,
+                              List.of(Activity.of("intermediateCatchEvent", 5, 100), Activity.of("serviceTask", 5, 500))),
+                 Arguments.of(2800,
+                              List.of(Activity.of("intermediateCatchEvent", 5, 100), Activity.of("sequenceFlow", 3, 100),
+                                            Activity.of("exclusiveGateway", 1, 1000), Activity.of("inclusiveGateway", 1, 1000),
+                                            Activity.of("serviceTask", 5, 500)))
+        // @formatter:on
         );
     }
 
     @ParameterizedTest
     @MethodSource
     void testDelayBetweenSteps(long expectedDelayBetweenSteps, List<Activity> activities) {
-        mockProcessStartAndEndTime(100); //irrelevant
+        mockProcessStartAndEndTime(100); // irrelevant
         List<HistoricActivityInstance> processActivities = mockProcessActivities(activities);
         Mockito.when(historicActivityInstanceQueryMock.list())
                .thenReturn(processActivities);
@@ -115,7 +112,7 @@ class ProcessTimeCalculatorTest {
 
     @Test
     void testDelayBetweenActivities() {
-        mockProcessStartAndEndTime(100); //irrelevant
+        mockProcessStartAndEndTime(100); // irrelevant
         long offset = currentTimeSupplier.getAsLong();
         List<HistoricActivityInstance> activities = mockActivitiesWithDelay(offset, Activity.of("serviceTask", 6, 100), 10);
         Mockito.when(historicActivityInstanceQueryMock.list())
@@ -131,7 +128,7 @@ class ProcessTimeCalculatorTest {
         long currentTime = mockProcessStartTime();
         processTimeCalculator = new ProcessTimeCalculator(flowableFacade, () -> currentTime + 500);
 
-        List<Activity> activities = Arrays.asList(Activity.of("serviceTask", 5, 500));
+        List<Activity> activities = List.of(Activity.of("serviceTask", 5, 500));
         List<HistoricActivityInstance> processActivities = mockProcessActivities(activities);
 
         HistoricActivityInstance unfinishedActivity = Mockito.mock(HistoricActivityInstance.class);
@@ -152,9 +149,9 @@ class ProcessTimeCalculatorTest {
 
     @Test
     void testOverallDelayBetweenSteps() {
-        List<Activity> activities = Arrays.asList(Activity.of("intermediateCatchEvent", 5, 100), Activity.of("sequenceFlow", 3, 100),
-                                                  Activity.of("exclusiveGateway", 1, 1000), Activity.of("inclusiveGateway", 1, 1000),
-                                                  Activity.of("serviceTask", 5, 500));
+        List<Activity> activities = List.of(Activity.of("intermediateCatchEvent", 5, 100), Activity.of("sequenceFlow", 3, 100),
+                                            Activity.of("exclusiveGateway", 1, 1000), Activity.of("inclusiveGateway", 1, 1000),
+                                            Activity.of("serviceTask", 5, 500));
         long offset = currentTimeSupplier.getAsLong();
         List<HistoricActivityInstance> processActivities = new ArrayList<>();
 
@@ -164,7 +161,7 @@ class ProcessTimeCalculatorTest {
             offset += (activity.numberOf * (activity.duration + 10)) + 10;
         }
 
-        mockProcessStartAndEndTime(100); //irrelevant
+        mockProcessStartAndEndTime(100); // irrelevant
         Mockito.when(historicActivityInstanceQueryMock.list())
                .thenReturn(processActivities);
 

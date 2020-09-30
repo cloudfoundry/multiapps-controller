@@ -6,7 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ class TokensCleanerTest {
         OAuth2AccessToken token = mock(OAuth2AccessToken.class);
         when(token.isExpired()).thenReturn(false);
 
-        when(tokenStore.findTokensByClientId(anyString())).thenReturn(Arrays.asList(expiredToken, token));
+        when(tokenStore.findTokensByClientId(anyString())).thenReturn(List.of(expiredToken, token));
 
         cleaner.execute(null);
         verify(tokenStore).removeAccessToken(expiredToken);

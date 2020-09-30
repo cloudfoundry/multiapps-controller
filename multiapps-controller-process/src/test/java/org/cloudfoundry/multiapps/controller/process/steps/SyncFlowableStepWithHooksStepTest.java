@@ -34,7 +34,7 @@ class SyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<SyncFlowabl
         Module moduleToDeploy = createModule("test-module");
         Mockito.when(moduleDeterminer.determineModuleToDeploy())
                .thenReturn(moduleToDeploy);
-        List<Hook> hooksForExecution = Collections.singletonList(createHook("test-hook"));
+        List<Hook> hooksForExecution = List.of(createHook("test-hook"));
         Mockito.when(hooksExecutor.executeBeforeStepHooks(StepPhase.EXECUTE))
                .thenReturn(hooksForExecution);
         Assertions.assertEquals(StepPhase.EXECUTE, step.executeStep(context));
@@ -45,7 +45,7 @@ class SyncFlowableStepWithHooksStepTest extends SyncFlowableStepTest<SyncFlowabl
         Module moduleToDeploy = createModule("test-module");
         Mockito.when(moduleDeterminer.determineModuleToDeploy())
                .thenReturn(moduleToDeploy);
-        List<Hook> hooksForExecution = Collections.singletonList(createHook("test-hook"));
+        List<Hook> hooksForExecution = List.of(createHook("test-hook"));
         Mockito.when(hooksExecutor.executeAfterStepHooks(context.getVariable(Variables.STEP_PHASE)))
                .thenReturn(hooksForExecution);
         Assertions.assertEquals(StepPhase.DONE, step.executeStep(context));

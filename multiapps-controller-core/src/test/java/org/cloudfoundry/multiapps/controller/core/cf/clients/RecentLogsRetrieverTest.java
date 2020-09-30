@@ -3,9 +3,9 @@ package org.cloudfoundry.multiapps.controller.core.cf.clients;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
@@ -32,7 +32,7 @@ class RecentLogsRetrieverTest {
     @Mock
     private CloudControllerClient client;
 
-    private RecentLogsRetriever recentLogsRetriever = new RecentLogsRetriever();
+    private final RecentLogsRetriever recentLogsRetriever = new RecentLogsRetriever();
 
     @BeforeEach
     void setUp() throws Exception {
@@ -60,15 +60,15 @@ class RecentLogsRetrieverTest {
     @Test
     void testGetRecentLogsWithNoPriorOffset() {
         Mockito.when(client.getRecentLogs(APP_NAME))
-               .thenReturn(Arrays.asList(createAppLog(1, "")));
-        assertEquals(Arrays.asList(createAppLog(1, "")), recentLogsRetriever.getRecentLogs(client, APP_NAME, null));
+               .thenReturn(List.of(createAppLog(1, "")));
+        assertEquals(List.of(createAppLog(1, "")), recentLogsRetriever.getRecentLogs(client, APP_NAME, null));
     }
 
     @Test
     void testGetRecentLogsWithOffsetReturnsNoLogs() {
         LogsOffset offset = createLogsOffset(1, "");
         Mockito.when(client.getRecentLogs(APP_NAME))
-               .thenReturn(Arrays.asList(createAppLog(0, "")));
+               .thenReturn(List.of(createAppLog(0, "")));
         assertTrue(recentLogsRetriever.getRecentLogs(client, APP_NAME, offset)
                                       .isEmpty());
     }
@@ -77,7 +77,7 @@ class RecentLogsRetrieverTest {
     void testGetRecentLogsWithOffsetSameMessageReturnsNoLogs() {
         LogsOffset offset = createLogsOffset(1, "msg");
         Mockito.when(client.getRecentLogs(APP_NAME))
-               .thenReturn(Arrays.asList(createAppLog(1, "msg")));
+               .thenReturn(List.of(createAppLog(1, "msg")));
         assertTrue(recentLogsRetriever.getRecentLogs(client, APP_NAME, offset)
                                       .isEmpty());
     }
@@ -86,24 +86,24 @@ class RecentLogsRetrieverTest {
     void testGetRecentLogsWithOffsetReturnsFilteredLogs() {
         LogsOffset offset = createLogsOffset(1, "");
         Mockito.when(client.getRecentLogs(APP_NAME))
-               .thenReturn(Arrays.asList(createAppLog(1, ""), createAppLog(2, "")));
-        assertEquals(Arrays.asList(createAppLog(2, "")), recentLogsRetriever.getRecentLogs(client, APP_NAME, offset));
+               .thenReturn(List.of(createAppLog(1, ""), createAppLog(2, "")));
+        assertEquals(List.of(createAppLog(2, "")), recentLogsRetriever.getRecentLogs(client, APP_NAME, offset));
     }
 
     @Test
     void testGetRecentLogsWithOffsetSameTimestampReturnsFilteredLogs() {
         LogsOffset offset = createLogsOffset(1, "msg");
         Mockito.when(client.getRecentLogs(APP_NAME))
-               .thenReturn(Arrays.asList(createAppLog(1, "msg"), createAppLog(1, "msg1")));
-        assertEquals(Arrays.asList(createAppLog(1, "msg1")), recentLogsRetriever.getRecentLogs(client, APP_NAME, offset));
+               .thenReturn(List.of(createAppLog(1, "msg"), createAppLog(1, "msg1")));
+        assertEquals(List.of(createAppLog(1, "msg1")), recentLogsRetriever.getRecentLogs(client, APP_NAME, offset));
     }
 
     @Test
     void testGetRecentLogsWithOffsetSameMessageReturnsFilteredLogs() {
         LogsOffset offset = createLogsOffset(1, "msg1");
         Mockito.when(client.getRecentLogs(APP_NAME))
-               .thenReturn(Arrays.asList(createAppLog(1, "msg"), createAppLog(1, "msg1")));
-        assertEquals(Arrays.asList(createAppLog(1, "msg")), recentLogsRetriever.getRecentLogs(client, APP_NAME, offset));
+               .thenReturn(List.of(createAppLog(1, "msg"), createAppLog(1, "msg1")));
+        assertEquals(List.of(createAppLog(1, "msg")), recentLogsRetriever.getRecentLogs(client, APP_NAME, offset));
     }
 
     private ApplicationLog createAppLog(int milis, String message) {

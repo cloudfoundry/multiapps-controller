@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.database.migration.executor.type;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +28,7 @@ class DatabaseTypeSetterFactoryTest {
 
     @Test
     void testGetWithCustomRegisteredTypeSettersAndSingleMatch() {
-        List<DatabaseTypeSetter> registeredDatabaseTypeSetters = Arrays.asList(new BooleanDatabaseTypeSetter());
+        List<DatabaseTypeSetter> registeredDatabaseTypeSetters = List.of(new BooleanDatabaseTypeSetter());
         DatabaseTypeSetterFactory databaseTypeSetterFactory = new DatabaseTypeSetterFactory(registeredDatabaseTypeSetters);
 
         DatabaseTypeSetter resultDatabaseTypeSetter = databaseTypeSetterFactory.get(BOOL_TYPE);
@@ -47,8 +46,7 @@ class DatabaseTypeSetterFactoryTest {
 
     @Test
     void testGetWithCustomRegisteredTypeSettersWhenMultipleMatchingTypeSetters() {
-        List<DatabaseTypeSetter> registeredDatabaseTypeSetters = Arrays.asList(new BooleanDatabaseTypeSetter(),
-                                                                               new BooleanDatabaseTypeSetter());
+        List<DatabaseTypeSetter> registeredDatabaseTypeSetters = List.of(new BooleanDatabaseTypeSetter(), new BooleanDatabaseTypeSetter());
         DatabaseTypeSetterFactory databaseTypeSetterFactory = new DatabaseTypeSetterFactory(registeredDatabaseTypeSetters);
 
         Assertions.assertThrows(IllegalStateException.class, () -> databaseTypeSetterFactory.get(BOOL_TYPE));

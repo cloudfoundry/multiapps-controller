@@ -3,7 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
+import java.util.List;
 
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.SLException;
@@ -51,7 +51,7 @@ class RenameApplicationsStepTest extends SyncFlowableStepTest<RenameApplications
     @Test
     void testOldNewSuffixRenaming() {
         context.setVariable(Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY, true);
-        context.setVariable(Variables.APPS_TO_RENAME, Collections.singletonList("a"));
+        context.setVariable(Variables.APPS_TO_RENAME, List.of("a"));
 
         step.execute(execution);
         assertStepFinishedSuccessfully();

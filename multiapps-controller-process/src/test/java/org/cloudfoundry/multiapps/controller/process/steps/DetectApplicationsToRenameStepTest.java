@@ -74,7 +74,7 @@ class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<DetectAppl
 
     @Test
     void testExecuteRenamesApps() {
-        List<String> appsToUpdate = Arrays.asList("a", "b");
+        List<String> appsToUpdate = List.of("a", "b");
 
         DeployedMta deployedMta = createDeployedMta(appsToUpdate.toArray(new String[0]));
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
@@ -109,7 +109,7 @@ class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<DetectAppl
         Assertions.assertTrue(context.getVariable(Variables.APPS_TO_RENAME)
                                      .contains("a"));
 
-        List<String> appsToCheck = Collections.singletonList("a-live");
+        List<String> appsToCheck = List.of("a-live");
         validateUpdatedDeployedMta(appsToCheck);
     }
 
@@ -126,7 +126,7 @@ class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<DetectAppl
         Assertions.assertTrue(context.getVariable(Variables.APPS_TO_UNDEPLOY)
                                      .isEmpty());
 
-        List<String> appsToCheck = Arrays.asList("a-idle", "a-live");
+        List<String> appsToCheck = List.of("a-idle", "a-live");
         validateUpdatedDeployedMta(appsToCheck);
     }
 
@@ -143,7 +143,7 @@ class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<DetectAppl
         Assertions.assertTrue(context.getVariable(Variables.APPS_TO_UNDEPLOY)
                                      .isEmpty());
 
-        List<String> appsToCheck = Arrays.asList("a-idle", "a-live");
+        List<String> appsToCheck = List.of("a-idle", "a-live");
         validateUpdatedDeployedMta(appsToCheck);
     }
 
@@ -151,7 +151,7 @@ class DetectApplicationsToRenameStepTest extends SyncFlowableStepTest<DetectAppl
     void testExecuteWithPartialDeployDoesntRenameExcluded() {
         DeployedMta deployedMta = createDeployedMta("a", "b", "c");
         context.setVariable(Variables.DEPLOYED_MTA, deployedMta);
-        context.setVariable(Variables.MODULES_FOR_DEPLOYMENT, Arrays.asList("a_module", "c_module"));
+        context.setVariable(Variables.MODULES_FOR_DEPLOYMENT, List.of("a_module", "c_module"));
 
         step.execute(execution);
         assertStepFinishedSuccessfully();

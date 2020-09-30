@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import static java.text.MessageFormat.format;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,23 +32,21 @@ class ApplicationProductizationStateUpdaterBasedOnColorTest {
     static Stream<Arguments> testUpdateApplicationsProductizationState() {
         return Stream.of(
                          // (1) Get module-1 from deployed modules [module-1, module-2]
-                         Arguments.of(Arrays.asList(new DeployedApplication("module-1", "foo-blue"),
-                                                    new DeployedApplication("module-2", "bar-green")),
+                         Arguments.of(List.of(new DeployedApplication("module-1", "foo-blue"),
+                                              new DeployedApplication("module-2", "bar-green")),
                                       ApplicationColor.BLUE, new DeployedApplication("module-1", "foo-blue")),
                          // (2) Get live application in case where both blue and green are deployed
-                         Arguments.of(Arrays.asList(new DeployedApplication("module-1", "foo-blue"),
-                                                    new DeployedApplication("module-1", "foo-green")),
+                         Arguments.of(List.of(new DeployedApplication("module-1", "foo-blue"),
+                                              new DeployedApplication("module-1", "foo-green")),
                                       ApplicationColor.GREEN, new DeployedApplication("module-1", "foo-green")),
                          // (3) Test without deployed mta
                          Arguments.of(Collections.emptyList(), ApplicationColor.BLUE, null),
                          // (4) Get application without color suffix when previous deployed color is BLUE
-                         Arguments.of(Arrays.asList(new DeployedApplication("module-1", "foo"),
-                                                    new DeployedApplication("module-1", "foo-green")),
+                         Arguments.of(List.of(new DeployedApplication("module-1", "foo"), new DeployedApplication("module-1", "foo-green")),
                                       ApplicationColor.BLUE, new DeployedApplication("module-1", "foo")),
                          // (5) Get live application (foo-green) when foo and foo-blue exists
-                         Arguments.of(Arrays.asList(new DeployedApplication("module-1", "foo"),
-                                                    new DeployedApplication("module-1", "foo-blue"),
-                                                    new DeployedApplication("module-1", "foo-green")),
+                         Arguments.of(List.of(new DeployedApplication("module-1", "foo"), new DeployedApplication("module-1", "foo-blue"),
+                                              new DeployedApplication("module-1", "foo-green")),
                                       ApplicationColor.GREEN, new DeployedApplication("module-1", "foo-green")));
     }
 

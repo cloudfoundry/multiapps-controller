@@ -5,9 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,12 +61,12 @@ class PollStartAppStatusExecutionTest {
     }
 
     static Stream<Arguments> testStep() {
-        return Stream.of(Arguments.of(Arrays.asList(InstanceState.RUNNING, InstanceState.STARTING), true, AsyncExecutionState.RUNNING),
-                         Arguments.of(Arrays.asList(InstanceState.CRASHED, InstanceState.CRASHED, InstanceState.CRASHED), true,
+        return Stream.of(Arguments.of(List.of(InstanceState.RUNNING, InstanceState.STARTING), true, AsyncExecutionState.RUNNING),
+                         Arguments.of(List.of(InstanceState.CRASHED, InstanceState.CRASHED, InstanceState.CRASHED), true,
                                       AsyncExecutionState.ERROR),
-                         Arguments.of(Collections.singletonList(InstanceState.CRASHED), false, AsyncExecutionState.RUNNING),
-                         Arguments.of(Arrays.asList(InstanceState.FLAPPING, InstanceState.RUNNING), true, AsyncExecutionState.ERROR),
-                         Arguments.of(Arrays.asList(InstanceState.RUNNING, InstanceState.RUNNING), true, AsyncExecutionState.FINISHED));
+                         Arguments.of(List.of(InstanceState.CRASHED), false, AsyncExecutionState.RUNNING),
+                         Arguments.of(List.of(InstanceState.FLAPPING, InstanceState.RUNNING), true, AsyncExecutionState.ERROR),
+                         Arguments.of(List.of(InstanceState.RUNNING, InstanceState.RUNNING), true, AsyncExecutionState.FINISHED));
     }
 
     @ParameterizedTest

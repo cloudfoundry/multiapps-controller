@@ -1,14 +1,14 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
@@ -17,14 +17,12 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
-@RunWith(Parameterized.class)
-public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskStep> {
+class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskStep> {
 
     @Mock
     private RecentLogsRetriever recentLogsRetriever;
@@ -38,58 +36,6 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
                                                                                                  .name(APPLICATION_NAME)
                                                                                                  .build();
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-// @formatter:off
-            // (0)
-            {
-                CloudTask.State.SUCCEEDED, 100L, AsyncExecutionState.FINISHED,
-            },
-            // (1)
-            {
-                CloudTask.State.SUCCEEDED, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.FINISHED,
-            },
-            // (2)
-            {
-                CloudTask.State.FAILED, 100L, AsyncExecutionState.ERROR,
-            },
-            // (3)
-            {
-                CloudTask.State.FAILED, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.ERROR,
-            },
-            // (4)
-            {
-                CloudTask.State.PENDING, 100L, AsyncExecutionState.RUNNING,
-            },
-            // (5)
-            {
-                CloudTask.State.PENDING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.RUNNING,
-            },
-            // (6)
-            {
-                CloudTask.State.RUNNING, 100L, AsyncExecutionState.RUNNING,
-            },
-            // (7)
-            {
-                CloudTask.State.RUNNING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.RUNNING,
-            },
-            // (8)
-            {
-                CloudTask.State.CANCELING, 100L, AsyncExecutionState.RUNNING,
-            },
-            // (9)
-            {
-                CloudTask.State.CANCELING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.RUNNING,
-            },
-// @formatter:on
-        });
-    }
-
-    private final CloudTask.State currentTaskState;
-    private final long currentTime;
-    private final AsyncExecutionState expectedExecutionStatus;
-
     private final CloudTask task = ImmutableCloudTask.builder()
                                                      .metadata(ImmutableCloudMetadata.builder()
                                                                                      .guid(TASK_UUID)
@@ -97,17 +43,47 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
                                                      .name(TASK_NAME)
                                                      .build();
 
-    public PollExecuteTaskStatusStepTest(CloudTask.State currentTaskState, long currentTime, AsyncExecutionState expectedExecutionStatus) {
-        this.currentTaskState = currentTaskState;
-        this.currentTime = currentTime;
-        this.expectedExecutionStatus = expectedExecutionStatus;
+    private AsyncExecutionState expectedExecutionStatus;
+
+    public static Stream<Arguments> testPollStateExecution() {
+        return Stream.of(
+// @formatter:off
+            // (0)
+            Arguments.of(CloudTask.State.SUCCEEDED, 100L, AsyncExecutionState.FINISHED),
+            // (1)
+            Arguments.of(CloudTask.State.SUCCEEDED, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.FINISHED),
+            // (2)
+            Arguments.of(CloudTask.State.FAILED, 100L, AsyncExecutionState.ERROR),
+            // (3)
+            Arguments.of(CloudTask.State.FAILED, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.ERROR),
+            // (4)
+            Arguments.of(CloudTask.State.PENDING, 100L, AsyncExecutionState.RUNNING),
+            // (5)
+            Arguments.of(CloudTask.State.PENDING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.RUNNING),
+            // (6)
+            Arguments.of(CloudTask.State.RUNNING, 100L, AsyncExecutionState.RUNNING),
+            // (7)
+            Arguments.of(CloudTask.State.RUNNING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.RUNNING),
+            // (8)
+            Arguments.of(CloudTask.State.CANCELING, 100L, AsyncExecutionState.RUNNING),
+            // (9)
+            Arguments.of(CloudTask.State.CANCELING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.RUNNING)
+// @formatter:on
+        );
     }
 
-    @Before
-    public void setUp() {
+    @ParameterizedTest
+    @MethodSource
+    void testPollStateExecution(CloudTask.State currentTaskState, long currentTime, AsyncExecutionState expectedExecutionStatus) {
+        this.expectedExecutionStatus = expectedExecutionStatus;
+        initializeParameters(currentTaskState, currentTime);
+        testExecuteOperations();
+    }
+
+    private void initializeParameters(CloudTask.State currentTaskState, long currentTime) {
         step.currentTimeSupplier = () -> currentTime;
         prepareContext();
-        prepareClientExtensions();
+        prepareClientExtensions(currentTaskState);
         when(recentLogsRetriever.getRecentLogsSafely(any(), any(), any())).thenReturn(Collections.emptyList());
     }
 
@@ -116,10 +92,10 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
         context.setVariable(Variables.TASKS_INDEX, 0);
         context.setVariable(Variables.START_TIME, 0L);
         context.setVariable(Variables.START_TIMEOUT, START_TIMEOUT);
-        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(APPLICATION), execution);
+        StepsTestUtil.mockApplicationsToDeploy(List.of(APPLICATION), execution);
     }
 
-    private void prepareClientExtensions() {
+    private void prepareClientExtensions(CloudTask.State currentTaskState) {
         CloudTask taskWithState = ImmutableCloudTask.builder()
                                                     .from(task)
                                                     .state(currentTaskState)

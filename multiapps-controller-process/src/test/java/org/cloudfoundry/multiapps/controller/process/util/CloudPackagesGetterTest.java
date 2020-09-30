@@ -7,9 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -58,7 +57,7 @@ class CloudPackagesGetterTest {
         Mockito.when(client.getCurrentDropletForApplication(APPLICATION_GUID))
                .thenThrow(getNotFoundCloudOperationException());
         Mockito.when(client.getPackagesForApplication(APPLICATION_GUID))
-               .thenReturn(Collections.singletonList(createCloudPackage(PACKAGE_GUID, Status.PROCESSING_UPLOAD, new Date())));
+               .thenReturn(List.of(createCloudPackage(PACKAGE_GUID, Status.PROCESSING_UPLOAD, new Date())));
         Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getLatestUnusedPackage(client, APPLICATION_GUID);
         assertTrue(latestUnusedPackage.isPresent());
         assertEquals(PACKAGE_GUID, latestUnusedPackage.get()
@@ -83,7 +82,7 @@ class CloudPackagesGetterTest {
         Mockito.when(client.getPackage(PACKAGE_GUID))
                .thenReturn(cloudPackage);
         Mockito.when(client.getPackagesForApplication(APPLICATION_GUID))
-               .thenReturn(Collections.singletonList(cloudPackage));
+               .thenReturn(List.of(cloudPackage));
         Optional<CloudPackage> latestUnusedPackage = cloudPackagesGetter.getLatestUnusedPackage(client, APPLICATION_GUID);
         assertFalse(latestUnusedPackage.isPresent());
     }
@@ -108,7 +107,7 @@ class CloudPackagesGetterTest {
         CloudPackage olderCloudPackage = createCloudPackage(UUID.randomUUID(), Status.READY, simpleDateFormat.parse("02-01-2020"));
         CloudPackage newestCloudPackage = createCloudPackage(UUID.randomUUID(), Status.READY, simpleDateFormat.parse("03-01-2020"));
         Mockito.when(client.getPackagesForApplication(APPLICATION_GUID))
-               .thenReturn(Arrays.asList(olderCloudPackage, newestCloudPackage));
+               .thenReturn(List.of(olderCloudPackage, newestCloudPackage));
         Optional<CloudPackage> latestUnusedCloudPackage = cloudPackagesGetter.getLatestUnusedPackage(client, APPLICATION_GUID);
         assertTrue(latestUnusedCloudPackage.isPresent());
         assertEquals(newestCloudPackage, latestUnusedCloudPackage.get());

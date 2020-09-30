@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -39,21 +38,20 @@ class CheckServicesToDeleteStepTest extends SyncFlowableStepTest<CheckServicesTo
     static Stream<Arguments> testExecute() {
         return Stream.of(
                          // (1) Multiple services in progress
-                         Arguments.of(Arrays.asList("service-1", "service-2", "service-3"),
-                                      Arrays.asList("service-1", "service-2", "service-3"),
+                         Arguments.of(List.of("service-1", "service-2", "service-3"), List.of("service-1", "service-2", "service-3"),
                                       Map.ofEntries(Map.entry("service-1", ServiceOperation.State.IN_PROGRESS),
                                                     Map.entry("service-2", ServiceOperation.State.IN_PROGRESS),
                                                     Map.entry("service-3", ServiceOperation.State.IN_PROGRESS)),
-                                      Arrays.asList("service-1", "service-2", "service-3"), "POLL"),
+                                      List.of("service-1", "service-2", "service-3"), "POLL"),
                          // (2) One service in progress
-                         Arguments.of(Arrays.asList("service-1", "service-2", "service-3"), Arrays.asList("service-2", "service-3"),
+                         Arguments.of(List.of("service-1", "service-2", "service-3"), List.of("service-2", "service-3"),
                                       Map.ofEntries(Pair.of("service-2", ServiceOperation.State.SUCCEEDED),
-                                             Pair.of("service-3", ServiceOperation.State.IN_PROGRESS)),
-                                      Collections.singletonList("service-3"), "POLL"),
+                                                    Pair.of("service-3", ServiceOperation.State.IN_PROGRESS)),
+                                      List.of("service-3"), "POLL"),
                          // (3) All services are not in progress state
-                         Arguments.of(Arrays.asList("service-1", "service-2", "service-3"), Arrays.asList("service-1", "service-2"),
+                         Arguments.of(List.of("service-1", "service-2", "service-3"), List.of("service-1", "service-2"),
                                       Map.ofEntries(Pair.of("service-1", ServiceOperation.State.SUCCEEDED),
-                                             Pair.of("service-2", ServiceOperation.State.SUCCEEDED)),
+                                                    Pair.of("service-2", ServiceOperation.State.SUCCEEDED)),
                                       Collections.emptyList(), "DONE"));
     }
 

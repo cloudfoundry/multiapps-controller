@@ -1,12 +1,11 @@
 package org.cloudfoundry.multiapps.controller.web.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -153,7 +152,7 @@ class AuthorizationCheckerTest {
 
         UUID newUserId = UUID.fromString("6c02b5bc-b9b1-38d7-b332-1dfdb2ba85a0");
         UserInfo negativeUser = new UserInfo(newUserId.toString(), "newUser", userInfo.getToken());
-        when(client.getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)))).thenReturn(Arrays.asList(USER_ID, newUserId));
+        when(client.getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)))).thenReturn(List.of(USER_ID, newUserId));
         when(clientProvider.getControllerClient(negativeUser.getName())).thenReturn(client);
 
         assertTrue(authorizationChecker.checkPermissions(negativeUser, THIRD_SPACE_ID, false));

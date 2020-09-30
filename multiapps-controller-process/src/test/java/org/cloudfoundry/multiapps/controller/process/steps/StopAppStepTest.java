@@ -1,9 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -83,7 +81,7 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     }
 
     List<CloudApplicationExtended> toCloudApplication() {
-        return Collections.singletonList(application.toCloudApplication());
+        return List.of(application.toCloudApplication());
     }
 
     private void validateStoppedApplications() {
@@ -99,11 +97,9 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
 
     @Test
     void testGetHooksBeforeStep() {
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.APPLICATION_BEFORE_STOP_LIVE, HookPhase.BEFORE_STOP),
-                                                       context))
-               .thenReturn(Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_LIVE));
-        List<HookPhase> expectedPhases = Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE,
-                                                       HookPhase.APPLICATION_BEFORE_STOP_LIVE);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.APPLICATION_BEFORE_STOP_LIVE, HookPhase.BEFORE_STOP), context))
+               .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_LIVE));
+        List<HookPhase> expectedPhases = List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_LIVE);
         List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesBeforeStep(context);
         assertEquals(expectedPhases, hookPhasesBeforeStep);
     }
@@ -112,21 +108,18 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     void testGetHooksBeforeStepWithBlueGreenProcess() {
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.APPLICATION_BEFORE_STOP_IDLE, HookPhase.BEFORE_STOP),
-                                                       context))
-               .thenReturn(Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_IDLE));
-        List<HookPhase> expectedPhases = Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE,
-                                                       HookPhase.APPLICATION_BEFORE_STOP_IDLE);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.APPLICATION_BEFORE_STOP_IDLE, HookPhase.BEFORE_STOP), context))
+               .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_IDLE));
+        List<HookPhase> expectedPhases = List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_STOP_LIVE, HookPhase.APPLICATION_BEFORE_STOP_IDLE);
         List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesBeforeStep(context);
         assertEquals(expectedPhases, hookPhasesBeforeStep);
     }
 
     @Test
     void testGetHooksAfterStep() {
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.APPLICATION_AFTER_STOP_LIVE, HookPhase.AFTER_STOP), context))
-               .thenReturn(Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_LIVE));
-        List<HookPhase> expectedPhases = Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE,
-                                                       HookPhase.APPLICATION_AFTER_STOP_LIVE);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.APPLICATION_AFTER_STOP_LIVE, HookPhase.AFTER_STOP), context))
+               .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_LIVE));
+        List<HookPhase> expectedPhases = List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_LIVE);
         List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesAfterStep(context);
         assertEquals(expectedPhases, hookPhasesBeforeStep);
     }
@@ -135,10 +128,9 @@ class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     void testGetHooksAfterStepWithBlueGreenProcess() {
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.APPLICATION_AFTER_STOP_IDLE, HookPhase.AFTER_STOP), context))
-               .thenReturn(Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_IDLE));
-        List<HookPhase> expectedPhases = Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE,
-                                                       HookPhase.APPLICATION_AFTER_STOP_IDLE);
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.APPLICATION_AFTER_STOP_IDLE, HookPhase.AFTER_STOP), context))
+               .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_IDLE));
+        List<HookPhase> expectedPhases = List.of(HookPhase.BLUE_GREEN_APPLICATION_AFTER_STOP_LIVE, HookPhase.APPLICATION_AFTER_STOP_IDLE);
         List<HookPhase> hookPhasesBeforeStep = step.getHookPhasesAfterStep(context);
         assertEquals(expectedPhases, hookPhasesBeforeStep);
     }

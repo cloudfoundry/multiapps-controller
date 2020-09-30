@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,8 +41,7 @@ class CompositeUriAuthorizationFilterTest {
     void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
-        compositeUriAuthorizationFilter = new CompositeUriAuthorizationFilter(Arrays.asList(fooUriAuthorizationFilter,
-                                                                                            barUriAuthorizationFilter),
+        compositeUriAuthorizationFilter = new CompositeUriAuthorizationFilter(List.of(fooUriAuthorizationFilter, barUriAuthorizationFilter),
                                                                               new CFExceptionMapper());
     }
 

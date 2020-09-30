@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -47,11 +46,11 @@ class FlowableHistoricDataCleanerTest {
         HistoricProcessInstance process1 = mockHistoricProcessInstanceWithId(OPERATION_ID_1);
         HistoricProcessInstance process2 = mockHistoricProcessInstanceWithId(OPERATION_ID_2);
         HistoricProcessInstance process3 = mockHistoricProcessInstanceWithId(OPERATION_ID_3);
-        List<HistoricProcessInstance> page1 = Arrays.asList(process1, process2);
-        List<HistoricProcessInstance> page2 = Collections.singletonList(process3);
+        List<HistoricProcessInstance> page1 = List.of(process1, process2);
+        List<HistoricProcessInstance> page2 = List.of(process3);
         List<HistoricProcessInstance> page3 = Collections.emptyList();
 
-        HistoricProcessInstanceQuery query = mockHistoricProcessInstanceQueryWithPages(Arrays.asList(page1, page2, page3));
+        HistoricProcessInstanceQuery query = mockHistoricProcessInstanceQueryWithPages(List.of(page1, page2, page3));
         when(historyService.createHistoricProcessInstanceQuery()).thenReturn(query);
 
         cleaner.execute(EXPIRATION_TIME);
@@ -87,10 +86,10 @@ class FlowableHistoricDataCleanerTest {
     void testExecuteResilience() {
         HistoricProcessInstance process1 = mockHistoricProcessInstanceWithId(OPERATION_ID_1);
         HistoricProcessInstance process2 = mockHistoricProcessInstanceWithId(OPERATION_ID_2);
-        List<HistoricProcessInstance> page1 = Arrays.asList(process1, process2);
+        List<HistoricProcessInstance> page1 = List.of(process1, process2);
         List<HistoricProcessInstance> page2 = Collections.emptyList();
 
-        HistoricProcessInstanceQuery query = mockHistoricProcessInstanceQueryWithPages(Arrays.asList(page1, page2));
+        HistoricProcessInstanceQuery query = mockHistoricProcessInstanceQueryWithPages(List.of(page1, page2));
         when(historyService.createHistoricProcessInstanceQuery()).thenReturn(query);
         doThrow(new FlowableObjectNotFoundException("Oops! Someone was faster than you!")).when(historyService)
                                                                                           .deleteHistoricProcessInstance(OPERATION_ID_1);

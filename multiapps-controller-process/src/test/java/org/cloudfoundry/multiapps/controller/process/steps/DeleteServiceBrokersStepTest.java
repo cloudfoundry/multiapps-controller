@@ -1,10 +1,12 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -16,32 +18,17 @@ import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.process.steps.CreateOrUpdateServiceBrokerStepTest.SimpleApplication;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
-@RunWith(Parameterized.class)
-public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteServiceBrokersStep> {
-
-    private final String inputLocation;
-    private final String[] expectedDeletedBrokers;
-    private final String expectedExceptionMessage;
-    private final Class<? extends Throwable> expectedExceptionClass;
-
-    private final CloudOperationException deleteException;
+class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteServiceBrokersStep> {
 
     private StepInput input;
-
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
 
     private class DeleteServiceBrokersStepMock extends DeleteServiceBrokersStep {
         @Override
@@ -50,82 +37,60 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
         }
     }
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> testExecute() {
+        return Stream.of(
 // @formatter:off
             // (0) One service broker  should be deleted:
-            {
-                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, null, null, null
-            },
+            Arguments.of("delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, null, null, null),
             // (1) No service brokers to delete:
-            {
-                "delete-service-brokers-step-input-02.json", new String[] {}, null, null, null
-            },
+            Arguments.of("delete-service-brokers-step-input-02.json", new String[] {}, null, null, null),
             // (2) Two service brokers should be deleted:
-            {
-                "delete-service-brokers-step-input-03.json", new String[] { "foo-broker", "bar-broker", }, null, null, null
-            },
+            Arguments.of("delete-service-brokers-step-input-03.json", new String[] { "foo-broker", "bar-broker", }, null, null, null),
             // (3) One service broker should be deleted, but it doesn't exist:
-            {
-                "delete-service-brokers-step-input-04.json", new String[] {}, null, null, null
-            },
+            Arguments.of("delete-service-brokers-step-input-04.json", new String[] {}, null, null, null),
             // (4) A module that provides a service broker was renamed (the service broker was updated):
-            {
-                "delete-service-brokers-step-input-05.json", new String[] {}, null, null, null
-            },
+            Arguments.of("delete-service-brokers-step-input-05.json", new String[] {}, null, null, null),
             // (5) One service broker  should be deleted, but an exception is thrown by the client:
-            {
-                "delete-service-brokers-step-input-01.json", new String[] {}, "Controller operation failed: 418 I'm a teapot", SLException.class, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT),
-            },
+            Arguments.of("delete-service-brokers-step-input-01.json", new String[] {}, "Controller operation failed: 418 I'm a teapot", SLException.class, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT)),
             // (6) Service broker should not be deleted and an exception should be thrown, because the user is not an admin and failsafe option is not set:
-            {
-                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, "Service broker operation failed: 403 Forbidden", SLException.class, new CloudOperationException(HttpStatus.FORBIDDEN),
-            },
+            Arguments.of("delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, "Service broker operation failed: 403 Forbidden", SLException.class, new CloudOperationException(HttpStatus.FORBIDDEN)),
             // (7) Service broker should not be deleted without an exception, because the user is not an admin and failsafe option is set:
-            {
-                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, null, null, new CloudOperationException(HttpStatus.FORBIDDEN),
-            },
+            Arguments.of("delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, null, null, new CloudOperationException(HttpStatus.FORBIDDEN))
 // @formatter:on
-        });
+        );
     }
 
-    public DeleteServiceBrokersStepTest(String inputLocation, String[] expectedDeletedBrokers, String expectedExceptionMessage,
-                                        Class<? extends Throwable> expectedExceptionClass, CloudOperationException deleteException) {
-        this.expectedDeletedBrokers = expectedDeletedBrokers;
-        this.expectedExceptionMessage = expectedExceptionMessage;
-        this.expectedExceptionClass = (expectedExceptionClass != null) ? expectedExceptionClass : CloudControllerException.class;
-        this.inputLocation = inputLocation;
-        this.deleteException = deleteException;
-    }
+    @ParameterizedTest
+    @MethodSource
+    void testExecute(String inputLocation, String[] expectedDeletedBrokers, String expectedExceptionMessage,
+                     Class<? extends Throwable> expectedExceptionClass, CloudOperationException deleteException) {
+        input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
+        initializeParameters(deleteException);
+        if (expectedExceptionMessage != null) {
+            context.setVariable(Variables.NO_FAIL_ON_MISSING_PERMISSIONS, false);
+            Throwable throwable = assertThrows(getExpectedExceptionClass(expectedExceptionClass), () -> step.execute(execution));
+            assertTrue(throwable.getMessage()
+                                .contains(expectedExceptionMessage));
+            return;
+        }
+        context.setVariable(Variables.NO_FAIL_ON_MISSING_PERMISSIONS, true);
 
-    @Before
-    public void setUp() throws Exception {
-        loadParameters();
-        prepareContext();
-        prepareClient();
-    }
-
-    @Test
-    public void testExecute() {
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
 
-        String[] deletedBrokers = captureStepOutput();
+        String[] deletedBrokers = captureStepOutput(expectedDeletedBrokers);
 
         assertArrayEquals(expectedDeletedBrokers, deletedBrokers);
     }
 
+    private void initializeParameters(CloudOperationException deleteException) {
+        loadParameters();
+        prepareContext();
+        prepareClient(deleteException);
+    }
+
     private void loadParameters() {
-        boolean shouldSucceed = true;
-        if (expectedExceptionMessage != null) {
-            expectedException.expectMessage(expectedExceptionMessage);
-            expectedException.expect(expectedExceptionClass);
-            shouldSucceed = false;
-        }
-        context.setVariable(Variables.NO_FAIL_ON_MISSING_PERMISSIONS, shouldSucceed);
-        input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
     }
 
     private void prepareContext() {
@@ -138,7 +103,7 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
                            .collect(Collectors.toList());
     }
 
-    private void prepareClient() {
+    private void prepareClient(CloudOperationException deleteException) {
         Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false)))
                .then((Answer<CloudServiceBroker>) invocation -> {
                    String serviceBrokerName = (String) invocation.getArguments()[0];
@@ -156,7 +121,11 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
         }
     }
 
-    private String[] captureStepOutput() {
+    private Class<? extends Throwable> getExpectedExceptionClass(Class<? extends Throwable> expectedExceptionClass) {
+        return (expectedExceptionClass != null) ? expectedExceptionClass : CloudControllerException.class;
+    }
+
+    private String[] captureStepOutput(String[] expectedDeletedBrokers) {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(client, Mockito.times(expectedDeletedBrokers.length))
                .deleteServiceBroker(captor.capture());

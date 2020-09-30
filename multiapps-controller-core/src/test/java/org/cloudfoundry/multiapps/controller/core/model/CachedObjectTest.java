@@ -1,19 +1,19 @@
 package org.cloudfoundry.multiapps.controller.core.model;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class CachedObjectTest {
+class CachedObjectTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testGet() {
+    void testGet() {
         LongSupplier currentTimeSupplier = Mockito.mock(LongSupplier.class);
         Mockito.when(currentTimeSupplier.getAsLong())
                .thenReturn(0L, toMillis(5), toMillis(15), toMillis(25), toMillis(30));
@@ -33,7 +33,7 @@ public class CachedObjectTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testForceRefresh() {
+    void testForceRefresh() {
         LongSupplier currentTimeSupplier = Mockito.mock(LongSupplier.class);
         Mockito.when(currentTimeSupplier.getAsLong())
                .thenReturn(0L, toMillis(5), toMillis(10), toMillis(15), toMillis(25));

@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation.State;
 import org.cloudfoundry.multiapps.controller.persistence.model.HistoricOperationEvent;
@@ -58,10 +58,10 @@ class ProcessHelperTest {
     @Test
     void testIsProcessAbortedWhenThereIsAbortedProcess() {
         Mockito.when(historicOperationEventQuery.list())
-               .thenReturn(Arrays.asList(ImmutableHistoricOperationEvent.builder()
-                                                                        .type(HistoricOperationEvent.EventType.ABORTED)
-                                                                        .processId(PROCESS_ID)
-                                                                        .build()));
+               .thenReturn(List.of(ImmutableHistoricOperationEvent.builder()
+                                                                  .type(HistoricOperationEvent.EventType.ABORTED)
+                                                                  .processId(PROCESS_ID)
+                                                                  .build()));
         Assertions.assertEquals(State.ABORTED, processHelper.computeProcessState(PROCESS_ID));
     }
 
@@ -73,10 +73,10 @@ class ProcessHelperTest {
 
     private void mockHistoricEventsWithTypes(HistoricOperationEvent.EventType type) {
         Mockito.when(historicOperationEventQuery.list())
-               .thenReturn(Arrays.asList(ImmutableHistoricOperationEvent.builder()
-                                                                        .type(type)
-                                                                        .processId(PROCESS_ID)
-                                                                        .build()));
+               .thenReturn(List.of(ImmutableHistoricOperationEvent.builder()
+                                                                  .type(type)
+                                                                  .processId(PROCESS_ID)
+                                                                  .build()));
     }
 
 }

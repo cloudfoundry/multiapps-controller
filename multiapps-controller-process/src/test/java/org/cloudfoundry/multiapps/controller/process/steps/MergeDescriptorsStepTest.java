@@ -1,5 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -15,11 +16,11 @@ import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Platform;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep> {
+class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep> {
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
@@ -38,7 +39,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     @Mock
     private MtaDescriptorMerger merger;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         prepareContext();
     }
@@ -51,7 +52,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     }
 
     @Test
-    public void testExecute1() {
+    void testExecute1() {
         when(merger.merge(any(), eq(Collections.emptyList()))).thenReturn(DEPLOYMENT_DESCRIPTOR);
 
         step.execute(execution);
@@ -62,11 +63,10 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
                     new Expectation(Expectation.Type.JSON, "node-hello-mtad.yaml.json"));
     }
 
-    @Test(expected = SLException.class)
-    public void testExecute2() {
+    @Test
+    void testExecute2() {
         when(merger.merge(any(), eq(Collections.emptyList()))).thenThrow(new ContentException("Error!"));
-
-        step.execute(execution);
+        assertThrows(SLException.class, () -> step.execute(execution));
     }
 
     @Override

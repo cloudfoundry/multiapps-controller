@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +59,7 @@ class DescriptorParametersCompatabilityValidatorTest {
 
     private DeploymentDescriptor buildDeploymentDescriptor(Module module) {
         return DeploymentDescriptor.createV2()
-                                   .setModules(Collections.singletonList(module));
+                                   .setModules(List.of(module));
     }
 
     private void prepareModuleParametersCompatabilityValidator(Module module) {

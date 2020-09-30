@@ -1,8 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.net.MalformedURLException;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -40,7 +39,7 @@ class ServiceUpdaterTest extends CloudServiceOperatorTest {
     }
 
     @Test
-    void testUpdateServicePlan1() throws MalformedURLException {
+    void testUpdateServicePlan1() {
         CloudControllerClient client = getMockedClient();
         Mockito.when(client.getServiceInstance(EXISTING_SERVICE_INSTANCE_NAME))
                .thenReturn(EXISTING_SERVICE_INSTANCE);

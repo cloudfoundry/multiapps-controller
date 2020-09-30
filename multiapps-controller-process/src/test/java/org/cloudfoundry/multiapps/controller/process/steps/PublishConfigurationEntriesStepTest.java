@@ -1,13 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
@@ -20,12 +20,10 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ConfigurationEntr
 import org.cloudfoundry.multiapps.controller.persistence.query.ConfigurationEntryQuery;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -33,8 +31,7 @@ import org.mockito.Mockito;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-@RunWith(Parameterized.class)
-public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishConfigurationEntriesStep> {
+class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishConfigurationEntriesStep> {
 
     private static class StepInput {
 
@@ -46,47 +43,45 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
 
     private static List<ConfigurationEntry> existingConfigurationEntries;
 
-    private final StepInput input;
     @Mock
     private ConfigurationEntryService configurationEntryService;
     @Mock(answer = Answers.RETURNS_SELF)
     private ConfigurationEntryQuery configurationEntryQuery;
 
-    public PublishConfigurationEntriesStepTest(String input) {
-        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, PublishConfigurationEntriesStepTest.class), StepInput.class);
-    }
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> test() {
+        return Stream.of(
 // @formatter:off
-            {
-                "publish-configuration-entries-step-input-1.json"
-            },
-            {
-                "publish-configuration-entries-step-input-2.json"
-            },
-            {
-                "publish-configuration-entries-step-input-3.json"
-            },
-            {
-                "publish-configuration-entries-step-input-4.json"
-            },
+                Arguments.of("publish-configuration-entries-step-input-1.json"),
+                Arguments.of("publish-configuration-entries-step-input-2.json"),
+                Arguments.of("publish-configuration-entries-step-input-3.json"),
+                Arguments.of("publish-configuration-entries-step-input-4.json")
 // @formatter:on
-        });
+        );
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void loadConfigurationEntries() {
         existingConfigurationEntries = JsonUtil.fromJson(TestUtil.getResourceAsString("configuration-entries.json",
                                                                                       PublishConfigurationEntriesStepTest.class),
-                                                         new TypeReference<List<ConfigurationEntry>>() {
+                                                         new TypeReference<>() {
                                                          });
     }
 
-    @Before
-    public void setUp() {
-        prepareContext();
+    @ParameterizedTest
+    @MethodSource
+    void test(String inputFilename) {
+        StepInput input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputFilename, PublishConfigurationEntriesStepTest.class),
+                                            StepInput.class);
+        initializeParameters(input);
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+
+        validateConfigurationEntryService(input);
+    }
+
+    public void initializeParameters(StepInput input) {
+        prepareContext(input);
         prepareConfigurationEntryService();
     }
 
@@ -99,12 +94,12 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
                                                                                                                                .toString()))
                                                                                                .on(query -> query.target(Mockito.eq(entry.getTargetSpace())))
                                                                                                .build();
-            doReturn(Collections.singletonList(entry)).when(entryQueryMock)
+            doReturn(List.of(entry)).when(entryQueryMock)
                                                       .list();
         }
     }
 
-    private void prepareContext() {
+    private void prepareContext(StepInput input) {
         context.setVariable(Variables.CONFIGURATION_ENTRIES_TO_PUBLISH, input.entriesToPublish);
         CloudApplicationExtended appToProcess = ImmutableCloudApplicationExtended.builder()
                                                                                  .metadata(CloudMetadata.defaultMetadata())
@@ -113,24 +108,15 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
         context.setVariable(Variables.APP_TO_PROCESS, appToProcess);
     }
 
-    @Test
-    public void test() {
-        step.execute(execution);
-
-        assertStepFinishedSuccessfully();
-
-        validateConfigurationEntryService();
-    }
-
-    private void validateConfigurationEntryService() {
+    private void validateConfigurationEntryService(StepInput input) {
         if (CollectionUtils.isEmpty(input.entriesToPublish)) {
             Mockito.verify(configurationEntryService, Mockito.never())
                    .add(Mockito.any());
             Mockito.verify(configurationEntryService, Mockito.never())
                    .update(Mockito.any(), Mockito.any());
         }
-        List<ConfigurationEntry> createdEntries = getCreatedEntries();
-        List<ConfigurationEntry> updatedEntries = getUpdatedEntries();
+        List<ConfigurationEntry> createdEntries = getCreatedEntries(input);
+        List<ConfigurationEntry> updatedEntries = getUpdatedEntries(input);
         assertContainsEntries(input.expectedCreatedEntries, createdEntries);
         assertContainsEntries(input.expectedUpdatedEntries, updatedEntries);
     }
@@ -141,14 +127,14 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
         }
     }
 
-    private List<ConfigurationEntry> getCreatedEntries() {
+    private List<ConfigurationEntry> getCreatedEntries(StepInput input) {
         ArgumentCaptor<ConfigurationEntry> configurationEntryCaptor = ArgumentCaptor.forClass(ConfigurationEntry.class);
         Mockito.verify(configurationEntryService, Mockito.times(input.expectedCreatedEntries.size()))
                .add(configurationEntryCaptor.capture());
         return configurationEntryCaptor.getAllValues();
     }
 
-    private List<ConfigurationEntry> getUpdatedEntries() {
+    private List<ConfigurationEntry> getUpdatedEntries(StepInput input) {
         ArgumentCaptor<ConfigurationEntry> configurationEntryCaptor = ArgumentCaptor.forClass(ConfigurationEntry.class);
         Mockito.verify(configurationEntryService, Mockito.times(input.expectedUpdatedEntries.size()))
                .update(Mockito.any(), configurationEntryCaptor.capture());
@@ -167,10 +153,10 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     private boolean areEqual(ConfigurationEntry entry1, ConfigurationEntry entry2) {
         // @formatter:off
         return Objects.equals(entry1.getProviderId(), entry2.getProviderId())
-            && Objects.equals(entry1.getProviderNid(), entry2.getProviderNid())
-            && Objects.equals(entry1.getProviderVersion(), entry2.getProviderVersion())
-            && Objects.equals(entry1.getTargetSpace(), entry2.getTargetSpace())
-            && Objects.equals(entry1.getContent(), entry2.getContent());
+                && Objects.equals(entry1.getProviderNid(), entry2.getProviderNid())
+                && Objects.equals(entry1.getProviderVersion(), entry2.getProviderVersion())
+                && Objects.equals(entry1.getTargetSpace(), entry2.getTargetSpace())
+                && Objects.equals(entry1.getContent(), entry2.getContent());
         // @formatter:on
     }
 

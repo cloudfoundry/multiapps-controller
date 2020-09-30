@@ -63,7 +63,7 @@ class ServiceRemoverTest {
     @Mock
     private CloudControllerClientProvider clientProvider;
 
-    private DelegateExecution execution = MockDelegateExecution.createSpyInstance();
+    private final DelegateExecution execution = MockDelegateExecution.createSpyInstance();
 
     private ProcessContext context;
     private ServiceRemover serviceRemover;
@@ -107,13 +107,12 @@ class ServiceRemoverTest {
                                                                .deleteServiceInstance(any(CloudServiceInstance.class));
 
         if (expectedExceptionType == null) {
-            assertDoesNotThrow(() -> serviceRemover.deleteService(context, serviceInstance, Collections.singletonList(serviceBinding),
+            assertDoesNotThrow(() -> serviceRemover.deleteService(context, serviceInstance, List.of(serviceBinding),
                                                                   Collections.emptyList()));
             return;
         }
         Exception wrappedException = assertThrows(SLException.class,
-                                                  () -> serviceRemover.deleteService(context, serviceInstance,
-                                                                                     Collections.singletonList(serviceBinding),
+                                                  () -> serviceRemover.deleteService(context, serviceInstance, List.of(serviceBinding),
                                                                                      Collections.emptyList()));
         assertEquals(expectedExceptionType, wrappedException.getCause()
                                                             .getClass());
@@ -141,7 +140,7 @@ class ServiceRemoverTest {
         prepareClient(application, serviceInstance, serviceBinding);
 
         if (hasServiceBinding) {
-            serviceRemover.deleteService(context, serviceInstance, Collections.singletonList(serviceBinding), serviceKeys);
+            serviceRemover.deleteService(context, serviceInstance, List.of(serviceBinding), serviceKeys);
         } else {
             serviceRemover.deleteService(context, serviceInstance, Collections.emptyList(), serviceKeys);
         }
@@ -171,10 +170,10 @@ class ServiceRemoverTest {
 
     private List<CloudServiceKey> buildServiceKeys(CloudServiceInstance service, boolean hasServiceKey) {
         if (hasServiceKey) {
-            return Collections.singletonList(ImmutableCloudServiceKey.builder()
-                                                                     .name(SERVICE_KEY_NAME)
-                                                                     .serviceInstance(service)
-                                                                     .build());
+            return List.of(ImmutableCloudServiceKey.builder()
+                                                   .name(SERVICE_KEY_NAME)
+                                                   .serviceInstance(service)
+                                                   .build());
         }
         return Collections.emptyList();
     }
@@ -185,7 +184,7 @@ class ServiceRemoverTest {
         when(client.getServiceInstance(anyString())).thenReturn(serviceInstance);
         if (serviceBinding != null) {
             when(client.getServiceBindings(serviceInstance.getMetadata()
-                                                          .getGuid())).thenReturn(Collections.singletonList(serviceBinding));
+                                                          .getGuid())).thenReturn(List.of(serviceBinding));
         }
     }
 

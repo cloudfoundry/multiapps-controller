@@ -1,7 +1,8 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,11 +23,11 @@ import org.apache.commons.io.FileUtils;
 import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntry;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class FileServiceFileStorageTest {
+class FileServiceFileStorageTest {
 
     private static final String TEST_FILE_LOCATION = "src/test/resources/pexels-photo-401794.jpeg";
     private static final String SECOND_FILE_TEST_LOCATION = "src/test/resources/pexels-photo-463467.jpeg";
@@ -39,8 +40,8 @@ public class FileServiceFileStorageTest {
 
     private Path temporaryStorageLocation;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         this.temporaryStorageLocation = Files.createTempDirectory("testfileStorage");
         fileStorage = new FileSystemFileStorage(temporaryStorageLocation.toString());
         spaceId = UUID.randomUUID()
@@ -49,19 +50,19 @@ public class FileServiceFileStorageTest {
                         .toString();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         FileUtils.deleteDirectory(temporaryStorageLocation.toFile());
     }
 
     @Test
-    public void addFileTest() throws Exception {
+    void addFileTest() throws Exception {
         FileEntry fileEntry = addFile(TEST_FILE_LOCATION);
         assertFileExists(true, fileEntry);
     }
 
     @Test
-    public void getFileEntriesWithoutContent() throws Exception {
+    void getFileEntriesWithoutContent() throws Exception {
         List<FileEntry> fileEntries = new ArrayList<>();
         FileEntry existingFile = addFile(TEST_FILE_LOCATION);
         fileEntries.add(existingFile);
@@ -77,7 +78,7 @@ public class FileServiceFileStorageTest {
     }
 
     @Test
-    public void deleteFile() throws Exception {
+    void deleteFile() throws Exception {
         FileEntry fileThatWillBeDeleted = addFile(TEST_FILE_LOCATION);
         FileEntry fileThatStays = addFile(SECOND_FILE_TEST_LOCATION);
 
@@ -88,7 +89,7 @@ public class FileServiceFileStorageTest {
     }
 
     @Test
-    public void deleteFilesBySpace() throws Exception {
+    void deleteFilesBySpace() throws Exception {
         FileEntry firstFile = addFile(TEST_FILE_LOCATION);
         FileEntry secondFile = addFile(SECOND_FILE_TEST_LOCATION);
         FileEntry fileInOtherSpace = addFile(TEST_FILE_LOCATION, "otherspace", namespace);
@@ -100,14 +101,13 @@ public class FileServiceFileStorageTest {
 
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void deleteFilesBySpaceAndNamespace() throws Exception {
-        fileStorage.deleteFilesBySpaceAndNamespace(spaceId, namespace);
-
+    @Test
+    void deleteFilesBySpaceAndNamespace() throws Exception {
+        assertThrows(UnsupportedOperationException.class, () -> fileStorage.deleteFilesBySpaceAndNamespace(spaceId, namespace));
     }
 
     @Test
-    public void deleteFilesModifiedBefore() throws Exception {
+    void deleteFilesModifiedBefore() throws Exception {
         long currentMillis = System.currentTimeMillis();
         final long oldFilesTtl = 1000 * 60 * 10; // 10min
         final long pastMoment = currentMillis - 1000 * 60 * 15; // before 15min
@@ -134,15 +134,15 @@ public class FileServiceFileStorageTest {
     }
 
     @Test
-    public void processFileContent() throws Exception {
+    void processFileContent() throws Exception {
         FileEntry fileEntry = addFile(TEST_FILE_LOCATION);
         String testFileDigest = DigestHelper.computeFileChecksum(Paths.get(TEST_FILE_LOCATION), DIGEST_METHOD)
                                             .toLowerCase();
         validateFileContent(fileEntry, testFileDigest);
     }
 
-    @Test(expected = FileStorageException.class)
-    public void testFileContentNotExisting() throws Exception {
+    @Test
+    void testFileContentNotExisting() throws Exception {
         String fileId = "not-existing-file-id";
         String fileSpace = "not-existing-space-id";
         String fileDigest = DigestHelper.computeFileChecksum(Paths.get(TEST_FILE_LOCATION), DIGEST_METHOD)
@@ -151,7 +151,7 @@ public class FileServiceFileStorageTest {
                                                      .id(fileId)
                                                      .space(fileSpace)
                                                      .build();
-        validateFileContent(dummyFileEntry, fileDigest);
+        assertThrows(FileStorageException.class, () -> validateFileContent(dummyFileEntry, fileDigest));
     }
 
     private void validateFileContent(FileEntry storedFile, final String expectedFileChecksum) throws FileStorageException {

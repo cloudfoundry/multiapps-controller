@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -51,7 +50,7 @@ class ProgressMessageServiceTest {
 
     @Test
     void testAddWithNonEmptyDatabase() {
-        addProgressMessages(Arrays.asList(PROGRESS_MESSAGE_1, PROGRESS_MESSAGE_2));
+        addProgressMessages(List.of(PROGRESS_MESSAGE_1, PROGRESS_MESSAGE_2));
 
         assertProgressMessageExists(PROGRESS_MESSAGE_1.getId());
         assertProgressMessageExists(PROGRESS_MESSAGE_2.getId());
@@ -101,7 +100,7 @@ class ProgressMessageServiceTest {
     }
 
     private void testQueryByCriteria(ProgressMessageQueryBuilder progressMessageQueryBuilder) {
-        addProgressMessages(Arrays.asList(PROGRESS_MESSAGE_1, PROGRESS_MESSAGE_2));
+        addProgressMessages(List.of(PROGRESS_MESSAGE_1, PROGRESS_MESSAGE_2));
         assertEquals(1, progressMessageQueryBuilder.build(progressMessageService.createQuery(), PROGRESS_MESSAGE_1)
                                                    .list()
                                                    .size());

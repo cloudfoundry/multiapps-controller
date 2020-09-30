@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,17 +14,17 @@ import java.util.TreeMap;
 import org.cloudfoundry.multiapps.common.util.DigestHelper;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.Constants;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ApplicationBitsChangesDetectorTest {
+class ApplicationBitsChangesDetectorTest {
 
     private static final String FILE_NAME = "src/test/resources/org/cloudfoundry/multiapps/controller/core/helpers/node-hello-world-0.1.0-SNAPSHOT.mtar";
     private Map<String, String> appEnv;
     private File applicationFile;
     private ApplicationFileDigestDetector detector;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         appEnv = new HashMap<>(Map.of(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(new TreeMap<>())));
         detector = new ApplicationFileDigestDetector(appEnv);
@@ -33,14 +33,14 @@ public class ApplicationBitsChangesDetectorTest {
     }
 
     @Test
-    public void testDetectCurrentAppFileDigestWithNoInfoInEnv() {
+    void testDetectCurrentAppFileDigestWithNoInfoInEnv() {
         detector = new ApplicationFileDigestDetector(appEnv);
 
         assertNull(detector.detectCurrentAppFileDigest());
     }
 
     @Test
-    public void testDetectWithFileDigestInTheEnv() throws NoSuchAlgorithmException, IOException {
+    void testDetectWithFileDigestInTheEnv() throws NoSuchAlgorithmException, IOException {
         String testFileDigest = getTestFileDigest();
         Map<String, Object> deployAttributes = Map.of(Constants.ATTR_APP_CONTENT_DIGEST, testFileDigest);
         appEnv.put(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(deployAttributes));

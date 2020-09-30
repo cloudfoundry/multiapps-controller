@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -87,7 +86,7 @@ class OperationsCleanerTest {
                                                  .processId(OPERATION_ID_2)
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
                                                  .build();
-        List<Operation> operationsList = Arrays.asList(operation1, operation2);
+        List<Operation> operationsList = List.of(operation1, operation2);
         when(operationService.createQuery()).thenReturn(operationQuery);
         initQueryMockForPage(0, operationsList);
 
@@ -110,7 +109,7 @@ class OperationsCleanerTest {
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
                                                  .state(null)
                                                  .build();
-        List<Operation> operationsList = Arrays.asList(operation1, operation2);
+        List<Operation> operationsList = List.of(operation1, operation2);
 
         when(operationService.createQuery()).thenReturn(operationQuery);
         initQueryMockForPage(0, operationsList);
@@ -141,8 +140,8 @@ class OperationsCleanerTest {
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
                                                  .state(null)
                                                  .build();
-        List<Operation> operationsPage1 = Arrays.asList(operation1, operation2);
-        List<Operation> operationsPage2 = Collections.singletonList(operation3);
+        List<Operation> operationsPage1 = List.of(operation1, operation2);
+        List<Operation> operationsPage2 = List.of(operation3);
 
         when(operationService.createQuery()).thenReturn(operationQuery);
         initQueryMockForPage(0, operationsPage1);
@@ -174,8 +173,8 @@ class OperationsCleanerTest {
                                                  .startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
                                                  .state(null)
                                                  .build();
-        List<Operation> operationsPage1 = Arrays.asList(operation1, operation2);
-        List<Operation> operationsPage2 = Collections.singletonList(operation3);
+        List<Operation> operationsPage1 = List.of(operation1, operation2);
+        List<Operation> operationsPage2 = List.of(operation3);
 
         when(operationService.createQuery()).thenReturn(operationQuery);
         initQueryMockForPage(0, operationsPage1);

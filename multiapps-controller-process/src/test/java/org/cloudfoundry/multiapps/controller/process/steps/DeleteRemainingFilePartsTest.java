@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -43,8 +42,8 @@ class DeleteRemainingFilePartsTest extends SyncFlowableStepTest<DeleteRemainingF
     }
 
     private List<FileEntry> createFakeFileEntries() {
-        return Arrays.asList(createFileEntry("id1", "file.part.0", "local"), createFileEntry("id2", "file.part.1", "local"),
-                             createFileEntry("id3", "file.part.2", "local"));
+        return List.of(createFileEntry("id1", "file.part.0", "local"), createFileEntry("id2", "file.part.1", "local"),
+                       createFileEntry("id3", "file.part.2", "local"));
     }
 
     private FileEntry createFileEntry(String id, String name, String space) {

@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -178,7 +177,7 @@ class ProcessStepHelperTest {
         Execution execution = Mockito.mock(Execution.class);
         Mockito.when(execution.getActivityId())
                .thenReturn("activityId");
-        return Collections.singletonList(execution);
+        return List.of(execution);
     }
 
     private void prepareHistoricOperationsEventGetter(HistoricOperationEvent.EventType... eventTypes) {

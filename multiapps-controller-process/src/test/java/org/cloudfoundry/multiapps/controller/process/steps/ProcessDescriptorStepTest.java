@@ -1,9 +1,10 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
@@ -12,11 +13,11 @@ import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorStep> {
+class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorStep> {
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
@@ -35,7 +36,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     @Mock
     private MtaDescriptorPropertiesResolver resolver;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         prepareContext();
     }
@@ -51,7 +52,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     }
 
     @Test
-    public void testExecute1() {
+    void testExecute1() {
         when(resolver.resolve(any())).thenAnswer((invocation) -> invocation.getArguments()[0]);
 
         step.execute(execution);
@@ -64,19 +65,17 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
                     new Expectation(Expectation.Type.JSON, "node-hello-mtad-1.yaml.json"));
     }
 
-    @Test(expected = SLException.class)
-    public void testExecute2() {
+    @Test
+    void testExecute2() {
         when(resolver.resolve(any())).thenThrow(new SLException("Error!"));
-
-        step.execute(execution);
+        assertThrows(SLException.class, () -> step.execute(execution));
     }
 
-    @Test(expected = SLException.class)
-    public void testWithInvalidModulesSpecifiedForDeployment() {
+    @Test
+    void testWithInvalidModulesSpecifiedForDeployment() {
         when(resolver.resolve(any())).thenReturn(DEPLOYMENT_DESCRIPTOR);
-        when(context.getVariable(Variables.MODULES_FOR_DEPLOYMENT)).thenReturn(Arrays.asList("foo", "bar"));
-
-        step.execute(execution);
+        when(context.getVariable(Variables.MODULES_FOR_DEPLOYMENT)).thenReturn(List.of("foo", "bar"));
+        assertThrows(SLException.class, () -> step.execute(execution));
     }
 
     @Override

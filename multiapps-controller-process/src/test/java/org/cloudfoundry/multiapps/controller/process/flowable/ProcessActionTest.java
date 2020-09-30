@@ -74,7 +74,7 @@ abstract class ProcessActionTest {
         Execution execution = Mockito.mock(Execution.class);
         Mockito.when(execution.getId())
                .thenReturn(EXECUTION_ID);
-        return Collections.singletonList(execution);
+        return List.of(execution);
     }
 
     private List<String> getSubprocessesIds() {

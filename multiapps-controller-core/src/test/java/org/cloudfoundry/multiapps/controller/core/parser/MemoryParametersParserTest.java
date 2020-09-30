@@ -41,7 +41,7 @@ class MemoryParametersParserTest {
     @ParameterizedTest
     @MethodSource("testParameters")
     void testMemoryParsing(String memoryStr, Integer expectedParsedMemory) {
-        List<Map<String, Object>> parametersList = Collections.singletonList(Map.of(SupportedParameters.MEMORY, memoryStr));
+        List<Map<String, Object>> parametersList = List.of(Map.of(SupportedParameters.MEMORY, memoryStr));
 
         Integer memory = parser.parse(parametersList);
 
@@ -50,7 +50,7 @@ class MemoryParametersParserTest {
 
     @Test
     void testInvalidMemoryParsing() {
-        List<Map<String, Object>> parametersList = Collections.singletonList(Map.of(SupportedParameters.MEMORY, "test-mb"));
+        List<Map<String, Object>> parametersList = List.of(Map.of(SupportedParameters.MEMORY, "test-mb"));
 
         assertThrows(ContentException.class, () -> parser.parse(parametersList));
     }

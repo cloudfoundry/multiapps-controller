@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.core.cf.v3;
 
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
@@ -11,55 +11,39 @@ import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.resolvers.ResolverBuilder;
 import org.cloudfoundry.multiapps.mta.resolvers.v2.DescriptorReferenceResolver;
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.cf.v2.CloudModelBuilderTest {
+class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller.core.cf.v2.CloudModelBuilderTest {
 
     @Mock
     private UserMessageLogger userMessageLogger;
 
-    public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
-                                 String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
-                                 String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps,
-                                 AppSuffixDeterminer appSuffixDeterminer)
-        throws Exception {
-        super(deploymentDescriptorLocation,
-              extensionDescriptorLocation,
-              platformsLocation,
-              deployedMtaLocation,
-              namespace,
-              applyNamespace,
-              mtaArchiveModules,
-              mtaModules,
-              deployedApps,
-              expectedServices,
-              expectedApps,
-              appSuffixDeterminer);
-        MockitoAnnotations.openMocks(this)
-                          .close();
-    }
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> getParameters() {
+        return Stream.of(
 // @formatter:off
             // (00) Test missing resource type definition:
-            {
-                "mtad-missing-resource-type-definition.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                null, false,
-                new String[] { "foo" }, // mtaArchiveModules
-                new String[] { "foo" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-01.json"),
-                DEFAULT_APP_SUFFIX_DETERMINER,
-            },
+            Arguments.of("mtad-missing-resource-type-definition.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
+                    null, false,
+                    new String[] { "foo" }, // mtaArchiveModules
+                    new String[] { "foo" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-01.json"),
+                    DEFAULT_APP_SUFFIX_DETERMINER)
 // @formatter:on
-        });
+        );
+    }
+
+    @BeforeEach
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
     @Override
@@ -94,8 +78,15 @@ public class CloudModelBuilderTest extends org.cloudfoundry.multiapps.controller
         return userMessageLogger;
     }
 
-    @Test
-    public void testWarnMessage() {
+    @ParameterizedTest
+    @MethodSource("getParameters")
+    void testWarnMessage(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
+                         String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
+                         String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps,
+                         AppSuffixDeterminer appSuffixDeterminer)
+        throws Exception {
+        initializeParameters(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, deployedMtaLocation, namespace,
+                             applyNamespace, mtaArchiveModules, mtaModules, deployedApps, appSuffixDeterminer);
         resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources());
         Mockito.verify(userMessageLogger)
                .warn(Mockito.anyString(), Mockito.any());

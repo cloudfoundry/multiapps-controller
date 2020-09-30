@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -98,7 +97,7 @@ class ArchiveMergerTest {
 
     private List<FileEntry> createFileEntriesFromFile(String fileName) {
         FileEntry[] fileEntries = JsonUtil.fromJson(TestUtil.getResourceAsString(fileName, getClass()), FileEntry[].class);
-        return Arrays.asList(fileEntries);
+        return List.of(fileEntries);
     }
 
     private String getArchiveName(FileEntry fileEntry) {
