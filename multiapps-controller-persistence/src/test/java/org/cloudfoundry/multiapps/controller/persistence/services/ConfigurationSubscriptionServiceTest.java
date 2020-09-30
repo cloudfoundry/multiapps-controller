@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -59,7 +58,7 @@ class ConfigurationSubscriptionServiceTest {
 
     @Test
     void testAddWithNonEmptyDatabase() {
-        addConfigurationSubscriptions(Arrays.asList(CONFIGURATION_SUBSCRIPTION_1, CONFIGURATION_SUBSCRIPTION_2));
+        addConfigurationSubscriptions(List.of(CONFIGURATION_SUBSCRIPTION_1, CONFIGURATION_SUBSCRIPTION_2));
 
         assertConfigurationSubscriptionExists(CONFIGURATION_SUBSCRIPTION_1.getId());
         assertConfigurationSubscriptionExists(CONFIGURATION_SUBSCRIPTION_2.getId());
@@ -111,7 +110,7 @@ class ConfigurationSubscriptionServiceTest {
 
     @Test
     void testQueryByFilterMatching() {
-        addConfigurationSubscriptions(Arrays.asList(CONFIGURATION_SUBSCRIPTION_1, CONFIGURATION_SUBSCRIPTION_2));
+        addConfigurationSubscriptions(List.of(CONFIGURATION_SUBSCRIPTION_1, CONFIGURATION_SUBSCRIPTION_2));
 
         int foundSubscriptions = configurationSubscriptionService.createQuery()
                                                                  .onSelectMatching(Collections.singletonList(new ConfigurationEntry(null,
@@ -129,7 +128,7 @@ class ConfigurationSubscriptionServiceTest {
     }
 
     private void testQueryByCriteria(ConfigurationSubscriptionQueryBuilder configurationSubscriptionQueryBuilder) {
-        addConfigurationSubscriptions(Arrays.asList(CONFIGURATION_SUBSCRIPTION_1, CONFIGURATION_SUBSCRIPTION_2));
+        addConfigurationSubscriptions(List.of(CONFIGURATION_SUBSCRIPTION_1, CONFIGURATION_SUBSCRIPTION_2));
         assertEquals(1,
                      configurationSubscriptionQueryBuilder.build(configurationSubscriptionService.createQuery(),
                                                                  CONFIGURATION_SUBSCRIPTION_1)

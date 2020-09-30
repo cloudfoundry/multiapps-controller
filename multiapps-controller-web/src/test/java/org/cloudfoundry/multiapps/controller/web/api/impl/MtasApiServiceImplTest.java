@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.web.api.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -113,13 +112,13 @@ class MtasApiServiceImplTest {
         Mockito.when(deployedMtaDetector.detectDeployedMtasByName(mtaToGet.getMetadata()
                                                                           .getId(),
                                                                   client))
-               .thenReturn(Arrays.asList(getDeployedMta(mtaToGet)));
+               .thenReturn(List.of(getDeployedMta(mtaToGet)));
 
         ResponseEntity<List<Mta>> response = testedClass.getMtas(SPACE_GUID, null, mtaToGet.getMetadata()
                                                                                            .getId());
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<Mta> responseMtas = response.getBody();
-        assertEquals(Arrays.asList(mtaToGet), responseMtas);
+        assertEquals(List.of(mtaToGet), responseMtas);
     }
 
     @Test
@@ -128,14 +127,14 @@ class MtasApiServiceImplTest {
         Mockito.when(deployedMtaDetector.detectDeployedMtasByNamespace(mtaToGet.getMetadata()
                                                                                .getNamespace(),
                                                                        client))
-               .thenReturn(Arrays.asList(getDeployedMta(mtaToGet)));
+               .thenReturn(List.of(getDeployedMta(mtaToGet)));
 
         ResponseEntity<List<Mta>> response = testedClass.getMtas(SPACE_GUID, mtaToGet.getMetadata()
                                                                                      .getNamespace(),
                                                                  null);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<Mta> responseMtas = response.getBody();
-        assertEquals(Arrays.asList(mtaToGet), responseMtas);
+        assertEquals(List.of(mtaToGet), responseMtas);
     }
 
     @Test
@@ -154,7 +153,7 @@ class MtasApiServiceImplTest {
                                                                          .getId());
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<Mta> responseMtas = response.getBody();
-        assertEquals(Arrays.asList(mtaToGet), responseMtas);
+        assertEquals(List.of(mtaToGet), responseMtas);
     }
 
     @Test
@@ -163,7 +162,7 @@ class MtasApiServiceImplTest {
         Mockito.when(deployedMtaDetector.detectDeployedMtasByName(mtaToGet.getMetadata()
                                                                           .getId(),
                                                                   client))
-               .thenReturn(Arrays.asList(getDeployedMta(mtaToGet)));
+               .thenReturn(List.of(getDeployedMta(mtaToGet)));
 
         ResponseEntity<Mta> response = testedClass.getMta(SPACE_GUID, mtaToGet.getMetadata()
                                                                               .getId());

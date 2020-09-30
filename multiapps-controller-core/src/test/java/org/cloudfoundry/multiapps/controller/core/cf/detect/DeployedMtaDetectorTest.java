@@ -44,20 +44,20 @@ class DeployedMtaDetectorTest {
 
     private final Tester tester = Tester.forClass(getClass());
 
-    private MtaMetadataApplicationCollector appCollector = new MtaMetadataApplicationCollector();
+    private final MtaMetadataApplicationCollector appCollector = new MtaMetadataApplicationCollector();
 
-    private MtaMetadataValidator mtaMetadataValidator = new MtaMetadataValidator();
-
-    @Spy
-    private MtaMetadataParser mtaMetadataParser = new MtaMetadataParser(mtaMetadataValidator);
-
-    private MtaMetadataServiceCollector serviceCollector = new MtaMetadataServiceCollector();
+    private final MtaMetadataValidator mtaMetadataValidator = new MtaMetadataValidator();
 
     @Spy
-    private List<MtaMetadataEntityCollector> collectors = new ArrayList<>();
+    private final MtaMetadataParser mtaMetadataParser = new MtaMetadataParser(mtaMetadataValidator);
+
+    private final MtaMetadataServiceCollector serviceCollector = new MtaMetadataServiceCollector();
 
     @Spy
-    private MtaMetadataEntityAggregator mtaMetadataEntityAggregator = new MtaMetadataEntityAggregator(mtaMetadataParser);
+    private final List<MtaMetadataEntityCollector> collectors = new ArrayList<>();
+
+    @Spy
+    private final MtaMetadataEntityAggregator mtaMetadataEntityAggregator = new MtaMetadataEntityAggregator(mtaMetadataParser);
 
     @InjectMocks
     @Spy

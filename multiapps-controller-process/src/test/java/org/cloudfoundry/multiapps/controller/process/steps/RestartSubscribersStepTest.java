@@ -15,14 +15,14 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudOrganization;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudSpace;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribersStep> {
+class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribersStep> {
 
     @Test
-    public void testClientsForCorrectSpacesAreRequested() {
+    void testClientsForCorrectSpacesAreRequested() {
         // Given:
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app", createCloudSpace("org", "space-foo")));
@@ -40,7 +40,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
     }
 
     @Test
-    public void testSubscribersAreRestartedWhenClientExtensionsAreNotSupported() {
+    void testSubscribersAreRestartedWhenClientExtensionsAreNotSupported() {
         // Given:
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace("org", "space-foo")));
@@ -70,7 +70,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
     }
 
     @Test
-    public void testSubscribersAreRestartedWhenClientExtensionsAreSupported() {
+    void testSubscribersAreRestartedWhenClientExtensionsAreSupported() {
         // Given:
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace("org", "space-foo")));
@@ -101,7 +101,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
     }
 
     @Test
-    public void testNothingHappensWhenThereAreNoSubscribersToRestart() {
+    void testNothingHappensWhenThereAreNoSubscribersToRestart() {
         // Given:
         context.setVariable(Variables.UPDATED_SUBSCRIBERS, Collections.emptyList());
 
@@ -113,7 +113,7 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
     }
 
     @Test
-    public void testOtherSubscribersAreRestartedWhenOneRestartFails() {
+    void testOtherSubscribersAreRestartedWhenOneRestartFails() {
         // Given:
         List<CloudApplication> updatedSubscribers = new ArrayList<>();
         updatedSubscribers.add(createCloudApplication("app-1", createCloudSpace(ORG_NAME, SPACE_NAME)));

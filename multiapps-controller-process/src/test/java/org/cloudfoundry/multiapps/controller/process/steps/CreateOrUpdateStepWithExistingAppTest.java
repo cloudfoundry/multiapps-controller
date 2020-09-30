@@ -255,7 +255,7 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
         CloudApplicationExtended cloudApp = input.application.toCloudApp();
         // TODO
         context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
-        StepsTestUtil.mockApplicationsToDeploy(Collections.singletonList(cloudApp), execution);
+        StepsTestUtil.mockApplicationsToDeploy(List.of(cloudApp), execution);
         context.setVariable(Variables.SERVICES_TO_BIND, mapToCloudServices());
         context.setVariable(Variables.TRIGGERED_SERVICE_OPERATIONS, Collections.emptyMap());
         context.setVariable(Variables.MODULES_INDEX, 0);
@@ -316,7 +316,7 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
                                                     .moduleName("test")
                                                     .staging(ImmutableStaging.builder()
                                                                              .command(command)
-                                                                             .buildpacks(Collections.singletonList(buildpackUrl))
+                                                                             .buildpacks(Collections.singleton(buildpackUrl))
                                                                              .healthCheckTimeout(0)
                                                                              .detectedBuildpack("none")
                                                                              .healthCheckType(healthCheckType)

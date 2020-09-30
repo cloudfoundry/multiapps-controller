@@ -1,16 +1,17 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBroker;
-import org.cloudfoundry.multiapps.common.ParsingException;
-import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -18,95 +19,47 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
-@RunWith(Parameterized.class)
-public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<UpdateServiceBrokerSubscriberStep> {
+class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<UpdateServiceBrokerSubscriberStep> {
 
-    private final StepInput input;
-    private final String expectedExceptionMessage;
-    private final String warningMessage;
-
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> testExecute() {
+        return Stream.of(
 // @formatter:off
             // (0) With an application that matches to an existing service broker
-            {
-                "update-subscribed-service-broker-input-00.json", null, null
-            },
+            Arguments.of("update-subscribed-service-broker-input-00.json", null, null),
             // (1) With an application that does not-matches to an existing service broker
-            {
-                "update-subscribed-service-broker-input-01.json", null, "Service broker with name \"test-broker\" does not exist"
-            },
+            Arguments.of("update-subscribed-service-broker-input-01.json", null, "Service broker with name \"test-broker\" does not exist"),
             // (2) With an application that has no password defined
-            {
-                "update-subscribed-service-broker-input-02.json", "Missing service broker password for application \"test-application\"", null
-            },
+            Arguments.of("update-subscribed-service-broker-input-02.json", "Missing service broker password for application \"test-application\"", null),
             // (3) With an application that broker does not match any existing broker
-            {
-                "update-subscribed-service-broker-input-03.json", null, "Service broker with name \"test-broker-which-does-not-exist\" does not exist"
-            },
+            Arguments.of("update-subscribed-service-broker-input-03.json", null, "Service broker with name \"test-broker-which-does-not-exist\" does not exist"),
             // (4) With an application which broker was deleted
-            {
-                "update-subscribed-service-broker-input-04.json", null, "Service broker with name \"test-broker\" does not exist"
-            },
+            Arguments.of("update-subscribed-service-broker-input-04.json", null, "Service broker with name \"test-broker\" does not exist")
 // @formatter:on
-        });
+        );
     }
 
-    public UpdateSubscribedServiceBrokerStepTest(String inputLocation, String expectedExceptionMessage, String warningMessage)
-        throws ParsingException {
-        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, UpdateSubscribedServiceBrokerStepTest.class),
-                                       StepInput.class);
-        this.expectedExceptionMessage = expectedExceptionMessage;
-        this.warningMessage = warningMessage;
-    }
-
-    @Before
-    public void setUp() {
-        prepareClient();
-        prepareContext();
+    @ParameterizedTest
+    @MethodSource
+    void testExecute(String inputLocation, String expectedExceptionMessage, String warningMessage) {
+        StepInput input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, UpdateSubscribedServiceBrokerStepTest.class),
+                                            StepInput.class);
+        initializeParameters(input);
         if (expectedExceptionMessage != null) {
-            expectedException.expect(SLException.class);
-            expectedException.expectMessage(expectedExceptionMessage);
+            Exception exception = assertThrows(Exception.class, () -> step.execute(execution));
+            assertTrue(exception.getMessage()
+                                .contains(expectedExceptionMessage));
+            return;
         }
-    }
-
-    private void prepareClient() {
-        Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false)))
-               .thenReturn(null);
-        if (input.brokerApplication.brokerName.equals(input.brokerFromClient.name)) {
-            Mockito.when(client.getServiceBroker(input.brokerFromClient.name, false))
-                   .thenReturn(input.brokerFromClient.toServiceBroker());
-        }
-    }
-
-    private void prepareContext() {
-        context.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX, 0);
-        List<CloudApplication> brokers = new ArrayList<>();
-        brokers.add(input.brokerApplication.toCloudApplication());
-        context.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS, brokers);
-    }
-
-    @Test
-    public void testExecute() {
         step.execute(execution);
-
-        validateExecution();
+        validateExecution(input, warningMessage);
     }
 
-    private void validateExecution() {
+    private void validateExecution(StepInput input, String warningMessage) {
         if (warningMessage != null) {
             Mockito.verify(stepLogger)
                    .warn(warningMessage);
@@ -120,6 +73,27 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
             Mockito.verify(client)
                    .updateServiceBroker(Mockito.argThat(GenericArgumentMatcher.forObject(expectedBroker)));
         }
+    }
+
+    public void initializeParameters(StepInput input) {
+        prepareClient(input);
+        prepareContext(input);
+    }
+
+    private void prepareClient(StepInput input) {
+        Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false)))
+               .thenReturn(null);
+        if (input.brokerApplication.brokerName.equals(input.brokerFromClient.name)) {
+            Mockito.when(client.getServiceBroker(input.brokerFromClient.name, false))
+                   .thenReturn(input.brokerFromClient.toServiceBroker());
+        }
+    }
+
+    private void prepareContext(StepInput input) {
+        context.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX, 0);
+        List<CloudApplication> brokers = new ArrayList<>();
+        brokers.add(input.brokerApplication.toCloudApplication());
+        context.setVariable(Variables.UPDATED_SERVICE_BROKER_SUBSCRIBERS, brokers);
     }
 
     @Override

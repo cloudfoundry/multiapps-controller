@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -36,7 +35,7 @@ class FlowableDataCleanerTest {
     }
 
     static Stream<Arguments> testDeleteInvocation() {
-        return Stream.of(Arguments.of(Arrays.asList("process-id-1")), Arguments.of(Arrays.asList("process-id-1", "process-id-2")),
+        return Stream.of(Arguments.of(List.of("process-id-1")), Arguments.of(List.of("process-id-1", "process-id-2")),
                          Arguments.of(Collections.emptyList()));
     }
 

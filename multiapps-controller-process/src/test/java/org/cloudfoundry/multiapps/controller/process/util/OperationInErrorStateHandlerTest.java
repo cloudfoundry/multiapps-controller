@@ -79,12 +79,12 @@ class OperationInErrorStateHandlerTest {
                .thenReturn("foo");
         ProgressMessageQuery queryMock = new MockBuilder<>(progressMessageQuery).on(query -> query.processId("foo"))
                                                                                 .build();
-        Mockito.doReturn(Collections.singletonList(ImmutableProgressMessage.builder()
-                                                                           .processId("foo")
-                                                                           .taskId("")
-                                                                           .text("")
-                                                                           .type(ProgressMessageType.ERROR)
-                                                                           .build()))
+        Mockito.doReturn(List.of(ImmutableProgressMessage.builder()
+                                                         .processId("foo")
+                                                         .taskId("")
+                                                         .text("")
+                                                         .type(ProgressMessageType.ERROR)
+                                                         .build()))
                .when(queryMock)
                .list();
         FlowableEngineEvent event = Mockito.mock(FlowableEngineEvent.class);
@@ -164,7 +164,7 @@ class OperationInErrorStateHandlerTest {
     }
 
     private List<Execution> getList(ExecutionEntityImpl executionEntity) {
-        return executionEntity == null ? Collections.emptyList() : Collections.singletonList(executionEntity);
+        return executionEntity == null ? Collections.emptyList() : List.of(executionEntity);
     }
 
     private ExecutionEntityImpl getExecutionEntity(boolean shouldUseExecutionEntity) {

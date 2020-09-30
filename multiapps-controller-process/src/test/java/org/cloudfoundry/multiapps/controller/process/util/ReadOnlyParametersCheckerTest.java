@@ -4,7 +4,7 @@ import static org.cloudfoundry.multiapps.controller.core.model.SupportedParamete
 import static org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.DEFAULT_DOMAIN;
 
 import java.text.MessageFormat;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -20,54 +20,52 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class ReadOnlyParametersCheckerTest {
 
-    private ReadOnlyParametersChecker readOnlyParametersChecker = new ReadOnlyParametersChecker();
+    private final ReadOnlyParametersChecker readOnlyParametersChecker = new ReadOnlyParametersChecker();
 
     protected static Stream<Arguments> testReadOnlyParameters() {
         return Stream.of(
                          // try overwriting every global read-only parameter
                          Arguments.of("mtad-00.yaml",
                                       System.lineSeparator() + MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS, "Global",
-                                                                                    Collections.singletonList(DEFAULT_DOMAIN)),
+                                                                                    List.of(DEFAULT_DOMAIN)),
                                       SLException.class),
                          // try overwriting every module read-only parameter
                          Arguments.of("mtad-01.yaml",
                                       System.lineSeparator() + MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS, "demo-app",
-                                                                                    Collections.singletonList(DEFAULT_DOMAIN)),
+                                                                                    List.of(DEFAULT_DOMAIN)),
                                       SLException.class),
                          // try overwriting every resource read-only parameter
                          Arguments.of("mtad-02.yaml",
-                                      System.lineSeparator()
-                                          + MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS, "demo-service",
-                                                                 Collections.singletonList(DEFAULT_CONTAINER_NAME)),
+                                      System.lineSeparator() + MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS,
+                                                                                    "demo-service", List.of(DEFAULT_CONTAINER_NAME)),
                                       SLException.class),
                          // valid descriptor
                          Arguments.of("mtad-03.yaml", null, null),
                          // try overwriting every global and module read-only parameter
                          Arguments.of("mtad-04.yaml",
-                                      System.lineSeparator()
-                                          + String.join(System.lineSeparator(),
-                                                        MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS, "Global",
-                                                                             Collections.singletonList(DEFAULT_DOMAIN)),
-                                                        MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS, "demo-app",
-                                                                             Collections.singletonList(DEFAULT_DOMAIN))),
+                                      System.lineSeparator() + String.join(System.lineSeparator(),
+                                                                           MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS,
+                                                                                                "Global", List.of(DEFAULT_DOMAIN)),
+                                                                           MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS,
+                                                                                                "demo-app", List.of(DEFAULT_DOMAIN))),
                                       SLException.class),
                          // try overwriting every global and resource read-only parameter
                          Arguments.of("mtad-05.yaml",
                                       System.lineSeparator()
                                           + String.join(System.lineSeparator(),
                                                         MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS, "Global",
-                                                                             Collections.singletonList(DEFAULT_DOMAIN)),
+                                                                             List.of(DEFAULT_DOMAIN)),
                                                         MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS, "demo-service",
-                                                                             Collections.singletonList(DEFAULT_CONTAINER_NAME))),
+                                                                             List.of(DEFAULT_CONTAINER_NAME))),
                                       SLException.class),
                          // try overwriting every module and resource read-only parameter
                          Arguments.of("mtad-06.yaml",
                                       System.lineSeparator()
                                           + String.join(System.lineSeparator(),
                                                         MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS, "demo-app",
-                                                                             Collections.singletonList(DEFAULT_DOMAIN)),
+                                                                             List.of(DEFAULT_DOMAIN)),
                                                         MessageFormat.format(Messages.PARAMETERS_HAVE_READ_ONLY_ELEMENTS, "demo-service",
-                                                                             Collections.singletonList(DEFAULT_CONTAINER_NAME))),
+                                                                             List.of(DEFAULT_CONTAINER_NAME))),
                                       SLException.class));
     }
 

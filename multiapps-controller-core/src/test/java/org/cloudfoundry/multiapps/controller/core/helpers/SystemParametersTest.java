@@ -1,12 +1,10 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -77,10 +75,10 @@ class SystemParametersTest {
     void testDescriptorOverridesDefaults() throws Exception {
         SystemParameters testedClass = createSystemParameters(false);
 
-        List<String> descriptorParameterFields = Arrays.asList(SupportedParameters.ORGANIZATION_NAME, SupportedParameters.SPACE_NAME,
-                                                               SupportedParameters.USER, SupportedParameters.DEFAULT_DOMAIN,
-                                                               SupportedParameters.CONTROLLER_URL, SupportedParameters.AUTHORIZATION_URL,
-                                                               SupportedParameters.DEPLOY_SERVICE_URL);
+        List<String> descriptorParameterFields = List.of(SupportedParameters.ORGANIZATION_NAME, SupportedParameters.SPACE_NAME,
+                                                         SupportedParameters.USER, SupportedParameters.DEFAULT_DOMAIN,
+                                                         SupportedParameters.CONTROLLER_URL, SupportedParameters.AUTHORIZATION_URL,
+                                                         SupportedParameters.DEPLOY_SERVICE_URL);
 
         DeploymentDescriptor descriptor = DeploymentDescriptor.createV3()
                                                               .setParameters(createParametersMap(descriptorParameterFields));
@@ -107,7 +105,7 @@ class SystemParametersTest {
                                  .setName("second");
 
         DeploymentDescriptor descriptor = DeploymentDescriptor.createV3()
-                                                              .setModules(Arrays.asList(moduleOne, moduleTwo));
+                                                              .setModules(List.of(moduleOne, moduleTwo));
         testedClass.injectInto(descriptor);
 
         for (Module module : descriptor.getModules()) {
@@ -118,13 +116,13 @@ class SystemParametersTest {
     @Test
     void testModuleParametersOverrideSystemParameters() throws Exception {
         SystemParameters testedClass = createSystemParameters(false);
-        List<String> fields = Arrays.asList(SupportedParameters.PROTOCOL, SupportedParameters.TIMESTAMP, SupportedParameters.INSTANCES,
-                                            SupportedParameters.APP_NAME, SupportedParameters.IDLE_DOMAIN, SupportedParameters.DOMAIN);
+        List<String> fields = List.of(SupportedParameters.PROTOCOL, SupportedParameters.TIMESTAMP, SupportedParameters.INSTANCES,
+                                      SupportedParameters.APP_NAME, SupportedParameters.IDLE_DOMAIN, SupportedParameters.DOMAIN);
         Module moduleWithParameters = Module.createV3()
                                             .setName("first")
                                             .setParameters(createParametersMap(fields));
         DeploymentDescriptor descriptor = DeploymentDescriptor.createV3()
-                                                              .setModules(Collections.singletonList(moduleWithParameters));
+                                                              .setModules(List.of(moduleWithParameters));
 
         testedClass.injectInto(descriptor);
         assertCustomValueMap(fields, descriptor.getModules()
@@ -141,7 +139,7 @@ class SystemParametersTest {
                                        .setName("second");
 
         DeploymentDescriptor descriptor = DeploymentDescriptor.createV3()
-                                                              .setResources(Arrays.asList(resourceOne, resourceTwo));
+                                                              .setResources(List.of(resourceOne, resourceTwo));
         testedClass.injectInto(descriptor);
 
         for (Resource resource : descriptor.getResources()) {
@@ -160,13 +158,13 @@ class SystemParametersTest {
     @Test
     void testResourceParametersOverrideSystemParameters() throws Exception {
         SystemParameters testedClass = createSystemParameters(false);
-        List<String> fields = Arrays.asList(SupportedParameters.SERVICE_NAME, SupportedParameters.DEFAULT_CONTAINER_NAME,
-                                            SupportedParameters.DEFAULT_XS_APP_NAME);
+        List<String> fields = List.of(SupportedParameters.SERVICE_NAME, SupportedParameters.DEFAULT_CONTAINER_NAME,
+                                      SupportedParameters.DEFAULT_XS_APP_NAME);
         Resource resourceWithParameters = Resource.createV3()
                                                   .setName("first")
                                                   .setParameters(createParametersMap(fields));
         DeploymentDescriptor descriptor = DeploymentDescriptor.createV3()
-                                                              .setResources(Collections.singletonList(resourceWithParameters));
+                                                              .setResources(List.of(resourceWithParameters));
 
         testedClass.injectInto(descriptor);
         assertCustomValueMap(fields, descriptor.getResources()

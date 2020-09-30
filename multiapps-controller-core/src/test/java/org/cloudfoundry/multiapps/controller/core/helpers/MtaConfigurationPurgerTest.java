@@ -4,7 +4,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -127,8 +126,8 @@ class MtaConfigurationPurgerTest {
     }
 
     private List<ConfigurationEntry> getConfigurationEntries() {
-        return Arrays.asList(ENTRY_TO_DELETE, createEntry(ENTRY_ID_TO_KEEP_1, "anatz:dependency-1"),
-                             createEntry(ENTRY_ID_TO_KEEP_2, "anatz:dependency-2"));
+        return List.of(ENTRY_TO_DELETE, createEntry(ENTRY_ID_TO_KEEP_1, "anatz:dependency-1"),
+                       createEntry(ENTRY_ID_TO_KEEP_2, "anatz:dependency-2"));
     }
 
     private void initConfigurationSubscriptionsMock() {
@@ -138,7 +137,7 @@ class MtaConfigurationPurgerTest {
     }
 
     private List<ConfigurationSubscription> getConfigurationSubscriptions() {
-        return Arrays.asList(SUBSCRIPTION_TO_DELETE, createSubscription(SUBSCRIPTION_ID_TO_KEEP, APPLICATION_NAME_TO_KEEP));
+        return List.of(SUBSCRIPTION_TO_DELETE, createSubscription(SUBSCRIPTION_ID_TO_KEEP, APPLICATION_NAME_TO_KEEP));
     }
 
     private CloudApplication createApplication(String applicationName, Map<String, Object> env) {

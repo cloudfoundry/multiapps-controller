@@ -42,7 +42,7 @@ class HooksExecutorTest {
                .thenReturn(true);
         Mockito.when(processTypeParser.getProcessType(any()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
-        List<Hook> expectedHooksForExecution = Collections.singletonList(createHook("test-hook", Collections.emptyList()));
+        List<Hook> expectedHooksForExecution = List.of(createHook("test-hook", Collections.emptyList()));
         Mockito.when(hooksCalculator.calculateHooksForExecution(moduleToDeploy, StepPhase.EXECUTE))
                .thenReturn(expectedHooksForExecution);
         HooksExecutor hooksExecutor = new HooksExecutor(hooksCalculator, moduleToDeploy);
@@ -65,7 +65,7 @@ class HooksExecutorTest {
         Module moduleToDeploy = createModule("test-module");
         Mockito.when(hooksCalculator.isInPostExecuteStepPhase(StepPhase.DONE))
                .thenReturn(true);
-        List<Hook> expectedHooksForExecution = Collections.singletonList(createHook("test-hook", Collections.emptyList()));
+        List<Hook> expectedHooksForExecution = List.of(createHook("test-hook", Collections.emptyList()));
         Mockito.when(processTypeParser.getProcessType(any()))
                .thenReturn(ProcessType.DEPLOY);
         Mockito.when(hooksCalculator.calculateHooksForExecution(moduleToDeploy, StepPhase.DONE))

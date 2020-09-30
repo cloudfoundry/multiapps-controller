@@ -1,11 +1,11 @@
 package org.cloudfoundry.multiapps.controller.core.helpers.v2;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester;
@@ -18,51 +18,37 @@ import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorHandler;
 import org.cloudfoundry.multiapps.mta.handlers.v2.DescriptorParser;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
 public class ConfigurationSubscriptionFactoryTest {
 
     protected final Tester tester = Tester.forClass(getClass());
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> testCreate() {
+        return Stream.of(
 // @formatter:off
             // (0) The required dependency is managed, so a subscription should be created:
-            {
-                "subscriptions-mtad-00.yaml", Collections.singletonList("plugins"), "SPACE_ID_1", new Expectation(Expectation.Type.JSON, "subscriptions-00.json"),
-            },
+            Arguments.of("subscriptions-mtad-00.yaml", List.of("plugins"), "SPACE_ID_1", new Expectation(Expectation.Type.JSON, "subscriptions-00.json")),
             // (1) The required dependency is not managed, so a subscription should not be created:
-            {
-                "subscriptions-mtad-01.yaml", Collections.singletonList("plugins"), "SPACE_ID_1", new Expectation("[]"),
-            },
+            Arguments.of("subscriptions-mtad-01.yaml", List.of("plugins"), "SPACE_ID_1", new Expectation("[]")),
             // (2) The required dependency is not managed, so a subscription should not be created:
-            {
-                "subscriptions-mtad-02.yaml", Collections.singletonList("plugins"), "SPACE_ID_1", new Expectation("[]"),
-            },
+            Arguments.of("subscriptions-mtad-02.yaml", List.of("plugins"), "SPACE_ID_1", new Expectation("[]"))
 // @formatter:on
-        });
+        );
     }
 
-    private final String mtadFilePath;
-    private final List<String> configurationResources;
-    private final String spaceId;
-    private final Expectation expectation;
+    private List<String> configurationResources;
 
-    public ConfigurationSubscriptionFactoryTest(String mtadFilePath, List<String> configurationResources, String spaceId,
-                                                Expectation expectation) {
-        this.mtadFilePath = mtadFilePath;
+    public ConfigurationSubscriptionFactoryTest() {
+
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void testCreate(String mtadFilePath, List<String> configurationResources, String spaceId, Expectation expectation) {
         this.configurationResources = configurationResources;
-        this.spaceId = spaceId;
-        this.expectation = expectation;
-    }
-
-    @Test
-    public void testCreate() {
         String mtadString = TestUtil.getResourceAsString(mtadFilePath, getClass());
         Map<String, Object> deploymentDescriptor = new YamlParser().convertYamlToMap(mtadString);
         DeploymentDescriptor mtad = getDescriptorParser().parseDeploymentDescriptor(deploymentDescriptor);

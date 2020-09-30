@@ -1,10 +1,9 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -25,9 +24,9 @@ import org.cloudfoundry.multiapps.controller.persistence.model.ImmutableFileEntr
 import org.cloudfoundry.multiapps.controller.persistence.services.FileService;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.persistence.util.Configuration;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -35,7 +34,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public class FilesApiServiceImplTest {
+class FilesApiServiceImplTest {
 
     @Mock
     private FileService fileService;
@@ -55,7 +54,7 @@ public class FilesApiServiceImplTest {
     private static final long MAX_PERMITTED_SIZE = new Configuration().getMaxUploadSize();
 
     @InjectMocks
-    private FilesApiServiceImpl testedClass = new FilesApiServiceImpl() {
+    private final FilesApiServiceImpl testedClass = new FilesApiServiceImpl() {
         @Override
         protected ServletFileUpload getFileUploadServlet() {
             return servletFileUpload;
@@ -68,7 +67,7 @@ public class FilesApiServiceImplTest {
 
     private static final String DIGEST_CHARACTER_TABLE = "123456789ABCDEF";
 
-    @Before
+    @BeforeEach
     public void initialize() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
@@ -78,11 +77,11 @@ public class FilesApiServiceImplTest {
     }
 
     @Test
-    public void testGetMtaFiles() throws Exception {
+    void testGetMtaFiles() throws Exception {
         FileEntry entryOne = createFileEntry("test.mtar");
         FileEntry entryTwo = createFileEntry("extension.mtaet");
         Mockito.when(fileService.listFiles(Mockito.eq(SPACE_GUID), Mockito.eq(NAMESPACE_GUID)))
-               .thenReturn(Arrays.asList(entryOne, entryTwo));
+               .thenReturn(List.of(entryOne, entryTwo));
         ResponseEntity<List<FileMetadata>> response = testedClass.getFiles(SPACE_GUID, NAMESPACE_GUID);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<FileMetadata> files = response.getBody();
@@ -93,14 +92,14 @@ public class FilesApiServiceImplTest {
     }
 
     @Test
-    public void testGetMtaFilesError() throws Exception {
+    void testGetMtaFilesError() throws Exception {
         Mockito.when(fileService.listFiles(Mockito.eq(SPACE_GUID), Mockito.eq(null)))
                .thenThrow(new FileStorageException("error"));
         Assertions.assertThrows(SLException.class, () -> testedClass.getFiles(SPACE_GUID, null));
     }
 
     @Test
-    public void testUploadMtaFile() throws Exception {
+    void testUploadMtaFile() throws Exception {
         String fileName = "test.mtar";
         FileEntry fileEntry = createFileEntry(fileName);
 
@@ -136,7 +135,7 @@ public class FilesApiServiceImplTest {
     }
 
     @Test
-    public void testUploadMtaFileErrorSizeExceeded() throws Exception {
+    void testUploadMtaFileErrorSizeExceeded() throws Exception {
         Mockito.when(servletFileUpload.getItemIterator(Mockito.eq(request)))
                .thenThrow(new SizeLimitExceededException("size limit exceeded", MAX_PERMITTED_SIZE + 1024, MAX_PERMITTED_SIZE));
         Assertions.assertThrows(SLException.class, () -> testedClass.uploadFile(request, SPACE_GUID, null));

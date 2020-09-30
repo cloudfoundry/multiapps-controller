@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +10,9 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareToExecuteTasksStep> {
+class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareToExecuteTasksStep> {
 
     @Override
     protected PrepareToExecuteTasksStep createStep() {
@@ -20,7 +20,7 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
     }
 
     @Test
-    public void testIterationOverTasksIsInitialized() {
+    void testIterationOverTasksIsInitialized() {
         // Given:
         context.setVariable(Variables.TASKS_TO_EXECUTE, createDummyApplicationWithTasks(3).getTasks());
 
@@ -37,7 +37,7 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
     }
 
     @Test
-    public void testExecuteWhenTasksAreSupported() {
+    void testExecuteWhenTasksAreSupported() {
         // Given:
         context.setVariable(Variables.TASKS_TO_EXECUTE, createDummyApplicationWithTasks(0).getTasks());
 

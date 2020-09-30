@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import java.text.MessageFormat;
-import java.util.Collections;
+import java.util.List;
 
 import javax.inject.Named;
 
@@ -26,7 +26,7 @@ public class DetermineTasksFromHookStep extends SyncFlowableStep {
         getStepLogger().info(Messages.EXECUTING_HOOK_0, hook.getName());
 
         CloudTask task = hookParser.parse(hook);
-        context.setVariable(Variables.TASKS_TO_EXECUTE, Collections.singletonList(task));
+        context.setVariable(Variables.TASKS_TO_EXECUTE, List.of(task));
 
         return StepPhase.DONE;
     }

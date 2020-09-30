@@ -1,11 +1,10 @@
 package org.cloudfoundry.multiapps.controller.web.api.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.security.Principal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,9 +42,9 @@ import org.cloudfoundry.multiapps.controller.process.metadata.ProcessTypeToOpera
 import org.cloudfoundry.multiapps.controller.process.util.OperationsHelper;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.runtime.ProcessInstance;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -58,7 +57,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
 
-public class OperationsApiServiceImplTest {
+class OperationsApiServiceImplTest {
 
     @Mock
     private CloudControllerClientProvider clientProvider;
@@ -101,7 +100,7 @@ public class OperationsApiServiceImplTest {
     private List<Operation> operations;
     private String processId;
 
-    @Before
+    @BeforeEach
     public void initialize() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
@@ -120,10 +119,9 @@ public class OperationsApiServiceImplTest {
     }
 
     @Test
-    public void testGetOperations() {
-        ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID, null,
-                                                                             Arrays.asList(Operation.State.FINISHED.toString(),
-                                                                                           Operation.State.ABORTED.toString()),
+    void testGetOperations() {
+        ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID, null, List.of(Operation.State.FINISHED.toString(),
+                                                                                                       Operation.State.ABORTED.toString()),
                                                                              1);
 
         List<Operation> operations = response.getBody();
@@ -136,7 +134,7 @@ public class OperationsApiServiceImplTest {
     }
 
     @Test
-    public void testGetOperationsNotFound() {
+    void testGetOperationsNotFound() {
         ResponseEntity<List<Operation>> response = testedClass.getOperations(SPACE_GUID, MTA_ID,
                                                                              Collections.singletonList(Operation.State.ACTION_REQUIRED.toString()),
                                                                              1);
@@ -147,7 +145,7 @@ public class OperationsApiServiceImplTest {
     }
 
     @Test
-    public void testGetOperation() {
+    void testGetOperation() {
         String processId = FINISHED_PROCESS;
         ResponseEntity<Operation> response = testedClass.getOperation(SPACE_GUID, processId, null);
         Operation operation = response.getBody();
@@ -156,12 +154,12 @@ public class OperationsApiServiceImplTest {
     }
 
     @Test
-    public void testGetOperationMissing() {
+    void testGetOperationMissing() {
         Assertions.assertThrows(NotFoundException.class, () -> testedClass.getOperation(SPACE_GUID, "notPresent", null));
     }
 
     @Test
-    public void testExecuteOperationAction() {
+    void testExecuteOperationAction() {
         String processId = RUNNING_PROCESS;
         testedClass.executeOperationAction(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, processId, Action.ABORT.getActionId());
         Mockito.verify(processAction)
@@ -169,28 +167,28 @@ public class OperationsApiServiceImplTest {
     }
 
     @Test
-    public void testExecuteOperationActionMissingProcess() {
+    void testExecuteOperationActionMissingProcess() {
         Assertions.assertThrows(NotFoundException.class,
                                 () -> testedClass.executeOperationAction(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID,
                                                                          "notavalidpprocess", Action.ABORT.getActionId()));
     }
 
     @Test
-    public void testExecuteOperationActionInvalidAction() {
+    void testExecuteOperationActionInvalidAction() {
         assertThrows(IllegalArgumentException.class,
                      () -> testedClass.executeOperationAction(mockHttpServletRequest(EXAMPLE_USER), SPACE_GUID, RUNNING_PROCESS,
                                                               Action.START.getActionId()));
     }
 
     @Test
-    public void testExecuteOperationActionUnauthorized() {
+    void testExecuteOperationActionUnauthorized() {
         Assertions.assertThrows(ResponseStatusException.class,
                                 () -> testedClass.executeOperationAction(mockHttpServletRequest(null), SPACE_GUID, RUNNING_PROCESS,
                                                                          Action.ABORT.getActionId()));
     }
 
     @Test
-    public void testStartOperation() {
+    void testStartOperation() {
         Map<String, Object> parameters = Map.of(Variables.MTA_ID.getName(), "test");
         Operation operation = createOperation(null, null, parameters);
         Mockito.when(operationsHelper.getProcessDefinitionKey(operation))
@@ -201,7 +199,7 @@ public class OperationsApiServiceImplTest {
     }
 
     @Test
-    public void testGetOperationLogs() throws Exception {
+    void testGetOperationLogs() throws Exception {
         String processId = FINISHED_PROCESS;
         testedClass.getOperationLogs(SPACE_GUID, processId);
         Mockito.verify(logsService)
@@ -209,12 +207,12 @@ public class OperationsApiServiceImplTest {
     }
 
     @Test
-    public void testGetOperationLogsNotFoundOperation() {
+    void testGetOperationLogsNotFoundOperation() {
         assertThrows(NotFoundException.class, () -> testedClass.getOperationLogs(SPACE_GUID, "notarealop"));
     }
 
     @Test
-    public void testGetOperationLogsServiceException() throws Exception {
+    void testGetOperationLogsServiceException() throws Exception {
         String processId = FINISHED_PROCESS;
         Mockito.when(logsService.getLogNames(Mockito.eq(SPACE_GUID), Mockito.eq(processId)))
                .thenThrow(new FileStorageException("something went wrong"));
@@ -222,7 +220,7 @@ public class OperationsApiServiceImplTest {
     }
 
     @Test
-    public void testGetOperationLogContent() throws Exception {
+    void testGetOperationLogContent() throws Exception {
         String processId = FINISHED_PROCESS;
         String logName = "OPERATION.log";
         String expectedLogContent = "somelogcontentstring\n1234";
@@ -234,7 +232,7 @@ public class OperationsApiServiceImplTest {
     }
 
     @Test
-    public void testGetOperationLogContentNotFound() throws Exception {
+    void testGetOperationLogContentNotFound() throws Exception {
         String processId = FINISHED_PROCESS;
         String logName = "OPERATION.log";
         Mockito.when(logsService.getLogContent(Mockito.eq(SPACE_GUID), Mockito.eq(processId), Mockito.eq(logName)))
@@ -243,40 +241,40 @@ public class OperationsApiServiceImplTest {
     }
 
     @Test
-    public void testGetOperationActionsForRunning() {
+    void testGetOperationActionsForRunning() {
         ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, RUNNING_PROCESS);
         List<String> actions = response.getBody();
         assertEquals(Collections.singletonList(Action.ABORT.getActionId()), actions);
     }
 
     @Test
-    public void testGetOperationActionsForFinished() {
+    void testGetOperationActionsForFinished() {
         ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, FINISHED_PROCESS);
         List<String> actions = response.getBody();
         assertEquals(Collections.emptyList(), actions);
     }
 
     @Test
-    public void testGetOperationActionsForAborted() {
+    void testGetOperationActionsForAborted() {
         ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, ABORTED_PROCESS);
         List<String> actions = response.getBody();
         assertEquals(Collections.emptyList(), actions);
     }
 
     @Test
-    public void testGetOperationActionsForError() {
+    void testGetOperationActionsForError() {
         ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, ERROR_PROCESS);
         List<String> actions = response.getBody();
-        assertEquals(Arrays.asList(Action.ABORT.getActionId(), Action.RETRY.getActionId()), actions);
+        assertEquals(List.of(Action.ABORT.getActionId(), Action.RETRY.getActionId()), actions);
     }
 
     @Test
-    public void testGetOperationActionsOperationNotFound() {
+    void testGetOperationActionsOperationNotFound() {
         Assertions.assertThrows(NotFoundException.class, () -> testedClass.getOperationActions(SPACE_GUID, "notarealprocess"));
     }
 
     @Test
-    public void testGetOperationActionsNotFound() {
+    void testGetOperationActionsNotFound() {
         ResponseEntity<List<String>> response = testedClass.getOperationActions(SPACE_GUID, RUNNING_PROCESS);
         List<String> actions = response.getBody();
         assertEquals(Collections.singletonList(Action.ABORT.getActionId()), actions);

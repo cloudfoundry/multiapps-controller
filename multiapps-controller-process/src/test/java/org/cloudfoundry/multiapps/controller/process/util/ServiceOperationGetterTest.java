@@ -6,8 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -102,7 +102,7 @@ class ServiceOperationGetterTest {
     }
 
     private void prepareEventsGetter(boolean wasDeletedService) {
-        when(eventsGetter.getEvents(any(), any())).thenReturn(Collections.singletonList(mock(CloudEvent.class)));
+        when(eventsGetter.getEvents(any(), any())).thenReturn(List.of(mock(CloudEvent.class)));
         when(eventsGetter.isDeleteEvent(any())).thenReturn(wasDeletedService);
     }
 

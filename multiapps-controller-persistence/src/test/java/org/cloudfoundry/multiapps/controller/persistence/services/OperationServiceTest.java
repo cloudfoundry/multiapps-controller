@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -51,13 +50,13 @@ class OperationServiceTest {
 
     @Test
     void testAddWithNonEmptyDatabase() {
-        addOperations(Arrays.asList(OPERATION_1, OPERATION_2));
+        addOperations(List.of(OPERATION_1, OPERATION_2));
 
         assertOperationExists(OPERATION_1.getProcessId());
         assertOperationExists(OPERATION_2.getProcessId());
 
-        assertEquals(Arrays.asList(OPERATION_1, OPERATION_2), operationService.createQuery()
-                                                                              .list());
+        assertEquals(List.of(OPERATION_1, OPERATION_2), operationService.createQuery()
+                                                                        .list());
     }
 
     @Test
@@ -144,7 +143,7 @@ class OperationServiceTest {
     }
 
     private void testQueryByCriteria(OperationQueryBuilder operationQueryBuilder, Operation operation1, Operation operation2) {
-        addOperations(Arrays.asList(operation1, operation2));
+        addOperations(List.of(operation1, operation2));
         assertEquals(1, operationQueryBuilder.build(operationService.createQuery(), operation1)
                                              .list()
                                              .size());

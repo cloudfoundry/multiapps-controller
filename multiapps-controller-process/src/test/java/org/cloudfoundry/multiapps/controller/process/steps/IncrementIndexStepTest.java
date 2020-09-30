@@ -1,38 +1,32 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.flowable.engine.delegate.DelegateExecution;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
-public class IncrementIndexStepTest extends SyncFlowableStepTest<IncrementIndexStep> {
+class IncrementIndexStepTest extends SyncFlowableStepTest<IncrementIndexStep> {
 
-    private final int index;
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] { { 1 }, { 2 }, { 3 }, { 4 }, { 5 } });
+    public static Stream<Arguments> testExecute() {
+        return Stream.of(
+        // @formatter:off
+                Arguments.of(1),
+                Arguments.of(2),
+                Arguments.of(3),
+                Arguments.of(4),
+                Arguments.of(5)
+        // @formatter:off
+        );
     }
 
-    public IncrementIndexStepTest(int index) {
-        this.index = index;
-    }
-
-    @Before
-    public void setUp() {
-        prepareContext();
-    }
-
-    @Test
-    public void testExecute() {
+    @ParameterizedTest
+    @MethodSource
+    void testExecute(int index) {
+        prepareContext(index);
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
@@ -41,10 +35,9 @@ public class IncrementIndexStepTest extends SyncFlowableStepTest<IncrementIndexS
         assertEquals(index + 1, execution.getVariable(indexVariableName));
     }
 
-    private DelegateExecution prepareContext() {
+    private void prepareContext(int index) {
         context.setVariable(Variables.INDEX_VARIABLE_NAME, Variables.MODULES_INDEX.getName());
         context.setVariable(Variables.MODULES_INDEX, index);
-        return execution;
     }
 
     @Override

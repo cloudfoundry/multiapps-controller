@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,8 +28,8 @@ class ConfigurationEntryServiceTest {
                                                                                              "org2", "space2", "content2");
     private static final ConfigurationEntry CONFIGURATION_ENTRY_3 = createConfigurationEntry(3L, "providerNid3", "providerId3", "3.1",
                                                                                              "namespace", "org3", "space3", "content3");
-    private static final List<ConfigurationEntry> ALL_ENTRIES = Arrays.asList(CONFIGURATION_ENTRY_1, CONFIGURATION_ENTRY_2,
-                                                                              CONFIGURATION_ENTRY_3);
+    private static final List<ConfigurationEntry> ALL_ENTRIES = List.of(CONFIGURATION_ENTRY_1, CONFIGURATION_ENTRY_2,
+                                                                        CONFIGURATION_ENTRY_3);
     private final ConfigurationEntryService configurationEntryService = createConfigurationEntryService();
 
     @AfterEach
@@ -53,7 +52,7 @@ class ConfigurationEntryServiceTest {
 
     @Test
     void testAddWithNonEmptyDatabase() {
-        addConfigurationEntries(Arrays.asList(CONFIGURATION_ENTRY_1, CONFIGURATION_ENTRY_2));
+        addConfigurationEntries(List.of(CONFIGURATION_ENTRY_1, CONFIGURATION_ENTRY_2));
 
         assertConfigurationEntryExists(CONFIGURATION_ENTRY_1.getId());
         assertConfigurationEntryExists(CONFIGURATION_ENTRY_2.getId());
@@ -107,7 +106,7 @@ class ConfigurationEntryServiceTest {
 
     @Test
     void testQueryByVersion() {
-        addConfigurationEntries(Arrays.asList(CONFIGURATION_ENTRY_1, CONFIGURATION_ENTRY_2));
+        addConfigurationEntries(List.of(CONFIGURATION_ENTRY_1, CONFIGURATION_ENTRY_2));
 
         String version = ">3.0.0";
         assertEquals(1, configurationEntryService.createQuery()

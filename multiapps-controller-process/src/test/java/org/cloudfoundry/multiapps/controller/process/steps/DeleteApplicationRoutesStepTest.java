@@ -1,11 +1,10 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,18 +60,17 @@ class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
             verify(client).deleteRoute(route.host, route.domain, route.path);
             routesToDeleteCount--;
         }
-        assertEquals("A number of routes were not deleted: ", 0, routesToDeleteCount);
+
+        assertEquals(0, routesToDeleteCount, "A number of routes were not deleted: ");
     }
 
     @Test
     void testGetHookPhaseBefore() {
-        Mockito.when(hooksPhaseBuilder.buildHookPhases(Arrays.asList(HookPhase.BEFORE_UNMAP_ROUTES,
-                                                                     HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES),
+        Mockito.when(hooksPhaseBuilder.buildHookPhases(List.of(HookPhase.BEFORE_UNMAP_ROUTES, HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES),
                                                        context))
-               .thenReturn(Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_UNMAP_ROUTES_LIVE,
-                                         HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES));
-        List<HookPhase> expectedPhases = Arrays.asList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_UNMAP_ROUTES_LIVE,
-                                                       HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES);
+               .thenReturn(List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_UNMAP_ROUTES_LIVE, HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES));
+        List<HookPhase> expectedPhases = List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_UNMAP_ROUTES_LIVE,
+                                                 HookPhase.APPLICATION_BEFORE_UNMAP_ROUTES);
         List<HookPhase> hookPhasesBeforeStep = ((BeforeStepHookPhaseProvider) step).getHookPhasesBeforeStep(context);
         assertEquals(expectedPhases, hookPhasesBeforeStep);
     }

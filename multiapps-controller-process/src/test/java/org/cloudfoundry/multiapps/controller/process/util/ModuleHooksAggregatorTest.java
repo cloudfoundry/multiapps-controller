@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,7 @@ class ModuleHooksAggregatorTest {
 
     @Test
     void testAggregateHooksNoCurrentAndNoHooksForExecution() {
-        Module moduleToDeploy = createModule("test-module", Collections.emptyList());
+        Module moduleToDeploy = createModule("test-module", List.of());
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.DEPLOY);
         ModuleHooksAggregator moduleHooksAggregator = createModuleHooksAggregator(moduleToDeploy);
@@ -45,10 +44,9 @@ class ModuleHooksAggregatorTest {
 
     @Test
     void testAggregateHooksNoAlreadyExecutedHooks() {
-        List<Hook> hooksForModule = Collections.singletonList(createHook("test-hook",
-                                                                         Collections.singletonList("deploy.application.after-stop")));
+        List<Hook> hooksForModule = List.of(createHook("test-hook", List.of("deploy.application.after-stop")));
         Module moduleToDeploy = createModule("test-module", hooksForModule);
-        List<HookPhase> currentHookPhasesForExecution = Collections.singletonList(HookPhase.DEPLOY_APPLICATION_AFTER_STOP);
+        List<HookPhase> currentHookPhasesForExecution = List.of(HookPhase.DEPLOY_APPLICATION_AFTER_STOP);
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.DEPLOY);
         ModuleHooksAggregator moduleHooksAggregator = createModuleHooksAggregator(moduleToDeploy);
@@ -58,11 +56,11 @@ class ModuleHooksAggregatorTest {
 
     @Test
     void testAggregateHooksIfTheHookForExecutionIsAlreadyExecuted() {
-        List<Hook> hooksForModule = Arrays.asList(createHook("hook1", Collections.singletonList("blue-green.application.before-stop.live")),
-                                                  createHook("hook2", Collections.singletonList("blue-green.application.after-stop.live")));
+        List<Hook> hooksForModule = List.of(createHook("hook1", List.of("blue-green.application.before-stop.live")),
+                                            createHook("hook2", List.of("blue-green.application.after-stop.live")));
         Module moduleToDeploy = createModule("test-module", hooksForModule);
-        List<HookPhase> currentHookPhasesForExecutions = Collections.singletonList(HookPhase.BEFORE_STOP);
-        prepareExecutedHooks("test-module", Map.of("hook1", Collections.singletonList("blue-green.application.before-stop.live")));
+        List<HookPhase> currentHookPhasesForExecutions = List.of(HookPhase.BEFORE_STOP);
+        prepareExecutedHooks("test-module", Map.of("hook1", List.of("blue-green.application.before-stop.live")));
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         ModuleHooksAggregator moduleHooksAggregator = createModuleHooksAggregator(moduleToDeploy);
@@ -72,20 +70,18 @@ class ModuleHooksAggregatorTest {
 
     @Test
     void testAggregateHooksIfThereAreSomeExecutedPhases() {
-        Hook hookForExecution = createHook("hook1", Collections.singletonList("blue-green.application.before-start.live"));
-        List<Hook> hooksForModule = Arrays.asList(hookForExecution,
-                                                  createHook("hook2",
-                                                             Collections.singletonList("blue-green.application.before-start.idle")));
+        Hook hookForExecution = createHook("hook1", List.of("blue-green.application.before-start.live"));
+        List<Hook> hooksForModule = List.of(hookForExecution, createHook("hook2", List.of("blue-green.application.before-start.idle")));
         Module moduleToDeploy = createModule("test-module", hooksForModule);
-        List<HookPhase> currentHookPhasesForExecutions = Collections.singletonList(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE);
-        prepareExecutedHooks("test-module", Map.of("hook1", Collections.singletonList("blue-green.application.before-start.idle")));
+        List<HookPhase> currentHookPhasesForExecutions = List.of(HookPhase.BLUE_GREEN_APPLICATION_BEFORE_START_LIVE);
+        prepareExecutedHooks("test-module", Map.of("hook1", List.of("blue-green.application.before-start.idle")));
         Mockito.when(processTypeParser.getProcessType(context.getExecution()))
                .thenReturn(ProcessType.BLUE_GREEN_DEPLOY);
         context.setVariable(Variables.SUBPROCESS_PHASE, SubprocessPhase.BEFORE_APPLICATION_START);
         context.setVariable(Variables.PHASE, Phase.AFTER_RESUME);
         ModuleHooksAggregator moduleHooksAggregator = createModuleHooksAggregator(moduleToDeploy);
         List<Hook> aggregatedHooks = moduleHooksAggregator.aggregateHooks(currentHookPhasesForExecutions);
-        Assertions.assertEquals(Collections.singletonList(hookForExecution), aggregatedHooks);
+        Assertions.assertEquals(List.of(hookForExecution), aggregatedHooks);
     }
 
     private void prepareExecutedHooks(String moduleName, Map<String, List<String>> executedHooks) {

@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -105,9 +104,9 @@ class ApplicationColorDetectorTest {
     @Test
     void detectSingularDeployedApp3ModulesGreenSuffix() {
         DeployedMta deployedMta = createMta("com.sap.sample.mta.consumer", Collections.emptySet(),
-                                            Arrays.asList(createMtaApplication("app-1", "app-1-green", parseDate("2019-04-04")),
-                                                          createMtaApplication("app-2", "app-2-green", parseDate("2019-04-05")),
-                                                          createMtaApplication("app-3", "app-3-green", parseDate("2019-04-06"))));
+                                            List.of(createMtaApplication("app-1", "app-1-green", parseDate("2019-04-04")),
+                                                    createMtaApplication("app-2", "app-2-green", parseDate("2019-04-05")),
+                                                    createMtaApplication("app-3", "app-3-green", parseDate("2019-04-06"))));
         Expectation expectation = new Expectation(GREEN);
         tester.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation);
     }
@@ -115,9 +114,9 @@ class ApplicationColorDetectorTest {
     @Test
     void detectSingularDeployedApp3ModulesBlueSuffix() {
         DeployedMta deployedMta = createMta("com.sap.sample.mta.consumer", Collections.emptySet(),
-                                            Arrays.asList(createMtaApplication("app-1", "app-1-blue", parseDate("2019-04-04")),
-                                                          createMtaApplication("app-2", "app-2-blue", parseDate("2019-04-05")),
-                                                          createMtaApplication("app-3", "app-3-blue", parseDate("2019-04-06"))));
+                                            List.of(createMtaApplication("app-1", "app-1-blue", parseDate("2019-04-04")),
+                                                    createMtaApplication("app-2", "app-2-blue", parseDate("2019-04-05")),
+                                                    createMtaApplication("app-3", "app-3-blue", parseDate("2019-04-06"))));
         Expectation expectation = new Expectation(BLUE);
         tester.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation);
     }
@@ -125,9 +124,9 @@ class ApplicationColorDetectorTest {
     @Test
     void detectSingularDeployedApp3ModulesNoSuffix() {
         DeployedMta deployedMta = createMta("com.sap.sample.mta.consumer", Collections.emptySet(),
-                                            Arrays.asList(createMtaApplication("app-1", "app-1", parseDate("2019-04-04")),
-                                                          createMtaApplication("app-2", "app-2", parseDate("2019-04-05")),
-                                                          createMtaApplication("app-3", "app-3", parseDate("2019-04-06"))));
+                                            List.of(createMtaApplication("app-1", "app-1", parseDate("2019-04-04")),
+                                                    createMtaApplication("app-2", "app-2", parseDate("2019-04-05")),
+                                                    createMtaApplication("app-3", "app-3", parseDate("2019-04-06"))));
         Expectation expectation = new Expectation(BLUE);
         tester.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation);
     }
@@ -135,9 +134,9 @@ class ApplicationColorDetectorTest {
     @Test
     void detectSingularDeployedApp3ModulesGreenBlueSuffix() {
         DeployedMta deployedMta = createMta("com.sap.sample.mta.consumer", Collections.emptySet(),
-                                            Arrays.asList(createMtaApplication("app-1", "app-1-blue", parseDate("2016-15-10")),
-                                                          createMtaApplication("app-2", "app-2-green", parseDate("2016-10-10")),
-                                                          createMtaApplication("app-3", "app-3-blue", parseDate("2016-15-10"))));
+                                            List.of(createMtaApplication("app-1", "app-1-blue", parseDate("2016-15-10")),
+                                                    createMtaApplication("app-2", "app-2-green", parseDate("2016-10-10")),
+                                                    createMtaApplication("app-3", "app-3-blue", parseDate("2016-15-10"))));
         Expectation expectation = new Expectation(Expectation.Type.EXCEPTION, EXPECTED_EXCEPTION_MESSAGE);
         tester.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation);
     }
@@ -152,8 +151,8 @@ class ApplicationColorDetectorTest {
     @Test
     void detectSingularDeployedApp2ModuleBlueGreenSuffix() {
         DeployedMta deployedMta = createMta("com.sap.sample.mta.consumer", Collections.emptySet(),
-                                            Arrays.asList(createMtaApplication("consumer", "consumer-green", parseDate("2016-15-10")),
-                                                          createMtaApplication("consumer", "consumer-blue", parseDate("2016-10-10"))));
+                                            List.of(createMtaApplication("consumer", "consumer-green", parseDate("2016-15-10")),
+                                                    createMtaApplication("consumer", "consumer-blue", parseDate("2016-10-10"))));
         Expectation expectation = new Expectation(Expectation.Type.EXCEPTION, EXPECTED_EXCEPTION_MESSAGE);
         tester.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation);
     }
@@ -279,8 +278,8 @@ class ApplicationColorDetectorTest {
         when(operationService.createQuery()).thenReturn(operationQuery);
         doReturn(currentOperation).when(operationQuery)
                                   .singleResult();
-        doReturn(Collections.singletonList(lastOperation)).when(operationQuery)
-                                                          .list();
+        doReturn(List.of(lastOperation)).when(operationQuery)
+                                        .list();
     }
 
     private Operation createFakeOperation(Operation.State state, String processId) {

@@ -1,8 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
@@ -28,17 +29,17 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.cloudfoundry.multiapps.mta.model.Version;
 import org.cloudfoundry.multiapps.mta.model.VersionRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-public class CollectSystemParametersStepTest extends CollectSystemParametersStepBaseTest {
+class CollectSystemParametersStepTest extends CollectSystemParametersStepBaseTest {
 
     private static final String DEFAULT_PROTOCOL = "https";
     private static final String DEFAULT_DOMAIN_PLACEHOLDER = "apps.internal";
 
     @Test
-    public void testGeneralParameters() {
+    void testGeneralParameters() {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
 
@@ -76,7 +77,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     }
 
     @Test
-    public void testWithHostBasedRouting() {
+    void testWithHostBasedRouting() {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
 
@@ -93,7 +94,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     }
 
     @Test
-    public void testWithRoutePath() {
+    void testWithRoutePath() {
         prepareDescriptor("system-parameters/mtad-with-route-path.yaml");
         prepareClient();
 
@@ -132,7 +133,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     }
 
     @Test
-    public void testGeneralModuleAndResourceParameters() {
+    void testGeneralModuleAndResourceParameters() {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
         when(credentialsGenerator.next(anyInt())).thenReturn("abc", "def", "ghi", "jkl", "mno", "pqr", "stu", "vwx");
@@ -172,27 +173,25 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         assertEquals("${default-service-name}", parameters.get(SupportedParameters.SERVICE_NAME));
     }
 
-    @Test(expected = ContentException.class)
-    public void testVersionRuleWithDowngrade() {
+    @Test
+    void testVersionRuleWithDowngrade() {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
         context.setVariable(Variables.DEPLOYED_MTA, createDeployedMta("2.0.0", Collections.emptyList()));
-
-        step.execute(execution);
+        assertThrows(ContentException.class, () -> step.execute(execution));
     }
 
-    @Test(expected = ContentException.class)
-    public void testVersionRuleWithReinstallation() {
+    @Test
+    void testVersionRuleWithReinstallation() {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
         context.setVariable(Variables.VERSION_RULE, VersionRule.HIGHER);
         context.setVariable(Variables.DEPLOYED_MTA, createDeployedMta("1.0.0", Collections.emptyList()));
-
-        step.execute(execution);
+        assertThrows(ContentException.class, () -> step.execute(execution));
     }
 
     @Test
-    public void testExistingParametersAreNotOverridden() {
+    void testExistingParametersAreNotOverridden() {
         prepareDescriptor("system-parameters/mtad-with-existing-parameters.yaml");
         prepareClient();
 
@@ -211,7 +210,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     }
 
     @Test
-    public void testDefaultDomainNotFoundException() {
+    void testDefaultDomainNotFoundException() {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
         when(client.getDefaultDomain()).thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND));
@@ -224,11 +223,10 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
                                                            .get(SupportedParameters.DEFAULT_DOMAIN));
     }
 
-    @Test(expected = SLException.class)
-    public void testDefaultDomainException() {
+    @Test
+    void testDefaultDomainException() {
         when(client.getDefaultDomain()).thenThrow(new CloudOperationException(HttpStatus.GATEWAY_TIMEOUT));
-
-        step.execute(execution);
+        assertThrows(SLException.class, () -> step.execute(execution));
     }
 
 }

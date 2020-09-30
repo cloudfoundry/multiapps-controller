@@ -1,70 +1,45 @@
 package org.cloudfoundry.multiapps.controller.web.util;
 
 import java.io.InputStream;
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.multiapps.common.test.Tester;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.controller.web.util.bar.Bar;
 import org.cloudfoundry.multiapps.controller.web.util.foo.Foo;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 
-@RunWith(Parameterized.class)
-public class XmlNamespaceIgnoringHttpMessageConverterTest {
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-// @formatter:off
-            // (0) Attempt to deserialize an entity with a namespace declared in package-info.java (the input DOES contain a namespace):
-            {
-                "entity-00.xml", Foo.class, new Expectation(Expectation.Type.JSON, "expected-entity-00.json"), 
-            },
-            // (1) Attempt to deserialize an entity with a namespace declared in package-info.java (the input DOES NOT contain a namespace):
-            {
-                "entity-01.xml", Foo.class, new Expectation(Expectation.Type.JSON, "expected-entity-00.json"), 
-            },
-            // (2) Attempt to deserialize an entity with a namespace declared in package-info.java (the input contains the wrong namespace):
-            {
-                "entity-02.xml", Foo.class, new Expectation(Expectation.Type.JSON, "expected-entity-00.json"), 
-            },
-            // (3) Attempt to deserialize an entity without a namespace declared in package-info.java (the input DOES contain a namespace):
-            {
-                "entity-00.xml", Bar.class, new Expectation(Expectation.Type.JSON, "expected-entity-00.json"), 
-            },
-            // (4) Attempt to deserialize an entity without a namespace declared in package-info.java (the input DOES NOT contain a namespace):
-            {
-                "entity-01.xml", Bar.class, new Expectation(Expectation.Type.JSON, "expected-entity-00.json"), 
-            },
-            // (5) Attempt to deserialize an entity without a namespace declared in package-info.java (the input contains the wrong namespace):
-            {
-                "entity-02.xml", Bar.class, new Expectation(Expectation.Type.JSON, "expected-entity-00.json"), 
-            },
-// @formatter:on
-        });
-    }
+class XmlNamespaceIgnoringHttpMessageConverterTest {
 
     private final Tester tester = Tester.forClass(getClass());
-
-    private final String entityResource;
-    private final Class<?> type;
-    private final Expectation expectation;
-
     private final XmlNamespaceIgnoringHttpMessageConverter converter = new XmlNamespaceIgnoringHttpMessageConverter();
 
-    public XmlNamespaceIgnoringHttpMessageConverterTest(String entityResource, Class<?> type, Expectation expectation) {
-        this.entityResource = entityResource;
-        this.type = type;
-        this.expectation = expectation;
+    public static Stream<Arguments> testReadFrom() {
+        return Stream.of(
+// @formatter:off
+            // (0) Attempt to deserialize an entity with a namespace declared in package-info.java (the input DOES contain a namespace):
+            Arguments.of("entity-00.xml", Foo.class, new Expectation(Expectation.Type.JSON, "expected-entity-00.json")),
+            // (1) Attempt to deserialize an entity with a namespace declared in package-info.java (the input DOES NOT contain a namespace):
+            Arguments.of("entity-01.xml", Foo.class, new Expectation(Expectation.Type.JSON, "expected-entity-00.json")),
+            // (2) Attempt to deserialize an entity with a namespace declared in package-info.java (the input contains the wrong namespace):
+            Arguments.of("entity-02.xml", Foo.class, new Expectation(Expectation.Type.JSON, "expected-entity-00.json")),
+            // (3) Attempt to deserialize an entity without a namespace declared in package-info.java (the input DOES contain a namespace):
+            Arguments.of("entity-00.xml", Bar.class, new Expectation(Expectation.Type.JSON, "expected-entity-00.json")),
+            // (4) Attempt to deserialize an entity without a namespace declared in package-info.java (the input DOES NOT contain a namespace):
+            Arguments.of("entity-01.xml", Bar.class, new Expectation(Expectation.Type.JSON, "expected-entity-00.json")),
+            // (5) Attempt to deserialize an entity without a namespace declared in package-info.java (the input contains the wrong namespace):
+            Arguments.of("entity-02.xml", Bar.class, new Expectation(Expectation.Type.JSON, "expected-entity-00.json"))
+// @formatter:on
+        );
     }
 
-    @Test
-    public void testReadFrom() {
+    @ParameterizedTest
+    @MethodSource
+    void testReadFrom(String entityResource, Class<?> type, Expectation expectation) {
         tester.test(() -> converter.read(type, createHttpInputMessage(entityResource)), expectation);
     }
 

@@ -4,13 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.test.Tester;
@@ -40,14 +39,11 @@ import org.cloudfoundry.multiapps.mta.model.Platform;
 import org.cloudfoundry.multiapps.mta.model.Resource;
 import org.cloudfoundry.multiapps.mta.resolvers.ResolverBuilder;
 import org.cloudfoundry.multiapps.mta.resolvers.v2.DescriptorReferenceResolver;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
-@RunWith(Parameterized.class)
 public class CloudModelBuilderTest {
 
     protected static final String DEFAULT_DOMAIN_CF = "cfapps.neo.ondemand.com";
@@ -61,18 +57,12 @@ public class CloudModelBuilderTest {
     protected final ConfigurationParser configurationParser = new ConfigurationParser();
     protected DeploymentDescriptor deploymentDescriptor;
 
-    protected final String deploymentDescriptorLocation;
-    protected final String extensionDescriptorLocation;
-    protected final String platformLocation;
-    protected final String deployedMtaLocation;
-    protected final String namespace;
-    protected final boolean applyNamespace;
-    protected final Set<String> mtaArchiveModules;
-    protected final Set<String> mtaModules;
-    protected final Set<String> deployedApps;
-    protected final Expectation expectedServices;
-    protected final Expectation expectedApps;
-    protected final AppSuffixDeterminer appSuffixDeterminer;
+    protected String deploymentDescriptorLocation;
+    protected String extensionDescriptorLocation;
+    protected String platformLocation;
+    protected String deployedMtaLocation;
+    protected String namespace;
+    protected boolean applyNamespace;
     private ModulesCloudModelBuilderContentCalculator modulesCalculator;
     protected ModuleToDeployHelper moduleToDeployHelper;
     protected ResourcesCloudModelBuilderContentCalculator resourcesCalculator;
@@ -80,444 +70,359 @@ public class CloudModelBuilderTest {
     protected ApplicationCloudModelBuilder appBuilder;
     protected ServicesCloudModelBuilder servicesBuilder;
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> getParameters() {
+        return Stream.of(
 // @formatter:off
             // (00) Full MTA:
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
-                null, false,
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
+                    null, false,
+                    new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
+                    new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services.json"),
+                    new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (01)
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/xs2-config.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/xs2-services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+           Arguments.of("/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/xs2-config.mtaext", "/mta/xs-platform.json", null,
+                   null, false,
+                   new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
+                   new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
+                   new String[] {}, // deployedApps
+                   new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/xs2-services.json"),
+                   new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (02) Full MTA with namespace:
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
-                "namespace1", true,
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-ns-1.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-1.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
+                   "namespace1", true,
+                   new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
+                   new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
+                   new String[] {}, // deployedApps
+                   new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-ns-1.json"),
+                   new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-1.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (03) Full MTA with long namespace:
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
-                "namespace2-but-it-is-really-really-long", true,
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-ns-2.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-2.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
+                    "namespace2-but-it-is-really-really-long", true,
+                    new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
+                    new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-ns-2.json"),
+                    new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-2.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (04) Patch MTA (resolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
-                null, false,
-                new String[] { "java-hello-world" }, // mtaArchiveModules
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-patch.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-patch.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
+                    null, false,
+                    new String[] { "java-hello-world" }, // mtaArchiveModules
+                    new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
+                    new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
+                    new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-patch.json"),
+                    new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-patch.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (05) Patch MTA with namespaces (resolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
-                "namespace", true,
-                new String[] { "java-hello-world" }, // mtaArchiveModules
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-patch-ns.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-patch-ns.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
-            // (06) Patch MTA (unresolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
-                null, false,
-                new String[] { "java-hello-world" }, // mtaArchiveModules
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
-                new String[] { "java-hello-world", }, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-patch.json"),
-                new Expectation(Expectation.Type.EXCEPTION, "Unresolved MTA modules [java-hello-world-backend, java-hello-world-db]"),
-                DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
+                    "namespace", true,
+                    new String[] { "java-hello-world" }, // mtaArchiveModules
+                    new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
+                    new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
+                    new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-patch-ns.json"),
+                    new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-patch-ns.json"), DEFAULT_APP_SUFFIX_DETERMINER),
+           // (06) Patch MTA (unresolved inter-module dependencies):
+           Arguments.of("/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
+                   null, false,
+                   new String[] { "java-hello-world" }, // mtaArchiveModules
+                   new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
+                   new String[] { "java-hello-world", }, // deployedApps
+                   new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-patch.json"),
+                   new Expectation(Expectation.Type.EXCEPTION, "Unresolved MTA modules [java-hello-world-backend, java-hello-world-db]"),
+                   DEFAULT_APP_SUFFIX_DETERMINER),
             // (07)
-            { "/mta/shine/mtad.yaml", "/mta/shine/config.mtaext", "/mta/cf-platform.json", null,
-                null, false,
-                new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaArchiveModules
-                new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/shine/services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/shine/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("/mta/shine/mtad.yaml", "/mta/shine/config.mtaext", "/mta/cf-platform.json", null,
+                    null, false,
+                    new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaArchiveModules
+                    new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation(Expectation.Type.JSON, "/mta/shine/services.json"),
+                    new Expectation(Expectation.Type.JSON, "/mta/shine/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (08)
-            { "/mta/sample/mtad.yaml", "/mta/sample/config.mtaext", "/mta/sample/platform.json", null,
-                null, false,
-                new String[] { "pricing", "pricing-db", "web-server" }, // mtaArchiveModules
-                new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/sample/services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/sample/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("/mta/sample/mtad.yaml", "/mta/sample/config.mtaext", "/mta/sample/platform.json", null,
+                    null, false,
+                    new String[] { "pricing", "pricing-db", "web-server" }, // mtaArchiveModules
+                    new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation(Expectation.Type.JSON, "/mta/sample/services.json"),
+                    new Expectation(Expectation.Type.JSON, "/mta/sample/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (09)
-            { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/config.mtaext", "/mta/cf-platform.json", null,
-                null, false,
-                new String[] { "webide" }, // mtaArchiveModules
-                new String[] { "webide" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/devxwebide/services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/devxwebide/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("/mta/devxwebide/mtad.yaml", "/mta/devxwebide/config.mtaext", "/mta/cf-platform.json", null,
+                    null, false,
+                    new String[] { "webide" }, // mtaArchiveModules
+                    new String[] { "webide" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation(Expectation.Type.JSON, "/mta/devxwebide/services.json"),
+                    new Expectation(Expectation.Type.JSON, "/mta/devxwebide/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (10)
-            { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config-1.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "webide" }, // mtaArchiveModules
-                new String[] { "webide" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/devxwebide/services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/devxwebide/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config-1.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "webide" }, // mtaArchiveModules
+                    new String[] { "webide" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation(Expectation.Type.JSON, "/mta/devxwebide/services.json"),
+                    new Expectation(Expectation.Type.JSON, "/mta/devxwebide/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (11)
-            { "/mta/devxdi/mtad.yaml", "/mta/devxdi/config.mtaext", "/mta/cf-platform.json", null,
-                null, false,
-                new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
-                new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/devxdi/services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/devxdi/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("/mta/devxdi/mtad.yaml", "/mta/devxdi/config.mtaext", "/mta/cf-platform.json", null,
+                    null, false,
+                    new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
+                    new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation(Expectation.Type.JSON, "/mta/devxdi/services.json"),
+                    new Expectation(Expectation.Type.JSON, "/mta/devxdi/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (12)
-            { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config-1.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
-                new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/devxdi/xs2-services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/devxdi/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config-1.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
+                    new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation(Expectation.Type.JSON, "/mta/devxdi/xs2-services.json"),
+                    new Expectation(Expectation.Type.JSON, "/mta/devxdi/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (13)
-            { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config-2.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "webide" }, // mtaArchiveModules
-                new String[] { "webide" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/devxwebide/services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/devxwebide/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config-2.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "webide" }, // mtaArchiveModules
+                    new String[] { "webide" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation(Expectation.Type.JSON, "/mta/devxwebide/services.json"),
+                    new Expectation(Expectation.Type.JSON, "/mta/devxwebide/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (14) Unknown typed resource parameters:
-            { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config-2.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
-                new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/devxdi/xs2-services.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/devxdi/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config-2.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
+                    new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation(Expectation.Type.JSON, "/mta/devxdi/xs2-services.json"),
+                    new Expectation(Expectation.Type.JSON, "/mta/devxdi/xs2-apps.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (15) Service binding parameters in requires dependency:
-            { "mtad-01.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                null, false,
-                new String[] { "foo", }, // mtaArchiveModules
-                new String[] { "foo", }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-01.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-01.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
+                    null, false,
+                    new String[] { "foo", }, // mtaArchiveModules
+                    new String[] { "foo", }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-01.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (16) Service binding parameters in requires dependency:
-            { "mtad-02.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                null, false,
-                new String[] { "foo", }, // mtaArchiveModules
-                new String[] { "foo", }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.EXCEPTION, "Invalid type for key \"foo#bar#config\", expected \"Map\" but got \"String\""),
-                DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-02.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
+                    null, false,
+                    new String[] { "foo", }, // mtaArchiveModules
+                    new String[] { "foo", }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.EXCEPTION, "Invalid type for key \"foo#bar#config\", expected \"Map\" but got \"String\""),
+                    DEFAULT_APP_SUFFIX_DETERMINER),
             // (17) Custom application names are used:
-            {
-                "mtad-03.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "module-1", "module-2" }, // mtaArchiveModules
-                new String[] { "module-1", "module-2" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-02.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-03.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "module-1", "module-2" }, // mtaArchiveModules
+                    new String[] { "module-1", "module-2" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-02.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (18) Custom application names are used:
-            {
-                "mtad-03.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                "something", true,
-                new String[] { "module-1", "module-2" }, // mtaArchiveModules
-                new String[] { "module-1", "module-2" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-03.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-03.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
+                    "something", true,
+                    new String[] { "module-1", "module-2" }, // mtaArchiveModules
+                    new String[] { "module-1", "module-2" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-03.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (19) Temporary URIs are used:
-            {
-                "mtad-05.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "module-1", "module-2" }, // mtaArchiveModules
-                new String[] { "module-1", "module-2" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-05.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-05.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "module-1", "module-2" }, // mtaArchiveModules
+                    new String[] { "module-1", "module-2" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-05.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (20) Use list parameter:
-            {
-                "mtad-06.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "framework" }, // mtaArchiveModules
-                new String[] { "framework" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-06.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-06.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "framework" }, // mtaArchiveModules
+                    new String[] { "framework" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-06.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (21) Use partial plugin:
-            {
-                "mtad-07.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "framework" }, // mtaArchiveModules
-                new String[] { "framework" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-07.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-07.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "framework" }, // mtaArchiveModules
+                    new String[] { "framework" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-07.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (22) Overwrite service-name resource property in ext. descriptor:
-            {
-                "mtad-08.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "module-1" }, // mtaArchiveModules
-                new String[] { "module-1" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "services-03.json"),
-                new Expectation(Expectation.Type.JSON, "apps-08.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-08.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "module-1" }, // mtaArchiveModules
+                    new String[] { "module-1" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation(Expectation.Type.JSON, "services-03.json"),
+                    new Expectation(Expectation.Type.JSON, "apps-08.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (23) Test support for one-off tasks:
-            {
-                "mtad-09.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "module-1", "module-2", "module-3", "module-4" }, // mtaArchiveModules
-                new String[] { "module-1", "module-2", "module-3", "module-4" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-09.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-09.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "module-1", "module-2", "module-3", "module-4" }, // mtaArchiveModules
+                    new String[] { "module-1", "module-2", "module-3", "module-4" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-09.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (24) With 'health-check-type' set to 'port':
-            { 
-                "mtad-health-check-type-port.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "foo" }, // mtaArchiveModules
-                new String[] { "foo" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-with-health-check-type-port.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-health-check-type-port.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "foo" }, // mtaArchiveModules
+                    new String[] { "foo" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-with-health-check-type-port.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (25) With 'health-check-type' set to 'http' and a non-default 'health-check-http-endpoint':
-            { 
-                "mtad-health-check-type-http-with-endpoint.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "foo" }, // mtaArchiveModules
-                new String[] { "foo" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-with-health-check-type-http-with-endpoint.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-health-check-type-http-with-endpoint.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "foo" }, // mtaArchiveModules
+                    new String[] { "foo" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-with-health-check-type-http-with-endpoint.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (26) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
-            { 
-                "mtad-health-check-type-http-without-endpoint.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "foo" }, // mtaArchiveModules
-                new String[] { "foo" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-with-health-check-type-http-without-endpoint.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-health-check-type-http-without-endpoint.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "foo" }, // mtaArchiveModules
+                    new String[] { "foo" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-with-health-check-type-http-without-endpoint.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (27) Test inject service keys:
-            {
-                "mtad-10.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "module-1" }, // mtaArchiveModules
-                new String[] { "module-1" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-10.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
-            // (28) With 'enable-ssh' set to true: 
-            {
-                "mtad-ssh-enabled-true.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "foo" }, // mtaArchiveModules
-                new String[] { "foo" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-with-ssh-enabled-true.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
-            // (29) With 'enable-ssh' set to false: 
-            {
-                "mtad-ssh-enabled-false.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "foo" }, // mtaArchiveModules
-                new String[] { "foo" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-with-ssh-enabled-false.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-10.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "module-1" }, // mtaArchiveModules
+                    new String[] { "module-1" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-10.json"), DEFAULT_APP_SUFFIX_DETERMINER),
+            // (28) With 'enable-ssh' set to true:
+            Arguments.of("mtad-ssh-enabled-true.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "foo" }, // mtaArchiveModules
+                    new String[] { "foo" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-with-ssh-enabled-true.json"), DEFAULT_APP_SUFFIX_DETERMINER),
+            // (29) With 'enable-ssh' set to false:
+            Arguments.of("mtad-ssh-enabled-false.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "foo" }, // mtaArchiveModules
+                    new String[] { "foo" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-with-ssh-enabled-false.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (30) Do not restart on env change - bg-deploy
-            { "mtad-restart-on-env-change.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                null, false, 
-                new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
-                new String[] { "module-1", "module-2", "module-3" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "apps-with-restart-parameters-false.json") // services
-                , DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-restart-on-env-change.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
+                    new String[] { "module-1", "module-2", "module-3" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "apps-with-restart-parameters-false.json") // services
+                    , DEFAULT_APP_SUFFIX_DETERMINER),
             // (31) With 'keep-existing-routes' set to true and no deployed MTA:
-            {
-                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
-                null, false,
-                new String[] { "foo" }, // mtaArchiveModules
-                new String[] { "foo" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
+                    null, false,
+                    new String[] { "foo" }, // mtaArchiveModules
+                    new String[] { "foo" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (32) With 'keep-existing-routes' set to true and no deployed module:
-            {
-                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
-                "keep-existing-routes/deployed-mta-without-foo-module.json",
-                null, false,
-                new String[] { "foo" }, // mtaArchiveModules
-                new String[] { "foo" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json",
+                    "keep-existing-routes/deployed-mta-without-foo-module.json",
+                    null, false,
+                    new String[] { "foo" }, // mtaArchiveModules
+                    new String[] { "foo" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (33) With 'keep-existing-routes' set to true and an already deployed module with no URIs:
-            {
-                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
-                "keep-existing-routes/deployed-mta-without-uris.json",
-                null, false,
-                new String[] { "foo" }, // mtaArchiveModules
-                new String[] { "foo" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json",
+                    "keep-existing-routes/deployed-mta-without-uris.json",
+                    null, false,
+                    new String[] { "foo" }, // mtaArchiveModules
+                    new String[] { "foo" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (34) With 'keep-existing-routes' set to true and an already deployed module:
-            {
-                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
-                "keep-existing-routes/deployed-mta.json",
-                null, false,
-                new String[] { "foo" }, // mtaArchiveModules
-                new String[] { "foo" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps-with-existing-routes.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json",
+                    "keep-existing-routes/deployed-mta.json",
+                    null, false,
+                    new String[] { "foo" }, // mtaArchiveModules
+                    new String[] { "foo" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps-with-existing-routes.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (35) With global 'keep-existing-routes' set to true and an already deployed module:
-            {
-                "keep-existing-routes/mtad-with-global-parameter.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
-                "keep-existing-routes/deployed-mta.json",
-                null, false,
-                new String[] { "foo" }, // mtaArchiveModules
-                new String[] { "foo" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"),
-                new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps-with-existing-routes.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("keep-existing-routes/mtad-with-global-parameter.yaml", "config-02.mtaext", "/mta/xs-platform.json",
+                    "keep-existing-routes/deployed-mta.json",
+                    null, false,
+                    new String[] { "foo" }, // mtaArchiveModules
+                    new String[] { "foo" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.JSON, "keep-existing-routes/apps-with-existing-routes.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (36) With new parameter - 'route'
-            {
-                "mtad-12.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                null, false,
-                new String[] { "foo", }, // mtaArchiveModules
-                new String[] { "foo", }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"), //services
-                new Expectation(Expectation.Type.JSON, "apps-12.json")  //applications
-                , DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-12.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
+                    null, false,
+                    new String[] { "foo", }, // mtaArchiveModules
+                    new String[] { "foo", }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"), //services
+                    new Expectation(Expectation.Type.JSON, "apps-12.json")  //applications
+                    , DEFAULT_APP_SUFFIX_DETERMINER),
             // (37) With new parameter - 'routes'
-            {
-                "mtad-13.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                null, false,
-                new String[] { "foo", }, // mtaArchiveModules
-                new String[] { "foo", }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"), //services
-                new Expectation(Expectation.Type.JSON, "apps-13.json")  //applications
-                , DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-13.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
+                    null, false,
+                    new String[] { "foo", }, // mtaArchiveModules
+                    new String[] { "foo", }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"), //services
+                    new Expectation(Expectation.Type.JSON, "apps-13.json")  //applications
+                    , DEFAULT_APP_SUFFIX_DETERMINER),
             // (38) Test plural priority over singular for hosts and domains
-            {
-                "mtad-14.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                null, false,
-                new String[] { "foo", }, // mtaArchiveModules
-                new String[] { "foo", }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"), //services
-                new Expectation(Expectation.Type.JSON, "apps-14.json")  //applications
-                , DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-14.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
+                    null, false,
+                    new String[] { "foo", }, // mtaArchiveModules
+                    new String[] { "foo", }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"), //services
+                    new Expectation(Expectation.Type.JSON, "apps-14.json")  //applications
+                    , DEFAULT_APP_SUFFIX_DETERMINER),
             // (39) Test multiple buildpacks functionality
-            {
-                "mtad-15.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                null, false,
-                new String[] { "foo", }, // mtaArchiveModules
-                new String[] { "foo", }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"), //services
-                new Expectation(Expectation.Type.JSON, "apps-15.json")  //applications
-                , DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("mtad-15.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
+                    null, false,
+                    new String[] { "foo", }, // mtaArchiveModules
+                    new String[] { "foo", }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"), //services
+                    new Expectation(Expectation.Type.JSON, "apps-15.json")  //applications
+                    , DEFAULT_APP_SUFFIX_DETERMINER),
             // (40) Full MTA with namespace, global apply flag set to false:
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
-                "namespace3", false,
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
-                new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-ns-3.json"),
-                new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-3.json"), DEFAULT_APP_SUFFIX_DETERMINER
-            },
+            Arguments.of("/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
+                    "namespace3", false,
+                    new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
+                    new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/services-ns-3.json"),
+                    new Expectation(Expectation.Type.JSON, "/mta/javahelloworld/apps-ns-3.json"), DEFAULT_APP_SUFFIX_DETERMINER),
             // (41) Test app-name parameter resolution:
-            { "mtad-16.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
-                null, false,
-                new String[] { "foo", }, // mtaArchiveModules
-                new String[] { "foo", }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation("[]"), //services
-                new Expectation(Expectation.Type.JSON, "apps-16.json")  //applications
-                , new AppSuffixDeterminer(true, true)
-            },
+            Arguments.of("mtad-16.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
+                    null, false,
+                    new String[] { "foo", }, // mtaArchiveModules
+                    new String[] { "foo", }, // mtaModules
+                    new String[] {}, // deployedApps
+                    new Expectation("[]"), //services
+                    new Expectation(Expectation.Type.JSON, "apps-16.json")  //applications
+                    , new AppSuffixDeterminer(true, true))
 // @formatter:on
-        });
-    }
-
-    public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
-                                 String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
-                                 String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps,
-                                 AppSuffixDeterminer appSuffixDeterminer) {
-        this.deploymentDescriptorLocation = deploymentDescriptorLocation;
-        this.extensionDescriptorLocation = extensionDescriptorLocation;
-        this.platformLocation = platformsLocation;
-        this.deployedMtaLocation = deployedMtaLocation;
-        // TODO: this test needs refactoring
-        this.namespace = namespace;
-        this.applyNamespace = applyNamespace;
-
-        this.mtaArchiveModules = new HashSet<>(Arrays.asList(mtaArchiveModules));
-        this.mtaModules = new HashSet<>(Arrays.asList(mtaModules));
-        this.deployedApps = new HashSet<>(Arrays.asList(deployedApps));
-        this.expectedServices = expectedServices;
-        this.expectedApps = expectedApps;
-        this.appSuffixDeterminer = appSuffixDeterminer;
+        );
     }
 
     protected UserMessageLogger getUserMessageLogger() {
@@ -564,37 +469,6 @@ public class CloudModelBuilderTest {
         return new DescriptorMerger();
     }
 
-    @Before
-    public void setUp() throws Exception {
-        deploymentDescriptor = loadDeploymentDescriptor();
-        ExtensionDescriptor extensionDescriptor = loadExtensionDescriptor();
-        Platform platform = loadPlatform();
-        DeployedMta deployedMta = loadDeployedMta();
-
-        deploymentDescriptor = getDescriptorMerger().merge(deploymentDescriptor, Collections.singletonList(extensionDescriptor));
-        PlatformMerger platformMerger = getPlatformMerger(platform);
-        platformMerger.mergeInto(deploymentDescriptor);
-
-        String defaultDomain = getDefaultDomain(platform.getName());
-
-        insertProperNames(deploymentDescriptor);
-        injectSystemParameters(deploymentDescriptor, defaultDomain);
-        appBuilder = getApplicationCloudModelBuilder(deploymentDescriptor, false, deployedMta, appSuffixDeterminer);
-        servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor);
-
-        modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules,
-                                                                          deployedApps,
-                                                                          null,
-                                                                          getUserMessageLogger(),
-                                                                          new ModuleToDeployHelper(),
-                                                                          Collections.singletonList(new UnresolvedModulesContentValidator(mtaModules,
-                                                                                                                                          deployedApps)));
-
-        moduleToDeployHelper = new ModuleToDeployHelper();
-
-        resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(null, getUserMessageLogger());
-    }
-
     private DeploymentDescriptor loadDeploymentDescriptor() {
         InputStream deploymentDescriptorYaml = getClass().getResourceAsStream(deploymentDescriptorLocation);
         Map<String, Object> deploymentDescriptorMap = new YamlParser().convertYamlToMap(deploymentDescriptorYaml);
@@ -637,7 +511,7 @@ public class CloudModelBuilderTest {
 
     private void insertProperServiceNames(DeploymentDescriptor descriptor) {
         for (Resource resource : descriptor.getResources()) {
-            String serviceName = computeServiceName(descriptor, resource);
+            String serviceName = computeServiceName(resource);
             Map<String, Object> parameters = new TreeMap<>(resource.getParameters());
             parameters.put(SupportedParameters.SERVICE_NAME, serviceName);
             resource.setParameters(parameters);
@@ -650,7 +524,7 @@ public class CloudModelBuilderTest {
         return NameUtil.computeValidApplicationName(appName, namespace, applyNamespace);
     }
 
-    private String computeServiceName(DeploymentDescriptor descriptor, Resource resource) {
+    private String computeServiceName(Resource resource) {
         String serviceName = NameUtil.getServiceName(resource);
         serviceName = serviceName != null ? serviceName : resource.getName();
         return NameUtil.computeValidServiceName(serviceName, namespace, applyNamespace);
@@ -669,8 +543,15 @@ public class CloudModelBuilderTest {
         }
     }
 
-    @Test
-    public void testGetApplications() {
+    @ParameterizedTest
+    @MethodSource("getParameters")
+    void testGetApplications(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
+                             String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
+                             String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps,
+                             AppSuffixDeterminer appSuffixDeterminer)
+        throws Exception {
+        initializeParameters(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, deployedMtaLocation, namespace,
+                             applyNamespace, mtaArchiveModules, mtaModules, deployedApps, appSuffixDeterminer);
         tester.test(() -> {
             List<CloudApplicationExtended> apps = new ArrayList<>();
             List<Module> modulesToDeploy = modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules());
@@ -681,10 +562,55 @@ public class CloudModelBuilderTest {
         }, expectedApps);
     }
 
-    @Test
-    public void testGetServices() {
+    @ParameterizedTest
+    @MethodSource("getParameters")
+    void testGetServices(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
+                         String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
+                         String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps,
+                         AppSuffixDeterminer appSuffixDeterminer)
+        throws Exception {
+        initializeParameters(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, deployedMtaLocation, namespace,
+                             applyNamespace, mtaArchiveModules, mtaModules, deployedApps, appSuffixDeterminer);
         tester.test(() -> servicesBuilder.build(resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources())),
                     expectedServices);
+    }
+
+    protected void initializeParameters(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
+                                        String deployedMtaLocation, String namespace, boolean applyNamespace, String[] mtaArchiveModules,
+                                        String[] mtaModules, String[] deployedApps, AppSuffixDeterminer appSuffixDeterminer)
+        throws Exception {
+        this.deploymentDescriptorLocation = deploymentDescriptorLocation;
+        this.extensionDescriptorLocation = extensionDescriptorLocation;
+        this.platformLocation = platformsLocation;
+        this.deployedMtaLocation = deployedMtaLocation;
+        this.namespace = namespace;
+        this.applyNamespace = applyNamespace;
+        deploymentDescriptor = loadDeploymentDescriptor();
+        ExtensionDescriptor extensionDescriptor = loadExtensionDescriptor();
+        Platform platform = loadPlatform();
+        DeployedMta deployedMta = loadDeployedMta();
+        deploymentDescriptor = getDescriptorMerger().merge(deploymentDescriptor, List.of(extensionDescriptor));
+        PlatformMerger platformMerger = getPlatformMerger(platform);
+        platformMerger.mergeInto(deploymentDescriptor);
+        String defaultDomain = getDefaultDomain(platform.getName());
+        insertProperNames(deploymentDescriptor);
+        injectSystemParameters(deploymentDescriptor, defaultDomain);
+        appBuilder = getApplicationCloudModelBuilder(deploymentDescriptor, false, deployedMta, appSuffixDeterminer);
+        servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor);
+        modulesCalculator = getModulesCalculator(new HashSet<>(List.of(mtaArchiveModules)), new HashSet<>(List.of(mtaModules)),
+                                                 new HashSet<>(List.of(deployedApps)));
+        moduleToDeployHelper = new ModuleToDeployHelper();
+        resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(null, getUserMessageLogger());
+    }
+
+    private ModulesCloudModelBuilderContentCalculator getModulesCalculator(Set<String> mtaArchiveModules, Set<String> mtaModules,
+                                                                           Set<String> deployedApps) {
+        return new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules,
+                                                             deployedApps,
+                                                             null,
+                                                             getUserMessageLogger(),
+                                                             new ModuleToDeployHelper(),
+                                                             List.of(new UnresolvedModulesContentValidator(mtaModules, deployedApps)));
     }
 
 }

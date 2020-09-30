@@ -16,7 +16,7 @@ import org.cloudfoundry.multiapps.controller.process.util.ReadOnlyParametersChec
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.VersionRule;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 
 public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableStepTest<CollectSystemParametersStep> {
@@ -43,7 +43,7 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
     @Mock
     protected ReadOnlyParametersChecker readOnlyParametersChecker;
 
-    @Before
+    @BeforeEach
     public void setUp() throws MalformedURLException {
         when(configuration.getControllerUrl()).thenReturn(new URL(CONTROLLER_URL));
         when(configuration.getDeployServiceUrl()).thenReturn(MULTIAPPS_CONTROLLER_URL);

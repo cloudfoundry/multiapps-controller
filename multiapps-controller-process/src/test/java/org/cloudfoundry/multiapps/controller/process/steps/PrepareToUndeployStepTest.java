@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.mockito.Mockito.mock;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -70,7 +69,7 @@ class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUndeploySt
     }
 
     private List<DeployedMtaApplication> createDeployedMtaApplications() {
-        return Arrays.asList(createDeployedMtaApplication("module_1"), createDeployedMtaApplication("module_2"));
+        return List.of(createDeployedMtaApplication("module_1"), createDeployedMtaApplication("module_2"));
     }
 
     private DeployedMtaApplication createDeployedMtaApplication(String name) {

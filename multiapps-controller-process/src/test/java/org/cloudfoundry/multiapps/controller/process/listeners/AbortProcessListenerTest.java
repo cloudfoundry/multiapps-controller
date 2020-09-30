@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
-import org.cloudfoundry.multiapps.controller.process.Constants;
 import org.cloudfoundry.multiapps.controller.process.util.MockDelegateExecution;
 import org.cloudfoundry.multiapps.controller.process.util.OperationInFinalStateHandler;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEntityEvent;
@@ -68,7 +67,7 @@ class AbortProcessListenerTest {
         return event;
     }
 
-    private static void mockEntity(FlowableEngineEntityEvent event) {
+    private void mockEntity(FlowableEngineEntityEvent event) {
         ExecutionEntity executionEntity = Mockito.mock(ExecutionEntity.class);
         Mockito.when(executionEntity.isProcessInstanceType())
                .thenReturn(true);

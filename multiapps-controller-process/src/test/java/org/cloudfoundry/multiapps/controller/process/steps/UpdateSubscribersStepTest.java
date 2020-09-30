@@ -1,6 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -11,12 +13,11 @@ import static org.mockito.Mockito.when;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -37,75 +38,19 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationE
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.variable.api.history.HistoricVariableInstance;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-@RunWith(Parameterized.class)
-public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersStep> {
+class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersStep> {
 
     private static final String NO_USER_ROLES_DEFINED_FOR_ORG_AND_SPACE = "No user roles defined for org [{0}] and space [{1}]";
     private static final String USER = "XSMASTER";
-
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-// @formatter:off
-            // (0) A subscriber should be updated, because there are new published entries (there are no existing entries):
-            {
-                "update-subscribers-step-input-00.json", "update-subscribers-step-output-00.json", 2, null,
-            },
-            // (1) A subscriber should be updated:
-            {
-                "update-subscribers-step-input-01.json", "update-subscribers-step-output-01.json", 2, null,
-            },
-            // (2) A subscriber should be updated, but the user does not have the necessary permissions for the org and space of the subscriber:
-            {
-                "update-subscribers-step-input-02.json", "update-subscribers-step-output-02.json", 2, null,
-            },
-            // (3) A subscriber should be updated, but the user does not have the necessary permissions for the org and space of the subscriber:
-            {
-                "update-subscribers-step-input-03.json", "update-subscribers-step-output-02.json", 2, null,
-            },
-            // (4) A subscriber should be updated, because there are deleted entries (there are no existing entries):
-            {
-                "update-subscribers-step-input-04.json", "update-subscribers-step-output-04.json", 2, null,
-            },
-            // (5) A subscriber should be updated, and there are additional environment variables that should be updated, other than the list variable:
-            {
-                "update-subscribers-step-input-05.json", "update-subscribers-step-output-05.json", 2, null,
-            },
-            // (6) A subscriber should be updated, because there are new published entries (there are no existing entries) and the subscriber requires just one entry:
-            {
-                "update-subscribers-step-input-06.json", "update-subscribers-step-output-06.json", 2, null,
-            },
-            // (7) There are multiple subscribers that should be updated:
-            {
-                "update-subscribers-step-input-07.json", "update-subscribers-step-output-07.json", 2, null,
-            },
-            // (8) One application has two subscriptions:
-            {
-                "update-subscribers-step-input-08.json", "update-subscribers-step-output-08.json", 2, null,
-            },
-            // (9) There's no need to update a subscriber:
-            {
-                "update-subscribers-step-input-09.json", "update-subscribers-step-output-09.json", 2, null,
-            },
-// @formatter:on
-        });
-    }
 
     @Mock
     private ConfigurationSubscriptionService configurationSubscriptionService;
@@ -115,43 +60,68 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
     private ConfigurationEntryService configurationEntryService;
     @Mock(answer = Answers.RETURNS_SELF)
     private ConfigurationEntryQuery configurationEntryQuery;
-
     @Mock
     private CloudControllerClient clientForCurrentSpace;
-
     @Mock
     protected ModuleToDeployHelper moduleToDeployHelper;
 
-    private final String expectedExceptionMessage;
-
-    private final int majorSchemaVersion;
-    private final String expectedOutputLocation;
     private StepOutput expectedOutput;
     private Map<CloudSpace, CloudControllerClient> clients;
-    private final String inputLocation;
     private StepInput input;
 
-    public UpdateSubscribersStepTest(String inputLocation, String expectedOutputLocation, int majorSchemaVersion,
-                                     String expectedExceptionMessage) {
-        this.expectedOutputLocation = expectedOutputLocation;
-        this.majorSchemaVersion = majorSchemaVersion;
-        this.expectedExceptionMessage = expectedExceptionMessage;
-        this.inputLocation = inputLocation;
+    public static Stream<Arguments> testExecute() {
+        return Stream.of(
+// @formatter:off
+            // (0) A subscriber should be updated, because there are new published entries (there are no existing entries):
+            Arguments.of("update-subscribers-step-input-00.json", "update-subscribers-step-output-00.json", 2, null),
+            // (1) A subscriber should be updated:
+            Arguments.of("update-subscribers-step-input-01.json", "update-subscribers-step-output-01.json", 2, null),
+            // (2) A subscriber should be updated, but the user does not have the necessary permissions for the org and space of the subscriber:
+            Arguments.of("update-subscribers-step-input-02.json", "update-subscribers-step-output-02.json", 2, null),
+            // (3) A subscriber should be updated, but the user does not have the necessary permissions for the org and space of the subscriber:
+            Arguments.of("update-subscribers-step-input-03.json", "update-subscribers-step-output-02.json", 2, null),
+            // (4) A subscriber should be updated, because there are deleted entries (there are no existing entries):
+            Arguments.of("update-subscribers-step-input-04.json", "update-subscribers-step-output-04.json", 2, null),
+            // (5) A subscriber should be updated, and there are additional environment variables that should be updated, other than the list variable:
+            Arguments.of("update-subscribers-step-input-05.json", "update-subscribers-step-output-05.json", 2, null),
+            // (6) A subscriber should be updated, because there are new published entries (there are no existing entries) and the subscriber requires just one entry:
+            Arguments.of("update-subscribers-step-input-06.json", "update-subscribers-step-output-06.json", 2, null),
+            // (7) There are multiple subscribers that should be updated:
+            Arguments.of("update-subscribers-step-input-07.json", "update-subscribers-step-output-07.json", 2, null),
+            // (8) One application has two subscriptions:
+            Arguments.of("update-subscribers-step-input-08.json", "update-subscribers-step-output-08.json", 2, null),
+            // (9) There's no need to update a subscriber:
+            Arguments.of("update-subscribers-step-input-09.json", "update-subscribers-step-output-09.json", 2, null)
+// @formatter:on
+        );
     }
 
-    @Before
-    public void setUp() throws Exception {
-        loadParameters();
-        prepareContext();
+    @ParameterizedTest
+    @MethodSource
+    void testExecute(String inputLocation, String expectedOutputLocation, int majorSchemaVersion, String expectedExceptionMessage) {
+        initializeParameters(inputLocation, expectedOutputLocation, majorSchemaVersion);
+        if (expectedExceptionMessage != null) {
+            Exception exception = assertThrows(Exception.class, () -> step.execute(execution));
+            assertTrue(exception.getMessage()
+                                .contains(expectedExceptionMessage));
+            return;
+        }
+        step.execute(execution);
+
+        assertStepFinishedSuccessfully();
+
+        StepOutput actualOutput = captureStepOutput();
+        assertEquals(JsonUtil.toJson(expectedOutput, true), JsonUtil.toJson(actualOutput, true));
+    }
+
+    public void initializeParameters(String inputLocation, String expectedOutputLocation, int majorSchemaVersion) {
+        loadParameters(inputLocation, expectedOutputLocation);
+        prepareContext(majorSchemaVersion);
         prepareClients();
         prepareConfigurationServices();
     }
 
-    private void loadParameters() {
-        if (expectedExceptionMessage != null) {
-            expectedException.expectMessage(expectedExceptionMessage);
-        }
-
+    private void loadParameters(String inputLocation, String expectedOutputLocation) {
         String outputString = TestUtil.getResourceAsString(expectedOutputLocation, getClass());
         expectedOutput = JsonUtil.fromJson(outputString, StepOutput.class);
 
@@ -159,7 +129,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         input = JsonUtil.fromJson(inputString, StepInput.class);
     }
 
-    private void prepareContext() {
+    private void prepareContext(int majorSchemaVersion) {
         context.setVariable(Variables.SPACE_NAME, input.currentSpace.getName());
         context.setVariable(Variables.ORGANIZATION_NAME, input.currentSpace.getOrganization()
                                                                            .getName());
@@ -174,7 +144,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         context.setVariable(Variables.USER, USER);
         step.targetCalculator = (client, spaceId) -> new CloudTarget(spaceId, spaceId);
         Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
-               .thenReturn(Collections.singletonList("test-subprocess-id"));
+               .thenReturn(List.of("test-subprocess-id"));
         HistoricVariableInstance varInstanceMock = Mockito.mock(HistoricVariableInstance.class);
         Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("test-subprocess-id", Variables.PUBLISHED_ENTRIES.getName()))
                .thenReturn(varInstanceMock);
@@ -200,7 +170,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
                                         .collect(Collectors.toList());
     }
 
-    private void prepareClients() throws Exception {
+    private void prepareClients() {
         prepareClientProvider(input.currentSpace, clientForCurrentSpace);
         clients = createClientsForSpacesOfSubscribedApps();
         for (CloudSpace space : clients.keySet()) {
@@ -265,9 +235,9 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
 
         for (SubscriberToUpdate subscriber : input.subscribersToUpdate) {
             ConfigurationFilter filter = subscriber.subscription.getFilter();
-            List<CloudTarget> targets = Collections.singletonList(new CloudTarget(input.currentSpace.getOrganization()
-                                                                                                    .getName(),
-                                                                                  input.currentSpace.getName()));
+            List<CloudTarget> targets = List.of(new CloudTarget(input.currentSpace.getOrganization()
+                                                                                  .getName(),
+                                                                input.currentSpace.getName()));
             ConfigurationEntryQuery entryQueryMock = new MockBuilder<>(configurationEntryQuery).on(query -> query.providerNid(filter.getProviderNid()))
                                                                                                .on(query -> query.providerId(filter.getProviderId()))
                                                                                                .on(query -> query.version(filter.getProviderVersion()))
@@ -291,16 +261,6 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
         allEntries.addAll(subscriber.relevantExistingEntries);
         allEntries.addAll(subscriber.relevantPublishedEntries);
         return allEntries;
-    }
-
-    @Test
-    public void testExecute() {
-        step.execute(execution);
-
-        assertStepFinishedSuccessfully();
-
-        StepOutput actualOutput = captureStepOutput();
-        assertEquals(JsonUtil.toJson(expectedOutput, true), JsonUtil.toJson(actualOutput, true));
     }
 
     private StepOutput captureStepOutput() {
@@ -340,7 +300,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
                                                                                                                .getName(),
                                                                  space.getName()));
         }
-        return userRole.permissions.containsAll(Arrays.asList(permissions));
+        return userRole.permissions.containsAll(List.of(permissions));
     }
 
     private UserRole getUserRole(CloudSpace space) {

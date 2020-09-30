@@ -1,11 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,8 +25,8 @@ import org.mockito.Mockito;
 class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachServicesFromMtaStep> {
 
     static Stream<List<SimpleServiceInstance>> testExecute() {
-        List<SimpleServiceInstance> servicesToDetach = Arrays.asList(createSimpleServiceInstance("service-1"),
-                                                                     createSimpleServiceInstance("service-2"));
+        List<SimpleServiceInstance> servicesToDetach = List.of(createSimpleServiceInstance("service-1"),
+                                                               createSimpleServiceInstance("service-2"));
         return Stream.of(servicesToDetach);
     }
 
@@ -106,7 +104,7 @@ class DetachServicesFromMtaStepTest extends SyncFlowableStepTest<DetachServicesF
 
     @Test
     void testWithMissingService() {
-        prepareContext(Collections.singletonList("service"));
+        prepareContext(List.of("service"));
         Mockito.when(client.getServiceInstance("service", false))
                .thenReturn(null);
 

@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.domain.DockerInfo;
@@ -16,28 +17,21 @@ import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBaseTest {
+class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBaseTest {
 
-    private static final DockerInfo DOCKER_INFO = createDockerInfo();
-
-    private static DockerInfo createDockerInfo() {
-        String image = "cloudfoundry/test-app";
-        String username = "someUser";
-        String password = "somePassword";
-        return ImmutableDockerInfo.builder()
-                                  .image(image)
-                                  .credentials(ImmutableDockerCredentials.builder()
-                                                                         .username(username)
-                                                                         .password(password)
-                                                                         .build())
-                                  .build();
-    }
+    private static final DockerInfo DOCKER_INFO = ImmutableDockerInfo.builder()
+                                                                     .image("cloudfoundry/test-app")
+                                                                     .credentials(ImmutableDockerCredentials.builder()
+                                                                                                            .username("someUser")
+                                                                                                            .password("somePassword")
+                                                                                                            .build())
+                                                                     .build();
 
     @Test
-    public void testWithDockerImage() {
+    void testWithDockerImage() {
         stepInput = createStepInput();
         loadParameters();
         prepareContext();
@@ -79,7 +73,7 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
         CloudApplicationExtended cloudApplicationExtended = createFakeCloudApplicationExtended();
 
         stepInput.applicationIndex = 0;
-        stepInput.applications = Collections.singletonList(cloudApplicationExtended);
+        stepInput.applications = List.of(cloudApplicationExtended);
 
         return stepInput;
     }

@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.process.jobs;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -51,7 +50,7 @@ class AbortedOperationsCleanerTest {
 
     @Test
     void testExecuteWithOperationsInFinalState() {
-        prepareMocksWithProcesses(Arrays.asList(new CustomProcess("foo", false), new CustomProcess("bar", false)));
+        prepareMocksWithProcesses(List.of(new CustomProcess("foo", false), new CustomProcess("bar", false)));
 
         abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
 
@@ -63,7 +62,7 @@ class AbortedOperationsCleanerTest {
 
     @Test
     void testExecute() {
-        prepareMocksWithProcesses(Arrays.asList(new CustomProcess("foo", true), new CustomProcess("bar", true)));
+        prepareMocksWithProcesses(List.of(new CustomProcess("foo", true), new CustomProcess("bar", true)));
 
         abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
 
@@ -77,7 +76,7 @@ class AbortedOperationsCleanerTest {
 
     @Test
     void testExecuteWithMixedOperations() {
-        prepareMocksWithProcesses(Arrays.asList(new CustomProcess("foo", true), new CustomProcess("bar", false)));
+        prepareMocksWithProcesses(List.of(new CustomProcess("foo", true), new CustomProcess("bar", false)));
 
         abortedOperationsCleaner.execute(new Date()); // Passed argument is not used.
 

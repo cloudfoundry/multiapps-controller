@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.core.auditlogging.impl;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -44,7 +43,7 @@ class AuditLogManagerTest {
     }
 
     private List<Logger> loadAuditLoggers() {
-        return Arrays.asList(auditLogManager.getSecurityLogger(), auditLogManager.getActionLogger(), auditLogManager.getConfigLogger());
+        return List.of(auditLogManager.getSecurityLogger(), auditLogManager.getActionLogger(), auditLogManager.getConfigLogger());
     }
 
     private void logMessage(List<Logger> loggers) {

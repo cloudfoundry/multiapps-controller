@@ -1,13 +1,13 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -152,7 +152,7 @@ class ApplicationStagerTest {
     void testIsApplicationStagedCorrectlyMetadataIsNull() {
         CloudApplication app = createApplication();
         Mockito.when(client.getBuildsForApplication(any(UUID.class)))
-               .thenReturn(Collections.singletonList(Mockito.mock(CloudBuild.class)));
+               .thenReturn(List.of(Mockito.mock(CloudBuild.class)));
         Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
     }
 
@@ -169,7 +169,7 @@ class ApplicationStagerTest {
         CloudApplication app = createApplication();
         CloudBuild build = createBuild(CloudBuild.State.STAGED, Mockito.mock(DropletInfo.class), null);
         Mockito.when(client.getBuildsForApplication(any(UUID.class)))
-               .thenReturn(Collections.singletonList(build));
+               .thenReturn(List.of(build));
         Assertions.assertTrue(applicationStager.isApplicationStagedCorrectly(app));
     }
 
@@ -178,7 +178,7 @@ class ApplicationStagerTest {
         CloudApplication app = createApplication();
         CloudBuild build = createBuild(CloudBuild.State.FAILED, null, null);
         Mockito.when(client.getBuildsForApplication(any(UUID.class)))
-               .thenReturn(Collections.singletonList(build));
+               .thenReturn(List.of(build));
         Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
     }
 
@@ -187,7 +187,7 @@ class ApplicationStagerTest {
         CloudApplication app = createApplication();
         CloudBuild build = createBuild(CloudBuild.State.STAGED, null, null);
         Mockito.when(client.getBuildsForApplication(any(UUID.class)))
-               .thenReturn(Collections.singletonList(build));
+               .thenReturn(List.of(build));
         Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
     }
 
@@ -198,7 +198,7 @@ class ApplicationStagerTest {
         CloudBuild build1 = createBuild(CloudBuild.State.STAGED, dropletInfo, null, new Date(0));
         CloudBuild build2 = createBuild(CloudBuild.State.FAILED, dropletInfo, "error", new Date(1));
         Mockito.when(client.getBuildsForApplication(any(UUID.class)))
-               .thenReturn(Arrays.asList(build1, build2));
+               .thenReturn(List.of(build1, build2));
         Assertions.assertFalse(applicationStager.isApplicationStagedCorrectly(app));
     }
 
@@ -277,7 +277,7 @@ class ApplicationStagerTest {
                .thenThrow(new CloudOperationException(HttpStatus.UNPROCESSABLE_ENTITY));
         CloudBuild build = createBuild(CloudBuild.State.STAGING, Mockito.mock(DropletInfo.class), null);
         Mockito.when(client.getBuildsForPackage(any(UUID.class)))
-               .thenReturn(Collections.singletonList(build));
+               .thenReturn(List.of(build));
         applicationStager.stageApp(app);
         assertEquals(build.getMetadata()
                           .getGuid(),

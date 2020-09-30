@@ -1,21 +1,23 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -24,97 +26,56 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInsta
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-@RunWith(Parameterized.class)
-public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
+class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
 
-    private final String expectedExceptionMessage;
-    private final ApplicationServicesUpdateCallback callback;
+    private String expectedExceptionMessage;
+    private ApplicationServicesUpdateCallback callback;
 
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> testExecute() {
+        return Stream.of(
 // @formatter:off
             // (0) Disk quota is 0:
-            {
-                "create-app-step-input-00.json", null,
-            },
+            Arguments.of("create-app-step-input-00.json", null),
             // (1) Memory is 0:
-            {
-                "create-app-step-input-01.json", null,
-            },
+            Arguments.of("create-app-step-input-01.json", null),
             // (2) Everything is specified properly:
-            {
-                "create-app-step-input-02.json", null,
-            },
+            Arguments.of("create-app-step-input-02.json", null),
             // (3) Binding parameters exist, and the services do too:
-            {
-                "create-app-step-input-03.json", null,
-            },
+            Arguments.of("create-app-step-input-03.json", null),
             // (4) Binding parameters exist, but the services do not:
-            {
-                "create-app-step-input-04.json", "Could not bind application \"application\" to service \"service-2\": 500 Internal Server Error: Something happened!",
-            },
+            Arguments.of("create-app-step-input-04.json", "Could not bind application \"application\" to service \"service-2\": 500 Internal Server Error: Something happened!"),
             // (5) Binding parameters exist, but the services do not and service-2 is optional - so no exception should be thrown:
-            {
-                "create-app-step-input-05.json", null,
-            },
+            Arguments.of("create-app-step-input-05.json", null),
             // (6) Service keys to inject are specified:
-            {
-                "create-app-step-input-06.json", null,
-            },
+            Arguments.of("create-app-step-input-06.json", null),
             // (7) Service keys to inject are specified but not exist:
-            {
-                "create-app-step-input-07.json",
-                "Unable to retrieve required service key element \"expected-service-key\" for service \"existing-service\"",
-            },
+            Arguments.of("create-app-step-input-07.json",
+                    "Unable to retrieve required service key element \"expected-service-key\" for service \"existing-service\"")
 // @formatter:on
-        });
+        );
     }
 
-    public CreateOrUpdateAppStepTest(String stepInput, String expectedExceptionMessage) {
-        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CreateOrUpdateAppStepTest.class), StepInput.class);
-        this.expectedExceptionMessage = expectedExceptionMessage;
-        this.callback = (e, applicationName, serviceName) -> {
-            if (expectedExceptionMessage != null) {
-                throw new RuntimeException(expectedExceptionMessage, e);
-            }
-        };
-    }
-
-    @Before
-    public void setUp() {
-        step.shouldPrettyPrint = () -> false;
-        loadParameters();
-        prepareContext();
-        prepareClient();
-    }
-
-    @Test
-    public void testExecute() {
+    @ParameterizedTest
+    @MethodSource
+    void testExecute(String stepInput, String expectedExceptionMessage) {
+        initializeParameters(stepInput, expectedExceptionMessage);
+        if (expectedExceptionMessage != null) {
+            assertThrows(SLException.class, () -> step.execute(execution));
+            return;
+        }
         step.execute(execution);
-
         assertStepFinishedSuccessfully();
 
         validateClient();
     }
 
     private void loadParameters() {
-        if (expectedExceptionMessage != null) {
-            expectedException.expectMessage(expectedExceptionMessage);
-        }
         application = stepInput.applications.get(stepInput.applicationIndex);
         application = ImmutableCloudApplicationExtended.builder()
                                                        .from(application)
@@ -122,8 +83,25 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
                                                        .build();
     }
 
+    private void initializeParameters(String stepInput, String expectedExceptionMessage) {
+        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CreateOrUpdateAppStepTest.class), StepInput.class);
+        this.expectedExceptionMessage = expectedExceptionMessage;
+        this.callback = (e, applicationName, serviceName) -> {
+            if (expectedExceptionMessage != null) {
+                throw new RuntimeException(expectedExceptionMessage, e);
+            }
+        };
+        prepareParameters();
+    }
+
+    private void prepareParameters() {
+        step.shouldPrettyPrint = () -> false;
+        loadParameters();
+        prepareContext();
+        prepareClient();
+    }
+
     private void prepareContext() {
-        // TODO
         context.setVariable(Variables.APPS_TO_DEPLOY, Collections.emptyList());
         StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, execution);
         context.setVariable(Variables.SERVICES_TO_BIND, mapToCloudServiceExtended());

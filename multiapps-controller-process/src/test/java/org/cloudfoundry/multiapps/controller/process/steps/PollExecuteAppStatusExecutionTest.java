@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -155,13 +156,13 @@ class PollExecuteAppStatusExecutionTest {
 
     private void prepareContext(CloudApplicationExtended application) {
         context.setVariable(Variables.APP_TO_PROCESS, application);
-        context.setVariable(Variables.APP_STATE_ACTIONS_TO_EXECUTE, Collections.singletonList(ApplicationStateAction.EXECUTE));
+        context.setVariable(Variables.APP_STATE_ACTIONS_TO_EXECUTE, List.of(ApplicationStateAction.EXECUTE));
         context.setVariable(Variables.USER, USER_NAME);
         context.setVariable(Variables.START_TIME, PROCESS_START_TIME);
     }
 
     private void prepareRecentLogsRetriever(ApplicationLog applicationLog) {
-        when(recentLogsRetriever.getRecentLogs(any(), any(), any())).thenReturn(Arrays.asList(applicationLog));
+        when(recentLogsRetriever.getRecentLogs(any(), any(), any())).thenReturn(List.of(applicationLog));
     }
 
     private void prepareStepLogger() {

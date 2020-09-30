@@ -1,15 +1,14 @@
 package org.cloudfoundry.multiapps.controller.core.helpers;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.YamlParser;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
@@ -18,57 +17,53 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.model.RequiredDependency;
 import org.cloudfoundry.multiapps.mta.model.Resource;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
-public class MtaArchiveHelperTest {
+class MtaArchiveHelperTest {
 
-    private static MtaArchiveHelper helper;
-    private static DeploymentDescriptor descriptor;
+    private MtaArchiveHelper helper;
+    private DeploymentDescriptor descriptor;
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
+    public static Stream<Arguments> getParameters() {
+        return Stream.of(
+        // @formatter:off
             // (0) Without modules and resources
-            { "mta-archive-helper-1.mtar", "mta-archive-helper-1.yaml" },
+            Arguments.of("mta-archive-helper-1.mtar", "mta-archive-helper-1.yaml"),
             // (1) With modules and resources
-            { "mta-archive-helper-2.mtar", "mta-archive-helper-2.yaml" } });
+            Arguments.of("mta-archive-helper-2.mtar", "mta-archive-helper-2.yaml"));
+        // @formatter:on
     }
 
-    public MtaArchiveHelperTest(String mtarLocation, String deploymentDescriptorLocation) throws SLException {
+    @ParameterizedTest
+    @MethodSource("getParameters")
+    void testResources(String mtarLocation, String deploymentDescriptorLocation) {
+        initializeParameters(mtarLocation, deploymentDescriptorLocation);
+        Set<String> descriptorResources = getResourcesNamesFromDescriptor();
+        Set<String> mtaResources = helper.getMtaArchiveResources()
+                                         .keySet();
+        assertEquals(descriptorResources, mtaResources);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getParameters")
+    void testDependencies(String mtarLocation, String deploymentDescriptorLocation) {
+        initializeParameters(mtarLocation, deploymentDescriptorLocation);
+        Set<String> descriptorDependencies = getRequiredDependenciesNamesFromDescriptor();
+        Set<String> mtaDependencies = helper.getMtaRequiresDependencies()
+                                            .keySet();
+        assertEquals(descriptorDependencies, mtaDependencies);
+    }
+
+    private void initializeParameters(String mtarLocation, String deploymentDescriptorLocation) {
         InputStream stream = getClass().getResourceAsStream(mtarLocation);
         helper = new MtaArchiveHelper(ArchiveHandler.getManifest(stream, ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE));
 
         DescriptorParser parser = new DescriptorParser();
         Map<String, Object> deploymentDescriptorMap = new YamlParser().convertYamlToMap(getClass().getResourceAsStream(deploymentDescriptorLocation));
         descriptor = parser.parseDeploymentDescriptor(deploymentDescriptorMap);
-    }
-
-    @Before
-    public void setUp() throws SLException {
         helper.init();
-    }
-
-    @Test
-    public void testResources() {
-        Set<String> descriptorResources = getResourcesNamesFromDescriptor();
-        Set<String> mtaResources = helper.getMtaArchiveResources()
-                                         .keySet();
-
-        assertEquals(descriptorResources, mtaResources);
-    }
-
-    @Test
-    public void testDependencies() {
-        Set<String> descriptorDependencies = getRequiredDependenciesNamesFromDescriptor();
-        Set<String> mtaDependencies = helper.getMtaRequiresDependencies()
-                                            .keySet();
-
-        assertEquals(descriptorDependencies, mtaDependencies);
     }
 
     private Set<String> getResourcesNamesFromDescriptor() {

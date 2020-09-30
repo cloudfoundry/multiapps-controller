@@ -1,10 +1,10 @@
 package org.cloudfoundry.multiapps.controller.persistence.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,12 +27,12 @@ import org.cloudfoundry.multiapps.controller.persistence.DataSourceWithDialect;
 import org.cloudfoundry.multiapps.controller.persistence.model.FileEntry;
 import org.cloudfoundry.multiapps.controller.persistence.test.TestDataSourceProvider;
 import org.cloudfoundry.multiapps.controller.persistence.util.JdbcUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
-public class DatabaseFileServiceTest {
+class DatabaseFileServiceTest {
 
     private static final String SELECT_FILE_WITH_CONTENT = "SELECT FILE_ID FROM {0} WHERE FILE_ID=? AND CONTENT IS NOT NULL";
 
@@ -55,7 +55,7 @@ public class DatabaseFileServiceTest {
 
     protected DataSourceWithDialect testDataSource;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         MockitoAnnotations.openMocks(this)
                           .close();
@@ -63,14 +63,14 @@ public class DatabaseFileServiceTest {
         this.fileService = createFileService(testDataSource);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         sweepFiles();
         tearDownConnection();
     }
 
     @Test
-    public void testCorrectFileEntryTimestamp() throws Exception {
+    void testCorrectFileEntryTimestamp() throws Exception {
         FileEntry fileEntry = addTestFile(SPACE_1, NAMESPACE_1);
         FileEntry fileEntryMetadata = fileService.getFile(SPACE_1, fileEntry.getId());
         assertEquals(fileEntry.getModified()
@@ -80,7 +80,7 @@ public class DatabaseFileServiceTest {
     }
 
     @Test
-    public void successfulUploadAndGetFileTest() throws Exception {
+    void successfulUploadAndGetFileTest() throws Exception {
         String space = SPACE_1;
         String namespace = NAMESPACE_1;
         FileEntry fileEntry = addTestFile(space, namespace);
@@ -97,7 +97,7 @@ public class DatabaseFileServiceTest {
     }
 
     @Test
-    public void processFileContentTest() throws Exception {
+    void processFileContentTest() throws Exception {
         Path expectedFile = Paths.get("src/test/resources/", PIC_RESOURCE_NAME);
         FileEntry fileEntry = addTestFile(SPACE_1, NAMESPACE_1);
         String expectedFileDigest = DigestHelper.computeFileChecksum(expectedFile, DIGEST_METHOD)
@@ -106,7 +106,7 @@ public class DatabaseFileServiceTest {
     }
 
     @Test
-    public void deleteBySpaceAndNamespaceTest() throws Exception {
+    void deleteBySpaceAndNamespaceTest() throws Exception {
         addTestFile(SPACE_1, NAMESPACE_1);
         addTestFile(SPACE_1, NAMESPACE_1);
         int deleteByWrongSpace = fileService.deleteBySpaceAndNamespace(SPACE_2, NAMESPACE_1);
@@ -120,7 +120,7 @@ public class DatabaseFileServiceTest {
     }
 
     @Test
-    public void deleteBySpaceAndNamespaceWithTwoNamespacesTest() throws Exception {
+    void deleteBySpaceAndNamespaceWithTwoNamespacesTest() throws Exception {
         addTestFile(SPACE_1, NAMESPACE_1);
         addTestFile(SPACE_1, NAMESPACE_2);
         int correctDelete = fileService.deleteBySpaceAndNamespace(SPACE_1, NAMESPACE_1);
@@ -132,7 +132,7 @@ public class DatabaseFileServiceTest {
     }
 
     @Test
-    public void deleteBySpaceTest() throws Exception {
+    void deleteBySpaceTest() throws Exception {
         addTestFile(SPACE_1, NAMESPACE_1);
         addTestFile(SPACE_1, NAMESPACE_2);
         int deleteByWrongSpace = fileService.deleteBySpace(SPACE_2);
@@ -144,7 +144,7 @@ public class DatabaseFileServiceTest {
     }
 
     @Test
-    public void deleteFileTest() throws Exception {
+    void deleteFileTest() throws Exception {
         FileEntry fileEntry = addTestFile(SPACE_1, NAMESPACE_1);
 
         boolean deleteFile = fileService.deleteFile(SPACE_2, fileEntry.getId());
@@ -155,7 +155,7 @@ public class DatabaseFileServiceTest {
     }
 
     @Test
-    public void deleteByModificationTimeTest() throws Exception {
+    void deleteByModificationTimeTest() throws Exception {
         long currentMillis = System.currentTimeMillis();
         final long oldFilesTtl = 1000 * 60 * 10; // 10min
         Date pastMoment = new Date(currentMillis - 1000 * 60 * 15); // before 15min

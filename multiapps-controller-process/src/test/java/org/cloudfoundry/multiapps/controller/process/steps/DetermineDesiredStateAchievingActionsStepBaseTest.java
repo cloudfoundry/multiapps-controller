@@ -19,9 +19,7 @@ import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStartupStat
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 
 public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
@@ -29,34 +27,19 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
 
     protected static final UUID FAKE_UUID = UUID.fromString("3e31fdaa-4a4e-11e9-8646-d663bd873d93");
     protected static final String DUMMY = "dummy";
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-    protected final List<ApplicationStateAction> expectedAppStateActions;
-    private final ApplicationStartupState currentAppState;
-    private final ApplicationStartupState desiredAppState;
-    private final boolean hasAppChanged;
-    private final boolean hasCloudPacakge;
+
     @Mock
     protected ApplicationStartupStateCalculator appStateCalculator;
     @Mock
     protected ApplicationConfiguration configuration;
 
-    public DetermineDesiredStateAchievingActionsStepBaseTest(ApplicationStartupState currentAppState,
-                                                             ApplicationStartupState desiredAppState, boolean hasAppChanged,
-                                                             List<ApplicationStateAction> expectedAppStateActions, boolean hasCloudPacakge) {
-        this.currentAppState = currentAppState;
-        this.desiredAppState = desiredAppState;
-        this.hasAppChanged = hasAppChanged;
-        this.expectedAppStateActions = expectedAppStateActions;
-        this.hasCloudPacakge = hasCloudPacakge;
-    }
-
-    @Before
-    public void setUp() {
-        prepareContext();
-        prepareAppStepCalculator();
+    protected void initializeParameters(ApplicationStartupState currentAppState,
+                      ApplicationStartupState desiredAppState, boolean hasAppChanged,
+                      boolean hasCloudPacakge) {
+        prepareContext(hasAppChanged);
+        prepareAppStepCalculator(currentAppState, desiredAppState);
         prepareStep();
-        prepareClient();
+        prepareClient(hasCloudPacakge);
     }
 
     @Override
@@ -70,17 +53,17 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
         step.configuration = configuration;
     }
 
-    private void prepareContext() {
+    private void prepareContext(boolean hasAppChanged) {
         context.setVariable(Variables.APP_CONTENT_CHANGED, hasAppChanged);
         context.setVariable(Variables.NO_START, false);
     }
 
-    private void prepareAppStepCalculator() {
+    private void prepareAppStepCalculator(ApplicationStartupState currentAppState, ApplicationStartupState desiredAppState) {
         when(appStateCalculator.computeCurrentState(any())).thenReturn(currentAppState);
         when(appStateCalculator.computeDesiredState(any(), eq(false))).thenReturn(desiredAppState);
     }
 
-    private void prepareClient() {
+    private void prepareClient(boolean hasCloudPacakge) {
         RestartParameters restartParameters = getRestartParameters();
         CloudMetadata metadata = ImmutableCloudMetadata.builder()
                                                        .guid(FAKE_UUID)

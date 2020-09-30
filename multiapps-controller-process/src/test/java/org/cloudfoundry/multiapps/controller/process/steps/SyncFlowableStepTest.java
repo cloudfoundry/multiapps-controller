@@ -1,10 +1,11 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.multiapps.common.test.Tester;
@@ -28,7 +29,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ExecutionQuery;
 import org.flowable.job.api.DeadLetterJobQuery;
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -82,7 +82,6 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
 
     protected abstract T createStep();
 
-    @Before
     @BeforeEach
     public void initMocks() throws Exception {
         MockitoAnnotations.openMocks(this)
@@ -126,7 +125,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     private void mockExecutionQuery(ExecutionQuery mockExecutionQuery) {
         Execution mockExecution = Mockito.mock(Execution.class);
         when(mockExecution.getActivityId()).thenReturn("1");
-        when(mockExecutionQuery.list()).thenReturn(Collections.singletonList(mockExecution));
+        when(mockExecutionQuery.list()).thenReturn(List.of(mockExecution));
         when(mockExecutionQuery.processInstanceId(Mockito.anyString())).thenReturn(mockExecutionQuery);
     }
 

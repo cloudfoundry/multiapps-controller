@@ -1,7 +1,7 @@
 package org.cloudfoundry.multiapps.controller.core.health;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -67,15 +67,14 @@ class HealthRetrieverTest {
     }
 
     private void prepareConfiguration(HealthCheckConfiguration healthCheckConfiguration) {
-        Mockito.when(configuration.getHealthCheckConfiguration())
-               .thenReturn(healthCheckConfiguration);
+        when(configuration.getHealthCheckConfiguration()).thenReturn(healthCheckConfiguration);
     }
 
     @BeforeEach
     void prepareOperationService() {
         when(operationService.createQuery()).thenReturn(operationQuery);
-        doReturn(Collections.singletonList(getOperation())).when(operationQuery)
-                                                           .list();
+        doReturn(List.of(getOperation())).when(operationQuery)
+                                         .list();
         healthRetriever = new HealthRetriever(operationService, configuration, currentTimeSupplier);
     }
 

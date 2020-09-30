@@ -7,7 +7,6 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,7 +22,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-class ModuleParametersCompatabilityValidatorTest {
+class ModuleParametersCompatibilityValidatorTest {
 
     @Mock
     private UserMessageLogger userMessageLogger;
@@ -35,21 +34,19 @@ class ModuleParametersCompatabilityValidatorTest {
     }
 
     static Stream<Arguments> testModuleParametersCompatability() {
-        return Stream.of(Arguments.of(Arrays.asList(SupportedParameters.HOST, SupportedParameters.ROUTES), true),
-                         Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES), false),
-                         Arguments.of(Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.DOMAINS, SupportedParameters.ROUTES),
+        return Stream.of(Arguments.of(List.of(SupportedParameters.HOST, SupportedParameters.ROUTES), true),
+                         Arguments.of(List.of(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES), false),
+                         Arguments.of(List.of(SupportedParameters.HOSTS, SupportedParameters.DOMAINS, SupportedParameters.ROUTES), true),
+                         Arguments.of(List.of(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOST), true),
+                         Arguments.of(List.of(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOSTS,
+                                              SupportedParameters.IDLE_DOMAINS),
                                       true),
-                         Arguments.of(Arrays.asList(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOST), true),
-                         Arguments.of(Arrays.asList(SupportedParameters.IDLE_ROUTES, SupportedParameters.IDLE_HOSTS,
-                                                    SupportedParameters.IDLE_DOMAINS),
-                                      true),
-                         Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES,
-                                                    SupportedParameters.BUILDPACKS),
+                         Arguments.of(List.of(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES, SupportedParameters.BUILDPACKS),
                                       false),
-                         Arguments.of(Arrays.asList(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES, "not-supported-parameter"),
+                         Arguments.of(List.of(SupportedParameters.ROUTES, SupportedParameters.IDLE_ROUTES, "not-supported-parameter"),
                                       false),
-                         Arguments.of(Arrays.asList(SupportedParameters.HOSTS, SupportedParameters.ROUTES, SupportedParameters.ROUTE_PATH,
-                                                    SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_ROUTES),
+                         Arguments.of(List.of(SupportedParameters.HOSTS, SupportedParameters.ROUTES, SupportedParameters.ROUTE_PATH,
+                                              SupportedParameters.IDLE_HOSTS, SupportedParameters.IDLE_ROUTES),
                                       true));
     }
 

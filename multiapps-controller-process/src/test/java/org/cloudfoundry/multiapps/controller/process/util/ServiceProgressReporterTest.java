@@ -6,8 +6,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,16 +37,10 @@ class ServiceProgressReporterTest {
     }
 
     static Stream<Arguments> testServiceProgressReporter() {
-        return Stream.of(Arguments.of(Arrays.asList(new ServiceOperation(ServiceOperation.Type.CREATE,
-                                                                         "",
-                                                                         ServiceOperation.State.IN_PROGRESS),
-                                                    new ServiceOperation(ServiceOperation.Type.UPDATE,
-                                                                         "",
-                                                                         ServiceOperation.State.IN_PROGRESS)),
+        return Stream.of(Arguments.of(List.of(new ServiceOperation(ServiceOperation.Type.CREATE, "", ServiceOperation.State.IN_PROGRESS),
+                                              new ServiceOperation(ServiceOperation.Type.UPDATE, "", ServiceOperation.State.IN_PROGRESS)),
                                       2),
-                         Arguments.of(Collections.singletonList(new ServiceOperation(ServiceOperation.Type.UPDATE,
-                                                                                     "",
-                                                                                     ServiceOperation.State.SUCCEEDED)),
+                         Arguments.of(List.of(new ServiceOperation(ServiceOperation.Type.UPDATE, "", ServiceOperation.State.SUCCEEDED)),
                                       0));
     }
 

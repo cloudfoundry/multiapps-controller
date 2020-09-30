@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import java.util.Map;
@@ -10,18 +10,18 @@ import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParametersStepBaseTest {
+class CollectBlueGreenSystemParametersStepTest extends CollectSystemParametersStepBaseTest {
 
-    @Before
+    @BeforeEach
     public void setNoConfirm() {
         context.setVariable(Variables.NO_CONFIRM, false);
     }
 
     @Test
-    public void testIdleGeneralParameters() {
+    void testIdleGeneralParameters() {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
 
@@ -34,7 +34,7 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
     }
 
     @Test
-    public void testIdleHostBasedModuleParameters() {
+    void testIdleHostBasedModuleParameters() {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient();
 

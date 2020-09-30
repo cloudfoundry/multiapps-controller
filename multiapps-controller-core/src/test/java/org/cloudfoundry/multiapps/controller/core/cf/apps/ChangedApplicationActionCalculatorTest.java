@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -27,19 +25,19 @@ class ChangedApplicationActionCalculatorTest {
     static Stream<Arguments> testChangedApplicationCalculator() {
         return Stream.of(
         //@formatter:off
-                        Arguments.of(ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, Arrays.asList(ApplicationStateAction.STAGE, ApplicationStateAction.START)),
-                        Arguments.of(ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, Collections.singletonList(ApplicationStateAction.STAGE)),
+                        Arguments.of(ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, List.of(ApplicationStateAction.STAGE, ApplicationStateAction.START)),
+                        Arguments.of(ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, List.of(ApplicationStateAction.STAGE)),
                         Arguments.of(ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED,
-                                     Arrays.asList(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START)),
-                        Arguments.of(ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, Arrays.asList(ApplicationStateAction.STAGE, ApplicationStateAction.STOP)),
-                        Arguments.of(ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, Arrays.asList(ApplicationStateAction.STAGE, ApplicationStateAction.STOP, ApplicationStateAction.START)),
-                        Arguments.of(ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, Arrays.asList(ApplicationStateAction.STOP, ApplicationStateAction.STAGE)),
+                                     List.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START)),
+                        Arguments.of(ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, List.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP)),
+                        Arguments.of(ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, List.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP, ApplicationStateAction.START)),
+                        Arguments.of(ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, List.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE)),
                         Arguments.of(ApplicationStartupState.INCONSISTENT, ApplicationStartupState.EXECUTED, 
-                                     Arrays.asList(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START)),
+                                     List.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START)),
                         Arguments.of(ApplicationStartupState.STOPPED, ApplicationStartupState.EXECUTED, 
-                                     Arrays.asList(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.EXECUTE)),
+                                     List.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.EXECUTE)),
                         Arguments.of(ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED,
-                                     Arrays.asList(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.EXECUTE))
+                                     List.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.EXECUTE))
         //@formatter:on
         );
     }
