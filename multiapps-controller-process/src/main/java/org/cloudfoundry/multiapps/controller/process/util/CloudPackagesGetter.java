@@ -35,7 +35,7 @@ public class CloudPackagesGetter {
         if (!currentCloudPackage.isPresent()) {
             return Optional.empty();
         }
-        LOGGER.info(MessageFormat.format(Messages.CURRENTLY_USED_PACKAGE_0, SecureSerialization.toJson(currentCloudPackage)));
+        LOGGER.info(MessageFormat.format(Messages.CURRENTLY_USED_PACKAGE_0, SecureSerialization.toJson(currentCloudPackage.get())));
         Optional<CloudPackage> mostRecentApplicationPackage = getMostRecentCloudPackage(client, applicationGuid);
         if (!mostRecentApplicationPackage.isPresent()) {
             return Optional.empty();
