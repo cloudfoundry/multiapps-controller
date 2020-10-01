@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
-import org.cloudfoundry.multiapps.controller.core.model.ServiceOperation;
+import org.cloudfoundry.client.lib.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.core.model.TypedServiceOperationState;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 

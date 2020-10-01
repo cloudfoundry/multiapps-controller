@@ -31,6 +31,7 @@ import org.cloudfoundry.client.lib.domain.ImmutableCloudEvent.ImmutableParticipa
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceKey;
+import org.cloudfoundry.client.lib.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.EventsGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceGetter;

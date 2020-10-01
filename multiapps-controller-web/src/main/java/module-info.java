@@ -34,7 +34,7 @@ open module org.cloudfoundry.multiapps.controller.web {
     requires transitive spring.tx;
     requires transitive spring.webmvc;
 
-    requires cloudfoundry.client.lib;
+    requires org.cloudfoundry.client.lib;
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
     requires com.google.common;

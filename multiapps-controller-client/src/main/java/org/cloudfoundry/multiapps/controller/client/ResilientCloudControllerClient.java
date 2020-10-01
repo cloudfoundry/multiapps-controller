@@ -1,9 +1,9 @@
 package org.cloudfoundry.multiapps.controller.client;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -354,14 +354,23 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void uploadApplication(String applicationName, File file, UploadStatusCallback callback) {
-        executeWithRetry(() -> {
-            try {
-                delegate.uploadApplication(applicationName, file, callback);
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
-        });
+    public void updateServicePlan(CloudServiceInstance service) {
+        executeWithRetry(() -> delegate.updateServicePlan(service));
+    }
+
+    @Override
+    public void updateServiceParameters(CloudServiceInstance service) {
+        executeWithRetry(() -> delegate.updateServiceParameters(service));
+    }
+
+    @Override
+    public void updateServiceTags(CloudServiceInstance service) {
+        executeWithRetry(() -> delegate.updateServiceTags(service));
+    }
+
+    @Override
+    public void uploadApplication(String applicationName, Path file, UploadStatusCallback callback) {
+        executeWithRetry(() -> delegate.uploadApplication(applicationName, file, callback));
     }
 
     @Override
@@ -376,14 +385,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudPackage asyncUploadApplication(String applicationName, File file, UploadStatusCallback callback) {
-        return executeWithRetry(() -> {
-            try {
-                return delegate.asyncUploadApplication(applicationName, file, callback);
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
-        });
+    public CloudPackage asyncUploadApplication(String applicationName, Path file, UploadStatusCallback callback) {
+        return executeWithRetry(() -> delegate.asyncUploadApplication(applicationName, file, callback));
     }
 
     @Override
@@ -445,6 +448,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public List<CloudEvent> getApplicationEvents(String applicationName) {
         return executeWithRetry(() -> delegate.getApplicationEvents(applicationName), HttpStatus.NOT_FOUND);
+    }
+
+    @Override
+    public List<CloudEvent> getEventsByActee(UUID uuid) {
+        return executeWithRetry(() -> delegate.getEventsByActee(uuid));
     }
 
     @Override
@@ -569,24 +577,12 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void uploadApplication(String applicationName, String file) {
-        executeWithRetry(() -> {
-            try {
-                delegate.uploadApplication(applicationName, file);
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
-        });
+        executeWithRetry(() -> delegate.uploadApplication(applicationName, file));
     }
 
     @Override
-    public void uploadApplication(String applicationName, File file) {
-        executeWithRetry(() -> {
-            try {
-                delegate.uploadApplication(applicationName, file);
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
-        });
+    public void uploadApplication(String applicationName, Path file) {
+        executeWithRetry(() ->  delegate.uploadApplication(applicationName, file));
     }
 
     @Override
@@ -601,14 +597,8 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudPackage asyncUploadApplication(String applicationName, File file) {
-        return executeWithRetry(() -> {
-            try {
-                return delegate.asyncUploadApplication(applicationName, file);
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
-        });
+    public CloudPackage asyncUploadApplication(String applicationName, Path file) {
+        return executeWithRetry(() -> delegate.asyncUploadApplication(applicationName, file));
     }
 
     @Override

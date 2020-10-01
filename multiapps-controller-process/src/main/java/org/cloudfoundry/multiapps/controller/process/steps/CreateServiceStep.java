@@ -11,9 +11,9 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
+import org.cloudfoundry.client.lib.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceWithAlternativesCreator;
-import org.cloudfoundry.multiapps.controller.core.model.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution.ExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -34,15 +34,11 @@ public class CreateServiceStep extends ServiceStep {
     @Override
     protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
                                                        CloudServiceInstanceExtended service) {
-        return createService(context, controllerClient, service);
-    }
-
-    private MethodExecution<String> createService(ProcessContext context, CloudControllerClient controllerClient,
-                                                  CloudServiceInstanceExtended service) {
         getStepLogger().info(Messages.CREATING_SERVICE_FROM_MTA_RESOURCE, service.getName(), service.getResourceName());
 
         try {
             MethodExecution<String> createServiceMethodExecution = createCloudService(controllerClient, service);
+
             getStepLogger().debug(Messages.SERVICE_CREATED, service.getName());
             return createServiceMethodExecution;
         } catch (CloudOperationException e) {

@@ -11,10 +11,10 @@ import javax.inject.Named;
 import org.apache.commons.collections4.MapUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
+import org.cloudfoundry.client.lib.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.EventsGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceGetter;
-import org.cloudfoundry.multiapps.controller.core.model.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
@@ -64,7 +64,12 @@ public class ServiceOperationGetter {
 
     @SuppressWarnings("unchecked")
     private ServiceOperation getLastServiceOperation(Map<String, Object> serviceInstanceEntity) {
-        Map<String, Object> lastOperationAsMap = (Map<String, Object>) serviceInstanceEntity.get(ServiceOperation.LAST_SERVICE_OPERATION);
-        return lastOperationAsMap != null ? ServiceOperation.fromMap(lastOperationAsMap) : null;
+        Map<String, Object> lastOperationAsMap = (Map<String, Object>) serviceInstanceEntity.get("last_operation");
+        if (lastOperationAsMap == null) {
+            return null;
+        }
+        ServiceOperation.Type type = ServiceOperation.Type.fromString((String) lastOperationAsMap.get("type"));
+        ServiceOperation.State state = ServiceOperation.State.fromString((String) lastOperationAsMap.get("state"));
+        return new ServiceOperation(type, (String) lastOperationAsMap.get("description"), state);
     }
 }
