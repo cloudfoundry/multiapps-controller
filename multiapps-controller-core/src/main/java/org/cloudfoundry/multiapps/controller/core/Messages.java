@@ -51,7 +51,7 @@ public final class Messages {
     public static final String ILLEGAL_SERVICE_OPERATION_TYPE = "Illegal service operation type: {0}";
     public static final String SERVICE_ALREADY_EXISTS = "Service \"{0}\" already exists.";
     public static final String NO_SERVICE_PLAN_FOUND = "Could not create service instance \"{0}\". Service plan \"{1}\" from service offering \"{2}\" was not found.";
-    public static final String EMPTY_SERVICE_PLANS_LIST_FOUND = "An empty service plans list was found for service \"{0}\"";
+    public static final String EMPTY_SERVICE_PLANS_LIST_FOUND = "An empty service plans list was found for service with label \"{0}\" from broker \"{1}\" with plan \"{2}\"";
     public static final String UNABLE_TO_PARSE_MEMORY_STRING_0 = "Unable to parse memory string \"{0}\"";
     public static final String CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN = "Service \"{0}\" could not be created because none of the service offering(s) \"{1}\" match with existing service offerings or provide service plan \"{2}\"";
     public static final String CANT_CREATE_SERVICE = "Service \"{0}\" could not be created because all attempt(s) to use service offerings \"{1}\" failed";

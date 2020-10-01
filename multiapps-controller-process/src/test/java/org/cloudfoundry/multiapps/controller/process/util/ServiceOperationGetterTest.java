@@ -14,10 +14,10 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.client.lib.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.EventsGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceGetter;
-import org.cloudfoundry.multiapps.controller.core.model.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,10 +89,10 @@ class ServiceOperationGetterTest {
                                                               ServiceOperation.State serviceOperationState, String description) {
         if (serviceOperationType != null && serviceOperationState != null) {
             Map<String, Object> serviceOperationAsMap = new HashMap<>();
-            serviceOperationAsMap.put(ServiceOperation.SERVICE_OPERATION_TYPE, serviceOperationType.toString());
-            serviceOperationAsMap.put(ServiceOperation.SERVICE_OPERATION_STATE, serviceOperationState.toString());
-            serviceOperationAsMap.put(ServiceOperation.SERVICE_OPERATION_DESCRIPTION, description);
-            return Map.of(ServiceOperation.LAST_SERVICE_OPERATION, serviceOperationAsMap);
+            serviceOperationAsMap.put("type", serviceOperationType.toString());
+            serviceOperationAsMap.put("state", serviceOperationState.toString());
+            serviceOperationAsMap.put("description", description);
+            return Map.of("last_operation", serviceOperationAsMap);
         }
         return null;
     }

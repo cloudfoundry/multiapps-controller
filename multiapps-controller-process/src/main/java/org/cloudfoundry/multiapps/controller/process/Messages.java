@@ -460,6 +460,7 @@ public class Messages {
     public static final String GETTING_APPLICATION_0 = "Getting application \"{0}\"...";
     public static final String GETTING_ENVIRONMENT_OF_APPLICATION_0 = "Getting environment of application \"{0}\"...";
     public static final String GETTING_EVENTS_FOR_APPLICATION_0 = "Getting events for application \"{0}\"...";
+    public static final String GETTING_EVENTS_BY_ACTEE_0 = "Getting events by actee \"{0}\"...";
     public static final String GETTING_INSTANCES_OF_APPLICATION_0 = "Getting instances for application \"{0}\"...";
     public static final String GETTING_APPLICATIONS = "Getting applications...";
     public static final String GETTING_DEFAULT_DOMAIN = "Getting default domain...";
@@ -510,6 +511,8 @@ public class Messages {
     public static final String UPDATING_URIS_OF_APPLICATION_0_TO_1 = "Updating URIs of application \"{0}\" to: {1}";
     public static final String UPDATING_SERVICE_BROKER_TO_0 = "Updating service broker to: {0}";
     public static final String UPDATING_PUBLIC_SERVICE_PLAN_VISIBILITY_OF_SERVICE_BROKER_0_TO_1 = "Updating public service plan visibility of service broker \"{0}\" to: {1}";
+    public static final String UPDATING_SERVICE_PLAN = "Updating service plan for service \"{0}\"...";
+    public static final String UPDATING_SERVICE_PARAMETERS = "Updating service parameters for service \"{0}\"...";
     public static final String SYNCHRONOUSLY_UPLOADING_APPLICATION_0 = "Synchronously uploading binaries for application \"{0}\"...";
     public static final String ASYNCHRONOUSLY_UPLOADING_APPLICATION_0 = "Asynchronously uploading binaries for application \"{0}\"...";
     public static final String GETTING_PACKAGE_0 = "Getting package \"{0}\"...";

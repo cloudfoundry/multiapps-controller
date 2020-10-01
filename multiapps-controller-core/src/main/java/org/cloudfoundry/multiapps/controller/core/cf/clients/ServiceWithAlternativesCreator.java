@@ -44,9 +44,9 @@ public class ServiceWithAlternativesCreator {
                                                                                        .collect(Collectors.toMap(CloudServiceOffering::getName,
                                                                                                                  CloudServiceOffering::getServicePlans,
                                                                                                                  (v1,
-                                                                                                                  v2) -> retrievePlanListFromServicePlan(serviceInstance,
-                                                                                                                                                         v1,
-                                                                                                                                                         v2)));
+                                                                                                                  v2) -> mergeServicePlans(serviceInstance,
+                                                                                                                                           v1,
+                                                                                                                                           v2)));
 
         List<String> validServiceOfferings = computeValidServiceOfferings(possibleServiceOfferings, serviceInstance.getPlan(),
                                                                           existingServiceOfferings);
@@ -61,11 +61,13 @@ public class ServiceWithAlternativesCreator {
         return attemptToFindServiceOfferingAndCreateService(client, serviceInstance, validServiceOfferings);
     }
 
-    private List<CloudServicePlan> retrievePlanListFromServicePlan(CloudServiceInstanceExtended serviceInstance, List<CloudServicePlan> v1Plans,
-                                                                   List<CloudServicePlan> v2Plans) {
+    private List<CloudServicePlan> mergeServicePlans(CloudServiceInstanceExtended serviceInstance, List<CloudServicePlan> v1Plans,
+                                                     List<CloudServicePlan> v2Plans) {
         String servicePlanName = serviceInstance.getPlan();
         if (v1Plans.isEmpty() || v2Plans.isEmpty()) {
-            throw new SLException(Messages.EMPTY_SERVICE_PLANS_LIST_FOUND, servicePlanName);
+            String label = serviceInstance.getLabel();
+            String broker = serviceInstance.getBroker();
+            throw new SLException(Messages.EMPTY_SERVICE_PLANS_LIST_FOUND, label, broker, servicePlanName);
         }
 
         if (containsPlan(v1Plans, servicePlanName)) {

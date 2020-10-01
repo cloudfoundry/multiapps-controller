@@ -1,9 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.client;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -224,6 +224,12 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     public List<CloudEvent> getApplicationEvents(String applicationName) {
         logger.debug(Messages.GETTING_EVENTS_FOR_APPLICATION_0, applicationName);
         return delegate.getApplicationEvents(applicationName);
+    }
+
+    @Override
+    public List<CloudEvent> getEventsByActee(UUID uuid) {
+        logger.debug(Messages.GETTING_EVENTS_BY_ACTEE_0, uuid.toString());
+        return delegate.getEventsByActee(uuid);
     }
 
     @Override
@@ -612,19 +618,37 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void uploadApplication(String applicationName, String file) throws IOException {
+    public void updateServicePlan(CloudServiceInstance service) {
+        logger.debug(Messages.UPDATING_SERVICE_PLAN, service.getName());
+        delegate.updateServicePlan(service);
+    }
+
+    @Override
+    public void updateServiceParameters(CloudServiceInstance service) {
+        logger.debug(Messages.UPDATING_SERVICE_PARAMETERS, service.getName());
+        delegate.updateServiceParameters(service);
+    }
+
+    @Override
+    public void updateServiceTags(CloudServiceInstance service) {
+        logger.debug(Messages.UPDATING_SERVICE_TAGS, service.getName());
+        delegate.updateServiceTags(service);
+    }
+
+    @Override
+    public void uploadApplication(String applicationName, String file) {
         logger.debug(Messages.SYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
         delegate.uploadApplication(applicationName, file);
     }
 
     @Override
-    public void uploadApplication(String applicationName, File file) throws IOException {
+    public void uploadApplication(String applicationName, Path file) {
         logger.debug(Messages.SYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
         delegate.uploadApplication(applicationName, file);
     }
 
     @Override
-    public void uploadApplication(String applicationName, File file, UploadStatusCallback callback) throws IOException {
+    public void uploadApplication(String applicationName, Path file, UploadStatusCallback callback) {
         logger.debug(Messages.SYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
         delegate.uploadApplication(applicationName, file, callback);
     }
@@ -642,13 +666,13 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public CloudPackage asyncUploadApplication(String applicationName, File file) throws IOException {
+    public CloudPackage asyncUploadApplication(String applicationName, Path file) {
         logger.debug(Messages.ASYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
         return delegate.asyncUploadApplication(applicationName, file);
     }
 
     @Override
-    public CloudPackage asyncUploadApplication(String applicationName, File file, UploadStatusCallback callback) throws IOException {
+    public CloudPackage asyncUploadApplication(String applicationName, Path file, UploadStatusCallback callback) {
         logger.debug(Messages.ASYNCHRONOUSLY_UPLOADING_APPLICATION_0, applicationName);
         return delegate.asyncUploadApplication(applicationName, file, callback);
     }

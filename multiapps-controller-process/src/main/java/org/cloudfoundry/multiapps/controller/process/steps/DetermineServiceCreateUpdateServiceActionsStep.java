@@ -20,6 +20,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.cloudfoundry.client.lib.domain.ServiceOperation;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -29,7 +30,6 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudSer
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
-import org.cloudfoundry.multiapps.controller.core.model.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
@@ -311,7 +311,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
     @SuppressWarnings("unchecked")
     private ServiceOperation getLastOperation(Map<String, Object> cloudServiceInstance) {
-        Map<String, Object> lastOperationAsMap = (Map<String, Object>) cloudServiceInstance.get(ServiceOperation.LAST_SERVICE_OPERATION);
+        Map<String, Object> lastOperationAsMap = (Map<String, Object>) cloudServiceInstance.get("last_operation");
         if (lastOperationAsMap == null) {
             return null;
         }
@@ -319,10 +319,11 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     }
 
     private ServiceOperation parseServiceOperationFromMap(Map<String, Object> serviceOperation) {
-        if (serviceOperation.get(ServiceOperation.SERVICE_OPERATION_TYPE) == null
-            || serviceOperation.get(ServiceOperation.SERVICE_OPERATION_STATE) == null) {
+        if (serviceOperation.get("type") == null || serviceOperation.get("state") == null) {
             return null;
         }
-        return ServiceOperation.fromMap(serviceOperation);
+        ServiceOperation.Type type = ServiceOperation.Type.fromString((String) serviceOperation.get("type"));
+        ServiceOperation.State state = ServiceOperation.State.fromString((String) serviceOperation.get("state"));
+        return new ServiceOperation(type, (String) serviceOperation.get("description"), state);
     }
 }

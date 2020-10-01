@@ -12,10 +12,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.MessageFormat;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,7 +42,6 @@ import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
-import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveContext;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationArchiveReader;
 import org.cloudfoundry.multiapps.controller.process.util.ApplicationZipBuilder;
@@ -66,7 +65,6 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     private static final String CURRENT_MODULE_DIGEST = "439B99DFFD0583200D5D21F4CD1BF035";
     private static final String NEW_MODULE_DIGEST = "539B99DFFD0583200D5D21F4CD1BF035";
     private static final UUID APP_GUID = UUID.randomUUID();
-    private static final IOException IO_EXCEPTION = new IOException();
     private static final CloudOperationException CO_EXCEPTION = new CloudOperationException(HttpStatus.BAD_REQUEST);
     private static final CloudPackage CLOUD_PACKAGE = ImmutableCloudPackage.builder()
                                                                            .metadata(ImmutableCloudMetadata.builder()
@@ -78,15 +76,10 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     private final CloudPackagesGetter cloudPackagesGetter = mock(CloudPackagesGetter.class);
     @TempDir
     Path tempDir;
-    private File appFile;
+    private Path appFile;
 
     private static Stream<Arguments> testWithAvailableExpiredCloudPackageAndDifferentContent() {
         return Stream.of(Arguments.of(CURRENT_MODULE_DIGEST), Arguments.of(NEW_MODULE_DIGEST));
-    }
-
-    private static Stream<Arguments> testFailedUploadWithException() {
-        return Stream.of(Arguments.of(MessageFormat.format(Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, APP_FILE), null),
-                         Arguments.of(null, MessageFormat.format(Messages.CF_ERROR, CO_EXCEPTION.getMessage())));
     }
 
     private static Stream<Arguments> testWithBuildStates() {
@@ -127,9 +120,10 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
 
     @SuppressWarnings("rawtypes")
     private void prepareFileService() throws Exception {
-        appFile = new File(tempDir.toString() + File.separator + APP_FILE);
-        if (!appFile.exists()) {
-            appFile.createNewFile();
+        appFile = Paths.get(tempDir.toString() + File.separator + APP_FILE);
+        if (!appFile.toFile()
+                    .exists()) {
+            Files.createFile(appFile);
         }
         doAnswer(invocation -> {
             FileContentProcessor contentProcessor = invocation.getArgument(2);
@@ -158,30 +152,32 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
 
     @AfterEach
     public void tearDown() {
-        FileUtils.deleteQuietly(appFile.getParentFile());
+        FileUtils.deleteQuietly(appFile.getParent()
+                                       .toFile());
     }
 
     @Test
-    void testSuccessfulUpload() throws Exception {
-        prepareClients(null, null, NEW_MODULE_DIGEST);
+    void testSuccessfulUpload() {
+        prepareClients(NEW_MODULE_DIGEST);
         step.execute(execution);
         assertEquals(CLOUD_PACKAGE, context.getVariable(Variables.CLOUD_PACKAGE));
         assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
     }
 
-    @MethodSource
-    @ParameterizedTest
-    void testFailedUploadWithException(String expectedIOExceptionMessage, String expectedCFExceptionMessage) throws Exception {
-        prepareClients(expectedIOExceptionMessage, expectedCFExceptionMessage, NEW_MODULE_DIGEST);
+    @Test
+    void testFailedUploadWithException() {
+        prepareClients(NEW_MODULE_DIGEST);
+        when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(CO_EXCEPTION);
         assertThrows(SLException.class, () -> step.execute(execution));
-        assertFalse(appFile.exists());
+        assertFalse(appFile.toFile()
+                           .exists());
         assertNull(context.getVariable(Variables.CLOUD_PACKAGE));
         assertEquals(StepPhase.RETRY.toString(), getExecutionStatus());
     }
 
     @Test
-    void testWithAvailableValidCloudPackage() throws Exception {
-        prepareClients(null, null, CURRENT_MODULE_DIGEST);
+    void testWithAvailableValidCloudPackage(){
+        prepareClients(CURRENT_MODULE_DIGEST);
         mockCloudPackagesGetter(createCloudPackage(Status.PROCESSING_UPLOAD));
         step.execute(execution);
         CloudPackage cloudPackage = context.getVariable(Variables.CLOUD_PACKAGE);
@@ -190,8 +186,8 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
     }
 
     @Test
-    void testWithAvailableFailedLatestPackageAndNonChangedApplicationContent() throws Exception {
-        prepareClients(null, null, CURRENT_MODULE_DIGEST);
+    void testWithAvailableFailedLatestPackageAndNonChangedApplicationContent() {
+        prepareClients(CURRENT_MODULE_DIGEST);
         mockCloudPackagesGetter(createCloudPackage(Status.FAILED));
         step.execute(execution);
         assertEquals(CLOUD_PACKAGE, context.getVariable(Variables.CLOUD_PACKAGE));
@@ -200,8 +196,8 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
 
     @MethodSource
     @ParameterizedTest
-    void testWithAvailableExpiredCloudPackageAndDifferentContent(String moduleDigest) throws Exception {
-        prepareClients(null, null, moduleDigest);
+    void testWithAvailableExpiredCloudPackageAndDifferentContent(String moduleDigest) {
+        prepareClients(moduleDigest);
         mockCloudPackagesGetter(createCloudPackage(Status.EXPIRED));
         step.execute(execution);
         assertEquals(CLOUD_PACKAGE, context.getVariable(Variables.CLOUD_PACKAGE));
@@ -210,9 +206,9 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
 
     @MethodSource
     @ParameterizedTest
-    void testWithBuildStates(List<CloudBuild> builds, StepPhase stepPhase, CloudPackage cloudPackage) throws Exception {
+    void testWithBuildStates(List<CloudBuild> builds, StepPhase stepPhase, CloudPackage cloudPackage) {
         when(client.getBuildsForApplication(any())).thenReturn(builds);
-        prepareClients(null, null, CURRENT_MODULE_DIGEST);
+        prepareClients(CURRENT_MODULE_DIGEST);
         step.execute(execution);
         assertEquals(cloudPackage, context.getVariable(Variables.CLOUD_PACKAGE));
         assertEquals(stepPhase.toString(), getExecutionStatus());
@@ -232,15 +228,8 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
         when(cloudPackagesGetter.getLatestUnusedPackage(any(), any())).thenReturn(Optional.of(cloudPackage));
     }
 
-    private void prepareClients(String expectedIOExceptionMessage, String expectedCFExceptionMessage, String applicationDigest)
-        throws Exception {
-        if (expectedIOExceptionMessage == null && expectedCFExceptionMessage == null) {
-            when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenReturn(CLOUD_PACKAGE);
-        } else if (expectedIOExceptionMessage != null) {
-            when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(IO_EXCEPTION);
-        } else {
-            when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(CO_EXCEPTION);
-        }
+    private void prepareClients(String applicationDigest) {
+        when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenReturn(CLOUD_PACKAGE);
         CloudApplicationExtended application = createApplication(applicationDigest);
         when(client.getApplication(APP_NAME)).thenReturn(application);
     }
@@ -284,7 +273,7 @@ class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
             return new ApplicationZipBuilder(applicationArchiveReader) {
                 @Override
                 protected Path createTempFile() {
-                    return appFile.toPath();
+                    return appFile;
                 }
             };
         }

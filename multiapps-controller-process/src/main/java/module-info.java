@@ -13,7 +13,7 @@ open module org.cloudfoundry.multiapps.controller.process {
     exports org.cloudfoundry.multiapps.controller.process.util;
     exports org.cloudfoundry.multiapps.controller.process.variables;
 
-    requires transitive cloudfoundry.client.lib;
+    requires transitive org.cloudfoundry.client.lib;
     requires transitive flowable.engine;
     requires transitive org.cloudfoundry.multiapps.controller.api;
     requires transitive org.cloudfoundry.multiapps.controller.core;
