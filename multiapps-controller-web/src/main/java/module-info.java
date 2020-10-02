@@ -8,7 +8,6 @@ open module org.cloudfoundry.multiapps.controller.web {
     exports org.cloudfoundry.multiapps.controller.web.configuration.bean.factory;
     exports org.cloudfoundry.multiapps.controller.web.configuration.service;
     exports org.cloudfoundry.multiapps.controller.web.interceptors;
-    exports org.cloudfoundry.multiapps.controller.web.listeners;
     exports org.cloudfoundry.multiapps.controller.web.monitoring;
     exports org.cloudfoundry.multiapps.controller.web.resources;
     exports org.cloudfoundry.multiapps.controller.web.security;
