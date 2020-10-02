@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 import javax.inject.Inject;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.persistence.services.HistoricOperationEventService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogger;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
@@ -33,6 +34,8 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     private ProcessLogsPersister processLogsPersister;
     @Inject
     private HistoricOperationEventService historicOperationEventService;
+    @Inject
+    protected ApplicationConfiguration configuration;
 
     private StepLogger stepLogger;
 
