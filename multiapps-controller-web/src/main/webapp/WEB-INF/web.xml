@@ -42,10 +42,6 @@
         <res-type>javax.sql.DataSource</res-type>
     </resource-ref>
 
-    <!-- Must be executed before the Spring context is initialized and Liquibase changes start to run. -->
-    <listener>
-        <listener-class>org.cloudfoundry.multiapps.controller.web.listeners.LiquibaseServicesRegistrator</listener-class>
-    </listener>
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
