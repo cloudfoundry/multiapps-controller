@@ -1,2 +1,0 @@
-org.cloudfoundry.multiapps.controller.web.configuration.service.FileSystemServiceInfoCreator
-org.cloudfoundry.multiapps.controller.web.configuration.service.ObjectStoreServiceInfoCreator
