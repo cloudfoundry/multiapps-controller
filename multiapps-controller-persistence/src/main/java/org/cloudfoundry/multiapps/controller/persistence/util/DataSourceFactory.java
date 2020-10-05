@@ -11,6 +11,8 @@ import io.pivotal.cfenv.jdbc.CfJdbcService;
 @Named
 public class DataSourceFactory {
 
+    private static final String CONNECTION_TEST_QUERY = "SELECT 1";
+
     public DataSource createDataSource(CfJdbcService service) {
         return createDataSource(service, null);
     }
@@ -25,6 +27,7 @@ public class DataSourceFactory {
         hikariConfig.setPassword(service.getPassword());
         hikariConfig.setJdbcUrl(service.getJdbcUrl());
         hikariConfig.setConnectionTimeout(60000);
+        hikariConfig.setConnectionTestQuery(CONNECTION_TEST_QUERY);
         if (maximumPoolSize != null) {
             hikariConfig.setMaximumPoolSize(maximumPoolSize);
         }
