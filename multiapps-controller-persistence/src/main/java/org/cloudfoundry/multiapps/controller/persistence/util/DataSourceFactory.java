@@ -24,7 +24,6 @@ public class DataSourceFactory {
         hikariConfig.setUsername(service.getUsername());
         hikariConfig.setPassword(service.getPassword());
         hikariConfig.setJdbcUrl(service.getJdbcUrl());
-        hikariConfig.setMaxLifetime(0);
         hikariConfig.setConnectionTimeout(60000);
         if (maximumPoolSize != null) {
             hikariConfig.setMaximumPoolSize(maximumPoolSize);
