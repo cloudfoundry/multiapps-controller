@@ -25,12 +25,12 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires transitive org.cloudfoundry.multiapps.mta;
     requires transitive org.cloudfoundry.multiapps.controller.api;
 
-    requires HikariCP.java7;
     requires aliyun.sdk.oss;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
     requires com.google.auto.service;
     requires com.google.common;
+    requires com.zaxxer.hikari;
     requires error.prone.annotations;
     requires flowable.engine;
     requires flowable.engine.common.api;

@@ -32,7 +32,7 @@
         <spring-security.version>5.4.0</spring-security.version>
         <spring-security-oauth2.version>2.5.0.RELEASE</spring-security-oauth2.version>
         <spring-security-jwt.version>1.1.1.RELEASE</spring-security-jwt.version>
-        <hikari.version>2.4.13</hikari.version>
+        <hikari.version>3.4.3</hikari.version>
         <quartz.version>2.3.2</quartz.version>
         <jackson.version>2.11.2</jackson.version>
         <liquibase.version>4.0.0</liquibase.version>
@@ -673,11 +673,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <!-- We cannot upgrade to a newer version, because quartz uses this one. -->
+            <!-- We cannot upgrade to a newer version, because of: https://github.com/brettwooldridge/HikariCP/issues/1582 -->
             <!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
             <dependency>
                 <groupId>com.zaxxer</groupId>
-                <artifactId>HikariCP-java7</artifactId>
+                <artifactId>HikariCP</artifactId>
                 <version>${hikari.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->
@@ -686,10 +686,17 @@
                 <artifactId>quartz</artifactId>
                 <version>${quartz.version}</version>
                 <exclusions>
-                    <!-- We use HikariCP-java7 instead of this connection pool, since it has better performance. -->
+                    <!-- Only used if Quartz needs to create its own DataSource. Since we use create the DataSource ourselves, 
+                        it is not needed. -->
                     <exclusion>
                         <groupId>com.mchange</groupId>
                         <artifactId>c3p0</artifactId>
+                    </exclusion>
+                    <!-- Only used if Quartz needs to create its own DataSource. Since we use create the DataSource ourselves, 
+                        it is not needed. -->
+                    <exclusion>
+                        <groupId>com.zaxxer</groupId>
+                        <artifactId>HikariCP-java7</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
