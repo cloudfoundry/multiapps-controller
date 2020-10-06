@@ -81,13 +81,13 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/SAP/cf-mta-deploy-service.git</connection>
-        <developerConnection>scm:git:https://github.com/SAP/cf-mta-deploy-service.git</developerConnection>
-        <url>https://github.com/SAP/cf-mta-deploy-service.git</url>
-        <tag>1.56.0</tag>
+        <connection>scm:git:https://github.com/cloudfoundry-incubator/multiapps-controller.git</connection>
+        <developerConnection>scm:git:https://github.com/cloudfoundry-incubator/multiapps-controller.git</developerConnection>
+        <url>https://github.com/cloudfoundry-incubator/multiapps-controller.git</url>
+        <tag>HEAD</tag>
     </scm>
 
-    <url>https://github.com/SAP/cf-mta-deploy-service.git</url>
+    <url>https://github.com/cloudfoundry-incubator/multiapps-controller</url>
 
     <developers>
         <developer>
