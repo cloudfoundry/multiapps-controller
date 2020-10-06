@@ -1,8 +1,8 @@
 package org.cloudfoundry.multiapps.controller.core.cf.metadata;
 
 import org.cloudfoundry.multiapps.common.Nullable;
-import org.cloudfoundry.multiapps.controller.core.model.adapter.VersionJsonDeserializer;
-import org.cloudfoundry.multiapps.controller.core.model.adapter.VersionJsonSerializer;
+import org.cloudfoundry.multiapps.controller.persistence.model.adapter.VersionJsonDeserializer;
+import org.cloudfoundry.multiapps.controller.persistence.model.adapter.VersionJsonSerializer;
 import org.cloudfoundry.multiapps.mta.model.Version;
 import org.immutables.value.Value;
 
