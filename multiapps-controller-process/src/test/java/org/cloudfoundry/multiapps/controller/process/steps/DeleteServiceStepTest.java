@@ -1,39 +1,28 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceKey;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudEvent;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudEvent.ImmutableParticipant;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceKey;
+import org.cloudfoundry.client.lib.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.EventsGetter;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceGetter;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceOperationGetter;
@@ -44,26 +33,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
 
     private static final String SEVICE_KEY_NAME = "test-service-key";
     private static final String SERVICE_NAME = "test-service";
     private static final String SERVICE_GUID = "5ee63aa7-fb56-4e8f-b43f-a74efead2602";
-    private static final String SERVICE_EVENT_TYPE_DELETE = "audit.service_instance.delete";
 
     @Mock
     private ServiceProgressReporter serviceProgressReporter;
     @Mock
-    private ServiceGetter serviceGetter;
-    @Mock
-    private EventsGetter eventsGetter;
-    @Mock
     private ServiceRemover serviceRemover;
-    @InjectMocks
+    @Mock
     private ServiceOperationGetter serviceOperationGetter;
 
     static Stream<Arguments> testServiceDelete() {
@@ -114,12 +96,12 @@ class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
         prepareContext();
         CloudServiceInstance serviceInstance = createCloudService(serviceGuid);
         prepareClient(serviceInstance, Collections.emptyList(), false);
+        ServiceOperation lastOp = new ServiceOperation(ServiceOperation.Type.DELETE, "", ServiceOperation.State.SUCCEEDED);
+        when(serviceOperationGetter.getLastServiceOperation(any(), any())).thenReturn(lastOp);
 
-        prepareEventsGetter(false, serviceGuid);
         step.execute(context.getExecution());
         assertStepPhase(StepPhase.POLL);
 
-        prepareEventsGetter(true, serviceGuid);
         step.execute(context.getExecution());
         assertStepPhase(StepPhase.DONE);
     }
@@ -163,63 +145,6 @@ class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
         return Collections.emptyList();
     }
 
-    private void prepareEventsGetter(boolean containsDeleteEvent, UUID serviceGuid) {
-        reset();
-        if (containsDeleteEvent) {
-            CloudEvent deleteEvent = createDeleteServiceCloudEvent(serviceGuid);
-            List<CloudEvent> events = createOlderServiceCloudEvents(deleteEvent, 5);
-            events.add(deleteEvent);
-            Collections.shuffle(events);
-
-            Mockito.when(eventsGetter.getEvents(eq(serviceGuid), any(CloudControllerClient.class)))
-                   .thenReturn(events);
-            Mockito.when(eventsGetter.getLastEvent(eq(serviceGuid), any(CloudControllerClient.class)))
-                   .thenReturn(deleteEvent);
-
-        }
-
-        Mockito.when(eventsGetter.isDeleteEvent(SERVICE_EVENT_TYPE_DELETE))
-               .thenCallRealMethod();
-    }
-
-    private CloudEvent createDeleteServiceCloudEvent(UUID serviceGuid) {
-        return ImmutableCloudEvent.builder()
-                                  .actee(ImmutableParticipant.builder()
-                                                             .guid(serviceGuid)
-                                                             .name(SERVICE_NAME)
-                                                             .build())
-                                  .type(SERVICE_EVENT_TYPE_DELETE)
-                                  .timestamp(new Date())
-                                  .build();
-    }
-
-    private List<CloudEvent> createOlderServiceCloudEvents(CloudEvent lastEvent, int count) {
-        assertTrue(count > 0);
-        List<CloudEvent> events = new ArrayList<>();
-        CloudEvent currentEvent = lastEvent;
-        for (int i = 0; i < count; i++) {
-            CloudEvent event = ImmutableCloudEvent.builder()
-                                                  .actee(lastEvent.getActee())
-                                                  .type("nonDelete")
-                                                  .timestamp(getOlderDateFromEvent(currentEvent))
-                                                  .build();
-            events.add(event);
-            currentEvent = event;
-        }
-        return events;
-    }
-
-    private Date getOlderDateFromEvent(CloudEvent lastEvent) {
-        ZoneId systemDefaultZone = ZoneId.systemDefault();
-        Instant lastEventInstant = lastEvent.getTimestamp()
-                                            .toInstant();
-        LocalDateTime lastEventDateTime = LocalDateTime.ofInstant(lastEventInstant, systemDefaultZone);
-        LocalDateTime secondBefore = lastEventDateTime.minusSeconds(1);
-        Instant secondBeforeInstant = secondBefore.atZone(systemDefaultZone)
-                                                  .toInstant();
-        return Date.from(secondBeforeInstant);
-    }
-
     private void assertStepPhase(StepPhase expectedStepPhase) {
         assertEquals(expectedStepPhase.toString(), getExecutionStatus());
     }
@@ -231,7 +156,6 @@ class DeleteServiceStepTest extends SyncFlowableStepTest<DeleteServiceStep> {
 
     @Override
     protected DeleteServiceStep createStep() {
-        serviceOperationGetter = new ServiceOperationGetter(serviceGetter, eventsGetter);
         return new DeleteServiceStep(serviceOperationGetter, serviceProgressReporter, serviceRemover);
     }
 

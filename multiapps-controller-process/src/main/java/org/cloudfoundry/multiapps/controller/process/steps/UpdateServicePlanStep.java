@@ -1,15 +1,16 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
+import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
@@ -18,18 +19,19 @@ import org.springframework.context.annotation.Scope;
 public class UpdateServicePlanStep extends ServiceStep {
 
     @Override
-    protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
+    protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient client,
                                                        CloudServiceInstanceExtended service) {
-        return updateServicePlan(controllerClient, service);
-    }
-
-    private MethodExecution<String> updateServicePlan(CloudControllerClient controllerClient, CloudServiceInstanceExtended service) {
-        getStepLogger().debug(MessageFormat.format("Updating service plan of a service {0} with new plan: {1}", service.getName(),
-                                                   service.getPlan()));
-        if (service.shouldIgnoreUpdateErrors()) {
-            return getServiceUpdater().updateServicePlanQuietly(controllerClient, service.getName(), service.getPlan());
+        if (service.shouldSkipPlanUpdate()) {
+            getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_PLAN, service.getName(), service.getPlan());
+            return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
         }
-        return getServiceUpdater().updateServicePlan(controllerClient, service.getName(), service.getPlan());
+        getStepLogger().debug(Messages.UPDATING_SERVICE_0_WITH_PLAN_1, service.getName(), service.getPlan());
+
+        CloudServiceInstance serviceInstance = client.getServiceInstance(service.getName());
+        client.updateServicePlan(serviceInstance);
+
+        getStepLogger().debug(Messages.SERVICE_PLAN_FOR_SERVICE_0_UPDATED, service.getName());
+        return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
     }
 
     @Override

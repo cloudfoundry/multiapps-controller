@@ -18,7 +18,7 @@
       </extensionElements>
     </callActivity>
     <serviceTask id="UpdateServicePlanTask" name="Update service plan" flowable:async="true" flowable:delegateExpression="${updateServicePlanStep}"></serviceTask>
-    <serviceTask id="UpdateServiceCredentialsTask" name="Update credentials" flowable:async="true" flowable:delegateExpression="${updateServiceCredentialsStep}"></serviceTask>
+    <serviceTask id="UpdateServiceParametersTask" name="Update parameters" flowable:async="true" flowable:delegateExpression="${updateServiceParametersStep}"></serviceTask>
     <serviceTask id="UpdateServiceTagsTask" name="Update Tags" flowable:async="true" flowable:delegateExpression="${updateServiceTagsStep}"></serviceTask>
     <serviceTask id="UpdateServiceKeysTask" name="Update Keys" flowable:async="true" flowable:delegateExpression="${updateServiceKeysStep}"></serviceTask>
     <endEvent id="endevent2" name="End">
@@ -42,13 +42,13 @@
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="flow70" sourceRef="timerintermediatecatchevent1" targetRef="UpdateServicePlanTask"></sequenceFlow>
-    <exclusiveGateway id="exclusivegateway11" name="Exclusive Gateway" default="WaitForUpdateServiceCredentials"></exclusiveGateway>
+    <exclusiveGateway id="exclusivegateway11" name="Exclusive Gateway" default="WaitForUpdateServiceParameters"></exclusiveGateway>
     <intermediateCatchEvent id="timerintermediatecatchevent2" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
-    <sequenceFlow id="flow73" sourceRef="timerintermediatecatchevent2" targetRef="UpdateServiceCredentialsTask"></sequenceFlow>
+    <sequenceFlow id="flow73" sourceRef="timerintermediatecatchevent2" targetRef="UpdateServiceParametersTask"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent3" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
@@ -102,15 +102,15 @@
       </timerEventDefinition>
     </intermediateCatchEvent>
     <exclusiveGateway id="sid-AA9A9E00-E072-4C87-A309-9A9BD0CA4664" name="Exclusive Gateway" default="WaitForUpdateServiceMetadata"></exclusiveGateway>
-    <sequenceFlow id="WaitForUpdateServiceCredentials" name="Wait" sourceRef="exclusivegateway11" targetRef="timerintermediatecatchevent2"></sequenceFlow>
-    <sequenceFlow id="flow61" sourceRef="UpdateServiceCredentialsTask" targetRef="exclusivegateway11"></sequenceFlow>
+    <sequenceFlow id="WaitForUpdateServiceParameters" name="Wait" sourceRef="exclusivegateway11" targetRef="timerintermediatecatchevent2"></sequenceFlow>
+    <sequenceFlow id="flow61" sourceRef="UpdateServiceParametersTask" targetRef="exclusivegateway11"></sequenceFlow>
     <sequenceFlow id="ContinueUC" sourceRef="exclusivegateway11" targetRef="exclusivegateway7">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="ContinueUSP" sourceRef="exclusivegateway10" targetRef="exclusivegateway14">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="updateCredsFlow" sourceRef="exclusivegateway14" targetRef="UpdateServiceCredentialsTask">
+    <sequenceFlow id="updateCredsFlow" sourceRef="exclusivegateway14" targetRef="UpdateServiceParametersTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceActionsToExecute.contains("UPDATE_CREDENTIALS")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="UpdateSP" sourceRef="exclusivegateway15" targetRef="UpdateServicePlanTask">
@@ -157,7 +157,7 @@
       <bpmndi:BPMNShape bpmnElement="UpdateServicePlanTask" id="BPMNShape_UpdateServicePlanTask">
         <omgdc:Bounds height="55.0" width="105.0" x="723.0" y="474.25"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="UpdateServiceCredentialsTask" id="BPMNShape_UpdateServiceCredentialsTask">
+      <bpmndi:BPMNShape bpmnElement="UpdateServiceParametersTask" id="BPMNShape_UpdateServiceParametersTask">
         <omgdc:Bounds height="55.0" width="105.0" x="951.0" y="473.25"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="UpdateServiceTagsTask" id="BPMNShape_UpdateServiceTagsTask">
@@ -357,7 +357,7 @@
         <omgdi:waypoint x="565.0" y="413.25"></omgdi:waypoint>
         <omgdi:waypoint x="565.3202614379085" y="364.2"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="WaitForUpdateServiceCredentials" id="BPMNEdge_WaitForUpdateServiceCredentials">
+      <bpmndi:BPMNEdge bpmnElement="WaitForUpdateServiceParameters" id="BPMNEdge_WaitForUpdateServiceParameters">
         <omgdi:waypoint x="1121.6907216494847" y="422.89149484536085"></omgdi:waypoint>
         <omgdi:waypoint x="1120.742640817905" y="483.2518739588602"></omgdi:waypoint>
       </bpmndi:BPMNEdge>

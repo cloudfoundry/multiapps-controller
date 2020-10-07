@@ -22,7 +22,9 @@
     "type" : "managed_service_instance",
     "alternativeLabels": [],
     "resourceName": "java-hdi-container",
-    "shouldIgnoreUpdateErrors": false
+    "shouldSkipParametersUpdate": false,
+    "shouldSkipTagsUpdate": false,
+    "shouldSkipPlanUpdate": false
   },
   {
     "isOptional": false,
@@ -40,6 +42,8 @@
     "type" : "user_provided_service_instance",
     "alternativeLabels": [],
     "resourceName": "uaa",
-    "shouldIgnoreUpdateErrors": false
+    "shouldSkipParametersUpdate": false,
+    "shouldSkipTagsUpdate": false,
+    "shouldSkipPlanUpdate": false
   }
 ]

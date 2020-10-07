@@ -17,6 +17,8 @@
     "resourceName": "uaa",
     "credentials": {},
     "tags": [],
-    "shouldIgnoreUpdateErrors": false
+    "shouldSkipParametersUpdate": false,
+    "shouldSkipTagsUpdate": false,
+    "shouldSkipPlanUpdate": false
   }
 ]

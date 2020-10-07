@@ -5,14 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceUpdater;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution.ExecutionState;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -21,10 +19,6 @@ import org.cloudfoundry.multiapps.controller.process.util.ServiceProgressReporte
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 
 public abstract class ServiceStep extends AsyncFlowableStep {
-
-    @Inject
-    @Named("serviceUpdater")
-    private ServiceUpdater serviceUpdater;
 
     @Inject
     private ServiceOperationGetter serviceOperationGetter;
@@ -69,10 +63,6 @@ public abstract class ServiceStep extends AsyncFlowableStep {
                                                                 CloudServiceInstanceExtended service);
 
     protected abstract ServiceOperation.Type getOperationType();
-
-    protected ServiceUpdater getServiceUpdater() {
-        return serviceUpdater;
-    }
 
     protected ServiceOperationGetter getServiceOperationGetter() {
         return serviceOperationGetter;

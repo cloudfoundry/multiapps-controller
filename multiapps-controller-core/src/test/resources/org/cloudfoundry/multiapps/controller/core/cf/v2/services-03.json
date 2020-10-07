@@ -8,7 +8,9 @@
     "type": "user_provided_service_instance",
     "alternativeLabels": [],
     "resourceName": "ups",
-    "shouldIgnoreUpdateErrors": false
+    "shouldSkipParametersUpdate" : false,
+    "shouldSkipTagsUpdate" : false,
+    "shouldSkipPlanUpdate" : false
   },
   {
     "isOptional": false,
@@ -19,7 +21,9 @@
     "type": "user_provided_service_instance",
     "alternativeLabels": [],
     "resourceName": "user-provided-service",
-    "shouldIgnoreUpdateErrors": false
+    "shouldSkipParametersUpdate" : false,
+    "shouldSkipTagsUpdate" : false,
+    "shouldSkipPlanUpdate" : false
   },
   {
     "isOptional": false,
@@ -30,7 +34,9 @@
     "type": "user_provided_service_instance",
     "alternativeLabels": [],
     "resourceName": "user-provider-resource-named-service",
-    "shouldIgnoreUpdateErrors": false
+    "shouldSkipParametersUpdate" : false,
+    "shouldSkipTagsUpdate" : false,
+    "shouldSkipPlanUpdate" : false
   },
   {
     "isOptional": false,
@@ -53,7 +59,9 @@
     "type": "managed_service_instance",
     "alternativeLabels": [],
     "resourceName": "rs",
-    "shouldIgnoreUpdateErrors": false
+    "shouldSkipParametersUpdate" : false,
+    "shouldSkipTagsUpdate" : false,
+    "shouldSkipPlanUpdate" : false
   },
   {
     "isOptional": false,
@@ -76,7 +84,9 @@
     "type": "managed_service_instance",
     "alternativeLabels": [],
     "resourceName": "random-service",
-    "shouldIgnoreUpdateErrors": false
+    "shouldSkipParametersUpdate" : false,
+    "shouldSkipTagsUpdate" : false,
+    "shouldSkipPlanUpdate" : false
   },
   {
     "isOptional": false,
@@ -99,7 +109,9 @@
     "type": "managed_service_instance",
     "alternativeLabels": [],
     "resourceName": "random-resource-named-service",
-    "shouldIgnoreUpdateErrors": false
+    "shouldSkipParametersUpdate" : false,
+    "shouldSkipTagsUpdate" : false,
+    "shouldSkipPlanUpdate" : false
   },
   {
     "isOptional": false,
@@ -119,7 +131,9 @@
     "tags": [],
     "alternativeLabels": [],
     "resourceName": "es",
-    "shouldIgnoreUpdateErrors": false
+    "shouldSkipParametersUpdate" : false,
+    "shouldSkipTagsUpdate" : false,
+    "shouldSkipPlanUpdate" : false
   },
   {
     "isOptional": false,
@@ -139,7 +153,9 @@
     "tags": [],
     "alternativeLabels": [],
     "resourceName": "existing-service",
-    "shouldIgnoreUpdateErrors": false
+    "shouldSkipParametersUpdate" : false,
+    "shouldSkipTagsUpdate" : false,
+    "shouldSkipPlanUpdate" : false
   },
   {
     "isOptional": false,
@@ -159,6 +175,8 @@
     "tags": [],
     "alternativeLabels": [],
     "resourceName": "existing-resource-named-service",
-    "shouldIgnoreUpdateErrors": false
+    "shouldSkipParametersUpdate" : false,
+    "shouldSkipTagsUpdate" : false,
+    "shouldSkipPlanUpdate" : false
   }
 ]

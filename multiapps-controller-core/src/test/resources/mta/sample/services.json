@@ -20,7 +20,9 @@
     "type" : "managed_service_instance",
     "alternativeLabels": [],
     "resourceName": "pricing-db-service",
-    "shouldIgnoreUpdateErrors": false
+    "shouldSkipParametersUpdate": false,
+    "shouldSkipTagsUpdate": false,
+    "shouldSkipPlanUpdate": false
   },
   {
     "isOptional": false,
@@ -34,6 +36,8 @@
     "type" : "user_provided_service_instance",
     "alternativeLabels": [],
     "resourceName": "internal-odata-service",
-    "shouldIgnoreUpdateErrors": false
+    "shouldSkipParametersUpdate": false,
+    "shouldSkipTagsUpdate": false,
+    "shouldSkipPlanUpdate": false
   }
 ]

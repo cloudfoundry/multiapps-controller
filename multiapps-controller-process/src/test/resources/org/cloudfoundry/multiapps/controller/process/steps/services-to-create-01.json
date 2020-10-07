@@ -5,7 +5,9 @@
   "alternativeLabels" : [ ],
   "credentials" : { },
   "tags" : [ ],
-  "shouldIgnoreUpdateErrors" : false
+  "shouldSkipParametersUpdate" : false,
+  "shouldSkipTagsUpdate" : false,
+  "shouldSkipPlanUpdate" : false
 }, {
   "isOptional" : false,
   "isManaged" : true,
@@ -13,5 +15,7 @@
   "alternativeLabels" : [ ],
   "credentials" : { },
   "tags" : [ ],
-  "shouldIgnoreUpdateErrors" : false
+  "shouldSkipParametersUpdate" : false,
+  "shouldSkipTagsUpdate" : false,
+  "shouldSkipPlanUpdate" : false
 } ]

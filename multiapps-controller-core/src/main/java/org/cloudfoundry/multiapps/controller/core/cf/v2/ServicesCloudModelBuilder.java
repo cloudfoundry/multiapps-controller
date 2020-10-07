@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.cf.v2;
 
-import static org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil.getResourceType;
-
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +14,7 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInsta
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
+import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.core.util.SpecialResourceTypesRequiredParametersUtil;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
@@ -37,38 +36,34 @@ public class ServicesCloudModelBuilder {
 
     public List<CloudServiceInstanceExtended> build(List<Resource> resourcesToProcess) {
         return resourcesToProcess.stream()
-                                 .map(this::getService)
+                                 .map(this::createService)
                                  .filter(Objects::nonNull)
                                  .collect(Collectors.toList());
     }
 
-    protected CloudServiceInstanceExtended getService(Resource resource) {
-        boolean isOptional = isOptional(resource);
-        boolean shouldIgnoreUpdateErrors = (boolean) resource.getParameters()
-                                                             .getOrDefault(SupportedParameters.IGNORE_UPDATE_ERRORS, false);
-        return createService(resource, isOptional, shouldIgnoreUpdateErrors);
-    }
+    protected CloudServiceInstanceExtended createService(Resource resource) {
+        ResourceType serviceType = CloudModelBuilderUtil.getResourceType(resource.getParameters());
+        CommonServiceParameters commonServiceParameters = getCommonServiceParameters(resource);
 
-    protected boolean isOptional(Resource resource) {
-        return false;
-    }
-
-    protected CloudServiceInstanceExtended createService(Resource resource, boolean isOptional, boolean shouldIgnoreUpdateErrors) {
-        String serviceName = NameUtil.getServiceName(resource);
-        ResourceType serviceType = getResourceType(resource.getParameters());
-        if (serviceType.equals(ResourceType.MANAGED_SERVICE)) {
-            return createManagedService(resource, serviceName, isOptional, shouldIgnoreUpdateErrors);
-        } else if (serviceType.equals(ResourceType.USER_PROVIDED_SERVICE)) {
-            return createUserProvidedService(resource, serviceName, isOptional, shouldIgnoreUpdateErrors);
-        } else if (serviceType.equals(ResourceType.EXISTING_SERVICE)) {
-            return createExistingService(resource, serviceName, isOptional, shouldIgnoreUpdateErrors);
+        switch (serviceType) {
+            case MANAGED_SERVICE:
+                return createManagedService(resource, commonServiceParameters);
+            case EXISTING_SERVICE:
+                return createExistingService(resource, commonServiceParameters);
+            case USER_PROVIDED_SERVICE:
+                return createUserProvidedService(resource, commonServiceParameters);
+            default:
+                return null;
         }
-        return null;
+    }
+    
+    protected CommonServiceParameters getCommonServiceParameters(Resource resource) {
+        return new CommonServiceParameters(resource);
     }
 
     @SuppressWarnings("unchecked")
-    protected CloudServiceInstanceExtended createManagedService(Resource resource, String serviceName, boolean isOptional,
-                                                                boolean shouldIgnoreUpdateErrors) {
+    protected CloudServiceInstanceExtended createManagedService(Resource resource, CommonServiceParameters commonServiceParameters) {
+        String serviceName = commonServiceParameters.getServiceName();
         Map<String, Object> parameters = resource.getParameters();
         SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(serviceName, ResourceType.MANAGED_SERVICE, parameters);
 
@@ -86,15 +81,17 @@ public class ServicesCloudModelBuilder {
                                                     .credentials(getServiceParameters(serviceName, parameters))
                                                     .alternativeLabels((List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES,
                                                                                                               Collections.emptyList()))
-                                                    .isOptional(isOptional)
+                                                    .isOptional(commonServiceParameters.isOptional())
                                                     .isManaged(true)
-                                                    .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
+                                                    .shouldSkipParametersUpdate(commonServiceParameters.shouldSkipParametersUpdate())
+                                                    .shouldSkipTagsUpdate(commonServiceParameters.shouldSkipTagsUpdate())
+                                                    .shouldSkipPlanUpdate(commonServiceParameters.shouldSkipPlanUpdate())
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
 
-    protected CloudServiceInstanceExtended createUserProvidedService(Resource resource, String serviceName, boolean isOptional,
-                                                                     boolean shouldIgnoreUpdateErrors) {
+    protected CloudServiceInstanceExtended createUserProvidedService(Resource resource, CommonServiceParameters commonServiceParameters) {
+        String serviceName = commonServiceParameters.getServiceName();
         Map<String, Object> parameters = resource.getParameters();
         SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(serviceName, ResourceType.USER_PROVIDED_SERVICE, parameters);
         Map<String, Object> credentials = getServiceParameters(serviceName, parameters);
@@ -107,19 +104,22 @@ public class ServicesCloudModelBuilder {
                                                     .resourceName(resource.getName())
                                                     .type(ServiceInstanceType.USER_PROVIDED)
                                                     .credentials(credentials)
-                                                    .isOptional(isOptional)
+                                                    .isOptional(commonServiceParameters.isOptional())
                                                     .isManaged(true)
-                                                    .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
+                                                    .shouldSkipParametersUpdate(commonServiceParameters.shouldSkipParametersUpdate())
+                                                    .shouldSkipTagsUpdate(commonServiceParameters.shouldSkipTagsUpdate())
+                                                    .shouldSkipPlanUpdate(commonServiceParameters.shouldSkipPlanUpdate())
                                                     .build();
     }
 
-    protected CloudServiceInstanceExtended createExistingService(Resource resource, String serviceName, boolean isOptional,
-                                                                 boolean shouldIgnoreUpdateErrors) {
+    protected CloudServiceInstanceExtended createExistingService(Resource resource, CommonServiceParameters commonServiceParameters) {
         return ImmutableCloudServiceInstanceExtended.builder()
-                                                    .name(serviceName)
+                                                    .name(commonServiceParameters.getServiceName())
                                                     .resourceName(resource.getName())
-                                                    .isOptional(isOptional)
-                                                    .shouldIgnoreUpdateErrors(shouldIgnoreUpdateErrors)
+                                                    .isOptional(commonServiceParameters.isOptional())
+                                                    .shouldSkipParametersUpdate(commonServiceParameters.shouldSkipParametersUpdate())
+                                                    .shouldSkipTagsUpdate(commonServiceParameters.shouldSkipTagsUpdate())
+                                                    .shouldSkipPlanUpdate(commonServiceParameters.shouldSkipPlanUpdate())
                                                     .v3Metadata(ServiceMetadataBuilder.build(deploymentDescriptor, namespace, resource))
                                                     .build();
     }
@@ -142,6 +142,39 @@ public class ServicesCloudModelBuilder {
                                                                                                  SupportedParameters.SERVICE_CONFIG),
                                     Map.class.getSimpleName(), serviceParameters.getClass()
                                                                                 .getSimpleName());
+    }
+    
+    protected static class CommonServiceParameters {
+        protected final Resource resource;
+        private final Map<String, Boolean> shouldSkipUpdates;
+
+        @SuppressWarnings("unchecked")
+        protected CommonServiceParameters(Resource resource) {
+            this.resource = resource;
+            this.shouldSkipUpdates = (Map<String, Boolean>) resource.getParameters()
+                                                                    .getOrDefault(SupportedParameters.SKIP_SERVICE_UPDATES,
+                                                                                  Collections.emptyMap());
+        }
+        
+        private String getServiceName() {
+            return NameUtil.getServiceName(resource);
+        }
+        
+        protected boolean isOptional() {
+            return false;
+        }
+        
+        private boolean shouldSkipParametersUpdate() {
+            return shouldSkipUpdates.getOrDefault("parameters", false);
+        }
+        
+        private boolean shouldSkipTagsUpdate() {
+            return shouldSkipUpdates.getOrDefault("tags", false);
+        }
+        
+        private boolean shouldSkipPlanUpdate() {
+            return shouldSkipUpdates.getOrDefault("plan", false);
+        }
     }
 
 }

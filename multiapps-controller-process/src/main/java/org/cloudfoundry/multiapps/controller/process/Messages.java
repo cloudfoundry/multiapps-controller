@@ -177,6 +177,9 @@ public class Messages {
     public static final String SERVICE_0_IS_IN_STATE_1_AND_MAY_NOT_BE_OPERATIONAL = "Service \"{0}\" is in state \"{1}\" and may not be operational. Actions like update of credentials and binding may fail! Consider recreating it by specifying the --delete-services option.";
     public static final String SERVICE_NOT_BE_DELETED_DUE_TO_SERVICE_BINDINGS_AND_SERVICE_KEYS = "Service \"{0}\" won't be deleted due to existing service bindings and/or service keys";
     public static final String RETRYING_PROCESS_ABORT = "Abort of process \"{0}\" failed due to an optimistic locking exception. Retrying abort...";
+    public static final String WILL_NOT_UPDATE_SERVICE_PARAMS = "Service parameters for service \"{0}\" will not be updated, as the option for skipping service parameter updates is enabled.";
+    public static final String WILL_NOT_UPDATE_SERVICE_PLAN = "Service plan \"{0}\" for service \"{1}\" will not be updated, as the option for skipping service plan updates is enabled.";
+    public static final String WILL_NOT_UPDATE_SERVICE_TAGS = "Service tags for service \"{1}\" will not be updated, as the option for skipping service tags updates is enabled.";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
@@ -542,6 +545,8 @@ public class Messages {
     public static final String VERIFYING_APPLICATION_0_EXISTS = "Verifying application: \"{0}\" exists";
     public static final String TIME_STATISTICS_FOR_PROCESS_0_OPERATION_1_DURATION_2_DELAY_3 = "Time statistics for process \"{0}\" (part of operation \"{1}\"): duration \"{2}\" ms; delay between steps \"{3}\" ms";
     public static final String TIME_STATISTICS_FOR_OPERATION_0_DURATION_1_DELAY_2 = "Time statistics for operation \"{0}\": duration \"{1}\" ms; delay between steps \"{2}\" ms";
+    public static final String UPDATING_SERVICE_0_WITH_PLAN_1 = "Updating service plan for service \"{0}\" with new plan: \"{1}\"";
+    public static final String SERVICE_PLAN_FOR_SERVICE_0_UPDATED = "Service plan for service \"{0}\" updated";
 
     protected Messages() {
     }
