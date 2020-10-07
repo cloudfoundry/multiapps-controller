@@ -49,11 +49,6 @@ public class UndeployMetadata {
                                                                                  .id(Variables.ABORT_ON_ERROR.getName())
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .build())
-                                         .addParameter(ImmutableParameterMetadata.builder()
-                                                                                 .id(Variables.ENABLE_ENV_DETECTION.getName())
-                                                                                 .type(ParameterType.BOOLEAN)
-                                                                                 .required(false)
-                                                                                 .build())
                                          .build();
     }
 }

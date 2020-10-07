@@ -33,7 +33,6 @@ public class UndeployMetadataTest extends MetadataBaseTest {
                 Variables.NO_RESTART_SUBSCRIBED_APPS.getName(),
                 Variables.NO_FAIL_ON_MISSING_PERMISSIONS.getName(),
                 Variables.ABORT_ON_ERROR.getName(),
-                Variables.ENABLE_ENV_DETECTION.getName(),
             // @formatter:on
         };
     }

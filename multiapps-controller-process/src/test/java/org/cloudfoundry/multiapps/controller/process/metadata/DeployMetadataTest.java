@@ -48,7 +48,6 @@ public class DeployMetadataTest extends MetadataBaseTest {
                 Variables.MODULES_FOR_DEPLOYMENT.getName(),
                 Variables.RESOURCES_FOR_DEPLOYMENT.getName(),
                 Variables.VERIFY_ARCHIVE_SIGNATURE.getName(),
-                Variables.ENABLE_ENV_DETECTION.getName(),
             // @formatter:on
         };
     }

@@ -529,10 +529,6 @@ public interface Variables {
     Variable<List<String>> RESOURCES_FOR_DEPLOYMENT = ImmutableCommaSeparatedValuesVariable.builder()
                                                                                            .name("resourcesForDeployment")
                                                                                            .build();
-    Variable<Boolean> ENABLE_ENV_DETECTION = ImmutableSimpleVariable.<Boolean> builder()
-                                                                    .name("enableEnvDetection")
-                                                                    .defaultValue(true)
-                                                                    .build();
     Variable<DeployStrategy> DEPLOY_STRATEGY = ImmutableSimpleVariable.<DeployStrategy> builder()
                                                                       .name("strategy")
                                                                       .defaultValue(DeployStrategy.DEFAULT)

@@ -40,9 +40,9 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
         List<DeployedMta> deployedComponents = List.of(deployedMta);
 
         when(deployedMtaDetector.detectDeployedMtas(Mockito.any(CloudControllerClient.class))).thenReturn(deployedComponents);
-        when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(Mockito.eq(MTA_ID), Mockito.eq(null), Mockito
-                                                                                                                  .any(CloudControllerClient.class),
-                                                                     Mockito.eq(true))).thenReturn(Optional.of(deployedMta));
+        when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(Mockito.eq(MTA_ID), Mockito.eq(null),
+                                                                     Mockito.any(CloudControllerClient.class))).thenReturn(
+            Optional.of(deployedMta));
 
         step.execute(execution);
 
@@ -55,7 +55,7 @@ class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaSt
     void testExecute4() {
         when(client.getApplications()).thenReturn(Collections.emptyList());
         when(deployedMtaDetector.detectDeployedMtas(client)).thenReturn(Collections.emptyList());
-        when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(MTA_ID, null, client, false)).thenReturn(Optional.empty());
+        when(deployedMtaDetector.detectDeployedMtaByNameAndNamespace(MTA_ID, null, client)).thenReturn(Optional.empty());
         step.execute(execution);
 
         assertStepFinishedSuccessfully();
