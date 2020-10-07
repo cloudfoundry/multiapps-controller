@@ -50,7 +50,6 @@ open module org.cloudfoundry.multiapps.controller.core {
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
     requires com.google.common;
-    requires error.prone.annotations;
     requires java.sql;
     requires java.xml.bind;
     requires javax.inject;

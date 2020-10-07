@@ -31,7 +31,6 @@ open module org.cloudfoundry.multiapps.controller.persistence {
     requires com.google.auto.service;
     requires com.google.common;
     requires com.zaxxer.hikari;
-    requires error.prone.annotations;
     requires flowable.engine;
     requires flowable.engine.common.api;
     requires flowable.variable.service.api;
