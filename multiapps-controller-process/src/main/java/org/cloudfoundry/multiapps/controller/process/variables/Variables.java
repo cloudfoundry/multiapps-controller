@@ -300,28 +300,28 @@ public interface Variables {
                                                                    .build();
     Variable<List<String>> APPS_TO_DEPLOY = ImmutableJsonBinaryVariable.<List<String>> builder()
                                                                        .name("appsToDeploy")
-                                                                       .type(new TypeReference<List<String>>() {
+                                                                       .type(new TypeReference<>() {
                                                                        })
                                                                        .build();
     Variable<List<String>> APPS_TO_RENAME = ImmutableJsonBinaryVariable.<List<String>> builder()
                                                                        .name("appsToRename")
-                                                                       .type(new TypeReference<List<String>>() {
+                                                                       .type(new TypeReference<>() {
                                                                        })
                                                                        .build();
     Variable<List<ConfigurationEntry>> CONFIGURATION_ENTRIES_TO_PUBLISH = ImmutableJsonBinaryVariable.<List<ConfigurationEntry>> builder()
                                                                                                      .name("configurationEntriesToPublish")
-                                                                                                     .type(new TypeReference<List<ConfigurationEntry>>() {
+                                                                                                     .type(new TypeReference<>() {
                                                                                                      })
                                                                                                      .build();
     Variable<List<ConfigurationEntry>> DELETED_ENTRIES = ImmutableJsonBinaryVariable.<List<ConfigurationEntry>> builder()
                                                                                     .name("deletedEntries")
-                                                                                    .type(new TypeReference<List<ConfigurationEntry>>() {
+                                                                                    .type(new TypeReference<>() {
                                                                                     })
                                                                                     .defaultValue(Collections.emptyList())
                                                                                     .build();
     Variable<List<ConfigurationEntry>> PUBLISHED_ENTRIES = ImmutableJsonBinaryVariable.<List<ConfigurationEntry>> builder()
                                                                                       .name("publishedEntries")
-                                                                                      .type(new TypeReference<List<ConfigurationEntry>>() {
+                                                                                      .type(new TypeReference<>() {
                                                                                       })
                                                                                       .build();
     Variable<CloudServiceBroker> CREATED_OR_UPDATED_SERVICE_BROKER = ImmutableJsonBinaryVariable.<CloudServiceBroker> builder()
@@ -330,7 +330,7 @@ public interface Variables {
                                                                                                 .build();
     Variable<List<String>> CUSTOM_DOMAINS = ImmutableJsonBinaryVariable.<List<String>> builder()
                                                                        .name("customDomains")
-                                                                       .type(new TypeReference<List<String>>() {
+                                                                       .type(new TypeReference<>() {
                                                                        })
                                                                        .build();
     Variable<DeployedMta> DEPLOYED_MTA = ImmutableJsonBinaryVariable.<DeployedMta> builder()
@@ -347,22 +347,22 @@ public interface Variables {
                                                                    .build();
     Variable<Set<String>> MTA_ARCHIVE_MODULES = ImmutableJsonBinaryVariable.<Set<String>> builder()
                                                                            .name("mtaArchiveModules")
-                                                                           .type(new TypeReference<Set<String>>() {
+                                                                           .type(new TypeReference<>() {
                                                                            })
                                                                            .build();
     Variable<Set<String>> MTA_MODULES = ImmutableJsonBinaryVariable.<Set<String>> builder()
                                                                    .name("mtaModules")
-                                                                   .type(new TypeReference<Set<String>>() {
+                                                                   .type(new TypeReference<>() {
                                                                    })
                                                                    .build();
     Variable<Map<String, Map<String, String>>> SERVICE_KEYS_CREDENTIALS_TO_INJECT = ImmutableJsonBinaryVariable.<Map<String, Map<String, String>>> builder()
                                                                                                                .name("serviceKeysCredentialsToInject")
-                                                                                                               .type(new TypeReference<Map<String, Map<String, String>>>() {
+                                                                                                               .type(new TypeReference<>() {
                                                                                                                })
                                                                                                                .build();
     Variable<Map<String, List<CloudServiceKey>>> SERVICE_KEYS_TO_CREATE = ImmutableJsonBinaryVariable.<Map<String, List<CloudServiceKey>>> builder()
                                                                                                      .name("serviceKeysToCreate")
-                                                                                                     .type(new TypeReference<Map<String, List<CloudServiceKey>>>() {
+                                                                                                     .type(new TypeReference<>() {
                                                                                                      })
                                                                                                      .build();
     Variable<String> SERVICE_TO_DELETE = ImmutableSimpleVariable.<String> builder()
@@ -373,7 +373,7 @@ public interface Variables {
                                                                        .build();
     Variable<List<CloudServiceInstanceExtended>> SERVICES_TO_POLL = ImmutableJsonBinaryVariable.<List<CloudServiceInstanceExtended>> builder()
                                                                                                .name("servicesToPoll")
-                                                                                               .type(new TypeReference<List<CloudServiceInstanceExtended>>() {
+                                                                                               .type(new TypeReference<>() {
                                                                                                })
                                                                                                .build();
     Variable<CloudTask> STARTED_TASK = ImmutableJsonBinaryVariable.<CloudTask> builder()
@@ -386,37 +386,37 @@ public interface Variables {
                                                                       .build();
     Variable<List<ConfigurationSubscription>> SUBSCRIPTIONS_TO_CREATE = ImmutableJsonBinaryVariable.<List<ConfigurationSubscription>> builder()
                                                                                                    .name("subscriptionsToCreate")
-                                                                                                   .type(new TypeReference<List<ConfigurationSubscription>>() {
+                                                                                                   .type(new TypeReference<>() {
                                                                                                    })
                                                                                                    .build();
     Variable<List<ConfigurationSubscription>> SUBSCRIPTIONS_TO_DELETE = ImmutableJsonBinaryVariable.<List<ConfigurationSubscription>> builder()
                                                                                                    .name("subscriptionsToDelete")
-                                                                                                   .type(new TypeReference<List<ConfigurationSubscription>>() {
+                                                                                                   .type(new TypeReference<>() {
                                                                                                    })
                                                                                                    .build();
     Variable<List<CloudTask>> TASKS_TO_EXECUTE = ImmutableJsonBinaryVariable.<List<CloudTask>> builder()
                                                                             .name("tasksToExecute")
-                                                                            .type(new TypeReference<List<CloudTask>>() {
+                                                                            .type(new TypeReference<>() {
                                                                             })
                                                                             .build();
     Variable<Map<String, ServiceOperation.Type>> TRIGGERED_SERVICE_OPERATIONS = ImmutableJsonBinaryVariable.<Map<String, ServiceOperation.Type>> builder()
                                                                                                            .name("triggeredServiceOperations")
-                                                                                                           .type(new TypeReference<Map<String, ServiceOperation.Type>>() {
+                                                                                                           .type(new TypeReference<>() {
                                                                                                            })
                                                                                                            .build();
     Variable<List<CloudApplication>> UPDATED_SERVICE_BROKER_SUBSCRIBERS = ImmutableJsonBinaryVariable.<List<CloudApplication>> builder()
                                                                                                      .name("updatedServiceBrokerSubscribers")
-                                                                                                     .type(new TypeReference<List<CloudApplication>>() {
+                                                                                                     .type(new TypeReference<>() {
                                                                                                      })
                                                                                                      .build();
     Variable<List<CloudApplication>> UPDATED_SUBSCRIBERS = ImmutableJsonBinaryVariable.<List<CloudApplication>> builder()
                                                                                       .name("updatedSubscribers")
-                                                                                      .type(new TypeReference<List<CloudApplication>>() {
+                                                                                      .type(new TypeReference<>() {
                                                                                       })
                                                                                       .build();
     Variable<List<CloudServiceInstanceExtended>> SERVICES_DATA = ImmutableJsonBinaryVariable.<List<CloudServiceInstanceExtended>> builder()
                                                                                             .name("servicesData")
-                                                                                            .type(new TypeReference<List<CloudServiceInstanceExtended>>() {
+                                                                                            .type(new TypeReference<>() {
                                                                                             })
                                                                                             .defaultValue(Collections.emptyList())
                                                                                             .build();

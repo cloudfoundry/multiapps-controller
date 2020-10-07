@@ -16,7 +16,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 public class ModuleHooksAggregator {
 
-    private static final byte MAJOR_SCHEMA_VERSION_THREE = 3;
+    private static final int MAJOR_SCHEMA_VERSION_THREE = 3;
 
     private final DelegateExecution execution;
     private final Module moduleToDeploy;
@@ -55,8 +55,7 @@ public class ModuleHooksAggregator {
 
     private boolean shouldCollectHook(List<String> hookPhases, List<HookPhase> hookTypeForCurrentStepPhase) {
         List<HookPhase> resolvedHookPhases = mapToHookPhases(hookPhases);
-        return resolvedHookPhases.stream()
-                                 .anyMatch(hookTypeForCurrentStepPhase::contains);
+        return !Collections.disjoint(resolvedHookPhases, hookTypeForCurrentStepPhase);
     }
 
     private List<HookPhase> mapToHookPhases(List<String> hookPhases) {

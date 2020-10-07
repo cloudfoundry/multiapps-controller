@@ -1,9 +1,8 @@
 package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -15,61 +14,38 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 public abstract class CustomControllerClient {
 
-    private final WebClientFactory webClientFactory;
+    protected final CloudControllerClient client;
+    private final WebClient webClient;
 
-    protected CustomControllerClient(WebClientFactory webClientFactory) {
-        this.webClientFactory = webClientFactory;
+    protected CustomControllerClient(CloudControllerClient client) {
+        this.client = client;
+        this.webClient = new WebClientFactory().getWebClient(client);
     }
 
-    protected WebClient getWebClient(CloudControllerClient client) {
-        return webClientFactory.getWebClient(client);
-    }
-
-    protected List<Map<String, Object>> getAllResources(WebClient webClient, String controllerUrl, String urlPath) {
-        return getAllResources(webClient, controllerUrl, urlPath, Collections.emptyMap());
-    }
-
-    protected List<Map<String, Object>> getAllResources(WebClient webClient, String controllerUrl, String urlPath,
-                                                        Map<String, Object> urlVariables) {
+    protected List<Map<String, Object>> getAllResources(String path, Object... urlVariables) {
         List<Map<String, Object>> allResources = new ArrayList<>();
-        String nextUrl = urlPath;
+        String nextUrl = path;
         while (!StringUtils.isEmpty(nextUrl)) {
-            nextUrl = addPageOfResources(webClient, controllerUrl, nextUrl, allResources, urlVariables);
+            nextUrl = addPageOfResources(nextUrl, allResources, urlVariables);
         }
         return allResources;
     }
 
-    @SuppressWarnings("unchecked")
-    protected String addPageOfResources(WebClient webClient, String controllerUrl, String path, List<Map<String, Object>> allResources,
-                                        Map<String, Object> urlVariables) {
+    private String addPageOfResources(String path, List<Map<String, Object>> allResources, Object... urlVariables) {
         String response = webClient.get()
-                                   .uri(getUrl(controllerUrl, path), urlVariables)
+                                   .uri(path, urlVariables)
                                    .retrieve()
                                    .bodyToMono(String.class)
                                    .block();
         Map<String, Object> responseMap = JsonUtil.convertJsonToMap(response);
-        validateResponse(responseMap);
+        @SuppressWarnings("unchecked")
         List<Map<String, Object>> newResources = (List<Map<String, Object>>) responseMap.get("resources");
+
         if (!CollectionUtils.isEmpty(newResources)) {
             allResources.addAll(newResources);
         }
+
         String nextUrl = (String) responseMap.get("next_url");
-        return nextUrl == null ? null : decode(nextUrl);
+        return nextUrl == null ? null : URLDecoder.decode(nextUrl, StandardCharsets.UTF_8);
     }
-
-    private String decode(String url) {
-        try {
-            return URLDecoder.decode(url, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-    }
-
-    protected void validateResponse(Map<String, Object> response) {
-    }
-
-    protected String getUrl(String controllerUrl, String path) {
-        return controllerUrl + (path.startsWith("/") ? path : "/" + path);
-    }
-
 }

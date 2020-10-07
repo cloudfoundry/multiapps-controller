@@ -174,7 +174,7 @@ class DataTerminationServiceTest {
         throws FileStorageException {
         verify(fileService, atLeast(countOfDeletedSpaces)).deleteBySpace(anyString());
         verifyExistSubscriptionData(deletedSpaces, isExistSubscriptionData);
-        verifyExistConfigurationEntryData(deletedSpaces, countOfDeletedSpaces, isExistConfigurationEntryData);
+        verifyExistConfigurationEntryData(deletedSpaces, isExistConfigurationEntryData);
 
     }
 
@@ -192,8 +192,7 @@ class DataTerminationServiceTest {
         }
     }
 
-    private void verifyExistConfigurationEntryData(List<String> deletedSpaces, int countOfDeletedSpaces,
-                                                   boolean isExistConfigurationEntryData) {
+    private void verifyExistConfigurationEntryData(List<String> deletedSpaces, boolean isExistConfigurationEntryData) {
         if (isExistConfigurationEntryData) {
             verifyEntriesDeletedBySpace(deletedSpaces, times(1));
             return;

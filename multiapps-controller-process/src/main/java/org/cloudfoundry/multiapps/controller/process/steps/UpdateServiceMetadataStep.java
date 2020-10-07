@@ -19,23 +19,17 @@ import org.springframework.context.annotation.Scope;
 public class UpdateServiceMetadataStep extends ServiceStep {
 
     @Override
-    protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient controllerClient,
+    protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient client,
                                                        CloudServiceInstanceExtended service) {
-        return updateServiceMetadata(controllerClient, service);
-    }
-
-    private MethodExecution<String> updateServiceMetadata(CloudControllerClient controllerClient, CloudServiceInstanceExtended service) {
         getStepLogger().debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0, service.getName(), service.getResourceName());
-        updateServiceMetadata(service, controllerClient);
-        getStepLogger().debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_DONE, service.getName());
-        return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
-    }
 
-    private void updateServiceMetadata(CloudServiceInstanceExtended serviceToProcess, CloudControllerClient client) {
-        UUID serviceGuid = client.getServiceInstance(serviceToProcess.getName())
+        UUID serviceGuid = client.getServiceInstance(service.getName())
                                  .getMetadata()
                                  .getGuid();
-        client.updateServiceInstanceMetadata(serviceGuid, serviceToProcess.getV3Metadata());
+        client.updateServiceInstanceMetadata(serviceGuid, service.getV3Metadata());
+
+        getStepLogger().debug(Messages.UPDATING_METADATA_OF_SERVICE_INSTANCE_0_DONE, service.getName());
+        return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
     }
 
     @Override

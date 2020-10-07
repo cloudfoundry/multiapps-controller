@@ -11,7 +11,9 @@ public class WebClientFactory {
 
     public WebClient getWebClient(CloudControllerClient client) {
         WebClient.Builder webClientBuilder = new RestUtil().createWebClient(false)
-                                                           .mutate();
+                                                           .mutate()
+                                                           .baseUrl(client.getCloudControllerUrl()
+                                                                          .toString());
         webClientBuilder.defaultHeaders(httpHeaders -> httpHeaders.setBearerAuth(computeAuthorizationToken(client)));
         return webClientBuilder.build();
     }

@@ -3,10 +3,14 @@ package org.cloudfoundry.multiapps.controller.core.cf.clients;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
+import java.util.List;
 import java.util.stream.Stream;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -15,22 +19,47 @@ import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution.ExecutionState;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 
-class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest {
+class ServiceWithAlternativesCreatorTest {
+ 
+    private static final String SERVICE_OFFERINGS_RESPONSE_PATH = "service-offerings.json";
 
     @Mock
     private UserMessageLogger userMessageLogger;
+    @Mock
+    private CloudControllerClient client;
     private ServiceWithAlternativesCreator serviceWithAlternativesCreator;
     private Input input;
     private String expectedExceptionMessage;
     private Class<? extends RuntimeException> expectedExceptionType;
 
+    @BeforeEach
+    public void prepareClients() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
+        prepareClient();
+    }
+
+    private void prepareClient() {
+        List<CloudServiceOffering> serviceOfferings = loadServiceOfferingsFromFile(SERVICE_OFFERINGS_RESPONSE_PATH);
+        Mockito.when(client.getServiceOfferings())
+               .thenReturn(serviceOfferings);
+    }
+
+    private List<CloudServiceOffering> loadServiceOfferingsFromFile(String filePath) {
+        String serviceOfferingsJson = TestUtil.getResourceAsString(filePath, getClass());
+        return JsonUtil.fromJson(serviceOfferingsJson, new TypeReference<>() {
+        });
+    }
+    
     // @formatter:off
      static Stream<Arguments> testExecuteServiceOperation() {
         return Stream.of(
@@ -59,25 +88,24 @@ class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest {
         initializeComponents(inputLocation, expected, expectedExceptionClass);
         if (expectedExceptionClass != null) {
             Assertions.assertThrows(expectedExceptionType,
-                                    () -> serviceWithAlternativesCreator.createService(getMockedClient(), input.actualService),
+                                    () -> serviceWithAlternativesCreator.createService(client, input.actualService),
                                     expectedExceptionMessage);
             return;
         }
-        CloudControllerClient mockClient = getMockedClient();
-        MethodExecution<String> actualMethodExecution = serviceWithAlternativesCreator.createService(mockClient, input.actualService);
+        MethodExecution<String> actualMethodExecution = serviceWithAlternativesCreator.createService(client, input.actualService);
         assertEquals(ExecutionState.EXECUTING, actualMethodExecution.getState());
         int callsForAllOfferings = input.actualService.getAlternativeLabels()
                                                       .isEmpty() ? 0 : 1;
-        Mockito.verify(mockClient, Mockito.times(callsForAllOfferings))
+        Mockito.verify(client, Mockito.times(callsForAllOfferings))
                .getServiceOfferings();
-        Mockito.verify(mockClient)
+        Mockito.verify(client)
                .createServiceInstance(input.expectedService);
     }
 
     private void throwExceptionIfNeeded() {
         if (input.errorStatusCode != null) {
             Mockito.doThrow(new CloudOperationException(HttpStatus.resolve(input.errorStatusCode)))
-                   .when(getMockedClient())
+                   .when(client)
                    .createServiceInstance(any());
         }
     }

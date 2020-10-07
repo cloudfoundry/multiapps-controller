@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -10,11 +9,9 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 public class CFOptimizedEventGetter extends CustomControllerClient {
 
     private static final String FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT = "/v2/events?inline-relations-depth=1&results-per-page=100&q=type:{type}&q=timestamp>{timestamp}";
-    private final CloudControllerClient client;
 
     public CFOptimizedEventGetter(CloudControllerClient client) {
-        super(new WebClientFactory());
-        this.client = client;
+        super(client);
     }
 
     public List<String> findEvents(String type, String timestamp) {
@@ -22,22 +19,7 @@ public class CFOptimizedEventGetter extends CustomControllerClient {
     }
 
     private List<String> findEventsInternal(String type, String timestamp) {
-        Map<String, Object> urlVariables = getAsUrlVariablesForFindEventsRequest(type, timestamp);
-        return executeFindEventsRequest(urlVariables);
-    }
-
-    private Map<String, Object> getAsUrlVariablesForFindEventsRequest(String type, String timestamp) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("type", type);
-        result.put("timestamp", timestamp);
-        return result;
-    }
-
-    private List<String> executeFindEventsRequest(Map<String, Object> urlVariables) {
-        String controllerUrl = client.getCloudControllerUrl()
-                                     .toString();
-        List<Map<String, Object>> response = getAllResources(getWebClient(client), controllerUrl, FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT,
-                                                             urlVariables);
+        List<Map<String, Object>> response = getAllResources(FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT, type, timestamp);
         return extractSpaceIds(response);
     }
 

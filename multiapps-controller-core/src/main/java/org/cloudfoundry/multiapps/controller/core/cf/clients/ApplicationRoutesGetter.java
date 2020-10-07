@@ -5,45 +5,32 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
-import org.springframework.web.reactive.function.client.WebClient;
 
-@Named
 public class ApplicationRoutesGetter extends CustomControllerClient {
 
     private final CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
 
-    @Inject
-    public ApplicationRoutesGetter(WebClientFactory webClientFactory) {
-        super(webClientFactory);
+    public ApplicationRoutesGetter(CloudControllerClient client) {
+        super(client);
     }
 
-    public List<CloudRoute> getRoutes(CloudControllerClient client, String appName) {
-        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetRoutes(client, appName));
+    public List<CloudRoute> getRoutes(String appName) {
+        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> getRoutesInternal(appName));
     }
 
-    private List<CloudRoute> attemptToGetRoutes(CloudControllerClient client, String appName) {
+    private List<CloudRoute> getRoutesInternal(String appName) {
         CloudApplication app = client.getApplication(appName);
         String appRoutesUrl = getAppRoutesUrl(app.getMetadata()
                                                  .getGuid());
-        return doGetRoutes(client, appRoutesUrl);
+        List<Map<String, Object>> resources = getAllResources(appRoutesUrl);
+        return toCloudRoutes(resources);
     }
 
     private String getAppRoutesUrl(UUID appGuid) {
         return "/v2/apps/" + appGuid.toString() + "/routes?inline-relations-depth=1";
-    }
-
-    private List<CloudRoute> doGetRoutes(CloudControllerClient client, String appRoutesUrl) {
-        WebClient webClient = getWebClient(client);
-        String cloudControllerUrl = client.getCloudControllerUrl()
-                                          .toString();
-        List<Map<String, Object>> resources = getAllResources(webClient, cloudControllerUrl, appRoutesUrl);
-        return toCloudRoutes(resources);
     }
 
     private List<CloudRoute> toCloudRoutes(List<Map<String, Object>> resources) {

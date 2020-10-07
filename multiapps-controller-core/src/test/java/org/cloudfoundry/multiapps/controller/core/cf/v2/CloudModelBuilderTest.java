@@ -3,13 +3,12 @@ package org.cloudfoundry.multiapps.controller.core.cf.v2;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.multiapps.common.test.Tester;
@@ -17,7 +16,6 @@ import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.common.util.YamlParser;
-import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.cf.detect.AppSuffixDeterminer;
 import org.cloudfoundry.multiapps.controller.core.cf.util.ModulesCloudModelBuilderContentCalculator;
@@ -552,14 +550,10 @@ public class CloudModelBuilderTest {
         throws Exception {
         initializeParameters(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, deployedMtaLocation, namespace,
                              applyNamespace, mtaArchiveModules, mtaModules, deployedApps, appSuffixDeterminer);
-        tester.test(() -> {
-            List<CloudApplicationExtended> apps = new ArrayList<>();
-            List<Module> modulesToDeploy = modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules());
-            for (Module module : modulesToDeploy) {
-                apps.add(appBuilder.build(module, moduleToDeployHelper));
-            }
-            return apps;
-        }, expectedApps);
+        tester.test(() -> modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules())
+                                           .stream()
+                                           .map(module -> appBuilder.build(module, moduleToDeployHelper))
+                                           .collect(Collectors.toList()), expectedApps);
     }
 
     @ParameterizedTest
@@ -597,8 +591,8 @@ public class CloudModelBuilderTest {
         injectSystemParameters(deploymentDescriptor, defaultDomain);
         appBuilder = getApplicationCloudModelBuilder(deploymentDescriptor, false, deployedMta, appSuffixDeterminer);
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor);
-        modulesCalculator = getModulesCalculator(new HashSet<>(List.of(mtaArchiveModules)), new HashSet<>(List.of(mtaModules)),
-                                                 new HashSet<>(List.of(deployedApps)));
+        modulesCalculator = getModulesCalculator(Set.of(mtaArchiveModules), Set.of(mtaModules),
+                                                 Set.of(deployedApps));
         moduleToDeployHelper = new ModuleToDeployHelper();
         resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(null, getUserMessageLogger());
     }

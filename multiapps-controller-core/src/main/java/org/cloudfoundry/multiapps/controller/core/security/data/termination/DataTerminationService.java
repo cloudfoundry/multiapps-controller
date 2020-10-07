@@ -39,16 +39,12 @@ public class DataTerminationService {
 
     @Inject
     private ConfigurationEntryService configurationEntryService;
-
     @Inject
     private ConfigurationSubscriptionService configurationSubscriptionService;
-
     @Inject
     private OperationService operationService;
-
     @Inject
     private FileService fileService;
-
     @Inject
     private ApplicationConfiguration configuration;
 

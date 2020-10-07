@@ -35,9 +35,9 @@ public class MtaMetadataEntityAggregator {
     public List<DeployedMta> aggregate(List<CloudEntity> entities) {
         Map<String, List<CloudEntity>> entitiesByMtaId = entities.stream()
                                                                  .collect(Collectors.groupingBy(mtaMetadataParser::parseQualifiedMtaId));
-        return entitiesByMtaId.entrySet()
+        return entitiesByMtaId.values()
                               .stream()
-                              .map(entry -> toDeployedMta(entry.getValue()))
+                              .map(this::toDeployedMta)
                               .collect(Collectors.toList());
     }
 

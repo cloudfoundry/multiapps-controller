@@ -1,7 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.cf.metadata.util;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -14,13 +12,11 @@ import org.apache.commons.lang3.StringUtils;
 
 public class MtaMetadataUtil {
 
-    public static final List<String> MTA_METADATA_MANDATORY_LABELS = Collections.unmodifiableList(Arrays.asList(MtaMetadataLabels.MTA_ID));
-    public static final List<String> MTA_METADATA_MANDATORY_ANNOTATIONS = Collections.unmodifiableList(Arrays.asList(MtaMetadataAnnotations.MTA_ID,
-                                                                                                                     MtaMetadataAnnotations.MTA_VERSION));
-    public static final List<String> MTA_METADATA_APPLICATION_ANNOTATIONS = Collections.unmodifiableList(Arrays.asList(MtaMetadataAnnotations.MTA_MODULE,
-                                                                                                                       MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
-                                                                                                                       MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES));
-    public static final List<String> MTA_METADATA_SERVICE_ANNOTATIONS = Collections.unmodifiableList(Arrays.asList(MtaMetadataAnnotations.MTA_RESOURCE));
+    public static final List<String> MTA_METADATA_MANDATORY_LABELS = List.of(MtaMetadataLabels.MTA_ID);
+    public static final List<String> MTA_METADATA_MANDATORY_ANNOTATIONS = List.of(MtaMetadataAnnotations.MTA_ID, MtaMetadataAnnotations.MTA_VERSION);
+    public static final List<String> MTA_METADATA_APPLICATION_ANNOTATIONS = List.of(MtaMetadataAnnotations.MTA_MODULE, MtaMetadataAnnotations.MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES,
+                                                                                    MtaMetadataAnnotations.MTA_MODULE_BOUND_SERVICES);
+    public static final List<String> MTA_METADATA_SERVICE_ANNOTATIONS = List.of(MtaMetadataAnnotations.MTA_RESOURCE);
 
     public static boolean hasMtaMetadata(CloudEntity entity) {
         Metadata metadata = entity.getV3Metadata();

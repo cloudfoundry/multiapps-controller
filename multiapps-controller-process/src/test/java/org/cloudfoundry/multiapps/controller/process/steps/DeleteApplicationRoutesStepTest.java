@@ -8,8 +8,10 @@ import static org.mockito.Mockito.verify;
 import java.util.Collections;
 import java.util.List;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
+import org.cloudfoundry.multiapps.controller.core.cf.clients.ApplicationRoutesGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.util.HooksExecutor;
@@ -77,7 +79,14 @@ class DeleteApplicationRoutesStepTest extends UndeployAppStepTest {
 
     @Override
     protected UndeployAppStep createStep() {
-        return new DeleteApplicationRoutesStep();
+        return new DeleteApplicationRoutesStep() {
+
+            @Override
+            protected ApplicationRoutesGetter getApplicationRoutesGetter(CloudControllerClient client) {
+                return applicationRoutesGetter;
+            }
+            
+        };
     }
 
 }
