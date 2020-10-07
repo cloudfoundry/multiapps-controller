@@ -188,7 +188,7 @@ class DeployedMtaDetectorTest {
         throws IOException {
         prepareMocks(appsResourceLocation, servicesResourceLocation);
 
-        tester.test(() -> deployedMtaDetector.detectDeployedMtaByNameAndNamespace(name, namespace, client, true)
+        tester.test(() -> deployedMtaDetector.detectDeployedMtaByNameAndNamespace(name, namespace, client)
                                              .get(),
                     expectation);
         verifyNameWasChecked(name);

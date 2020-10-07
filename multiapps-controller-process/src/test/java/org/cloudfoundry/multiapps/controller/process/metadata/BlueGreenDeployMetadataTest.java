@@ -48,7 +48,6 @@ public class BlueGreenDeployMetadataTest extends MetadataBaseTest {
                 Variables.MODULES_FOR_DEPLOYMENT.getName(),
                 Variables.RESOURCES_FOR_DEPLOYMENT.getName(),
                 Variables.VERIFY_ARCHIVE_SIGNATURE.getName(),
-                Variables.ENABLE_ENV_DETECTION.getName(),
                 Variables.NO_CONFIRM.getName(),
                 Variables.KEEP_ORIGINAL_APP_NAMES_AFTER_DEPLOY.getName(),
             // @formatter:on

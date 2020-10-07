@@ -113,11 +113,6 @@ public class DeployMetadata {
                                                                                  .id(Variables.VERIFY_ARCHIVE_SIGNATURE.getName())
                                                                                  .type(ParameterType.BOOLEAN)
                                                                                  .build())
-                                         .addParameter(ImmutableParameterMetadata.builder()
-                                                                                 .id(Variables.ENABLE_ENV_DETECTION.getName())
-                                                                                 .type(ParameterType.BOOLEAN)
-                                                                                 .required(false)
-                                                                                 .build())
                                          .build();
     }
 

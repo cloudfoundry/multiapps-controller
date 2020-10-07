@@ -144,7 +144,7 @@ class MtasApiServiceImplTest {
                                                                                      .getId(),
                                                                              mtaToGet.getMetadata()
                                                                                      .getNamespace(),
-                                                                             client, true))
+                                                                             client))
                .thenReturn(Optional.of(getDeployedMta(mtaToGet)));
 
         ResponseEntity<List<Mta>> response = testedClass.getMtas(SPACE_GUID, mtaToGet.getMetadata()

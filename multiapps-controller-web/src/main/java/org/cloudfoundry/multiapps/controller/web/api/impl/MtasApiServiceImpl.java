@@ -79,8 +79,7 @@ public class MtasApiServiceImpl implements MtasApiService {
         }
 
         Optional<DeployedMta> optionalDeployedMta = deployedMtaDetector.detectDeployedMtaByNameAndNamespace(name, namespace,
-                                                                                                            getCloudFoundryClient(spaceGuid),
-                                                                                                            true);
+                                                                                                            getCloudFoundryClient(spaceGuid));
         DeployedMta deployedMta = optionalDeployedMta.orElseThrow(() -> new NotFoundException(Messages.SPECIFIC_MTA_NOT_FOUND,
                                                                                               name,
                                                                                               namespace));
