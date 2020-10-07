@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 
-@Api(description = "the files API")
+@Api
 @RestController
 @RequestMapping(Resources.FILES)
 public class FilesApi {
@@ -34,7 +34,7 @@ public class FilesApi {
     @Inject
     private FilesApiService delegate;
 
-    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "", nickname = "getMtaFiles", notes = "Retrieves all Multi-Target Application files ", response = FileMetadata.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
@@ -46,8 +46,7 @@ public class FilesApi {
         return delegate.getFiles(spaceGuid, namespace);
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = { MediaType.APPLICATION_JSON_VALUE,
-        MediaType.APPLICATION_JSON_UTF8_VALUE })
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "", nickname = "uploadMtaFile", notes = "Uploads an Multi Target Application archive or an Extension Descriptor ", response = FileMetadata.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
 

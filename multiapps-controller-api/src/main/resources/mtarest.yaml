@@ -29,7 +29,6 @@ paths:
       operationId: "getInfo"
       produces:
       - "application/json"
-      - "application/json;charset=UTF-8"
       parameters: []
       responses:
         200:
@@ -45,7 +44,6 @@ paths:
       operationId: "getMtaFiles"
       produces:
       - "application/json"
-      - "application/json;charset=UTF-8"
       parameters:
       - name: "spaceGuid"
         in: "path"
@@ -74,7 +72,6 @@ paths:
       - "multipart/form-data"
       produces:
       - "application/json"
-      - "application/json;charset=UTF-8"
       parameters:
       - name: "spaceGuid"
         in: "path"
@@ -104,7 +101,6 @@ paths:
       operationId: "getMtas"
       produces:
       - "application/json"
-      - "application/json;charset=UTF-8"
       parameters:
       - name: "spaceGuid"
         in: "path"
@@ -127,7 +123,6 @@ paths:
       operationId: "getMta"
       produces:
       - "application/json"
-      - "application/json;charset=UTF-8"
       parameters:
       - name: "spaceGuid"
         in: "path"
@@ -153,7 +148,6 @@ paths:
       operationId: "getMtaOperations"
       produces:
       - "application/json"
-      - "application/json;charset=UTF-8"
       parameters:
       - name: "spaceGuid"
         in: "path"
@@ -190,10 +184,8 @@ paths:
       operationId: "startMtaOperation"
       consumes:
       - "application/json"
-      - "application/json;charset=UTF-8"
       produces:
       - "application/json"
-      - "application/json;charset=UTF-8"
       parameters:
       - name: "spaceGuid"
         in: "path"
@@ -220,7 +212,6 @@ paths:
       operationId: "getMtaOperation"
       produces:
       - "application/json"
-      - "application/json;charset=UTF-8"
       parameters:
       - name: "spaceGuid"
         in: "path"
@@ -271,7 +262,6 @@ paths:
       operationId: "getOperationActions"
       produces:
       - "application/json"
-      - "application/json;charset=UTF-8"
       parameters:
       - name: "spaceGuid"
         in: "path"
@@ -297,7 +287,6 @@ paths:
       operationId: "getMtaOperationLogs"
       produces:
       - "application/json"
-      - "application/json;charset=UTF-8"
       parameters:
       - name: "spaceGuid"
         in: "path"

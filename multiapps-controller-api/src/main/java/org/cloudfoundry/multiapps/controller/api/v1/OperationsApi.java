@@ -30,7 +30,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 
-@Api(description = "the operations API")
+@Api
 @RestController
 @RequestMapping(Resources.OPERATIONS)
 public class OperationsApi {
@@ -50,7 +50,7 @@ public class OperationsApi {
         return delegate.executeOperationAction(request, spaceGuid, operationId, actionId);
     }
 
-    @GetMapping(path = Endpoints.OPERATION, produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
+    @GetMapping(path = Endpoints.OPERATION, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "", nickname = "getMtaOperation", notes = "Retrieves Multi-Target Application operation ", response = Operation.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
@@ -63,7 +63,7 @@ public class OperationsApi {
         return delegate.getOperation(spaceGuid, operationId, embed);
     }
 
-    @GetMapping(path = Endpoints.OPERATION_LOGS, produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
+    @GetMapping(path = Endpoints.OPERATION_LOGS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "", nickname = "getMtaOperationLogs", notes = "Retrieves the logs Multi-Target Application operation ", response = Log.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
@@ -86,7 +86,7 @@ public class OperationsApi {
         return delegate.getOperationLogContent(spaceGuid, operationId, logId);
     }
 
-    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "", nickname = "getMtaOperations", notes = "Retrieves Multi-Target Application operations ", response = Operation.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
@@ -99,7 +99,7 @@ public class OperationsApi {
         return delegate.getOperations(spaceGuid, mtaId, states, last);
     }
 
-    @GetMapping(path = Endpoints.OPERATION_ACTIONS, produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
+    @GetMapping(path = Endpoints.OPERATION_ACTIONS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "", notes = "Retrieves available actions for Multi-Target Application operation ", response = String.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
@@ -110,8 +110,7 @@ public class OperationsApi {
         return delegate.getOperationActions(spaceGuid, operationId);
     }
 
-    @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = {
-        MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "", nickname = "startMtaOperation", notes = "Starts execution of a Multi-Target Application operation ", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 

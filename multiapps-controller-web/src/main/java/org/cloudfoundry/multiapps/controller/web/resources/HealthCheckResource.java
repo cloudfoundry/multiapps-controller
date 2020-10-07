@@ -20,7 +20,7 @@ public class HealthCheckResource {
     @Inject
     private HealthRetriever healthRetriever;
 
-    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public Health getHealth() {
         return CACHED_RESPONSE.get(healthRetriever::getHealth);
     }

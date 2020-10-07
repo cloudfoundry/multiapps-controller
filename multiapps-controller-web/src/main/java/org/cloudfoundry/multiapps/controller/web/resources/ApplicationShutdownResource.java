@@ -27,7 +27,7 @@ public class ApplicationShutdownResource {
     @Inject
     private FlowableFacade flowableFacade;
 
-    @PostMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
+    @PostMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
     public ApplicationShutdown
            shutdownFlowableJobExecutor(@RequestHeader(name = "x-cf-applicationid", required = false) String applicationId,
                                        @RequestHeader(name = "x-cf-instanceid", required = false) String applicationInstanceId,
@@ -53,7 +53,7 @@ public class ApplicationShutdownResource {
         return flowableFacade.isJobExecutorActive() ? ApplicationShutdown.Status.RUNNING : ApplicationShutdown.Status.FINISHED;
     }
 
-    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ApplicationShutdown
            getFlowableJobExecutorShutdownStatus(@RequestHeader(name = "x-cf-applicationid", required = false) String applicationId,
                                                 @RequestHeader(name = "x-cf-instanceid", required = false) String applicationInstanceId,

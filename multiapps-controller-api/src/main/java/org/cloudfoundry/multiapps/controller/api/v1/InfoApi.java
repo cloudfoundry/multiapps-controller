@@ -17,7 +17,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 
-@Api(description = "the info API")
+@Api
 @RestController
 @RequestMapping(Resources.INFO)
 public class InfoApi {
@@ -25,7 +25,7 @@ public class InfoApi {
     @Inject
     private InfoApiService delegate;
 
-    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "", notes = "Retrieve information about the Deploy Service application ", response = Info.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
 

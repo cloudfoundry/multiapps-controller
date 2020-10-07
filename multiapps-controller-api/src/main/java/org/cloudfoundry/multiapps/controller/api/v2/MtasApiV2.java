@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 
-@Api(description = "mtas API V2")
+@Api
 @RestController
 @RequestMapping(Resources.MTAS_V2)
 public class MtasApiV2 {
@@ -32,7 +32,7 @@ public class MtasApiV2 {
     @Inject
     private MtasApiService delegate;
 
-    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "", notes = "Retrieves all Multi-Target Applications in a given space and namespace", response = Mta.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
 
