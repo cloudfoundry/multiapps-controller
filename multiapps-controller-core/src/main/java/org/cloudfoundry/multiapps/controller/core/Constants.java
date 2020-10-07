@@ -28,10 +28,6 @@ public class Constants {
     public static final String ATTR_CORRELATION_ID = "correlation_id";
     public static final String LOGS_OFFSET = "logsOffset";
 
-    public static final String SERVICE_INSTANCE_RESPONSE_RESOURCES = "resources";
-    public static final String SERVICE_INSTANCE_RESPONSE_ENTITY = "entity";
-    public static final String V2_QUERY_SEPARATOR = "&q=";
-
     protected Constants() {
     }
 }

@@ -6,7 +6,9 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
-    "shouldIgnoreUpdateErrors": false,
+    "shouldSkipParametersUpdate" : false,
+    "shouldSkipTagsUpdate" : false,
+    "shouldSkipPlanUpdate" : false,
     "metadata": {},
     "name": "bar"
   }

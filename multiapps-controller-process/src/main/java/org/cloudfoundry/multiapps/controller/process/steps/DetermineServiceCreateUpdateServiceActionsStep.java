@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -24,10 +23,8 @@ import org.cloudfoundry.client.lib.domain.ServiceOperation;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
-import org.cloudfoundry.multiapps.common.util.MiscUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
@@ -46,18 +43,14 @@ import org.springframework.http.HttpStatus;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowableStep {
 
-    @Inject
-    private ServiceGetter serviceInstanceGetter;
-
     @Override
     protected StepPhase executeStep(ProcessContext context) throws Exception {
-        CloudControllerClient controllerClient = context.getControllerClient();
-        String spaceId = context.getVariable(Variables.SPACE_GUID);
+        CloudControllerClient client = context.getControllerClient();
         CloudServiceInstanceExtended serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
 
         context.getStepLogger()
                .info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
-        CloudServiceInstance existingService = controllerClient.getServiceInstance(serviceToProcess.getName(), false);
+        CloudServiceInstance existingService = client.getServiceInstance(serviceToProcess.getName(), false);
 
         Map<String, List<CloudServiceKey>> serviceKeys = context.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
 
@@ -65,8 +58,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
         serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
 
-        List<ServiceAction> actions = determineActionsAndHandleExceptions(controllerClient, spaceId, serviceToProcess, existingService,
-                                                                          serviceKeys, context);
+        List<ServiceAction> actions = determineActionsAndHandleExceptions(context, serviceToProcess, existingService, serviceKeys);
 
         context.setVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE, actions);
         context.setVariable(Variables.IS_SERVICE_UPDATED, false);
@@ -81,12 +73,11 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                                            .getName());
     }
 
-    private List<ServiceAction>
-            determineActionsAndHandleExceptions(CloudControllerClient client, String spaceId, CloudServiceInstanceExtended service,
-                                                CloudServiceInstance existingService, Map<String, List<CloudServiceKey>> serviceKeys,
-                                                ProcessContext context) {
+    private List<ServiceAction> determineActionsAndHandleExceptions(ProcessContext context, CloudServiceInstanceExtended service,
+                                                                    CloudServiceInstance existingService,
+                                                                    Map<String, List<CloudServiceKey>> serviceKeys) {
         try {
-            return determineActions(client, spaceId, service, existingService, serviceKeys, context);
+            return determineActions(context, service, existingService, serviceKeys);
         } catch (CloudOperationException e) {
             String determineServiceActionsFailedMessage = MessageFormat.format(Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE,
                                                                                service.getName(), e.getStatusText());
@@ -99,9 +90,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         context.setVariable(Variables.SERVICE_TO_PROCESS, service);
     }
 
-    private List<ServiceAction> determineActions(CloudControllerClient client, String spaceId, CloudServiceInstanceExtended service,
-                                                 CloudServiceInstance existingService, Map<String, List<CloudServiceKey>> serviceKeys,
-                                                 ProcessContext context) {
+    private List<ServiceAction> determineActions(ProcessContext context, CloudServiceInstanceExtended service,
+                                                 CloudServiceInstance existingService, Map<String, List<CloudServiceKey>> serviceKeys) {
         List<ServiceAction> actions = new ArrayList<>();
 
         List<CloudServiceKey> keys = serviceKeys.get(service.getResourceName());
@@ -126,7 +116,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                 throw getServiceRecreationNeededException(service, existingService);
             }
         }
-        ServiceOperation lastOperation = getLastOperation(client, spaceId, existingService.getName());
+
+        ServiceOperation lastOperation = existingService.getLastOperation();
         if (isInDangerousState(lastOperation)) {
             if (context.getVariable(Variables.DELETE_SERVICES)) {
                 shouldRecreate = true;
@@ -134,6 +125,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                 getStepLogger().warn(Messages.SERVICE_0_IS_IN_STATE_1_AND_MAY_NOT_BE_OPERATIONAL, existingService.getName(), lastOperation);
             }
         }
+
         if (shouldRecreate) {
             getStepLogger().debug("Service should be recreated");
             context.setVariable(Variables.SERVICE_TO_DELETE, service.getName());
@@ -148,7 +140,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             actions.add(ServiceAction.UPDATE_PLAN);
         }
 
-        List<String> existingServiceTags = getServiceTags(client, spaceId, existingService);
+        List<String> existingServiceTags = existingService.getTags();
         if (shouldUpdateTags(service, existingServiceTags)) {
             getStepLogger().debug("Service tags should be updated");
             getStepLogger().debug("New service tags: " + JsonUtil.toJson(service.getTags()));
@@ -156,6 +148,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             actions.add(ServiceAction.UPDATE_TAGS);
         }
 
+        CloudControllerClient client = context.getControllerClient();
         if (shouldUpdateCredentials(service, existingService, client)) {
             getStepLogger().debug("Service parameters should be updated");
             getStepLogger().debug("New parameters: " + SecureSerialization.toJson(service.getCredentials()));
@@ -169,14 +162,6 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
 
         return actions;
-    }
-
-    private ServiceOperation getLastOperation(CloudControllerClient client, String spaceId, String serviceName) {
-        Map<String, Object> existingServiceInstanceEntity = serviceInstanceGetter.getServiceInstanceEntity(client, serviceName, spaceId);
-        if (existingServiceInstanceEntity != null) {
-            return getLastOperation(existingServiceInstanceEntity);
-        }
-        return null;
     }
 
     private SLException getServiceRecreationNeededException(CloudServiceInstanceExtended service, CloudServiceInstance existingService) {
@@ -232,23 +217,11 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     }
 
     private CloudServiceInstanceExtended mergeCredentials(CloudServiceInstanceExtended service, InputStream credentialsJson) {
-        Map<String, Object> existingCredentials = service.getCredentials();
+        Map<String, Object> existingCredentials = ObjectUtils.defaultIfNull(service.getCredentials(), Collections.emptyMap());
         Map<String, Object> credentials = JsonUtil.convertJsonToMap(credentialsJson);
-        if (existingCredentials == null) {
-            existingCredentials = Collections.emptyMap();
-        }
         Map<String, Object> result = PropertiesUtil.mergeExtensionProperties(credentials, existingCredentials);
         return ImmutableCloudServiceInstanceExtended.copyOf(service)
                                                     .withCredentials(result);
-    }
-
-    private List<String> getServiceTags(CloudControllerClient client, String spaceId, CloudServiceInstance service) {
-        if (service instanceof CloudServiceInstanceExtended) {
-            CloudServiceInstanceExtended serviceExtended = (CloudServiceInstanceExtended) service;
-            return serviceExtended.getTags();
-        }
-        Map<String, Object> serviceInstance = serviceInstanceGetter.getServiceInstanceEntity(client, service.getName(), spaceId);
-        return MiscUtil.cast(serviceInstance.get("tags"));
     }
 
     private boolean shouldUpdateKeys(CloudServiceInstanceExtended service, List<CloudServiceKey> serviceKeys) {
@@ -307,23 +280,5 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             }
             throw e;
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private ServiceOperation getLastOperation(Map<String, Object> cloudServiceInstance) {
-        Map<String, Object> lastOperationAsMap = (Map<String, Object>) cloudServiceInstance.get("last_operation");
-        if (lastOperationAsMap == null) {
-            return null;
-        }
-        return parseServiceOperationFromMap(lastOperationAsMap);
-    }
-
-    private ServiceOperation parseServiceOperationFromMap(Map<String, Object> serviceOperation) {
-        if (serviceOperation.get("type") == null || serviceOperation.get("state") == null) {
-            return null;
-        }
-        ServiceOperation.Type type = ServiceOperation.Type.fromString((String) serviceOperation.get("type"));
-        ServiceOperation.State state = ServiceOperation.State.fromString((String) serviceOperation.get("state"));
-        return new ServiceOperation(type, (String) serviceOperation.get("description"), state);
     }
 }

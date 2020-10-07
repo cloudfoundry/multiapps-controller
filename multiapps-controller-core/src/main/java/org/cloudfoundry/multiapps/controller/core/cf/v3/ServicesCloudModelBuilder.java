@@ -10,8 +10,20 @@ public class ServicesCloudModelBuilder extends org.cloudfoundry.multiapps.contro
     }
 
     @Override
-    protected boolean isOptional(Resource resource) {
-        return resource.isOptional();
+    protected CommonServiceParameters getCommonServiceParameters(Resource resource) {
+        return new CommonServiceParametersV3(resource);
+    }
+    
+    static class CommonServiceParametersV3 extends CommonServiceParameters {
+
+        CommonServiceParametersV3(Resource resource) {
+            super(resource);
+        }
+
+        @Override
+        protected boolean isOptional() {
+            return resource.isOptional();
+        }
     }
 
 }

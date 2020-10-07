@@ -18,7 +18,6 @@ import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
-import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceInstanceGetter;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.ServiceWithAlternativesCreator;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution.ExecutionState;
@@ -40,8 +39,6 @@ class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceStep> {
 
     private StepInput stepInput;
 
-    @Mock
-    private ServiceInstanceGetter serviceInstanceGetter;
     @Mock
     private ServiceWithAlternativesCreator.Factory serviceCreatorFactory;
 
