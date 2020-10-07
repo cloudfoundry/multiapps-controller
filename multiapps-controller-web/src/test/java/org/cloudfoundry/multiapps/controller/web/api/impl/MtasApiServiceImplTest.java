@@ -74,13 +74,13 @@ class MtasApiServiceImplTest {
 
     private List<CloudApplication> parseApps() {
         String appsJson = TestUtil.getResourceAsString("apps-01.json", getClass());
-        return JsonUtil.fromJson(appsJson, new TypeReference<List<CloudApplication>>() {
+        return JsonUtil.fromJson(appsJson, new TypeReference<>() {
         });
     }
 
     private List<Mta> parseMtas() {
         String appsJson = TestUtil.getResourceAsString("mtas-01.json", getClass());
-        return JsonUtil.fromJson(appsJson, new TypeReference<List<Mta>>() {
+        return JsonUtil.fromJson(appsJson, new TypeReference<>() {
         });
     }
 

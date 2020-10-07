@@ -65,15 +65,10 @@ public class StepsUtil {
     }
 
     public static String getQualifiedMtaId(String mtaId, String namespace) {
-        String qualifiedId;
-
         if (StringUtils.isNotEmpty(namespace)) {
-            qualifiedId = namespace + org.cloudfoundry.multiapps.controller.core.Constants.NAMESPACE_SEPARATOR + mtaId;
-        } else {
-            qualifiedId = mtaId;
+            return namespace + org.cloudfoundry.multiapps.controller.core.Constants.NAMESPACE_SEPARATOR + mtaId;
         }
-
-        return qualifiedId;
+        return mtaId;
     }
 
     static CloudApplication getUpdatedServiceBrokerSubscriber(ProcessContext context) {
@@ -227,7 +222,7 @@ public class StepsUtil {
     }
 
     public static Map<String, List<String>> getExecutedHooksForModule(VariableScope scope, String moduleName) {
-        TypeReference<Map<String, List<String>>> type = new TypeReference<Map<String, List<String>>>() {
+        TypeReference<Map<String, List<String>>> type = new TypeReference<>() {
         };
         return getFromJsonBinary(scope, getExecutedHooksForModuleVariableName(moduleName), type, Collections.emptyMap());
     }

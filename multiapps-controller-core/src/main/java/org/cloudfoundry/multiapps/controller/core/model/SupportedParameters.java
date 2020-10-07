@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class SupportedParameters {
 
@@ -141,18 +139,14 @@ public class SupportedParameters {
     public static final String MTA_MODULE = "mta-module";
     public static final String MTA_PROVIDES_DEPENDENCY = "mta-provides-dependency";
 
-    public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Stream.of(PROVIDER_NID, PROVIDER_ID, TARGET, VERSION, MTA_ID,
-                                                                                   MTA_VERSION, MTA_PROVIDES_DEPENDENCY, NAMESPACE)
-                                                                               .collect(Collectors.collectingAndThen(Collectors.toSet(),
-                                                                                                                     Collections::unmodifiableSet));
+    public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Set.of(PROVIDER_NID, PROVIDER_ID, TARGET, VERSION, MTA_ID,
+                                                                                MTA_VERSION, MTA_PROVIDES_DEPENDENCY, NAMESPACE);
 
-    public static final Set<String> APP_ATTRIBUTES = Stream.of(EXECUTE_APP, SUCCESS_MARKER, FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID,
-                                                               REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,
-                                                               REGISTER_SERVICE_URL_SERVICE_URL, CREATE_SERVICE_BROKER, SERVICE_BROKER_NAME,
-                                                               SERVICE_BROKER_USERNAME, SERVICE_BROKER_PASSWORD, SERVICE_BROKER_URL,
-                                                               SERVICE_BROKER_SPACE_SCOPED, DEPENDENCY_TYPE, NO_START, UPLOAD_TIMEOUT)
-                                                           .collect(Collectors.collectingAndThen(Collectors.toSet(),
-                                                                                                 Collections::unmodifiableSet));
+    public static final Set<String> APP_ATTRIBUTES = Set.of(EXECUTE_APP, SUCCESS_MARKER, FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID,
+                                                            REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,
+                                                            REGISTER_SERVICE_URL_SERVICE_URL, CREATE_SERVICE_BROKER, SERVICE_BROKER_NAME,
+                                                            SERVICE_BROKER_USERNAME, SERVICE_BROKER_PASSWORD, SERVICE_BROKER_URL,
+                                                            SERVICE_BROKER_SPACE_SCOPED, DEPENDENCY_TYPE, NO_START, UPLOAD_TIMEOUT);
 
     public static final Map<String, String> SINGULAR_PLURAL_MAPPING;
 
@@ -168,23 +162,17 @@ public class SupportedParameters {
         SINGULAR_PLURAL_MAPPING = Collections.unmodifiableMap(prototype);
     }
 
-    public static final Set<String> READ_ONLY_SYSTEM_PARAMETERS = Stream.of(AUTHORIZATION_URL, CONTROLLER_URL, DEFAULT_DOMAIN,
-                                                                            DEFAULT_IDLE_DOMAIN, ORGANIZATION_NAME, ORGANIZATION_GUID,
-                                                                            SPACE_NAME, SPACE_GUID, USER, XS_TYPE)
-                                                                        .collect(Collectors.collectingAndThen(Collectors.toSet(),
-                                                                                                              Collections::unmodifiableSet));
+    public static final Set<String> READ_ONLY_SYSTEM_PARAMETERS = Set.of(AUTHORIZATION_URL, CONTROLLER_URL, DEFAULT_DOMAIN,
+                                                                         DEFAULT_IDLE_DOMAIN, ORGANIZATION_NAME, ORGANIZATION_GUID,
+                                                                         SPACE_NAME, SPACE_GUID, USER, XS_TYPE);
 
-    public static final Set<String> READ_ONLY_MODULE_PARAMETERS = Stream.of(DEFAULT_DOMAIN, DEFAULT_IDLE_DOMAIN, DEFAULT_HOST, PROTOCOL,
-                                                                            GENERATED_USER, GENERATED_PASSWORD, DEFAULT_URI, DEFAULT_URL,
-                                                                            DEFAULT_IDLE_HOST, DEFAULT_IDLE_URI, DEFAULT_IDLE_URL,
-                                                                            DEFAULT_APP_NAME, DEFAULT_INSTANCES, TIMESTAMP)
-                                                                        .collect(Collectors.collectingAndThen(Collectors.toSet(),
-                                                                                                              Collections::unmodifiableSet));
+    public static final Set<String> READ_ONLY_MODULE_PARAMETERS = Set.of(DEFAULT_DOMAIN, DEFAULT_IDLE_DOMAIN, DEFAULT_HOST, PROTOCOL,
+                                                                         GENERATED_USER, GENERATED_PASSWORD, DEFAULT_URI, DEFAULT_URL,
+                                                                         DEFAULT_IDLE_HOST, DEFAULT_IDLE_URI, DEFAULT_IDLE_URL,
+                                                                         DEFAULT_APP_NAME, DEFAULT_INSTANCES, TIMESTAMP);
 
-    public static final Set<String> READ_ONLY_RESOURCE_PARAMETERS = Stream.of(DEFAULT_CONTAINER_NAME, DEFAULT_XS_APP_NAME, GENERATED_USER,
-                                                                              GENERATED_PASSWORD, DEFAULT_SERVICE_NAME)
-                                                                          .collect(Collectors.collectingAndThen(Collectors.toSet(),
-                                                                                                                Collections::unmodifiableSet));
+    public static final Set<String> READ_ONLY_RESOURCE_PARAMETERS = Set.of(DEFAULT_CONTAINER_NAME, DEFAULT_XS_APP_NAME, GENERATED_USER,
+                                                                           GENERATED_PASSWORD, DEFAULT_SERVICE_NAME);
 
     public enum RoutingParameterSet {
         // @formatter:off

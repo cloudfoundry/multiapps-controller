@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import static java.text.MessageFormat.format;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,7 +18,7 @@ import org.cloudfoundry.multiapps.controller.process.steps.ProcessContext;
 @Named
 public class ServiceProgressReporter {
 
-    public void reportOverallProgress(ProcessContext context, List<ServiceOperation> lastServicesOperations,
+    public void reportOverallProgress(ProcessContext context, Collection<ServiceOperation> lastServicesOperations,
                                       Map<String, ServiceOperation.Type> triggeredServiceOperations) {
         List<TypedServiceOperationState> nonFinalStates = getNonFinalStates(lastServicesOperations);
         String nonFinalStateStrings = getStateStrings(nonFinalStates);
@@ -32,15 +33,11 @@ public class ServiceProgressReporter {
         }
     }
 
-    private List<TypedServiceOperationState> getNonFinalStates(List<ServiceOperation> operations) {
+    private List<TypedServiceOperationState> getNonFinalStates(Collection<ServiceOperation> operations) {
         return operations.stream()
                          .map(TypedServiceOperationState::fromServiceOperation)
-                         .filter(this::isServiceOperationStateNotDone)
+                         .filter(state -> state != TypedServiceOperationState.DONE)
                          .collect(Collectors.toList());
-    }
-
-    private boolean isServiceOperationStateNotDone(TypedServiceOperationState state) {
-        return state != TypedServiceOperationState.DONE;
     }
 
     private String getStateStrings(List<TypedServiceOperationState> states) {
@@ -49,7 +46,6 @@ public class ServiceProgressReporter {
                           .stream()
                           .map(this::formatStateCount)
                           .collect(Collectors.joining(","));
-
     }
 
     private String formatStateCount(Entry<TypedServiceOperationState, Long> stateCount) {

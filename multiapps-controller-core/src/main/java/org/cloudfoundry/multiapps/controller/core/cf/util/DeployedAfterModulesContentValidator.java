@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.cf.util;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -21,7 +22,7 @@ public class DeployedAfterModulesContentValidator implements ModulesContentValid
 
     @Override
     public void validate(List<Module> modules) {
-        List<String> modulesInModelNames = getModuleNames(modules);
+        Set<String> modulesInModelNames = getModuleNames(modules);
 
         List<String> modulesWithDependenciesNotDeployed = modules.stream()
                                                                  .filter(module -> module.getMajorSchemaVersion() >= 3)
@@ -36,7 +37,7 @@ public class DeployedAfterModulesContentValidator implements ModulesContentValid
         }
     }
 
-    private boolean areModuleDependenciesResolvable(Module module, List<String> modulesInModelNames) {
+    private boolean areModuleDependenciesResolvable(Module module, Set<String> modulesInModelNames) {
         List<String> moduleDependencies = module.getDeployedAfter();
         if (moduleDependencies == null) {
             return true;
@@ -47,10 +48,10 @@ public class DeployedAfterModulesContentValidator implements ModulesContentValid
                                  .noneMatch(Objects::isNull);
     }
 
-    private List<String> getModuleNames(List<Module> modules) {
+    private Set<String> getModuleNames(List<Module> modules) {
         return modules.stream()
                       .map(Module::getName)
-                      .collect(Collectors.toList());
+                      .collect(Collectors.toSet());
     }
 
 }

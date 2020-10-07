@@ -67,7 +67,6 @@ class ApplicationConfigurationTest {
         String invalidUrl = "blabla";
         Map<String, String> vcapApplication = Map.of("cf_api", invalidUrl);
         Exception e = assertThrows(IllegalArgumentException.class, () -> getControllerUrlWithVcapApplication(vcapApplication));
-        e.printStackTrace();
         assertEquals(MessageFormat.format(Messages.INVALID_CONTROLLER_URL, invalidUrl), e.getMessage());
     }
 

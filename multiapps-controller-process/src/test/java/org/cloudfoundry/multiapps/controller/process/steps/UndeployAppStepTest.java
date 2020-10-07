@@ -90,10 +90,10 @@ abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep>
     }
 
     private void prepareClient() {
-        Mockito.when(applicationRoutesGetter.getRoutes(any(), anyString()))
+        Mockito.when(applicationRoutesGetter.getRoutes(anyString()))
                .thenAnswer((invocation) -> {
 
-                   String appName = (String) invocation.getArguments()[1];
+                   String appName = (String) invocation.getArguments()[0];
                    return stepInput.appRoutesPerApplication.get(appName);
 
                });

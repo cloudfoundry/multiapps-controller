@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 
 import static java.text.MessageFormat.format;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +53,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
                    .debug(Messages.LAST_OPERATION_FOR_SERVICE, service.getName(), JsonUtil.toJson(lastServiceOperation, true));
         }
         reportDetailedServicesStates(context, servicesWithLastOperation);
-        reportOverallProgress(context, new ArrayList<>(servicesWithLastOperation.values()), triggeredServiceOperations);
+        reportOverallProgress(context, servicesWithLastOperation.values(), triggeredServiceOperations);
         List<CloudServiceInstanceExtended> remainingServicesToPoll = getRemainingServicesToPoll(servicesWithLastOperation);
         context.getStepLogger()
                .debug(Messages.REMAINING_SERVICES_TO_POLL, SecureSerialization.toJson(remainingServicesToPoll));
@@ -123,7 +122,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         }
     }
 
-    private void reportOverallProgress(ProcessContext context, List<ServiceOperation> lastServicesOperations,
+    private void reportOverallProgress(ProcessContext context, Collection<ServiceOperation> lastServicesOperations,
                                        Map<String, ServiceOperation.Type> triggeredServiceOperations) {
         serviceProgressReporter.reportOverallProgress(context, lastServicesOperations, triggeredServiceOperations);
     }

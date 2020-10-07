@@ -52,14 +52,14 @@ public class CustomControllerClientErrorHandler {
 
     private String getDescriptionFromResponseBody(String responseBody) {
         try {
-            return attemptToParseDescriptionFromResponseBody(responseBody);
+            return tryParseDescriptionFromResponseBody(responseBody);
         } catch (ParsingException e) {
             LOGGER.warn(MessageFormat.format("Could not parse description from response body: {0}", responseBody), e);
         }
         return null;
     }
 
-    private String attemptToParseDescriptionFromResponseBody(String responseBody) {
+    private String tryParseDescriptionFromResponseBody(String responseBody) {
         Map<String, Object> responseEntity = JsonUtil.convertJsonToMap(responseBody);
         Object result = responseEntity.get("description");
         return result instanceof String ? (String) result : null;

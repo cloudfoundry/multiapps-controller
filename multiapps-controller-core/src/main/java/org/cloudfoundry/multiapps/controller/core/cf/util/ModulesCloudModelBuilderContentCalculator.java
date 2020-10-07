@@ -46,7 +46,9 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
     }
 
     private void validateCalculatedModules(List<Module> calculatedModules) {
-        modulesContentValidators.forEach(validator -> validator.validate(calculatedModules));
+        for (ModulesContentValidator validator : modulesContentValidators) {
+            validator.validate(calculatedModules);
+        }
     }
 
     private void initializeModulesDependencyTypes(List<? extends Module> modulesForDeployment) {
@@ -72,13 +74,12 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
         if (moduleToDeployHelper.shouldDeployAlways(module) || isDockerModule(module)) {
             return true;
         }
-        if (!isModulePresentInArchive(module, mtaModulesInArchive) || module.getType() == null) {
-            if (isModuleDeployed(module, deployedModules)) {
+        if (!mtaModulesInArchive.contains(module.getName()) || module.getType() == null) {
+            if (deployedModules.contains(module.getName())) {
                 printMTAModuleNotFoundWarning(module.getName());
             }
             return false;
         }
-
         return true;
     }
 
@@ -92,13 +93,4 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
         return module.getParameters()
                      .containsKey(SupportedParameters.DOCKER);
     }
-
-    private boolean isModulePresentInArchive(Module module, Set<String> modulesInArchive) {
-        return modulesInArchive.contains(module.getName());
-    }
-
-    private boolean isModuleDeployed(Module module, Set<String> deployedModules) {
-        return deployedModules.contains(module.getName());
-    }
-
 }

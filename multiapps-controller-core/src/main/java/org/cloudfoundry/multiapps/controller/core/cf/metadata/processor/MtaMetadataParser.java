@@ -38,7 +38,7 @@ public class MtaMetadataParser extends BaseMtaMetadataParser {
         String mtaId = metadata.getAnnotations()
                                .get(MtaMetadataAnnotations.MTA_ID);
         String mtaNamespace = metadata.getAnnotations()
-            .get(MtaMetadataAnnotations.MTA_NAMESPACE);
+                                      .get(MtaMetadataAnnotations.MTA_NAMESPACE);
         
         if (StringUtils.isEmpty(mtaNamespace)) {
             return mtaId;

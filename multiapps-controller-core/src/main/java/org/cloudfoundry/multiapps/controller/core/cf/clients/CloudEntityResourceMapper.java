@@ -13,13 +13,9 @@ import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
-import org.cloudfoundry.client.lib.domain.CloudEvent;
-import org.cloudfoundry.client.lib.domain.CloudEvent.Participant;
 import org.cloudfoundry.client.lib.domain.CloudMetadata;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudDomain;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudEvent;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudEvent.ImmutableParticipant;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.lib.domain.ImmutableCloudRoute;
 import org.slf4j.Logger;
@@ -47,43 +43,10 @@ public class CloudEntityResourceMapper {
                                   .build();
     }
 
-    public CloudEvent mapEventResource(Map<String, Object> resource) {
-        return ImmutableCloudEvent.builder()
-                                  .metadata(getMetadata(resource))
-                                  .name(getResourceAttribute(resource, "name", String.class))
-                                  .actor(getActor(resource))
-                                  .actee(getActee(resource))
-                                  .timestamp(parseDate(getResourceAttribute(resource, "timestamp", String.class)))
-                                  .type(getResourceAttribute(resource, "type", String.class))
-                                  .build();
-    }
-
     private CloudDomain mapDomainResource(Map<String, Object> resource) {
         return ImmutableCloudDomain.builder()
                                    .metadata(getMetadata(resource))
                                    .name(getResourceAttribute(resource, "name", String.class))
-                                   .build();
-    }
-
-    private Participant getActor(Map<String, Object> resource) {
-        UUID actorGuid = getResourceAttribute(resource, "actor", UUID.class);
-        String actorType = getResourceAttribute(resource, "actor_type", String.class);
-        String actorName = getResourceAttribute(resource, "actor_name", String.class);
-        return ImmutableParticipant.builder()
-                                   .guid(actorGuid)
-                                   .name(actorName)
-                                   .type(actorType)
-                                   .build();
-    }
-
-    private Participant getActee(Map<String, Object> resource) {
-        UUID acteeGuid = getResourceAttribute(resource, "actee", UUID.class);
-        String acteeType = getResourceAttribute(resource, "actee_type", String.class);
-        String acteeName = getResourceAttribute(resource, "actee_name", String.class);
-        return ImmutableParticipant.builder()
-                                   .guid(acteeGuid)
-                                   .name(acteeName)
-                                   .type(acteeType)
                                    .build();
     }
 

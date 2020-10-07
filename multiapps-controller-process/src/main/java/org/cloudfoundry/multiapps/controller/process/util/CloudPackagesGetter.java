@@ -27,19 +27,21 @@ public class CloudPackagesGetter {
 
     public Optional<CloudPackage> getLatestUnusedPackage(CloudControllerClient client, UUID applicationGuid) {
         Optional<DropletInfo> currentDropletForApplication = findOrReturnEmpty(() -> client.getCurrentDropletForApplication(applicationGuid));
-        if (!currentDropletForApplication.isPresent()) {
+        if (currentDropletForApplication.isEmpty()) {
             return getMostRecentCloudPackage(client, applicationGuid);
         }
+
         Optional<CloudPackage> currentCloudPackage = findOrReturnEmpty(() -> client.getPackage(currentDropletForApplication.get()
                                                                                                                            .getPackageGuid()));
-        if (!currentCloudPackage.isPresent()) {
+        if (currentCloudPackage.isEmpty()) {
             return Optional.empty();
         }
         LOGGER.info(MessageFormat.format(Messages.CURRENTLY_USED_PACKAGE_0, SecureSerialization.toJson(currentCloudPackage.get())));
         Optional<CloudPackage> mostRecentApplicationPackage = getMostRecentCloudPackage(client, applicationGuid);
-        if (!mostRecentApplicationPackage.isPresent()) {
+        if (mostRecentApplicationPackage.isEmpty()) {
             return Optional.empty();
         }
+
         if (!isCurrentCloudPackageUpToDate(currentCloudPackage.get(), mostRecentApplicationPackage.get())) {
             return mostRecentApplicationPackage;
         }
@@ -68,9 +70,6 @@ public class CloudPackagesGetter {
     }
 
     private boolean isCurrentCloudPackageUpToDate(CloudPackage currentCloudPackage, CloudPackage mostRecentCloudPackage) {
-        return Objects.equals(currentCloudPackage.getMetadata()
-                                                 .getGuid(),
-                              mostRecentCloudPackage.getMetadata()
-                                                    .getGuid());
+        return Objects.equals(currentCloudPackage.getGuid(), mostRecentCloudPackage.getGuid());
     }
 }

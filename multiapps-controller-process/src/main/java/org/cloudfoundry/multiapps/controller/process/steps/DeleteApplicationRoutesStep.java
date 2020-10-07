@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -26,9 +25,6 @@ import org.springframework.context.annotation.Scope;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DeleteApplicationRoutesStep extends UndeployAppStep implements BeforeStepHookPhaseProvider {
 
-    @Inject
-    private ApplicationRoutesGetter applicationRoutesGetter;
-
     @Override
     protected StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy,
                                             ProcessContext context) {
@@ -44,13 +40,20 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
 
     private void deleteApplicationRoutes(CloudControllerClient client, CloudApplication cloudApplication) {
         getStepLogger().info(Messages.DELETING_APP_ROUTES, cloudApplication.getName());
-        List<CloudRoute> cloudApplicationRoutes = applicationRoutesGetter.getRoutes(client, cloudApplication.getName());
+        ApplicationRoutesGetter applicationRoutesGetter = getApplicationRoutesGetter(client);
+        List<CloudRoute> cloudApplicationRoutes = applicationRoutesGetter.getRoutes(cloudApplication.getName());
+
         getStepLogger().debug(Messages.ROUTES_FOR_APPLICATION, cloudApplication.getName(), JsonUtil.toJson(cloudApplicationRoutes, true));
+
         client.updateApplicationUris(cloudApplication.getName(), Collections.emptyList());
         for (String uri : cloudApplication.getUris()) {
             deleteApplicationRoutes(client, cloudApplicationRoutes, uri);
         }
         getStepLogger().debug(Messages.DELETED_APP_ROUTES, cloudApplication.getName());
+    }
+    
+    protected ApplicationRoutesGetter getApplicationRoutesGetter(CloudControllerClient client) {
+        return new ApplicationRoutesGetter(client);
     }
 
     private void deleteApplicationRoutes(CloudControllerClient client, List<CloudRoute> routes, String uri) {

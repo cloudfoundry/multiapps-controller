@@ -78,8 +78,9 @@ public class ApplicationStager {
                 return PackageState.STAGED;
             case STAGING:
                 return PackageState.PENDING;
+            default:
+                throw new IllegalArgumentException("Invalid build state");
         }
-        throw new IllegalArgumentException("Invalid build state");
     }
 
     public boolean isApplicationStagedCorrectly(CloudApplication app) {
