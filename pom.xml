@@ -42,6 +42,7 @@
         <jgit.version>4.0.1.201506240215-r</jgit.version>
         <swagger.version>1.6.2</swagger.version>
         <jclouds.version>2.2.1</jclouds.version>
+        <guava.version>23.6.1-jre</guava.version>
         <resilience4j.version>1.5.0</resilience4j.version>
         <immutables.version>2.8.8</immutables.version>
         <micrometer.version>1.5.5</micrometer.version>
@@ -755,6 +756,14 @@
                         <artifactId>JavaEWAH</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <!-- Transitive dependency from jclouds. They're using an old version with security vulnerabilities, so we're 
+                pinning it to a newer here. -->
+            <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.jclouds/jclouds-blobstore -->
             <dependency>
