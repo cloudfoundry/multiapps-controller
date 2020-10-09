@@ -14,14 +14,15 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -51,14 +52,24 @@ import org.cloudfoundry.multiapps.controller.process.util.UrisApplicationAttribu
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.cloudfoundry.multiapps.mta.handlers.ArchiveHandler;
 import org.cloudfoundry.multiapps.mta.util.NameUtil;
+import org.flowable.engine.ProcessEngine;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 @Named("createOrUpdateAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
     protected BooleanSupplier shouldPrettyPrint = () -> true;
+
+    private final ProcessEngine processEngine;
+
+    @Inject
+    public CreateOrUpdateAppStep(ProcessEngine processEngine) {
+        this.processEngine = processEngine;
+    }
 
     @Override
     protected StepPhase executeStep(ProcessContext context) throws FileStorageException {
@@ -90,10 +101,30 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
     private StepFlowHandler createStepFlowHandler(ProcessContext context, CloudControllerClient client, CloudApplicationExtended app,
                                                   CloudApplication existingApp) {
-        if (existingApp == null) {
-            return new CreateAppFlowHandler(context, client, app);
+        if (shouldUseNewHandlers(context)) {
+            if (existingApp == null) {
+                return new CreateAppFlowHandler(context, client, app);
+            }
+            return new UpdateAppFlowHandler(context, client, app, existingApp);
         }
-        return new UpdateAppFlowHandler(context, client, app, existingApp);
+
+        if (existingApp == null) {
+            return new OldCreateAppFlowHandler(context, client, app);
+        }
+        return new OldUpdateAppFlowHandler(context, client, app, existingApp);
+
+    }
+
+    private boolean shouldUseNewHandlers(ProcessContext context) {
+        return getBindUnbindServicesCallActivity(context) != null;
+    }
+
+    protected JsonNode getBindUnbindServicesCallActivity(ProcessContext context) {
+        return processEngine.getDynamicBpmnService()
+                            .getDynamicProcessDefinitionSummary(context.getExecution()
+                                                                       .getProcessDefinitionId())
+                            .getSummary()
+                            .get("manageAppServiceBindingCallActivity");
     }
 
     private abstract class StepFlowHandler {
@@ -139,6 +170,76 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             context.setVariable(Variables.SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysCredentialsToInject);
         }
 
+        protected Map<String, Map<String, Object>> getBindingParameters(ProcessContext context, CloudApplicationExtended app)
+            throws FileStorageException {
+            List<CloudServiceInstanceExtended> services = getServices(context.getVariable(Variables.SERVICES_TO_BIND), app.getServices());
+
+            Map<String, Map<String, Object>> fileProvidedBindingParameters = getFileProvidedBindingParameters(context, app.getModuleName(),
+                                                                                                              services);
+            Map<String, Map<String, Object>> descriptorProvidedBindingParameters = ObjectUtils.defaultIfNull(app.getBindingParameters(),
+                                                                                                             Collections.emptyMap());
+            Map<String, Map<String, Object>> bindingParameters = mergeBindingParameters(descriptorProvidedBindingParameters,
+                                                                                        fileProvidedBindingParameters);
+            getStepLogger().debug(Messages.BINDING_PARAMETERS_FOR_APPLICATION, app.getName(),
+                                  SecureSerialization.toJson(bindingParameters));
+            return bindingParameters;
+        }
+
+        private List<CloudServiceInstanceExtended> getServices(List<CloudServiceInstanceExtended> services, List<String> serviceNames) {
+            return services.stream()
+                           .filter(service -> serviceNames.contains(service.getName()))
+                           .collect(Collectors.toList());
+        }
+
+        private Map<String, Map<String, Object>> getFileProvidedBindingParameters(ProcessContext context, String moduleName,
+                                                                                  List<CloudServiceInstanceExtended> services)
+            throws FileStorageException {
+            Map<String, Map<String, Object>> result = new TreeMap<>();
+            for (CloudServiceInstanceExtended service : services) {
+                String requiredDependencyName = NameUtil.getPrefixedName(moduleName, service.getResourceName(),
+                                                                         org.cloudfoundry.multiapps.controller.core.Constants.MTA_ELEMENT_SEPARATOR);
+                Map<String, Object> bindingParameters = getFileProvidedBindingParameters(context, requiredDependencyName);
+                result.put(service.getName(), bindingParameters);
+            }
+            return result;
+        }
+
+        private Map<String, Object> getFileProvidedBindingParameters(ProcessContext context, String requiredDependencyName)
+            throws FileStorageException {
+            String archiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
+            MtaArchiveElements mtaArchiveElements = context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS);
+            String fileName = mtaArchiveElements.getRequiredDependencyFileName(requiredDependencyName);
+            if (fileName == null) {
+                return Collections.emptyMap();
+            }
+            FileContentProcessor<Map<String, Object>> fileProcessor = archive -> {
+                try (InputStream file = ArchiveHandler.getInputStream(archive, fileName, configuration.getMaxManifestSize())) {
+                    return JsonUtil.convertJsonToMap(file);
+                } catch (IOException e) {
+                    throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
+                }
+            };
+            return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), archiveId, fileProcessor);
+        }
+
+        private Map<String, Map<String, Object>>
+                mergeBindingParameters(Map<String, Map<String, Object>> descriptorProvidedBindingParameters,
+                                       Map<String, Map<String, Object>> fileProvidedBindingParameters) {
+            Map<String, Map<String, Object>> bindingParameters = new HashMap<>();
+            Set<String> serviceNames = new HashSet<>(descriptorProvidedBindingParameters.keySet());
+            serviceNames.addAll(fileProvidedBindingParameters.keySet());
+            for (String serviceName : serviceNames) {
+                bindingParameters.put(serviceName, MapUtil.mergeSafely(fileProvidedBindingParameters.get(serviceName),
+                                                                       descriptorProvidedBindingParameters.get(serviceName)));
+            }
+            return bindingParameters;
+        }
+
+        protected Map<String, Object> getBindingParametersForService(String serviceName,
+                                                                     Map<String, Map<String, Object>> bindingParameters) {
+            return bindingParameters == null ? Collections.emptyMap() : bindingParameters.getOrDefault(serviceName, Collections.emptyMap());
+        }
+
         public abstract void printStepStartMessage();
 
         public abstract void handleApplicationAttributes();
@@ -175,13 +276,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationServices() throws FileStorageException {
-            List<String> services = app.getServices();
-            Map<String, Map<String, Object>> bindingParameters = getBindingParameters(context, app);
-            for (String serviceName : services) {
-                Map<String, Object> bindingParametersForCurrentService = getBindingParametersForService(serviceName, bindingParameters);
-                bindServiceInstance(context, client, app.getName(), serviceName, bindingParametersForCurrentService);
-            }
-            context.setVariable(Variables.VCAP_SERVICES_PROPERTIES_CHANGED, true);
+            context.setVariable(Variables.SERVICES_TO_UNBIND_BIND, app.getServices());
         }
 
         @Override
@@ -202,10 +297,37 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationMetadata() {
+            /**
+             * Do nothing. Update of application metadata was moved in new step {@link UpdateApplicationMetadataStep}. This was kept only
+             * for backwards compatibility.
+             **/
+        }
+
+    }
+
+    private class OldCreateAppFlowHandler extends CreateAppFlowHandler {
+
+        public OldCreateAppFlowHandler(ProcessContext context, CloudControllerClient client, CloudApplicationExtended app) {
+            super(context, client, app);
+        }
+
+        @Override
+        public void handleApplicationMetadata() {
             CloudApplication appFromController = client.getApplication(app.getName());
             client.updateApplicationMetadata(appFromController.getMetadata()
                                                               .getGuid(),
                                              app.getV3Metadata());
+        }
+
+        @Override
+        public void handleApplicationServices() throws FileStorageException {
+            List<String> services = app.getServices();
+            Map<String, Map<String, Object>> bindingParameters = getBindingParameters(context, app);
+            for (String serviceName : services) {
+                Map<String, Object> bindingParametersForCurrentService = getBindingParametersForService(serviceName, bindingParameters);
+                bindServiceInstance(context, client, app.getName(), serviceName, bindingParametersForCurrentService);
+            }
+            context.setVariable(Variables.VCAP_SERVICES_PROPERTIES_CHANGED, true);
         }
 
         private void bindServiceInstance(ProcessContext context, CloudControllerClient client, String appName, String serviceName,
@@ -242,16 +364,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             if (context.getVariable(Variables.SHOULD_SKIP_SERVICE_REBINDING)) {
                 return;
             }
-
-            List<String> services = app.getServices();
-            boolean hasUnboundServices = unbindServicesIfNeeded(app, existingApp, client, services);
-
-            Map<String, Map<String, Object>> bindingParameters = getBindingParameters(context, app);
-
-            boolean hasUpdatedServices = updateServices(context, app.getName(), bindingParameters, client,
-                                                        calculateServicesForUpdate(app, existingApp.getServices()));
-
-            context.setVariable(Variables.VCAP_SERVICES_PROPERTIES_CHANGED, hasUnboundServices || hasUpdatedServices);
+            List<String> services = getMtaAndExistingSevices();
+            context.setVariable(Variables.SERVICES_TO_UNBIND_BIND, services);
         }
 
         @Override
@@ -277,6 +391,13 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.APP_UPDATED, app.getName());
         }
 
+        private List<String> getMtaAndExistingSevices() {
+            return Stream.of(app.getServices(), existingApp.getServices())
+                         .flatMap(List::stream)
+                         .distinct()
+                         .collect(Collectors.toList());
+        }
+
         private UpdateState
                 updateApplicationEnvironment(CloudApplicationExtended app, CloudApplication existingApp, CloudControllerClient client,
                                              CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
@@ -288,19 +409,10 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationMetadata() {
-            if (app.getV3Metadata() == null) {
-                return;
-            }
-            boolean shouldUpdateMetadata = true;
-            if (existingApp.getV3Metadata() != null) {
-                shouldUpdateMetadata = !existingApp.getV3Metadata()
-                                                   .equals(app.getV3Metadata());
-            }
-            if (shouldUpdateMetadata) {
-                client.updateApplicationMetadata(existingApp.getMetadata()
-                                                            .getGuid(),
-                                                 app.getV3Metadata());
-            }
+            /**
+             * Do nothing. Update of application metadata was moved in new step {@link UpdateApplicationMetadataStep}. This was kept only
+             * for backwards compatibility.
+             **/
         }
 
         private void reportApplicationUpdateStatus(CloudApplicationExtended app, boolean appPropertiesChanged) {
@@ -338,14 +450,47 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
             return new ApplicationFileDigestDetector(envAsMap).detectCurrentAppFileDigest();
         }
 
-        private Set<String> calculateServicesForUpdate(CloudApplicationExtended application, List<String> existingServices) {
-            AttributeUpdateStrategy applicationAttributesUpdateBehavior = application.getAttributesUpdateStrategy();
-            Set<String> servicesForUpdate = new HashSet<>(application.getServices());
-            if (!applicationAttributesUpdateBehavior.shouldKeepExistingServiceBindings()) {
-                return servicesForUpdate;
+    }
+
+    private class OldUpdateAppFlowHandler extends UpdateAppFlowHandler {
+
+        public OldUpdateAppFlowHandler(ProcessContext context, CloudControllerClient client, CloudApplicationExtended app,
+                                       CloudApplication existingApp) {
+            super(context, client, app, existingApp);
+        }
+
+        @Override
+        public void handleApplicationMetadata() {
+            if (app.getV3Metadata() == null) {
+                return;
             }
-            servicesForUpdate.addAll(existingServices);
-            return servicesForUpdate;
+            boolean shouldUpdateMetadata = true;
+            if (existingApp.getV3Metadata() != null) {
+                shouldUpdateMetadata = !existingApp.getV3Metadata()
+                                                   .equals(app.getV3Metadata());
+            }
+            if (shouldUpdateMetadata) {
+                client.updateApplicationMetadata(existingApp.getMetadata()
+                                                            .getGuid(),
+                                                 app.getV3Metadata());
+            }
+        }
+
+        @Override
+        public void handleApplicationServices() throws FileStorageException {
+            if (context.getVariable(Variables.SHOULD_SKIP_SERVICE_REBINDING)) {
+                return;
+            }
+
+            List<String> services = app.getServices();
+            boolean hasUnboundServices = unbindServicesIfNeeded(app, existingApp, client, services);
+
+            Map<String, Map<String, Object>> bindingParameters = getBindingParameters(context, app);
+
+            boolean hasUpdatedServices = updateServices(context, app.getName(), bindingParameters, client,
+                                                        calculateServicesForUpdate(app, existingApp.getServices()));
+
+            context.setVariable(Variables.VCAP_SERVICES_PROPERTIES_CHANGED, hasUnboundServices || hasUpdatedServices);
         }
 
         private boolean unbindServicesIfNeeded(CloudApplicationExtended application, CloudApplication existingApplication,
@@ -366,6 +511,16 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                 client.unbindServiceInstance(app.getName(), serviceName);
             }
             return !servicesToUnbind.isEmpty();
+        }
+
+        private Set<String> calculateServicesForUpdate(CloudApplicationExtended application, List<String> existingServices) {
+            AttributeUpdateStrategy applicationAttributesUpdateBehavior = application.getAttributesUpdateStrategy();
+            Set<String> servicesForUpdate = new HashSet<>(application.getServices());
+            if (!applicationAttributesUpdateBehavior.shouldKeepExistingServiceBindings()) {
+                return servicesForUpdate;
+            }
+            servicesForUpdate.addAll(existingServices);
+            return servicesForUpdate;
         }
 
         private boolean updateServices(ProcessContext context, String applicationName, Map<String, Map<String, Object>> bindingParameters,
@@ -390,109 +545,11 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
                 getStepLogger().warn(Messages.WILL_NOT_REBIND_APP_TO_SERVICE, service, applicationName);
             }
         }
-    }
 
-    private Map<String, Map<String, Object>> getBindingParameters(ProcessContext context, CloudApplicationExtended app)
-        throws FileStorageException {
-        List<CloudServiceInstanceExtended> services = getServices(context.getVariable(Variables.SERVICES_TO_BIND), app.getServices());
-
-        Map<String, Map<String, Object>> fileProvidedBindingParameters = getFileProvidedBindingParameters(context, app.getModuleName(),
-                                                                                                          services);
-        Map<String, Map<String, Object>> descriptorProvidedBindingParameters = ObjectUtils.defaultIfNull(app.getBindingParameters(),
-                                                                                                         Collections.emptyMap());
-        Map<String, Map<String, Object>> bindingParameters = mergeBindingParameters(descriptorProvidedBindingParameters,
-                                                                                    fileProvidedBindingParameters);
-        getStepLogger().debug(Messages.BINDING_PARAMETERS_FOR_APPLICATION, app.getName(), SecureSerialization.toJson(bindingParameters));
-        return bindingParameters;
-    }
-
-    private static List<CloudServiceInstanceExtended> getServices(List<CloudServiceInstanceExtended> services, List<String> serviceNames) {
-        return services.stream()
-                       .filter(service -> serviceNames.contains(service.getName()))
-                       .collect(Collectors.toList());
-    }
-
-    private Map<String, Map<String, Object>> getFileProvidedBindingParameters(ProcessContext context, String moduleName,
-                                                                              List<CloudServiceInstanceExtended> services)
-        throws FileStorageException {
-        Map<String, Map<String, Object>> result = new TreeMap<>();
-        for (CloudServiceInstanceExtended service : services) {
-            String requiredDependencyName = NameUtil.getPrefixedName(moduleName, service.getResourceName(),
-                                                                          org.cloudfoundry.multiapps.controller.core.Constants.MTA_ELEMENT_SEPARATOR);
-            Map<String, Object> bindingParameters = getFileProvidedBindingParameters(context, requiredDependencyName);
-            result.put(service.getName(), bindingParameters);
-        }
-        return result;
-    }
-
-    private Map<String, Object> getFileProvidedBindingParameters(ProcessContext context, String requiredDependencyName)
-        throws FileStorageException {
-        String archiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
-        MtaArchiveElements mtaArchiveElements = context.getVariable(Variables.MTA_ARCHIVE_ELEMENTS);
-        String fileName = mtaArchiveElements.getRequiredDependencyFileName(requiredDependencyName);
-        if (fileName == null) {
-            return Collections.emptyMap();
-        }
-        FileContentProcessor<Map<String, Object>> fileProcessor = archive -> {
-            try (InputStream file = ArchiveHandler.getInputStream(archive, fileName, configuration.getMaxManifestSize())) {
-                return JsonUtil.convertJsonToMap(file);
-            } catch (IOException e) {
-                throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
-            }
-        };
-        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), archiveId, fileProcessor);
-    }
-
-    private static Map<String, Map<String, Object>>
-            mergeBindingParameters(Map<String, Map<String, Object>> descriptorProvidedBindingParameters,
-                                   Map<String, Map<String, Object>> fileProvidedBindingParameters) {
-        Map<String, Map<String, Object>> bindingParameters = new HashMap<>();
-        Set<String> serviceNames = new HashSet<>(descriptorProvidedBindingParameters.keySet());
-        serviceNames.addAll(fileProvidedBindingParameters.keySet());
-        for (String serviceName : serviceNames) {
-            bindingParameters.put(serviceName, MapUtil.mergeSafely(fileProvidedBindingParameters.get(serviceName),
-                                                                   descriptorProvidedBindingParameters.get(serviceName)));
-        }
-        return bindingParameters;
-    }
-
-    private static Map<String, Object> getBindingParametersForService(String serviceName,
-                                                                      Map<String, Map<String, Object>> bindingParameters) {
-        return bindingParameters == null ? Collections.emptyMap() : bindingParameters.getOrDefault(serviceName, Collections.emptyMap());
     }
 
     protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(ProcessContext context) {
-        return new DefaultApplicationServicesUpdateCallback(context);
+        return new BindServiceToApplicationStep.DefaultApplicationServicesUpdateCallback(context);
     }
 
-    private class DefaultApplicationServicesUpdateCallback implements ApplicationServicesUpdateCallback {
-
-        private final ProcessContext context;
-
-        private DefaultApplicationServicesUpdateCallback(ProcessContext context) {
-            this.context = context;
-        }
-
-        @Override
-        public void onError(CloudOperationException e, String applicationName, String serviceName) {
-            List<CloudServiceInstanceExtended> servicesToBind = context.getVariable(Variables.SERVICES_TO_BIND);
-            CloudServiceInstanceExtended serviceToBind = findServiceCloudModel(servicesToBind, serviceName);
-
-            if (serviceToBind != null && serviceToBind.isOptional()) {
-                getStepLogger().warn(e, Messages.COULD_NOT_BIND_APP_TO_OPTIONAL_SERVICE, applicationName, serviceName);
-                return;
-            }
-            throw new SLException(e, Messages.COULD_NOT_BIND_APP_TO_SERVICE, applicationName, serviceName, e.getMessage());
-        }
-
-        private CloudServiceInstanceExtended findServiceCloudModel(List<CloudServiceInstanceExtended> servicesCloudModel,
-                                                                   String serviceName) {
-            return servicesCloudModel.stream()
-                                     .filter(service -> service.getName()
-                                                               .equals(serviceName))
-                                     .findAny()
-                                     .orElse(null);
-        }
-
-    }
 }

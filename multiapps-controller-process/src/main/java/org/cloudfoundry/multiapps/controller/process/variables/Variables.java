@@ -291,9 +291,9 @@ public interface Variables {
                                                                                            .type(Variable.typeReference(CloudServiceInstanceExtended.class))
                                                                                            .build();
     Variable<CloudPackage> CLOUD_PACKAGE = ImmutableJsonStringVariable.<CloudPackage> builder()
-                                                                    .name("uploadedCloudPackage")
-                                                                    .type(Variable.typeReference(CloudPackage.class))
-                                                                    .build();
+                                                                      .name("uploadedCloudPackage")
+                                                                      .type(Variable.typeReference(CloudPackage.class))
+                                                                      .build();
     Variable<Hook> HOOK_FOR_EXECUTION = ImmutableJsonStringVariable.<Hook> builder()
                                                                    .name("hookForExecution")
                                                                    .type(Variable.typeReference(Hook.class))
@@ -537,5 +537,25 @@ public interface Variables {
                                                                       .name("missingDefaultDomain")
                                                                       .defaultValue(false)
                                                                       .build();
+    Variable<List<String>> SERVICES_TO_UNBIND_BIND = ImmutableSimpleVariable.<List<String>> builder()
+                                                                            .name("servicesToUnbindBind")
+                                                                            .defaultValue(Collections.emptyList())
+                                                                            .build();
+    Variable<String> SERVICE_TO_UNBIND_BIND = ImmutableSimpleVariable.<String> builder()
+                                                                     .name("serviceToUnbindBind")
+                                                                     .build();
+    Variable<Boolean> SHOULD_UNBIND_SERVICE_FROM_APP = ImmutableSimpleVariable.<Boolean> builder()
+                                                                              .name("shouldUnbindServiceFromApp")
+                                                                              .defaultValue(false)
+                                                                              .build();
+    Variable<Boolean> SHOULD_BIND_SERVICE_TO_APP = ImmutableSimpleVariable.<Boolean> builder()
+                                                                          .name("shouldBindServiceToApp")
+                                                                          .defaultValue(false)
+                                                                          .build();
+    Variable<Map<String, Object>> SERVICE_BINDING_PARAMETERS = ImmutableJsonBinaryVariable.<Map<String, Object>> builder()
+                                                                                          .name("serviceBindingParameters")
+                                                                                          .type(new TypeReference<Map<String, Object>>() {
+                                                                                          })
+                                                                                          .build();
 
 }

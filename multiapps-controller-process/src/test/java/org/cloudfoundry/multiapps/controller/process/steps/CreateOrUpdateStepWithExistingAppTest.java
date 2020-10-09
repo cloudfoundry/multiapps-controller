@@ -30,17 +30,24 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudSer
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
 import org.cloudfoundry.multiapps.controller.core.util.NameUtil;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.flowable.engine.ProcessEngine;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateOrUpdateAppStep> {
 
     private static final ApplicationServicesUpdateCallback CALLBACK = ApplicationServicesUpdateCallback.DEFAULT_APPLICATION_SERVICES_UPDATE_CALLBACK;
+
+    @Mock
+    private ProcessEngine processEngine;
 
     private StepInput input;
 
@@ -359,10 +366,19 @@ class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateO
 
     @Override
     protected CreateOrUpdateAppStep createStep() {
-        return new CreateAppStepMock();
+        return new CreateAppStepMock(processEngine);
     }
 
     private static class CreateAppStepMock extends CreateOrUpdateAppStep {
+        public CreateAppStepMock(ProcessEngine processEngine) {
+            super(processEngine);
+        }
+
+        @Override
+        protected JsonNode getBindUnbindServicesCallActivity(ProcessContext context) {
+            return null;
+        }
+
         @Override
         protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(ProcessContext context) {
             return CALLBACK;

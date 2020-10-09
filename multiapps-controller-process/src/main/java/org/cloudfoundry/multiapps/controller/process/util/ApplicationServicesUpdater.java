@@ -56,8 +56,8 @@ public class ApplicationServicesUpdater extends ControllerClientFacade {
                           .collect(Collectors.toList());
     }
 
-    protected List<String> calculateServicesToRebind(Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
-                                                     CloudApplication application) {
+    private List<String> calculateServicesToRebind(Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
+                                                   CloudApplication application) {
         List<String> servicesToRebind = new ArrayList<>();
         for (String serviceName : serviceNamesWithBindingParameters.keySet()) {
             if (!application.getServices()
