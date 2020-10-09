@@ -265,4 +265,11 @@ public class FlowableFacade {
                             .list();
     }
 
+    public Execution getParentExecution(String parentId) {
+        return processEngine.getRuntimeService()
+                            .createExecutionQuery()
+                            .executionId(parentId)
+                            .singleResult();
+    }
+
 }

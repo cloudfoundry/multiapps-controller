@@ -31,7 +31,7 @@ public class Messages {
     public static final String UNSUPPORTED_PROCESS_TYPE = "Process type \"{0}\" is not supported";
     public static final String FAILED_SERVICE_UPDATE = "Updating service \"{0}\" failed: {1}";
     public static final String STEP_LOGGER_NOT_INITIALIZED = "Step logger is not initialized!";
-    public static final String COULD_NOT_BIND_APP_TO_SERVICE = "Could not bind application \"{0}\" to service \"{1}\": {2}";
+    public static final String COULD_NOT_BIND_SERVICE_TO_APP = "Could not bind service \"{0}\" to application \"{1}\": {2}";
     public static final String MULTIPLE_OPERATIONS_WITH_LOCK_FOUND = "Multiple operations found with lock for MTA \"{0}\" in space \"{1}\": {2}";
     public static final String EXECUTION_OF_STEP_HAS_TIMED_OUT = "Execution of step {0} has timed out";
     public static final String EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED = "Execution of process listener has failed";
@@ -133,6 +133,7 @@ public class Messages {
     public static final String ERROR_DETECTING_APPLICATIONS_TO_RENAME = "Error detecting applications to rename";
     public static final String ERROR_RENAMING_NEW_APPLICATIONS = "Error renaming new applications";
     public static final String ERROR_MONITORING_CREATION_OR_UPDATE_OF_SERVICES = "Error monitoring creation or update of services";
+    public static final String ERROR_UPDATING_METADATA_OF_APPLICATION_0 = "Error updating metadata of application \"{0}\"";
     public static final String ERROR_UPDATING_METADATA_OF_SERVICE_INSTANCE_0 = "Error updating metadata of service instance \"{0}\"";
     public static final String ERROR_MONITORING_DELETION_OF_SERVICES = "Error monitoring deletion of services";
     public static final String SERVICE_IS_ALREADY_DELETED = "Service \"{0}\" is already deleted";
@@ -142,6 +143,10 @@ public class Messages {
     public static final String ERROR_DELETING_OPERATION_WITH_ID = "Error deleting operation with ID \"{0}\"";
     public static final String ERROR_DELETING_FLOWABLE_PROCESS_WITH_ID = "Error deleting Flowable process with ID \"{0}\"";
     public static final String ERROR_MISSING_DEFAULT_DOMAIN = "Missing default domain in current org";
+    public static final String ERROR_WHILE_DETERMINE_BIND_UNBIND_OEPRATIONS_OF_APPLICATION_TO_SERVICE = "Error while determine bind/unbind operations of application \"{0}\" to service \"{1}\"";
+    public static final String ERROR_WHILE_UNBINDING_SERVICE_FROM_APPLICATION = "Error while unbinding service \"{0}\" from application \"{1}\"";
+    public static final String ERROR_WHILE_BINDING_SERVICE_TO_APPLICATION = "Error while binding service \"{0}\" to application \"{1}\"";
+    public static final String ERROR_WHILE_DETERMINE_VCAP_SERVICES_PROPERTIES_CHANGED_FOR_APPLICATION = "Error while determine VCAP_SERVICES properties changed for application \"{0}\"";
     public static final String ERROR_UPDATING_MODULE_PARAMETERS = "Error updating modules parameters";
 
     // WARN log messages
@@ -164,7 +169,7 @@ public class Messages {
     public static final String WILL_NOT_UPDATE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be updated, as the option for deleting discontinued service keys is not specified!";
     public static final String IGNORING_VERSION_RULE = "Version rule will be ignored, as the deployed MTA is in inconsistent state";
     public static final String FAILED_SERVICE_BROKER_UPDATE = "Failed to update service broker \"{0}\"";
-    public static final String COULD_NOT_BIND_APP_TO_OPTIONAL_SERVICE = "Could not bind application \"{0}\" to optional service \"{1}\"";
+    public static final String COULD_NOT_BIND_OPTIONAL_SERVICE_TO_APP = "Could not bind optional service \"{0}\" to application \"{1}\"";
     public static final String COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE = "Could not execute operation over optional service \"{0}\"";
     public static final String DEFAULT_FAILED_OPERATION_DESCRIPTION = "The service broker returned an error with no description!";
     public static final String ERROR_DURING_CLEAN_UP_0 = "Error during clean-up: {0}";
@@ -444,8 +449,8 @@ public class Messages {
     public static final String SHUTTING_DOWN_FLOWABLE_JOB_EXECUTOR = "Shutting down Flowable job executor...";
     public static final String ADDING_DOMAIN_0 = "Adding domain \"{0}\"...";
     public static final String ADDING_ROUTE_WITH_HOST_0_DOMAIN_1_AND_PATH_2 = "Adding route with host \"{0}\", domain \"{1}\" and path \"{2}\"...";
-    public static final String BINDING_APPLICATION_0_TO_SERVICE_INSTANCE_1 = "Binding application \"{0}\" to service instance \"{1}\"...";
-    public static final String BINDING_APPLICATION_0_TO_SERVICE_INSTANCE_1_WITH_PARAMETERS_2 = "Binding application \"{0}\" to service instance \"{1}\" with parameters: {2}";
+    public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1 = "Binding service instance \"{0}\" to application \"{1}\"...";
+    public static final String BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_WITH_PARAMETERS_2 = "Binding service instance \"{0}\" to application \"{1}\" with parameters: {2}";
     public static final String CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3 = "Creating application \"{0}\" with memory \"{1}\", URIs \"{2}\" and staging: {3}";
     public static final String CREATING_APPLICATION_0_WITH_DISK_QUOTA_1_MEMORY_2_URIS_3_AND_STAGING_4 = "Creating application \"{0}\" with disk quota \"{1}\", memory \"{2}\", URIs \"{3}\" and staging: {4}";
     public static final String CREATING_SERVICE_INSTANCE_0 = "Creating service instance: {0}";
@@ -545,6 +550,10 @@ public class Messages {
     public static final String VERIFYING_APPLICATION_0_EXISTS = "Verifying application: \"{0}\" exists";
     public static final String TIME_STATISTICS_FOR_PROCESS_0_OPERATION_1_DURATION_2_DELAY_3 = "Time statistics for process \"{0}\" (part of operation \"{1}\"): duration \"{2}\" ms; delay between steps \"{3}\" ms";
     public static final String TIME_STATISTICS_FOR_OPERATION_0_DURATION_1_DELAY_2 = "Time statistics for operation \"{0}\": duration \"{1}\" ms; delay between steps \"{2}\" ms";
+    public static final String DETERMINE_BIND_UNBIND_OPERATIONS_APPLICATION_0_SERVICE_1 = "Determine bind/unbind operations of application \"{0}\" to service \"{1}\"";
+    public static final String VCAP_SERVICES_PROPERTIES_FOR_APPLICATION_CHANGED = "VCAP_SERVICES properties for application \"{0}\" changed: {1}";
+    public static final String UPDATED_METADATA_APPLICATION = "Updated metadata of application \"{0}\"";
+    public static final String DETERMINE_VCAP_SERVICES_PROPERTIES_CHANGED_FOR_APPLICATION = "Determine VCAP_SERVICES properties changed for application \"{0}\"";
     public static final String UPDATING_SERVICE_0_WITH_PLAN_1 = "Updating service plan for service \"{0}\" with new plan: \"{1}\"";
     public static final String SERVICE_PLAN_FOR_SERVICE_0_UPDATED = "Service plan for service \"{0}\" updated";
 

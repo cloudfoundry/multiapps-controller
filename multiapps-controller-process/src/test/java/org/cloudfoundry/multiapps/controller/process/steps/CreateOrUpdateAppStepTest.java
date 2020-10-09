@@ -26,13 +26,20 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInsta
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+import org.flowable.engine.ProcessEngine;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
+
+    @Mock
+    private ProcessEngine processEngine;
 
     private String expectedExceptionMessage;
     private ApplicationServicesUpdateCallback callback;
@@ -49,7 +56,7 @@ class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
             // (3) Binding parameters exist, and the services do too:
             Arguments.of("create-app-step-input-03.json", null),
             // (4) Binding parameters exist, but the services do not:
-            Arguments.of("create-app-step-input-04.json", "Could not bind application \"application\" to service \"service-2\": 500 Internal Server Error: Something happened!"),
+            Arguments.of("create-app-step-input-04.json", "Could not bind service \"application\" to application \"service-2\": 500 Internal Server Error: Something happened!"),
             // (5) Binding parameters exist, but the services do not and service-2 is optional - so no exception should be thrown:
             Arguments.of("create-app-step-input-05.json", null),
             // (6) Service keys to inject are specified:
@@ -197,10 +204,20 @@ class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
 
     @Override
     protected CreateOrUpdateAppStep createStep() {
-        return new CreateAppStepMock();
+        return new CreateAppStepMock(processEngine);
     }
 
     private class CreateAppStepMock extends CreateOrUpdateAppStep {
+
+        public CreateAppStepMock(ProcessEngine processEngine) {
+            super(processEngine);
+        }
+
+        @Override
+        protected JsonNode getBindUnbindServicesCallActivity(ProcessContext context) {
+            return null;
+        }
+
         @Override
         protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(ProcessContext context) {
             return callback;

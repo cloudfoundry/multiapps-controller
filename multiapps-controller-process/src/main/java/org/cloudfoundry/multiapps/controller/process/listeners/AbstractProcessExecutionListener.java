@@ -10,6 +10,7 @@ import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerP
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLogsPersister;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProgressMessageService;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.util.StepLogger;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -35,6 +36,8 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     @Inject
     private HistoricOperationEventService historicOperationEventService;
     @Inject
+    private FlowableFacade flowableFacade;
+	@Inject
     protected ApplicationConfiguration configuration;
 
     private StepLogger stepLogger;
@@ -94,6 +97,18 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
         String correlationId = VariableHandling.get(execution, Variables.CORRELATION_ID);
         String processInstanceId = execution.getProcessInstanceId();
         return processInstanceId.equals(correlationId);
+    }
+
+    protected String getParentProcessId(DelegateExecution execution) {
+        return flowableFacade.getParentExecution(execution.getParentId())
+                             .getSuperExecutionId();
+    }
+
+    protected void setVariableInParentProcess(DelegateExecution execution, String variableName, Object value) {
+        String parentProcessId = getParentProcessId(execution);
+        flowableFacade.getProcessEngine()
+                      .getRuntimeService()
+                      .setVariable(parentProcessId, variableName, value);
     }
 
     protected abstract void notifyInternal(DelegateExecution execution) throws Exception;

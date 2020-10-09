@@ -64,14 +64,14 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void bindServiceInstance(String applicationName, String serviceInstanceName) {
-        logger.debug(Messages.BINDING_APPLICATION_0_TO_SERVICE_INSTANCE_1, applicationName, serviceInstanceName);
+        logger.debug(Messages.BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1, serviceInstanceName, applicationName);
         delegate.bindServiceInstance(applicationName, serviceInstanceName);
     }
 
     @Override
     public void bindServiceInstance(String applicationName, String serviceInstanceName, Map<String, Object> parameters,
                                     ApplicationServicesUpdateCallback updateServicesCallback) {
-        logger.debug(Messages.BINDING_APPLICATION_0_TO_SERVICE_INSTANCE_1_WITH_PARAMETERS_2, applicationName, serviceInstanceName,
+        logger.debug(Messages.BINDING_SERVICE_INSTANCE_0_TO_APPLICATION_1_WITH_PARAMETERS_2, serviceInstanceName, applicationName,
                      SecureSerialization.toJson(parameters));
         delegate.bindServiceInstance(applicationName, serviceInstanceName, parameters, updateServicesCallback);
     }
