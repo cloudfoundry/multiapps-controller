@@ -28,7 +28,6 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudSer
 import org.cloudfoundry.multiapps.controller.core.cf.v2.ResourceType;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaArchiveElements;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
-import org.cloudfoundry.multiapps.controller.persistence.services.FileContentProcessor;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ServiceAction;
@@ -52,13 +51,9 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                .info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
         CloudServiceInstance existingService = client.getServiceInstance(serviceToProcess.getName(), false);
 
-        Map<String, List<CloudServiceKey>> serviceKeys = context.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
-
         setServiceParameters(context, serviceToProcess);
 
-        serviceToProcess = context.getVariable(Variables.SERVICE_TO_PROCESS);
-
-        List<ServiceAction> actions = determineActionsAndHandleExceptions(context, serviceToProcess, existingService, serviceKeys);
+        List<ServiceAction> actions = determineActionsAndHandleExceptions(context, existingService);
 
         context.setVariable(Variables.SERVICE_ACTIONS_TO_EXCECUTE, actions);
         context.setVariable(Variables.IS_SERVICE_UPDATED, false);
@@ -73,11 +68,10 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
                                            .getName());
     }
 
-    private List<ServiceAction> determineActionsAndHandleExceptions(ProcessContext context, CloudServiceInstanceExtended service,
-                                                                    CloudServiceInstance existingService,
-                                                                    Map<String, List<CloudServiceKey>> serviceKeys) {
+    private List<ServiceAction> determineActionsAndHandleExceptions(ProcessContext context, CloudServiceInstance existingService) {
+        CloudServiceInstanceExtended service = context.getVariable(Variables.SERVICE_TO_PROCESS);
         try {
-            return determineActions(context, service, existingService, serviceKeys);
+            return determineActions(context, service, existingService);
         } catch (CloudOperationException e) {
             String determineServiceActionsFailedMessage = MessageFormat.format(Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_SERVICE,
                                                                                service.getName(), e.getStatusText());
@@ -91,7 +85,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     }
 
     private List<ServiceAction> determineActions(ProcessContext context, CloudServiceInstanceExtended service,
-                                                 CloudServiceInstance existingService, Map<String, List<CloudServiceKey>> serviceKeys) {
+                                                 CloudServiceInstance existingService) {
+        Map<String, List<CloudServiceKey>> serviceKeys = context.getVariable(Variables.SERVICE_KEYS_TO_CREATE);
         List<ServiceAction> actions = new ArrayList<>();
 
         List<CloudServiceKey> keys = serviceKeys.get(service.getResourceName());
@@ -197,23 +192,23 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         String fileName = mtaArchiveElements.getResourceFileName(service.getResourceName());
         if (fileName != null) {
             getStepLogger().info(Messages.SETTING_SERVICE_PARAMETERS, service.getName(), fileName);
-            String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
-            return setServiceParameters(context, service, appArchiveId, fileName);
+            return setServiceParameters(context, service, fileName);
         }
         return service;
     }
 
     private CloudServiceInstanceExtended setServiceParameters(ProcessContext context, CloudServiceInstanceExtended service,
-                                                              String appArchiveId, String fileName)
+                                                              String fileName)
         throws FileStorageException {
-        FileContentProcessor<CloudServiceInstanceExtended> parametersFileProcessor = appArchiveStream -> {
+        String appArchiveId = context.getRequiredVariable(Variables.APP_ARCHIVE_ID);
+        String spaceGuid = context.getVariable(Variables.SPACE_GUID);
+        return fileService.processFileContent(spaceGuid, appArchiveId, appArchiveStream -> {
             try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, configuration.getMaxManifestSize())) {
                 return mergeCredentials(service, is);
             } catch (IOException e) {
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
             }
-        };
-        return fileService.processFileContent(context.getVariable(Variables.SPACE_GUID), appArchiveId, parametersFileProcessor);
+        });
     }
 
     private CloudServiceInstanceExtended mergeCredentials(CloudServiceInstanceExtended service, InputStream credentialsJson) {
@@ -273,7 +268,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             getStepLogger().debug("Existing service parameters: " + SecureSerialization.toJson(serviceParameters));
             return !Objects.equals(service.getCredentials(), serviceParameters);
         } catch (CloudOperationException e) {
-            if (HttpStatus.NOT_IMPLEMENTED == e.getStatusCode() || HttpStatus.BAD_REQUEST == e.getStatusCode()) {
+            if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 getStepLogger().warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_SERVICE_INSTANCE_PARAMETERS, service.getName());
                 // TODO: Optimization (Hack) that should be deprecated at some point. So here is a todo for that.
                 return !MapUtils.isEmpty(service.getCredentials());
