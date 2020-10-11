@@ -354,18 +354,18 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void updateServicePlan(CloudServiceInstance service) {
-        executeWithRetry(() -> delegate.updateServicePlan(service));
+    public void updateServicePlan(String serviceName, String servicePlan) {
+        executeWithRetry(() -> delegate.updateServicePlan(serviceName, servicePlan));
     }
 
     @Override
-    public void updateServiceParameters(CloudServiceInstance service) {
-        executeWithRetry(() -> delegate.updateServiceParameters(service));
+    public void updateServiceParameters(String serviceName, Map<String, Object> parameters) {
+        executeWithRetry(() -> delegate.updateServiceParameters(serviceName, parameters));
     }
 
     @Override
-    public void updateServiceTags(CloudServiceInstance service) {
-        executeWithRetry(() -> delegate.updateServiceTags(service));
+    public void updateServiceTags(String serviceName, List<String> tags) {
+        executeWithRetry(() -> delegate.updateServiceTags(serviceName, tags));
     }
 
     @Override
