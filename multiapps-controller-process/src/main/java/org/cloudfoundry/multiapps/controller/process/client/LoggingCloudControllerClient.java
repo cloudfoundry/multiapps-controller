@@ -618,21 +618,21 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void updateServicePlan(CloudServiceInstance service) {
-        logger.debug(Messages.UPDATING_SERVICE_PLAN, service.getName());
-        delegate.updateServicePlan(service);
+    public void updateServicePlan(String serviceName, String servicePlan) {
+        logger.debug(Messages.UPDATING_SERVICE_PLAN, serviceName);
+        delegate.updateServicePlan(serviceName, servicePlan);
     }
 
     @Override
-    public void updateServiceParameters(CloudServiceInstance service) {
-        logger.debug(Messages.UPDATING_SERVICE_PARAMETERS, service.getName());
-        delegate.updateServiceParameters(service);
+    public void updateServiceParameters(String serviceName, Map<String, Object> parameters) {
+        logger.debug(Messages.UPDATING_SERVICE_PARAMETERS, serviceName);
+        delegate.updateServiceParameters(serviceName, parameters);
     }
 
     @Override
-    public void updateServiceTags(CloudServiceInstance service) {
-        logger.debug(Messages.UPDATING_SERVICE_TAGS, service.getName());
-        delegate.updateServiceTags(service);
+    public void updateServiceTags(String serviceName, List<String> tags) {
+        logger.debug(Messages.UPDATING_SERVICE_TAGS, serviceName);
+        delegate.updateServiceTags(serviceName, tags);
     }
 
     @Override

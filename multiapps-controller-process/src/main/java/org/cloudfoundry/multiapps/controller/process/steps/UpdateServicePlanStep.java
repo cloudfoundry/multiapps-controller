@@ -6,7 +6,6 @@ import java.util.List;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
@@ -27,8 +26,7 @@ public class UpdateServicePlanStep extends ServiceStep {
         }
         getStepLogger().debug(Messages.UPDATING_SERVICE_0_WITH_PLAN_1, service.getName(), service.getPlan());
 
-        CloudServiceInstance serviceInstance = client.getServiceInstance(service.getName());
-        client.updateServicePlan(serviceInstance);
+        client.updateServicePlan(service.getName(), service.getPlan());
 
         getStepLogger().debug(Messages.SERVICE_PLAN_FOR_SERVICE_0_UPDATED, service.getName());
         return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);

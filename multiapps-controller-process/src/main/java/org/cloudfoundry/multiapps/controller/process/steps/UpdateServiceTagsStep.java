@@ -6,7 +6,6 @@ import java.util.List;
 import javax.inject.Named;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
@@ -27,8 +26,7 @@ public class UpdateServiceTagsStep extends ServiceStep {
         }
         getStepLogger().info(Messages.UPDATING_SERVICE_TAGS, service.getName());
 
-        CloudServiceInstance serviceInstance = client.getServiceInstance(service.getName());
-        client.updateServiceTags(serviceInstance);
+        client.updateServiceTags(service.getName(), service.getTags());
 
         getStepLogger().debug(Messages.SERVICE_TAGS_UPDATED, service.getName());
         return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
