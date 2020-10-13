@@ -183,8 +183,8 @@ public class Messages {
     public static final String SERVICE_NOT_BE_DELETED_DUE_TO_SERVICE_BINDINGS_AND_SERVICE_KEYS = "Service \"{0}\" won't be deleted due to existing service bindings and/or service keys";
     public static final String RETRYING_PROCESS_ABORT = "Abort of process \"{0}\" failed due to an optimistic locking exception. Retrying abort...";
     public static final String WILL_NOT_UPDATE_SERVICE_PARAMS = "Service parameters for service \"{0}\" will not be updated, as the option for skipping service parameter updates is enabled.";
-    public static final String WILL_NOT_UPDATE_SERVICE_PLAN = "Service plan \"{0}\" for service \"{1}\" will not be updated, as the option for skipping service plan updates is enabled.";
-    public static final String WILL_NOT_UPDATE_SERVICE_TAGS = "Service tags for service \"{1}\" will not be updated, as the option for skipping service tags updates is enabled.";
+    public static final String WILL_NOT_UPDATE_SERVICE_PLAN = "Service plan for service \"{0}\" will not be updated, as the option for skipping service plan updates is enabled.";
+    public static final String WILL_NOT_UPDATE_SERVICE_TAGS = "Service tags for service \"{0}\" will not be updated, as the option for skipping service tags updates is enabled.";
 
     // INFO log messages
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";

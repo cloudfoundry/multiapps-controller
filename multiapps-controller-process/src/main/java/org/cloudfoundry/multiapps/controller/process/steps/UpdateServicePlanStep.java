@@ -21,7 +21,7 @@ public class UpdateServicePlanStep extends ServiceStep {
     protected MethodExecution<String> executeOperation(ProcessContext context, CloudControllerClient client,
                                                        CloudServiceInstanceExtended service) {
         if (service.shouldSkipPlanUpdate()) {
-            getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_PLAN, service.getName(), service.getPlan());
+            getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_PLAN, service.getName());
             return new MethodExecution<>(null, MethodExecution.ExecutionState.FINISHED);
         }
         getStepLogger().debug(Messages.UPDATING_SERVICE_0_WITH_PLAN_1, service.getName(), service.getPlan());
