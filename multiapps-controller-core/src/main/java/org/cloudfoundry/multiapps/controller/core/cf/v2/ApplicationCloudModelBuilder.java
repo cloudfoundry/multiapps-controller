@@ -16,6 +16,7 @@ import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ServiceKeyToInject;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
@@ -90,9 +91,9 @@ public class ApplicationCloudModelBuilder {
 
     protected CloudApplicationExtended getApplication(Module module) {
         List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
-        ApplicationUrisCloudModelBuilder urisCloudModelBuilder = getApplicationUrisCloudModelBuilder(parametersList);
-        List<String> uris = getApplicationUris(module);
-        List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, parametersList);
+        ApplicationRoutesCloudModelBuilder routesCloudModelBuilder = getApplicationRoutesCloudModelBuilder(parametersList);
+        Set<CloudRouteSummary> routes = getApplicationRoutes(module);
+        Set<CloudRouteSummary> idleRoutes = routesCloudModelBuilder.getIdleApplicationRoutes(module, parametersList);
         return ImmutableCloudApplicationExtended.builder()
                                                 .name(getApplicationName(module))
                                                 .moduleName(module.getName())
@@ -103,14 +104,13 @@ public class ApplicationCloudModelBuilder {
                                                                         new MemoryParametersParser(SupportedParameters.MEMORY, "0")))
                                                 .instances((Integer) PropertiesUtil.getPropertyValue(parametersList,
                                                                                                      SupportedParameters.INSTANCES, 0))
-                                                .uris(uris)
-                                                .idleUris(idleUris)
+                                                .routes(routes)
+                                                .idleRoutes(idleRoutes)
                                                 .services(getAllApplicationServices(module))
                                                 .serviceKeysToInject(getServicesKeysToInject(module))
                                                 .env(applicationEnvCloudModelBuilder.build(module))
                                                 .bindingParameters(getBindingParameters(module))
                                                 .tasks(getTasks(parametersList))
-                                                .domains(getApplicationDomains(parametersList, module))
                                                 .restartParameters(parseParameters(parametersList, new RestartParametersParser()))
                                                 .dockerInfo(parseParameters(parametersList, new DockerInfoParser()))
                                                 .attributesUpdateStrategy(getApplicationAttributesUpdateStrategy(parametersList))
@@ -123,14 +123,14 @@ public class ApplicationCloudModelBuilder {
         return parseParameters(parametersList, new ApplicationAttributeUpdateStrategyParser());
     }
 
-    private ApplicationUrisCloudModelBuilder getApplicationUrisCloudModelBuilder(List<Map<String, Object>> parametersList) {
-        return new ApplicationUrisCloudModelBuilder(deploymentDescriptor, getApplicationAttributesUpdateStrategy(parametersList));
-    }
-
-    public List<String> getApplicationUris(Module module) {
+    public Set<CloudRouteSummary> getApplicationRoutes(Module module) {
         List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
         DeployedMtaApplication deployedApplication = findDeployedApplication(module);
-        return getApplicationUrisCloudModelBuilder(parametersList).getApplicationUris(module, parametersList, deployedApplication);
+        return getApplicationRoutesCloudModelBuilder(parametersList).getApplicationRoutes(module, parametersList, deployedApplication);
+    }
+
+    private ApplicationRoutesCloudModelBuilder getApplicationRoutesCloudModelBuilder(List<Map<String, Object>> parametersList) {
+        return new ApplicationRoutesCloudModelBuilder(deploymentDescriptor, getApplicationAttributesUpdateStrategy(parametersList));
     }
 
     private DeployedMtaApplication findDeployedApplication(Module module) {
@@ -273,8 +273,8 @@ public class ApplicationCloudModelBuilder {
     }
 
     public List<String> getApplicationDomains(List<Map<String, Object>> parametersList, Module module) {
-        return getApplicationUrisCloudModelBuilder(parametersList).getApplicationDomains(module,
-                                                                                         parametersChainBuilder.buildModuleChain(module.getName()));
+        return getApplicationRoutesCloudModelBuilder(parametersList).getApplicationDomains(module,
+                                                                                           parametersChainBuilder.buildModuleChain(module.getName()));
     }
 
     protected Resource getResource(String dependencyName) {

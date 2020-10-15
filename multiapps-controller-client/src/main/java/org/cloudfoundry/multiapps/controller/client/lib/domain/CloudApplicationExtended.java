@@ -2,6 +2,7 @@ package org.cloudfoundry.multiapps.controller.client.lib.domain;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 import com.sap.cloudfoundry.client.facade.domain.CloudTask;
 import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
 
@@ -22,17 +24,13 @@ public abstract class CloudApplicationExtended extends CloudApplication {
     @Nullable
     public abstract String getModuleName();
 
-    public abstract List<String> getIdleUris();
+    public abstract Set<CloudRouteSummary> getIdleRoutes();
 
     public abstract Map<String, Map<String, Object>> getBindingParameters();
 
     public abstract List<CloudTask> getTasks();
 
-    public abstract List<CloudRoute> getRoutes();
-
     public abstract List<ServiceKeyToInject> getServiceKeysToInject();
-
-    public abstract List<String> getDomains();
 
     @Nullable
     public abstract RestartParameters getRestartParameters();

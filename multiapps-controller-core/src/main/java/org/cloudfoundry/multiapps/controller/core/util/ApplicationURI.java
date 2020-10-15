@@ -8,7 +8,8 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 
-import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRouteSummary;
 
 public class ApplicationURI {
 
@@ -17,22 +18,21 @@ public class ApplicationURI {
     private String domain = "";
     private String path = "";
 
-    public static String getDomainFromURI(String uri) {
-        ApplicationURI parsedURI = new ApplicationURI(uri);
+    public static String getDomainFromURI(String uri, boolean noHostname) {
+        ApplicationURI parsedURI = new ApplicationURI(uri, noHostname);
         return parsedURI.getDomain();
     }
 
-    public ApplicationURI(String initial) {
+    public ApplicationURI(String initial, boolean noHostname) {
         uri = UriUtil.stripScheme(initial);
 
-        int domainIndex = uri.indexOf(UriUtil.DEFAULT_HOST_DOMAIN_SEPARATOR);
+        int domainIndex = getDomainIndex(noHostname);
         int pathIndex = getPathIndexAfter(domainIndex);
 
         if (domainIndex > 0) {
             setHost(uri.substring(0, domainIndex));
             setDomain(uri.substring(domainIndex + 1, pathIndex));
         } else {
-            setHost("");
             setDomain(uri.substring(0, pathIndex));
         }
 
@@ -41,21 +41,26 @@ public class ApplicationURI {
         }
     }
 
-    public ApplicationURI(CloudRoute route) {
-        if (route == null) {
+    public ApplicationURI(CloudRouteSummary routeSummary) {
+        if (routeSummary == null) {
             return;
         }
 
-        if (route.getHost() != null) {
-            setHost(route.getHost());
+        setParts(routeSummary.getHost(), routeSummary.getDomain(), routeSummary.getPath());
+    }
+
+    public ApplicationURI(String host, String domain, String path) {
+        this.host = host;
+        this.domain = domain;
+        this.path = path;
+    }
+
+    private int getDomainIndex(boolean noHostname) {
+        if (noHostname) {
+            return 0;
         }
 
-        setDomain(route.getDomain()
-                       .getName());
-
-        if (route.getPath() != null) {
-            setPath(route.getPath());
-        }
+        return uri.indexOf(UriUtil.DEFAULT_HOST_DOMAIN_SEPARATOR);
     }
 
     private int getPathIndexAfter(int pos) {
@@ -69,9 +74,14 @@ public class ApplicationURI {
     public Map<String, Object> getURIParts() {
         Map<String, Object> uriParts = new HashMap<>();
 
-        uriParts.put(SupportedParameters.HOST, getHost());
+        if (StringUtils.isNotEmpty(getHost())) {
+            uriParts.put(SupportedParameters.HOST, getHost());
+        }
         uriParts.put(SupportedParameters.DOMAIN, getDomain());
-        uriParts.put(SupportedParameters.ROUTE_PATH, getPath());
+
+        if (StringUtils.isNotEmpty(getPath())) {
+            uriParts.put(SupportedParameters.ROUTE_PATH, getPath());
+        }
 
         return Collections.unmodifiableMap(uriParts);
     }
@@ -79,11 +89,11 @@ public class ApplicationURI {
     public Object getURIPart(String partName) {
         switch (partName) {
             case SupportedParameters.HOST:
-                return getHost();
+                return StringUtils.isNotEmpty(getHost()) ? getHost() : null;
             case SupportedParameters.DOMAIN:
                 return getDomain();
             case SupportedParameters.ROUTE_PATH:
-                return getPath();
+                return StringUtils.isNotEmpty(getPath()) ? getPath() : null;
             default:
                 return null;
         }
@@ -102,6 +112,15 @@ public class ApplicationURI {
                 break;
             default:
         }
+    }
+
+    public CloudRouteSummary toCloudRouteSummary() {
+        return ImmutableCloudRouteSummary.builder()
+                                         .host(getHost())
+                                         .domain(getDomain())
+                                         .path(getPath())
+                                         .port(null)
+                                         .build();
     }
 
     @Override
@@ -143,6 +162,12 @@ public class ApplicationURI {
     }
 
     public void setPath(String path) {
+        this.path = path;
+    }
+
+    private void setParts(String host, String domain, String path) {
+        this.host = host;
+        this.domain = domain;
         this.path = path;
     }
 

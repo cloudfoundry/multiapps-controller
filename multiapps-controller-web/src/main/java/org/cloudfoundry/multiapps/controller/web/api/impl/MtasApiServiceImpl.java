@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.web.api.impl;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -30,6 +31,7 @@ import org.cloudfoundry.multiapps.mta.model.Version;
 import org.springframework.http.ResponseEntity;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 
 @Named
 public class MtasApiServiceImpl implements MtasApiService {
@@ -151,7 +153,7 @@ public class MtasApiServiceImpl implements MtasApiService {
                               .appName(deployedMtaApplication.getName())
                               .moduleName(deployedMtaApplication.getModuleName())
                               .providedDendencyNames(deployedMtaApplication.getProvidedDependencyNames())
-                              .uris(deployedMtaApplication.getUris())
+                              .uris(parseRoutesToUris(deployedMtaApplication.getRoutes()))
                               .services(deployedMtaApplication.getBoundMtaServices())
                               .build();
     }
@@ -162,6 +164,12 @@ public class MtasApiServiceImpl implements MtasApiService {
                                 .version(getVersion(metadata.getVersion()))
                                 .namespace(metadata.getNamespace())
                                 .build();
+    }
+
+    private List<String> parseRoutesToUris(Set<CloudRouteSummary> routes) {
+        return routes.stream()
+                     .map(CloudRouteSummary::toUriString)
+                     .collect(Collectors.toList());
     }
 
     private String getVersion(Version version) {

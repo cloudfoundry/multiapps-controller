@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Scope;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 
 @Named("deleteApplicationRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -46,9 +47,9 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
 
         getStepLogger().debug(Messages.ROUTES_FOR_APPLICATION, cloudApplication.getName(), JsonUtil.toJson(cloudApplicationRoutes, true));
 
-        client.updateApplicationUris(cloudApplication.getName(), Collections.emptyList());
-        for (String uri : cloudApplication.getUris()) {
-            deleteApplicationRoutes(client, cloudApplicationRoutes, uri);
+        client.updateApplicationRoutes(cloudApplication.getName(), Collections.emptySet());
+        for (CloudRouteSummary route : cloudApplication.getRoutes()) {
+            deleteApplicationRoutes(client, cloudApplicationRoutes, route);
         }
         getStepLogger().debug(Messages.DELETED_APP_ROUTES, cloudApplication.getName());
     }
@@ -57,20 +58,20 @@ public class DeleteApplicationRoutesStep extends UndeployAppStep implements Befo
         return new ApplicationRoutesGetter(client);
     }
 
-    private void deleteApplicationRoutes(CloudControllerClient client, List<CloudRoute> routes, String uri) {
+    private void deleteApplicationRoutes(CloudControllerClient client, List<CloudRoute> routes, CloudRouteSummary routeSummary) {
         try {
-            CloudRoute route = UriUtil.findRoute(routes, uri);
+            CloudRoute route = UriUtil.matchRoute(routes, routeSummary);
             if (route.getAppsUsingRoute() > 1 || route.hasServiceUsingRoute()) {
-                getStepLogger().warn(Messages.ROUTE_NOT_DELETED, uri);
+                getStepLogger().warn(Messages.ROUTE_NOT_DELETED, routeSummary.toUriString());
                 return;
             }
         } catch (NotFoundException e) {
-            getStepLogger().debug(org.cloudfoundry.multiapps.controller.core.Messages.ROUTE_NOT_FOUND, uri);
+            getStepLogger().debug(org.cloudfoundry.multiapps.controller.core.Messages.ROUTE_NOT_FOUND, routeSummary.toUriString());
             return;
         }
-        getStepLogger().info(Messages.DELETING_ROUTE, uri);
-        new ClientHelper(client).deleteRoute(uri);
-        getStepLogger().debug(Messages.ROUTE_DELETED, uri);
+        getStepLogger().info(Messages.DELETING_ROUTE, routeSummary.toUriString());
+        new ClientHelper(client).deleteRoute(routeSummary);
+        getStepLogger().debug(Messages.ROUTE_DELETED, routeSummary.toUriString());
     }
 
     @Override

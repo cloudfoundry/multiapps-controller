@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.cf.v2;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -10,33 +9,35 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationE
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters.RoutingParameterSet;
-import org.cloudfoundry.multiapps.controller.core.parser.IdleUriParametersParser;
-import org.cloudfoundry.multiapps.controller.core.parser.UriParametersParser;
+import org.cloudfoundry.multiapps.controller.core.parser.IdleRouteParametersParser;
+import org.cloudfoundry.multiapps.controller.core.parser.RouteParametersParser;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 
-public class ApplicationUrisCloudModelBuilder {
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+
+public class ApplicationRoutesCloudModelBuilder {
 
     private final DeploymentDescriptor descriptor;
     private final CloudApplicationExtended.AttributeUpdateStrategy applicationAttributeUpdateStrategy;
 
-    public ApplicationUrisCloudModelBuilder(DeploymentDescriptor descriptor,
-                                            CloudApplicationExtended.AttributeUpdateStrategy applicationAttributeUpdateStrategy) {
+    public ApplicationRoutesCloudModelBuilder(DeploymentDescriptor descriptor,
+                                              CloudApplicationExtended.AttributeUpdateStrategy applicationAttributeUpdateStrategy) {
         this.descriptor = descriptor;
         this.applicationAttributeUpdateStrategy = applicationAttributeUpdateStrategy;
     }
 
-    public List<String> getApplicationUris(Module module, List<Map<String, Object>> propertiesList,
-                                           DeployedMtaApplication deployedApplication) {
-        List<String> uris = getUriParametersParser(module).parse(propertiesList);
-        if (shouldKeepExistingUris(propertiesList)) {
-            return appendExistingUris(uris, deployedApplication);
+    public Set<CloudRouteSummary> getApplicationRoutes(Module module, List<Map<String, Object>> propertiesList,
+                                                       DeployedMtaApplication deployedApplication) {
+        Set<CloudRouteSummary> routes = getRouteParametersParser(module).parse(propertiesList);
+        if (shouldKeepExistingRoutes(propertiesList)) {
+            return addExistingRoutes(routes, deployedApplication);
         }
-        return uris;
+        return routes;
     }
 
-    private boolean shouldKeepExistingUris(List<Map<String, Object>> propertiesList) {
+    private boolean shouldKeepExistingRoutes(List<Map<String, Object>> propertiesList) {
         return (boolean) getPropertyValue(propertiesList, SupportedParameters.KEEP_EXISTING_ROUTES, false)
             || applicationAttributeUpdateStrategy.shouldKeepExistingRoutes();
     }
@@ -45,36 +46,39 @@ public class ApplicationUrisCloudModelBuilder {
         return PropertiesUtil.getPropertyValue(propertiesList, propertyName, defaultValue);
     }
 
-    private List<String> appendExistingUris(List<String> uris, DeployedMtaApplication deployedMtaApplication) {
-        Set<String> result = new HashSet<>(uris);
-        if (deployedMtaApplication != null) {
-            result.addAll(deployedMtaApplication.getUris());
+    private Set<CloudRouteSummary> addExistingRoutes(Set<CloudRouteSummary> routes, DeployedMtaApplication deployedMtaApplication) {
+        if (deployedMtaApplication == null) {
+            return routes;
         }
-        return new ArrayList<>(result);
+
+        Set<CloudRouteSummary> combinedRoutes = new HashSet<>(deployedMtaApplication.getRoutes());
+        combinedRoutes.addAll(routes);
+
+        return combinedRoutes;
     }
 
     public List<String> getApplicationDomains(Module module, List<Map<String, Object>> propertiesList) {
-        return getUriParametersParser(module).getApplicationDomains(propertiesList);
+        return getRouteParametersParser(module).getApplicationDomains(propertiesList);
     }
 
-    public List<String> getIdleApplicationUris(Module module, List<Map<String, Object>> propertiesList) {
+    public Set<CloudRouteSummary> getIdleApplicationRoutes(Module module, List<Map<String, Object>> propertiesList) {
         RoutingParameterSet parametersType = RoutingParameterSet.DEFAULT_IDLE;
         Map<String, Object> moduleParameters = module.getParameters();
         String defaultHost = (String) moduleParameters.getOrDefault(parametersType.host, null);
         String defaultRoutePath = (String) module.getParameters()
                                                  .get(SupportedParameters.ROUTE_PATH);
         String defaultDomain = getDefaultDomain(parametersType, moduleParameters);
-        return new IdleUriParametersParser(defaultHost, defaultDomain, defaultRoutePath).parse(propertiesList);
+        return new IdleRouteParametersParser(defaultHost, defaultDomain, defaultRoutePath).parse(propertiesList);
     }
 
-    private UriParametersParser getUriParametersParser(Module module) {
+    private RouteParametersParser getRouteParametersParser(Module module) {
         RoutingParameterSet parametersType = RoutingParameterSet.DEFAULT;
         Map<String, Object> moduleParameters = module.getParameters();
         String defaultHost = (String) moduleParameters.getOrDefault(parametersType.host, null);
         String routePath = (String) module.getParameters()
                                           .get(SupportedParameters.ROUTE_PATH);
         String defaultDomain = getDefaultDomain(parametersType, moduleParameters);
-        return new UriParametersParser(defaultHost, defaultDomain, routePath);
+        return new RouteParametersParser(defaultHost, defaultDomain, routePath);
     }
 
     private String getDefaultDomain(RoutingParameterSet parametersType, Map<String, Object> moduleParameters) {

@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.core.helpers;
 import java.text.MessageFormat;
 import java.util.UUID;
 
-import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
 import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.CloudOperationException;
 import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 
 public class ClientHelper {
 
@@ -23,8 +23,7 @@ public class ClientHelper {
         this.client = client;
     }
 
-    public void deleteRoute(String uri) {
-        ApplicationURI route = new ApplicationURI(uri);
+    public void deleteRoute(CloudRouteSummary route) {
         client.deleteRoute(route.getHost(), route.getDomain(), route.getPath());
     }
 

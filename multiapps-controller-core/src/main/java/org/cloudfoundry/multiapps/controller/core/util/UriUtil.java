@@ -1,11 +1,15 @@
 package org.cloudfoundry.multiapps.controller.core.util;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 
 public class UriUtil {
 
@@ -30,16 +34,16 @@ public class UriUtil {
         return uri.substring(protocolIndex + DEFAULT_SCHEME_SEPARATOR.length());
     }
 
-    public static CloudRoute findRoute(List<CloudRoute> routes, String uri) {
+    public static CloudRoute matchRoute(List<CloudRoute> routes, CloudRouteSummary routeSummary) {
         return routes.stream()
-                     .filter(route -> routeMatchesUri(route, uri))
+                     .filter(route -> routeSummary.describesTheSameUri(route))
                      .findAny()
-                     .orElseThrow(() -> new NotFoundException(Messages.ROUTE_NOT_FOUND, uri));
+                     .orElseThrow(() -> new NotFoundException(Messages.ROUTE_NOT_FOUND, routeSummary));
     }
 
-    public static boolean routeMatchesUri(CloudRoute route, String uri) {
-        ApplicationURI appUriFromRoute = new ApplicationURI(route);
-        ApplicationURI appUriFromString = new ApplicationURI(uri);
-        return appUriFromRoute.equals(appUriFromString);
+    public static String prettyPrintRoutes(Set<CloudRouteSummary> routes) {
+        return routes.stream()
+                     .map(CloudRouteSummary::toUriString)
+                     .collect(Collectors.joining(", "));
     }
 }
