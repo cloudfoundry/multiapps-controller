@@ -141,14 +141,13 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         public void handleApplicationAttributes() {
             Integer diskQuota = (app.getDiskQuota() != 0) ? app.getDiskQuota() : null;
             Integer memory = (app.getMemory() != 0) ? app.getMemory() : null;
-            List<String> uris = app.getUris();
 
             if (app.getDockerInfo() != null) {
                 context.getStepLogger()
                        .info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, app.getName(), app.getDockerInfo()
                                                                                         .getImage());
             }
-            client.createApplication(app.getName(), app.getStaging(), diskQuota, memory, uris, app.getDockerInfo());
+            client.createApplication(app.getName(), app.getStaging(), diskQuota, memory, app.getRoutes(), app.getDockerInfo());
             context.setVariable(Variables.VCAP_APP_PROPERTIES_CHANGED, true);
         }
 

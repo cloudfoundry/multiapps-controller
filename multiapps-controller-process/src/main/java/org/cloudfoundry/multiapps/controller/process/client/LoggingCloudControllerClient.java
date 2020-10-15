@@ -6,10 +6,12 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
+import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -27,6 +29,7 @@ import com.sap.cloudfoundry.client.facade.domain.CloudInfo;
 import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
 import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
 import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
@@ -79,18 +82,18 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void createApplication(String applicationName, Staging staging, Integer memory, List<String> uris) {
-        logger.debug(Messages.CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3, applicationName, memory, uris,
-                     SecureSerialization.toJson(staging));
-        delegate.createApplication(applicationName, staging, memory, uris);
+    public void createApplication(String applicationName, Staging staging, Integer memory, Set<CloudRouteSummary> routes) {
+        logger.debug(Messages.CREATING_APPLICATION_0_WITH_MEMORY_1_URIS_2_AND_STAGING_3, applicationName, memory,
+                     UriUtil.prettyPrintRoutes(routes), SecureSerialization.toJson(staging));
+        delegate.createApplication(applicationName, staging, memory, routes);
     }
 
     @Override
-    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, List<String> uris,
+    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, Set<CloudRouteSummary> routes,
                                   DockerInfo dockerInfo) {
-        logger.debug(Messages.CREATING_APPLICATION_0_WITH_DISK_QUOTA_1_MEMORY_2_URIS_3_AND_STAGING_4, applicationName, disk, memory, uris,
-                     SecureSerialization.toJson(staging));
-        delegate.createApplication(applicationName, staging, disk, memory, uris, dockerInfo);
+        logger.debug(Messages.CREATING_APPLICATION_0_WITH_DISK_QUOTA_1_MEMORY_2_URIS_3_AND_STAGING_4, applicationName, disk, memory,
+                     UriUtil.prettyPrintRoutes(routes), SecureSerialization.toJson(staging));
+        delegate.createApplication(applicationName, staging, disk, memory, routes, dockerInfo);
     }
 
     @Override
@@ -530,9 +533,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void updateApplicationUris(String applicationName, List<String> uris) {
-        logger.debug(Messages.UPDATING_URIS_OF_APPLICATION_0_TO_1, applicationName, uris);
-        delegate.updateApplicationUris(applicationName, uris);
+    public void updateApplicationRoutes(String applicationName, Set<CloudRouteSummary> routes) {
+        logger.debug(Messages.UPDATING_URIS_OF_APPLICATION_0_TO_1, applicationName, UriUtil.prettyPrintRoutes(routes));
+        delegate.updateApplicationRoutes(applicationName, routes);
     }
 
     @Override

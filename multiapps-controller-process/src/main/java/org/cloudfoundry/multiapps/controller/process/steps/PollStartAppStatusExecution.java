@@ -4,9 +4,11 @@ import static java.text.MessageFormat.format;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
+import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.persistence.services.ProcessLoggerProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
 import com.sap.cloudfoundry.client.facade.domain.InstanceState;
 import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
@@ -103,13 +106,13 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             return AsyncExecutionState.ERROR;
         }
         if (status == StartupStatus.STARTED) {
-            List<String> uris = app.getUris();
-            if (uris.isEmpty()) {
+            Set<CloudRouteSummary> routes = app.getRoutes();
+            if (routes.isEmpty()) {
                 context.getStepLogger()
                        .info(Messages.APP_STARTED, app.getName());
             } else {
                 context.getStepLogger()
-                       .info(Messages.APP_STARTED_URLS, app.getName(), String.join(",", uris));
+                       .info(Messages.APP_STARTED_URLS, app.getName(), UriUtil.prettyPrintRoutes(routes));
             }
             return AsyncExecutionState.FINISHED;
         }
@@ -128,7 +131,8 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         } else {
             stateCounts = instances.stream()
                                    .collect(Collectors.groupingBy(instance -> instance.getState()
-                                                                                      .toString(), Collectors.counting()));
+                                                                                      .toString(),
+                                                                  Collectors.counting()));
         }
         return stateCounts.entrySet()
                           .stream()

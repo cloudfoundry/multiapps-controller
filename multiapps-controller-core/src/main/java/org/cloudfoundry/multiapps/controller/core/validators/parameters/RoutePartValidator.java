@@ -22,7 +22,7 @@ public abstract class RoutePartValidator implements ParameterValidator {
         result = result.replaceAll("^(-*)", "");
         result = result.replaceAll("(-*)$", "");
 
-        if (!isValid(result, null)) {
+        if (!isValid(result, context)) {
             throw new SLException(getErrorMessage(), routePart);
         }
         return result;

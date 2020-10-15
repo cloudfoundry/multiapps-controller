@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -17,11 +18,14 @@ import org.cloudfoundry.multiapps.mta.model.Module;
 public class RoutesValidator implements ParameterValidator {
 
     private final Map<String, ParameterValidator> validators;
+    private final Set<String> supportedParamsWithoutValidators;
 
     public RoutesValidator() {
         this.validators = new HashMap<>();
         ParameterValidator routeValidator = new RouteValidator();
         this.validators.put(routeValidator.getParameterName(), routeValidator);
+
+        this.supportedParamsWithoutValidators = Set.of(SupportedParameters.NO_HOSTNAME);
     }
 
     @Override
@@ -32,10 +36,10 @@ public class RoutesValidator implements ParameterValidator {
             return false;
         }
 
-        for (Map<String, Object> routesElement : routesList) {
-            boolean hasUnsupportedOrInvalidElement = routesElement.entrySet()
-                                                                  .stream()
-                                                                  .anyMatch(this::isElementUnsupportedOrInvalid);
+        for (Map<String, Object> route : routesList) {
+            boolean hasUnsupportedOrInvalidElement = route.entrySet()
+                                                          .stream()
+                                                          .anyMatch(routeElement -> isElementUnsupportedOrInvalid(routeElement, route));
 
             if (hasUnsupportedOrInvalidElement) {
                 return false;
@@ -45,9 +49,17 @@ public class RoutesValidator implements ParameterValidator {
         return true;
     }
 
-    private boolean isElementUnsupportedOrInvalid(Entry<String, Object> entry) {
-        ParameterValidator validator = validators.get(entry.getKey());
-        return validator == null || !validator.isValid(entry.getValue(), null);
+    private boolean isElementUnsupportedOrInvalid(Entry<String, Object> routeElement, final Map<String, Object> allRouteElements) {
+        if (supportedParamsWithoutValidators.contains(routeElement.getKey())) {
+            return false;
+        }
+
+        if (validators.containsKey(routeElement.getKey())) {
+            ParameterValidator validator = validators.get(routeElement.getKey());
+            return !validator.isValid(routeElement.getValue(), allRouteElements);
+        }
+
+        return true;
     }
 
     @Override
@@ -66,21 +78,25 @@ public class RoutesValidator implements ParameterValidator {
     private Map<String, Object> attemptToCorrectParameterMap(Map<String, Object> originalElem) {
         Map<String, Object> result = new TreeMap<>();
         for (Entry<String, Object> entry : originalElem.entrySet()) {
+            if (supportedParamsWithoutValidators.contains(entry.getKey())) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+
             if (validators.containsKey(entry.getKey())) {
-                Object value = attemptToCorrectParameter(validators.get(entry.getKey()), entry.getValue());
+                Object value = attemptToCorrectParameter(validators.get(entry.getKey()), entry.getValue(), originalElem);
                 result.put(entry.getKey(), value);
             }
         }
         return result;
     }
 
-    private Object attemptToCorrectParameter(ParameterValidator validator, Object parameter) {
-        if (validator.isValid(parameter, null)) {
+    private Object attemptToCorrectParameter(ParameterValidator validator, Object parameter, final Map<String, Object> context) {
+        if (validator.isValid(parameter, context)) {
             return parameter;
         }
 
         if (validator.canCorrect()) {
-            return validator.attemptToCorrect(parameter, null);
+            return validator.attemptToCorrect(parameter, context);
         }
 
         throw new SLException(Messages.COULD_NOT_CREATE_VALID_ROUTE, parameter);

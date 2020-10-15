@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudHandlerFactory;
 import org.cloudfoundry.multiapps.controller.core.helpers.v2.ConfigurationReferencesResolver;
 import org.cloudfoundry.multiapps.controller.core.model.MtaDescriptorPropertiesResolverContext;
@@ -52,7 +53,7 @@ public class MtaDescriptorPropertiesResolver {
                                    .resolve();
 
         if (context.shouldReserveTemporaryRoute()) {
-            // temporary placeholders should be set at this point, since they are need for provides/requires placeholder resolution
+            // temporary placeholders should be set at this point, since they are needed for provides/requires placeholder resolution
             editRoutesSetTemporaryPlaceholders(descriptor);
 
             // Resolve again due to new temporary routes
@@ -111,17 +112,23 @@ public class MtaDescriptorPropertiesResolver {
 
             List<Map<String, Object>> routes = RoutesValidator.applyRoutesType(moduleParameters.get(SupportedParameters.ROUTES));
 
-            for (Map<String, Object> route : routes) {
-                Object routeValue = route.get(SupportedParameters.ROUTE);
+            for (Map<String, Object> routeMap : routes) {
+                Object routeValue = routeMap.get(SupportedParameters.ROUTE);
+                boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
                 if (routeValue instanceof String) {
-                    route.put(SupportedParameters.ROUTE, replacePartsWithIdlePlaceholders((String) routeValue));
+                    routeMap.put(SupportedParameters.ROUTE, replacePartsWithIdlePlaceholders((String) routeValue, noHostname));
+                }
+                
+                if (routeMap.containsKey(SupportedParameters.NO_HOSTNAME)) {
+                    // remove no-hostname value, since it will be ignored for idle routes
+                    routeMap.remove(SupportedParameters.NO_HOSTNAME);
                 }
             }
         }
     }
 
-    private String replacePartsWithIdlePlaceholders(String uriString) {
-        ApplicationURI uri = new ApplicationURI(uriString);
+    private String replacePartsWithIdlePlaceholders(String uriString, boolean noHostname) {
+        ApplicationURI uri = new ApplicationURI(uriString, noHostname);
         uri.setDomain(IDLE_DOMAIN_PLACEHOLDER);
         uri.setHost(IDLE_HOST_PLACEHOLDER);
         return uri.toString();

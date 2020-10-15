@@ -4,10 +4,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections4.SetUtils;
+import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ElementUpdater.UpdateStrategy;
 
 import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 
 public class UrisApplicationAttributeUpdater extends ApplicationAttributeUpdater {
 
@@ -17,22 +20,20 @@ public class UrisApplicationAttributeUpdater extends ApplicationAttributeUpdater
 
     @Override
     protected boolean shouldUpdateAttribute(CloudApplication existingApplication, CloudApplication application) {
-        Set<String> uris = new HashSet<>(application.getUris());
-        Set<String> existingUris = new HashSet<>(existingApplication.getUris());
-        return !uris.equals(existingUris);
+        return !SetUtils.isEqualSet(application.getRoutes(), existingApplication.getRoutes());
     }
 
     @Override
     protected void updateAttribute(CloudApplication existingApplication, CloudApplication application) {
-        List<String> uris = applyUpdateStrategy(existingApplication.getUris(), application.getUris());
-        getControllerClient().updateApplicationUris(application.getName(), uris);
+        Set<CloudRouteSummary> routes = applyUpdateStrategy(existingApplication.getRoutes(), application.getRoutes());
+        getControllerClient().updateApplicationRoutes(application.getName(), routes);
     }
 
-    private List<String> applyUpdateStrategy(List<String> existingUris, List<String> uris) {
-        getLogger().debug(Messages.EXISTING_URIS_0, uris);
-        getLogger().debug(Messages.APPLYING_UPDATE_STRATEGY_0_TO_URIS_1, updateStrategy, uris);
-        List<String> result = getElementUpdater().updateList(existingUris, uris);
-        getLogger().debug(Messages.RESULT_0, result);
+    private Set<CloudRouteSummary> applyUpdateStrategy(Set<CloudRouteSummary> existingRoutes, Set<CloudRouteSummary> routes) {
+        getLogger().debug(Messages.EXISTING_URIS_0, UriUtil.prettyPrintRoutes(existingRoutes));
+        getLogger().debug(Messages.APPLYING_UPDATE_STRATEGY_0_WITH_URIS_1, updateStrategy, UriUtil.prettyPrintRoutes(routes));
+        Set<CloudRouteSummary> result = getElementUpdater().updateSet(existingRoutes, routes);
+        getLogger().debug(Messages.RESULT_0, UriUtil.prettyPrintRoutes(result));
         return result;
     }
 

@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.core.parser;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -9,13 +8,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
-import org.cloudfoundry.multiapps.controller.core.util.UriUtil;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.RoutesValidator;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
 
-public class UriParametersParser implements ParametersParser<List<String>> {
+public class RouteParametersParser implements ParametersParser<Set<CloudRouteSummary>> {
 
     private final String defaultHost;
     private final String defaultDomain;
@@ -23,30 +23,30 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     private final String domainParameterName;
     private final String routePath;
 
-    public UriParametersParser(String defaultHost, String defaultDomain, String routePath) {
+    public RouteParametersParser(String defaultHost, String defaultDomain, String routePath) {
         this(defaultHost, defaultDomain, SupportedParameters.HOST, SupportedParameters.DOMAIN, routePath);
     }
 
-    public UriParametersParser(String defaultHost, String defaultDomain, String hostParameterName, String domainParameterName,
+    public RouteParametersParser(String defaultHost, String defaultDomain, String hostParameterName, String domainParameterName,
                                String routePath) {
         this.defaultHost = defaultHost;
         this.defaultDomain = defaultDomain;
         this.hostParameterName = hostParameterName;
         this.domainParameterName = domainParameterName;
-        this.routePath = routePath;
+        this.routePath = routePath != null ? routePath : "";
     }
 
     @Override
-    public List<String> parse(List<Map<String, Object>> parametersList) {
+    public Set<CloudRouteSummary> parse(List<Map<String, Object>> parametersList) {
         boolean noRoute = (Boolean) PropertiesUtil.getPropertyValue(parametersList, SupportedParameters.NO_ROUTE, false);
         if (noRoute) {
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
-        return getUris(parametersList);
+        return getRoutes(parametersList);
     }
 
-    private List<String> getUris(List<Map<String, Object>> parametersList) {
-        List<String> routes = getApplicationRoutes(parametersList);
+    private Set<CloudRouteSummary> getRoutes(List<Map<String, Object>> parametersList) {
+        Set<CloudRouteSummary> routes = getApplicationRoutes(parametersList);
         if (!routes.isEmpty()) {
             return routes;
         }
@@ -60,11 +60,11 @@ public class UriParametersParser implements ParametersParser<List<String>> {
             hosts = Collections.emptyList();
         }
 
-        return assembleUris(hosts, domains);
+        return assembleRoutes(hosts, domains);
     }
 
     public List<String> getApplicationDomains(List<Map<String, Object>> parametersList) {
-        List<String> routes = getApplicationRoutes(parametersList);
+        Set<CloudRouteSummary> routes = getApplicationRoutes(parametersList);
         if (!routes.isEmpty()) {
             return getDomainsFromRoutes(routes);
         }
@@ -94,40 +94,57 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         return domains;
     }
 
-    private List<String> assembleUris(List<String> hosts, List<String> domains) {
-        Set<String> uris = new LinkedHashSet<>();
+    /**
+     * This method is doing a DesCartesian multiplication for given hosts and domains and returns constructed routes
+     * 
+     * @param hosts
+     * @param domains
+     * @return set of all routes created
+     */
+    private Set<CloudRouteSummary> assembleRoutes(List<String> hosts, List<String> domains) {
+        Set<CloudRouteSummary> routes = new LinkedHashSet<>();
         for (String domain : domains) {
             if (!hosts.isEmpty()) {
-                addHostBasedUris(uris, domain, hosts);
+                addHostBasedRoutes(routes, domain, hosts);
             } else {
-                uris.add(appendRoutePathIfPresent(domain));
+                routes.add(buildCloudPathSummary("", domain));
             }
         }
 
-        return new ArrayList<>(uris);
+        return routes;
     }
 
-    private void addHostBasedUris(Set<String> uris, String domain, List<String> hosts) {
+    private void addHostBasedRoutes(Set<CloudRouteSummary> routes, String domain, List<String> hosts) {
         for (String host : hosts) {
-            uris.add(appendRoutePathIfPresent(host + "." + domain));
+            routes.add(buildCloudPathSummary(host, domain));
         }
     }
 
-    public List<String> getApplicationRoutes(List<Map<String, Object>> parametersList) {
+    public Set<CloudRouteSummary> getApplicationRoutes(List<Map<String, Object>> parametersList) {
         List<Map<String, Object>> routesMaps = RoutesValidator.applyRoutesType(PropertiesUtil.getPropertyValue(parametersList,
                                                                                                                SupportedParameters.ROUTES,
                                                                                                                null));
 
         return routesMaps.stream()
-                         .map(routesMap -> (String) routesMap.get(SupportedParameters.ROUTE))
+                         .map(this::parseRouteMap)
                          .filter(Objects::nonNull)
-                         .map(UriUtil::stripScheme)
-                         .collect(Collectors.toList());
+                         .collect(Collectors.toSet());
     }
 
-    private List<String> getDomainsFromRoutes(List<String> routes) {
+    public CloudRouteSummary parseRouteMap(Map<String, Object> routeMap) {
+        String routeString = (String) routeMap.get(SupportedParameters.ROUTE);
+        boolean noHostname = MapUtil.parseBooleanFlag(routeMap, SupportedParameters.NO_HOSTNAME, false);
+
+        if (routeString == null) {
+            return null;
+        }
+
+        return new ApplicationURI(routeString, noHostname).toCloudRouteSummary();
+    }
+
+    private List<String> getDomainsFromRoutes(Set<CloudRouteSummary> routes) {
         return routes.stream()
-                     .map(ApplicationURI::getDomainFromURI)
+                     .map(CloudRouteSummary::getDomain)
                      .filter(Objects::nonNull)
                      .distinct()
                      .collect(Collectors.toList());
@@ -138,11 +155,8 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         return PropertiesUtil.getPluralOrSingular(parametersList, pluralParameterName, singularParameterName);
     }
 
-    private String appendRoutePathIfPresent(String uri) {
-        if (routePath != null) {
-            return uri + routePath;
-        }
-        return uri;
+    private CloudRouteSummary buildCloudPathSummary(String host, String domain) {
+        return new ApplicationURI(host, domain, routePath).toCloudRouteSummary();
     }
 
     protected String getDefaultHost() {

@@ -1,10 +1,13 @@
 package org.cloudfoundry.multiapps.controller.core.validators.parameters;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.cloudfoundry.multiapps.common.SLException;
+import org.cloudfoundry.multiapps.common.util.MapUtil;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationURI;
@@ -24,8 +27,9 @@ public class RouteValidator implements ParameterValidator {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_ROUTE, route);
         }
         String routeString = (String) route;
+        boolean noHostname = MapUtil.parseBooleanFlag(context, SupportedParameters.NO_HOSTNAME, false);
 
-        ApplicationURI uri = new ApplicationURI(routeString);
+        ApplicationURI uri = new ApplicationURI(routeString, noHostname);
         try {
             for (ParameterValidator validator : validators) {
                 correctUriPartIfPresent(uri, validator);
@@ -36,7 +40,7 @@ public class RouteValidator implements ParameterValidator {
 
         String correctedRoute = uri.toString();
 
-        if (!isValid(correctedRoute, null)) {
+        if (!isValid(correctedRoute, context)) {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_ROUTE, route);
         }
 
@@ -67,8 +71,10 @@ public class RouteValidator implements ParameterValidator {
         if (routeString.isEmpty()) {
             return false;
         }
+        
+        boolean noHostname = MapUtil.parseBooleanFlag(context, SupportedParameters.NO_HOSTNAME, false);
 
-        ApplicationURI uri = new ApplicationURI(routeString);
+        ApplicationURI uri = new ApplicationURI(routeString, noHostname);
         Map<String, Object> uriParts = uri.getURIParts();
 
         for (ParameterValidator validator : validators) {
@@ -76,7 +82,12 @@ public class RouteValidator implements ParameterValidator {
                 return false;
             }
         }
-        return uriParts.containsKey(SupportedParameters.HOST);
+
+        if (noHostname == false && !uriParts.containsKey(SupportedParameters.HOST)) {
+            return false;
+        }
+
+        return true;
     }
 
     protected boolean partIsValid(ParameterValidator validator, Map<String, Object> uriParts) {
@@ -98,6 +109,11 @@ public class RouteValidator implements ParameterValidator {
         return validators.stream()
                          .map(ParameterValidator::canCorrect)
                          .reduce(false, Boolean::logicalOr);
+    }
+
+    @Override
+    public Set<String> getRelatedParameterNames() {
+        return Collections.singleton(SupportedParameters.NO_HOSTNAME);
     }
 
 }

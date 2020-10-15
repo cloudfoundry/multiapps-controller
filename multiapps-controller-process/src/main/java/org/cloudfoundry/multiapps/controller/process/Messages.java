@@ -444,7 +444,7 @@ public class Messages {
     public static final String CONTENT_OF_APPLICATION_0_IS_NOT_CHANGED = "Content of application \"{0}\" is not changed - upload will be skipped.";
     public static final String EXISTING_URIS_0 = "Existing URIs: {0}";
     public static final String APPLYING_UPDATE_STRATEGY_0_TO_ENV = "Applying update strategy \"{0}\" to env";
-    public static final String APPLYING_UPDATE_STRATEGY_0_TO_URIS_1 = "Applying update strategy \"{0}\" to URIs: {1}";
+    public static final String APPLYING_UPDATE_STRATEGY_0_WITH_URIS_1 = "Applying update strategy \"{0}\" to existing URIs with URIs: {1}";
     public static final String RESULT_0 = "Result: {0}";
     public static final String SHUTTING_DOWN_FLOWABLE_JOB_EXECUTOR = "Shutting down Flowable job executor...";
     public static final String ADDING_DOMAIN_0 = "Adding domain \"{0}\"...";

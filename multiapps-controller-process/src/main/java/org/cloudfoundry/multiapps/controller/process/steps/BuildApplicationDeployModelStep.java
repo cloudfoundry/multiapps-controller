@@ -3,6 +3,7 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -20,6 +21,8 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudRouteSummary;
 
 @Named("buildApplicationDeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -39,7 +42,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
                                                         .build(applicationModule, moduleToDeployHelper);
         modifiedApp = ImmutableCloudApplicationExtended.builder()
                                                        .from(modifiedApp)
-                                                       .uris(getApplicationUris(context, modifiedApp))
+                                                       .routes(getApplicationRoutes(context, modifiedApp))
                                                        .build();
         context.setVariable(Variables.APP_TO_PROCESS, modifiedApp);
 
@@ -62,11 +65,11 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         return Messages.ERROR_BUILDING_CLOUD_APP_MODEL;
     }
 
-    private List<String> getApplicationUris(ProcessContext context, CloudApplicationExtended modifiedApp) {
+    private Set<CloudRouteSummary> getApplicationRoutes(ProcessContext context, CloudApplicationExtended modifiedApp) {
         if (context.getVariable(Variables.USE_IDLE_URIS)) {
-            return modifiedApp.getIdleUris();
+            return modifiedApp.getIdleRoutes();
         }
-        return modifiedApp.getUris();
+        return modifiedApp.getRoutes();
     }
 
     private void buildConfigurationEntries(ProcessContext context, CloudApplicationExtended app) {
