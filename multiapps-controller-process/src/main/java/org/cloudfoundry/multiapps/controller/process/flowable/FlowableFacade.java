@@ -14,6 +14,7 @@ import javax.inject.Named;
 
 import org.cloudfoundry.multiapps.controller.persistence.Constants;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.common.engine.api.FlowableOptimisticLockingException;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.history.HistoricActivityInstance;
@@ -108,10 +109,11 @@ public class FlowableFacade {
     }
 
     public List<String> getHistoricSubProcessIds(String correlationId) {
-        return retrieveVariablesByCorrelationId(correlationId).stream()
-                                                              .map(HistoricVariableInstance::getProcessInstanceId)
-                                                              .filter(id -> !id.equals(correlationId))
-                                                              .collect(Collectors.toList());
+        List<HistoricVariableInstance> historicVariableInstances = retrieveVariablesByCorrelationId(correlationId);
+        return historicVariableInstances.stream()
+                                        .map(HistoricVariableInstance::getProcessInstanceId)
+                                        .filter(id -> !id.equals(correlationId))
+                                        .collect(Collectors.toList());
     }
 
     public HistoricProcessInstance getHistoricProcessById(String processInstanceId) {
@@ -153,23 +155,32 @@ public class FlowableFacade {
     }
 
     public void executeJob(String processInstanceId) {
-        List<Job> deadLetterJobs = getDeadLetterJobs(processInstanceId);
-        if (deadLetterJobs.isEmpty()) {
+        List<String> deadLetterJobsIds = getDeadLetterJobsDistinctIds(processInstanceId);
+        if (deadLetterJobsIds.isEmpty()) {
             LOGGER.info(MessageFormat.format("No dead letter jobs found for process with id {0}", processInstanceId));
             return;
         }
-        moveDeadLetterJobsToExecutableJobs(deadLetterJobs);
+        moveDeadLetterJobsToExecutableJobs(deadLetterJobsIds);
     }
 
-    private void moveDeadLetterJobsToExecutableJobs(List<Job> deadLetterJobs) {
-        for (Job deadLetterJob : deadLetterJobs) {
-            moveDeadLetterJobToExecutableJob(deadLetterJob);
+    private List<String> getDeadLetterJobsDistinctIds(String processInstanceId) {
+        return getDeadLetterJobs(processInstanceId).stream()
+                                                   .map(Job::getId)
+                                                   .distinct()
+                                                   .collect(Collectors.toList());
+    }
+
+    private void moveDeadLetterJobsToExecutableJobs(List<String> deadLetterJobIds) {
+        deadLetterJobIds.forEach(this::moveDeadLetterJobToExecutableJob);
+    }
+
+    private void moveDeadLetterJobToExecutableJob(String deadLetterJobId) {
+        try {
+            processEngine.getManagementService()
+                         .moveDeadLetterJobToExecutableJob(deadLetterJobId, DEFAULT_JOB_RETRIES);
+        } catch (FlowableObjectNotFoundException e) {
+            LOGGER.error(e.getMessage(), e);
         }
-    }
-
-    private void moveDeadLetterJobToExecutableJob(Job deadLetterJob) {
-        processEngine.getManagementService()
-                     .moveDeadLetterJobToExecutableJob(deadLetterJob.getId(), DEFAULT_JOB_RETRIES);
     }
 
     public void trigger(String executionId, Map<String, Object> variables) {

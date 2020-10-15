@@ -33,7 +33,6 @@ public class RetryProcessAction extends ProcessAction {
     protected void executeActualProcessAction(String user, String superProcessInstanceId) {
         List<String> subProcessIds = getActiveExecutionIds(superProcessInstanceId);
         ListIterator<String> subProcessesIdsIterator = subProcessIds.listIterator(subProcessIds.size());
-
         updateUserIfNecessary(user, superProcessInstanceId);
         while (subProcessesIdsIterator.hasPrevious()) {
             String subProcessId = subProcessesIdsIterator.previous();
