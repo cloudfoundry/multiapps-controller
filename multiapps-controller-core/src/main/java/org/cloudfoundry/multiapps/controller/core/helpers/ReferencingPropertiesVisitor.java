@@ -13,11 +13,11 @@ public abstract class ReferencingPropertiesVisitor implements SimplePropertyVisi
     private final ReferencePattern referencePattern;
     private final Predicate<Reference> relevantReferencesFilter;
 
-    public ReferencingPropertiesVisitor(ReferencePattern referencePattern) {
+    protected ReferencingPropertiesVisitor(ReferencePattern referencePattern) {
         this(referencePattern, null);
     }
 
-    public ReferencingPropertiesVisitor(ReferencePattern referencePattern, Predicate<Reference> relevantReferencesFilter) {
+    protected ReferencingPropertiesVisitor(ReferencePattern referencePattern, Predicate<Reference> relevantReferencesFilter) {
         this.referencePattern = referencePattern;
         this.relevantReferencesFilter = relevantReferencesFilter;
     }

@@ -21,7 +21,7 @@ public abstract class SpaceNameBasedAuthorizationFilter implements UriAuthorizat
 
     private final AuthorizationChecker authorizationChecker;
 
-    public SpaceNameBasedAuthorizationFilter(AuthorizationChecker authorizationChecker) {
+    protected SpaceNameBasedAuthorizationFilter(AuthorizationChecker authorizationChecker) {
         this.authorizationChecker = authorizationChecker;
     }
 

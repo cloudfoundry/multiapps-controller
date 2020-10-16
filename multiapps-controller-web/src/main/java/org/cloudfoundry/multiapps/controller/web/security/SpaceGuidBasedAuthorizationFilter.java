@@ -19,7 +19,7 @@ public abstract class SpaceGuidBasedAuthorizationFilter implements UriAuthorizat
 
     private final AuthorizationChecker authorizationChecker;
 
-    public SpaceGuidBasedAuthorizationFilter(AuthorizationChecker authorizationChecker) {
+    protected SpaceGuidBasedAuthorizationFilter(AuthorizationChecker authorizationChecker) {
         this.authorizationChecker = authorizationChecker;
     }
 

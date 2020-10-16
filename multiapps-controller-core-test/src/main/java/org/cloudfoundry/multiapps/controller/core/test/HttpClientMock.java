@@ -10,6 +10,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.HttpContext;
 import org.cloudfoundry.multiapps.common.Nullable;
 import org.immutables.value.Value;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -30,7 +31,7 @@ public abstract class HttpClientMock {
         try {
             CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
             if (getException() != null) {
-                Mockito.when(httpClient.execute(Mockito.any()))
+                Mockito.when(httpClient.execute(ArgumentMatchers.any()))
                        .thenThrow(getException());
                 return httpClient;
             }
@@ -41,15 +42,17 @@ public abstract class HttpClientMock {
 
             Answer<HttpResponse> answer = createAnswer(getResponses());
 
-            Mockito.when(httpClient.execute(Mockito.any()))
+            Mockito.when(httpClient.execute(ArgumentMatchers.any()))
                    .thenAnswer(answer);
-            Mockito.when(httpClient.execute(Mockito.<HttpHost> any(), Mockito.any()))
+            Mockito.when(httpClient.execute(ArgumentMatchers.<HttpHost> any(), ArgumentMatchers.any()))
                    .thenAnswer(answer);
-            Mockito.when(httpClient.execute(Mockito.<HttpHost> any(), Mockito.any(), Mockito.<HttpContext> any()))
+            Mockito.when(httpClient.execute(ArgumentMatchers.<HttpHost> any(), ArgumentMatchers.any(),
+                                            ArgumentMatchers.<HttpContext> any()))
                    .thenAnswer(answer);
 
             if (getResponseHandlerReturnValue() != null) {
-                Mockito.when(httpClient.execute(Mockito.any(), Mockito.any(), Mockito.<ResponseHandler<Object>> any()))
+                Mockito.when(httpClient.execute(ArgumentMatchers.any(), ArgumentMatchers.any(),
+                                                ArgumentMatchers.<ResponseHandler<Object>> any()))
                        .thenReturn(getResponseHandlerReturnValue());
             }
             return httpClient;

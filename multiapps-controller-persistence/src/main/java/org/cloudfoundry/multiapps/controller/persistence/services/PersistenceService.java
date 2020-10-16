@@ -19,7 +19,7 @@ public abstract class PersistenceService<T, D extends DtoWithPrimaryKey<P>, P> {
 
     private final EntityManagerFactory entityManagerFactory;
 
-    public PersistenceService(EntityManagerFactory entityManagerFactory) {
+    protected PersistenceService(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
     }
 

@@ -6,8 +6,6 @@ import javax.persistence.EntityManagerFactory;
 
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationSubscriptionService.ConfigurationSubscriptionMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,7 +13,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Named("configurationSubscriptionService")
 public class ConfigurationSubscriptionServiceFactoryBean implements FactoryBean<ConfigurationSubscriptionService>, InitializingBean {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationSubscriptionServiceFactoryBean.class);
     @Inject
     protected EntityManagerFactory entityManagerFactory;
     @Inject
@@ -26,10 +23,6 @@ public class ConfigurationSubscriptionServiceFactoryBean implements FactoryBean<
 
     @Override
     public void afterPropertiesSet() {
-        LOGGER.warn("entryMapper: " + entryMapper);
-        if (entryMapper != null) {
-            LOGGER.warn("entryMapper class: " + entryMapper.getClass());
-        }
         this.configurationSubscriptionService = new ConfigurationSubscriptionService(entityManagerFactory, entryMapper);
     }
 

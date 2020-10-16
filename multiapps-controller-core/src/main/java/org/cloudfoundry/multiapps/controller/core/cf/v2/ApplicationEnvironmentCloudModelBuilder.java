@@ -31,7 +31,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         this.prettyPrinting = prettyPrinting;
     }
 
-    public Map<String, String> build(Module module, List<String> services) {
+    public Map<String, String> build(Module module) {
         Map<String, Object> properties = module.getProperties();
         Map<String, Object> parameters = module.getParameters();
         Map<String, Object> env = new TreeMap<>();

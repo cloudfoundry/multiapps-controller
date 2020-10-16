@@ -18,8 +18,8 @@ public abstract class ProcessAction {
     private final CloudControllerClientProvider clientProvider;
 
     @Inject
-    public ProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
-                         CloudControllerClientProvider clientProvider) {
+    protected ProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions,
+                            CloudControllerClientProvider clientProvider) {
         this.flowableFacade = flowableFacade;
         this.additionalProcessActions = additionalProcessActions;
         this.clientProvider = clientProvider;

@@ -19,7 +19,7 @@ public class DatabaseMigration {
 
     private static final Logger LOGGER = Logger.getLogger(DatabaseMigration.class);
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) {
         configureLogger();
         LOGGER.info("Starting database migration...");
         DataSourceEnvironmentExtractor environmentExtractor = new DataSourceEnvironmentExtractor();

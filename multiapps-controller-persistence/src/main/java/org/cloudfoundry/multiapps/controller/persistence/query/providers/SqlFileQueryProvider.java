@@ -45,7 +45,7 @@ public abstract class SqlFileQueryProvider {
     private final DataSourceDialect dataSourceDialect;
     private Logger logger;
 
-    public SqlFileQueryProvider(String tableName, DataSourceDialect dataSourceDialect) {
+    protected SqlFileQueryProvider(String tableName, DataSourceDialect dataSourceDialect) {
         this.tableName = tableName;
         this.dataSourceDialect = dataSourceDialect;
     }

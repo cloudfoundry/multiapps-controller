@@ -9,7 +9,7 @@ public abstract class SecureSerializer {
 
     protected final SecureSerializerConfiguration configuration;
 
-    public SecureSerializer(SecureSerializerConfiguration configuration) {
+    protected SecureSerializer(SecureSerializerConfiguration configuration) {
         this.configuration = configuration;
     }
 

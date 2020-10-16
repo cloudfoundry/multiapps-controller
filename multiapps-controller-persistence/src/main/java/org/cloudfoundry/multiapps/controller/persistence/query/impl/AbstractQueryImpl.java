@@ -24,7 +24,7 @@ public abstract class AbstractQueryImpl<R, T extends Query<R, T>> implements Que
     private OrderDirection orderDirection;
     private String orderAttribute;
 
-    public AbstractQueryImpl(EntityManager entityManager) {
+    protected AbstractQueryImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
         this.criteriaBuilder = entityManager.getCriteriaBuilder();
     }

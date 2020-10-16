@@ -6,8 +6,6 @@ import javax.persistence.EntityManagerFactory;
 
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService;
 import org.cloudfoundry.multiapps.controller.persistence.services.ConfigurationEntryService.ConfigurationEntryMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,7 +13,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Named("configurationEntryService")
 public class ConfigurationEntryServiceFactoryBean implements FactoryBean<ConfigurationEntryService>, InitializingBean {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationEntryServiceFactoryBean.class);
     @Inject
     protected EntityManagerFactory entityManagerFactory;
     @Inject
@@ -26,10 +23,6 @@ public class ConfigurationEntryServiceFactoryBean implements FactoryBean<Configu
 
     @Override
     public void afterPropertiesSet() {
-        LOGGER.warn("entryMapper: " + entryMapper);
-        if (entryMapper != null) {
-            LOGGER.warn("entryMapper class: " + entryMapper.getClass());
-        }
         this.configurationEntryService = new ConfigurationEntryService(entityManagerFactory, entryMapper);
     }
 

@@ -106,7 +106,7 @@ public class ApplicationCloudModelBuilder {
                                                 .idleUris(idleUris)
                                                 .services(getAllApplicationServices(module))
                                                 .serviceKeysToInject(getServicesKeysToInject(module))
-                                                .env(applicationEnvCloudModelBuilder.build(module, getApplicationServices(module)))
+                                                .env(applicationEnvCloudModelBuilder.build(module))
                                                 .bindingParameters(getBindingParameters(module))
                                                 .tasks(getTasks(parametersList))
                                                 .domains(getApplicationDomains(parametersList, module))

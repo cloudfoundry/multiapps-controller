@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.core.util;
 
 import java.util.function.Consumer;
 
-import org.apache.commons.lang3.Functions.FailableRunnable;
+import org.apache.commons.lang3.function.FailableRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

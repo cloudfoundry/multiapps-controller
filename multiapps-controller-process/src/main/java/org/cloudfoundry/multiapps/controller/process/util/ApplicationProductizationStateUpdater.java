@@ -11,7 +11,7 @@ public abstract class ApplicationProductizationStateUpdater {
 
     private StepLogger stepLogger;
 
-    public ApplicationProductizationStateUpdater(StepLogger stepLogger) {
+    protected ApplicationProductizationStateUpdater(StepLogger stepLogger) {
         this.stepLogger = stepLogger;
     }
 

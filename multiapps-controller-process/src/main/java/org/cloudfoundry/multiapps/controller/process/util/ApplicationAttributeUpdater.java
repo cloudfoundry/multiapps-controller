@@ -11,7 +11,7 @@ public abstract class ApplicationAttributeUpdater extends ControllerClientFacade
 
     protected final UpdateStrategy updateStrategy;
 
-    public ApplicationAttributeUpdater(Context context, UpdateStrategy updateStrategy) {
+    protected ApplicationAttributeUpdater(Context context, UpdateStrategy updateStrategy) {
         super(context);
         this.updateStrategy = updateStrategy;
     }
