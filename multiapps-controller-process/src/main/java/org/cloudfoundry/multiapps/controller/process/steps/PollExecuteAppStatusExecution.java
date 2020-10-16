@@ -6,10 +6,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.ApplicationLog;
-import org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType;
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
 import org.cloudfoundry.multiapps.controller.core.helpers.ApplicationAttributes;
@@ -19,6 +15,11 @@ import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
+import com.sap.cloudfoundry.client.facade.domain.ApplicationLog.MessageType;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 public class PollExecuteAppStatusExecution implements AsyncExecution {
 

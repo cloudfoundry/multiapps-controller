@@ -5,12 +5,13 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerClientImpl;
-import org.cloudfoundry.client.lib.CloudCredentials;
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.shutdown.client.configuration.EnvironmentBasedShutdownConfiguration;
 import org.cloudfoundry.multiapps.controller.shutdown.client.configuration.ShutdownConfiguration;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudControllerClientImpl;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 public class ApplicationShutdownExecutor {
 

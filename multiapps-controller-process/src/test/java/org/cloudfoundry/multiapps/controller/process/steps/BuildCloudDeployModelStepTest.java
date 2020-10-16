@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.test.Tester.Expectation;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -32,6 +31,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 
 class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeployModelStep> {
 

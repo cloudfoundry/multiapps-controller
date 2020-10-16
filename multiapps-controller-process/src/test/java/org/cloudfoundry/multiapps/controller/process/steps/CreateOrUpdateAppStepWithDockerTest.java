@@ -8,11 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.domain.DockerInfo;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableDockerCredentials;
-import org.cloudfoundry.client.lib.domain.ImmutableDockerInfo;
 import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
@@ -21,7 +16,13 @@ import org.flowable.engine.ProcessEngine;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerCredentials;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerInfo;
 
 class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBaseTest {
 

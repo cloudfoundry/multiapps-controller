@@ -9,15 +9,16 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
-import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudEntity;
-import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
-import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.core.security.serialization.SecureSerialization;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.springframework.http.HttpStatus;
+
+import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceBinding;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 
 public class ApplicationServicesUpdater extends ControllerClientFacade {
 

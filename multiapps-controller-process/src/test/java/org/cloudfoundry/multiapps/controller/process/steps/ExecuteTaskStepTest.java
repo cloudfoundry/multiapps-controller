@@ -8,14 +8,15 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import org.cloudfoundry.client.lib.domain.CloudTask;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
 import org.cloudfoundry.multiapps.common.test.GenericArgumentMatcher;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudTask;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudTask;
 
 class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
 

@@ -25,14 +25,6 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
-import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudBuild;
-import org.cloudfoundry.client.lib.domain.CloudPackage;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudBuild;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudPackage;
-import org.cloudfoundry.client.lib.domain.ImmutableDropletInfo;
-import org.cloudfoundry.client.lib.domain.Status;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -54,6 +46,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
+
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.CloudBuild;
+import com.sap.cloudfoundry.client.facade.domain.CloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudBuild;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDropletInfo;
+import com.sap.cloudfoundry.client.facade.domain.Status;
 
 class UploadAppStepGeneralTest extends SyncFlowableStepTest<UploadAppStep> {
 

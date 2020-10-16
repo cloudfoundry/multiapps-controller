@@ -10,10 +10,6 @@ import java.util.stream.Collectors;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
-import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
@@ -22,6 +18,11 @@ import org.cloudfoundry.multiapps.controller.core.util.MethodExecution;
 import org.cloudfoundry.multiapps.controller.core.util.UserMessageLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceOffering;
+import com.sap.cloudfoundry.client.facade.domain.CloudServicePlan;
 
 public class ServiceWithAlternativesCreator {
 

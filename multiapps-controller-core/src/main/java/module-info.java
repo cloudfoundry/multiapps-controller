@@ -38,7 +38,7 @@ open module org.cloudfoundry.multiapps.controller.core {
     exports org.cloudfoundry.multiapps.controller.core.validators.parameters.v2;
     exports org.cloudfoundry.multiapps.controller.core.validators.parameters.v3;
 
-    requires transitive org.cloudfoundry.client.lib;
+    requires transitive com.sap.cloudfoundry.client.facade;
     requires transitive java.persistence;
     requires transitive org.cloudfoundry.multiapps.controller.client;
     requires transitive org.cloudfoundry.multiapps.controller.persistence;

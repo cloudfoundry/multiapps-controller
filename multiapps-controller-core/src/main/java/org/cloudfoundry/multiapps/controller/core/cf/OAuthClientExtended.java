@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.core.cf;
 import java.net.URL;
 import java.text.MessageFormat;
 
-import org.cloudfoundry.client.lib.oauth2.OAuthClient;
 import org.cloudfoundry.multiapps.controller.client.util.TokenProperties;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
@@ -11,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
 
 public class OAuthClientExtended extends OAuthClient {
 

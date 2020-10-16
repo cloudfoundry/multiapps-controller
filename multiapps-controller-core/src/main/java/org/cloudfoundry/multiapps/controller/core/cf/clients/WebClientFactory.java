@@ -2,9 +2,10 @@ package org.cloudfoundry.multiapps.controller.core.cf.clients;
 
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.util.RestUtil;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.util.RestUtil;
 
 @Named
 public class WebClientFactory {

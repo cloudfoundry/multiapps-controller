@@ -5,22 +5,20 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.domain.CloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudPackage;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.RestartParameters;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStartupState;
 import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStartupStateCalculator;
-import org.cloudfoundry.multiapps.controller.core.cf.apps.ApplicationStateAction;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
-import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudPackage;
 
 public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
     extends SyncFlowableStepTest<DetermineDesiredStateAchievingActionsStep> {

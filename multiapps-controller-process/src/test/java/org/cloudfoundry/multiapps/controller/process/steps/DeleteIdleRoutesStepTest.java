@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -27,6 +26,7 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRoutesStep> {
 

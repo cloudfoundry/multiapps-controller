@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 public class CFOptimizedEventGetter extends CustomControllerClient {
 

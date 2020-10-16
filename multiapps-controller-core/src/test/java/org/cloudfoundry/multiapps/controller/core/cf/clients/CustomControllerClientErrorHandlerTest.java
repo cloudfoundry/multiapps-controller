@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.stream.Stream;
 
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientCloudOperationExecutor;
 import org.junit.jupiter.api.Assertions;
@@ -16,6 +15,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
+
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 class CustomControllerClientErrorHandlerTest {
 

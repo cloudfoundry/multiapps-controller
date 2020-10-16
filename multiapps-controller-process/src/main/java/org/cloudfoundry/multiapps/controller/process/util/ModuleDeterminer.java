@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.model.DeployedMtaApplication;
@@ -11,6 +10,8 @@ import org.cloudfoundry.multiapps.mta.handlers.HandlerFactory;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Module;
 import org.immutables.value.Value;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 @Value.Immutable
 public abstract class ModuleDeterminer {

@@ -2,7 +2,7 @@ package org.cloudfoundry.multiapps.controller.client.uaa;
 
 import java.net.URL;
 
-import org.cloudfoundry.client.lib.util.RestUtil;
+import com.sap.cloudfoundry.client.facade.util.RestUtil;
 
 public class UAAClientFactory {
 

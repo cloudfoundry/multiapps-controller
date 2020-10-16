@@ -7,9 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.domain.CloudDomain;
-import org.cloudfoundry.client.lib.domain.CloudInfo;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.multiapps.controller.core.helpers.CredentialsGenerator;
 import org.cloudfoundry.multiapps.controller.core.test.DescriptorTestUtil;
 import org.cloudfoundry.multiapps.controller.process.util.ReadOnlyParametersChecker;
@@ -18,6 +15,10 @@ import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.VersionRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
+import com.sap.cloudfoundry.client.facade.domain.CloudInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 
 public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableStepTest<CollectSystemParametersStep> {
 

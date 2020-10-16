@@ -6,8 +6,9 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
-import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 public class ApplicationURI {
 

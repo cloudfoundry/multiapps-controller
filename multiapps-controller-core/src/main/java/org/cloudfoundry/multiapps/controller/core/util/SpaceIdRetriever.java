@@ -6,11 +6,12 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 @Named
 public class SpaceIdRetriever {

@@ -11,7 +11,7 @@ import java.util.Map;
 
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 

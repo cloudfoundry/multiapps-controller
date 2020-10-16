@@ -6,9 +6,10 @@ import java.util.stream.Collectors;
 
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.multiapps.controller.core.util.LogsOffset;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.ApplicationLog;
 
 @Named
 public class RecentLogsRetriever {

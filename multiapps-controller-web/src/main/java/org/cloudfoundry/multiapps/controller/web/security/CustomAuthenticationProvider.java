@@ -3,7 +3,6 @@ package org.cloudfoundry.multiapps.controller.web.security;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.multiapps.controller.client.TokenProvider;
 import org.cloudfoundry.multiapps.controller.client.util.TokenFactory;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
@@ -25,6 +24,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 @Named("customAuthenticationProvider")
 public class CustomAuthenticationProvider implements AuthenticationProvider {

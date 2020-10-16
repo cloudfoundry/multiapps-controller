@@ -6,10 +6,11 @@ import java.util.List;
 
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 @Named("restartServiceBrokerSubscriberStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

@@ -15,14 +15,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.collections4.ListUtils;
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudOrganization;
-import org.cloudfoundry.client.lib.domain.CloudSpace;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudOrganization;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudSpace;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -57,6 +49,15 @@ import org.cloudfoundry.multiapps.mta.resolvers.ResolverBuilder;
 import org.cloudfoundry.multiapps.mta.util.NameUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
+import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
 
 @Named("updateSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

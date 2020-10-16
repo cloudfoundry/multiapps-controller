@@ -3,10 +3,11 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.process.Messages;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 
 public class ServiceOperationUtil {
 

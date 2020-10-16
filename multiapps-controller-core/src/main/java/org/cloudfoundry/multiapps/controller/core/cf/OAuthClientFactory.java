@@ -3,12 +3,13 @@ package org.cloudfoundry.multiapps.controller.core.cf;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.oauth2.OAuthClient;
-import org.cloudfoundry.client.lib.util.RestUtil;
 import org.cloudfoundry.multiapps.controller.client.uaa.UAAClient;
 import org.cloudfoundry.multiapps.controller.core.security.token.TokenService;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
+import com.sap.cloudfoundry.client.facade.util.RestUtil;
 
 @Named
 public class OAuthClientFactory {

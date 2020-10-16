@@ -10,7 +10,6 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.cloudfoundry.client.lib.domain.CloudMetadata;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -30,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.sap.cloudfoundry.client.facade.domain.CloudMetadata;
 
 class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishConfigurationEntriesStep> {
 

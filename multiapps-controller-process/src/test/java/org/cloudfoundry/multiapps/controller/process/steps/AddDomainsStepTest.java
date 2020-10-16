@@ -5,13 +5,14 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.ListUtils;
-import org.cloudfoundry.client.lib.domain.CloudDomain;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudDomain;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudDomain;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudDomain;
 
 class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
 

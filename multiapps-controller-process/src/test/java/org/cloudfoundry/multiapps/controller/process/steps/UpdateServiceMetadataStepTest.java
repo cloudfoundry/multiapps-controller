@@ -5,12 +5,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudServiceInstanceExtended;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
+
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 
 class UpdateServiceMetadataStepTest extends SyncFlowableStepTest<UpdateServiceMetadataStep> {
 

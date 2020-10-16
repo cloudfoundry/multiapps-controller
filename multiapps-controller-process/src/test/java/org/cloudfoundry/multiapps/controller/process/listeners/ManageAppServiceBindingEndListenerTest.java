@@ -5,8 +5,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.stream.Stream;
 
-import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.process.flowable.FlowableFacade;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
@@ -21,6 +19,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
 
 class ManageAppServiceBindingEndListenerTest {
 

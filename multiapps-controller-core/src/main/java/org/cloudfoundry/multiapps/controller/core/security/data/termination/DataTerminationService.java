@@ -9,8 +9,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.CloudControllerClientImpl;
-import org.cloudfoundry.client.lib.CloudCredentials;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.api.model.Operation;
 import org.cloudfoundry.multiapps.controller.core.Messages;
@@ -28,6 +26,9 @@ import org.cloudfoundry.multiapps.controller.persistence.services.OperationServi
 import org.cloudfoundry.multiapps.mta.model.AuditableConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClientImpl;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 
 @Named
 public class DataTerminationService {

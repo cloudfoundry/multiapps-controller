@@ -5,7 +5,7 @@ open module org.cloudfoundry.multiapps.controller.shutdown.client {
 
     requires transitive org.cloudfoundry.multiapps.controller.core;
 
-    requires org.cloudfoundry.client.lib;
+    requires com.sap.cloudfoundry.client.facade;
     requires com.fasterxml.jackson.annotation;
     requires org.apache.httpcomponents.httpclient;
     requires org.apache.httpcomponents.httpcore;

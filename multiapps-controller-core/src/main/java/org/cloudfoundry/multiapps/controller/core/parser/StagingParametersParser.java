@@ -3,11 +3,12 @@ package org.cloudfoundry.multiapps.controller.core.parser;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.domain.DockerInfo;
-import org.cloudfoundry.client.lib.domain.ImmutableStaging;
-import org.cloudfoundry.client.lib.domain.Staging;
 import org.cloudfoundry.multiapps.controller.core.model.SupportedParameters;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
+
+import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableStaging;
+import com.sap.cloudfoundry.client.facade.domain.Staging;
 
 public class StagingParametersParser implements ParametersParser<Staging> {
 

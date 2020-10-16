@@ -3,12 +3,13 @@ package org.cloudfoundry.multiapps.controller.core.cf.metadata.util;
 import java.util.List;
 import java.util.Set;
 
-import org.cloudfoundry.client.lib.domain.CloudEntity;
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.v3.Metadata;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataAnnotations;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.MtaMetadataLabels;
 import org.springframework.util.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudEntity;
 
 public class MtaMetadataUtil {
 

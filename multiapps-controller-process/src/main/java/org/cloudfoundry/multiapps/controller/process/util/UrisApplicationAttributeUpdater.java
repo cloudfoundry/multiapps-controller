@@ -4,9 +4,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.util.ElementUpdater.UpdateStrategy;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 public class UrisApplicationAttributeUpdater extends ApplicationAttributeUpdater {
 

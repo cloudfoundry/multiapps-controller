@@ -16,10 +16,6 @@ import java.util.stream.Collectors;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudOrganization;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudSpace;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.controller.api.model.ImmutableOperation;
@@ -56,6 +52,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
 
 class OperationsApiServiceImplTest {
 

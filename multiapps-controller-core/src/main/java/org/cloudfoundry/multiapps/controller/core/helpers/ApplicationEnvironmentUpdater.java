@@ -3,11 +3,12 @@ package org.cloudfoundry.multiapps.controller.core.helpers;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.common.util.MapUtil;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 public class ApplicationEnvironmentUpdater {
 

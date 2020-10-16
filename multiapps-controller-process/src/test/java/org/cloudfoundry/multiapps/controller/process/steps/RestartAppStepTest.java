@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-import org.cloudfoundry.client.lib.StartingInfo;
-import org.cloudfoundry.client.lib.domain.CloudApplication.State;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
@@ -20,6 +18,9 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import com.sap.cloudfoundry.client.facade.StartingInfo;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication.State;
 
 class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 

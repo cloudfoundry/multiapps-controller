@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.ImmutableMtaMetadata;
@@ -32,6 +31,8 @@ import org.cloudfoundry.multiapps.mta.model.VersionRule;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
+
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 class CollectSystemParametersStepTest extends CollectSystemParametersStepBaseTest {
 

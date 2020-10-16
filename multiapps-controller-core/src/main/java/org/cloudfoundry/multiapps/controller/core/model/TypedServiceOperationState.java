@@ -2,8 +2,9 @@ package org.cloudfoundry.multiapps.controller.core.model;
 
 import java.text.MessageFormat;
 
-import org.cloudfoundry.client.lib.domain.ServiceOperation;
 import org.cloudfoundry.multiapps.controller.core.Messages;
+
+import com.sap.cloudfoundry.client.facade.domain.ServiceOperation;
 
 public enum TypedServiceOperationState {
 

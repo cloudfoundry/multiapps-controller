@@ -2,12 +2,13 @@ package org.cloudfoundry.multiapps.controller.core.util;
 
 import java.util.List;
 
-import org.cloudfoundry.client.lib.domain.CloudRoute;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudDomain;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudRoute;
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudDomain;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudRoute;
 
 class UriUtilTest {
 

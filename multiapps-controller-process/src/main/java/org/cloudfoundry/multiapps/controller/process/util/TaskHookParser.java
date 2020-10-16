@@ -2,12 +2,13 @@ package org.cloudfoundry.multiapps.controller.process.util;
 
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.domain.CloudTask;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.core.parser.TaskParametersParser;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.mta.model.Hook;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudTask;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudTask;
 
 public class TaskHookParser {
 

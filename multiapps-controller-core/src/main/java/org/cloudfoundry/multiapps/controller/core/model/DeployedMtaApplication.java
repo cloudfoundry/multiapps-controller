@@ -2,11 +2,11 @@ package org.cloudfoundry.multiapps.controller.core.model;
 
 import java.util.List;
 
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableDeployedMtaApplication.class)

@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.controller.api.MtasApiService;
@@ -29,6 +28,8 @@ import org.cloudfoundry.multiapps.controller.web.Messages;
 import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.cloudfoundry.multiapps.mta.model.Version;
 import org.springframework.http.ResponseEntity;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 @Named
 public class MtasApiServiceImpl implements MtasApiService {

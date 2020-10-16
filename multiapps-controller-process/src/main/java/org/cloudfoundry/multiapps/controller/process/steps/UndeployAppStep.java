@@ -1,8 +1,9 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 public abstract class UndeployAppStep extends SyncFlowableStepWithHooks {
 

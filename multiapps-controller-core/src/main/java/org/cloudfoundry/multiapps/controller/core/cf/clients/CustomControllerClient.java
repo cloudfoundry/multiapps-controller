@@ -8,9 +8,10 @@ import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 public abstract class CustomControllerClient {
 

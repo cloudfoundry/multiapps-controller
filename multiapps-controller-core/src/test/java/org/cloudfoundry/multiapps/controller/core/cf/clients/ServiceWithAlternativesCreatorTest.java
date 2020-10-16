@@ -6,11 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.common.test.TestUtil;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
@@ -27,6 +22,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceOffering;
 
 class ServiceWithAlternativesCreatorTest {
  

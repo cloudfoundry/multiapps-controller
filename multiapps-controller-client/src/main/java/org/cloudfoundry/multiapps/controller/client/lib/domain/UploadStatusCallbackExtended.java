@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.client.lib.domain;
 
-import org.cloudfoundry.client.lib.UploadStatusCallback;
+import com.sap.cloudfoundry.client.facade.UploadStatusCallback;
 
 public interface UploadStatusCallbackExtended extends UploadStatusCallback {
 

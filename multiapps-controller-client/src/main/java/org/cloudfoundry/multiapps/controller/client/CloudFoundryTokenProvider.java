@@ -1,7 +1,8 @@
 package org.cloudfoundry.multiapps.controller.client;
 
-import org.cloudfoundry.client.lib.oauth2.OAuthClient;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+
+import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
 
 public class CloudFoundryTokenProvider implements TokenProvider {
 

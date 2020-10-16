@@ -3,10 +3,11 @@ package org.cloudfoundry.multiapps.controller.process.util;
 import java.util.List;
 import java.util.Objects;
 
-import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.DockerInfo;
-import org.cloudfoundry.client.lib.domain.Staging;
 import org.cloudfoundry.multiapps.controller.process.util.ElementUpdater.UpdateStrategy;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
+import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
+import com.sap.cloudfoundry.client.facade.domain.Staging;
 
 public class StagingApplicationAttributeUpdater extends ApplicationAttributeUpdater {
 

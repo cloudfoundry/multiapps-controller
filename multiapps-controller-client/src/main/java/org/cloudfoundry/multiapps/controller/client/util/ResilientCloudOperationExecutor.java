@@ -6,10 +6,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.collections4.SetUtils;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 public class ResilientCloudOperationExecutor extends ResilientOperationExecutor {
 

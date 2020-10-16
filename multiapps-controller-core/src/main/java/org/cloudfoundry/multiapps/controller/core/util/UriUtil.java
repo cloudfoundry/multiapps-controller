@@ -2,9 +2,10 @@ package org.cloudfoundry.multiapps.controller.core.util;
 
 import java.util.List;
 
-import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.multiapps.common.NotFoundException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudRoute;
 
 public class UriUtil {
 

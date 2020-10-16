@@ -4,7 +4,7 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.util.JsonUtil;
+import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.springframework.web.reactive.function.client.WebClient;
 
 public class UAAClient {

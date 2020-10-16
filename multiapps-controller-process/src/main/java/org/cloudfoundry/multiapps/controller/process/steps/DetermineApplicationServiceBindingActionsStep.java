@@ -6,8 +6,6 @@ import java.util.Objects;
 
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
@@ -16,6 +14,9 @@ import org.cloudfoundry.multiapps.controller.process.util.ServiceBindingParamete
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 @Named("determineApplicationServiceBindingActionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

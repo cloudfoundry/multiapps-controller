@@ -1,6 +1,6 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 public abstract class ControllerClientFacade {
 

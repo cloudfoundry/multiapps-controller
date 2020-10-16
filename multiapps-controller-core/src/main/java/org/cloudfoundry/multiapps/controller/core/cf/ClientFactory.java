@@ -1,8 +1,9 @@
 package org.cloudfoundry.multiapps.controller.core.cf;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudCredentials;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
 
 public abstract class ClientFactory {
 

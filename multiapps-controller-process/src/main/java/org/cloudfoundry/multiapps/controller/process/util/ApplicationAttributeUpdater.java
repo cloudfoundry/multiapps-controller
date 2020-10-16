@@ -1,7 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.util;
 
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.process.util.ElementUpdater.UpdateStrategy;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 public abstract class ApplicationAttributeUpdater extends ControllerClientFacade {
 

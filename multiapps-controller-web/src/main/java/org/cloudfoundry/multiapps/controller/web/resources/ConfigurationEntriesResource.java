@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.web.resources;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.helpers.MtaConfigurationPurger;
@@ -16,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 @RestController
 @RequestMapping("/rest/configuration-entries")

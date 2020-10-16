@@ -11,12 +11,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.ImmutableInstanceInfo;
-import org.cloudfoundry.client.lib.domain.ImmutableInstancesInfo;
-import org.cloudfoundry.client.lib.domain.InstanceInfo;
-import org.cloudfoundry.client.lib.domain.InstanceState;
-import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
@@ -31,6 +25,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableInstanceInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableInstancesInfo;
+import com.sap.cloudfoundry.client.facade.domain.InstanceInfo;
+import com.sap.cloudfoundry.client.facade.domain.InstanceState;
+import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
 
 class PollStartAppStatusExecutionTest {
 

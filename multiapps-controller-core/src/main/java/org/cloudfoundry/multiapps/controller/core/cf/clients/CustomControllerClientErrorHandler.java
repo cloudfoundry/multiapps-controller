@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.util.ResilientCloudOperationExecutor;
@@ -12,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
+
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 public class CustomControllerClientErrorHandler {
 

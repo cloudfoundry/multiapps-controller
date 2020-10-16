@@ -4,11 +4,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.domain.DockerCredentials;
-import org.cloudfoundry.client.lib.domain.DockerInfo;
-import org.cloudfoundry.client.lib.domain.ImmutableDockerCredentials;
-import org.cloudfoundry.client.lib.domain.ImmutableDockerInfo;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
+
+import com.sap.cloudfoundry.client.facade.domain.DockerCredentials;
+import com.sap.cloudfoundry.client.facade.domain.DockerInfo;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerCredentials;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableDockerInfo;
 
 public class DockerInfoParser implements ParametersParser<DockerInfo> {
 

@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.domain.CloudTask;
-import org.cloudfoundry.client.lib.domain.CloudTask.Limits;
-import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
 import org.cloudfoundry.multiapps.controller.core.validators.parameters.TasksValidator;
 import org.cloudfoundry.multiapps.mta.util.PropertiesUtil;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudTask;
+import com.sap.cloudfoundry.client.facade.domain.CloudTask.Limits;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudTask;
 
 public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
 

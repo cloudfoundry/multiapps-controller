@@ -4,10 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.multiapps.controller.core.util.CloudModelBuilderUtil;
 import org.cloudfoundry.multiapps.mta.model.DeploymentDescriptor;
 import org.cloudfoundry.multiapps.mta.model.Resource;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceKey;
 
 public class ServiceKeysCloudModelBuilder extends org.cloudfoundry.multiapps.controller.core.cf.v2.ServiceKeysCloudModelBuilder {
 

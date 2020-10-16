@@ -5,11 +5,12 @@ import java.util.List;
 
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.multiapps.controller.process.Messages;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudTask;
 
 @Named("prepareToExecuteTasksStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

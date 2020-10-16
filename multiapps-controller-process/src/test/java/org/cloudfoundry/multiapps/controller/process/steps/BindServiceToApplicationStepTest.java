@@ -9,8 +9,6 @@ import static org.mockito.Mockito.verify;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
@@ -18,6 +16,9 @@ import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudSer
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+
+import com.sap.cloudfoundry.client.facade.ApplicationServicesUpdateCallback;
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 class BindServiceToApplicationStepTest extends SyncFlowableStepTest<BindServiceToApplicationStep> {
 

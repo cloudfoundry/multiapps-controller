@@ -1,7 +1,8 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.core.cf.clients.RecentLogsRetriever;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 public class PollStartServiceBrokerSubscriberStatusExecution extends PollStartAppStatusExecution {
 

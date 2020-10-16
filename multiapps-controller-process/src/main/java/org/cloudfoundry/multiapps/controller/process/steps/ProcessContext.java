@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.multiapps.common.SLException;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
 import org.cloudfoundry.multiapps.controller.process.Messages;
@@ -10,6 +9,8 @@ import org.cloudfoundry.multiapps.controller.process.variables.Variable;
 import org.cloudfoundry.multiapps.controller.process.variables.VariableHandling;
 import org.cloudfoundry.multiapps.controller.process.variables.Variables;
 import org.flowable.engine.delegate.DelegateExecution;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 public class ProcessContext {
 

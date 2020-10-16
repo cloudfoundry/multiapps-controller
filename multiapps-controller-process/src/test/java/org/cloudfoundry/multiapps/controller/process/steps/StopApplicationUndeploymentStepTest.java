@@ -3,10 +3,8 @@ package org.cloudfoundry.multiapps.controller.process.steps;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 
-import java.util.Arrays;
 import java.util.List;
 
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.processor.MtaMetadataParser;
 import org.cloudfoundry.multiapps.controller.core.model.HookPhase;
 import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseBuilder;
@@ -14,6 +12,8 @@ import org.cloudfoundry.multiapps.controller.process.util.HooksPhaseGetter;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 class StopApplicationUndeploymentStepTest extends UndeployAppStepTest {
 

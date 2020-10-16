@@ -4,9 +4,10 @@ import java.util.List;
 
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.multiapps.controller.core.cf.metadata.criteria.MtaMetadataCriteria;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceInstance;
 
 @Named
 public class MtaMetadataServiceCollector implements MtaMetadataEntityCollector<CloudServiceInstance> {

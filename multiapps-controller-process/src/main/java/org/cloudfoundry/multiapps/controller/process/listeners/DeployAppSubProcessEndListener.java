@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.process.listeners;
 
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.process.Constants;
@@ -14,6 +13,8 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.ExecutionListener;
 import org.flowable.engine.impl.context.Context;
 import org.flowable.engine.runtime.Execution;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudServiceBroker;
 
 @Named("deployAppSubProcessEndListener")
 public class DeployAppSubProcessEndListener implements ExecutionListener {

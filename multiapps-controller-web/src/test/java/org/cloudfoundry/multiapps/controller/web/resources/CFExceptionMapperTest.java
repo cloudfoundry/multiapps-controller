@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.util.stream.Stream;
 
 import org.apache.ibatis.exceptions.PersistenceException;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
@@ -21,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 class CFExceptionMapperTest {
 

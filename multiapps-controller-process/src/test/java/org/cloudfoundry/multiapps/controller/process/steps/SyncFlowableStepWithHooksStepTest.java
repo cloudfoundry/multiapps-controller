@@ -1,6 +1,5 @@
 package org.cloudfoundry.multiapps.controller.process.steps;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.cloudfoundry.multiapps.controller.api.model.ProcessType;

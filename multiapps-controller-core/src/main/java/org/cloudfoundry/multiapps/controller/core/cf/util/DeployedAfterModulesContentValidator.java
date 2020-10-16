@@ -5,10 +5,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.mta.model.Module;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 
 public class DeployedAfterModulesContentValidator implements ModulesContentValidator {
 

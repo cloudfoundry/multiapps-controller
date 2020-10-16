@@ -6,16 +6,17 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudCredentials;
-import org.cloudfoundry.client.lib.domain.CloudSpace;
-import org.cloudfoundry.client.lib.oauth2.OAuthClient;
-import org.cloudfoundry.client.lib.rest.CloudControllerRestClient;
-import org.cloudfoundry.client.lib.rest.CloudControllerRestClientFactory;
-import org.cloudfoundry.client.lib.rest.ImmutableCloudControllerRestClientFactory;
 import org.cloudfoundry.multiapps.controller.client.ResilientCloudControllerClient;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+
+import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
+import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
+import com.sap.cloudfoundry.client.facade.rest.CloudControllerRestClient;
+import com.sap.cloudfoundry.client.facade.rest.CloudControllerRestClientFactory;
+import com.sap.cloudfoundry.client.facade.rest.ImmutableCloudControllerRestClientFactory;
 
 @Named
 public class CloudFoundryClientFactory extends ClientFactory {

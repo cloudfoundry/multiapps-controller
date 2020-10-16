@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.CloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.client.lib.domain.ImmutableCloudApplicationExtended;
 import org.cloudfoundry.multiapps.controller.persistence.services.FileStorageException;
@@ -20,6 +19,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
+
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudApplication;
 
 class DetermineApplicationServiceBindingActionsStepTest extends SyncFlowableStepTest<DetermineApplicationServiceBindingActionsStep> {
 

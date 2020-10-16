@@ -3,11 +3,12 @@ package org.cloudfoundry.multiapps.controller.core.helpers;
 import java.util.Collections;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.multiapps.common.ParsingException;
 import org.cloudfoundry.multiapps.common.util.JsonUtil;
 import org.cloudfoundry.multiapps.controller.core.Constants;
 import org.cloudfoundry.multiapps.controller.core.Messages;
+
+import com.sap.cloudfoundry.client.facade.domain.CloudApplication;
 
 public class ApplicationAttributes {
 

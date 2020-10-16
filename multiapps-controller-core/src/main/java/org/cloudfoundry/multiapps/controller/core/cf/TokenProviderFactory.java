@@ -3,11 +3,12 @@ package org.cloudfoundry.multiapps.controller.core.cf;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.cloudfoundry.client.lib.CloudCredentials;
-import org.cloudfoundry.client.lib.oauth2.OAuthClient;
 import org.cloudfoundry.multiapps.controller.client.CloudFoundryTokenProvider;
 import org.cloudfoundry.multiapps.controller.client.TokenProvider;
 import org.cloudfoundry.multiapps.controller.core.util.SecurityUtil;
+
+import com.sap.cloudfoundry.client.facade.CloudCredentials;
+import com.sap.cloudfoundry.client.facade.oauth2.OAuthClient;
 
 @Named
 public class TokenProviderFactory {

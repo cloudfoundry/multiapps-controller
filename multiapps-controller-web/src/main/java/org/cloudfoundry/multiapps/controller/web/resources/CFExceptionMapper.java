@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import javax.servlet.ServletException;
 
 import org.apache.ibatis.exceptions.PersistenceException;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.multiapps.common.ConflictException;
 import org.cloudfoundry.multiapps.common.ContentException;
 import org.cloudfoundry.multiapps.common.NotFoundException;
@@ -20,6 +19,8 @@ import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.sap.cloudfoundry.client.facade.CloudOperationException;
 
 @ControllerAdvice
 public class CFExceptionMapper {
