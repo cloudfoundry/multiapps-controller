@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.lm.sl</groupId>
-            <artifactId>cloudfoundry-java-client-facade</artifactId>
+            <artifactId>cloudfoundry-client-facade</artifactId>
         </dependency>
         <dependency>
             <groupId>org.cloudfoundry.multiapps</groupId>

@@ -2,7 +2,6 @@ package org.cloudfoundry.multiapps.controller.database.migration;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.Arrays;
 
 import javax.sql.DataSource;
