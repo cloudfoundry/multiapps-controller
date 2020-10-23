@@ -40,6 +40,7 @@ import com.sap.cloudfoundry.client.facade.domain.DropletInfo;
 import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 import com.sap.cloudfoundry.client.facade.domain.Upload;
+import com.sap.cloudfoundry.client.facade.domain.UserRole;
 
 public class LoggingCloudControllerClient implements CloudControllerClient {
 
@@ -426,78 +427,6 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<UUID> getSpaceAuditors() {
-        logger.debug(Messages.GETTING_SPACE_AUDITORS);
-        return delegate.getSpaceAuditors();
-    }
-
-    @Override
-    public List<UUID> getSpaceAuditors(String spaceName) {
-        logger.debug(Messages.GETTING_SPACE_AUDITORS_FOR_SPACE_0, spaceName);
-        return delegate.getSpaceAuditors(spaceName);
-    }
-
-    @Override
-    public List<UUID> getSpaceAuditors(String organizationName, String spaceName) {
-        logger.debug(Messages.GETTING_SPACE_AUDITORS_FOR_SPACE_0_IN_ORGANIZATION_1, spaceName, organizationName);
-        return delegate.getSpaceAuditors(organizationName, spaceName);
-    }
-
-    @Override
-    public List<UUID> getSpaceAuditors(UUID spaceGuid) {
-        logger.debug(Messages.GETTING_SPACE_AUDITORS_FOR_SPACE_0, spaceGuid);
-        return delegate.getSpaceAuditors(spaceGuid);
-    }
-
-    @Override
-    public List<UUID> getSpaceDevelopers() {
-        logger.debug(Messages.GETTING_SPACE_DEVELOPERS);
-        return delegate.getSpaceDevelopers();
-    }
-
-    @Override
-    public List<UUID> getSpaceDevelopers(String spaceName) {
-        logger.debug(Messages.GETTING_SPACE_DEVELOPERS_FOR_SPACE_0, spaceName);
-        return delegate.getSpaceDevelopers(spaceName);
-    }
-
-    @Override
-    public List<UUID> getSpaceDevelopers(String organizationName, String spaceName) {
-        logger.debug(Messages.GETTING_SPACE_DEVELOPERS_FOR_SPACE_0_IN_ORGANIZATION_1, spaceName, organizationName);
-        return delegate.getSpaceDevelopers(organizationName, spaceName);
-    }
-
-    @Override
-    public List<UUID> getSpaceDevelopers(UUID spaceGuid) {
-        logger.debug(Messages.GETTING_SPACE_DEVELOPERS_FOR_SPACE_0, spaceGuid);
-        return delegate.getSpaceDevelopers(spaceGuid);
-    }
-
-    @Override
-    public List<UUID> getSpaceManagers() {
-        logger.debug(Messages.GETTING_SPACE_MANAGERS);
-        return delegate.getSpaceManagers();
-    }
-
-    @Override
-    public List<UUID> getSpaceManagers(String spaceName) {
-        logger.debug(Messages.GETTING_SPACE_MANAGERS_FOR_SPACE_0, spaceName);
-        return delegate.getSpaceManagers(spaceName);
-    }
-
-    @Override
-    public List<UUID> getSpaceManagers(String organizationName, String spaceName) {
-        logger.debug(Messages.GETTING_SPACE_MANAGERS_FOR_SPACE_0_IN_ORGANIZATION_1, spaceName, organizationName);
-        return delegate.getSpaceManagers(organizationName, spaceName);
-    }
-
-    @Override
-    public List<UUID> getSpaceManagers(UUID spaceGuid) {
-        logger.debug(Messages.GETTING_SPACE_MANAGERS_FOR_SPACE_0, spaceGuid);
-        return delegate.getSpaceManagers(spaceGuid);
-    }
-
-    @Override
     public List<CloudSpace> getSpaces() {
         logger.debug(Messages.GETTING_SPACES);
         return delegate.getSpaces();
@@ -800,4 +729,9 @@ public class LoggingCloudControllerClient implements CloudControllerClient {
         return delegate.getPackagesForApplication(applicationGuid);
     }
 
+    @Override
+    public UserRole getUserRoleBySpaceGuidAndUserGuid(UUID spaceGuid, UUID userGuid) {
+        logger.debug(Messages.GETTING_ROLES_FOR_USER_0_FOR_SPACE_1, spaceGuid, userGuid);
+        return delegate.getUserRoleBySpaceGuidAndUserGuid(spaceGuid, userGuid);
+    }
 }

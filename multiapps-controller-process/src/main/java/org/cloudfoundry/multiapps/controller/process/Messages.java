@@ -494,15 +494,6 @@ public class Messages {
     public static final String GETTING_SHARED_DOMAINS = "Getting shared domains...";
     public static final String GETTING_SPACE_0 = "Getting space \"{0}\"...";
     public static final String GETTING_SPACE_IN_ORGANIZATION_0 = "Getting space \"{0}\" in organization \"{1}\"...";
-    public static final String GETTING_SPACE_AUDITORS = "Getting space auditors...";
-    public static final String GETTING_SPACE_AUDITORS_FOR_SPACE_0 = "Getting space auditors for space \"{0}\"...";
-    public static final String GETTING_SPACE_AUDITORS_FOR_SPACE_0_IN_ORGANIZATION_1 = "Getting space auditors for space \"{0}\" in organization \"{1}\"...";
-    public static final String GETTING_SPACE_DEVELOPERS = "Getting space developers...";
-    public static final String GETTING_SPACE_DEVELOPERS_FOR_SPACE_0 = "Getting space developers for space \"{0}\"...";
-    public static final String GETTING_SPACE_DEVELOPERS_FOR_SPACE_0_IN_ORGANIZATION_1 = "Getting space developers for space \"{0}\" in organization \"{1}\"...";
-    public static final String GETTING_SPACE_MANAGERS = "Getting space managers...";
-    public static final String GETTING_SPACE_MANAGERS_FOR_SPACE_0 = "Getting space managers for space \"{0}\"...";
-    public static final String GETTING_SPACE_MANAGERS_FOR_SPACE_0_IN_ORGANIZATION_1 = "Getting space managers for space \"{0}\" in organization \"{1}\"...";
     public static final String GETTING_SPACES = "Getting spaces...";
     public static final String GETTING_SPACES_IN_ORGANIZATION_0 = "Getting spaces in organization \"{0}\"...";
     public static final String GETTING_STACK_0 = "Getting stack \"{0}\"...";
@@ -556,6 +547,7 @@ public class Messages {
     public static final String DETERMINE_VCAP_SERVICES_PROPERTIES_CHANGED_FOR_APPLICATION = "Determine VCAP_SERVICES properties changed for application \"{0}\"";
     public static final String UPDATING_SERVICE_0_WITH_PLAN_1 = "Updating service plan for service \"{0}\" with new plan: \"{1}\"";
     public static final String SERVICE_PLAN_FOR_SERVICE_0_UPDATED = "Service plan for service \"{0}\" updated";
+    public static final String GETTING_ROLES_FOR_USER_0_FOR_SPACE_1 = "Getting roles for user: \"0\" for space: \"1\"";
 
     protected Messages() {
     }

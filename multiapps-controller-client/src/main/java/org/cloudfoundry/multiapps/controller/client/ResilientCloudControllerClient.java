@@ -41,6 +41,7 @@ import com.sap.cloudfoundry.client.facade.domain.DropletInfo;
 import com.sap.cloudfoundry.client.facade.domain.InstancesInfo;
 import com.sap.cloudfoundry.client.facade.domain.Staging;
 import com.sap.cloudfoundry.client.facade.domain.Upload;
+import com.sap.cloudfoundry.client.facade.domain.UserRole;
 import com.sap.cloudfoundry.client.facade.rest.CloudControllerRestClient;
 
 public class ResilientCloudControllerClient implements CloudControllerClient {
@@ -492,66 +493,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<UUID> getSpaceAuditors() {
-        return executeWithRetry(() -> delegate.getSpaceAuditors(), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<UUID> getSpaceAuditors(String spaceName) {
-        return executeWithRetry(() -> delegate.getSpaceAuditors(spaceName), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<UUID> getSpaceAuditors(String organizationName, String spaceName) {
-        return executeWithRetry(() -> delegate.getSpaceAuditors(organizationName, spaceName), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<UUID> getSpaceAuditors(UUID spaceGuid) {
-        return executeWithRetry(() -> delegate.getSpaceAuditors(spaceGuid), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<UUID> getSpaceDevelopers() {
-        return executeWithRetry(() -> delegate.getSpaceDevelopers(), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<UUID> getSpaceDevelopers(String spaceName) {
-        return executeWithRetry(() -> delegate.getSpaceDevelopers(spaceName), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<UUID> getSpaceDevelopers(String organizationName, String spaceName) {
-        return executeWithRetry(() -> delegate.getSpaceDevelopers(organizationName, spaceName), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<UUID> getSpaceDevelopers(UUID spaceGuid) {
-        return executeWithRetry(() -> delegate.getSpaceDevelopers(spaceGuid), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<UUID> getSpaceManagers() {
-        return executeWithRetry(() -> delegate.getSpaceManagers(), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<UUID> getSpaceManagers(String spaceName) {
-        return executeWithRetry(() -> delegate.getSpaceManagers(spaceName), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<UUID> getSpaceManagers(String organizationName, String spaceName) {
-        return executeWithRetry(() -> delegate.getSpaceManagers(organizationName, spaceName), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
-    public List<UUID> getSpaceManagers(UUID spaceGuid) {
-        return executeWithRetry(() -> delegate.getSpaceManagers(spaceGuid), HttpStatus.NOT_FOUND);
-    }
-
-    @Override
     public CloudStack getStack(String name) {
         return executeWithRetry(() -> delegate.getStack(name));
     }
@@ -583,7 +524,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
 
     @Override
     public void uploadApplication(String applicationName, Path file) {
-        executeWithRetry(() ->  delegate.uploadApplication(applicationName, file));
+        executeWithRetry(() -> delegate.uploadApplication(applicationName, file));
     }
 
     @Override
@@ -686,6 +627,11 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     @Override
     public List<CloudPackage> getPackagesForApplication(UUID applicationGuid) {
         return executeWithRetry(() -> delegate.getPackagesForApplication(applicationGuid));
+    }
+
+    @Override
+    public UserRole getUserRoleBySpaceGuidAndUserGuid(UUID spaceGuid, UUID userGuid) {
+        return executeWithRetry(() -> delegate.getUserRoleBySpaceGuidAndUserGuid(spaceGuid, userGuid));
     }
 
     private void executeWithRetry(Runnable operation, HttpStatus... statusesToIgnore) {

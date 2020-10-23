@@ -55,7 +55,7 @@ class SpaceNameBasedAuthorizationFilterTest {
         dummyUriAuthorizationFilter.ensureUserIsAuthorized(request, response);
 
         Mockito.verify(response)
-               .sendError(Mockito.eq(HttpStatus.UNAUTHORIZED.value()), Mockito.any());
+               .sendError(Mockito.eq(HttpStatus.FORBIDDEN.value()), Mockito.any());
     }
 
     private static class DummyUriAuthorizationFilter extends SpaceNameBasedAuthorizationFilter {
