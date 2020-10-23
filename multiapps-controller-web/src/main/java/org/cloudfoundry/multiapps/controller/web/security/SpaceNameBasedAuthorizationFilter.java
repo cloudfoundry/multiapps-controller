@@ -12,7 +12,6 @@ import org.cloudfoundry.multiapps.controller.web.util.SecurityContextUtil;
 import org.cloudfoundry.multiapps.controller.web.util.ServletUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 public abstract class SpaceNameBasedAuthorizationFilter implements UriAuthorizationFilter {
@@ -33,7 +32,8 @@ public abstract class SpaceNameBasedAuthorizationFilter implements UriAuthorizat
             return true;
         } catch (ResponseStatusException e) {
             logUnauthorizedRequest(request, e);
-            response.sendError(HttpStatus.UNAUTHORIZED.value(),
+            response.sendError(e.getStatus()
+                                .value(),
                                MessageFormat.format(Messages.NOT_AUTHORIZED_TO_OPERATE_IN_ORGANIZATION_0_AND_SPACE_1,
                                                     target.getOrganizationName(), target.getSpaceName()));
             return false;

@@ -1,7 +1,6 @@
 package org.cloudfoundry.multiapps.controller.web.security;
 
 import java.text.MessageFormat;
-import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -13,7 +12,6 @@ import org.cloudfoundry.multiapps.controller.client.util.TokenFactory;
 import org.cloudfoundry.multiapps.controller.core.Messages;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
-import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
 import org.cloudfoundry.multiapps.controller.core.model.CachedMap;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
@@ -25,12 +23,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
+import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
+import com.sap.cloudfoundry.client.facade.domain.UserRole;
 
 @Named
 public class AuthorizationChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationChecker.class);
-    private CachedMap<UUID, List<UUID>> spaceDevelopersCache = null;
+    private CachedMap<SpaceWithUser, UserRole> userRolesCache = null;
 
     private final CloudControllerClientProvider clientProvider;
     private final ApplicationConfiguration applicationConfiguration;
@@ -43,11 +43,11 @@ public class AuthorizationChecker {
     }
 
     private synchronized void initSpaceDevelopersCache() {
-        if (spaceDevelopersCache != null) {
+        if (userRolesCache != null) {
             return;
         }
         Integer cacheExpirationInSeconds = applicationConfiguration.getSpaceDeveloperCacheExpirationInSeconds();
-        spaceDevelopersCache = new CachedMap<>(cacheExpirationInSeconds);
+        userRolesCache = new CachedMap<>(cacheExpirationInSeconds);
     }
 
     public void ensureUserIsAuthorized(HttpServletRequest request, UserInfo userInfo, CloudTarget target, String action) {
@@ -88,7 +88,8 @@ public class AuthorizationChecker {
         CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName());
         UUID userGuid = UUID.fromString(userInfo.getId());
         // TODO and some more cpu time in hasPermissions
-        return hasPermissions(client, userGuid, orgName, spaceName, readOnly) && hasAccess(client, orgName, spaceName);
+        CloudSpace space = client.getSpace(orgName, spaceName);
+        return hasPermissions(client, getSpaceWithUser(userGuid, space.getGuid()), readOnly);
     }
 
     boolean checkPermissions(UserInfo userInfo, String spaceId, boolean readOnly) {
@@ -98,7 +99,7 @@ public class AuthorizationChecker {
         UUID spaceGuid = convertSpaceIdToUUID(spaceId);
         CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName());
         UUID userGuid = UUID.fromString(userInfo.getId());
-        return hasPermissions(client, userGuid, spaceGuid, readOnly);
+        return hasPermissions(client, getSpaceWithUser(userGuid, spaceGuid), readOnly);
     }
 
     private UUID convertSpaceIdToUUID(String spaceId) {
@@ -111,58 +112,35 @@ public class AuthorizationChecker {
         return spaceGuid;
     }
 
-    private boolean hasPermissions(CloudControllerClient client, UUID userGuid, UUID spaceGuid, boolean readOnly) {
-        if (isUserInSpaceDevelopersUsingCache(client, userGuid, spaceGuid)) {
+    private boolean hasPermissions(CloudControllerClient client, SpaceWithUser spaceWithUser, boolean readOnly) {
+        if (isSpaceDeveloperUsingCache(client, spaceWithUser)) {
             return true;
         }
-        if (isUserInSpaceDevelopersAfterCacheRefresh(client, userGuid, spaceGuid)) {
+        UserRole userRole = refreshUserRole(client, spaceWithUser);
+        if (hasActiveRole(userRole, UserRole.SpaceRole.SPACE_DEVELOPER)) {
             return true;
         }
-
-        if (readOnly) {
-            return isUserInSpaceAuditors(client, userGuid, spaceGuid) || isUserInSpaceManagers(client, userGuid, spaceGuid);
-        }
-        return false;
+        return readOnly
+            && (hasActiveRole(userRole, UserRole.SpaceRole.SPACE_AUDITOR) || hasActiveRole(userRole, UserRole.SpaceRole.SPACE_MANAGER));
     }
 
-    private boolean isUserInSpaceAuditors(CloudControllerClient client, UUID userGuid, UUID spaceGuid) {
-        return client.getSpaceAuditors(spaceGuid)
-                     .contains(userGuid);
+    private SpaceWithUser getSpaceWithUser(UUID userGuid, UUID spaceGuid) {
+        return new SpaceWithUser(userGuid, spaceGuid);
     }
 
-    private boolean isUserInSpaceManagers(CloudControllerClient client, UUID userGuid, UUID spaceGuid) {
-        return client.getSpaceManagers(spaceGuid)
-                     .contains(userGuid);
+    private boolean isSpaceDeveloperUsingCache(CloudControllerClient client, SpaceWithUser spaceWithUser) {
+        UserRole userRole = userRolesCache.get(spaceWithUser, () -> client.getUserRoleBySpaceGuidAndUserGuid(spaceWithUser.getSpaceGuid(),
+                                                                                                             spaceWithUser.getUserGuid()));
+        return hasActiveRole(userRole, UserRole.SpaceRole.SPACE_DEVELOPER);
     }
 
-    private boolean isUserInSpaceDevelopersUsingCache(CloudControllerClient client, UUID userGuid, UUID spaceGuid) {
-        return spaceDevelopersCache.get(spaceGuid, () -> client.getSpaceDevelopers(spaceGuid))
-                                   .contains(userGuid);
+    private boolean hasActiveRole(UserRole userRole, UserRole.SpaceRole spaceRole) {
+        return userRole.isActive() && userRole.hasSpaceRole(spaceRole);
     }
 
-    private boolean isUserInSpaceDevelopersAfterCacheRefresh(CloudControllerClient client, UUID userGuid, UUID spaceGuid) {
-        return spaceDevelopersCache.forceRefresh(spaceGuid, () -> client.getSpaceDevelopers(spaceGuid))
-                                   .contains(userGuid);
-    }
-
-    private boolean hasPermissions(CloudControllerClient client, UUID userGuid, String orgName, String spaceName, boolean readOnly) {
-        if (client.getSpaceDevelopers(orgName, spaceName)
-                  .contains(userGuid)) {
-            return true;
-        }
-        if (readOnly) {
-            if (client.getSpaceAuditors(orgName, spaceName)
-                      .contains(userGuid)) {
-                return true;
-            }
-            return client.getSpaceManagers(orgName, spaceName)
-                         .contains(userGuid);
-        }
-        return false;
-    }
-
-    private boolean hasAccess(CloudControllerClient client, String orgName, String spaceName) {
-        return client.getSpace(orgName, spaceName, false) != null;
+    private UserRole refreshUserRole(CloudControllerClient client, SpaceWithUser spaceWithUser) {
+        return userRolesCache.forceRefresh(spaceWithUser, () -> client.getUserRoleBySpaceGuidAndUserGuid(spaceWithUser.getSpaceGuid(),
+                                                                                                         spaceWithUser.getUserGuid()));
     }
 
     private boolean hasAdminScope(UserInfo userInfo) {
@@ -188,9 +166,5 @@ public class AuthorizationChecker {
         AuditLoggingProvider.getFacade()
                             .logSecurityIncident(message);
         throw new ResponseStatusException(status, message);
-    }
-
-    public ClientHelper getClientHelper(CloudControllerClient client) {
-        return new ClientHelper(client);
     }
 }

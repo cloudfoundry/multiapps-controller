@@ -2,10 +2,8 @@ package org.cloudfoundry.multiapps.controller.web.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -15,10 +13,8 @@ import java.util.stream.Stream;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingFacade;
 import org.cloudfoundry.multiapps.controller.core.auditlogging.AuditLoggingProvider;
 import org.cloudfoundry.multiapps.controller.core.cf.CloudControllerClientProvider;
-import org.cloudfoundry.multiapps.controller.core.helpers.ClientHelper;
 import org.cloudfoundry.multiapps.controller.core.util.ApplicationConfiguration;
 import org.cloudfoundry.multiapps.controller.core.util.UserInfo;
-import org.cloudfoundry.multiapps.controller.persistence.model.CloudTarget;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,7 +24,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.web.client.HttpClientErrorException;
@@ -37,177 +32,153 @@ import org.springframework.web.server.ResponseStatusException;
 import com.sap.cloudfoundry.client.facade.CloudControllerClient;
 import com.sap.cloudfoundry.client.facade.domain.CloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.CloudSpace;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudMetadata;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudOrganization;
 import com.sap.cloudfoundry.client.facade.domain.ImmutableCloudSpace;
+import com.sap.cloudfoundry.client.facade.domain.ImmutableUserRole;
+import com.sap.cloudfoundry.client.facade.domain.UserRole;
 
 class AuthorizationCheckerTest {
 
-    private UserInfo userInfo;
     private static final String ORG = "org";
     private static final String SPACE = "space";
-    private static final UUID USER_ID = UUID.fromString("8e44f008-9b07-3e18-a718-eb9ca3d94674");
     private static final String USERNAME = "userName";
-    private static final String SPACE_ID = "a72df2e8-b06c-44b2-a8fa-5cadb0239573";
-    private static final String SECOND_SPACE_ID = "a72df2e8-b06c-44b2-a8fa-00001234abcd";
-    private static final String THIRD_SPACE_ID = "1234f2e8-b06c-44b2-a8fa-000012344321";
+    private static final UUID USER_ID = UUID.randomUUID();
+    private static final UUID SPACE_ID = UUID.randomUUID();
 
-    @Mock
-    private CloudControllerClientProvider clientProvider;
     @Mock
     private CloudControllerClient client;
     @Mock
+    private CloudControllerClientProvider clientProvider;
+    @Mock
     private ApplicationConfiguration applicationConfiguration;
-    @Spy
     @InjectMocks
     private AuthorizationChecker authorizationChecker;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this)
+                          .close();
     }
 
-    static Stream<Arguments> checkPermissionsTest() {
+    static Stream<Arguments> checkPermissionsUsingNamesTest() {
         return Stream.of(
-                         // (0) User has access
-                         Arguments.of(true, true),
-                         // (1) User has access but no permissions
-                         Arguments.of(true, false),
-                         // (2) User has permissions but no access
-                         Arguments.of(false, true),
-                         // (3) User has no permissions and no access
-                         Arguments.of(false, false));
+                         // (0) User has a space developer role and has access
+                         Arguments.of(List.of(UserRole.SpaceRole.SPACE_DEVELOPER), true),
+                         // (1) User does not have any roles and has access
+                         Arguments.of(Collections.emptyList(), false),
+                         // (2) User does not have any roles and no access
+                         Arguments.of(Collections.emptyList(), false));
     }
 
-    static Stream<Arguments> checkPermissionTest2() {
+    static Stream<Arguments> checkPermissionUsingGuidsTest() {
         return Stream.of(
-                         // (0) User has access
-                         Arguments.of(true, true),
-                         // (1) User has access but no permissions
-                         // Arguments.of(true, false),
-                         // (3) User has permissions but no access
-                         Arguments.of(false, true));
-        // (4) User has no permissions and no access
-        // Arguments.of(false, false));
+                         // (0) User has a space developer role and executes a non read-only request
+                         Arguments.of(List.of(UserRole.SpaceRole.SPACE_DEVELOPER), false, true),
+                         // (1) User does not have any roles and executes a non read-only request
+                         Arguments.of(Collections.emptyList(), false, false),
+                         // (2) User does not have any roles and executes a read-only request
+                         Arguments.of(Collections.emptyList(), true, false),
+                         // (3) User has a space auditor role and executes a non read-only request
+                         Arguments.of(List.of(UserRole.SpaceRole.SPACE_AUDITOR), false, false),
+                         // (4) User has a space manager role and executes a non read-only request
+                         Arguments.of(List.of(UserRole.SpaceRole.SPACE_MANAGER), false, false),
+                         // (5) User has a space auditor role and executes a read-only request
+                         Arguments.of(List.of(UserRole.SpaceRole.SPACE_AUDITOR), true, true),
+                         // (6) User has a space manager role and executes a read-only request
+                         Arguments.of(List.of(UserRole.SpaceRole.SPACE_MANAGER), true, true),
+                         // (7) User has a space developer role and executes a read-only request
+                         Arguments.of(List.of(UserRole.SpaceRole.SPACE_DEVELOPER), true, true));
     }
 
     @ParameterizedTest
     @MethodSource
-    void checkPermissionsTest(boolean hasPermissions, boolean hasAccess) {
-        setUpMocks(hasPermissions, hasAccess, null);
-
-        boolean isAuthorized = authorizationChecker.checkPermissions(userInfo, ORG, SPACE, false);
-        boolean shouldBeAuthorized = hasAccess && hasPermissions;
+    void checkPermissionsUsingNamesTest(List<UserRole.SpaceRole> spaceRoles, boolean shouldBeAuthorized) {
+        setUpMocks(spaceRoles, null);
+        mockSpace();
+        boolean isAuthorized = authorizationChecker.checkPermissions(getUserInfo(), ORG, SPACE, false);
         assertEquals(shouldBeAuthorized, isAuthorized);
     }
 
     @Test
     void checkPermissionsWithExceptionTest() {
-        setUpMocks(true, true, new HttpClientErrorException(HttpStatus.BAD_REQUEST));
-        assertThrows(Exception.class, () -> authorizationChecker.checkPermissions(userInfo, ORG, SPACE, false));
+        setUpMocks(List.of(UserRole.SpaceRole.SPACE_DEVELOPER), new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+        assertThrows(Exception.class, () -> authorizationChecker.checkPermissions(getUserInfo(), ORG, SPACE, false));
     }
 
     @ParameterizedTest
     @MethodSource
-    void checkPermissionTest2(boolean hasPermissions, boolean hasAccess) {
-        setUpMocks(hasPermissions, hasAccess, null);
-        boolean isAuthorized = authorizationChecker.checkPermissions(userInfo, SPACE_ID, false);
-        boolean shouldBeAuthorized = hasAccess && hasPermissions;
+    void checkPermissionUsingGuidsTest(List<UserRole.SpaceRole> spaceRoles, boolean isReadOnly, boolean shouldBeAuthorized) {
+        setUpMocks(spaceRoles, null);
+        boolean isAuthorized = authorizationChecker.checkPermissions(getUserInfo(), SPACE_ID.toString(), isReadOnly);
         assertEquals(shouldBeAuthorized, isAuthorized);
     }
 
     @Test
     void checkPermissionsWithExceptionTest2() {
-        setUpMocks(true, true, new HttpClientErrorException(HttpStatus.BAD_REQUEST));
-        assertThrows(Exception.class, () -> authorizationChecker.checkPermissions(userInfo, SPACE_ID, false));
-    }
-
-    @Test
-    void testSpaceDevelopersCache() {
-        setUpMocks(true, true, null);
-        when(client.getSpaceDevelopers(UUID.fromString(SPACE_ID))).thenReturn(Collections.singletonList(USER_ID));
-        when(client.getSpaceDevelopers(UUID.fromString(SECOND_SPACE_ID))).thenReturn(Collections.singletonList(USER_ID));
-
-        assertTrue(authorizationChecker.checkPermissions(userInfo, SPACE_ID, false));
-        Mockito.verify(client, Mockito.times(1))
-               .getSpaceDevelopers(Mockito.eq(UUID.fromString(SPACE_ID)));
-
-        assertTrue(authorizationChecker.checkPermissions(userInfo, SPACE_ID, false));
-        Mockito.verify(client, Mockito.times(1))
-               .getSpaceDevelopers(Mockito.eq(UUID.fromString(SPACE_ID)));
-
-        assertTrue(authorizationChecker.checkPermissions(userInfo, SECOND_SPACE_ID, false));
-        Mockito.verify(client, Mockito.times(1))
-               .getSpaceDevelopers(Mockito.eq(UUID.fromString(SPACE_ID)));
-        Mockito.verify(client, Mockito.times(1))
-               .getSpaceDevelopers(Mockito.eq(UUID.fromString(SECOND_SPACE_ID)));
-    }
-
-    @Test
-    void testSpaceDevelopersCacheNegativeResult() {
-        setUpMocks(true, true, null);
-        when(client.getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)))).thenReturn(Collections.singletonList(USER_ID));
-
-        assertTrue(authorizationChecker.checkPermissions(userInfo, THIRD_SPACE_ID, false));
-        Mockito.verify(client, Mockito.times(1))
-               .getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)));
-
-        UUID newUserId = UUID.fromString("6c02b5bc-b9b1-38d7-b332-1dfdb2ba85a0");
-        UserInfo negativeUser = new UserInfo(newUserId.toString(), "newUser", userInfo.getToken());
-        when(client.getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)))).thenReturn(List.of(USER_ID, newUserId));
-        when(clientProvider.getControllerClient(negativeUser.getName())).thenReturn(client);
-
-        assertTrue(authorizationChecker.checkPermissions(negativeUser, THIRD_SPACE_ID, false));
-        Mockito.verify(client, Mockito.times(2))
-               .getSpaceDevelopers(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)));
+        setUpMocks(List.of(UserRole.SpaceRole.SPACE_DEVELOPER), new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+        assertThrows(Exception.class, () -> authorizationChecker.checkPermissions(getUserInfo(), SPACE_ID.toString(), false));
     }
 
     @Test
     void testCheckPermissionsWithNonUUIDSpaceIDString() {
-        setUpMocks(true, true, null);
+        setUpMocks(List.of(UserRole.SpaceRole.SPACE_DEVELOPER), null);
         AuditLoggingFacade mockAuditLoggingFacade = Mockito.mock(AuditLoggingFacade.class);
         AuditLoggingProvider.setFacade(mockAuditLoggingFacade);
-
+        UserInfo userInfo = getUserInfo();
         ResponseStatusException resultException = assertThrows(ResponseStatusException.class,
                                                                () -> authorizationChecker.checkPermissions(userInfo, "non-uuid-spaceId",
                                                                                                            true));
         assertEquals(HttpStatus.NOT_FOUND, resultException.getStatus());
     }
 
-    private void setUpMocks(boolean hasPermissions, boolean hasAccess, Exception e) {
+    private void setUpMocks(List<UserRole.SpaceRole> spaceRoles, Exception exception) {
+        UserRole userRole = getUserRole(true, spaceRoles);
+        when(client.getUserRoleBySpaceGuidAndUserGuid(SPACE_ID, USER_ID)).thenReturn(userRole);
+        setUpException(exception);
+        when(clientProvider.getControllerClient(getUserInfo().getName())).thenReturn(client);
+        when(applicationConfiguration.getFssCacheUpdateTimeoutMinutes()).thenReturn(ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
+    }
+
+    private void setUpException(Exception exception) {
+        if (exception != null) {
+            when(client.getSpace(ORG, SPACE)).thenThrow(exception);
+            when(client.getUserRoleBySpaceGuidAndUserGuid(SPACE_ID, USER_ID)).thenThrow(exception);
+        }
+    }
+
+    private void mockSpace() {
+        CloudOrganization organization = getOrganization();
+        when(client.getSpace(ORG, SPACE)).thenReturn(getCloudSpace(organization));
+    }
+
+    private ImmutableCloudOrganization getOrganization() {
+        return ImmutableCloudOrganization.builder()
+                                         .name(ORG)
+                                         .build();
+    }
+
+    private CloudSpace getCloudSpace(CloudOrganization organization) {
+        return ImmutableCloudSpace.builder()
+                                  .metadata(ImmutableCloudMetadata.builder()
+                                                                  .guid(SPACE_ID)
+                                                                  .build())
+                                  .name(SPACE)
+                                  .organization(organization)
+                                  .build();
+    }
+
+    private UserRole getUserRole(boolean isActive, List<UserRole.SpaceRole> spaceRoles) {
+        return ImmutableUserRole.builder()
+                                .isActive(isActive)
+                                .spaceRoles(spaceRoles)
+                                .build();
+    }
+
+    private UserInfo getUserInfo() {
         DefaultOAuth2AccessToken accessToken = new DefaultOAuth2AccessToken("testTokenValue");
         accessToken.setScope(new HashSet<>());
-        CloudOrganization organization = ImmutableCloudOrganization.builder()
-                                                                   .name(ORG)
-                                                                   .build();
-        CloudSpace space = ImmutableCloudSpace.builder()
-                                              .name(SPACE)
-                                              .organization(organization)
-                                              .build();
-        ClientHelper clientHelper = Mockito.mock(ClientHelper.class);
-
-        if (hasAccess) {
-            when(client.getSpace(ORG, SPACE, false)).thenReturn(space);
-            when(clientHelper.computeTarget(SPACE_ID)).thenReturn(new CloudTarget(ORG, SPACE));
-        } else {
-            when(clientHelper.computeTarget(SPACE_ID)).thenReturn(null);
-        }
-        when(authorizationChecker.getClientHelper(client)).thenReturn(clientHelper);
-        userInfo = new UserInfo(USER_ID.toString(), USERNAME, accessToken);
-        List<UUID> spaceDevelopersList = new ArrayList<>();
-        if (hasPermissions) {
-            spaceDevelopersList.add(USER_ID);
-        }
-
-        if (e == null) {
-            when(client.getSpaceDevelopers(ORG, SPACE)).thenReturn(spaceDevelopersList);
-            when(client.getSpaceDevelopers(UUID.fromString(SPACE_ID))).thenReturn(spaceDevelopersList);
-        } else {
-            when(client.getSpaceDevelopers(ORG, SPACE)).thenThrow(e);
-            when(client.getSpaceDevelopers(UUID.fromString(SPACE_ID))).thenThrow(e);
-        }
-
-        when(clientProvider.getControllerClient(userInfo.getName())).thenReturn(client);
-        when(applicationConfiguration.getFssCacheUpdateTimeoutMinutes()).thenReturn(ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
+        return new UserInfo(USER_ID.toString(), USERNAME, accessToken);
     }
 
 }
